@@ -311,23 +311,21 @@ describe("structured-table / interaction-surface — props-driven descriptors", 
     expect(html).toContain("Append a path entry");
     // The title heads the panel as written (no title-casing).
     expect(html).toContain("File-tree block surface");
-    // The signature is colorized token-by-token (data-sig-token spans) and
-    // rendered code-block-like: `name(` opening line with the REAL dotted
-    // name, one indented param per line (trailing commas, `?` for
-    // required: false), `) → returns` close.
-    const signatureText = html.replace(/<[^>]+>/g, "").replace(/&gt;/g, ">");
-    expect(signatureText).toContain("file-tree.addEntry(");
-    expect(signatureText).toContain("  path: string,");
-    expect(signatureText).toContain("  note?: string,");
-    expect(signatureText).toContain(") → props patch");
-    // Zero-param operations stay on one line.
-    expect(signatureText).toContain("file-tree.entries() → FileTreeEntry[]");
+    // The collapsed line is one line per operation: the real dotted name,
+    // an elided param list (`()` with no params), then `→ returns`. The name's
+    // tooltip (kind badge + purpose) is dropped here to read the visible line.
+    // Params sit in a "Parameters" card when the operation is opened.
+    const text = html
+      .replace(/<span[^>]*role="tooltip"[^>]*>.*?<\/span><\/span>(?:<span data-operation-tip-purpose[^>]*>.*?<\/span>)?<\/span>/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/&gt;/g, ">");
+    expect(text).toContain("file-tree.addEntry(…) → props patch");
+    expect(text).toContain("file-tree.entries() → FileTreeEntry[]");
+    expect(text).toContain("Parameters");
     expect(html).toContain('data-sig-token="name"');
-    // The signature renders through CodeLines rows on a code surface; the
-    // purpose sits on the operation line; the kind is a text badge.
-    expect(html).toContain("data-code-line");
     expect(html).not.toContain("data-card-shell");
-    expect(html).toContain('data-operation-purpose="true"');
+    // Kind and purpose live in the name's tooltip.
+    expect(html).toContain('data-operation-tip-purpose="true"');
     expect(html).toContain('data-operation-kind-badge="query"');
     expect(html).not.toContain("Invalid Interaction Surface block");
   });

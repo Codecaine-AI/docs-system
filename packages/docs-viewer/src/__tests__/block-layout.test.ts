@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import { DOC_BLOCK_TYPES, type DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import { getDocBlockDescriptor } from "../render/block-registry";
 import {
+  CODE_LEFT_BLOCK_LAYOUT,
   DEFAULT_DOC_BLOCK_LAYOUT,
   WIDE_LEFT_BLOCK_LAYOUT,
   docBlockLaneName,
@@ -15,6 +16,9 @@ import {
  * left to whatever a component happens to render.
  */
 
+/** The mono block types share the code lane (88ch), left-anchored. */
+const CODE_TYPES: DocBlockType[] = ["code", "pseudocode", "file-tree", "file-explorer"];
+
 /** Every shipped wide block type shares one left-anchored lane by default. */
 const WIDE_TYPES: DocBlockType[] = [
   "state-shape",
@@ -23,7 +27,6 @@ const WIDE_TYPES: DocBlockType[] = [
   "process-outline",
   "call-stack",
   "component-tree",
-  "flow-strip",
   "stack",
   "image",
   "image-grid",
@@ -35,7 +38,7 @@ const WIDE_TYPES: DocBlockType[] = [
 
 describe("per-block-type page layout", () => {
   it("defaults every unlisted block type to the text measure, left-justified", () => {
-    const laned = new Set<string>(WIDE_TYPES);
+    const laned = new Set<string>([...WIDE_TYPES, ...CODE_TYPES]);
     const textTypes = DOC_BLOCK_TYPES.filter((type) => !laned.has(type));
 
     // Sanity: the default set is the text-like blocks, not an empty list.
@@ -59,14 +62,26 @@ describe("per-block-type page layout", () => {
       if (!descriptor) throw new Error(`no descriptor for ${type}`);
       expect(descriptor.layout).toEqual(WIDE_LEFT_BLOCK_LAYOUT);
       expect(docBlockLayoutClasses(descriptor.layout)).toBe(
-        "w-full max-w-[var(--style-wide-width,1040px)] ml-0 mr-auto",
+        "w-full max-w-[var(--style-wide-width,1100px)] ml-0 mr-auto",
       );
+    }
+  });
+
+  it("puts every mono block type in the code lane, left-anchored", () => {
+    for (const type of CODE_TYPES) {
+      const descriptor = getDocBlockDescriptor(type);
+      if (!descriptor) throw new Error(`no descriptor for ${type}`);
+      expect(descriptor.layout).toEqual(CODE_LEFT_BLOCK_LAYOUT);
+      expect(docBlockLayoutClasses(descriptor.layout)).toBe(
+        "w-full max-w-[var(--style-code-width,88ch)] ml-0 mr-auto",
+      );
+      expect(docBlockLaneName(descriptor.layout)).toBe("code-left");
     }
   });
 
   it("keeps centering as an explicit opt-in instead of a shipped default", () => {
     expect(docBlockLayoutClasses({ width: "wide", justify: "center" })).toBe(
-      "w-full max-w-[var(--style-wide-width,1040px)] mx-auto",
+      "w-full max-w-[var(--style-wide-width,1100px)] mx-auto",
     );
     expect(WIDE_TYPES.every((type) => getDocBlockDescriptor(type)?.layout?.justify === "left"))
       .toBe(true);
@@ -78,7 +93,7 @@ describe("per-block-type page layout", () => {
       const descriptor = getDocBlockDescriptor(type);
       if (!descriptor) throw new Error(`no descriptor for ${type}`);
       expect(docBlockLayoutClasses(descriptor.layout)).toContain("w-full");
-      expect(docBlockLaneName(descriptor.layout)).toMatch(/^(text|wide|full|custom)-(left|center)$/);
+      expect(docBlockLaneName(descriptor.layout)).toMatch(/^(text|code|wide|full|custom)-(left|center)$/);
     }
   });
 

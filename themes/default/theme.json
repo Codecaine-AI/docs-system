@@ -25,7 +25,8 @@
     },
     "layout": {
       "contentWidth": 60,
-      "wideWidth": 1040,
+      "codeWidth": 88,
+      "wideWidth": 1100,
       "contentMargin": 88,
       "topPadding": 24,
       "titlePadding": 20,

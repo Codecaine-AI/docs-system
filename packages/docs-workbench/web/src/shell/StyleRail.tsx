@@ -67,7 +67,7 @@ export type GrainBlendMode = "auto" | "multiply" | "screen" | "overlay" | "norma
  * The named widths mirror the lane vocabulary; the `<n>px` form is the
  * custom-width escape hatch for a block type that fits neither named lane.
  */
-export type BlockLayoutWidth = "text" | "wide" | "full";
+export type BlockLayoutWidth = "text" | "code" | "wide" | "full";
 export type BlockLayoutJustify = "left" | "center";
 export type BlockLayoutOverride = {
   width?: BlockLayoutWidth | `${number}px`;
@@ -101,8 +101,8 @@ export const BLOCK_COLUMN_SPLIT_MAX = 80;
  * not. Pinned by a test.
  */
 export const BLOCK_COLUMN_SPLIT_DEFAULTS: Record<string, number> = {
-  "state-shape": 46,
-  "interaction-surface": 46,
+  "state-shape": 44,
+  "interaction-surface": 44,
 };
 
 export type StyleRailSettings = {
@@ -131,6 +131,12 @@ export type StyleRailSettings = {
   layout: {
     /** Content column max-width in ch. */
     contentWidth: number;
+    /**
+     * Code-lane max-width in ch — the measure mono blocks (code, pseudocode,
+     * file trees, file explorers) cap at: wider than prose, far narrower
+     * than the data-grid wide lane.
+     */
+    codeWidth: number;
     /**
      * Wide-lane max-width in px — the escape hatch data-heavy blocks
      * (state shapes, interaction surfaces, structured tables, process
@@ -324,7 +330,8 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   },
   layout: {
     contentWidth: 60,
-    wideWidth: 1040,
+    codeWidth: 88,
+    wideWidth: 1100,
     // The page is left-anchored and full-width, so this is the global left
     // rail every block hangs off — generous by default rather than the tight
     // gutter a centered column wanted.
@@ -553,7 +560,7 @@ export function isBlockLayoutType(file: string): boolean {
   return BLOCK_LAYOUT_TYPES.has(file);
 }
 
-const BLOCK_LAYOUT_WIDTHS: readonly BlockLayoutWidth[] = ["text", "wide", "full"];
+const BLOCK_LAYOUT_WIDTHS: readonly BlockLayoutWidth[] = ["text", "code", "wide", "full"];
 const BLOCK_LAYOUT_JUSTIFICATIONS: readonly BlockLayoutJustify[] = ["left", "center"];
 
 /** Custom lane width bounds in px — narrower than a prose measure, wider than any display. */
@@ -754,6 +761,7 @@ export function normalizeSettings(
     },
     layout: {
       contentWidth: clampNumber(layout.contentWidth ?? typography.contentWidth, 40, 140, d.layout.contentWidth),
+      codeWidth: clampNumber(layout.codeWidth, 60, 160, d.layout.codeWidth),
       wideWidth: clampNumber(layout.wideWidth, 900, 2400, d.layout.wideWidth),
       contentMargin: clampNumber(layout.contentMargin, 0, 240, d.layout.contentMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
@@ -1023,8 +1031,12 @@ export function styleRailVars(settings: StyleRailSettings): Record<string, strin
         : FONT_STACKS[typography.numberFont],
     "--style-content-width":
       layout.contentWidth === d.layout.contentWidth ? null : `${layout.contentWidth}ch`,
+    // Code lane for mono blocks, in ch like the text measure. Consumers carry
+    // the 88ch fallback inline, so the default deliberately emits nothing.
+    "--style-code-width":
+      layout.codeWidth === d.layout.codeWidth ? null : `${layout.codeWidth}ch`,
     // Wide lane for data-heavy blocks. In px because those blocks size to a
-    // grid, not to the body font's ch. Consumers carry the 1040px fallback
+    // grid, not to the body font's ch. Consumers carry the 1100px fallback
     // inline, so the default deliberately emits nothing.
     "--style-wide-width":
       layout.wideWidth === d.layout.wideWidth ? null : `${layout.wideWidth}px`,
@@ -1291,7 +1303,8 @@ export const BLOCK_LAYOUT_STYLE_ELEMENT_ID = "docs-style-rail-block-layout";
 /** Named lane widths, resolved to the same values docBlockLayoutClasses uses. */
 const BLOCK_LAYOUT_WIDTH_VALUES: Record<BlockLayoutWidth, string> = {
   text: "var(--style-content-width,60ch)",
-  wide: "var(--style-wide-width,1040px)",
+  code: "var(--style-code-width,88ch)",
+  wide: "var(--style-wide-width,1100px)",
   full: "none",
 };
 

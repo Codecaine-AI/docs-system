@@ -1,7 +1,7 @@
 "use client";
 
 import { NodeViewWrapper, type ReactNodeViewProps } from "@tiptap/react";
-import { useEffect, useId, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import { isRecord } from "../../editor/core/node-helpers";
 // The structured table swaps in this editable view INSTEAD of the shared
@@ -61,7 +61,6 @@ import {
 } from "./editor/use-add-drag";
 import { useReorderDrag, type ReorderAxis } from "./editor/use-reorder-drag";
 import { TABLE_SECTION_CLASSES } from "./table-classes";
-import { TableTitleBar } from "./table-title";
 
 /** A cell-range selection (anchor/head in grid coordinates, header row = HEADER_ROW). */
 export type TableSelection = { anchor: CellPosition; head: CellPosition };
@@ -94,6 +93,24 @@ const HANDLE_LINGER_MS = 150;
 
 const EMPTY_HOVER: TableHoverState = { hoverRow: null, hoverCol: null };
 const EMPTY_TABLE: TableData = { columns: [], rows: [] };
+
+/**
+ * When the frame scrolls, cells measured against the surface can sit outside
+ * it; furniture drawn from those rects is held to the surface's visible
+ * width so it never spills past the table into the page.
+ */
+function clampToSurface(left: number, width: number, surface: HTMLElement): number {
+  // No layout box (unlaid-out or detached surface): nothing to clamp against.
+  if (surface.clientWidth === 0) return left;
+  return Math.min(Math.max(left, 0), Math.max(surface.clientWidth - width, 0));
+}
+
+function clipToSurface(rect: Rect | null, surface: HTMLElement): Rect | null {
+  if (!rect || surface.clientWidth === 0) return rect;
+  const left = Math.max(rect.left, 0);
+  const right = Math.min(rect.left + rect.width, surface.clientWidth);
+  return right > left ? { ...rect, left, width: right - left } : null;
+}
 
 function parseTableProps(
   props: Record<string, unknown>,
@@ -170,7 +187,9 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
   const [focusedCell, setFocusedCell] = useState<CellPosition | null>(null);
   const [flash, setFlash] = useState<{ token: number; ranges: FlashRange[] } | null>(null);
 
-  const titleId = useId();
+  // Bumped on every horizontal scroll of the frame: the furniture below is
+  // measured against the surface during render, so a scroll must re-render.
+  const [, setScrollTick] = useState(0);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const cellsRef = useRef<CellRectMap>(new Map());
   const lingerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -442,8 +461,14 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
   if (showFurniture && surface && handleCol !== null) {
     const rect = cellRect(cellsRef.current, surface, HEADER_ROW, handleCol);
     if (rect) {
+      // A column scrolled partly out of the frame keeps its pill over the
+      // visible part of the surface.
       columnHandlePosition = {
-        left: rect.left + rect.width / 2 - COLUMN_HANDLE_SIZE.width / 2,
+        left: clampToSurface(
+          rect.left + rect.width / 2 - COLUMN_HANDLE_SIZE.width / 2,
+          COLUMN_HANDLE_SIZE.width,
+          surface,
+        ),
         top: HANDLE_OFFSET_CALC,
       };
     }
@@ -461,25 +486,31 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
 
   const selectionRect: Rect | null =
     showFurniture && surface && selection
-      ? unionRect(rangeRects(cellsRef.current, surface, selection.anchor, selection.head))
+      ? clipToSurface(
+          unionRect(rangeRects(cellsRef.current, surface, selection.anchor, selection.head)),
+          surface,
+        )
       : null;
 
   const dragRegionRect: Rect | null =
     showFurniture && surface && drag
-      ? unionRect(
-          drag.axis === "column"
-            ? rangeRects(
-                cellsRef.current,
-                surface,
-                { row: HEADER_ROW, col: drag.index },
-                { row: lastRow, col: drag.index },
-              )
-            : rangeRects(
-                cellsRef.current,
-                surface,
-                { row: drag.index, col: 0 },
-                { row: drag.index, col: lastCol },
-              ),
+      ? clipToSurface(
+          unionRect(
+            drag.axis === "column"
+              ? rangeRects(
+                  cellsRef.current,
+                  surface,
+                  { row: HEADER_ROW, col: drag.index },
+                  { row: lastRow, col: drag.index },
+                )
+              : rangeRects(
+                  cellsRef.current,
+                  surface,
+                  { row: drag.index, col: 0 },
+                  { row: drag.index, col: lastCol },
+                ),
+          ),
+          surface,
         )
       : null;
 
@@ -627,12 +658,12 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
         className={TABLE_SECTION_CLASSES}
         data-docs-block-type="structured-table"
         data-source-id={blockId}
-        data-table-titled={title ? "" : undefined}
       >
-        {title && <TableTitleBar id={titleId} title={title} />}
+        {/* The surface hugs the shrink-to-content frame (capped at the lane),
+            so the add bars sit on the table's own right/bottom edges. */}
         <div
           ref={surfaceRef}
-          className="relative"
+          className="relative w-fit max-w-full"
           data-structured-table-surface=""
           data-hover-row={hover.hoverRow ?? undefined}
           data-hover-col={hover.hoverCol ?? undefined}
@@ -642,7 +673,8 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
           <TableGrid
             data={data}
             editable={editor.isEditable}
-            ariaLabelledBy={title ? titleId : undefined}
+            ariaLabel={title}
+            onScroll={() => setScrollTick((tick) => tick + 1)}
             onCommitHeader={(columnIndex, value) =>
               commitData(updateHeader(dataRef.current, columnIndex, value))
             }

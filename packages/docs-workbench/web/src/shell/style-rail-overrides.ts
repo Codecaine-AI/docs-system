@@ -26,6 +26,7 @@ export type StyleRailSettingLeafPath =
   | "typography.lineHeight"
   | "typography.letterSpacing"
   | "layout.contentWidth"
+  | "layout.codeWidth"
   | "layout.wideWidth"
   | "layout.contentMargin"
   | "layout.topPadding"
@@ -192,6 +193,7 @@ const PANE_SETTING_LEAVES: Partial<
   ],
   "layout.editor": [
     "layout.contentWidth",
+    "layout.codeWidth",
     "layout.wideWidth",
     "layout.contentMargin",
     "layout.topPadding",
@@ -235,6 +237,8 @@ const PANE_COMPONENT_FILE: Partial<Record<StyleRailPaneId, string>> = {
   "blocks.process-outline": "process-outline",
   "blocks.sequence": "sequence",
   "blocks.canvas": "canvas",
+  "blocks.outline-rows": "outline-rows",
+  "blocks.stack": "stack",
   "theme.surfaces": "surfaces",
 } satisfies Record<ComponentPaneId, string>;
 

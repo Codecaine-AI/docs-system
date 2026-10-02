@@ -99,6 +99,7 @@ const EXPECTED_NAV_GROUPS = [
     items: [
       { id: "blocks.structured-table", label: "Structured table" },
       { id: "blocks.file-tree", label: "File tree" },
+      { id: "blocks.outline-rows", label: "Call stack & component tree" },
       { id: "blocks.state-shape", label: "State shape" },
       { id: "blocks.interaction-surface", label: "Interaction surface" },
     ],
@@ -110,6 +111,7 @@ const EXPECTED_NAV_GROUPS = [
       { id: "blocks.sequence", label: "Sequence" },
       { id: "blocks.canvas", label: "Canvas" },
       { id: "blocks.process-outline", label: "Process Outline" },
+      { id: "blocks.stack", label: "Stack" },
     ],
   },
 ] as const;
@@ -242,6 +244,8 @@ describe("style rail override helpers", () => {
       "blocks.process-outline": 0,
       "blocks.sequence": 0,
       "blocks.canvas": 0,
+      "blocks.outline-rows": 0,
+      "blocks.stack": 0,
       "layout.transitions": 0,
       "layout.sidebar": 0,
       "layout.scrollbar": 0,
@@ -313,7 +317,7 @@ describe("style rail override helpers", () => {
 });
 
 describe("style rail navigation", () => {
-  it("renders the six regrouped sections with all 29 pane items in order", () => {
+  it("renders the six regrouped sections with all 31 pane items in order", () => {
     expect(
       STYLE_RAIL_GROUPS.map((group) => ({
         id: group.id,
@@ -343,7 +347,7 @@ describe("style rail navigation", () => {
         expect(navigation.getByRole("button", { name: item.label })).toBeTruthy();
       }
     }
-    expect(navigation.getAllByRole("button")).toHaveLength(6 + 5 + 8 + 3 + 4 + 3);
+    expect(navigation.getAllByRole("button")).toHaveLength(6 + 5 + 8 + 3 + 5 + 4);
   });
 
   it("swaps the visible detail pane when a rail item is selected", () => {
@@ -561,6 +565,7 @@ describe("style rail merged panes", () => {
       // The wide lane data-heavy blocks break out to, and the global left
       // rail the left-anchored page hangs off (renamed from "Padding" — it is
       // no longer a symmetric gutter around a centered column).
+      /^Code lane/,
       /^Wide lane/,
       /^Left margin/,
       /^Top padding/,
@@ -612,14 +617,15 @@ describe("style rail merged panes", () => {
   });
 });
 
-describe("state-shape text rides the AA-checked role tokens in both themes", () => {
+describe("state-shape text rides the code theme's syntax roles in both themes", () => {
   /**
    * The field list once muted itself into unreadability (type at 3.4:1, the
-   * optional marker at 2.7:1). Since the theme lab (2026-10-01) its text
-   * colors are not literals: each points at a role token whose palette
-   * values (notion-palette.css: app light, primer dark) are audited at
-   * >= 4.5:1 on page and panel. Pin the mapping, identical in both blocks,
-   * so a literal cannot slip back in unaudited.
+   * optional marker at 2.7:1), so its text colors are never literals. The
+   * whole panel is a code surface (the dark code panel in both page modes),
+   * so names, types and punctuation point at the code theme's --syntax-*
+   * roles (VS Code Dark+ by default, as the editor colors a TS type) and the
+   * descriptions at the audited --docs-muted role. Pin the mapping, identical
+   * in both blocks, so a literal cannot slip back in unaudited.
    */
   const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
   const blockAfter = (marker: string) => {
@@ -628,10 +634,10 @@ describe("state-shape text rides the AA-checked role tokens in both themes", () 
     return css.slice(start, css.indexOf("\n}", start));
   };
   const TEXT_TOKENS: Record<string, string> = {
-    "--docs-shape-name": "var(--docs-syn-prop)",
-    "--docs-shape-type": "var(--docs-syn-type)",
-    "--docs-shape-muted": "var(--docs-muted)",
-    "--docs-shape-optional-fg": "var(--docs-muted)",
+    "--docs-shape-name": "var(--syntax-key)",
+    "--docs-shape-type": "var(--syntax-type)",
+    "--docs-shape-muted": "var(--syntax-punctuation)",
+    "--docs-shape-optional-fg": "var(--syntax-punctuation)",
     "--docs-shape-desc-fg": "var(--docs-muted)",
     "--docs-shape-header-fg": "var(--docs-ink)",
   };
@@ -640,7 +646,7 @@ describe("state-shape text rides the AA-checked role tokens in both themes", () 
     ["light", ':root, [data-theme="light"] {'],
     ["dark", '[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {'],
   ] as const) {
-    it(`maps every state-shape text token onto a role token in the ${label} theme`, () => {
+    it(`maps every state-shape text token onto a syntax or role token in the ${label} theme`, () => {
       const block = blockAfter(marker);
       for (const [token, value] of Object.entries(TEXT_TOKENS)) {
         expect([token, block.includes(`  ${token}: ${value};`)]).toEqual([token, true]);
@@ -733,8 +739,11 @@ describe("per-block-type layout overrides", () => {
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "text" } }))).toContain(
       "max-width: var(--style-content-width,60ch);",
     );
+    expect(blockLayoutOverrideCss(withLayout({ code: { width: "code" } }))).toContain(
+      "max-width: var(--style-code-width,88ch);",
+    );
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "wide" } }))).toContain(
-      "max-width: var(--style-wide-width,1040px);",
+      "max-width: var(--style-wide-width,1100px);",
     );
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "full" } }))).toContain(
       "max-width: none;",
@@ -835,10 +844,10 @@ describe("per-block-type layout overrides", () => {
       "utf8",
     );
     expect(shape).toContain(
-      `minmax(0,var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["state-shape"]}%))`,
+      `var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["state-shape"]}%)) minmax(260px,1fr)`,
     );
     expect(surface).toContain(
-      `minmax(0,var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["interaction-surface"]}%))`,
+      `var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["interaction-surface"]}%)) minmax(260px,1fr)`,
     );
   });
 
@@ -965,8 +974,15 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
   });
 
   it("the wide lane's fallback equals stock layout.wideWidth", () => {
-    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1040);
-    expect(laneSource).toContain("max-w-[var(--style-wide-width,1040px)]");
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1100);
+    expect(laneSource).toContain("max-w-[var(--style-wide-width,1100px)]");
+  });
+
+  it("the code lane's fallback equals stock layout.codeWidth and semantic.css", () => {
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.codeWidth).toBe(88);
+    expect(laneSource).toContain("max-w-[var(--style-code-width,88ch)]");
+    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    expect(semanticCss).toContain("  --style-code-width: 88ch;");
   });
 
   it("the text lane's fallback equals stock layout.contentWidth", () => {
@@ -1090,12 +1106,26 @@ describe("style rail code panels", () => {
 
 describe("style rail wide lane", () => {
   it("defaults, clamps, and migrates the wide-lane width", () => {
-    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1040);
-    expect(normalizeSettings({ accent: "purple" }).layout.wideWidth).toBe(1040);
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1100);
+    expect(normalizeSettings({ accent: "purple" }).layout.wideWidth).toBe(1100);
     expect(normalizeSettings({ layout: { wideWidth: 1200 } }).layout.wideWidth).toBe(1200);
     expect(normalizeSettings({ layout: { wideWidth: 100 } }).layout.wideWidth).toBe(900);
     expect(normalizeSettings({ layout: { wideWidth: 9000 } }).layout.wideWidth).toBe(2400);
-    expect(normalizeSettings({ layout: { wideWidth: "wide" } }).layout.wideWidth).toBe(1040);
+    expect(normalizeSettings({ layout: { wideWidth: "wide" } }).layout.wideWidth).toBe(1100);
+  });
+
+  it("defaults, clamps, and emits the code-lane width only away from stock", () => {
+    expect(normalizeSettings({ accent: "purple" }).layout.codeWidth).toBe(88);
+    expect(normalizeSettings({ layout: { codeWidth: 100 } }).layout.codeWidth).toBe(100);
+    expect(normalizeSettings({ layout: { codeWidth: 10 } }).layout.codeWidth).toBe(60);
+    expect(normalizeSettings({ layout: { codeWidth: 900 } }).layout.codeWidth).toBe(160);
+    expect(styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS)["--style-code-width"]).toBeNull();
+    expect(
+      styleRailVars({
+        ...DEFAULT_STYLE_RAIL_SETTINGS,
+        layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, codeWidth: 100 },
+      })["--style-code-width"],
+    ).toBe("100ch");
   });
 
   it("defaults and clamps the global left margin", () => {
@@ -1966,11 +1996,6 @@ describe("style rail structured-table tokens", () => {
     cellPaddingX: { cssVar: "--docs-table-cell-pad-x", label: "Cell padding", range: [8, 32, 1, 12] },
     rowMinHeight: { cssVar: "--docs-table-row-min-height", label: "Row min height", range: [0, 96, 1, 28] },
     fontSize: { cssVar: "--docs-table-font-size", label: "Text size", range: [10, 24, 0.5, 13.5] },
-    titleTextSize: {
-      cssVar: "--docs-table-title-text-size",
-      label: "Title text size",
-      range: [10, 24, 0.5, 13.5],
-    },
     handleRadius: { cssVar: "--docs-table-handle-radius", label: "Handle radius", range: [0, 10, 0.5, 2] },
     handleOffset: { cssVar: "--docs-table-handle-offset", label: "Handle offset", range: [4, 20, 1, 12] },
     selectionPadding: {
@@ -1998,7 +2023,6 @@ describe("style rail structured-table tokens", () => {
     },
     lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.45] },
     bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
-    titleWeight: { cssVar: "--docs-table-title-weight", label: "Title weight", range: [300, 900, 50, 600] },
   } as const;
   const TABLE_COLORS = {
     border: { cssVar: "--docs-table-border", label: "Border" },
@@ -2011,7 +2035,6 @@ describe("style rail structured-table tokens", () => {
     rowHoverBg: { cssVar: "--docs-table-row-hover-bg", label: "Row hover background" },
     fg: { cssVar: "--docs-table-fg", label: "Text" },
     keyFg: { cssVar: "--docs-table-key-fg", label: "Key column text" },
-    titleFg: { cssVar: "--docs-table-title-fg", label: "Title text" },
   } as const;
   // Tokens whose semantic.css default is DERIVED from another token, so the
   // declaration is an expression rather than the registry's stock number.
@@ -2112,6 +2135,14 @@ describe("style rail structured-table tokens", () => {
       "--docs-table-column-rule-opacity":
         "var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))",
     };
+    // The table draws no title (the title only labels the <table> for
+    // assistive tech), so the three title knobs were retired: no consumer,
+    // no registry entry, no semantic.css declaration.
+    for (const retired of ["titleFg", "titleTextSize", "titleWeight"]) {
+      expect([retired, retired in THEME_TOKEN_REGISTRY["structured-table"]]).toEqual([retired, false]);
+    }
+    expect(semanticCss).not.toContain("--docs-table-title-");
+    expect(tableClasses).not.toContain("--docs-table-title-");
     for (const { cssVar, unit, range } of SLIDERS) {
       if (FURNITURE_FALLBACKS[cssVar]) {
         expect(furniture).toContain(FURNITURE_FALLBACKS[cssVar]);
@@ -2133,7 +2164,6 @@ describe("style rail structured-table tokens", () => {
       "var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))",
       "var(--docs-table-fg,var(--docs-text,#2a2a2a))",
       "var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))",
-      "var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))",
     ]) {
       expect(tableClasses).toContain(reference);
     }
@@ -2231,7 +2261,6 @@ describe("style rail structured-table tokens", () => {
           bg: "#FAFAFA",
           fg: "#111111",
           keyFg: "#123456",
-          titleFg: "#222222",
           columnRule: "#333333",
           rowHoverBg: "#eeeeee",
           borderWidth: "2px",
@@ -2244,8 +2273,6 @@ describe("style rail structured-table tokens", () => {
           fontSize: "18px",
           lineHeight: "1.6",
           bodyWeight: "450",
-          titleTextSize: "16px",
-          titleWeight: "700",
         },
       },
     });
@@ -2253,7 +2280,6 @@ describe("style rail structured-table tokens", () => {
       "--docs-table-bg": "#fafafa",
       "--docs-table-fg": "#111111",
       "--docs-table-key-fg": "#123456",
-      "--docs-table-title-fg": "#222222",
       "--docs-table-column-rule": "#333333",
       "--docs-table-row-hover-bg": "#eeeeee",
       "--docs-table-border-width": "2px",
@@ -2266,8 +2292,6 @@ describe("style rail structured-table tokens", () => {
       "--docs-table-font-size": "18px",
       "--docs-table-line-height": "1.6",
       "--docs-table-body-weight": "450",
-      "--docs-table-title-text-size": "16px",
-      "--docs-table-title-weight": "700",
     });
   });
 
@@ -2499,7 +2523,7 @@ describe("style rail code block tokens", () => {
     expect(code.gutterTextSize).toEqual(length("--docs-code-gutter-text-size", 8, 16, 0.5, 12));
     expect(code.gutterWidth).toEqual(length("--docs-code-gutter-width", 24, 96, 1, 40));
     expect(code.gutterPadX).toEqual(length("--docs-code-gutter-pad-x", 0, 24, 1, 12));
-    expect(code.noteTextSize).toEqual(length("--docs-code-note-text-size", 10, 18, 0.5, 14));
+    expect(code.noteTextSize).toEqual(length("--docs-code-note-text-size", 10, 18, 0.5, 13));
     expect(code.notesWidth).toEqual(length("--docs-code-notes-width", 200, 480, 10, 280));
   });
 
@@ -2522,7 +2546,7 @@ describe("style rail code block tokens", () => {
       [/^Line number size/, "8", "16", "12"],
       [/^Gutter width/, "24", "96", "40"],
       [/^Gutter padding/, "0", "24", "12"],
-      [/^Note text size/, "10", "18", "14"],
+      [/^Note text size/, "10", "18", "13"],
       [/^Notes column width/, "200", "480", "280"],
     ];
     for (const [label, min, max, value] of expected) {
@@ -3023,18 +3047,27 @@ describe("style rail inline-code tokens", () => {
     });
   });
 
-  it("registers one text-color knob per typed-chip kind, declared at its syntax role in both theme blocks", () => {
+  it("registers one text-color knob per typed-chip kind at the VS Code color in each theme block, with the Light+ value as the consumer fallback", () => {
     const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-    const KINDS: Record<string, [string, string]> = {
-      pathFg: ["--docs-inline-code-path-fg", "var(--docs-syn-string)"],
-      typeFg: ["--docs-inline-code-type-fg", "var(--docs-syn-type)"],
-      callFg: ["--docs-inline-code-call-fg", "var(--docs-syn-fn)"],
-      literalFg: ["--docs-inline-code-literal-fg", "var(--docs-syn-number)"],
-      propFg: ["--docs-inline-code-prop-fg", "var(--docs-syn-prop)"],
+    const blockClasses = readFileSync(
+      new URL("../../../../docs-viewer/src/render/block-classes.ts", import.meta.url),
+      "utf8",
+    );
+    // [var, Light+ (light block + component fallback), Dark+ (dark block)]
+    const KINDS: Record<string, [string, string, string]> = {
+      pathFg: ["--docs-inline-code-path-fg", "#a31515", "var(--syntax-string, #ce9178)"],
+      stringFg: ["--docs-inline-code-string-fg", "#a31515", "var(--syntax-string, #ce9178)"],
+      typeFg: ["--docs-inline-code-type-fg", "#22728a", "var(--syntax-type, #4ec9b0)"],
+      callFg: ["--docs-inline-code-call-fg", "#795e26", "var(--syntax-function, #dcdcaa)"],
+      literalFg: ["--docs-inline-code-literal-fg", "#08794f", "var(--syntax-number, #b5cea8)"],
+      keywordLiteralFg: ["--docs-inline-code-keyword-fg", "#0000ff", "var(--syntax-keyword, #569cd6)"],
+      propFg: ["--docs-inline-code-prop-fg", "#001080", "var(--syntax-key, #9cdcfe)"],
     };
-    for (const [key, [cssVar, role]] of Object.entries(KINDS)) {
+    for (const [key, [cssVar, light, dark]] of Object.entries(KINDS)) {
       expect(THEME_TOKEN_REGISTRY["inline-code"][key]).toEqual({ vars: [cssVar], kind: "color" });
-      expect(`${cssVar} ×${semanticCss.split(`  ${cssVar}: ${role};`).length - 1}`).toBe(`${cssVar} ×2`);
+      expect(`${cssVar} ×${semanticCss.split(`  ${cssVar}: ${light};`).length - 1}`).toBe(`${cssVar} ×1`);
+      expect(`${cssVar} ×${semanticCss.split(`  ${cssVar}: ${dark};`).length - 1}`).toBe(`${cssVar} ×1`);
+      expect(blockClasses).toContain(`var(${cssVar},${light})`);
     }
   });
 
@@ -3217,15 +3250,15 @@ describe("style rail interaction-surface tokens", () => {
     radius: ["--docs-interaction-radius", 0, 24, 1, 2],
     borderWidth: ["--docs-interaction-border-width", 0, 4, 0.5, 1],
     ruleWidth: ["--docs-interaction-rule-width", 0, 4, 0.5, 1],
-    padX: ["--docs-interaction-pad-x", 4, 32, 1, 12],
+    padX: ["--docs-interaction-pad-x", 4, 32, 1, 16],
     titleTextSize: ["--docs-interaction-title-text-size", 12, 22, 0.5, 13.5],
     headerPadY: ["--docs-interaction-header-pad-y", 4, 32, 1, 9],
     headerTextSize: ["--docs-interaction-header-text-size", 12, 22, 0.5, 13],
     descTextSize: ["--docs-interaction-desc-text-size", 12, 18, 0.5, 13.5],
     descLineHeight: ["--docs-interaction-desc-line-height", 12, 32, 1, 20],
-    columnHeadTextSize: ["--docs-interaction-column-head-text-size", 12, 18, 0.5, 13.5],
+    columnHeadTextSize: ["--docs-interaction-column-head-text-size", 12, 18, 0.5, 13],
     columnHeadPadY: ["--docs-interaction-column-head-pad-y", 0, 20, 1, 8],
-    rowPad: ["--docs-interaction-row-pad", 0, 24, 1, 4],
+    rowPad: ["--docs-interaction-row-pad", 0, 24, 1, 5],
     indent: ["--docs-interaction-indent", 8, 48, 1, 16],
     noteNameTextSize: ["--docs-interaction-note-name-text-size", 10, 18, 0.5, 13],
     noteTypeTextSize: ["--docs-interaction-note-type-text-size", 10, 18, 0.5, 13],
@@ -3236,6 +3269,15 @@ describe("style rail interaction-surface tokens", () => {
     noteNameWeight: ["--docs-interaction-note-name-weight", 500],
   };
   const COLORS: Record<string, string> = {
+    actionFg: "--docs-kind-action",
+    actionLine: "--docs-kind-action-line",
+    actionSoft: "--docs-kind-action-soft",
+    queryFg: "--docs-kind-query",
+    queryLine: "--docs-kind-query-line",
+    querySoft: "--docs-kind-query-soft",
+    eventFg: "--docs-kind-event",
+    eventLine: "--docs-kind-event-line",
+    eventSoft: "--docs-kind-event-soft",
     border: "--docs-interaction-border",
     bg: "--docs-interaction-bg",
     rule: "--docs-interaction-rule",
@@ -3297,9 +3339,9 @@ describe("style rail interaction-surface tokens", () => {
     expect(Object.keys(entry).sort()).toEqual(
       [...Object.keys(COLORS), ...Object.keys(LENGTHS), ...Object.keys(WEIGHTS)].sort(),
     );
-    // Retired with the theme lab: per-kind card headers (the kind badge reads
-    // the --docs-kind-* role tokens), the card gap, the caption gap, chip and
-    // column-head fills.
+    // Retired with the theme lab: per-kind card headers (the kind badge's
+    // knobs write the --docs-kind-* role tokens instead), the card gap, the
+    // caption gap, chip and column-head fills.
     for (const retired of ["headerBg", "actionHeaderBg", "actionHeaderInk", "opGap", "titleGap", "columnHeadBg", "columnHeadRuleWidth", "noteTypeBg"]) {
       expect([retired, retired in entry]).toEqual([retired, false]);
     }
@@ -3339,8 +3381,19 @@ describe("style rail interaction-surface tokens", () => {
   });
 
   it("declares every default in both semantic.css theme blocks", () => {
+    // The kind badge knobs write role tokens, declared ONCE in the role block
+    // (it covers every theme scope); each must resolve to its roster hue.
+    const roleBlock = themeBlock(
+      ':root, .dark, [data-theme="dark"], [data-theme="light"], [data-code-panels="dark"] [data-code-surface] {',
+    );
+    for (const [kind, hue] of [["action", "orange"], ["query", "blue"], ["event", "violet"]] as const) {
+      expect(roleBlock).toContain(`--docs-kind-${kind}: var(--docs-c-${hue});`);
+      expect(roleBlock).toContain(`--docs-kind-${kind}-soft: var(--docs-c-${hue}-soft);`);
+      expect(roleBlock).toContain(`--docs-kind-${kind}-line: var(--docs-c-${hue}-line);`);
+    }
     for (const [key, token] of Object.entries(entry)) {
       const cssVar = token.vars[0]!;
+      if (cssVar.startsWith("--docs-kind-")) continue;
       if (token.kind === "color") {
         expect([key, lightBlock.includes(`  ${cssVar}: `)]).toEqual([key, true]);
         expect([key, darkBlock.includes(`  ${cssVar}: `)]).toEqual([key, true]);
@@ -3358,7 +3411,7 @@ describe("style rail interaction-surface tokens", () => {
       expect(block).toContain("--docs-interaction-border: var(--docs-shape-border);");
       expect(block).toContain("--docs-interaction-bg: var(--docs-shape-bg);");
       expect(block).toContain("--docs-interaction-rule: var(--docs-shape-rule);");
-      expect(block).toContain("--docs-interaction-header-fg: var(--docs-syn-fn);");
+      expect(block).toContain("--docs-interaction-header-fg: var(--syntax-function);");
       expect(block).not.toContain("--docs-operation-");
       expect(block).toContain("--docs-interaction-sig-name: var(--syntax-function);");
       expect(block).toContain("--docs-interaction-sig-type: var(--syntax-type);");
@@ -3425,7 +3478,7 @@ describe("style rail interaction-surface tokens", () => {
     const vars = styleRailVars(
       normalizeSettings({
         components: {
-          "interaction-surface": { rowPad: "4px", indent: "16px", noteNameWeight: 500 },
+          "interaction-surface": { rowPad: "5px", indent: "16px", noteNameWeight: 500 },
         },
       }),
     );
@@ -3469,6 +3522,15 @@ describe("style rail interaction-surface tokens", () => {
       "Note name size",
       "Note name weight",
       "Note type size",
+      "Action badge text",
+      "Action badge border",
+      "Action badge fill",
+      "Query badge text",
+      "Query badge border",
+      "Query badge fill",
+      "Event badge text",
+      "Event badge border",
+      "Event badge fill",
     ]) {
       expect([label, screen.queryAllByText(label).length > 0]).toEqual([label, true]);
     }
@@ -3481,7 +3543,7 @@ describe("style rail interaction-surface tokens", () => {
     const rowPad = slider(/^Row padding/);
     expect(rowPad).toHaveProperty("min", "0");
     expect(rowPad).toHaveProperty("max", "24");
-    expect(rowPad).toHaveProperty("value", "4");
+    expect(rowPad).toHaveProperty("value", "5");
     const descTextSize = slider(/^Description text size/);
     // Nothing a reader must read goes below 12px.
     expect(descTextSize).toHaveProperty("min", "12");
@@ -3514,14 +3576,13 @@ describe("style rail state-shape tokens", () => {
     }
     // key, var, min, max, step, default (px)
     const lengths: Array<[string, string, number, number, number, number]> = [
-      ["rowPad", "--docs-shape-row-pad", 0, 24, 1, 4],
+      ["rowPad", "--docs-shape-row-pad", 0, 24, 1, 5],
       ["rowMinHeight", "--docs-shape-row-min-height", 0, 64, 1, 28],
-      ["nameWidth", "--docs-shape-name-width", 96, 320, 4, 176],
       ["textSize", "--docs-shape-text-size", 10, 18, 0.5, 13],
       ["typeTextSize", "--docs-shape-type-text-size", 9, 16, 0.5, 13],
       ["descTextSize", "--docs-shape-desc-text-size", 12, 18, 0.5, 13.5],
       ["headerTextSize", "--docs-shape-header-text-size", 10, 22, 0.5, 13],
-      ["padX", "--docs-shape-pad-x", 0, 32, 1, 12],
+      ["padX", "--docs-shape-pad-x", 0, 32, 1, 16],
       ["headerPadY", "--docs-shape-header-pad-y", 0, 32, 1, 6],
       ["borderWidth", "--docs-shape-border-width", 0, 4, 0.5, 1],
       ["radius", "--docs-shape-radius", 0, 16, 1, 2],
@@ -3542,6 +3603,17 @@ describe("style rail state-shape tokens", () => {
         defaultValue,
       });
     }
+    // The name column is counted in mono glyphs (ch), not px, so every
+    // ledger's type column starts at the same x at any name font size.
+    expect(entry.nameWidth).toEqual({
+      vars: ["--docs-shape-name-width"],
+      kind: "length",
+      min: 12,
+      max: 48,
+      step: 1,
+      unit: "ch",
+      defaultValue: 24,
+    });
     expect(entry.nameWeight).toEqual({
       vars: ["--docs-shape-name-weight"],
       kind: "number",
@@ -3560,7 +3632,7 @@ describe("style rail state-shape tokens", () => {
     });
     // The tables above are the whole vocabulary.
     expect(Object.keys(entry).sort()).toEqual(
-      [...Object.keys(colors), ...lengths.map(([key]) => key), "nameWeight", "headerWeight"].sort(),
+      [...Object.keys(colors), ...lengths.map(([key]) => key), "nameWidth", "nameWeight", "headerWeight"].sort(),
     );
     // Retired with the theme lab: chip / pill / child fills, the column heads,
     // the header texture and the tree tick / inset geometry.
@@ -3631,7 +3703,7 @@ describe("style rail state-shape tokens", () => {
         "state-shape": {
           textSize: 15,
           headerWeight: "700",
-          nameWidth: 200,
+          nameWidth: 30,
           borderWidth: "1.5px",
           headerRule: "#ABCDEF",
           radius: 99,
@@ -3646,7 +3718,7 @@ describe("style rail state-shape tokens", () => {
       "state-shape": {
         textSize: "15px",
         headerWeight: "700",
-        nameWidth: "200px",
+        nameWidth: "30ch",
         borderWidth: "1.5px",
         headerRule: "#abcdef",
       },
@@ -3654,7 +3726,7 @@ describe("style rail state-shape tokens", () => {
     expect(styleRailVars(settings)).toMatchObject({
       "--docs-shape-text-size": "15px",
       "--docs-shape-header-weight": "700",
-      "--docs-shape-name-width": "200px",
+      "--docs-shape-name-width": "30ch",
       "--docs-shape-border-width": "1.5px",
       "--docs-shape-header-rule": "#abcdef",
       "--docs-shape-radius": null,
@@ -3732,7 +3804,7 @@ describe("style rail state-shape tokens", () => {
     const rowPad = screen.getByLabelText(/Row padding/) as HTMLInputElement;
     expect(rowPad).toHaveProperty("min", "0");
     expect(rowPad).toHaveProperty("max", "24");
-    expect(rowPad).toHaveProperty("value", "4");
+    expect(rowPad).toHaveProperty("value", "5");
     // Every registry key has a human label: no raw camelCase key leaks.
     const unlabelled = Object.keys(THEME_TOKEN_REGISTRY["state-shape"]).filter(
       (key) => /[A-Z]/.test(key) && screen.queryByText(key) !== null,
@@ -3746,7 +3818,7 @@ describe("style rail state-shape tokens", () => {
     const headerWeight = screen.getByLabelText(/^Header weight/) as HTMLInputElement;
     expect(headerWeight).toHaveProperty("value", "600");
     const nameWidth = screen.getByLabelText(/^Name column width/) as HTMLInputElement;
-    expect(nameWidth).toHaveProperty("value", "176");
+    expect(nameWidth).toHaveProperty("value", "24");
     expect(screen.queryByLabelText(/^Header texture opacity/)).toBeNull();
   });
 });
@@ -3759,9 +3831,9 @@ describe("style rail process-outline tokens", () => {
     borderWidth: ["border-width", 0, 4, 0.5, 1],
     padY: ["pad-y", 0, 40, 1, 12],
     padX: ["pad-x", 0, 40, 1, 12],
-    indent: ["indent", 16, 72, 1, 24],
+    indent: ["indent", 16, 72, 1, 28],
     rowGap: ["row-gap", 0, 24, 1, 4],
-    branchGap: ["branch-gap", 0, 48, 1, 12],
+    branchGap: ["branch-gap", 0, 48, 1, 16],
     rootGap: ["root-gap", 0, 64, 1, 12],
     arrowGap: ["arrow-gap", 0, 16, 1, 4],
     lineHeight: ["line-height", 16, 40, 1, 24],
@@ -3778,14 +3850,13 @@ describe("style rail process-outline tokens", () => {
     noteRuleGap: ["note-rule-gap", 0, 24, 1, 0],
     traceTextSize: ["trace-text-size", 12, 16, 0.5, 12],
     focusRing: ["focus-ring", 0, 3, 0.5, 1],
-    arrowSize: ["arrow-size", 3, 12, 0.5, 5],
-    stroke: ["stroke", 0.5, 4, 0.25, 1],
+    stroke: ["stroke", 0.5, 4, 0.25, 1.5],
     selectPad: ["select-pad", 0, 8, 0.5, 2],
   };
   /** Weights and unitless percentage strengths: key -> [var suffix, min, max, step, default]. */
   const NUMBERS: Record<string, [string, number, number, number, number]> = {
     rootWeight: ["root-weight", 300, 900, 50, 600],
-    branchWeight: ["branch-weight", 300, 900, 50, 500],
+    branchWeight: ["branch-weight", 300, 900, 50, 600],
     stepWeight: ["step-weight", 300, 900, 50, 400],
     keywordWeight: ["keyword-weight", 300, 900, 50, 500],
     noteAccent: ["note-accent", 0, 100, 5, 0],
@@ -3837,30 +3908,35 @@ describe("style rail process-outline tokens", () => {
     }
   });
 
-  it("colors the outline through the role tokens, the same declaration in both modes", () => {
+  it("colors the outline in VS Code Light+ on the light page and Dark+ on the dark page", () => {
     const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-    // Depth markers walk the category roster (blue, green, violet, yellow, teal,
-    // pink); text, rails, chips and the frame follow the neutral roles.
-    const ROLE: Record<string, string> = {
-      ink: "var(--docs-text)",
-      "title-fg": "var(--docs-ink)",
-      rail: "var(--docs-guide)",
-      "cycle-1": "var(--docs-cat-1)",
-      "cycle-2": "var(--docs-cat-3)",
-      "cycle-3": "var(--docs-cat-5)",
-      "cycle-4": "var(--docs-cat-4)",
-      "cycle-5": "var(--docs-cat-2)",
-      "cycle-6": "var(--docs-cat-6)",
-      "keyword-fg": "var(--docs-syn-keyword)",
-      "note-fg": "var(--docs-muted)",
-      "code-bg": "var(--docs-chip-bg)",
-      border: "var(--docs-rule)",
+    // [light block, dark block]. Keywords and notes take the VS Code palette of
+    // the page mode; depth markers walk the category roster; text, chips' fill
+    // and the frame follow the neutral roles; the rail is secondary in both.
+    const ROLE: Record<string, [string, string]> = {
+      ink: ["var(--docs-text)", "var(--docs-text)"],
+      "title-fg": ["var(--docs-ink)", "var(--docs-ink)"],
+      rail: [
+        "color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel))",
+        "color-mix(in srgb, var(--docs-ink) 75%, transparent)",
+      ],
+      "cycle-1": ["var(--docs-cat-1)", "var(--docs-cat-1)"],
+      "cycle-2": ["var(--docs-cat-3)", "var(--docs-cat-3)"],
+      "cycle-3": ["var(--docs-cat-5)", "var(--docs-cat-5)"],
+      "cycle-4": ["var(--docs-cat-4)", "var(--docs-cat-4)"],
+      "cycle-5": ["var(--docs-cat-2)", "var(--docs-cat-2)"],
+      "cycle-6": ["var(--docs-cat-6)", "var(--docs-cat-6)"],
+      "keyword-fg": ["#AF00DB", "#C586C0"],
+      "note-fg": ["#008000", "#6A9955"],
+      "note-bullet": ["#008000", "#6A9955"],
+      "code-bg": ["var(--docs-chip-bg)", "var(--docs-chip-bg)"],
+      border: ["var(--docs-rule)", "var(--docs-rule)"],
     };
     for (const [suffix, value] of Object.entries(ROLE)) {
       const declared = [...css.matchAll(new RegExp(`^\\s*--docs-process-outline-${suffix}:\\s*([^;]+);`, "gm"))].map(
         (match) => match[1],
       );
-      expect([suffix, declared]).toEqual([suffix, [value, value]]);
+      expect([suffix, declared]).toEqual([suffix, value]);
     }
   });
 
@@ -3878,7 +3954,6 @@ describe("style rail process-outline tokens", () => {
           lineHeight: 26,
           textSize: 14,
           noteTextSize: "13px",
-          arrowSize: 8,
           stroke: "2px",
           unknown: "#000000",
         },
@@ -3897,7 +3972,6 @@ describe("style rail process-outline tokens", () => {
         lineHeight: "26px",
         textSize: "14px",
         noteTextSize: "13px",
-        arrowSize: "8px",
         stroke: "2px",
       },
     });
@@ -3912,7 +3986,6 @@ describe("style rail process-outline tokens", () => {
       "--docs-process-outline-line-height": "26px",
       "--docs-process-outline-text-size": "14px",
       "--docs-process-outline-note-text-size": "13px",
-      "--docs-process-outline-arrow-size": "8px",
       "--docs-process-outline-stroke": "2px",
     });
   });
@@ -3997,13 +4070,12 @@ describe("style rail process-outline tokens", () => {
       "Border",
       "Indent",
       "Row gap",
-      "Arrow gap",
+      "Elbow gap",
       "Line height",
       "Text size",
       "Note text size",
       "Trace pill size",
       "Focused line ring",
-      "Arrow size",
       "Stroke",
     ]) {
       expect(screen.getByText(label)).toBeTruthy();
@@ -4015,14 +4087,13 @@ describe("style rail process-outline tokens", () => {
 
     // Sliders start at the theme-lab defaults.
     for (const [pattern, min, max, value] of [
-      [/^Indent/, "16", "72", "24"],
+      [/^Indent/, "16", "72", "28"],
       [/^Row gap/, "0", "24", "4"],
-      [/Arrow gap/, "0", "16", "4"],
+      [/Elbow gap/, "0", "16", "4"],
       [/^Line height/, "16", "40", "24"],
       [/^Text size/, "12", "18", "13.5"],
       [/Note text size/, "12", "18", "13.5"],
-      [/Arrow size/, "3", "12", "5"],
-      [/Stroke/, "0.5", "4", "1"],
+      [/Stroke/, "0.5", "4", "1.5"],
     ] as const) {
       const input = screen.getByLabelText(pattern) as HTMLInputElement;
       expect([String(pattern), input.min, input.max, input.value]).toEqual([String(pattern), min, max, value]);
@@ -4391,14 +4462,14 @@ describe("style rail rich-text block tokens", () => {
           min: 0,
           max: 8,
           step: 0.5,
-          defaultValue: 2,
+          defaultValue: 3,
         },
         hairlineWidth: {
           cssVar: "--docs-callout-hairline-width",
           min: 0,
           max: 4,
           step: 0.5,
-          defaultValue: 1,
+          defaultValue: 0,
         },
         // Follows the global --radius (2px at stock) in both modes.
         radius: {
@@ -4410,16 +4481,18 @@ describe("style rail rich-text block tokens", () => {
           declared: RADIUS_DECLARED,
           fallback: RADIUS_FALLBACK,
         },
-        padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 16 },
-        padY: { cssVar: "--docs-callout-pad-y", min: 0, max: 32, step: 1, defaultValue: 12 },
+        padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 14 },
+        padY: { cssVar: "--docs-callout-pad-y", min: 0, max: 32, step: 1, defaultValue: 2 },
         titleTextSize: {
           cssVar: "--docs-callout-title-text-size",
           min: 10,
           max: 24,
           step: 0.5,
-          defaultValue: 13.5,
+          defaultValue: 18,
+          // Follows the body size (stock 18px) in both modes.
+          declared: "var(--style-font-size, 18px)",
         },
-        iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 14 },
+        iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 16 },
         margin: { cssVar: "--docs-callout-margin", min: 0, max: 64, step: 1, defaultValue: 20 },
       },
       numbers: {
@@ -4428,7 +4501,7 @@ describe("style rail rich-text block tokens", () => {
           min: 300,
           max: 900,
           step: 50,
-          defaultValue: 500,
+          defaultValue: 600,
         },
         bodyTextScale: {
           cssVar: "--docs-callout-body-text-scale",
@@ -4455,25 +4528,26 @@ describe("style rail rich-text block tokens", () => {
   /**
    * The callout palette: [semantic.css declaration (both theme blocks), the
    * component's LIGHT literal fallback]. Accents follow the shared tone
-   * roles, the card fill is the panel for every tone, titles are ink.
+   * roles, the note has no fill (transparent tint) for every tone, titles
+   * are ink.
    */
   const CALLOUT_PALETTE: Record<string, [string, string]> = {
     "--docs-callout-fg": ["var(--docs-text)", "#2a2a2a"],
     "--docs-callout-border": ["var(--docs-rule)", "#e6e5e3"],
     "--docs-callout-info-accent": ["var(--docs-tone-info)", "#0b6e99"],
-    "--docs-callout-info-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-info-tint": ["transparent", "transparent"],
     "--docs-callout-info-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-decision-accent": ["var(--docs-tone-decision)", "#6940a5"],
-    "--docs-callout-decision-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-decision-tint": ["transparent", "transparent"],
     "--docs-callout-decision-title-fg": ["var(--docs-ink)", "#1f1f1f"],
-    "--docs-callout-warning-accent": ["var(--docs-tone-warning)", "#805f01"],
-    "--docs-callout-warning-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-warning-accent": ["var(--docs-tone-warning)", "#9a5b00"],
+    "--docs-callout-warning-tint": ["transparent", "transparent"],
     "--docs-callout-warning-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-risk-accent": ["var(--docs-tone-risk)", "#c62121"],
-    "--docs-callout-risk-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-risk-tint": ["transparent", "transparent"],
     "--docs-callout-risk-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-success-accent": ["var(--docs-tone-success)", "#26744f"],
-    "--docs-callout-success-tint": ["var(--docs-panel)", "#f8f8f7"],
+    "--docs-callout-success-tint": ["transparent", "transparent"],
     "--docs-callout-success-title-fg": ["var(--docs-ink)", "#1f1f1f"],
   };
   const LABELS: Record<string, string> = {
@@ -4737,7 +4811,7 @@ describe("style rail rich-text block tokens", () => {
           fg: "#070809",
           warningAccent: "#0A0B0C",
           radius: "12px",
-          titleWeight: "600",
+          titleWeight: "700",
           bodyTextScale: "0.8",
         },
         divider: { thickness: "3px", spacing: "1.5" },
@@ -4757,7 +4831,7 @@ describe("style rail rich-text block tokens", () => {
         fg: "#070809",
         warningAccent: "#0a0b0c",
         radius: "12px",
-        titleWeight: "600",
+        titleWeight: "700",
         bodyTextScale: "0.8",
       },
       divider: { thickness: "3px", spacing: "1.5" },
@@ -4777,7 +4851,7 @@ describe("style rail rich-text block tokens", () => {
       "--docs-callout-fg": "#070809",
       "--docs-callout-warning-accent": "#0a0b0c",
       "--docs-callout-radius": "12px",
-      "--docs-callout-title-weight": "600",
+      "--docs-callout-title-weight": "700",
       "--docs-callout-body-text-scale": "0.8",
       "--docs-divider-thickness": "3px",
       "--docs-divider-spacing": "1.5",
@@ -5013,5 +5087,236 @@ describe("page transition styles", () => {
     expect(vars["--docs-page-fade-in"]).toBe("200ms");
     expect(paneOverrideCount(loaded, "layout.transitions")).toBe(1);
     expect(paneOverrideCount(baseline, "layout.transitions")).toBe(0);
+  });
+});
+
+/**
+ * The trees-row and diagram blocks that had no pane: call-stack +
+ * component-tree (one shared "outline-rows" file) and stack, plus the code
+ * block's notes-column surface and selection. Same invariant as every other
+ * block file: registered, declared in both semantic.css theme blocks at the
+ * registry default, read by the component with that default as its literal
+ * fallback, and drawn by the generic component pane.
+ */
+describe("style rail outline-rows, stack and code-notes tokens", () => {
+  const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
+  const viewer = "../../../../docs-viewer/src/components/";
+  const semanticCss = read("../theme/semantic.css");
+  const themeBlock = (marker: string) => {
+    const start = semanticCss.indexOf(marker);
+    if (start < 0) throw new Error(`missing theme block: ${marker}`);
+    return semanticCss.slice(start, semanticCss.indexOf("\n}", start));
+  };
+  const lightBlock = themeBlock(':root, [data-theme="light"] {');
+  const darkBlock = themeBlock('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
+
+  type Length = [cssVar: string, min: number, max: number, step: number, defaultValue: number];
+  const FILES: Record<
+    string,
+    { pane: string; source: string; colors: Record<string, string>; lengths: Record<string, Length> }
+  > = {
+    "outline-rows": {
+      pane: "Call stack & component tree",
+      source: read(`${viewer}outline-rows/OutlineRows.tsx`),
+      colors: {
+        bg: "--docs-outline-rows-bg",
+        border: "--docs-outline-rows-border",
+        ink: "--docs-outline-rows-ink",
+        commentFg: "--docs-outline-rows-comment-fg",
+        guide: "--docs-outline-rows-guide",
+        mutedFg: "--docs-outline-rows-muted-fg",
+        added: "--docs-outline-rows-added",
+        addedBg: "--docs-outline-rows-added-bg",
+        removed: "--docs-outline-rows-removed",
+        removedBg: "--docs-outline-rows-removed-bg",
+        modified: "--docs-outline-rows-modified",
+        modifiedBg: "--docs-outline-rows-modified-bg",
+        variable: "--docs-outline-rows-var-fg",
+        function: "--docs-outline-rows-fn-fg",
+        type: "--docs-outline-rows-type-fg",
+        tag: "--docs-outline-rows-tag-fg",
+        keyword: "--docs-outline-rows-keyword-fg",
+        control: "--docs-outline-rows-control-fg",
+        constant: "--docs-outline-rows-constant-fg",
+        string: "--docs-outline-rows-string-fg",
+        number: "--docs-outline-rows-number-fg",
+        punct: "--docs-outline-rows-punct-fg",
+        bracket: "--docs-outline-rows-bracket-fg",
+      },
+      lengths: {
+        borderWidth: ["--docs-outline-rows-border-width", 0, 4, 0.5, 1],
+        radius: ["--docs-outline-rows-radius", 0, 16, 1, 2],
+        padY: ["--docs-outline-rows-pad-y", 0, 24, 1, 8],
+        padX: ["--docs-outline-rows-pad-x", 0, 32, 1, 12],
+        textSize: ["--docs-outline-rows-text-size", 10, 18, 0.5, 13],
+        lineHeight: ["--docs-outline-rows-line-height", 14, 40, 1, 28],
+        commentTextSize: ["--docs-outline-rows-comment-text-size", 10, 18, 0.5, 13.5],
+        sourceTextSize: ["--docs-outline-rows-source-text-size", 8, 16, 0.5, 12],
+      },
+    },
+    stack: {
+      pane: "Stack",
+      source: read(`${viewer}stack/StackDocsBlock.tsx`),
+      colors: {
+        ink: "--docs-stack-ink",
+        mutedFg: "--docs-stack-muted",
+        detailFg: "--docs-stack-detail",
+        cardBg: "--docs-stack-card-bg",
+        arrow: "--docs-stack-arrow",
+        boundary: "--docs-stack-boundary",
+        blue: "--docs-stack-blue",
+        green: "--docs-stack-green",
+        yellow: "--docs-stack-yellow",
+        orange: "--docs-stack-orange",
+        purple: "--docs-stack-purple",
+        red: "--docs-stack-red",
+        pink: "--docs-stack-pink",
+        gray: "--docs-stack-gray",
+      },
+      lengths: {
+        gap: ["--docs-stack-gap", 0, 32, 1, 12],
+        radius: ["--docs-stack-radius", 0, 16, 1, 2],
+      },
+    },
+  };
+
+  for (const [file, spec] of Object.entries(FILES)) {
+    const entry = THEME_TOKEN_REGISTRY[file]!;
+
+    it(`registers every ${file} knob, and nothing else`, () => {
+      for (const [key, cssVar] of Object.entries(spec.colors)) {
+        expect([key, entry[key]]).toEqual([key, { vars: [cssVar], kind: "color" }]);
+      }
+      for (const [key, [cssVar, min, max, step, defaultValue]] of Object.entries(spec.lengths)) {
+        expect([key, entry[key]]).toEqual([
+          key,
+          { vars: [cssVar], kind: "length", min, max, step, unit: "px", defaultValue },
+        ]);
+      }
+      expect(Object.keys(entry).sort()).toEqual(
+        [...Object.keys(spec.colors), ...Object.keys(spec.lengths)].sort(),
+      );
+    });
+
+    it(`declares every ${file} var in both theme blocks at its registry default`, () => {
+      for (const block of [lightBlock, darkBlock]) {
+        for (const [key, cssVar] of Object.entries(spec.colors)) {
+          expect([key, block.split(`\n  ${cssVar}: `).length - 1]).toEqual([key, 1]);
+        }
+        for (const [key, [cssVar, , , , defaultValue]] of Object.entries(spec.lengths)) {
+          // Radii follow the global --radius (2px at stock).
+          const value = key === "radius" ? "var(--radius)" : `${defaultValue}px`;
+          expect([key, block.includes(`\n  ${cssVar}: ${value};`)]).toEqual([key, true]);
+        }
+      }
+    });
+
+    it(`reads every ${file} var in the component, its literal fallback equal to the default`, () => {
+      for (const [key, cssVar] of Object.entries(spec.colors)) {
+        expect([key, spec.source.includes(`var(${cssVar},`)]).toEqual([key, true]);
+      }
+      for (const [key, [cssVar, , , , defaultValue]] of Object.entries(spec.lengths)) {
+        const fallback = key === "radius" ? `var(${cssVar},var(--radius,2px))` : `var(${cssVar},${defaultValue}px)`;
+        expect([key, spec.source.includes(fallback)]).toEqual([key, true]);
+      }
+    });
+
+    it(`renders the ${spec.pane} pane with a labelled control per knob`, () => {
+      render(<RailHarness />);
+      openPane(spec.pane);
+      for (const key of Object.keys(entry)) {
+        // A knob without a label would fall back to its raw key.
+        expect([key, screen.queryByText(key)]).toEqual([key, null]);
+      }
+      const colorInputs = Array.from(document.querySelectorAll('input[type="color"]'));
+      expect(colorInputs.length).toBe(Object.keys(spec.colors).length);
+      // Every token slider starts at its registry default (the Layout
+      // section's sliders, where present, are not token knobs).
+      const sliders = Array.from(document.querySelectorAll<HTMLInputElement>('input[type="range"]')).map(
+        (input) => `${input.min}/${input.max}/${input.step}/${input.value}`,
+      );
+      for (const [key, [, min, max, step, defaultValue]] of Object.entries(spec.lengths)) {
+        expect([key, sliders.includes(`${min}/${max}/${step}/${defaultValue}`)]).toEqual([key, true]);
+      }
+    });
+  }
+
+  it("maps the outline rows' syntax colors onto the code theme's roles in both blocks", () => {
+    for (const block of [lightBlock, darkBlock]) {
+      for (const [token, value] of [
+        ["--docs-outline-rows-var-fg", "var(--syntax-key)"],
+        ["--docs-outline-rows-fn-fg", "var(--syntax-function)"],
+        ["--docs-outline-rows-type-fg", "var(--syntax-type)"],
+        ["--docs-outline-rows-tag-fg", "var(--syntax-tag)"],
+        ["--docs-outline-rows-keyword-fg", "var(--syntax-keyword)"],
+        ["--docs-outline-rows-control-fg", "var(--syntax-control)"],
+        ["--docs-outline-rows-constant-fg", "var(--syntax-boolean)"],
+        ["--docs-outline-rows-string-fg", "var(--syntax-string)"],
+        ["--docs-outline-rows-number-fg", "var(--syntax-number)"],
+        ["--docs-outline-rows-punct-fg", "var(--syntax-punctuation)"],
+        ["--docs-outline-rows-bracket-fg", "color-mix(in srgb, var(--syntax-punctuation) 60%, transparent)"],
+        ["--docs-outline-rows-guide", "color-mix(in srgb, var(--docs-ink) 75%, transparent)"],
+      ] as const) {
+        expect([token, block.includes(`  ${token}: ${value};`)]).toEqual([token, true]);
+      }
+    }
+  });
+
+  it("keeps the stack card on the page in light and ink-over-panel in dark, as the component falls back", () => {
+    expect(lightBlock).toContain("  --docs-stack-card-bg: var(--docs-page);");
+    expect(darkBlock).toContain(
+      "  --docs-stack-card-bg: color-mix(in srgb, var(--docs-stack-ink) 7%, var(--docs-panel));",
+    );
+    const source = FILES.stack!.source;
+    expect(source).toContain("--stack-card:var(--docs-stack-card-bg,var(--docs-page,#fdfdfd))");
+    expect(source).toContain(
+      "--stack-card:var(--docs-stack-card-bg,color-mix(in srgb,var(--stack-ink) 7%,var(--docs-panel,#151b23)))",
+    );
+    // The rule ink had no consumer, so it is neither a knob nor a private var.
+    expect(source).not.toContain("--stack-rule:");
+    expect(source).not.toContain("--docs-stack-rule");
+  });
+
+  it("registers the code notes surface and selection, wired with their stock fallbacks", () => {
+    const code = THEME_TOKEN_REGISTRY.code;
+    expect(code.notesBg).toEqual({ vars: ["--docs-code-notes-bg"], kind: "color" });
+    expect(code.selection).toEqual({ vars: ["--docs-code-selection"], kind: "color" });
+    expect(read(`${viewer}code/classes.ts`)).toContain(
+      "bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))]",
+    );
+    expect(read("../../../../docs-viewer/src/styles/code.css")).toContain(
+      "background-color: var(--docs-code-selection, Highlight);",
+    );
+    // Selection is declared at the UA value; the notes surface stays
+    // undeclared so its fallback resolves against the panel's own bg.
+    for (const block of [lightBlock, darkBlock]) {
+      expect(block).toContain("  --docs-code-selection: Highlight;");
+      expect(block).not.toMatch(/\n {2}--docs-code-notes-bg:/);
+    }
+  });
+
+  it("applies outline-rows and stack overrides onto their CSS vars and drops stock values", () => {
+    const settings = normalizeSettings({
+      components: {
+        "outline-rows": { variable: "#112233", lineHeight: "32px", padY: "8px", textSize: "99px" },
+        stack: { cardBg: "#FAFAFA", gap: 20, radius: "2px" },
+        code: { notesBg: "#223344" },
+      },
+    });
+    expect(settings.components).toEqual({
+      "outline-rows": { variable: "#112233", lineHeight: "32px", padY: "8px" },
+      stack: { cardBg: "#fafafa", gap: "20px", radius: "2px" },
+      code: { notesBg: "#223344" },
+    });
+    const vars = styleRailVars(settings);
+    expect(vars).toMatchObject({
+      "--docs-outline-rows-var-fg": "#112233",
+      "--docs-outline-rows-line-height": "32px",
+      "--docs-stack-card-bg": "#fafafa",
+      "--docs-stack-gap": "20px",
+      "--docs-code-notes-bg": "#223344",
+    });
+    expect(vars["--docs-outline-rows-pad-y"]).toBeNull();
+    expect(vars["--docs-stack-radius"]).toBeNull();
   });
 });

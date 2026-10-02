@@ -278,8 +278,8 @@ describe("CodeBlockNodeView shell geometry", () => {
     const lane = container.firstElementChild!;
     // blockLayoutOverrideCss keys its rules on this attribute pair.
     expect(lane.getAttribute("data-doc-block-type")).toBe("code");
-    expect(lane.getAttribute("data-doc-lane")).toBe("text-left");
-    expect(lane.className).toContain("max-w-[var(--style-content-width,60ch)]");
+    expect(lane.getAttribute("data-doc-lane")).toBe("code-left");
+    expect(lane.className).toContain("max-w-[var(--style-code-width,88ch)]");
     // The lane wears no code typography, so its `ch` width resolves at body size.
     expect(lane.className).not.toContain("--docs-code-text-size");
   });
@@ -335,8 +335,8 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(select).toContain("[font-weight:var(--docs-code-header-weight,400)]");
     expect(select).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
 
-    expect(cls('[data-annotation-note="0"]')).toContain(
-      "text-[length:var(--docs-code-note-text-size,14px)]",
+    expect(cls('[data-annotation-note="0"] [data-note-body]')).toContain(
+      "text-[length:var(--docs-code-note-text-size,13px)]",
     );
 
     for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2", "rounded-md"]) {
@@ -415,7 +415,7 @@ describe("CodeBlockNodeView notes aside", () => {
     { lines: "3", note: "The sum." },
   ];
 
-  it("renders the notes as non-editable margin prose beside the panel, outside it", () => {
+  it("renders the notes as a non-editable column inside the panel, beside the code", () => {
     const { props } = nodeViewProps({ annotations: ANNOTATIONS });
     const { container, getByText, queryByText } = render(<CodeBlockNodeView {...props} />);
 
@@ -426,21 +426,24 @@ describe("CodeBlockNodeView notes aside", () => {
     expect(aside.getAttribute("contenteditable")).toBe("false");
     expect(container.querySelectorAll("[data-annotation-note]").length).toBe(2);
 
-    // Layout: lane > size-container layout > grid > [panel, notes]; the
-    // notes sit on the page, outside the dark panel.
+    // Layout: lane > size-container layout > panel > [header, body grid];
+    // the body grid holds [code scroll body, notes] — the notes sit INSIDE
+    // the dark panel.
     const layout = container.querySelector("[data-doc-lane]")!.firstElementChild!;
     expect(layout.hasAttribute("data-code-layout")).toBe(true);
     expect(layout.className).toContain("@container");
-    const grid = layout.firstElementChild!;
+    const frame = layout.firstElementChild!;
+    expect(frame.getAttribute("data-code-surface")).toBe("true");
+    const grid = frame.querySelector(":scope > [data-code-body]")!;
     expect(grid.className).toContain(
       "@min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]",
     );
-    const [frame, notes] = Array.from(grid.children);
-    expect(frame?.getAttribute("data-code-surface")).toBe("true");
+    const [code, notes] = Array.from(grid.children);
+    expect(code?.hasAttribute("data-code-scroll")).toBe(true);
     expect(notes).toBe(aside);
-    expect(aside.closest("[data-code-surface]")).toBeNull();
+    expect(aside.closest("[data-code-surface]")).toBe(frame);
 
-    // Plain prose buttons: no card border/background/ring and no dividers.
+    // Plain buttons at rest: no card border/background/ring and no dividers.
     for (const i of [0, 1]) {
       const note = container.querySelector(`[data-annotation-note="${i}"]`)!;
       expect(note.tagName).toBe("BUTTON");
@@ -452,9 +455,9 @@ describe("CodeBlockNodeView notes aside", () => {
     expect(container.querySelector("[data-code-notes-header]")).toBeNull();
     expect(queryByText("Notes")).toBeNull();
 
-    // Each note opens with its range chip; the authored key rides in the title.
+    // Each note's head row opens with its range chip; the authored key rides in the title.
     const note0 = container.querySelector('[data-annotation-note="0"]')!;
-    expect(note0.firstElementChild?.getAttribute("data-range-chip")).toBe("true");
+    expect(note0.querySelector(":scope > [data-note-head]")?.firstElementChild?.getAttribute("data-range-chip")).toBe("true");
     expect(note0.querySelector("[data-range-chip]")?.textContent).toBe("L1–2");
     expect(
       container.querySelector('[data-annotation-note="1"] [data-range-chip]')?.textContent,

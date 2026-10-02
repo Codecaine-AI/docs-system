@@ -1,30 +1,38 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import type { ProcessOutlineNode } from "@codecaine-ai/docs-model";
-import { chipKind, typedChipColorCss } from "../typed-chip";
+import { chipKind, typedChipVsCodeColorCss } from "../typed-chip";
+import { chipBreaks } from "../mono-breaks";
+import { scheduleProcessOutlineEqualize, trackProcessOutline } from "./equal-width";
 
 export const LABEL = "Process Outline";
 export const AGENT_DESCRIPTION =
-  "An ordered process outline rendered from a typed recursive step tree: { steps: { text; kind?: 'step' | 'note'; steps? }[] }. Each root step draws as a panel whose head names the process; its children are ordered substeps on the rail, `kind: \"note\"` leaves are clarification notes (plain bullet lines off the rail), and backticks in text render as code chips. Use it to explain how a process decomposes from phases into substeps; canvas covers spatial relationships, and sequence covers exact exchanges.";
+  "An ordered process outline rendered from a typed recursive step tree: { steps: { text; kind?: 'step' | 'note'; steps? }[] }. Each root step draws as a panel whose head names the process; its children are ordered substeps on the rail, `kind: \"note\"` leaves are clarification notes (italic comment-coloured asides behind a `//` marker, aligned with their sibling steps and off the rail), and backticks in text render as typed code chips. Use it to explain how a process decomposes from phases into substeps; canvas covers spatial relationships, and sequence covers exact exchanges.";
 
 const STYLE_ID = "docs-process-outline-style";
 /*
- * Theme-lab look (2026-10-01): every root step is a panel whose head names it
- * (family tile + the root text); the steps below are sans text on neutral 1px
- * rails and elbows, and depth reads from indent. The depth hue survives only
- * on the small arrowhead closing each elbow. Loop keywords take the keyword
- * syntax color (colored, not also bold), backtick chips are typed, notes are
- * muted prose with a visible dot, and a trace mark is a quiet mono tag.
+ * Theme-lab look (2026-10-02), in VS Code colours: every root step is a
+ * panel whose head names it (family tile + the root text). The panel follows
+ * the page (light on the light page, dark on the dark page) and its colours
+ * are the VS Code theme for that mode: Light+ on light, Dark+ on dark. The
+ * steps below are sans text in the page ink on neutral 1px rails ending in
+ * plain file-tree elbows (a short tick, no arrowhead), and depth reads from
+ * indent. Phases (first-level steps with substeps) read in the brighter
+ * title ink at the branch weight and are spaced apart by the branch gap.
+ * Loop keywords take the control-flow colour (coloured, not also bold),
+ * backtick chips are typed (typed-chip.ts, Light+ / Dark+), notes are italic
+ * comment-coloured asides behind a `//` marker, and a trace mark is a quiet
+ * mono tag. Consecutive outlines share one width (equal-width.ts).
  *
  * Every tunable value rides a style-rail token (workbench theme/theme-folders.ts
  * "process-outline") and carries the token's LIGHT default as its literal
  * fallback, so the block renders the same with or without semantic.css.
  * Nothing here is !important and no token is re-declared inside the block: a
  * rail or theme override set on :root must always win.
- *   --po-c     the nesting level's marker colour. Depths 1..6 each take their
- *              own cycle token; deeper levels inherit depth 6. It colours the
- *              arrowhead, the note accent and the selection tint, never a rail.
+ *   --po-c     the nesting level's colour. Depths 1..6 each take their own
+ *              cycle token; deeper levels inherit depth 6. It tints the note
+ *              accent and the selection, never a rail or an elbow.
  *   --po-gap   vertical gap between sibling rows, re-declared per __children
  *              level so a phase gap never leaks into deeper levels and the
  *              elbow math matches the gap it sits in.
@@ -38,31 +46,32 @@ const PROCESS_OUTLINE_CSS = `
   --po-line: var(--docs-process-outline-line-height, 24px);
   --po-note-line: var(--docs-process-outline-note-line-height, 21px);
   --po-row-gap: var(--docs-process-outline-row-gap, 4px);
-  --po-branch-gap: var(--docs-process-outline-branch-gap, 12px);
+  --po-branch-gap: var(--docs-process-outline-branch-gap, 16px);
   --po-root-gap: var(--docs-process-outline-root-gap, 12px);
-  --po-indent: var(--docs-process-outline-indent, 24px);
+  --po-indent: var(--docs-process-outline-indent, 28px);
   --po-arrow-gap: var(--docs-process-outline-arrow-gap, 4px);
-  --po-arrow: var(--docs-process-outline-arrow-size, 5px);
-  --po-stroke: var(--docs-process-outline-stroke, 1px);
+  --po-stroke: var(--docs-process-outline-stroke, 1.5px);
   --po-pad-y: var(--docs-process-outline-pad-y, 12px);
   --po-pad-x: var(--docs-process-outline-pad-x, 12px);
   --po-note-inset: var(--docs-process-outline-note-inset, 0px);
   --po-note-rule-gap: var(--docs-process-outline-note-rule-gap, 0px);
-  --po-note-fg: var(--docs-process-outline-note-fg, #666562);
-  --po-note-rule: var(--docs-process-outline-note-rule, #e6e5e3);
-  --po-note-bullet: var(--docs-process-outline-note-bullet, #666562);
-  --po-rail: var(--docs-process-outline-rail, #c4c3c1);
-  --po-title: var(--docs-process-outline-title-fg, #1f1f1f);
   /* the rail hangs 7px in from the parent's text, under its first letters (the
-     root rail under the tile); the arrowhead is a rotated square of side
-     arrow + 1.5 stroke, its tip arrow-gap short of the text */
+     root rail under the tile); each elbow's tick stops arrow-gap short of the text */
   --po-rail-x: 7px;
-  --po-arrow-box: calc(var(--po-arrow) + 1.5 * var(--po-stroke));
   --po-gap: var(--po-row-gap);
-  --po-c: var(--po-rail);
-  width:100%; min-width:0; color:var(--docs-process-outline-ink, #2a2a2a);
+  /* shrink to content, cap at the lane: steps wrap at a 60ch prose measure */
+  width:fit-content; max-width:100%; min-width:0;
   font-family:var(--font-tx02, ui-sans-serif, system-ui, sans-serif);
   font-size:max(12px,var(--docs-process-outline-text-size, 13.5px)); line-height:var(--po-line);
+}
+.docs-process-outline {
+  --po-note-fg: var(--docs-process-outline-note-fg, #008000);
+  --po-note-rule: var(--docs-process-outline-note-rule, #e6e5e3);
+  --po-note-bullet: var(--docs-process-outline-note-bullet, #008000);
+  --po-rail: var(--docs-process-outline-rail, color-mix(in srgb,#1f1f1f 45%,#f8f8f7));
+  --po-title: var(--docs-process-outline-title-fg, #1f1f1f);
+  --po-c: var(--po-rail);
+  color:var(--docs-process-outline-ink, #2a2a2a);
 }
 .docs-process-outline [data-process-outline-depth="1"] { --po-c: var(--docs-process-outline-cycle-1, #0b6e99); }
 .docs-process-outline [data-process-outline-depth="2"] { --po-c: var(--docs-process-outline-cycle-2, #26744f); }
@@ -92,10 +101,11 @@ const PROCESS_OUTLINE_CSS = `
   font-size:max(13px,var(--docs-process-outline-root-text-size, 13.5px));
   font-weight:var(--docs-process-outline-root-weight, 600); line-height:18px;
 }
-.docs-process-outline__line { position:relative; max-width:min(88ch,100%); min-width:0; overflow-wrap:anywhere; line-height:var(--po-line); }
+.docs-process-outline__line { position:relative; max-width:60ch; min-width:0; overflow-wrap:anywhere; line-height:var(--po-line); }
 .docs-process-outline__node>.docs-process-outline__line { font-weight:var(--docs-process-outline-step-weight, 400); }
-/* a phase (first level, with substeps) reads in ink at the branch weight; depth below that reads from indent only */
-.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 500); }
+/* a phase (first level, with substeps) reads in ink at the branch weight, so each phase group starts strong;
+   depth below that reads from indent only */
+.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 600); }
 .docs-process-outline__node--deep>.docs-process-outline__line { color:var(--docs-process-outline-deep-ink, #2a2a2a); }
 .docs-process-outline__children {
   --po-gap: var(--po-row-gap);
@@ -111,7 +121,7 @@ const PROCESS_OUTLINE_CSS = `
 /* rails + elbows: one neutral for every depth, square corners */
 .docs-process-outline__children>.docs-process-outline__node::before {
   position:absolute; box-sizing:border-box; top:calc(-1 * var(--po-gap)); left:calc(var(--po-rail-x) - var(--po-indent));
-  width:max(0px, calc(var(--po-indent) - var(--po-rail-x) - var(--po-arrow-gap) - 0.707 * var(--po-arrow-box)));
+  width:max(0px, calc(var(--po-indent) - var(--po-rail-x) - var(--po-arrow-gap)));
   height:calc(var(--po-gap) + var(--po-line)/2 + var(--po-stroke)/2);
   border-bottom:var(--po-stroke) solid var(--po-rail); border-left:var(--po-stroke) solid var(--po-rail); content:"";
 }
@@ -123,42 +133,38 @@ const PROCESS_OUTLINE_CSS = `
 /* the first phase hangs from the head rule */
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::before { top:calc(-1 * var(--po-pad-y)); height:calc(var(--po-pad-y) + var(--po-line)/2 + var(--po-stroke)/2); }
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::after { top:calc(-1 * var(--po-pad-y)); }
-/* depth marker: a small arrowhead closing the elbow, in the level's hue */
-.docs-process-outline__children>.docs-process-outline__node>.docs-process-outline__line::before {
-  position:absolute; box-sizing:border-box; top:calc(var(--po-line)/2 - var(--po-arrow-box)/2);
-  left:calc(-1 * (var(--po-arrow-gap) + 1.207 * var(--po-arrow-box)));
-  width:var(--po-arrow-box); height:var(--po-arrow-box);
-  border-top:calc(1.5 * var(--po-stroke)) solid var(--po-c); border-right:calc(1.5 * var(--po-stroke)) solid var(--po-c); content:""; transform:rotate(45deg);
-}
-/* loop keywords: the keyword colour at a medium weight (coloured OR bold, not both) */
-.docs-process-outline__keyword { color:var(--docs-process-outline-keyword-fg, #6940a5); font-weight:var(--docs-process-outline-keyword-weight, 500); }
+/* loop keywords: control flow (Light+ #AF00DB / Dark+ #C586C0) at a medium weight (coloured OR bold, not both) */
+.docs-process-outline__keyword { color:var(--docs-process-outline-keyword-fg, #af00db); font-weight:var(--docs-process-outline-keyword-weight, 500); }
 /* typed chips: one soft neutral chip, the text colour says what the code is */
 .docs-process-outline__code {
   border-radius:3px; background:var(--docs-process-outline-code-bg, #ebebe9); padding:.1em .3em;
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:12px; font-weight:400;
   box-decoration-break:clone; -webkit-box-decoration-break:clone;
 }
-${typedChipColorCss(".docs-process-outline__code")}
+/* chips colour like code in VS Code: Light+ on the light page, Dark+ on the dark page */
+${typedChipVsCodeColorCss(".docs-process-outline__code")}
 /* trace: a quiet mono tag after the text */
 .docs-process-outline__trace {
   margin-left:8px; vertical-align:1px; color:var(--docs-muted, #666562); white-space:nowrap;
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
   font-size:max(12px,var(--docs-process-outline-trace-text-size, 12px)); font-weight:400; line-height:1;
 }
-/* notes: muted prose at the step indent, a dot where an elbow would be */
+/* notes: italic comment-coloured asides at the step indent, a // comment marker where an elbow would be */
 .docs-process-outline__note-card {
-  --po-line:var(--po-note-line); display:block; max-width:min(82ch,100%); margin-left:var(--po-note-inset);
+  --po-line:var(--po-note-line); display:block; max-width:60ch; margin-left:var(--po-note-inset);
   border:var(--docs-process-outline-note-border-width, 0px) solid var(--docs-process-outline-note-border, #e6e5e3);
   border-left:var(--docs-process-outline-note-rule-width, 0px) solid color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-rule));
   background:var(--docs-process-outline-note-bg, transparent);
   padding:var(--docs-process-outline-note-pad-y, 2px) var(--docs-process-outline-note-pad-x, 0px) var(--docs-process-outline-note-pad-y, 2px) calc(var(--po-note-rule-gap) + var(--docs-process-outline-note-pad-x, 0px));
-  color:var(--po-note-fg);
+  color:var(--po-note-fg); font-style:italic;
   font-size:max(12px,var(--docs-process-outline-note-text-size, 13.5px)); font-weight:400; line-height:var(--po-line);
 }
 .docs-process-outline__note-bullet { position:relative; overflow-wrap:anywhere; }
 .docs-process-outline__note-bullet::before {
-  position:absolute; top:calc(var(--po-line)/2 - 1.5px); left:-11px; width:3px; height:3px;
-  border-radius:50%; background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-bullet)); content:"";
+  position:absolute; top:0; right:calc(100% + 3px); content:"//";
+  color:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-bullet));
+  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:12px; font-style:normal; letter-spacing:-0.15em;
+  line-height:var(--po-line); white-space:nowrap; user-select:none;
 }
 .docs-process-outline__flow>.docs-process-outline__node--note { padding-left:12px; }
 .docs-process-outline__children>.docs-process-outline__node--note::before,
@@ -171,9 +177,9 @@ ${typedChipColorCss(".docs-process-outline__code")}
 .docs-process-outline__empty { color:var(--docs-muted, #666562); font-size:max(12px,var(--docs-process-outline-empty-text-size, 12px)); }
 @media(max-width:520px) {
   .docs-process-outline {
-    --po-indent: min(20px, var(--docs-process-outline-indent, 24px));
+    --po-indent: min(20px, var(--docs-process-outline-indent, 28px));
     --po-row-gap: min(4px, var(--docs-process-outline-row-gap, 4px));
-    --po-branch-gap: min(8px, var(--docs-process-outline-branch-gap, 12px));
+    --po-branch-gap: min(8px, var(--docs-process-outline-branch-gap, 16px));
     --po-root-gap: min(12px, var(--docs-process-outline-root-gap, 12px));
     --po-pad-y: min(10px, var(--docs-process-outline-pad-y, 12px));
     --po-pad-x: min(8px, var(--docs-process-outline-pad-x, 12px));
@@ -204,7 +210,7 @@ function renderPlainText(text: string, segmentIndex: number): ReactNode[] {
 }
 function renderText(text: string): ReactNode[] {
   return text.split("`").map((segment,index) => index % 2
-    ? <span key={index} className="docs-process-outline__code" data-process-outline-code="true" data-chip-kind={chipKind(segment)}>{segment}</span>
+    ? <span key={index} className="docs-process-outline__code" data-process-outline-code="true" data-chip-kind={chipKind(segment)}>{chipBreaks(segment)}</span>
     : <span key={index}>{renderPlainText(segment,index)}</span>);
 }
 export const renderProcessOutlineText = renderText;
@@ -247,8 +253,12 @@ function renderNode(node: ProcessOutlineNode, path: string, indexPath: readonly 
 }
 
 export function ProcessOutlineDocsBlock({ id, steps, edit }: { id:string; steps:ProcessOutlineNode[]; edit?:ProcessOutlineEditHooks }) {
+  const sectionRef = useRef<HTMLElement>(null);
   useEffect(()=>{ injectProcessOutlineStyles(); },[]);
-  return <section className="not-prose my-4 w-full overflow-x-auto" data-docs-block-type="process-outline" data-source-id={id}>
+  // Consecutive outlines share the widest natural width of their run (equal-width.ts).
+  useEffect(()=>trackProcessOutline(sectionRef.current),[]);
+  useEffect(()=>{ scheduleProcessOutlineEqualize(); },[steps]);
+  return <section ref={sectionRef} className="not-prose my-4 w-full overflow-x-auto" data-docs-block-type="process-outline" data-source-id={id}>
     <div className="docs-process-outline" data-fam="flow">
       {steps.length>0?<div className="docs-process-outline__flow" data-process-outline-flow="true">{renderNodes(steps,"root",[],edit)}</div>:(edit?.renderEmpty?.()??<div className="docs-process-outline__empty" data-process-outline-empty="true">empty process outline — no steps yet</div>)}
     </div>

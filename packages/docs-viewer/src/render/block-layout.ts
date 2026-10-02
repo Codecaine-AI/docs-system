@@ -36,13 +36,25 @@
  *
  * - `text` — the standard reading measure, `--style-content-width` (the style
  *   rail's "Max width" knob, default 60ch). Everything text-like.
+ * - `code` — the code measure, `--style-code-width` (the style rail's "Code
+ *   lane" knob, default 88ch). Code, pseudocode, file trees and file
+ *   explorers: mono lines that read best around 80-100 columns, wider than
+ *   prose but nowhere near a data grid.
  * - `wide` — the shared wide lane for data-heavy blocks, `--style-wide-width`
- *   (the style rail's "Wide lane" knob, default 1040px). Tables, state shapes,
- *   interaction surfaces, process outlines and media, which are unreadable
- *   when squeezed into a prose measure.
+ *   (the style rail's "Wide lane" knob, default 1100px). Tables, state shapes,
+ *   interaction surfaces, call stacks, component trees, process outlines,
+ *   flow strips, stacks and media, which are unreadable when squeezed into a
+ *   prose measure.
  * - `full` — no cap at all; the block spans the full padded page width.
+ *
+ * Every lane is a MAXIMUM, never a target: a block whose content is narrower
+ * than its lane (a short file tree, a three-frame call stack) sizes its own
+ * panel to its content (`width: fit-content; max-width: 100%`) inside the
+ * lane rather than stretching to fill it. Only blocks whose panes need the
+ * room (state shape, interaction surface, canvas, sequence, tables, code
+ * panels) fill their lane.
  */
-export type DocBlockLaneWidth = "text" | "wide" | "full";
+export type DocBlockLaneWidth = "text" | "code" | "wide" | "full";
 
 /**
  * Horizontal placement of the lane within the full page width.
@@ -86,7 +98,8 @@ export const DEFAULT_DOC_BLOCK_LAYOUT: Required<Pick<DocBlockLayout, "width" | "
  */
 const LANE_WIDTH_CLASSES: Record<DocBlockLaneWidth, string> = {
   text: "max-w-[var(--style-content-width,60ch)]",
-  wide: "max-w-[var(--style-wide-width,1040px)]",
+  code: "max-w-[var(--style-code-width,88ch)]",
+  wide: "max-w-[var(--style-wide-width,1100px)]",
   full: "max-w-none",
 };
 
@@ -149,9 +162,16 @@ export function docBlockLaneName(layout?: DocBlockLayout): string {
 }
 
 /**
+ * The code lane, left-justified — the shared declaration for the mono block
+ * types (code, pseudocode, file-tree and file-explorer).
+ */
+export const CODE_LEFT_BLOCK_LAYOUT: DocBlockLayout = { width: "code", justify: "left" };
+
+/**
  * The wide lane, left-justified — the shared declaration for every shipped
  * wide block type (structured-table, interaction-surface, state-shape,
- * process-outline, image, video, canvas and sequence). Centering is a sparse
+ * call-stack, component-tree, process-outline, stack, image,
+ * video, canvas and sequence). Centering is a sparse
  * theme/rail override, never a compiled-in presentation default.
  */
 export const WIDE_LEFT_BLOCK_LAYOUT: DocBlockLayout = { width: "wide", justify: "left" };

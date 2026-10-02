@@ -1,4 +1,5 @@
 import { createElement } from "react";
+import { CODE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { TEXT_OPS, blockAttrs, deltaToPlainText, el } from "../../render/descriptor-helpers";
@@ -49,6 +50,8 @@ export const descriptors: DocBlockDescriptor[] = [
     agentDescription:
       "A pseudocode block; the text is the pseudocode. Control words (if / else / for each / return), calls and -> arrows are highlighted, and trailing // comments sit in one aligned comment column that wraps inside the panel. With props.diff: true each line's leading +, - or space is a diff marker: added and removed rows get a +/− sign and a tint, and removed code is struck.",
     patchOps: TEXT_OPS,
+    // Mono lines share the code block's measure (block-layout.ts).
+    layout: CODE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
       const code = deltaToPlainText(block.text);
       const diff = block.props.diff === true;

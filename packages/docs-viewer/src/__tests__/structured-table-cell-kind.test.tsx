@@ -133,3 +133,24 @@ describe("identifier cells on both surfaces", () => {
     });
   }
 });
+
+describe("backtick code in a plain-string cell", () => {
+  // A table written through block props stores cells verbatim, so the
+  // code-colors page's `--syntax-function` cells reached the page with
+  // literal backticks. They render as chips and type as whole code cells.
+  it("renders each backtick pair as an inline code chip", () => {
+    const { container } = render(
+      <StructuredTableBlock
+        id="cc-roles"
+        columns={["Role", "Variable", "Colors"]}
+        rows={[["function", "`--syntax-function`", "`return`, `throw`, and the `?` of a branch row"]]}
+      />,
+    );
+    const cells = container.querySelectorAll("tbody td");
+    expect(cells[1].textContent).toBe("--syntax-function");
+    expect(cells[1].querySelector("code")?.textContent).toBe("--syntax-function");
+    expect(cells[1].getAttribute("data-cell-kind")).toBe("mono");
+    expect(Array.from(cells[2].querySelectorAll("code"), (chip) => chip.textContent)).toEqual(["return", "throw", "?"]);
+    expect(cells[2].textContent).toBe("return, throw, and the ? of a branch row");
+  });
+});

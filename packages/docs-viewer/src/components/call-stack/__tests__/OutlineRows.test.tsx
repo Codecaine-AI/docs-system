@@ -70,13 +70,13 @@ describe("call-stack rows", () => {
     expect(wrapper?.querySelector("figcaption")?.textContent).toBe("Call stack");
   });
 
-  it("leads a branch row with ? (once) and leaves its condition uncolored", () => {
+  it("leads a branch row with ? (once) and colors its condition as code", () => {
     const wrapper = renderBlock("call-stack", {
-      frames: [{ text: "? ready", kind: "branch", frames: [{ text: "go()" }] }],
+      frames: [{ text: "? tries > 3", kind: "branch", frames: [{ text: "go()" }] }],
     });
     const branch = wrapper?.querySelector('[data-outline-row="branch"] .docs-tree__code');
-    expect(branch?.textContent).toBe("?ready");
-    expect(branch?.querySelector("[data-outline-token]")).toBeNull();
+    expect(branch?.textContent).toBe("?tries > 3");
+    expect(branch?.querySelector('[data-outline-token="number"]')?.textContent).toBe("3");
   });
 
   it("omits the gutter when no frame changed", () => {
@@ -92,7 +92,7 @@ describe("call-stack rows", () => {
     const tokens = [...(wrapper?.querySelectorAll("[data-outline-token]") ?? [])]
       .filter((node) => node.getAttribute("data-outline-token") !== "punct")
       .map((node) => `${node.getAttribute("data-outline-token")}:${node.textContent}`);
-    expect(tokens).toEqual(["keyword:return", "callee:apply", "prop:ops", "number:409", 'string:"x"', "call:wrap"]);
+    expect(tokens).toEqual(["control:return", "callee:apply", "prop:ops", "number:409", 'string:"x"', "call:wrap"]);
   });
 });
 
@@ -113,12 +113,18 @@ describe("component-tree rows", () => {
       .filter((node) => node.getAttribute("data-outline-token") !== "punct")
       .map((node) => `${node.getAttribute("data-outline-token")}:${node.textContent}`);
     expect(tokens).toEqual([
+      "tagpunct:<",
       "type:DocPage",
       "prop:path",
+      "brace:{",
+      "brace:}",
+      "tagpunct:>",
       "hook:useCodeTheme",
+      "tagpunct:<",
       "tag:dialog",
       "prop:className",
       'string:"x"',
+      "tagpunct:>",
     ]);
     expect(wrapper?.querySelector("figcaption")?.textContent).toBe("Component tree");
   });

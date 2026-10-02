@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import { FILE_TREE_VARS, RenamedFrom } from "../file-tree/FileTreeDocsBlock";
 import { sortFileTreeNodes, type FileTreeNode } from "../file-tree/tree-model";
 import {
@@ -151,6 +151,20 @@ export function FileExplorer({
   const visible = folds && !expanded ? rows.slice(0, limit) : rows;
   // The gutter belongs to the whole tree, so folding never shifts the rows.
   const diff = treeHasChange(roots.values());
+  // The panel shrinks to its rows (.docs-tree is fit-content), so folding a
+  // folder or "Show first N rows" would make it jump narrower under the
+  // pointer. Ratchet instead: the widest it has been is its floor (capped
+  // at the lane), so it can grow as rows open but never shrinks on a click.
+  const figureRef = useRef<HTMLElement>(null);
+  const widestRef = useRef(0);
+  useLayoutEffect(() => {
+    const figure = figureRef.current;
+    if (!figure) return;
+    const width = figure.getBoundingClientRect().width;
+    if (width <= widestRef.current) return;
+    widestRef.current = width;
+    figure.style.minWidth = `min(${Math.ceil(width)}px, 100%)`;
+  });
 
   const toggle = (path: string) =>
     setCollapsed((previous) => {
@@ -163,7 +177,7 @@ export function FileExplorer({
   return (
     <>
       <TreeStyle />
-      <figure className="docs-tree" data-tree-kind="file-explorer" data-docs-file-explorer="" data-code-surface="true" style={FILE_TREE_VARS}>
+      <figure ref={figureRef} className="docs-tree" data-tree-kind="file-explorer" data-docs-file-explorer="" data-code-surface="true" style={FILE_TREE_VARS}>
         {title ? <TreeHead icon={TREE_ICONS.folder} title={title} /> : null}
         <div className="docs-tree__rows" role="tree" aria-label={title ?? "Files"} data-diff={diff ? "" : undefined}>
           {rows.length === 0 ? (

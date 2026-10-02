@@ -3,9 +3,9 @@ import { cleanup, render } from "@testing-library/react";
 import { StructuredTableBlock } from "../components/structured-table/StructuredTableDocsBlock";
 import { TableGrid } from "../components/structured-table/editor/TableGrid";
 import {
-  TABLE_TITLE_BAR_CLASSES,
-  TABLE_TITLE_CLASSES,
-  TABLE_WRAPPER_CLASSES,
+  TABLE_PROSE_MEASURE_CLASS,
+  TABLE_STICKY_BODY_CELL_CLASSES,
+  TABLE_STICKY_HEADER_CELL_CLASSES,
 } from "../components/structured-table/table-classes";
 
 afterEach(() => {
@@ -172,47 +172,97 @@ describe("structured-table theme tokens reach the DOM", () => {
     }
   });
 
-  it("sets the title in the panel head through its three tokens", () => {
+  it("draws no title: the title only names the table", () => {
     const { container } = render(
       <StructuredTableBlock id="tbl" title="Owners" columns={COLUMNS} rows={ROWS} />,
     );
-    const head = container.querySelector("section > [data-table-title-bar]");
-    expect(head?.className).toBe(TABLE_TITLE_BAR_CLASSES);
-    const title = head?.querySelector("span[id]");
-    expect(title?.textContent).toBe("Owners");
-    expect(title?.className).toBe(TABLE_TITLE_CLASSES);
-    for (const reference of [
-      "text-[length:var(--docs-table-title-text-size,13.5px)]",
-      "[font-weight:var(--docs-table-title-weight,600)]",
-      "text-[color:var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))]",
-    ]) {
-      expect(TABLE_TITLE_CLASSES).toContain(reference);
+    expect(container.textContent).not.toContain("Owners");
+    expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Owners");
+    // The frame is the section's only child: it starts at the header row.
+    expect(container.querySelector("section")?.children.length).toBe(1);
+    cleanup();
+    const untitled = render(<StructuredTableBlock id="tbl" columns={COLUMNS} rows={ROWS} />);
+    expect(untitled.container.querySelector("table")?.hasAttribute("aria-label")).toBe(false);
+  });
+});
+
+describe("structured-table column sizing and the pinned first column", () => {
+  const LAYOUT_COLUMNS = ["Key", "Notes", "Unit"];
+  const LAYOUT_ROWS = [
+    ["headerRuleWidth", "Header rule thickness, set in pixels under the header row", "px"],
+    ["cellPaddingY", "Vertical cell padding", "px"],
+  ];
+  const layoutSurfaces = [
+    () =>
+      render(<StructuredTableBlock id="tbl" columns={LAYOUT_COLUMNS} rows={LAYOUT_ROWS} />)
+        .container,
+    () =>
+      render(
+        <TableGrid
+          data={{ columns: LAYOUT_COLUMNS, rows: LAYOUT_ROWS }}
+          editable
+          onCommitHeader={noop}
+          onCommitCell={noop}
+          onHoverCell={noop}
+        />,
+      ).container,
+  ];
+
+  it("shrinks the frame and table to their content instead of filling the lane", () => {
+    for (const renderSurface of layoutSurfaces) {
+      const container = renderSurface();
+      const frame = container.querySelector("div:has(> table)")!;
+      expect(frame.className).toContain("w-fit");
+      expect(frame.className).toContain("max-w-full");
+      expect(frame.className).toContain("overflow-auto");
+      expect(container.querySelector("table")!.className.split(" ")).not.toContain("w-full");
+      cleanup();
     }
-    // The head is the top of the panel frame: same border, fill and radius
-    // tokens as the grid frame, with the soft rule under it.
-    for (const reference of [
-      "border-x-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]",
-      "border-t-[length:var(--docs-table-border-width,1px)]",
-      "rounded-t-[var(--docs-table-radius,var(--radius,2px))]",
-      "bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]",
-      "border-b-[color:var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))]",
-    ]) {
-      expect(TABLE_TITLE_BAR_CLASSES).toContain(reference);
-    }
-    // The family tile is decorative; the title names the table.
-    const tile = head?.querySelector('[aria-hidden="true"]');
-    expect(tile?.className).toContain("bg-[color:var(--docs-fam-text-solid,#9b9a97)]");
-    expect(tile?.querySelector("svg")).toBeTruthy();
-    expect(container.querySelector("table")?.getAttribute("aria-labelledby")).toBe(title?.id);
-    // The grid frame drops its top edge under a head.
-    expect(container.querySelector("section")?.hasAttribute("data-table-titled")).toBe(true);
-    expect(TABLE_WRAPPER_CLASSES).toContain("[[data-table-titled]_&]:border-t-0");
   });
 
-  it("renders no panel head without a title", () => {
-    const { container } = render(<StructuredTableBlock id="tbl" columns={COLUMNS} rows={ROWS} />);
-    expect(container.querySelector("[data-table-title-bar]")).toBeNull();
-    expect(container.querySelector("section")?.hasAttribute("data-table-titled")).toBe(false);
-    expect(container.querySelector("table")?.hasAttribute("aria-labelledby")).toBe(false);
+  it("keeps identifier and short columns on one line and measures the one prose column", () => {
+    for (const renderSurface of layoutSurfaces) {
+      const container = renderSurface();
+      const fits = Array.from(container.querySelectorAll("thead th")).map((th) =>
+        th.getAttribute("data-column-fit"),
+      );
+      expect(fits).toEqual(["fit", "prose", "fit"]);
+      const [key, notes, unit] = Array.from(container.querySelectorAll("tbody tr:first-child td"));
+      for (const cell of [key, unit]) {
+        expect(cell!.className.split(" ")).toContain("whitespace-nowrap");
+        expect(cell!.querySelector(`.${CSS.escape("max-w-[60ch]")}`)).toBeNull();
+      }
+      expect(notes!.className.split(" ")).not.toContain("whitespace-nowrap");
+      const measure = notes!.querySelector("div")!;
+      expect(measure.className).toBe(TABLE_PROSE_MEASURE_CLASS);
+      expect(measure.textContent).toContain("Header rule thickness");
+      cleanup();
+    }
+  });
+
+  it("pins the first column with an opaque fill matching its row", () => {
+    for (const renderSurface of layoutSurfaces) {
+      const container = renderSurface();
+      const firstHeader = container.querySelector("thead th")!;
+      const firstBody = container.querySelector("tbody td")!;
+      for (const reference of TABLE_STICKY_HEADER_CELL_CLASSES.split(" ")) {
+        expect(firstHeader.className).toContain(reference);
+      }
+      for (const reference of TABLE_STICKY_BODY_CELL_CLASSES.split(" ")) {
+        expect(firstBody.className).toContain(reference);
+      }
+      // Only the first column is pinned.
+      expect(container.querySelectorAll("tbody td")[1]!.className).not.toContain("sticky");
+      cleanup();
+    }
+    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain("sticky left-0");
+    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain(
+      "[tr:hover>&]:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]",
+    );
+    expect(TABLE_STICKY_HEADER_CELL_CLASSES).toContain(
+      "var(--docs-table-bg,var(--docs-panel,#f8f8f7))",
+    );
+    // The edge rule only shows while the frame actually scrolls.
+    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain("[[data-table-overflow]_&]:after:opacity-100");
   });
 });

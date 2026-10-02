@@ -153,6 +153,31 @@ export function TreeStyle() {
   return <style>{TREE_ROWS_CSS}</style>;
 }
 
+/**
+ * The guide strip's look, shared with every tree-shaped list (the
+ * structured-reference field ledger draws its nested fields with it). The
+ * host row is `position: relative`; the host sets --tr-x0 (strip start),
+ * --tr-indent, --tr-guide-x, --tr-row (row height the elbow centres on) and
+ * --tr-guide (line color).
+ */
+export const TREE_GUIDES_CSS = `/* guides: continuous 1px lines, drawn with borders */
+.docs-tree__guides {
+  position: absolute; top: 0; bottom: 0; left: var(--tr-x0);
+  display: flex; pointer-events: none;
+}
+.docs-tree__guides > i { position: relative; flex: none; width: var(--tr-indent); }
+.docs-tree__guides > i:is([data-g="pipe"], [data-g="tee"], [data-g="end"])::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: var(--tr-guide-x);
+  border-left: 1px solid var(--tr-guide, color-mix(in srgb, #9b9a97 45%, #e6e5e3));
+}
+.docs-tree__guides > i[data-g="end"]::before { bottom: auto; height: calc(var(--tr-row, 28px) / 2); }
+.docs-tree__guides > i:is([data-g="tee"], [data-g="end"])::after {
+  content: ""; position: absolute; top: calc(var(--tr-row, 28px) / 2); left: var(--tr-guide-x);
+  width: calc(var(--tr-indent) - var(--tr-guide-x) - 5px);
+  border-top: 1px solid var(--tr-guide, color-mix(in srgb, #9b9a97 45%, #e6e5e3));
+}
+`;
+
 export const TREE_ROWS_CSS = `
 .docs-tree {
   --tr-indent: 20px;
@@ -161,6 +186,10 @@ export const TREE_ROWS_CSS = `
   --tr-mono: var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, monospace);
   --tr-sans: var(--docs-font-body, var(--font-sans, ui-sans-serif, system-ui, sans-serif));
   margin: 0;
+  /* shrink to content, cap at the lane: a short tree is a short panel, never
+     stretched to the lane; past the lane the rows scroll (.docs-tree__rows) */
+  width: fit-content;
+  max-width: 100%;
   min-width: 0;
   overflow: hidden;
   background: var(--tr-bg, #f8f8f7);
@@ -231,23 +260,7 @@ export const TREE_ROWS_CSS = `
    after the longest noted name, not the longest name */
 .docs-tree__path--span { grid-column: path / src; }
 
-/* guides: continuous 1px lines, drawn with borders */
-.docs-tree__guides {
-  position: absolute; top: 0; bottom: 0; left: var(--tr-x0);
-  display: flex; pointer-events: none;
-}
-.docs-tree__guides > i { position: relative; flex: none; width: var(--tr-indent); }
-.docs-tree__guides > i:is([data-g="pipe"], [data-g="tee"], [data-g="end"])::before {
-  content: ""; position: absolute; top: 0; bottom: 0; left: var(--tr-guide-x);
-  border-left: 1px solid var(--tr-guide, color-mix(in srgb, #9b9a97 45%, #e6e5e3));
-}
-.docs-tree__guides > i[data-g="end"]::before { bottom: auto; height: calc(var(--tr-row, 28px) / 2); }
-.docs-tree__guides > i:is([data-g="tee"], [data-g="end"])::after {
-  content: ""; position: absolute; top: calc(var(--tr-row, 28px) / 2); left: var(--tr-guide-x);
-  width: calc(var(--tr-indent) - var(--tr-guide-x) - 5px);
-  border-top: 1px solid var(--tr-guide, color-mix(in srgb, #9b9a97 45%, #e6e5e3));
-}
-
+${TREE_GUIDES_CSS}
 /* names */
 .docs-tree__name { color: var(--tr-file-fg, #1f1f1f); font-weight: var(--tr-file-weight, 400); }
 .docs-tree__name[data-dir] { color: var(--tr-folder-fg, #1f1f1f); font-weight: var(--tr-folder-weight, 400); }
@@ -269,11 +282,12 @@ export const TREE_ROWS_CSS = `
   text-decoration: line-through; text-decoration-thickness: 1px;
 }
 
-/* notes: one aligned, muted, sans column; they wrap, never truncate */
+/* notes: one aligned, muted, sans column; they wrap at a 60ch prose measure, never truncate */
 .docs-tree__note {
   grid-column: note;
   min-width: 0;
   padding: 0 0 4px 24px;
+  max-width: 60ch;
   white-space: normal; overflow-wrap: break-word;
   font: 400 var(--tr-note-size, 13.5px) / 1.55 var(--tr-sans);
   color: var(--tr-note-fg, #666562);
@@ -299,26 +313,23 @@ export const TREE_ROWS_CSS = `
 /* operators read as typed: no ligature turns !== into one glyph (beats
    code.css's .docs-markdown code, which turns ligatures back on) */
 .docs-tree .docs-tree__code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
-.docs-tree__tok-call { color: var(--tr-tok-call, #0b6e99); }
-.docs-tree__tok-hook { color: var(--tr-tok-hook, #0b6e99); }
-.docs-tree__tok-keyword { color: var(--tr-tok-keyword, #6940a5); }
-.docs-tree__tok-string { color: var(--tr-tok-string, #9d530d); }
-.docs-tree__tok-number { color: var(--tr-tok-number, #26744f); }
-.docs-tree__tok-type { color: var(--tr-tok-type, #805f01); }
-.docs-tree__tok-tag { color: var(--tr-tok-tag, color-mix(in srgb, #ad1a72 88%, #1f1f1f)); }
-.docs-tree__tok-prop { color: var(--tr-tok-prop, #0d7164); }
-.docs-tree__tok-punct { color: var(--tr-tok-punct, #666562); }
-/* branch rows: a "?" prefix (the agent-view notation); the condition is
-   control flow, violet like an exit */
-.docs-tree__row[data-kind="branch"] .docs-tree__code,
-.docs-tree__row[data-kind="branch"] .docs-tree__code * { color: var(--tr-control, #6940a5); }
-/* call stack: colour reads the frame. The function each frame enters is the
-   one bright name; its receiver and arguments recede; literals keep their
-   syntax colour; control flow (a branch, a return or throw) is violet. */
-[data-outline-flavor="call-stack"] .docs-tree__code { color: var(--tr-args, #666562); }
-[data-outline-flavor="call-stack"] :is(.docs-tree__tok-call, .docs-tree__tok-prop, .docs-tree__tok-type, .docs-tree__tok-punct) { color: inherit; }
-.docs-tree__tok-callee { color: var(--tr-tok-callee, #0b6e99); font-weight: 600; }
-[data-outline-flavor="call-stack"] .docs-tree__tok-keyword { color: var(--tr-control, #6940a5); font-weight: 600; }
+/* syntax: every role reads the code theme's --syntax-* color (VS Code Dark+
+   by default), the way the editor colors the same code. Identifiers and
+   properties are variables; a call stack's callee is its one bold name; a
+   branch's "?" and return/throw are control flow. */
+.docs-tree__code { color: var(--tr-syn-var, #9cdcfe); }
+.docs-tree__tok-prop { color: var(--tr-syn-var, #9cdcfe); }
+:is(.docs-tree__tok-call, .docs-tree__tok-hook, .docs-tree__tok-callee) { color: var(--tr-syn-fn, #dcdcaa); }
+.docs-tree__tok-callee { font-weight: 600; }
+.docs-tree__tok-type { color: var(--tr-syn-type, #4ec9b0); }
+.docs-tree__tok-tag { color: var(--tr-syn-tag, #569cd6); }
+:is(.docs-tree__tok-keyword, .docs-tree__tok-brace) { color: var(--tr-syn-keyword, #569cd6); }
+:is(.docs-tree__tok-control, .docs-tree__if) { color: var(--tr-syn-control, #c586c0); }
+.docs-tree__tok-constant { color: var(--tr-syn-constant, #569cd6); }
+.docs-tree__tok-string { color: var(--tr-syn-string, #ce9178); }
+.docs-tree__tok-number { color: var(--tr-syn-number, #b5cea8); }
+.docs-tree__tok-punct { color: var(--tr-syn-punct, #d4d4d4); }
+.docs-tree__tok-tagpunct { color: var(--tr-syn-bracket, #808080); }
 .docs-tree__if { margin-right: 1ch; }
 
 /* hover: rows you can act on, and code rows (to follow a row to its source) */

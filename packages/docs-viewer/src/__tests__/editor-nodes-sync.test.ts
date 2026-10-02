@@ -11,7 +11,6 @@ import * as processOutlineEditorNodes from "../components/process-outline/editor
 import * as stackEditorNodes from "../components/stack/editor-nodes";
 import * as callStackEditorNodes from "../components/call-stack/editor-nodes";
 import * as componentTreeEditorNodes from "../components/component-tree/editor-nodes";
-import * as flowStripEditorNodes from "../components/flow-strip/editor-nodes";
 import * as pseudocodeEditorNodes from "../components/pseudocode/editor-nodes";
 import * as fileExplorerEditorNodes from "../components/file-explorer/editor-nodes";
 import {
@@ -34,7 +33,6 @@ const componentNodeModules = [
   stackEditorNodes,
   callStackEditorNodes,
   componentTreeEditorNodes,
-  flowStripEditorNodes,
   pseudocodeEditorNodes,
   fileExplorerEditorNodes,
 ];
@@ -65,7 +63,6 @@ describe("component editor nodes", () => {
       "docStack",
       "docCallStack",
       "docComponentTree",
-      "docFlowStrip",
       "docPseudocode",
       "docFileExplorer",
     ]);
@@ -100,7 +97,6 @@ describe("component editor nodes", () => {
       stack: "docStack",
       "call-stack": "docCallStack",
       "component-tree": "docComponentTree",
-      "flow-strip": "docFlowStrip",
       "pseudocode": "docPseudocode",
       "file-explorer": "docFileExplorer",
     });

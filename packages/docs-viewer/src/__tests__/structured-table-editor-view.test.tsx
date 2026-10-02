@@ -11,7 +11,6 @@ import {
   resolveNavigation,
 } from "../components/structured-table/editor/TableGrid";
 import type { TableData } from "../components/structured-table/editor/mutations";
-import { TABLE_TITLE_CLASSES } from "../components/structured-table/table-classes";
 
 afterEach(() => {
   cleanup();
@@ -386,25 +385,27 @@ function nodeViewProps(blockProps: Record<string, unknown>): {
 }
 
 describe("StructuredTableNodeView", () => {
-  it("renders title, section attributes, and normalized ragged rows", () => {
+  it("labels the table with its title, never drawing it, and normalizes ragged rows", () => {
     const { props } = nodeViewProps({
       title: "Rollout",
       columns: ["A", "B"],
       rows: [["only-a"]],
     });
-    const { container, getByText } = render(<StructuredTableNodeView {...props} />);
+    const { container, queryByText } = render(<StructuredTableNodeView {...props} />);
 
     const section = container.querySelector('[data-docs-block-type="structured-table"]');
     expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
     expect(section?.className).toBe("not-prose my-4");
-    // The title sits in the panel head above the overlay surface, labelling
-    // the grid's table, and the grid frame drops its top edge under it.
-    const title = getByText("Rollout");
-    expect(title.className).toBe(TABLE_TITLE_CLASSES);
-    expect(title.closest("[data-table-title-bar]")?.parentElement === section).toBe(true);
-    expect(section?.hasAttribute("data-table-titled")).toBe(true);
-    expect(container.querySelector("table")?.getAttribute("aria-labelledby")).toBe(title.id);
-    expect(container.querySelector("[data-structured-table-surface]")).toBeTruthy();
+    // No title bar: the frame (inside the overlay surface) is the section's
+    // whole content, and the title only names the table for assistive tech.
+    expect(queryByText("Rollout")).toBeNull();
+    expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Rollout");
+    const surface = container.querySelector("[data-structured-table-surface]");
+    expect(section?.firstElementChild).toBe(surface);
+    // The surface hugs the shrink-to-content frame, so the add bars sit on
+    // the table's own edges rather than the lane's.
+    expect(surface?.className).toContain("w-fit");
+    expect(surface?.className).toContain("max-w-full");
     // Ragged row padded to the column count.
     expect(gridCells(container as HTMLElement).map((cell) => cell.textContent)).toEqual([
       "A",

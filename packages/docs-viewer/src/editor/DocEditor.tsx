@@ -164,6 +164,10 @@ export default function DocEditor({
   const client = useDocsClient();
   const [lockConflict, setLockConflict] = useState<DraftLockInfo | null>(null);
   const hasAcquiredRef = useRef(false);
+  // The latest acquire request, so a release issued right after it (an edit
+  // undone before its save) cannot reach the server first and leave the lock
+  // held.
+  const acquireInFlightRef = useRef<Promise<unknown> | null>(null);
   const isDirtyRef = useRef(isDirty);
   isDirtyRef.current = isDirty;
   const isSavingRef = useRef(isSaving);
@@ -423,7 +427,9 @@ export default function DocEditor({
     if (hasAcquiredRef.current) return;
     hasAcquiredRef.current = true;
     let cancelled = false;
-    void acquire(projectId, documentPath, "doc", sessionId)
+    const request = acquire(projectId, documentPath, "doc", sessionId);
+    acquireInFlightRef.current = request;
+    void request
       .then((result) => {
         if (cancelled) return;
         setLockConflict(result.ok ? null : result.heldBy);
@@ -489,7 +495,19 @@ export default function DocEditor({
     const currentDoc = pmToDoc(editor.getJSON() as PMNode, baseDocRef.current, makeBlockId);
     const ops = diffToOps(baseDocRef.current, currentDoc, makeBlockId);
     if (ops.length === 0) {
+      // Nothing to write (e.g. an edit undone before the debounce fired),
+      // but the first dirty transition already acquired the draft lock —
+      // release it and clear the conflict exactly as a successful save does,
+      // or the lock sits held until its TTL lapses and blocks other sessions.
       setIsDirty(false);
+      const release = client?.releaseDraftLock?.bind(client);
+      if (projectId && documentPath && release) {
+        void Promise.resolve(acquireInFlightRef.current)
+          .catch(() => {})
+          .then(() => release(projectId, documentPath, "doc", sessionId))
+          .catch(() => {});
+      }
+      setLockConflict(null);
       return;
     }
     setIsSaving(true);

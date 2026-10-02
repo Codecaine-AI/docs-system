@@ -11,6 +11,7 @@ import {
   INLINE_CODE_KIND_TEXT_CLASSES,
 } from "../../render/block-classes";
 import { chipKind } from "../typed-chip";
+import { chipNeedsPieces, chipPieces } from "../mono-breaks";
 
 /**
  * Editor MARK overrides owned by the rich-text component (kept separate
@@ -35,6 +36,11 @@ export const DocStrike = Strike.extend({ addInputRules: () => [] });
  * color classes — so a chip reads the same in edit mode as on the read
  * surface. A run is the longest stretch of adjacent code-marked text in one
  * textblock (a chip split by bold still classifies as one).
+ *
+ * Each run is also cut into the read surface's nowrap pieces
+ * (mono-breaks.tsx chipPieces), one `white-space: nowrap` decoration per
+ * piece, so an editor chip never breaks mid-token either (it breaks at a
+ * space, or where the browser allows a break between two pieces).
  */
 export function inlineCodeKindDecorations(doc: ProseMirrorNode): DecorationSet {
   const decorations: Decoration[] = [];
@@ -44,6 +50,13 @@ export function inlineCodeKindDecorations(doc: ProseMirrorNode): DecorationSet {
     let runText = "";
     const closeRun = (to: number) => {
       if (runFrom >= 0) {
+        let pieceFrom = runFrom;
+        for (const piece of chipNeedsPieces(runText) ? chipPieces(runText) : []) {
+          if (!/^\s+$/.test(piece)) {
+            decorations.push(Decoration.inline(pieceFrom, pieceFrom + piece.length, { style: "white-space:nowrap" }));
+          }
+          pieceFrom += piece.length;
+        }
         const kind = chipKind(runText);
         if (kind !== "other") {
           decorations.push(

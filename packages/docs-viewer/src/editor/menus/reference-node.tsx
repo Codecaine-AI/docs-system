@@ -27,6 +27,7 @@ import {
 import { validateSpectreRef, type SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import { FileTextIcon } from "lucide-react";
 import { useDocsClient, type DocsClient, type DocsTreeNode } from "../../client";
+import { cleanReferenceSpanMarks, type ReferenceSpanMarks } from "../core/convert";
 import {
   DOC_REFERENCE_CLASSES,
   DOC_REFERENCE_LABEL_CLASSES,
@@ -60,7 +61,18 @@ import {
 export type DocReferenceAttrs = {
   ref: SpectreRef;
   label: string;
+  /** Other span marks the reference span carries (e.g. `code`), kept so a save never drops them. */
+  marks: ReferenceSpanMarks | null;
 };
+
+function parseMarksPayload(raw: string | null): ReferenceSpanMarks | null {
+  if (!raw) return null;
+  try {
+    return cleanReferenceSpanMarks(JSON.parse(raw));
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Defensive parse of the JSON-encoded clipboard payload — null for missing,
@@ -107,6 +119,17 @@ export const DocReference = Node.create({
       label: {
         default: "",
         parseHTML: (element: HTMLElement) => element.getAttribute("label") ?? "",
+      },
+      // Non-reference span marks (bold/italic/strike/code/link) of the
+      // source span — JSON-encoded for the clipboard like `ref`.
+      marks: {
+        default: null as ReferenceSpanMarks | null,
+        parseHTML: (element: HTMLElement) =>
+          parseMarksPayload(element.getAttribute("data-doc-reference-marks")),
+        renderHTML: (attributes: Record<string, unknown>) => {
+          const marks = cleanReferenceSpanMarks(attributes.marks);
+          return marks ? { "data-doc-reference-marks": JSON.stringify(marks) } : {};
+        },
       },
     };
   },

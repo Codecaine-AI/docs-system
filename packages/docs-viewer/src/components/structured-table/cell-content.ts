@@ -4,6 +4,7 @@ import type { DeltaSpan, DeltaSpanAttributes } from "@codecaine-ai/docs-model/do
 import { normalizeTableCell, type TableCell } from "@codecaine-ai/docs-model";
 import { cellDeltaToPMInline, pmInlineToCellDelta, type PMNode } from "../../editor/core/convert";
 import { isDeltaSpanArray } from "../../editor/core/node-helpers";
+import { liftBacktickCode } from "./cell-code";
 
 /**
  * TableCell <-> mini-cell-editor bridge. A cell's canonical value is
@@ -20,10 +21,11 @@ export function isTableCellValue(value: unknown): value is TableCell {
   return typeof value === "string" || isDeltaSpanArray(value);
 }
 
-/** Cell -> spans (plain string becomes one unattributed span; "" -> []). */
+/** Cell -> spans (plain string becomes one unattributed span, its backtick code lifted to code spans; "" -> []). */
 export function tableCellSpans(cell: TableCell): DeltaSpan[] {
-  if (typeof cell === "string") return cell.length > 0 ? [{ insert: cell }] : [];
-  return cell;
+  const value = liftBacktickCode(cell);
+  if (typeof value === "string") return value.length > 0 ? [{ insert: value }] : [];
+  return value;
 }
 
 /** Cell -> the mini cell editor's whole-doc PM JSON (one paragraph). */
@@ -60,10 +62,10 @@ function sameCellMarkAttrs(
   return CELL_MARK_KEYS.every((key) => an[key] === bn[key]);
 }
 
-/** Value equality over the canonical cell forms (both sides normalized first, so `""` == `[]` and merged spans compare stably). */
+/** Value equality over the canonical cell forms (both sides lifted and normalized first, so `""` == `[]`, merged spans compare stably, and an untouched backtick string equals the code spans its editor produced). */
 export function tableCellEquals(a: TableCell, b: TableCell): boolean {
-  const an = normalizeTableCell(a);
-  const bn = normalizeTableCell(b);
+  const an = normalizeTableCell(liftBacktickCode(a));
+  const bn = normalizeTableCell(liftBacktickCode(b));
   if (typeof an === "string" || typeof bn === "string") return an === bn;
   if (an.length !== bn.length) return false;
   return an.every((span, index) => {

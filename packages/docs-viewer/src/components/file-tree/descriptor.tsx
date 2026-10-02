@@ -1,4 +1,5 @@
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
+import { CODE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { mdxAdapterDescriptor } from "../../render/descriptor-helpers";
 import { FileTreeDocsBlock } from "./FileTreeDocsBlock";
@@ -24,12 +25,16 @@ function fileTreeEntries(block: DocBlock): Array<Record<string, unknown>> {
 }
 
 export const descriptors: DocBlockDescriptor[] = [
-  mdxAdapterDescriptor({
-    type: "file-tree",
-    block: new FileTreeDocsBlock(),
-    data: (block) => ({
-      id: block.id,
-      entries: fileTreeEntries(block),
+  {
+    // Path rows + a note column read at the code measure (block-layout.ts).
+    ...mdxAdapterDescriptor({
+      type: "file-tree",
+      block: new FileTreeDocsBlock(),
+      data: (block) => ({
+        id: block.id,
+        entries: fileTreeEntries(block),
+      }),
     }),
-  }),
+    layout: CODE_LEFT_BLOCK_LAYOUT,
+  },
 ];

@@ -22,7 +22,6 @@ import {
   DocStack,
   DocCallStack,
   DocComponentTree,
-  DocFlowStrip,
   DocPseudocode,
   DocFileExplorer,
   NODE_TYPE_TO_BLOCK_TYPE,
@@ -192,12 +191,6 @@ export const DocComponentTreeWithView = DocComponentTree.extend({
   },
 });
 
-export const DocFlowStripWithView = DocFlowStrip.extend({
-  addNodeView() {
-    return ReactNodeViewRenderer(AtomBlockView);
-  },
-});
-
 export const DocPseudocodeWithView = DocPseudocode.extend({
   addNodeView() {
     return ReactNodeViewRenderer(AtomBlockView);
@@ -227,7 +220,6 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocStackWithView,
   DocCallStackWithView,
   DocComponentTreeWithView,
-  DocFlowStripWithView,
   DocPseudocodeWithView,
   DocFileExplorerWithView,
 ];

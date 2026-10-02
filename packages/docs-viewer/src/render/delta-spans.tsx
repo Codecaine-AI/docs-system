@@ -11,6 +11,7 @@ import {
   SOURCE_REFERENCE_CLASSES,
 } from "./block-classes";
 import { chipKind } from "../components/typed-chip";
+import { chipBreaks } from "../components/mono-breaks";
 
 /**
  * The class string and `data-chip-kind` for one inline code chip holding
@@ -48,7 +49,8 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
     const attrs = span.attributes;
     if (attrs) {
       if (attrs.code) {
-        node = <code {...inlineCodeChipProps(span.insert)}>{node}</code>;
+        // Pieces, so the chip never breaks mid-token (mono-breaks.tsx chipBreaks).
+        node = <code {...inlineCodeChipProps(span.insert)}>{chipBreaks(span.insert)}</code>;
       }
       if (attrs.bold) node = <strong>{node}</strong>;
       if (attrs.italic) node = <em>{node}</em>;

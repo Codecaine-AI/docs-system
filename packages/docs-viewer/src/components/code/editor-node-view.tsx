@@ -31,8 +31,9 @@ const CODE_LAYOUT = descriptors.find((descriptor) => descriptor.type === "code")
  * copies node.textContent (the raw stored text — edit mode's WYSIWYG).
  *
  * When the block carries `props.annotations` (riding the `blockProps` attr),
- * annotated line runs show the quiet gutter mark, and the notes become
- * margin notes beside the panel (stacked below in a narrow block) — same
+ * annotated line runs show the quiet gutter mark, and the notes become a
+ * notes column inside the panel beside the code (below it in a narrow
+ * block) — same
  * geometry as the read surface. Hovering a note tints its lines; clicking it
  * pins the pair and scrolls the range's first line into view; clicking the
  * active note again clears it. Clicks on the

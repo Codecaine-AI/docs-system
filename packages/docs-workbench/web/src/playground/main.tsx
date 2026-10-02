@@ -7,6 +7,12 @@
  *     shell: two iframes (light | dark) of the frame view below
  *   …&theme=light|dark
  *     frame: the page's blocks of <type> (all blocks with &all=1)
+ *   …&max=<px>|none
+ *     the frame's content max-width (default 900px; `none` = full width, to
+ *     check the wide lane at real page widths)
+ *   …&src=/abs/path/doc.json
+ *     render a doc.json from outside this corpus (fetched through vite's
+ *     /@fs/ route, so the file must be under server.fs.allow)
  *
  * Each half owns its <html>, so `.dark` / [data-theme] and the :root token
  * blocks resolve exactly as in the app. No saved Style-rail theme is applied:
@@ -29,6 +35,9 @@ const params = new URLSearchParams(location.search);
 const docPath = params.get("doc") ?? "10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree";
 const type = params.get("type") ?? "file-tree";
 const theme = params.get("theme");
+const maxParam = params.get("max");
+const frameMax = maxParam === "none" ? "none" : maxParam ? Number(maxParam) : 900;
+const srcPath = params.get("src");
 const root = createRoot(document.getElementById("root")!);
 
 function Shell() {
@@ -71,7 +80,9 @@ async function frame(t: string) {
   document.body.style.margin = "0";
   document.body.style.background = "var(--docs-page)";
   document.body.style.color = "var(--docs-ink)";
-  const load = DOCS[`../../../../../docs/${docPath}/doc.json`];
+  const load = srcPath
+    ? () => fetch(`/@fs${srcPath}`).then((response) => response.json() as Promise<DocDocument>)
+    : DOCS[`../../../../../docs/${docPath}/doc.json`];
   if (!load) {
     root.render(<pre style={{ padding: 24 }}>No doc.json at docs/{docPath}</pre>);
     return;
@@ -79,7 +90,7 @@ async function frame(t: string) {
   const doc = await load();
   root.render(
     <StrictMode>
-      <main style={{ padding: "24px 32px", maxWidth: 900 }} className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
+      <main style={{ padding: "24px 32px", maxWidth: frameMax }} className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
         <DocBlockRenderer document={onlyType(doc)} documentPath={docPath} bundlePath={docPath} />
       </main>
     </StrictMode>,

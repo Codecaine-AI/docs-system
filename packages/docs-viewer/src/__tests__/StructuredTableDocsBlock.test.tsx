@@ -24,7 +24,6 @@ describe("StructuredTableBlock", () => {
       />,
     );
 
-    expect(screen.getByText("Rollout matrix")).toBeTruthy();
     expect(screen.getByText("Stage")).toBeTruthy();
     expect(screen.getByText("Owner")).toBeTruthy();
     expect(screen.getByText("Status")).toBeTruthy();
@@ -36,11 +35,12 @@ describe("StructuredTableBlock", () => {
     const section = container.querySelector('[data-docs-block-type="structured-table"]');
     expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
     expect(section?.className).toBe("not-prose my-4");
-    expect(screen.getByText("Rollout matrix").className).toBe(
-      "min-w-0 text-[length:var(--docs-table-title-text-size,13.5px)] leading-[1.3] [font-weight:var(--docs-table-title-weight,600)] text-[color:var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))]",
-    );
-    // The title lives in the panel head, inside the section, before the grid.
-    expect(section?.firstElementChild?.hasAttribute("data-table-title-bar")).toBe(true);
+    // The title is never drawn: the frame starts at the header row, and the
+    // title only names the table for assistive tech.
+    expect(screen.queryByText("Rollout matrix")).toBeNull();
+    expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Rollout matrix");
+    expect(section?.children.length).toBe(1);
+    expect(section?.firstElementChild?.firstElementChild?.tagName).toBe("TABLE");
   });
 
   it("pads ragged rows with empty cells so every row spans all columns", () => {

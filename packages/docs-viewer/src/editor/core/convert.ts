@@ -84,6 +84,26 @@ function marksForSpan(attrs: DeltaSpanAttributes | undefined): PMMark[] {
   return marks;
 }
 
+/** The non-reference span attributes a `docReference` node carries (bold/italic/strike/code/link). */
+export type ReferenceSpanMarks = Omit<DeltaSpanAttributes, "reference">;
+
+/**
+ * Gate for the `marks` attr on a `docReference` node: keeps only valid
+ * bold/italic/strike/code (`true`) and link (non-empty string) entries, so
+ * corrupted clipboard data can never write an invalid span. Returns null
+ * when nothing survives (the attr's "no extra marks" value).
+ */
+export function cleanReferenceSpanMarks(raw: unknown): ReferenceSpanMarks | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const source = raw as Record<string, unknown>;
+  const out: ReferenceSpanMarks = {};
+  for (const key of ["bold", "italic", "strike", "code"] as const) {
+    if (source[key] === true) out[key] = true;
+  }
+  if (typeof source.link === "string" && source.link.length > 0) out.link = source.link;
+  return Object.keys(out).length > 0 ? out : null;
+}
+
 /**
  * Newlines inside prose text spans (hard-wrapped markdown sources carry them)
  * render as collapsed whitespace in every read surface, but ProseMirror's
@@ -101,9 +121,13 @@ function deltaToPMInline(spans: DeltaSpan[] | undefined, flowNewlines: boolean):
   const out: PMNode[] = [];
   for (const span of spans) {
     if (span.attributes?.reference) {
+      // The chip is an atom node, not marked text, so any marks the span
+      // ALSO carries (e.g. `code` on a source reference) ride as the node's
+      // `marks` attr — dropping them rewrote untouched blocks on save.
+      const { reference, ...rest } = span.attributes;
       out.push({
         type: "docReference",
-        attrs: { ref: span.attributes.reference, label: span.insert },
+        attrs: { ref: reference, label: span.insert, marks: cleanReferenceSpanMarks(rest) },
       });
       continue;
     }
@@ -254,7 +278,8 @@ function pmInlineToDelta(nodes: PMNode[]): DeltaSpan[] {
         // display text lives in the span insert; a legacy `label` field on a
         // loaded ref is dropped here so saves converge on the new shape.
         const { label: _legacyLabel, ...refOut } = ref;
-        spans.push({ insert: label, attributes: { reference: refOut } });
+        const marks = cleanReferenceSpanMarks(node.attrs?.marks);
+        spans.push({ insert: label, attributes: { ...marks, reference: refOut } });
       } else if (label) spans.push({ insert: label });
       continue;
     }
@@ -515,19 +540,46 @@ function deepEqual(a: unknown, b: unknown): boolean {
   return false;
 }
 
+/**
+ * The form a span list takes after a trip through the editor: prose newlines
+ * flowed to spaces (see flowSpanText), empty non-reference spans dropped, and
+ * adjacent non-reference spans with equal marks joined — ProseMirror itself
+ * merges adjacent text nodes whose marks match, so a run boundary between two
+ * equally-marked spans cannot survive the editor. Reference spans are atoms
+ * and never join.
+ */
+function editorCanonicalSpans(spans: DeltaSpan[], flowNewlines: boolean): DeltaSpan[] {
+  const out: DeltaSpan[] = [];
+  for (const span of spans) {
+    const insert = flowNewlines ? flowSpanText(span.insert) : span.insert;
+    const isRef = Boolean(span.attributes?.reference);
+    if (!isRef && insert.length === 0) continue;
+    const prev = out[out.length - 1];
+    if (
+      prev &&
+      !isRef &&
+      !prev.attributes?.reference &&
+      sameSpanAttrs(prev.attributes, span.attributes)
+    ) {
+      out[out.length - 1] = { ...prev, insert: prev.insert + insert };
+    } else {
+      out.push({ ...span, insert });
+    }
+  }
+  return out;
+}
+
 function sameText(a: DeltaSpan[] | undefined, b: DeltaSpan[] | undefined, flowNewlines: boolean): boolean {
-  const an = a ?? [];
-  const bn = b ?? [];
+  // Compared in editor-canonical form (flowed newlines, joined equal-mark
+  // runs) so an untouched block never diffs as changed: without this,
+  // opening a hard-wrapped doc — or one with split equal-mark runs — and
+  // editing anything would rewrite every such block in the batch.
+  const an = editorCanonicalSpans(a ?? [], flowNewlines);
+  const bn = editorCanonicalSpans(b ?? [], flowNewlines);
   if (an.length !== bn.length) return false;
   return an.every((span, index) => {
     const other = bn[index];
-    // The editor flows prose newlines as spaces (see flowSpanText), so a
-    // base span differing from its edited twin only by flowed whitespace is
-    // NOT a user edit — without this, opening a hard-wrapped doc and typing
-    // anywhere would rewrite every prose block in the batch.
-    const aInsert = flowNewlines ? flowSpanText(span.insert) : span.insert;
-    const bInsert = flowNewlines ? flowSpanText(other.insert) : other.insert;
-    return aInsert === bInsert && sameSpanAttrsFull(span.attributes, other.attributes);
+    return span.insert === other.insert && sameSpanAttrsFull(span.attributes, other.attributes);
   });
 }
 
@@ -537,7 +589,17 @@ function sameSpanAttrsFull(a: DeltaSpanAttributes | undefined, b: DeltaSpanAttri
   for (const key of MARK_ATTR_ORDER) {
     if (an[key] !== bn[key]) return false;
   }
-  return deepEqual(an.reference, bn.reference);
+  // A legacy `label` on a stored ref is dropped by pmToDoc (saves converge
+  // on the path-identity shape), but that alone is not a user edit: ignoring
+  // it here keeps untouched blocks out of the save batch. A block the user
+  // does edit is written without the label.
+  return deepEqual(withoutLegacyLabel(an.reference), withoutLegacyLabel(bn.reference));
+}
+
+function withoutLegacyLabel(ref: SpectreRef | undefined): Omit<SpectreRef, "label"> | undefined {
+  if (!ref) return ref;
+  const { label: _legacyLabel, ...rest } = ref;
+  return rest;
 }
 
 type ParentedBlock = { block: DocBlock; parentId: string; index: number };

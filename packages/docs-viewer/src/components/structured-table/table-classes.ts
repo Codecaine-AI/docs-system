@@ -7,10 +7,15 @@
  * (the app palette value of the role token it follows), so the table renders
  * the same where that stylesheet is absent (static export).
  *
- * The table is a panel: one rule-colored frame on the panel background. A
- * title becomes the panel head (family tile + title) inside that frame; the
- * header row is muted sans over one rule, body rows are split by the soft
- * rule, and there are no column rules at stock.
+ * The table is a panel: one rule-colored frame on the panel background that
+ * shrinks to its content (the lane is a maximum, never a target). The frame
+ * starts at the header row — a block title is never drawn; it only labels
+ * the `<table>` for assistive tech. The header row is muted sans over one
+ * rule, body rows are split by the soft rule, and there are no column rules
+ * at stock. Column sizing (column-layout.ts): identifier and short columns
+ * fit their content on one line, one prose column takes the remaining width
+ * and wraps at a 60ch measure. When even that overflows the lane, the frame
+ * scrolls horizontally under a pinned first column.
  *
  * Cell typography is set ON the th/td. A host stylesheet that re-asserts prose
  * typography on `td`/`th`/`p` from outside a cascade layer beats these
@@ -20,37 +25,56 @@
  * re-assertion rules.
  */
 
-/**
- * `data-table-titled` marks a section whose panel head sits above the grid:
- * the grid's frame then drops its top edge and top corners, so head and grid
- * read as one panel.
- */
 export const TABLE_SECTION_CLASSES = "not-prose my-4";
 
 /**
- * The panel head: the top of the frame, one soft rule under it. It sits
- * OUTSIDE the grid's scroll box (and, in the editor, outside the overlay
- * surface), so a wide table scrolls under a fixed head and the furniture
- * geometry never sees it. The inline padding follows the cell padding so the
- * tile lines up with the first column's text.
+ * The grid's frame: the panel's rule-colored border and fill around the
+ * scroll box. `w-fit` shrinks it to the table; `max-w-full` caps it at the
+ * lane, past which the box scrolls (TABLE_STICKY_* pins the first column).
+ * The frame carries `data-table-overflow` while it actually scrolls
+ * (use-table-overflow.ts), which shows the pinned column's edge rule.
  */
-export const TABLE_TITLE_BAR_CLASSES =
-  "flex min-h-[32px] items-center gap-2 py-[6px] px-[length:var(--docs-table-cell-pad-x,12px)] border-solid border-x-[length:var(--docs-table-border-width,1px)] border-t-[length:var(--docs-table-border-width,1px)] border-x-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] border-t-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] border-b border-b-[color:var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))] rounded-t-[var(--docs-table-radius,var(--radius,2px))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]";
-
-/** The 16px family tile ("text" family) holding the 11px table glyph. */
-export const TABLE_TITLE_TILE_CLASSES =
-  "inline-flex size-4 flex-none items-center justify-center rounded-[2px] bg-[color:var(--docs-fam-text-solid,#9b9a97)] text-[color:var(--docs-tile-glyph,#fff)]";
-
-/** The title text in the panel head. */
-export const TABLE_TITLE_CLASSES =
-  "min-w-0 text-[length:var(--docs-table-title-text-size,13.5px)] leading-[1.3] [font-weight:var(--docs-table-title-weight,600)] text-[color:var(--docs-table-title-fg,var(--docs-ink,#1f1f1f))]";
-
-/** The grid's frame: the panel's rule-colored border and fill around the scroll box. */
 export const TABLE_WRAPPER_CLASSES =
-  "overflow-auto rounded-[var(--docs-table-radius,var(--radius,2px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))] [[data-table-titled]_&]:rounded-t-none [[data-table-titled]_&]:border-t-0";
+  "w-fit max-w-full overflow-auto rounded-[var(--docs-table-radius,var(--radius,2px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]";
 
+/** Auto width: the table is as wide as its columns' content, never stretched to the frame. */
 export const TABLE_ELEMENT_CLASSES =
-  "w-full border-collapse text-left leading-[var(--docs-table-line-height,1.45)]";
+  "border-collapse text-left leading-[var(--docs-table-line-height,1.45)]";
+
+/**
+ * Per-column sizing classes (column-layout.ts), on every th/td of the column.
+ * A fit column never wraps — the editor's mini cell editor sets its own
+ * pre-wrap, hence the descendant override. Prose/wrap columns get their
+ * measure from TABLE_PROSE_MEASURE_CLASS around the cell content instead.
+ */
+export const TABLE_COLUMN_FIT_CLASSES = {
+  fit: "whitespace-nowrap **:whitespace-nowrap",
+  prose: "",
+  wrap: "",
+} as const;
+
+/**
+ * The prose measure, on a block wrapped around a prose/wrap cell's content:
+ * the column's preferred width is its text, capped at 60ch, so it shrinks to
+ * short text and wraps long text. `min-w-min` keeps the longest word whole —
+ * a prose cell only ever breaks between words (the column's minimum width is
+ * its longest word, so `break-words` on the editor island never fires).
+ */
+export const TABLE_PROSE_MEASURE_CLASS = "max-w-[60ch] min-w-min";
+
+/**
+ * The pinned first column (th and td): sticky at the frame's left edge,
+ * above the cells scrolling under it, painted opaque — the panel fill under
+ * the row's own fill (the header's tint, the hovered row's hover fill) so it
+ * matches its row exactly. While the frame scrolls, a 1px frame-colored rule
+ * marks its right edge. Without overflow, `sticky` changes nothing.
+ */
+const TABLE_STICKY_BASE_CLASSES =
+  "sticky left-0 z-[1] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-[length:var(--docs-table-border-width,1px)] after:bg-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] after:opacity-0 [[data-table-overflow]_&]:after:opacity-100";
+
+export const TABLE_STICKY_HEADER_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} [background:linear-gradient(var(--docs-table-header-bg,transparent),var(--docs-table-header-bg,transparent)),var(--docs-table-bg,var(--docs-panel,#f8f8f7))]`;
+
+export const TABLE_STICKY_BODY_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))] [tr:hover>&]:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]`;
 
 /** One rule under the header row — no box, no texture. */
 export const TABLE_HEAD_CLASSES =

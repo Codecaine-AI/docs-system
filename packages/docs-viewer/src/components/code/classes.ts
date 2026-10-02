@@ -2,7 +2,7 @@
  * Shared metrics + class constants for the code block's three surfaces —
  * read plain (descriptor.tsx via CodeShell), read annotated
  * (CodeAnnotations.tsx), and edit (editor-node-view.tsx via CodeShell) — so
- * the header strip, gutter, annotation marks and margin notes look identical
+ * the header strip, gutter, annotation marks and notes column look identical
  * everywhere. The pseudocode block reuses the header strip.
  *
  * Design (theme lab, App preset): code panels are always dark (the code
@@ -11,9 +11,10 @@
  * visible copy button with a focus ring. Annotated ranges show one quiet
  * accent mark between the line number and the code; hovering, focusing or
  * pinning a note/range pair tints the lines, turns their numbers and the
- * mark to the accent, and lifts the note. Notes are margin prose OUTSIDE the
- * dark panel, each opening with an `L3–5` range chip, beside the panel when
- * the block is at least 760px wide and stacked under it otherwise.
+ * mark to the accent, and tints the note. Notes live INSIDE the panel in a
+ * slightly lighter notes column behind the internal hairline, each a stacked
+ * block (an `L3–5` range chip and the bold title, the body below), beside the
+ * code when the block is at least 760px wide and under it otherwise.
  *
  * NOTE: every constant must remain a plain string literal — the workbench
  * web app's Tailwind build scans this package's source for class tokens
@@ -34,12 +35,15 @@
  *    --docs-code-header-text-size, --docs-code-header-weight,
  *    --docs-code-pad-x, --docs-code-pad-top, --docs-code-pad-bottom,
  *    --docs-code-note-text-size, --docs-code-notes-width;
+ *  - the notes column surface --docs-code-notes-bg (unset: the code bg
+ *    mixed 6% toward white);
  *  - the frame (render/block-classes.ts CODE_BLOCK_CLASSES):
  *    --docs-code-block-bg/border, --docs-code-border-width,
  *    --docs-code-radius;
  *  - shared role tokens: --docs-fam-code-solid + --docs-tile-glyph (tile),
- *    --docs-focus-ring (focus rings). The margin notes sit on the page and
- *    use the page neutrals; their range chip is linked-panels RangeChip.
+ *    --docs-focus-ring (focus rings). The notes sit on the code surface, so
+ *    --docs-ink / --docs-muted resolve to the panel's inks; their range chip
+ *    is linked-panels RangeChip.
  */
 
 /**
@@ -52,16 +56,20 @@
 export const CODE_LINE_HEIGHT_PX = 21;
 
 /**
- * Wrapper of a code block that has margin notes: a size container, so the
- * notes column depends on the block's own width, not the viewport. It carries
- * the block's vertical margin (the panel inside drops its own via
+ * Wrapper of a code block that has notes: a size container, so the notes
+ * column depends on the block's own width, not the viewport. It carries the
+ * block's vertical margin (the panel inside drops its own via
  * CODE_FRAME_IN_LAYOUT_CLASSES).
  */
 export const CODE_LAYOUT_CLASSES = "not-prose my-4 @container";
 
-/** Panel | notes grid inside the layout: side by side from 760px, stacked below that. */
-export const CODE_LAYOUT_GRID_CLASSES =
-  "grid grid-cols-[minmax(0,1fr)] gap-y-3 @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)] @min-[760px]:gap-x-6";
+/**
+ * The panel body under the header strip when notes exist: code | notes side
+ * by side from 760px block width, notes under the code below that. Both
+ * cells sit INSIDE the dark panel; the notes column draws its own hairline.
+ */
+export const CODE_BODY_GRID_CLASSES =
+  "grid grid-cols-[minmax(0,1fr)] @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]";
 
 /** The panel frame inside a layout: the layout owns the margin. */
 export const CODE_FRAME_IN_LAYOUT_CLASSES = "my-0 min-w-0";
@@ -233,24 +241,40 @@ export const CODE_LINE_ROW_ZEBRA_CLASSES =
   "bg-[color:color-mix(in_srgb,var(--docs-code-zebra,var(--docs-zebra,transparent))_calc(var(--docs-code-zebra-opacity,1)*100%),transparent)]";
 
 /**
- * Margin notes: page prose beside (or under) the dark panel — no box, no
- * header, no fill. Beside the panel, the top padding drops the first note
- * onto code line 1 (header strip + the frame's border + the body padding).
+ * Notes column, INSIDE the panel: a surface 6% lighter than the code (the
+ * code bg mixed toward white, in both page modes), split from the code by the
+ * panel's internal hairline (the header rule's tokens): a left rule beside
+ * the code, a top rule under it in a narrow block. Notes stack from the top;
+ * the top padding puts the first note's head row on code line 1 (the note's
+ * own 8px top padding makes up the rest of --docs-code-pad-top). Consecutive
+ * notes are split by a faint hairline: the internal rule at half its opacity.
  */
 export const CODE_NOTES_ASIDE_CLASSES =
-  "grid content-start gap-3 pl-3 font-sans @min-[760px]:pl-0 @min-[760px]:pt-[calc(var(--docs-code-header-height,32px)+var(--docs-code-pad-top,12px)+var(--docs-code-border-width,1px))]";
+  "grid min-w-0 content-start gap-1 px-2 pb-3 [&>*+*]:border-0 [&>*+*]:border-solid [&>*+*]:border-t-[length:var(--docs-code-rule-width,1px)] [&>*+*]:border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*50%),transparent)] pt-[max(0px,calc(var(--docs-code-pad-top,12px)-8px))] font-sans bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))] border-0 border-solid border-t-[length:var(--docs-code-rule-width,1px)] border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)] @min-[760px]:border-t-0 @min-[760px]:border-l-[length:var(--docs-code-rule-width,1px)] @min-[760px]:border-l-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)]";
 
 /**
- * One note, AT REST: muted prose (>= 4.5:1 on the page) at the
- * --docs-code-note-text-size token, opening with its range chip. The whole
- * note is the control: hover/focus lights the pair, click pins it, and
- * keyboard focus draws the shared focus ring.
+ * One note, AT REST: a stacked block (head row, then the body), never run
+ * in. The whole note is the control: hover/focus lights the pair, click pins
+ * it, and keyboard focus draws the shared focus ring.
  */
 export const CODE_NOTE_CLASSES =
-  "block w-full cursor-pointer rounded-sm text-left text-[length:var(--docs-code-note-text-size,14px)] leading-[1.55] text-muted-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
+  "block w-full min-w-0 cursor-pointer rounded-[var(--radius,2px)] px-2 py-2 text-left font-sans transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 
-/** The LIT note: body text steps up to the page ink. */
-export const CODE_NOTE_LIT_CLASSES = "text-foreground";
+/** The LIT note: the line tint (accent at 12%) behind it, and its body steps up to the panel ink. */
+export const CODE_NOTE_LIT_CLASSES =
+  "bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent)] [&_[data-note-body]]:text-[color:var(--docs-ink,#d4d4d4)]";
 
-/** A note's bold label, run in before its text. */
-export const CODE_NOTE_LABEL_CLASSES = "font-semibold text-foreground";
+/** A note's head row: the range chip and the title, on one code-line-high row. */
+export const CODE_NOTE_HEAD_CLASSES =
+  "flex min-w-0 items-baseline gap-2 leading-[var(--docs-code-line-height,21px)]";
+
+/** The range chip in the head row: the head's gap replaces its own margin. */
+export const CODE_NOTE_CHIP_CLASSES = "mr-0 flex-none";
+
+/** A note's title: bold, the panel ink, 1px over the body size. */
+export const CODE_NOTE_LABEL_CLASSES =
+  "min-w-0 text-[length:calc(var(--docs-code-note-text-size,13px)+1px)] font-semibold text-[color:var(--docs-ink,#d4d4d4)]";
+
+/** A note's body, on its own lines under the head: smaller sans in the panel's muted ink. */
+export const CODE_NOTE_BODY_CLASSES =
+  "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[1.5] text-[color:var(--docs-muted,#9d9d9d)] transition-colors";

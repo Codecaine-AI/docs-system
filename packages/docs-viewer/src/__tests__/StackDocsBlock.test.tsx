@@ -26,9 +26,10 @@ describe("stack renderer", () => {
       nodes: [
         {
           name: "Docs framework",
+          detail: "host-agnostic",
           color: "blue",
           uses: true,
-          children: [{ name: "docs-viewer", badge: "product", detail: "DocBlockRenderer", uses: "DocsClient" }, { name: "docs-model" }],
+          children: [{ name: "docs-viewer", badge: "product", detail: "DocBlockRenderer · TipTap editor", uses: "DocsClient" }, { name: "docs-model" }],
         },
         { name: "External" },
       ],
@@ -37,7 +38,17 @@ describe("stack renderer", () => {
 
     const group = container.querySelector('[data-stack-group][data-color="blue"]');
     expect(group?.querySelector("[data-stack-chip-name]")?.textContent).toBe("Docs framework");
+    // A container's detail is the header's hover title, not drawn text.
+    expect(group?.querySelector("[data-stack-head]")?.getAttribute("title")).toBe("host-agnostic");
+    expect(group?.querySelector("[data-stack-head]")?.textContent).toBe("Docs framework");
     expect([...group!.querySelectorAll("[data-stack-name]")].map((n) => n.textContent)).toEqual(["docs-viewer", "docs-model"]);
+    // A role marks its card (edge + corner word, hover title); the detail is plain text.
+    const card = group!.querySelector("[data-stack-box]")!;
+    expect(card.hasAttribute("data-role")).toBe(true);
+    expect(card.getAttribute("title")).toBe("product");
+    expect(card.querySelector("[data-stack-role]")?.textContent).toBe("product");
+    expect(card.querySelector("[data-stack-detail]")?.textContent).toBe("DocBlockRenderer, TipTap editor");
+    expect(group!.querySelectorAll("[data-stack-box]")[1]!.hasAttribute("data-role")).toBe(false);
     expect(group?.querySelector("[data-stack-uses-label]")?.textContent).toBe("DocsClient");
 
     // The container's unlabelled arrow crosses the rule line, which draws it.

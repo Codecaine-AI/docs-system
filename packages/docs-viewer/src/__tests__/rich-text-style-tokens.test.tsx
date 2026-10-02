@@ -190,19 +190,19 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     label: "callout icon",
     read: "[data-callout-icon] svg",
     edit: "[data-callout-icon] svg",
-    tokens: ["var(--docs-callout-icon-size,14px)"],
+    tokens: ["var(--docs-callout-icon-size,16px)"],
   },
   {
     label: "callout head",
     read: "[data-callout-head]",
     edit: "[data-callout-head]",
-    tokens: ["var(--docs-callout-title-text-size,13.5px)"],
+    tokens: ["var(--docs-callout-title-text-size,18px)"],
   },
   {
     label: "callout title",
     read: "[data-callout-title]",
     edit: "[data-callout-title]",
-    tokens: ["var(--docs-callout-title-weight,500)"],
+    tokens: ["var(--docs-callout-title-weight,600)"],
   },
   {
     label: "callout body",
@@ -332,7 +332,8 @@ describe("rich-text style tokens", () => {
       .join("\n");
     for (const tone of ["info", "decision", "warning", "risk", "success"]) {
       for (const part of ["accent", "tint", "title-fg"]) {
-        expect(css).toContain(`var(--docs-callout-${tone}-${part}, #`);
+        // The tint falls back to transparent (the note has no fill at stock).
+        expect(css).toContain(`var(--docs-callout-${tone}-${part}, ${part === "tint" ? "transparent" : "#"}`);
         expect(css).not.toMatch(new RegExp(`--docs-callout-${tone}-${part}:\\s`));
       }
     }

@@ -119,6 +119,30 @@ describe("ProcessOutlineDocsBlock", () => {
     expect(body.querySelectorAll(':scope > [data-process-outline-depth="1"]')).toHaveLength(3);
   });
 
+  it("follows the page (no code surface) and colours like VS Code: Light+ on light, Dark+ on dark", () => {
+    const steps = parseProcessOutline("Run\n  -> Repeat `readDoc()` until `Worker` is `3`");
+    const { container } = render(<ProcessOutlineDocsBlock id="process-outline-vscode" steps={steps} />);
+    const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
+
+    // The panel follows the page theme: it is never a dark code-surface island.
+    expect(container.querySelectorAll("[data-code-surface]")).toHaveLength(0);
+    expect(css).not.toContain("data-code-surface");
+    // Keyword and note fallbacks are the Light+ values (semantic.css sets Dark+ in dark mode).
+    expect(css).toContain("var(--docs-process-outline-keyword-fg, #af00db)");
+    expect(css).toContain("var(--docs-process-outline-note-fg, #008000)");
+    // Chips pick Light+ or Dark+ from the page's color-scheme; type and number
+    // are Light+ darkened to keep 4.5:1 on the light chip fill.
+    expect(css).toContain(
+      '.docs-process-outline__code[data-chip-kind="call"] { color:light-dark(#795e26,var(--syntax-function,#dcdcaa)); }',
+    );
+    expect(css).toContain(
+      '.docs-process-outline__code[data-chip-kind="type"] { color:light-dark(#22728a,var(--syntax-type,#4ec9b0)); }',
+    );
+    expect(css).toContain(
+      '.docs-process-outline__code[data-chip-kind="literal"] { color:light-dark(#08794f,var(--syntax-number,#b5cea8)); }',
+    );
+  });
+
   it("injects one shared stylesheet however many outlines render", () => {
     render(<ProcessOutlineDocsBlock id="process-outline-style-a" steps={STEPS} />);
     render(<ProcessOutlineDocsBlock id="process-outline-style-b" steps={STEPS} />);
@@ -126,19 +150,46 @@ describe("ProcessOutlineDocsBlock", () => {
     expect(document.querySelectorAll("#docs-process-outline-style")).toHaveLength(1);
   });
 
-  it("keeps rails neutral, puts the depth hue on the arrowhead only, and pins nothing", () => {
+  it("ends every elbow in a plain neutral tick: no arrowhead, no depth hue on rails, and pins nothing", () => {
     render(<ProcessOutlineDocsBlock id="process-outline-depth" steps={STEPS} />);
     const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
 
     // Rails, elbows and the trunk all stroke the one neutral rail colour ...
     expect(css.match(/var\(--po-stroke\) solid var\(--po-rail\)/g)).toHaveLength(3);
-    expect(css).not.toMatch(/var\(--po-stroke\) solid var\(--po-c\)/);
-    // ... and the level's colour (--po-c) draws only the arrowhead closing the elbow.
-    expect(css.match(/solid var\(--po-c\)/g)).toHaveLength(2);
+    // ... no line, elbow or marker is drawn in the level's colour ...
+    expect(css).not.toMatch(/solid var\(--po-c\)/);
+    // ... and nothing draws an arrowhead: the elbow's tick stops arrow-gap short of the text.
+    expect(css).not.toContain("rotate(45deg)");
+    expect(css).toContain("calc(var(--po-indent) - var(--po-rail-x) - var(--po-arrow-gap))");
     // A rail or theme override set on :root must always win: no !important
     // outside the reduced-motion reset, no re-declared token, no variator pin.
     expect(css.replace(/@media\(prefers-reduced-motion:reduce\)[^\n]*/, "")).not.toContain("!important");
     expect(document.querySelector("style[data-variator-tokens]")).toBeNull();
+  });
+
+  it("sets phases apart: ink at the branch weight, spaced by the branch gap", () => {
+    render(<ProcessOutlineDocsBlock id="process-outline-phase" steps={STEPS} />);
+    const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
+
+    expect(css).toMatch(
+      /\.docs-process-outline__node--depth-one:has\(> \.docs-process-outline__children\)>\.docs-process-outline__line \{ color:var\(--po-title\); font-weight:var\(--docs-process-outline-branch-weight, 600\); \}/,
+    );
+    expect(css).toContain("--po-branch-gap: var(--docs-process-outline-branch-gap, 16px);");
+    // Phases with substeps take the branch gap between them.
+    expect(css).toMatch(/:has\(> \.docs-process-outline__node > \.docs-process-outline__children\) \{ --po-gap: var\(--po-branch-gap\); \}/);
+    expect(document.querySelectorAll(".docs-process-outline__node--depth-one")).toHaveLength(3);
+  });
+
+  it("draws notes as italic asides behind a // marker, never as faded steps", () => {
+    render(<ProcessOutlineDocsBlock id="process-outline-aside" steps={STEPS} />);
+    const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
+
+    expect(css).toMatch(/\.docs-process-outline__note-card \{[^}]*font-style:italic/);
+    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*content:"\/\/"/);
+    // The marker hangs in the gutter, so the note text lines up with its sibling steps.
+    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*right:calc\(100% \+ 3px\)/);
+    // Notes take no elbow.
+    expect(css).toContain(".docs-process-outline__children>.docs-process-outline__node--note::before");
   });
 
   // A trace mark is a quiet "trace" tag at the end of the step's text: it says

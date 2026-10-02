@@ -55,10 +55,11 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
   const operations: InteractionSurfaceOperation[] = [];
   for (const entry of raw) {
     if (!isPlainRecord(entry)) return null;
-    const { name, description, params, returns, returnShape, kind } = entry;
+    const { name, description, params, returns, returnShape, exampleCall, kind } = entry;
     if (typeof name !== "string" || !name.trim()) return null;
     if (description !== undefined && typeof description !== "string") return null;
     if (returns !== undefined && typeof returns !== "string") return null;
+    if (exampleCall !== undefined && typeof exampleCall !== "string") return null;
     if (
       kind !== undefined &&
       !INTERACTION_SURFACE_KINDS.includes(kind as (typeof INTERACTION_SURFACE_KINDS)[number])
@@ -84,6 +85,7 @@ function interactionSurfaceOperations(block: DocBlock): InteractionSurfaceOperat
       ...(operationParams !== undefined ? { params: operationParams } : {}),
       ...(returns !== undefined ? { returns } : {}),
       ...(operationReturn !== undefined ? { returnShape: operationReturn } : {}),
+      ...(typeof exampleCall === "string" && exampleCall.length > 0 ? { exampleCall } : {}),
       ...(kind !== undefined ? { kind: kind as InteractionSurfaceOperation["kind"] } : {}),
     });
   }

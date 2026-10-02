@@ -16,7 +16,6 @@ import { descriptors as processOutlineDescriptors } from "../components/process-
 import { descriptors as stackDescriptors } from "../components/stack/descriptor";
 import { descriptors as callStackDescriptors } from "../components/call-stack/descriptor";
 import { descriptors as componentTreeDescriptors } from "../components/component-tree/descriptor";
-import { descriptors as flowStripDescriptors } from "../components/flow-strip/descriptor";
 import { descriptors as pseudocodeDescriptors } from "../components/pseudocode/descriptor";
 import { descriptors as fileExplorerDescriptors } from "../components/file-explorer/descriptor";
 
@@ -80,7 +79,6 @@ const COMPONENT_DESCRIPTORS: readonly DocBlockDescriptor[][] = [
   stackDescriptors,
   callStackDescriptors,
   componentTreeDescriptors,
-  flowStripDescriptors,
   pseudocodeDescriptors,
   fileExplorerDescriptors,
 ];

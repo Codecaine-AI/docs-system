@@ -9,12 +9,15 @@ import {
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
+  TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "../table-classes";
 import { tableCellKinds } from "../cell-kind";
+import { columnCellClasses, hasProseMeasure, tableColumnFits } from "../column-layout";
+import { useTableOverflow } from "../use-table-overflow";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { placeCaretAtEnd } from "./caret";
 import { EditableCell, getCellEditor, type CellNavigation } from "./EditableCell";
@@ -96,7 +99,8 @@ export function TableGrid({
   onRegisterCell,
   onUndo,
   onRedo,
-  ariaLabelledBy,
+  onScroll,
+  ariaLabel,
 }: {
   data: TableData;
   editable: boolean;
@@ -110,14 +114,21 @@ export function TableGrid({
   /** Editor-history passthroughs for Mod-Z/Mod-Shift-Z/Mod-Y pressed inside a cell (see EditableCell). */
   onUndo?: () => void;
   onRedo?: () => void;
-  /** Id of the panel-head title that names the table, when the block has one. */
-  ariaLabelledBy?: string;
+  /** Fires when the frame scrolls horizontally, so surface-relative furniture can re-measure. */
+  onScroll?: () => void;
+  /** The block title: never drawn, it names the table for assistive tech. */
+  ariaLabel?: string;
 }) {
   const cellElementsRef = useRef(new Map<string, HTMLElement>());
   const cellKinds = useMemo(
     () => tableCellKinds(data.rows, data.columns.length),
     [data.rows, data.columns.length],
   );
+  const fits = useMemo(
+    () => tableColumnFits(data.rows, data.columns.length, cellKinds),
+    [data.rows, data.columns.length, cellKinds],
+  );
+  const { frameRef, overflowing } = useTableOverflow();
 
   const reportFocus = (row: number, col: number) => (focused: boolean) => {
     onFocusCell?.(focused ? row : null, focused ? col : null);
@@ -137,17 +148,25 @@ export function TableGrid({
   };
 
   return (
-    <div className={TABLE_WRAPPER_CLASSES} onMouseLeave={() => onHoverCell(null, null)}>
-      <table className={TABLE_ELEMENT_CLASSES} aria-labelledby={ariaLabelledBy}>
+    <div
+      ref={frameRef}
+      className={TABLE_WRAPPER_CLASSES}
+      data-table-overflow={overflowing ? "" : undefined}
+      onMouseLeave={() => onHoverCell(null, null)}
+      onScroll={onScroll}
+    >
+      <table className={TABLE_ELEMENT_CLASSES} aria-label={ariaLabel || undefined}>
         <thead className={TABLE_HEAD_CLASSES}>
           <tr>
             {data.columns.map((column, columnIndex) => (
               <th
                 key={columnIndex}
+                data-column-fit={fits[columnIndex]}
                 className={cn(
                   TABLE_CELL_SPACING_CLASS,
                   TABLE_HEADER_CELL_TEXT_CLASSES,
                   columnIndex !== data.columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
+                  columnCellClasses(fits[columnIndex], columnIndex, true),
                   editable && EDITOR_CELL_FOCUS_CLASS,
                 )}
                 onMouseEnter={() => onHoverCell(HEADER_ROW, columnIndex)}
@@ -186,21 +205,24 @@ export function TableGrid({
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_BODY_CELL_TEXT_CLASSES,
                     columnIndex !== data.columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
+                    columnCellClasses(fits[columnIndex], columnIndex, false),
                     editable && EDITOR_CELL_FOCUS_CLASS,
                   )}
                   onMouseEnter={() => onHoverCell(rowIndex, columnIndex)}
                 >
-                  <EditableCell
-                    value={row[columnIndex] ?? ""}
-                    editable={editable}
-                    ariaLabel={`Row ${rowIndex + 1}, column ${columnIndex + 1}`}
-                    onCommit={(next) => onCommitCell(rowIndex, columnIndex, next)}
-                    onNavigate={navigateFrom({ row: rowIndex, col: columnIndex })}
-                    onFocusChange={reportFocus(rowIndex, columnIndex)}
-                    onUndo={onUndo}
-                    onRedo={onRedo}
-                    registerElement={registerCell(rowIndex, columnIndex)}
-                  />
+                  <div className={hasProseMeasure(fits[columnIndex]) ? TABLE_PROSE_MEASURE_CLASS : undefined}>
+                    <EditableCell
+                      value={row[columnIndex] ?? ""}
+                      editable={editable}
+                      ariaLabel={`Row ${rowIndex + 1}, column ${columnIndex + 1}`}
+                      onCommit={(next) => onCommitCell(rowIndex, columnIndex, next)}
+                      onNavigate={navigateFrom({ row: rowIndex, col: columnIndex })}
+                      onFocusChange={reportFocus(rowIndex, columnIndex)}
+                      onUndo={onUndo}
+                      onRedo={onRedo}
+                      registerElement={registerCell(rowIndex, columnIndex)}
+                    />
+                  </div>
                 </td>
               ))}
             </tr>

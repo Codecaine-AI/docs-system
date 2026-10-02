@@ -11,6 +11,7 @@ import {
   Layers3,
   Link,
   List,
+  ListTree,
   MessageSquareWarning,
   Minus,
   MousePointer2,
@@ -21,6 +22,7 @@ import {
   PenTool,
   Pilcrow,
   ScrollText,
+  SquareStack,
   Sparkles,
   Table2,
   Type,
@@ -48,6 +50,8 @@ const COMPONENT_PICKER_FILES = [
   "process-outline",
   "sequence",
   "canvas",
+  "outline-rows",
+  "stack",
 ] as const;
 
 type ComponentPickerFile = (typeof COMPONENT_PICKER_FILES)[number];
@@ -62,6 +66,8 @@ const COMPONENT_LABELS: Partial<Record<ComponentPickerFile, string>> = {
   "state-shape": "State shape",
   "process-outline": "Process Outline",
   linking: "Linked panels",
+  // One pane for both block types that draw outline rows.
+  "outline-rows": "Call stack & component tree",
 };
 
 function componentLabel(file: ComponentPickerFile): string {
@@ -87,6 +93,8 @@ const COMPONENT_ICONS: Record<ComponentPickerFile, LucideIcon> = {
   "process-outline": GitFork,
   sequence: Workflow,
   canvas: PenTool,
+  "outline-rows": ListTree,
+  stack: SquareStack,
 };
 
 function componentItem(file: ComponentPickerFile): StyleRailNavItem {
@@ -177,6 +185,7 @@ export const STYLE_RAIL_GROUPS: readonly StyleRailNavGroup[] = [
     items: [
       componentItem("structured-table"),
       componentItem("file-tree"),
+      componentItem("outline-rows"),
       componentItem("state-shape"),
       componentItem("interaction-surface"),
     ],
@@ -188,6 +197,7 @@ export const STYLE_RAIL_GROUPS: readonly StyleRailNavGroup[] = [
       componentItem("sequence"),
       componentItem("canvas"),
       componentItem("process-outline"),
+      componentItem("stack"),
     ],
   },
 ] as const;

@@ -9,6 +9,7 @@ import {
   classifyTypeText,
   splitTypeUnion,
 } from "../components/state-shape/StateShapeDocsBlock";
+import { ledgerGuides } from "../components/state-shape/field-ledger";
 import { descriptors } from "../components/state-shape/descriptor";
 import type { DocBlockRenderContext } from "../render/block-registry";
 
@@ -126,6 +127,14 @@ describe("splitTypeUnion", () => {
   });
 });
 
+describe("ledgerGuides", () => {
+  it("draws tree connectors: pipes for ancestors with later siblings, blanks after a last ancestor", () => {
+    // a / a.b / a.b.c / a.d / a.d.e / f
+    const depths = [0, 1, 2, 1, 2, 0].map((depth) => ({ depth }));
+    expect(ledgerGuides(depths)).toEqual([[], ["tee"], ["pipe", "end"], ["end"], ["blank", "end"], []]);
+  });
+});
+
 describe("StateShapeBlock — plain reference panel", () => {
   it("heads the panel with the family tile, the mono name, and the source reference", () => {
     renderTwoPane();
@@ -134,30 +143,37 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(section.getAttribute("data-source-id")).toBe("shape-1");
     expect(section.className).toContain("not-prose");
     expect(section.className).toContain("w-full");
+    // The whole panel is a code surface: the dark code panel in both page modes.
+    expect(section.getAttribute("data-code-surface")).toBe("true");
     const header = section.querySelector(":scope > [data-shape-header]") as HTMLElement;
     expect(header.tagName).toBe("HEADER");
     const parts = Array.from(header.children).map((child) =>
-      child.hasAttribute("data-ref-tile") ? "tile" : child.hasAttribute("data-shape-name") ? "name" : child.hasAttribute("data-shape-source-ref") ? "source" : "other",
+      child.hasAttribute("data-ref-tile") ? "tile" : child.hasAttribute("data-shape-name") ? "name" : child.querySelector(":scope > [data-shape-source-ref]") ? "source" : "other",
     );
     expect(parts).toEqual(["tile", "name", "source"]);
     expect(header.querySelector("[data-ref-tile]")?.getAttribute("aria-hidden")).toBe("true");
     expect(header.querySelector("[data-shape-name]")?.textContent).toBe("StateShapeState");
-    // The source is a source reference (the inline reference-mark convention), path#Symbol.
+    // The source is a source reference showing only basename#Symbol; the full
+    // path#Symbol opens in a tooltip on hover / focus.
     const source = header.querySelector("[data-shape-source-ref]") as HTMLElement;
-    expect(source.textContent).toBe("packages/docs-model/src/components/state-shape/state.ts#StateShapeState");
+    expect(source.textContent).toBe("state.ts#StateShapeState");
+    expect(source.getAttribute("tabindex")).toBe("0");
+    const sourceTip = document.getElementById(source.getAttribute("aria-describedby")!) as HTMLElement;
+    expect(sourceTip.getAttribute("role")).toBe("tooltip");
+    expect(sourceTip.textContent).toBe("packages/docs-model/src/components/state-shape/state.ts#StateShapeState");
     expect(source.getAttribute("data-spectre-ref")).toBe("true");
     expect(source.getAttribute("data-ref-kind")).toBe("source");
     expect(source.getAttribute("data-ref-path")).toBe("packages/docs-model/src/components/state-shape/state.ts");
     expect(source.getAttribute("data-ref-symbol")).toBe("StateShapeState");
-    expect(section.getAttribute("data-shape-source")).toBe(source.textContent);
+    expect(section.getAttribute("data-shape-source")).toBe(sourceTip.textContent);
   });
 
-  it("is always open: no disclosure, no tooltip, the description prints beneath the head", () => {
+  it("is always open: no disclosure, the shape's description prints beneath the head", () => {
     renderTwoPane();
     expect(document.querySelector("details")).toBeNull();
     expect(document.querySelector("summary")).toBeNull();
-    expect(document.querySelector('[role="tooltip"]')).toBeNull();
-    expect(document.querySelector("[data-described]")).toBeNull();
+    // The head's own description is a paragraph, never a tooltip.
+    expect(document.querySelector("[data-shape-description]")?.closest("[data-described]")).toBeNull();
     const description = document.querySelector("[data-shape-description]") as HTMLElement;
     expect(description.tagName).toBe("P");
     expect(description.textContent).toBe("The state-shape block's own props.");
@@ -190,11 +206,39 @@ describe("StateShapeBlock — plain reference panel", () => {
     ]);
     expect(treeRow("source")?.getAttribute("data-field-depth")).toBe("0");
     expect(treeRow("source.path")?.getAttribute("data-field-depth")).toBe("1");
-    // The depth drives the indent and the guide through one custom property.
+    // The depth drives the indent through one custom property.
     expect(treeRow("source.path")?.style.getPropertyValue("--field-depth")).toBe("1");
+    // Nested fields hang off their parent with the file tree's elbows: a tee
+    // for a middle child, an end for the last; top-level rows draw none.
+    const guides = (path: string) => Array.from(treeRow(path)?.querySelectorAll(".docs-tree__guides > i") ?? []).map((guide) => guide.getAttribute("data-g"));
+    expect(guides("source")).toEqual([]);
+    expect(guides("source.path")).toEqual(["tee"]);
+    expect(guides("source.symbol")).toEqual(["end"]);
+    expect(guides("fields.name")).toEqual(["tee"]);
+    expect(guides("fields.required")).toEqual(["end"]);
+    expect(treeRow("source.path")?.querySelector(".docs-tree__guides")?.getAttribute("aria-hidden")).toBe("true");
+    // One fixed name column on every ledger: no per-block width that would
+    // move the type column from one stacked block to the next.
+    const ledger = document.querySelector("[data-shape-tree] [data-field-ledger]") as HTMLElement;
+    expect(ledger.getAttribute("style")).toBeNull();
   });
 
-  it("renders names, types, an accessible optional mark, and inline descriptions", () => {
+  it("wraps a name longer than the fixed column at its underscores instead of widening the column", () => {
+    render(<StateShapeBlock id="long-name" name="Signal" fields={[{ name: "commercial_interpretation_of_the_signal", type: "string" }, { name: "id", type: "string" }]} />);
+    const name = document.querySelector('[data-field-row="commercial_interpretation_of_the_signal"] [data-field-token="name"]') as HTMLElement;
+    expect(name.textContent).toBe("commercial_interpretation_of_the_signal");
+    expect(name.querySelectorAll("wbr")).toHaveLength(4);
+  });
+
+  it("breaks a lone identifier type between camel humps, never a union member", () => {
+    render(<StateShapeBlock id="camel" name="Window" fields={[{ name: "noncommercial_topics", type: "NoncommercialTopic[]" }, { name: "kind", type: "DocsChangeEvent | null" }]} />);
+    const lone = document.querySelector('[data-field-row="noncommercial_topics"] [data-field-token="type"]') as HTMLElement;
+    expect(lone.innerHTML).toContain("Noncommercial<wbr>Topic");
+    const union = document.querySelector('[data-field-row="kind"] [data-field-token="type"]') as HTMLElement;
+    expect(union.querySelectorAll("wbr")).toHaveLength(0);
+  });
+
+  it("renders names, types, an accessible optional mark, and descriptions as name tooltips", () => {
     renderTwoPane();
     const row = treeRow("source.symbol") as HTMLElement;
     expect(row.querySelector('[data-field-token="name"]')?.textContent).toBe("symbol");
@@ -204,22 +248,53 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(optional.querySelector('[aria-hidden="true"]')?.textContent).toBe("?");
     expect(optional.querySelector("[data-sr-only]")?.textContent).toBe(" (optional)");
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
-    // The description is a visible line in the type column, not a tooltip.
+    // A described name is focusable and points at its tooltip; the row shows
+    // only name and type (the tooltip sits in the name cell, not the type column).
     const described = treeRow("name") as HTMLElement;
+    const name = described.querySelector('[data-field-token="name"]') as HTMLElement;
+    expect(name.getAttribute("tabindex")).toBe("0");
+    expect(name.hasAttribute("data-has-description")).toBe(true);
     const description = described.querySelector('[data-field-token="description"]') as HTMLElement;
     expect(description.textContent).toBe("Shape display name");
-    expect(description.getAttribute("role")).toBeNull();
-    expect(description.closest("[data-field-def]")).not.toBeNull();
-    expect(described.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
+    expect(description.getAttribute("role")).toBe("tooltip");
+    expect(name.getAttribute("aria-describedby")).toBe(description.id);
+    expect(description.closest("[data-field-def]")).toBeNull();
+    expect(description.closest("[data-field-name-cell]")).not.toBeNull();
+    // Tooltip ids are unique within the block.
+    const ids = Array.from(document.querySelectorAll('[role="tooltip"]')).map((tip) => tip.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    // An undescribed name is plain text: no underline target, no tab stop.
     expect(row.querySelector('[data-field-token="description"]')).toBeNull();
+    expect(row.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
+    // CSS only: a 450ms hover dwell, immediate on focus, inline in print.
+    const css = sheet();
+    expect(css).toContain("[data-described]:hover>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:var(--docs-tip-delay,450ms)}");
+    expect(css).toContain("[data-described]:has(>[data-has-description]:focus-visible)>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:0s}");
+    expect(css).toContain("pointer-events:none");
+    expect(css).toMatch(/@media print\{\[data-described\]\{display:contents\}[^\n]*\[data-description-tip\]\{position:static;display:block/);
   });
 
-  it("prints union members in one type color with muted pipes", () => {
-    render(<StateShapeBlock id="shape-union" fields={[{ name: "value", type: '"color" | "length" | null' }]} />);
+  it("colors type text as Dark+ colors a TS type: literals by role, pipes and braces as punctuation", () => {
+    render(<StateShapeBlock id="shape-union" fields={[{ name: "value", type: '"color" | "length" | null' }, { name: "range", type: "{ min: number; max?: 24 }" }]} />);
     const type = treeRow("value")?.querySelector('[data-field-token="type"]') as HTMLElement;
     expect(Array.from(type.querySelectorAll("[data-type-member]")).map((node) => node.textContent)).toEqual(['"color"', '"length"', "null"]);
     expect(type.querySelectorAll("[data-type-sep]")).toHaveLength(2);
     expect(type.querySelector("[data-type-chip]")).toBeNull();
+    const roles = (node: Element) => Array.from(node.querySelectorAll("[data-type-tok]")).map((token) => `${token.getAttribute("data-type-tok")}:${token.textContent}`);
+    expect(roles(type)).toEqual(['string:"color"', 'string:"length"', "keyword:null"]);
+    // Type names stay plain text in the type color; keys, literals and punctuation carry a role.
+    const objectType = treeRow("range")?.querySelector('[data-field-token="type"]') as HTMLElement;
+    expect(objectType.textContent).toBe("{ min: number; max?: 24 }");
+    expect(roles(objectType)).toEqual(["punct:{", "key:min", "punct::", "punct:;", "key:max", "punct:?", "punct::", "number:24", "punct:}"]);
+    const css = sheet();
+    for (const declaration of [
+      '[data-type-tok="string"]{color:var(--fl-type-string,inherit)}',
+      '[data-type-tok="punct"]{color:var(--fl-type-punct,inherit)}',
+      "--fl-type-punct:var(--fl-muted)",
+      "--fl-type-key:var(--fl-name)",
+    ]) {
+      expect(css).toContain(declaration);
+    }
     // A type without a top-level pipe is one plain run.
     cleanup();
     render(<StateShapeBlock id="shape-prose" fields={[{ name: "refs", type: "score and validation refs" }]} />);
@@ -241,26 +316,54 @@ describe("StateShapeBlock — plain reference panel", () => {
     const css = sheet();
     expect(css).toContain("[data-ref-code] [data-line-number],[data-ref-code] [data-code-lines-filler]{display:none}");
     expect(css).toContain("[data-ref-code] [data-code-lines]:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df)");
-    expect(css).toContain("minmax(0,var(--docs-pane-split,46%)) minmax(0,1fr)");
+    // Side by side at 44/56 from a 560px container (the list keeps at least 360px,
+    // the code pane at least 260px). Stacking is the narrow-screen last resort.
+    expect(css).toContain("@container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
+    // The pane soft-wraps: lines grow with their text (so a lit line's wash
+    // covers every visual line), strings break anywhere, and continuation
+    // lines hang 2ch past the line's own indent.
+    expect(css).toContain("[data-ref-code] [data-code-line]{height:auto;white-space:pre-wrap;tab-size:2}");
+    expect(css).toContain("[data-ref-code] [data-hang]{display:block;padding-left:calc(var(--hang,0ch) + 2ch);text-indent:calc(-1*(var(--hang,0ch) + 2ch))}");
+    expect(css).toContain('[data-ref-code] :is([data-json-token="string"],[data-sig-token="string"]){overflow-wrap:anywhere}');
+    const hangs = Array.from(region.querySelectorAll("[data-code-line] > [data-line-text] > [data-hang]")) as HTMLElement[];
+    expect(hangs.length).toBe(region.querySelectorAll("[data-code-line]").length);
+    expect(hangs[0]?.style.getPropertyValue("--hang")).toBe("0ch");
+    expect(hangs[1]?.style.getPropertyValue("--hang")).toBe("2ch");
   });
 
-  it("reads its knobs through the shared ledger locals, light defaults as fallbacks", () => {
+  it("reads its knobs through the shared ledger locals, defaults as fallbacks", () => {
     renderTwoPane();
     const css = sheet();
     for (const declaration of [
-      "--fl-name:var(--docs-shape-name,var(--docs-syn-prop,#0d7164))",
-      "--fl-type:var(--docs-shape-type,var(--docs-syn-type,#805f01))",
+      // Code-panel colors: the code theme's syntax roles, Dark+ literals.
+      "--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe))",
+      "--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0))",
+      "--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4))",
+      "--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))",
+      "--fl-type-string:var(--syntax-string,#ce9178)",
       "--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562))",
-      "--fl-name-w:var(--docs-shape-name-width,176px)",
+      "--fl-name-w:var(--docs-shape-name-width,24ch)",
+      "--fl-pad-x:var(--docs-shape-pad-x,16px)",
       "--fl-row-min-h:var(--docs-shape-row-min-height,28px)",
       "--fl-indent:var(--docs-shape-indent,16px)",
       "background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7))",
       "border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))",
       "background:var(--docs-fam-ref-solid,#6940a5)",
-      // The shared ledger: fixed name column, inline description, focus ring on linked rows.
-      "grid-template-columns:min(var(--fl-name-w),38%) minmax(0,1fr)",
+      // The shared ledger: one fixed name column (the indent eats into it, so
+      // the type column never moves); a longer name wraps inside it; a type
+      // that cannot fit beside it wraps whole onto its own line (never
+      // mid-word), focus ring on linked rows.
+      "[data-field-name-cell]{flex:0 0 calc(var(--fl-name-w) - var(--field-depth,0)*var(--fl-indent));min-width:0;",
+      "[data-field-def]{flex:1 1 0;min-width:0}",
+      // One unwrapping row: the type never drops under its name; it wraps
+      // inside its own column, 24px past the name column.
+      "[data-field-row]{position:relative;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:24px;",
+      "--fl-row-pad:var(--docs-shape-row-pad,5px)",
+      "overflow-wrap:anywhere;word-break:normal",
       "[data-field-row]:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df)",
-      "[data-description-line]{display:block;max-width:75ch",
+      // Nested fields: the file tree's elbow connectors, ink at 75%.
+      "--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent))",
+      ".docs-tree__guides > i[data-g=\"end\"]::before",
     ]) {
       expect(css).toContain(declaration);
     }
@@ -352,7 +455,8 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field inspector");
     expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field paths");
     expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("JSON");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("description printed inline");
+    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("opens in a tooltip");
+    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("elbow connectors");
     expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("always open");
   });
 });

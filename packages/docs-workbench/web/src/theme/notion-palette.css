@@ -149,6 +149,9 @@
   --palette-teal: #0d7164;   --palette-teal-solid: #0f7b6c;   --palette-teal-soft: #ddedea;
   --palette-green: #26744f;  --palette-green-solid: #287c55;  --palette-green-soft: #e2efe6;
   --palette-yellow: #805f01; --palette-yellow-solid: #dfab01; --palette-yellow-soft: #fbf3db;
+  /* Amber: the warning tone's text hue. Yellow #805f01 reads olive beside
+     green at body size; this is a clear amber at 5.3:1 on the page. */
+  --palette-amber: #9a5b00;
   --palette-orange: #9d530d; --palette-orange-solid: #d9730d; --palette-orange-soft: #faebdd;
   --palette-red: #c62121;    --palette-red-solid: #e03e3e;    --palette-red-soft: #fbe4e4;
   --palette-violet: #6940a5; --palette-violet-solid: #6940a5; --palette-violet-soft: #eae4f2;
@@ -183,6 +186,7 @@
   --palette-teal: #39c5cf;   --palette-teal-solid: #39c5cf;
   --palette-green: #3fb950;  --palette-green-solid: #3fb950;
   --palette-yellow: #d29922; --palette-yellow-solid: #d29922;
+  --palette-amber: #d29922;
   --palette-orange: #dd7330; --palette-orange-solid: #db6d28;
   --palette-red: #f85b53;    --palette-red-solid: #f85149;
   --palette-violet: #ab7df8; --palette-violet-solid: #ab7df8;
@@ -208,4 +212,8 @@
 [data-code-panels="dark"] [data-code-surface][data-code-surface] {
   --palette-page: var(--docs-code-block-bg);
   --palette-panel: var(--docs-code-block-bg);
+  /* Hairlines are measured from the panel itself, so they read on any code
+     theme's background (Primer's rules vanish on Dark+ #1e1e1e). */
+  --palette-rule: color-mix(in srgb, var(--docs-code-block-bg) 74%, #ffffff);
+  --palette-rule-soft: color-mix(in srgb, var(--docs-code-block-bg) 86%, #ffffff);
 }

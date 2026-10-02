@@ -547,6 +547,46 @@ describe("draft-lock lifecycle (TG9.3)", () => {
 
     result.unmount();
   });
+
+  it("releases the draft lock and goes clean when edit -> undo leaves a save with no ops", async () => {
+    const doc = loadFixture();
+    let editorInstance: Editor | null = null;
+    let applyCount = 0;
+    const result = renderWithClient(
+      <DocEditor
+        document={doc}
+        projectId="proj-1"
+        documentPath="docs/sample.doc.json"
+        onApplyOps={async () => {
+          applyCount += 1;
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+
+    await makeDirtyEdit(() => editorInstance);
+    await waitFor(() => {
+      expect(acquireCalls).toHaveLength(1);
+    });
+    act(() => {
+      editorInstance!.commands.undo();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(releaseCalls).toHaveLength(1);
+    });
+    expect(releaseCalls[0].slice(0, 3)).toEqual(["proj-1", "docs/sample.doc.json", "doc"]);
+    expect(releaseCalls[0][3]).toBe(acquireCalls[0][3]);
+    expect(applyCount).toBe(0);
+    await waitFor(() => {
+      expect(result.queryByText("Unsaved changes")).toBeNull();
+    });
+    result.unmount();
+  });
 });
 
 /**

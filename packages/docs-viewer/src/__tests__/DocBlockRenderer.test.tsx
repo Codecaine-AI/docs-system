@@ -57,7 +57,6 @@ describe("DocBlockRenderer", () => {
       "stack",
       "call-stack",
       "component-tree",
-      "flow-strip",
       "pseudocode",
       "file-explorer",
     ]);
@@ -151,7 +150,9 @@ describe("DocBlockRenderer", () => {
 
     // Props-driven structured blocks.
     expect(document.querySelector('[data-docs-block-type="structured-table"]')).toBeTruthy();
-    expect(screen.getByText("Structured table sample")).toBeTruthy();
+    // The table's title is never drawn; it names the table for assistive tech.
+    expect(screen.queryByText("Structured table sample")).toBeNull();
+    expect(document.querySelector('table[aria-label="Structured table sample"]')).toBeTruthy();
     expect(screen.getByText("question")).toBeTruthy();
     expect(document.querySelector('[data-docs-block-type="interaction-surface"]')).toBeTruthy();
     expect(
@@ -359,7 +360,7 @@ describe("DocBlockRenderer", () => {
       lane.querySelector('[data-doc-block="state-shape"]'),
     );
     expect(stateShapeLane?.getAttribute("data-doc-lane")).toBe("wide-left");
-    expect(stateShapeLane?.className).toContain("max-w-[var(--style-wide-width,1040px)]");
+    expect(stateShapeLane?.className).toContain("max-w-[var(--style-wide-width,1100px)]");
 
     // ...and media also stays on that left rail by default. Centering is an
     // explicit theme/rail blockLayout override.
@@ -406,18 +407,19 @@ describe("DocBlockRenderer", () => {
       container.querySelector(selector)?.closest("[data-code-surface]") ?? null;
     // Annotated code: the frame inside the annotations section.
     expect(surfaceOf('[data-code-annotations="code-1"] pre')).toBeTruthy();
-    // State shape and interaction surface: only the code pane (the example
-    // JSON / the signature lines) is a panel; the block, its header and its
-    // field table stay on the page theme.
+    // State shape: the whole block is one code panel (head, field list and
+    // example), and its example pane stays a code surface of its own.
+    const shape = container.querySelector('section[data-docs-block-type="state-shape"]');
+    expect(shape?.getAttribute("data-code-surface")).toBe("true");
+    expect(shape?.querySelector("[data-shape-ledger]")?.closest("[data-code-surface]")).toBe(shape);
     expect(surfaceOf("[data-shape-example-pane] [data-code-line]")?.hasAttribute("data-code-lines")).toBe(true);
-    expect(surfaceOf("[data-op-sig] [data-code-line]")?.hasAttribute("data-code-lines")).toBe(true);
-    for (const type of ["state-shape", "interaction-surface"]) {
-      const block = container.querySelector(`section[data-docs-block-type="${type}"]`);
-      expect(block).toBeTruthy();
-      expect(block?.closest("[data-code-surface]")).toBeNull();
-    }
-    expect(surfaceOf("[data-shape-header]")).toBeNull();
-    expect(surfaceOf("[data-shape-example-head]")).toBeNull();
+    // Interaction surface: the whole block is one code panel (head, operation
+    // lines, ledgers, example panes).
+    const surface = container.querySelector('section[data-docs-block-type="interaction-surface"]');
+    expect(surface?.getAttribute("data-code-surface")).toBe("true");
+    expect(surface?.querySelector("[data-operations-header]")?.closest("[data-code-surface]")).toBe(surface);
+    expect(surface?.querySelector("[data-operations-list]")?.closest("[data-code-surface]")).toBe(surface);
+    expect(surfaceOf("[data-shape-header]")).toBe(shape);
     expect(surfaceOf("[data-signature-head]")).toBeNull();
     // Inline code in prose is not a panel.
     expect(screen.getByText("inline code").closest("[data-code-surface]")).toBeNull();

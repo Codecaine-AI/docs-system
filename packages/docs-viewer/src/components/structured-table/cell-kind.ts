@@ -1,4 +1,5 @@
 import type { TableCell } from "@codecaine-ai/docs-model";
+import { liftBacktickCode } from "./cell-code";
 
 /**
  * How a body cell is typed: `"mono"` cells set in plain mono ink, `"key"` is
@@ -59,9 +60,11 @@ function singleToken(cell: TableCell): string | null {
  * mono, while cells with spaces (prose) and other rich cells stay sans.
  */
 export function tableCellKinds(
-  rows: readonly (readonly TableCell[])[],
+  storedRows: readonly (readonly TableCell[])[],
   columnCount: number,
 ): (TableCellKind | undefined)[][] {
+  // Backtick code in a plain string counts as the code span it renders as.
+  const rows = storedRows.map((row) => row.map(liftBacktickCode));
   const qualifies = Array.from({ length: columnCount }, (_, column) =>
     rows.some((row) => {
       const cell = row[column] ?? "";

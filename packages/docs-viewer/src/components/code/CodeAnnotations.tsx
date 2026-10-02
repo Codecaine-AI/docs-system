@@ -20,7 +20,7 @@ import {
   CODE_LINE_ROW_ZEBRA_CLASSES,
   CODE_LINE_TEXT_CELL_CLASSES,
 } from "./classes";
-import { CodeBlockHeader, CodeNotesAside, CodeNotesLayout } from "./CodeShell";
+import { CodeBlockHeader, CodeNotesAside, CodeNotesBody, CodeNotesLayout } from "./CodeShell";
 import { highlightCode, prettyPrintIfJson, resolveDisplayLanguage } from "./highlight";
 
 export type { CodeAnnotation } from "./annotations";
@@ -90,8 +90,9 @@ function AnnotatedCodeLine({
  * code path stays with the registry, rendering through CodeShell). The dark
  * panel shares the code frame's furniture — header strip, line height,
  * gutter — via the constants in classes.ts, but keeps its own per-line grid
- * so every annotated line stays a link target. The notes are margin prose
- * on the page beside the panel (under it in a narrow block).
+ * so every annotated line stays a link target. The notes are a column
+ * INSIDE the panel, on a slightly lighter surface beside the code (under it
+ * in a narrow block).
  *
  * Pairing runs on the shared LinkGroup engine (ONE group per block; key =
  * the annotation's `lines` key): hovering or focusing a note or an annotated
@@ -147,24 +148,26 @@ export function AnnotatedCodeBlock({
               languageLabel={resolveDisplayLanguage(displayCode, language)}
               copyText={() => displayCode}
             />
-            <pre className={CODE_ANNOTATED_PRE_CLASSES}>
-              {lines.map((line, index) => {
-                const lineNumber = index + 1;
-                const owner = lineOwner.get(lineNumber);
-                return (
-                  <AnnotatedCodeLine
-                    key={index}
-                    lineNumber={lineNumber}
-                    html={line}
-                    linkKey={owner === undefined ? null : annotations[owner].lines}
-                    runStart={lineOwner.get(lineNumber - 1) !== owner}
-                    runEnd={lineOwner.get(lineNumber + 1) !== owner}
-                  />
-                );
-              })}
-            </pre>
+            <CodeNotesBody>
+              <pre className={CODE_ANNOTATED_PRE_CLASSES}>
+                {lines.map((line, index) => {
+                  const lineNumber = index + 1;
+                  const owner = lineOwner.get(lineNumber);
+                  return (
+                    <AnnotatedCodeLine
+                      key={index}
+                      lineNumber={lineNumber}
+                      html={line}
+                      linkKey={owner === undefined ? null : annotations[owner].lines}
+                      runStart={lineOwner.get(lineNumber - 1) !== owner}
+                      runEnd={lineOwner.get(lineNumber + 1) !== owner}
+                    />
+                  );
+                })}
+              </pre>
+              <CodeNotesAside annotations={annotations} />
+            </CodeNotesBody>
           </div>
-          <CodeNotesAside annotations={annotations} />
         </CodeNotesLayout>
       </LinkGroup>
     </section>

@@ -115,7 +115,7 @@ export const CODE_LINE_GUTTER_LIT_CLASSES =
 export const CODE_LINE_TEXT_CLASSES = "pr-4";
 
 /**
- * The L#–# range chip, on the page (margin notes): a 12px mono outlined chip
+ * The L#–# range chip (code notes; inside the code panel its tokens resolve to the panel palette): a 12px mono outlined chip
  * in the page muted color at rest (4.5:1+). Never smaller than 12px.
  */
 export const RANGE_CHIP_CLASSES =

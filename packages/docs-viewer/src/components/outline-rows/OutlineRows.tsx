@@ -20,7 +20,7 @@ import {
  * family-tile head, one row per node with continuous guides, a diff gutter
  * when any row changed, the row text as code colored by syntax role, an
  * aligned comment column that wraps, and a muted source column. A branch row
- * leads with "?" (the agent-view notation) and reads muted.
+ * leads with "?" (the agent-view notation) in the control-flow color.
  *
  * Every visual value reads a --docs-outline-rows-* token, falling back to the
  * shared role token and then to its light literal, so the block renders in a
@@ -33,6 +33,7 @@ type Token = { kind: string; text: string };
 
 const STRING = String.raw`"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|` + "`[^`]*`";
 const KEYWORD = String.raw`\b(?:return|await|new|throw|if|else|async|const|let|var|function|typeof|instanceof|yield)\b`;
+const CONTROL = /^(?:return|throw|if|else|await|yield)$/;
 const CONSTANT = String.raw`\b(?:true|false|null|undefined)\b`;
 const NUMBER = String.raw`\b\d[\d_.]*\b`;
 const CALL = String.raw`[A-Za-z_$][\w$]*(?=\s*\()`;
@@ -54,7 +55,7 @@ const CALL_STACK_PATTERN = new RegExp(
     .join("|"),
   "g",
 );
-const CALL_STACK_KINDS = ["string", "keyword", "number", "number", "call", "prop", "type", "punct"];
+const CALL_STACK_KINDS = ["string", "keyword", "constant", "number", "call", "prop", "type", "punct"];
 
 const COMPONENT_PATTERN = new RegExp(
   [
@@ -66,21 +67,24 @@ const COMPONENT_PATTERN = new RegExp(
     KEYWORD,
     CONSTANT,
     NUMBER,
-    String.raw`<\/?|\/?>|[()[\]{}.,;:=!?+\-*/%&|…]+`,
+    String.raw`<\/?|\/?>`,
+    String.raw`[{}]`,
+    String.raw`[()[\].,;:=!?+\-*/%&|…]+`,
   ]
     .map((source) => `(${source})`)
     .join("|"),
   "g",
 );
-const COMPONENT_KINDS = ["string", "element", "call", "prop", "prop", "keyword", "number", "number", "punct"];
+const COMPONENT_KINDS = ["string", "element", "call", "prop", "prop", "keyword", "constant", "number", "tagpunct", "brace", "punct"];
 
 /**
  * Splits code text into role-colored spans; unmatched text stays plain ink.
- * Call stack: the frame's callee (its first call), keywords, literals; the
- * receiver and arguments around it read as one muted run (tree-rows.tsx).
+ * Call stack: the frame's callee (its first call, drawn bold), other calls,
+ * keywords, literals, properties, types, punctuation.
  * Component tree: components (`<Name`) vs intrinsic tags (`<div`), props,
- * hooks (`useX(`) and other calls, literals, punctuation — a hook and a
- * component differ by shape, `useX()` vs `<X>`, not only by color.
+ * hooks (`useX(`) and other calls, literals, tag brackets, expression braces
+ * and other punctuation, colored as the code theme colors TSX.
+ * A hook and a component differ by shape, `useX()` vs `<X>`, not only by color.
  */
 export function tokenizeOutlineCode(text: string, flavor: OutlineRowsFlavor): Token[] {
   const pattern = flavor === "component" ? COMPONENT_PATTERN : CALL_STACK_PATTERN;
@@ -94,6 +98,8 @@ export function tokenizeOutlineCode(text: string, flavor: OutlineRowsFlavor): To
     let kind = kinds[group] ?? "plain";
     if (kind === "element") kind = /^[A-Z]|\./.test(match[0]) ? "type" : "tag";
     else if (kind === "call" && flavor === "component" && /^use[A-Z]/.test(match[0])) kind = "hook";
+    // Dark+ draws control-flow keywords apart from declaration keywords.
+    else if (kind === "keyword" && CONTROL.test(match[0])) kind = "control";
     // A call-stack frame is the function it enters: its first call is the callee.
     else if (kind === "call" && flavor === "call-stack" && !tokens.some((t) => t.kind === "callee")) kind = "callee";
     tokens.push({ kind, text: match[0] });
@@ -159,7 +165,7 @@ const OUTLINE_ROWS_VARS = treeVars({
   "--tr-note-fg": "var(--docs-outline-rows-comment-fg,var(--docs-muted,#666562))",
   "--tr-note-size": "var(--docs-outline-rows-comment-text-size,13.5px)",
   "--tr-source-size": "var(--docs-outline-rows-source-text-size,12px)",
-  "--tr-guide": "var(--docs-outline-rows-guide,var(--docs-muted,#666562))",
+  "--tr-guide": "var(--docs-outline-rows-guide,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent))",
   "--tr-muted": "var(--docs-outline-rows-muted-fg,var(--docs-muted,#666562))",
   "--tr-added-fg": "var(--docs-outline-rows-added,var(--docs-diff-add,#26744f))",
   "--tr-added-bg": "var(--docs-outline-rows-added-bg,var(--docs-diff-add-bg,color-mix(in srgb,#287c55 8%,#f8f8f7)))",
@@ -167,18 +173,19 @@ const OUTLINE_ROWS_VARS = treeVars({
   "--tr-removed-bg": "var(--docs-outline-rows-removed-bg,var(--docs-diff-del-bg,color-mix(in srgb,#e03e3e 8%,#f8f8f7)))",
   "--tr-modified-fg": "var(--docs-outline-rows-modified,var(--docs-diff-mod,#805f01))",
   "--tr-modified-bg": "var(--docs-outline-rows-modified-bg,var(--docs-diff-mod-bg,color-mix(in srgb,#dfab01 9%,#f8f8f7)))",
-  "--tr-tok-callee": "var(--docs-outline-rows-callee-fg,var(--docs-syn-fn,#0b6e99))",
-  "--tr-args": "var(--docs-outline-rows-args-fg,var(--docs-muted,#666562))",
-  "--tr-control": "var(--docs-outline-rows-control-fg,var(--docs-syn-control,#6940a5))",
-  "--tr-tok-call": "var(--docs-outline-rows-call-fg,var(--docs-syn-fn,#0b6e99))",
-  "--tr-tok-hook": "var(--docs-outline-rows-hook-fg,var(--docs-syn-fn,#0b6e99))",
-  "--tr-tok-keyword": "var(--docs-outline-rows-keyword-fg,var(--docs-syn-keyword,#6940a5))",
-  "--tr-tok-string": "var(--docs-outline-rows-string-fg,var(--docs-syn-string,#9d530d))",
-  "--tr-tok-number": "var(--docs-outline-rows-number-fg,var(--docs-syn-number,#26744f))",
-  "--tr-tok-type": "var(--docs-outline-rows-type-fg,var(--docs-syn-type,#805f01))",
-  "--tr-tok-tag": "var(--docs-outline-rows-tag-fg,var(--docs-syn-tag,color-mix(in srgb,#ad1a72 88%,#1f1f1f)))",
-  "--tr-tok-prop": "var(--docs-outline-rows-prop-fg,var(--docs-syn-prop,#0d7164))",
-  "--tr-tok-punct": "var(--docs-outline-rows-punct-fg,var(--docs-syn-punct,#666562))",
+  /* syntax: the code theme's own --syntax-* roles, so a row reads the way the
+     editor colors the same code; each literal is VS Code Dark+ */
+  "--tr-syn-var": "var(--docs-outline-rows-var-fg,var(--syntax-key,#9cdcfe))",
+  "--tr-syn-fn": "var(--docs-outline-rows-fn-fg,var(--syntax-function,#dcdcaa))",
+  "--tr-syn-type": "var(--docs-outline-rows-type-fg,var(--syntax-type,#4ec9b0))",
+  "--tr-syn-tag": "var(--docs-outline-rows-tag-fg,var(--syntax-tag,#569cd6))",
+  "--tr-syn-keyword": "var(--docs-outline-rows-keyword-fg,var(--syntax-keyword,#569cd6))",
+  "--tr-syn-control": "var(--docs-outline-rows-control-fg,var(--syntax-control,#c586c0))",
+  "--tr-syn-constant": "var(--docs-outline-rows-constant-fg,var(--syntax-boolean,#569cd6))",
+  "--tr-syn-string": "var(--docs-outline-rows-string-fg,var(--syntax-string,#ce9178))",
+  "--tr-syn-number": "var(--docs-outline-rows-number-fg,var(--syntax-number,#b5cea8))",
+  "--tr-syn-punct": "var(--docs-outline-rows-punct-fg,var(--syntax-punctuation,#d4d4d4))",
+  "--tr-syn-bracket": "var(--docs-outline-rows-bracket-fg,color-mix(in srgb,var(--syntax-punctuation,#d4d4d4) 60%,transparent))",
 });
 
 const FLAVOR_HEAD = {
@@ -240,7 +247,7 @@ export function OutlineRows({
                       {branch ? (
                         <>
                           <span className="docs-tree__if">?</span>
-                          {branchText(row.text)}
+                          {renderCode(branchText(row.text), flavor)}
                         </>
                       ) : (
                         renderCode(row.text, flavor)

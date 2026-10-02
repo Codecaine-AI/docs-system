@@ -36,11 +36,12 @@
 
 /* Theme-independent page-lane defaults. The document shell is left-anchored:
  * --style-content-margin is its left rail, while each block caps itself at
- * the text or wide measure and defaults to left justification. Style-rail
+ * the text, code or wide measure and defaults to left justification. Style-rail
  * settings may override these on <html>; an unset rail still renders the
  * primary lane presentation rather than falling back to a centered column. */
 :root {
-  --style-wide-width: 1040px;
+  --style-code-width: 88ch;
+  --style-wide-width: 1100px;
   --style-content-margin: 88px;
 }
 
@@ -188,9 +189,16 @@
   --docs-code-rule: var(--border);
   --docs-code-rule-width: 1px;
   --docs-code-rule-opacity: 0.5;
-  /* Annotation notes aside: note text size and the notes column width. */
-  --docs-code-note-text-size: 14px;
+  /* Notes column inside annotated code panels: the note body size (titles
+     are 1px larger) and the column width. */
+  --docs-code-note-text-size: 13px;
   --docs-code-notes-width: 280px;
+  /* Selected text in a code panel: the UA's Highlight (an imported code
+     theme may set its own). --docs-code-notes-bg (the notes column surface)
+     is deliberately UNDECLARED: its fallback mixes the panel's own bg 6%
+     toward white where the panel is, which a root declaration would freeze
+     to the root's code bg under a page-mode code theme. */
+  --docs-code-selection: Highlight;
   /* Callout (docs-viewer rich-text/CalloutDocsBlock): one note card for
      every tone. Declared HERE so a theme or the style rail can move them;
      the component only reads them (its fallbacks are the light values).
@@ -201,27 +209,27 @@
   --docs-callout-fg: var(--docs-text);
   --docs-callout-border: var(--docs-rule);
   --docs-callout-info-accent: var(--docs-tone-info);
-  --docs-callout-info-tint: var(--docs-panel);
+  --docs-callout-info-tint: transparent;
   --docs-callout-info-title-fg: var(--docs-ink);
   --docs-callout-decision-accent: var(--docs-tone-decision);
-  --docs-callout-decision-tint: var(--docs-panel);
+  --docs-callout-decision-tint: transparent;
   --docs-callout-decision-title-fg: var(--docs-ink);
   --docs-callout-warning-accent: var(--docs-tone-warning);
-  --docs-callout-warning-tint: var(--docs-panel);
+  --docs-callout-warning-tint: transparent;
   --docs-callout-warning-title-fg: var(--docs-ink);
   --docs-callout-risk-accent: var(--docs-tone-risk);
-  --docs-callout-risk-tint: var(--docs-panel);
+  --docs-callout-risk-tint: transparent;
   --docs-callout-risk-title-fg: var(--docs-ink);
   --docs-callout-success-accent: var(--docs-tone-success);
-  --docs-callout-success-tint: var(--docs-panel);
+  --docs-callout-success-tint: transparent;
   --docs-callout-success-title-fg: var(--docs-ink);
-  --docs-callout-rail-width: 2px;
-  --docs-callout-hairline-width: 1px;
-  --docs-callout-pad-x: 16px;
-  --docs-callout-pad-y: 12px;
-  --docs-callout-title-text-size: 13.5px;
-  --docs-callout-title-weight: 500;
-  --docs-callout-icon-size: 14px;
+  --docs-callout-rail-width: 3px;
+  --docs-callout-hairline-width: 0px;
+  --docs-callout-pad-x: 14px;
+  --docs-callout-pad-y: 2px;
+  --docs-callout-title-text-size: var(--style-font-size, 18px);
+  --docs-callout-title-weight: 600;
+  --docs-callout-icon-size: 16px;
   --docs-callout-body-text-scale: 1;
   --docs-callout-margin: 20px;
   --docs-callout-radius: var(--radius);
@@ -281,6 +289,58 @@
   --docs-file-tree-renamed-marker: var(--docs-diff-mod);
   --docs-file-tree-renamed-tint: var(--docs-c-yellow-solid);
   --docs-file-tree-change-tint: 8;
+  /* Call stack + component tree (outline-rows): the file tree's row metrics;
+     the syntax colors follow the code theme's --syntax-* roles (the rows are
+     a code surface). Every value equals the component's var() fallback. */
+  --docs-outline-rows-bg: var(--docs-panel);
+  --docs-outline-rows-border: var(--docs-rule);
+  --docs-outline-rows-border-width: 1px;
+  --docs-outline-rows-radius: var(--radius);
+  --docs-outline-rows-pad-y: 8px;
+  --docs-outline-rows-pad-x: 12px;
+  --docs-outline-rows-text-size: 13px;
+  --docs-outline-rows-line-height: 28px;
+  --docs-outline-rows-ink: var(--docs-ink);
+  --docs-outline-rows-comment-fg: var(--docs-muted);
+  --docs-outline-rows-comment-text-size: 13.5px;
+  --docs-outline-rows-source-text-size: 12px;
+  --docs-outline-rows-guide: color-mix(in srgb, var(--docs-ink) 75%, transparent);
+  --docs-outline-rows-muted-fg: var(--docs-muted);
+  --docs-outline-rows-added: var(--docs-diff-add);
+  --docs-outline-rows-added-bg: var(--docs-diff-add-bg);
+  --docs-outline-rows-removed: var(--docs-diff-del);
+  --docs-outline-rows-removed-bg: var(--docs-diff-del-bg);
+  --docs-outline-rows-modified: var(--docs-diff-mod);
+  --docs-outline-rows-modified-bg: var(--docs-diff-mod-bg);
+  --docs-outline-rows-var-fg: var(--syntax-key);
+  --docs-outline-rows-fn-fg: var(--syntax-function);
+  --docs-outline-rows-type-fg: var(--syntax-type);
+  --docs-outline-rows-tag-fg: var(--syntax-tag);
+  --docs-outline-rows-keyword-fg: var(--syntax-keyword);
+  --docs-outline-rows-control-fg: var(--syntax-control);
+  --docs-outline-rows-constant-fg: var(--syntax-boolean);
+  --docs-outline-rows-string-fg: var(--syntax-string);
+  --docs-outline-rows-number-fg: var(--syntax-number);
+  --docs-outline-rows-punct-fg: var(--syntax-punctuation);
+  --docs-outline-rows-bracket-fg: color-mix(in srgb, var(--syntax-punctuation) 60%, transparent);
+  /* Stack: neutrals follow the role tokens, node colors the category
+     roster; on the light page the card is the page. */
+  --docs-stack-ink: var(--docs-ink);
+  --docs-stack-muted: var(--docs-muted);
+  --docs-stack-detail: var(--docs-text);
+  --docs-stack-card-bg: var(--docs-page);
+  --docs-stack-arrow: var(--docs-muted);
+  --docs-stack-boundary: var(--docs-muted);
+  --docs-stack-gap: 12px;
+  --docs-stack-radius: var(--radius);
+  --docs-stack-blue: var(--docs-cat-1);
+  --docs-stack-green: var(--docs-cat-3);
+  --docs-stack-yellow: var(--docs-cat-4);
+  --docs-stack-orange: var(--docs-cat-4);
+  --docs-stack-purple: var(--docs-cat-5);
+  --docs-stack-red: var(--docs-cat-6);
+  --docs-stack-pink: var(--docs-cat-6);
+  --docs-stack-gray: var(--docs-stack-muted);
   /* Structured table: a panel on the role neutrals (frame --docs-rule, fill
      --docs-panel), muted header over one rule, soft row rules. */
   --docs-table-border: var(--docs-rule);
@@ -313,9 +373,6 @@
   --docs-table-column-rule-opacity: var(--docs-table-row-rule-opacity);
   --docs-table-row-hover-bg: var(--docs-hover);
   --docs-table-row-min-height: 28px;
-  --docs-table-title-fg: var(--docs-ink);
-  --docs-table-title-text-size: 13.5px;
-  --docs-table-title-weight: 600;
   /* Component corner radii follow the global --radius token exactly. */
   --docs-table-handle-radius: var(--radius);
   --docs-highlight-radius: var(--radius);
@@ -329,9 +386,11 @@
   /* Interaction Surface (theme lab, 2026-10-01): one reference panel with
      operations as rows. Content colors default to the matching State Shape
      token, so an untouched block follows the State shape knobs and a rail
-     override wins for this block only. Operation names ride --docs-syn-fn;
-     the kind badge reads --docs-kind-* directly. The signature pane is code:
-     its name / type / punctuation colors follow the --syntax-* roles. Every
+     override wins for this block only. The whole panel is a code surface
+     ([data-code-surface], the dark code panel in both page modes):
+     operation names and signatures follow the --syntax-* roles (VS Code
+     Dark+ by default), the ledger follows State Shape's syntax-role names /
+     types; the kind badge reads --docs-kind-* directly. Every
      value here must equal the component's var() fallback and the registry
      default in theme-folders.ts; the corner radius follows the global
      --radius (2px at stock). */
@@ -339,8 +398,8 @@
   --docs-interaction-bg: var(--docs-shape-bg);
   --docs-interaction-rule: var(--docs-shape-rule);
   --docs-interaction-title-fg: var(--docs-ink);
-  --docs-interaction-header-fg: var(--docs-syn-fn);
-  --docs-interaction-column-head-fg: var(--docs-shape-muted);
+  --docs-interaction-header-fg: var(--syntax-function);
+  --docs-interaction-column-head-fg: var(--docs-ink);
   --docs-interaction-sig-name: var(--syntax-function);
   --docs-interaction-sig-type: var(--syntax-type);
   --docs-interaction-sig-punct: var(--syntax-punctuation);
@@ -351,7 +410,7 @@
   --docs-interaction-radius: var(--radius);
   --docs-interaction-border-width: 1px;
   --docs-interaction-rule-width: 1px;
-  --docs-interaction-pad-x: 12px;
+  --docs-interaction-pad-x: 16px;
   --docs-interaction-title-text-size: 13.5px;
   --docs-interaction-title-weight: 600;
   --docs-interaction-header-pad-y: 9px;
@@ -359,33 +418,35 @@
   --docs-interaction-header-weight: 500;
   --docs-interaction-desc-text-size: 13.5px;
   --docs-interaction-desc-line-height: 20px;
-  --docs-interaction-column-head-text-size: 13.5px;
+  --docs-interaction-column-head-text-size: 13px;
   --docs-interaction-column-head-pad-y: 8px;
-  --docs-interaction-row-pad: 4px;
+  --docs-interaction-row-pad: 5px;
   --docs-interaction-indent: 16px;
   --docs-interaction-note-name-text-size: 13px;
   --docs-interaction-note-name-weight: 500;
   --docs-interaction-note-type-text-size: 13px;
-  /* State Shape (theme lab, 2026-10-01): a plain reference panel, the same
-     in both modes because the colors ride the shared role tokens (ROLE
-     TOKENS at the end of this file): names --docs-syn-prop, types
-     --docs-syn-type, secondary text --docs-muted, each >= 4.5:1 on the
-     panel. Every value here must equal the component's var() fallback and
-     the registry default in theme-folders.ts. */
+  /* State Shape: the whole panel is a code surface ([data-code-surface]),
+     so it renders as the dark code panel in both page modes and its field
+     list reads like a TypeScript type in the editor: names --syntax-key,
+     types --syntax-type, the ? marker and type punctuation
+     --syntax-punctuation (VS Code Dark+ by default). Descriptions stay
+     --docs-muted, >= 4.5:1 on the code panel. Every value here must equal
+     the component's var() fallback and the registry default in
+     theme-folders.ts. */
   --docs-shape-border: var(--docs-rule);
   --docs-shape-bg: var(--docs-panel);
-  --docs-shape-name: var(--docs-syn-prop);
-  --docs-shape-type: var(--docs-syn-type);
-  --docs-shape-muted: var(--docs-muted);
-  --docs-shape-optional-fg: var(--docs-muted);
+  --docs-shape-name: var(--syntax-key);
+  --docs-shape-type: var(--syntax-type);
+  --docs-shape-muted: var(--syntax-punctuation);
+  --docs-shape-optional-fg: var(--syntax-punctuation);
   --docs-shape-rule: var(--docs-rule-soft);
   --docs-shape-header-bg: var(--docs-panel);
   --docs-shape-desc-fg: var(--docs-muted);
-  --docs-shape-child-rule: var(--docs-rule);
-  --docs-shape-row-pad: 4px;
+  --docs-shape-child-rule: color-mix(in srgb, var(--docs-ink) 75%, transparent);
+  --docs-shape-row-pad: 5px;
   --docs-shape-row-min-height: 28px;
   --docs-shape-name-weight: 500;
-  --docs-shape-name-width: 176px;
+  --docs-shape-name-width: 24ch;
   --docs-shape-header-fg: var(--docs-ink);
   --docs-shape-header-rule: var(--docs-rule-soft);
   --docs-shape-text-size: 13px;
@@ -393,7 +454,7 @@
   --docs-shape-desc-text-size: 13.5px;
   --docs-shape-header-text-size: 13px;
   --docs-shape-header-weight: 600;
-  --docs-shape-pad-x: 12px;
+  --docs-shape-pad-x: 16px;
   --docs-shape-header-pad-y: 6px;
   --docs-shape-border-width: 1px;
   --docs-shape-radius: var(--radius);
@@ -424,16 +485,20 @@
   --docs-link-gutter-width: 40px;
   /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock).
      Theme-lab look: each root step is a panel (frame, head strip with the
-     flow tile and the root text as title); steps are sans text on neutral
-     1px rails, depth reads from indent, and the depth hue (cycle-1..6, the
-     category roster: blue, green, violet, yellow, teal, pink) colours only
-     the small arrowhead closing each elbow. Loop keywords take the keyword
-     syntax colour at a medium weight; chips are typed (--docs-syn-*); notes
-     are muted with visible dots; a trace mark is a quiet mono tag. Every
-     colour resolves through the role tokens, so the same declarations serve
-     both modes. The component reads each var with its LIGHT value as the
-     literal fallback, and nothing in it is !important, so a theme or rail
-     override set here always wins.
+     flow tile and the root text as title) that follows the page: light on
+     the light page, dark on the dark page. Its colours are the VS Code
+     theme the reader knows for that mode, Light+ here and Dark+ in the dark
+     block: loop keywords are control flow (#AF00DB / #C586C0), notes are
+     italic comment asides behind a // marker (#008000 / #6A9955), and typed
+     chips follow the same palettes (typed-chip.ts). Steps are sans text in
+     the page ink on 1px rails ending in plain file-tree elbows (no
+     arrowhead); the rail is ink at 45% into the panel here (visible but
+     secondary) and ink at 75% on the dark page. The depth hue (cycle-1..6,
+     the category roster: blue, green, violet, yellow, teal, pink) tints only
+     the note accent and the selection; a trace mark is a quiet mono tag.
+     The component reads each var with its LIGHT value as the literal
+     fallback, and nothing in it is !important, so a theme or rail override
+     set here always wins.
      The note box (bg, border, rule, padding, rule gap) defaults to nothing;
      a theme that wants the bordered card back sets those. The -accent /
      -tint knobs are UNITLESS PERCENT NUMBERS the component multiplies by 1%
@@ -444,18 +509,18 @@
   --docs-process-outline-title-fg: var(--docs-ink);
   --docs-process-outline-bg: var(--docs-panel);
   --docs-process-outline-header-bg: var(--docs-panel);
-  --docs-process-outline-rail: var(--docs-guide);
+  --docs-process-outline-rail: color-mix(in srgb, var(--docs-ink) 45%, var(--docs-panel));
   --docs-process-outline-cycle-1: var(--docs-cat-1);
   --docs-process-outline-cycle-2: var(--docs-cat-3);
   --docs-process-outline-cycle-3: var(--docs-cat-5);
   --docs-process-outline-cycle-4: var(--docs-cat-4);
   --docs-process-outline-cycle-5: var(--docs-cat-2);
   --docs-process-outline-cycle-6: var(--docs-cat-6);
-  --docs-process-outline-keyword-fg: var(--docs-syn-keyword);
+  --docs-process-outline-keyword-fg: #AF00DB;
   --docs-process-outline-keyword-weight: 500;
-  --docs-process-outline-note-fg: var(--docs-muted);
+  --docs-process-outline-note-fg: #008000;
   --docs-process-outline-note-rule: var(--docs-rule);
-  --docs-process-outline-note-bullet: var(--docs-muted);
+  --docs-process-outline-note-bullet: #008000;
   --docs-process-outline-note-bg: transparent;
   --docs-process-outline-note-border: var(--docs-rule);
   --docs-process-outline-code-bg: var(--docs-chip-bg);
@@ -463,16 +528,16 @@
   --docs-process-outline-border-width: 1px;
   --docs-process-outline-pad-y: 12px;
   --docs-process-outline-pad-x: 12px;
-  --docs-process-outline-indent: 24px;
+  --docs-process-outline-indent: 28px;
   --docs-process-outline-row-gap: 4px;
-  --docs-process-outline-branch-gap: 12px;
+  --docs-process-outline-branch-gap: 16px;
   --docs-process-outline-root-gap: 12px;
   --docs-process-outline-arrow-gap: 4px;
   --docs-process-outline-line-height: 24px;
   --docs-process-outline-text-size: 13.5px;
   --docs-process-outline-root-text-size: 13.5px;
   --docs-process-outline-root-weight: 600;
-  --docs-process-outline-branch-weight: 500;
+  --docs-process-outline-branch-weight: 600;
   --docs-process-outline-step-weight: 400;
   --docs-process-outline-empty-text-size: 12px;
   --docs-process-outline-note-text-size: 13.5px;
@@ -484,13 +549,12 @@
   --docs-process-outline-note-pad-x: 0px;
   --docs-process-outline-note-rule-gap: 0px;
   --docs-process-outline-note-accent: 0;
-  --docs-process-outline-arrow-size: 5px;
   --docs-process-outline-trace-text-size: 12px;
   --docs-process-outline-select-bg: transparent;
   --docs-process-outline-select-tint: 15;
   --docs-process-outline-select-pad: 2px;
   --docs-process-outline-focus-ring: 1px;
-  --docs-process-outline-stroke: 1px;
+  --docs-process-outline-stroke: 1.5px;
   /* Sequence embed (docs-workbench pages/SequenceEmbed + sequence-embed.css).
      Frame values are the literals the stylesheet used to hardcode. The
      diagram colours are the sequence package's own defaults, handed to its
@@ -565,18 +629,19 @@
   --docs-ref-icon-color: currentColor;
   --docs-ref-icon-gap: 2px;
   --docs-ref-icon-direction: row;
-  --docs-viewer-callout-fill: var(--color-bg-orange);
-  --docs-viewer-inline-fill: var(--docs-c-gray-soft);
   --docs-inline-code-bg: var(--docs-chip-bg);
   --docs-inline-code-fg: var(--docs-chip-fg);
   /* Typed inline code: the chip text color per kind (docs-viewer
-     components/typed-chip.ts); every kind defaults to a page-level
-     syntax role. Point them all at --docs-chip-fg for neutral chips. */
-  --docs-inline-code-path-fg: var(--docs-syn-string);
-  --docs-inline-code-type-fg: var(--docs-syn-type);
-  --docs-inline-code-call-fg: var(--docs-syn-fn);
-  --docs-inline-code-literal-fg: var(--docs-syn-number);
-  --docs-inline-code-prop-fg: var(--docs-syn-prop);
+     components/typed-chip.ts) in VS Code Light+, the editor's colors (type
+     and number darkened 10% for 4.5:1 on the chip fill). Point them all at
+     --docs-chip-fg for neutral chips. */
+  --docs-inline-code-path-fg: #a31515;
+  --docs-inline-code-string-fg: #a31515;
+  --docs-inline-code-type-fg: #22728a;
+  --docs-inline-code-call-fg: #795e26;
+  --docs-inline-code-literal-fg: #08794f;
+  --docs-inline-code-keyword-fg: #0000ff;
+  --docs-inline-code-prop-fg: #001080;
   /* Inline code chip metrics. Text size and padding are UNITLESS em
      multipliers (the consumers multiply by 1em) so the chip scales with the
      text around it. The radius follows the global --radius (2px at stock).
@@ -749,35 +814,42 @@
   --docs-code-rule: var(--border);
   --docs-code-rule-width: 1px;
   --docs-code-rule-opacity: 0.5;
-  /* Annotation notes aside: note text size and the notes column width. */
-  --docs-code-note-text-size: 14px;
+  /* Notes column inside annotated code panels: the note body size (titles
+     are 1px larger) and the column width. */
+  --docs-code-note-text-size: 13px;
   --docs-code-notes-width: 280px;
+  /* Selected text in a code panel: the UA's Highlight (an imported code
+     theme may set its own). --docs-code-notes-bg (the notes column surface)
+     is deliberately UNDECLARED: its fallback mixes the panel's own bg 6%
+     toward white where the panel is, which a root declaration would freeze
+     to the root's code bg under a page-mode code theme. */
+  --docs-code-selection: Highlight;
   /* Callout — same contract as the light block; the roles resolve to the
      dark palette here. */
   --docs-callout-fg: var(--docs-text);
   --docs-callout-border: var(--docs-rule);
   --docs-callout-info-accent: var(--docs-tone-info);
-  --docs-callout-info-tint: var(--docs-panel);
+  --docs-callout-info-tint: transparent;
   --docs-callout-info-title-fg: var(--docs-ink);
   --docs-callout-decision-accent: var(--docs-tone-decision);
-  --docs-callout-decision-tint: var(--docs-panel);
+  --docs-callout-decision-tint: transparent;
   --docs-callout-decision-title-fg: var(--docs-ink);
   --docs-callout-warning-accent: var(--docs-tone-warning);
-  --docs-callout-warning-tint: var(--docs-panel);
+  --docs-callout-warning-tint: transparent;
   --docs-callout-warning-title-fg: var(--docs-ink);
   --docs-callout-risk-accent: var(--docs-tone-risk);
-  --docs-callout-risk-tint: var(--docs-panel);
+  --docs-callout-risk-tint: transparent;
   --docs-callout-risk-title-fg: var(--docs-ink);
   --docs-callout-success-accent: var(--docs-tone-success);
-  --docs-callout-success-tint: var(--docs-panel);
+  --docs-callout-success-tint: transparent;
   --docs-callout-success-title-fg: var(--docs-ink);
-  --docs-callout-rail-width: 2px;
-  --docs-callout-hairline-width: 1px;
-  --docs-callout-pad-x: 16px;
-  --docs-callout-pad-y: 12px;
-  --docs-callout-title-text-size: 13.5px;
-  --docs-callout-title-weight: 500;
-  --docs-callout-icon-size: 14px;
+  --docs-callout-rail-width: 3px;
+  --docs-callout-hairline-width: 0px;
+  --docs-callout-pad-x: 14px;
+  --docs-callout-pad-y: 2px;
+  --docs-callout-title-text-size: var(--style-font-size, 18px);
+  --docs-callout-title-weight: 600;
+  --docs-callout-icon-size: 16px;
   --docs-callout-body-text-scale: 1;
   --docs-callout-margin: 20px;
   --docs-callout-radius: var(--radius);
@@ -829,6 +901,58 @@
   --docs-file-tree-renamed-marker: var(--docs-diff-mod);
   --docs-file-tree-renamed-tint: var(--docs-c-yellow-solid);
   --docs-file-tree-change-tint: 8;
+  /* Call stack + component tree (outline-rows): the file tree's row metrics;
+     the syntax colors follow the code theme's --syntax-* roles (the rows are
+     a code surface). Every value equals the component's var() fallback. */
+  --docs-outline-rows-bg: var(--docs-panel);
+  --docs-outline-rows-border: var(--docs-rule);
+  --docs-outline-rows-border-width: 1px;
+  --docs-outline-rows-radius: var(--radius);
+  --docs-outline-rows-pad-y: 8px;
+  --docs-outline-rows-pad-x: 12px;
+  --docs-outline-rows-text-size: 13px;
+  --docs-outline-rows-line-height: 28px;
+  --docs-outline-rows-ink: var(--docs-ink);
+  --docs-outline-rows-comment-fg: var(--docs-muted);
+  --docs-outline-rows-comment-text-size: 13.5px;
+  --docs-outline-rows-source-text-size: 12px;
+  --docs-outline-rows-guide: color-mix(in srgb, var(--docs-ink) 75%, transparent);
+  --docs-outline-rows-muted-fg: var(--docs-muted);
+  --docs-outline-rows-added: var(--docs-diff-add);
+  --docs-outline-rows-added-bg: var(--docs-diff-add-bg);
+  --docs-outline-rows-removed: var(--docs-diff-del);
+  --docs-outline-rows-removed-bg: var(--docs-diff-del-bg);
+  --docs-outline-rows-modified: var(--docs-diff-mod);
+  --docs-outline-rows-modified-bg: var(--docs-diff-mod-bg);
+  --docs-outline-rows-var-fg: var(--syntax-key);
+  --docs-outline-rows-fn-fg: var(--syntax-function);
+  --docs-outline-rows-type-fg: var(--syntax-type);
+  --docs-outline-rows-tag-fg: var(--syntax-tag);
+  --docs-outline-rows-keyword-fg: var(--syntax-keyword);
+  --docs-outline-rows-control-fg: var(--syntax-control);
+  --docs-outline-rows-constant-fg: var(--syntax-boolean);
+  --docs-outline-rows-string-fg: var(--syntax-string);
+  --docs-outline-rows-number-fg: var(--syntax-number);
+  --docs-outline-rows-punct-fg: var(--syntax-punctuation);
+  --docs-outline-rows-bracket-fg: color-mix(in srgb, var(--syntax-punctuation) 60%, transparent);
+  /* Stack: neutrals follow the role tokens, node colors the category
+     roster; on the dark page the card is the ink at 7% over the panel. */
+  --docs-stack-ink: var(--docs-ink);
+  --docs-stack-muted: var(--docs-muted);
+  --docs-stack-detail: var(--docs-text);
+  --docs-stack-card-bg: color-mix(in srgb, var(--docs-stack-ink) 7%, var(--docs-panel));
+  --docs-stack-arrow: var(--docs-muted);
+  --docs-stack-boundary: var(--docs-muted);
+  --docs-stack-gap: 12px;
+  --docs-stack-radius: var(--radius);
+  --docs-stack-blue: var(--docs-cat-1);
+  --docs-stack-green: var(--docs-cat-3);
+  --docs-stack-yellow: var(--docs-cat-4);
+  --docs-stack-orange: var(--docs-cat-4);
+  --docs-stack-purple: var(--docs-cat-5);
+  --docs-stack-red: var(--docs-cat-6);
+  --docs-stack-pink: var(--docs-cat-6);
+  --docs-stack-gray: var(--docs-stack-muted);
   /* Structured table: a panel on the role neutrals (frame --docs-rule, fill
      --docs-panel), muted header over one rule, soft row rules. */
   --docs-table-border: var(--docs-rule);
@@ -861,9 +985,6 @@
   --docs-table-column-rule-opacity: var(--docs-table-row-rule-opacity);
   --docs-table-row-hover-bg: var(--docs-hover);
   --docs-table-row-min-height: 28px;
-  --docs-table-title-fg: var(--docs-ink);
-  --docs-table-title-text-size: 13.5px;
-  --docs-table-title-weight: 600;
   /* Component corner radii follow the global --radius token exactly. */
   --docs-table-handle-radius: var(--radius);
   --docs-highlight-radius: var(--radius);
@@ -877,9 +998,11 @@
   /* Interaction Surface (theme lab, 2026-10-01): one reference panel with
      operations as rows. Content colors default to the matching State Shape
      token, so an untouched block follows the State shape knobs and a rail
-     override wins for this block only. Operation names ride --docs-syn-fn;
-     the kind badge reads --docs-kind-* directly. The signature pane is code:
-     its name / type / punctuation colors follow the --syntax-* roles. Every
+     override wins for this block only. The whole panel is a code surface
+     ([data-code-surface], the dark code panel in both page modes):
+     operation names and signatures follow the --syntax-* roles (VS Code
+     Dark+ by default), the ledger follows State Shape's syntax-role names /
+     types; the kind badge reads --docs-kind-* directly. Every
      value here must equal the component's var() fallback and the registry
      default in theme-folders.ts; the corner radius follows the global
      --radius (2px at stock). */
@@ -887,8 +1010,8 @@
   --docs-interaction-bg: var(--docs-shape-bg);
   --docs-interaction-rule: var(--docs-shape-rule);
   --docs-interaction-title-fg: var(--docs-ink);
-  --docs-interaction-header-fg: var(--docs-syn-fn);
-  --docs-interaction-column-head-fg: var(--docs-shape-muted);
+  --docs-interaction-header-fg: var(--syntax-function);
+  --docs-interaction-column-head-fg: var(--docs-ink);
   --docs-interaction-sig-name: var(--syntax-function);
   --docs-interaction-sig-type: var(--syntax-type);
   --docs-interaction-sig-punct: var(--syntax-punctuation);
@@ -899,7 +1022,7 @@
   --docs-interaction-radius: var(--radius);
   --docs-interaction-border-width: 1px;
   --docs-interaction-rule-width: 1px;
-  --docs-interaction-pad-x: 12px;
+  --docs-interaction-pad-x: 16px;
   --docs-interaction-title-text-size: 13.5px;
   --docs-interaction-title-weight: 600;
   --docs-interaction-header-pad-y: 9px;
@@ -907,33 +1030,35 @@
   --docs-interaction-header-weight: 500;
   --docs-interaction-desc-text-size: 13.5px;
   --docs-interaction-desc-line-height: 20px;
-  --docs-interaction-column-head-text-size: 13.5px;
+  --docs-interaction-column-head-text-size: 13px;
   --docs-interaction-column-head-pad-y: 8px;
-  --docs-interaction-row-pad: 4px;
+  --docs-interaction-row-pad: 5px;
   --docs-interaction-indent: 16px;
   --docs-interaction-note-name-text-size: 13px;
   --docs-interaction-note-name-weight: 500;
   --docs-interaction-note-type-text-size: 13px;
-  /* State Shape (theme lab, 2026-10-01): a plain reference panel, the same
-     in both modes because the colors ride the shared role tokens (ROLE
-     TOKENS at the end of this file): names --docs-syn-prop, types
-     --docs-syn-type, secondary text --docs-muted, each >= 4.5:1 on the
-     panel. Every value here must equal the component's var() fallback and
-     the registry default in theme-folders.ts. */
+  /* State Shape: the whole panel is a code surface ([data-code-surface]),
+     so it renders as the dark code panel in both page modes and its field
+     list reads like a TypeScript type in the editor: names --syntax-key,
+     types --syntax-type, the ? marker and type punctuation
+     --syntax-punctuation (VS Code Dark+ by default). Descriptions stay
+     --docs-muted, >= 4.5:1 on the code panel. Every value here must equal
+     the component's var() fallback and the registry default in
+     theme-folders.ts. */
   --docs-shape-border: var(--docs-rule);
   --docs-shape-bg: var(--docs-panel);
-  --docs-shape-name: var(--docs-syn-prop);
-  --docs-shape-type: var(--docs-syn-type);
-  --docs-shape-muted: var(--docs-muted);
-  --docs-shape-optional-fg: var(--docs-muted);
+  --docs-shape-name: var(--syntax-key);
+  --docs-shape-type: var(--syntax-type);
+  --docs-shape-muted: var(--syntax-punctuation);
+  --docs-shape-optional-fg: var(--syntax-punctuation);
   --docs-shape-rule: var(--docs-rule-soft);
   --docs-shape-header-bg: var(--docs-panel);
   --docs-shape-desc-fg: var(--docs-muted);
-  --docs-shape-child-rule: var(--docs-rule);
-  --docs-shape-row-pad: 4px;
+  --docs-shape-child-rule: color-mix(in srgb, var(--docs-ink) 75%, transparent);
+  --docs-shape-row-pad: 5px;
   --docs-shape-row-min-height: 28px;
   --docs-shape-name-weight: 500;
-  --docs-shape-name-width: 176px;
+  --docs-shape-name-width: 24ch;
   --docs-shape-header-fg: var(--docs-ink);
   --docs-shape-header-rule: var(--docs-rule-soft);
   --docs-shape-text-size: 13px;
@@ -941,7 +1066,7 @@
   --docs-shape-desc-text-size: 13.5px;
   --docs-shape-header-text-size: 13px;
   --docs-shape-header-weight: 600;
-  --docs-shape-pad-x: 12px;
+  --docs-shape-pad-x: 16px;
   --docs-shape-header-pad-y: 6px;
   --docs-shape-border-width: 1px;
   --docs-shape-radius: var(--radius);
@@ -968,25 +1093,26 @@
   --docs-link-gutter-text-size: 12px;
   --docs-link-gutter-width: 40px;
   /* Process Outline block (docs-viewer process-outline/ProcessOutlineDocsBlock).
-     Same declarations as the light block: every colour is a role token, so
-     the dark (primer) values come from the role layer. */
+     Dark+ colours for keywords and notes, the rail at ink 75%; every other
+     colour is a role token, so the dark (primer) values come from the role
+     layer. */
   --docs-process-outline-ink: var(--docs-text);
   --docs-process-outline-deep-ink: var(--docs-process-outline-ink);
   --docs-process-outline-title-fg: var(--docs-ink);
   --docs-process-outline-bg: var(--docs-panel);
   --docs-process-outline-header-bg: var(--docs-panel);
-  --docs-process-outline-rail: var(--docs-guide);
+  --docs-process-outline-rail: color-mix(in srgb, var(--docs-ink) 75%, transparent);
   --docs-process-outline-cycle-1: var(--docs-cat-1);
   --docs-process-outline-cycle-2: var(--docs-cat-3);
   --docs-process-outline-cycle-3: var(--docs-cat-5);
   --docs-process-outline-cycle-4: var(--docs-cat-4);
   --docs-process-outline-cycle-5: var(--docs-cat-2);
   --docs-process-outline-cycle-6: var(--docs-cat-6);
-  --docs-process-outline-keyword-fg: var(--docs-syn-keyword);
+  --docs-process-outline-keyword-fg: #C586C0;
   --docs-process-outline-keyword-weight: 500;
-  --docs-process-outline-note-fg: var(--docs-muted);
+  --docs-process-outline-note-fg: #6A9955;
   --docs-process-outline-note-rule: var(--docs-rule);
-  --docs-process-outline-note-bullet: var(--docs-muted);
+  --docs-process-outline-note-bullet: #6A9955;
   --docs-process-outline-note-bg: transparent;
   --docs-process-outline-note-border: var(--docs-rule);
   --docs-process-outline-code-bg: var(--docs-chip-bg);
@@ -994,16 +1120,16 @@
   --docs-process-outline-border-width: 1px;
   --docs-process-outline-pad-y: 12px;
   --docs-process-outline-pad-x: 12px;
-  --docs-process-outline-indent: 24px;
+  --docs-process-outline-indent: 28px;
   --docs-process-outline-row-gap: 4px;
-  --docs-process-outline-branch-gap: 12px;
+  --docs-process-outline-branch-gap: 16px;
   --docs-process-outline-root-gap: 12px;
   --docs-process-outline-arrow-gap: 4px;
   --docs-process-outline-line-height: 24px;
   --docs-process-outline-text-size: 13.5px;
   --docs-process-outline-root-text-size: 13.5px;
   --docs-process-outline-root-weight: 600;
-  --docs-process-outline-branch-weight: 500;
+  --docs-process-outline-branch-weight: 600;
   --docs-process-outline-step-weight: 400;
   --docs-process-outline-empty-text-size: 12px;
   --docs-process-outline-note-text-size: 13.5px;
@@ -1015,13 +1141,12 @@
   --docs-process-outline-note-pad-x: 0px;
   --docs-process-outline-note-rule-gap: 0px;
   --docs-process-outline-note-accent: 0;
-  --docs-process-outline-arrow-size: 5px;
   --docs-process-outline-trace-text-size: 12px;
   --docs-process-outline-select-bg: transparent;
   --docs-process-outline-select-tint: 15;
   --docs-process-outline-select-pad: 2px;
   --docs-process-outline-focus-ring: 1px;
-  --docs-process-outline-stroke: 1px;
+  --docs-process-outline-stroke: 1.5px;
   /* Sequence embed: same values as the light block (the diagram stays
      light-on-white in dark mode). */
   --docs-sequence-border: var(--border);
@@ -1086,18 +1211,20 @@
   --docs-ref-icon-color: currentColor;
   --docs-ref-icon-gap: 2px;
   --docs-ref-icon-direction: row;
-  --docs-viewer-callout-fill: var(--color-bg-orange);
-  --docs-viewer-inline-fill: var(--docs-c-gray-soft);
   --docs-inline-code-bg: var(--docs-chip-bg);
-  --docs-inline-code-fg: var(--docs-chip-fg);
+  /* Dark+ default code ink, not the page ink. */
+  --docs-inline-code-fg: #d4d4d4;
   /* Typed inline code: the chip text color per kind (docs-viewer
-     components/typed-chip.ts); every kind defaults to a page-level
-     syntax role. Point them all at --docs-chip-fg for neutral chips. */
-  --docs-inline-code-path-fg: var(--docs-syn-string);
-  --docs-inline-code-type-fg: var(--docs-syn-type);
-  --docs-inline-code-call-fg: var(--docs-syn-fn);
-  --docs-inline-code-literal-fg: var(--docs-syn-number);
-  --docs-inline-code-prop-fg: var(--docs-syn-prop);
+     components/typed-chip.ts) from the code theme's syntax roles, Dark+
+     as the literal, so a chip reads like the token in the editor. Point
+     them all at --docs-chip-fg for neutral chips. */
+  --docs-inline-code-path-fg: var(--syntax-string, #ce9178);
+  --docs-inline-code-string-fg: var(--syntax-string, #ce9178);
+  --docs-inline-code-type-fg: var(--syntax-type, #4ec9b0);
+  --docs-inline-code-call-fg: var(--syntax-function, #dcdcaa);
+  --docs-inline-code-literal-fg: var(--syntax-number, #b5cea8);
+  --docs-inline-code-keyword-fg: var(--syntax-keyword, #569cd6);
+  --docs-inline-code-prop-fg: var(--syntax-key, #9cdcfe);
   /* Inline code chip metrics. Text size and padding are UNITLESS em
      multipliers (the consumers multiply by 1em) so the chip scales with the
      text around it. The radius follows the global --radius (2px at stock).
@@ -1197,7 +1324,8 @@
 
   --docs-tone-info: var(--docs-c-blue); --docs-tone-info-solid: var(--docs-c-blue-solid); --docs-tone-info-soft: var(--docs-c-blue-soft); --docs-tone-info-line: var(--docs-c-blue-line);
   --docs-tone-decision: var(--docs-c-violet); --docs-tone-decision-solid: var(--docs-c-violet-solid); --docs-tone-decision-soft: var(--docs-c-violet-soft); --docs-tone-decision-line: var(--docs-c-violet-line);
-  --docs-tone-warning: var(--docs-c-yellow); --docs-tone-warning-solid: var(--docs-c-yellow-solid); --docs-tone-warning-soft: var(--docs-c-yellow-soft); --docs-tone-warning-line: var(--docs-c-yellow-line);
+  --docs-c-amber: var(--palette-amber);
+  --docs-tone-warning: var(--docs-c-amber); --docs-tone-warning-solid: var(--docs-c-yellow-solid); --docs-tone-warning-soft: var(--docs-c-yellow-soft); --docs-tone-warning-line: var(--docs-c-yellow-line);
   --docs-tone-risk: var(--docs-c-red); --docs-tone-risk-solid: var(--docs-c-red-solid); --docs-tone-risk-soft: var(--docs-c-red-soft); --docs-tone-risk-line: var(--docs-c-red-line);
   --docs-tone-success: var(--docs-c-green); --docs-tone-success-solid: var(--docs-c-green-solid); --docs-tone-success-soft: var(--docs-c-green-soft); --docs-tone-success-line: var(--docs-c-green-line);
 

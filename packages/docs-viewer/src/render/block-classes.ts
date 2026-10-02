@@ -130,11 +130,13 @@ export const LIST_ITEM_CHILDREN_CLASSES = "";
  * is `inherit`: the code mark nests INSIDE bold (delta-spans.tsx) and inside
  * headings, and must keep their weight until the knob is moved. The border
  * is 0px wide by default, so the chip is borderless until a theme widens it.
- * Long paths may wrap inside prose rather than overflow the measure; the
- * cloned box decoration keeps the chip whole on each line.
+ * A chip never breaks mid-token: the renderers cut its text into nowrap
+ * pieces (components/mono-breaks.tsx chipBreaks), so a long path wraps only
+ * after a `/ . _ -` between words or at a space; the cloned box decoration
+ * keeps the chip whole on each line.
  */
 export const INLINE_CODE_CLASSES =
-  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] [font-weight:var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] [overflow-wrap:anywhere] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]";
+  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] [font-weight:var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] [overflow-wrap:normal] [word-break:normal] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]";
 
 /**
  * Typed inline code — per-kind text color for the chip, keyed by
@@ -142,15 +144,20 @@ export const INLINE_CODE_CLASSES =
  * `--docs-chip-kind-fg` that INLINE_CODE_CLASSES (and the workbench's
  * unlayered chip rule) read; `other` sets nothing, so the chip keeps
  * --docs-inline-code-fg. Each kind is its own knob
- * (--docs-inline-code-<kind>-fg, defaulting to a page-level syntax role);
- * pointing all five at the chip ink turns typing off.
+ * (--docs-inline-code-<kind>-fg); the defaults are VS Code's colors (Light+
+ * on the light page, Dark+ on the dark page, semantic.css), and each
+ * literal fallback is the Light+ value (type and number darkened for 4.5:1
+ * on the chip fill, as in typed-chip.ts). Pointing them all at the chip ink
+ * turns typing off.
  */
 export const INLINE_CODE_KIND_CLASSES = {
-  path: "[--docs-chip-kind-fg:var(--docs-inline-code-path-fg,#9d530d)]",
-  type: "[--docs-chip-kind-fg:var(--docs-inline-code-type-fg,#805f01)]",
-  call: "[--docs-chip-kind-fg:var(--docs-inline-code-call-fg,#0b6e99)]",
-  literal: "[--docs-chip-kind-fg:var(--docs-inline-code-literal-fg,#26744f)]",
-  prop: "[--docs-chip-kind-fg:var(--docs-inline-code-prop-fg,#0d7164)]",
+  path: "[--docs-chip-kind-fg:var(--docs-inline-code-path-fg,#a31515)]",
+  string: "[--docs-chip-kind-fg:var(--docs-inline-code-string-fg,#a31515)]",
+  type: "[--docs-chip-kind-fg:var(--docs-inline-code-type-fg,#22728a)]",
+  call: "[--docs-chip-kind-fg:var(--docs-inline-code-call-fg,#795e26)]",
+  literal: "[--docs-chip-kind-fg:var(--docs-inline-code-literal-fg,#08794f)]",
+  keyword: "[--docs-chip-kind-fg:var(--docs-inline-code-keyword-fg,#0000ff)]",
+  prop: "[--docs-chip-kind-fg:var(--docs-inline-code-prop-fg,#001080)]",
   other: "",
 } as const;
 
@@ -192,13 +199,13 @@ export const SOURCE_REFERENCE_CLASSES =
 export const CODE_BLOCK_CLASSES =
   "not-prose my-4 overflow-hidden rounded-[var(--docs-code-radius,var(--radius,2px))] border-[length:var(--docs-code-border-width,1px)] border-[color:var(--docs-code-block-border,var(--border))] bg-[color:var(--docs-code-block-bg,color-mix(in_srgb,var(--muted)_30%,transparent))] font-mono text-[length:var(--docs-code-text-size,13px)] leading-[var(--docs-code-line-height,21px)]";
 
-/** Card container styling for the callout block type's clipboard / no-node-view HTML (the live editor and the read surface render CalloutDocsBlock instead): the one neutral note card. */
+/** Card container styling for the callout block type's clipboard / no-node-view HTML (the live editor and the read surface render CalloutDocsBlock instead): the one rail note, no box and no fill. */
 export const CARD_BASE_CLASSES =
-  "not-prose my-4 rounded-[var(--radius,2px)] border border-l-[2px] px-4 py-3";
+  "not-prose my-4 border-0 border-l-[3px] border-solid py-0.5 pl-[11px]";
 
-/** Default card tone: the panel fill and frame (every tone shares the card; only the rule, glyph and label carry the tone in CalloutDocsBlock). */
+/** Default note tone: the info rail (every tone shares the note; only the rail, glyph and label carry the tone in CalloutDocsBlock). */
 export const CARD_TONE_PRIMARY_CLASSES =
-  "border-[color:var(--docs-rule,#e6e5e3)] bg-[color:var(--docs-panel,#f8f8f7)]";
+  "border-l-[color:var(--docs-callout-info-accent,#0b6e99)]";
 
 /** Decision-tone card — the same neutral card (kept for API compatibility). */
 export const CARD_TONE_DECISION_CLASSES = CARD_TONE_PRIMARY_CLASSES;

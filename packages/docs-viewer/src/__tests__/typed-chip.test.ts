@@ -1,5 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { chipKind, type ChipKind } from "../components/typed-chip";
+import { chipPieces } from "../components/mono-breaks";
 
 /**
  * Typed inline code: the chip's text color says what it holds. Each row is a
@@ -25,19 +26,22 @@ const CASES: Array<[string, ChipKind]> = [
   // types: PascalCase with lowercase letters
   ["DocBlock", "type"],
   ["CalloutDocsBlock", "type"],
-  // literals: quoted strings, numbers with units, keyword literals
-  ['"info"', "literal"],
-  ["'decision'", "literal"],
+  // strings: quoted (VS Code string color, like paths)
+  ['"info"', "string"],
+  ["'decision'", "string"],
+  // literals: numbers with units
   ["16px", "literal"],
   ["0.85", "literal"],
-  ["true", "literal"],
-  ["null", "literal"],
+  // keyword literals (VS Code keyword blue)
+  ["true", "keyword"],
+  ["null", "keyword"],
   // props / keys: lowercase names, dotted key paths, custom properties
   ["kind", "prop"],
   ["props.level", "prop"],
   ["carriesText", "prop"],
   ["allow_scripts", "prop"],
   ["--docs-chip-bg", "prop"],
+  ["--docs-kind-*", "prop"],
   // everything else keeps the plain chip color
   ["INFO", "other"],
   ["THEME_TOKEN_REGISTRY", "other"],
@@ -56,5 +60,20 @@ describe("chipKind", () => {
 
   it("ignores surrounding whitespace", () => {
     expect(chipKind("  props.level ")).toBe("prop");
+  });
+});
+
+describe("chipPieces", () => {
+  it.each([
+    // never `--` / `docs-kind-*`: leading hyphens and a trailing `-*` stay attached
+    ["--docs-kind-*", ["--docs-", "kind-*"]],
+    // a spaced chip breaks only at its spaces
+    ["docs-cli code-theme import", ["docs-cli", " ", "code-theme", " ", "import"]],
+    ["packages/docs-viewer/src", ["packages/", "docs-", "viewer/", "src"]],
+    ["editor.setContent", ["editor.", "setContent"]],
+    ["DocsChangeEvent", ["DocsChangeEvent"]],
+    ["./foo", ["./foo"]],
+  ])("%p cuts into %p", (text, pieces) => {
+    expect(chipPieces(text)).toEqual(pieces);
   });
 });

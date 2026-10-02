@@ -172,7 +172,7 @@ describe("GET /api/blocks", () => {
     };
     expect(body.schemaVersion).toBe(2);
     expect(body.ops).toHaveLength(7);
-    expect(body.components).toHaveLength(15);
+    expect(body.components).toHaveLength(14);
     expect(body).toEqual(JSON.parse(JSON.stringify(buildBlocksDiscovery())));
   });
 });

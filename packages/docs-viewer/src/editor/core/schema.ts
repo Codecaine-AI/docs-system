@@ -24,7 +24,6 @@ import { DocProcessOutline } from "../../components/process-outline/editor-nodes
 import { DocStack } from "../../components/stack/editor-nodes";
 import { DocCallStack } from "../../components/call-stack/editor-nodes";
 import { DocComponentTree } from "../../components/component-tree/editor-nodes";
-import { DocFlowStrip } from "../../components/flow-strip/editor-nodes";
 import { DocPseudocode } from "../../components/pseudocode/editor-nodes";
 import { DocFileExplorer } from "../../components/file-explorer/editor-nodes";
 import { blockAttrs as sharedBlockAttrs } from "./node-helpers";
@@ -50,7 +49,6 @@ export {
   DocStack,
   DocCallStack,
   DocComponentTree,
-  DocFlowStrip,
   DocPseudocode,
   DocFileExplorer,
 };
@@ -136,7 +134,6 @@ export const ATOM_BLOCK_TYPES = [
   "stack",
   "call-stack",
   "component-tree",
-  "flow-strip",
   "pseudocode",
   "file-explorer",
 ] as const satisfies readonly DocBlockType[];
@@ -163,7 +160,6 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docStack: "stack",
   docCallStack: "call-stack",
   docComponentTree: "component-tree",
-  docFlowStrip: "flow-strip",
   docPseudocode: "pseudocode",
   docFileExplorer: "file-explorer",
 };
@@ -230,7 +226,6 @@ export const ATOM_BLOCK_NODES = [
   DocStack,
   DocCallStack,
   DocComponentTree,
-  DocFlowStrip,
   DocPseudocode,
   DocFileExplorer,
 ];

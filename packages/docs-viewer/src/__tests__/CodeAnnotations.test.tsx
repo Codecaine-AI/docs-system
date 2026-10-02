@@ -60,10 +60,17 @@ describe("AnnotatedCodeBlock", () => {
     expect(container.querySelector('[data-code-line="1"] > span')?.textContent).toBe("1");
     expect(container.querySelector('[data-code-line="4"] > span')?.textContent).toBe("4");
 
-    // Each note is one button: range chip first, then the bold label, then the text.
+    // Each note is one button, stacked: a head row (range chip, then the bold
+    // title), then the note text on its own row below.
     const note = (i: number) => container.querySelector(`[data-annotation-note="${i}"]`)!;
     expect(note(0).tagName).toBe("BUTTON");
-    expect(note(0).firstElementChild?.getAttribute("data-range-chip")).toBe("true");
+    const [head, body] = Array.from(note(0).children);
+    expect(head?.hasAttribute("data-note-head")).toBe(true);
+    expect(head?.firstElementChild?.getAttribute("data-range-chip")).toBe("true");
+    expect(head?.querySelector("[data-note-title]")?.textContent).toBe("Setup ");
+    expect(body?.hasAttribute("data-note-body")).toBe(true);
+    expect(body?.textContent).toBe("Declares the inputs.");
+    expect(note(1).querySelector("[data-note-title]")).toBeNull();
     expect(note(0).querySelector("[data-range-chip]")?.textContent).toBe("L1–2");
     expect(note(1).querySelector("[data-range-chip]")?.textContent).toBe("L4");
     expect(note(0).textContent).toBe("L1–2Setup Declares the inputs.");
@@ -105,7 +112,7 @@ describe("AnnotatedCodeBlock", () => {
     expect(copy.className).not.toContain("opacity-0");
   });
 
-  it("lays the margin notes beside the dark panel, outside it, in a 760px size-container grid", () => {
+  it("lays the notes column inside the dark panel, beside the code, in a 760px size-container grid", () => {
     const { container } = renderBlock([{ lines: "1", note: "Setup." }]);
 
     const section = container.querySelector('[data-code-annotations="code-1"]')!;
@@ -113,30 +120,34 @@ describe("AnnotatedCodeBlock", () => {
     expect(layout).toBeTruthy();
     // A size container: the notes column follows the block's own width.
     expect(layout.className).toContain("@container");
-    const grid = layout.firstElementChild!;
-    expect(grid.className).toContain(
+    const frame = layout.firstElementChild!;
+    expect(frame.getAttribute("data-code-surface")).toBe("true");
+    expect(frame.getAttribute("data-language")).toBe("ts");
+
+    // The frame holds the header strip, then the code | notes body grid.
+    const [header, body] = Array.from(frame.children);
+    expect(header?.hasAttribute("data-code-header")).toBe(true);
+    expect(body?.hasAttribute("data-code-body")).toBe(true);
+    expect(body?.className).toContain(
       "@min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]",
     );
-
-    // The grid holds exactly the panel and the notes, in that order.
-    const [frame, aside] = Array.from(grid.children);
-    expect(frame?.getAttribute("data-code-surface")).toBe("true");
-    expect(frame?.getAttribute("data-language")).toBe("ts");
+    const [pre, aside] = Array.from(body!.children);
+    expect(pre?.tagName).toBe("PRE");
     expect(aside?.tagName).toBe("ASIDE");
     expect(aside?.hasAttribute("data-code-notes")).toBe(true);
     expect(aside?.getAttribute("aria-label")).toBe("Code notes");
 
-    // Notes sit on the page, OUTSIDE the dark code panel.
-    expect(aside?.closest("[data-code-surface]")).toBeNull();
-    expect(frame?.querySelector("[data-code-notes]")).toBeNull();
-    expect(frame?.querySelector("[data-annotation-note]")).toBeNull();
+    // Notes sit INSIDE the code panel, on a lighter surface behind the hairline.
+    expect(aside?.closest("[data-code-surface]")).toBe(frame);
+    expect(aside?.className).toContain("bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))]");
+    expect(aside?.className).toContain("@min-[760px]:border-l-[length:var(--docs-code-rule-width,1px)]");
 
     // No notes header, no "Notes" label.
     expect(container.querySelector("[data-code-notes-header]")).toBeNull();
     expect(screen.queryByText("Notes")).toBeNull();
   });
 
-  it("renders notes as plain prose buttons — no dividers, card border, background, or ring — and never stripes them", () => {
+  it("renders notes as plain buttons at rest — no dividers, card border, background, or ring — and never stripes them", () => {
     const { container } = renderBlock([
       { lines: "1", label: "Setup", note: "First." },
       { lines: "2", note: "Second." },
@@ -344,9 +355,9 @@ describe("AnnotatedCodeBlock", () => {
     expect(cls("[data-code-header]")).toContain("bg-[color:var(--docs-code-header-bg,");
     expect(cls("[data-code-lang]")).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
     expect(cls("[data-code-lang]")).toContain("[font-weight:var(--docs-code-header-weight,400)]");
-    expect(cls("[data-code-layout] > div")).toContain("var(--docs-code-notes-width,280px)");
-    expect(cls('[data-annotation-note="0"]')).toContain(
-      "text-[length:var(--docs-code-note-text-size,14px)]",
+    expect(cls("[data-code-body]")).toContain("var(--docs-code-notes-width,280px)");
+    expect(cls('[data-annotation-note="0"] [data-note-body]')).toContain(
+      "text-[length:var(--docs-code-note-text-size,13px)]",
     );
 
     for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2"]) {

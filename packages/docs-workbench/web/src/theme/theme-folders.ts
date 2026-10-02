@@ -73,7 +73,8 @@ export type ThemeTokenDefinition =
       min: number;
       max: number;
       step: number;
-      unit: "px";
+      /** px for most lengths; ch where the length is a count of mono glyphs (the ledger name column). */
+      unit: "px" | "ch";
       defaultValue: number;
     }
   | {
@@ -97,6 +98,8 @@ const color = (...vars: string[]): ThemeTokenDefinition => ({ vars, kind: "color
  * theme file per block type; each type's vocabulary doc states its keys),
  * plus six non-block files: shell, surfaces, inline-code (the text mark),
  * editor-controls, linking (the shared linked-panels layer), and annotate.
+ * One file is shared by two block types: outline-rows (call-stack and
+ * component-tree draw the same rows).
  */
 export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefinition>> = {
   // -- non-block surfaces ---------------------------------------------------
@@ -136,12 +139,15 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   "inline-code": {
     fg: color("--docs-inline-code-fg"),
     // Typed inline code: the chip's text color per kind of content (the
-    // viewer's components/typed-chip.ts classifier). Each defaults to a page-level
-    // syntax role; set all five to the chip ink for neutral chips.
+    // viewer's components/typed-chip.ts classifier). Each defaults to the VS
+    // Code color (Light+ / Dark+); set all seven to the chip ink for neutral
+    // chips.
     pathFg: color("--docs-inline-code-path-fg"),
+    stringFg: color("--docs-inline-code-string-fg"),
     typeFg: color("--docs-inline-code-type-fg"),
     callFg: color("--docs-inline-code-call-fg"),
     literalFg: color("--docs-inline-code-literal-fg"),
+    keywordLiteralFg: color("--docs-inline-code-keyword-fg"),
     propFg: color("--docs-inline-code-prop-fg"),
     bg: color("--docs-inline-code-bg"),
     border: color("--docs-inline-code-border"),
@@ -567,7 +573,8 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       step: 0.05,
       defaultValue: 1,
     },
-    // Margin notes beside annotated code (annotated read + edit surfaces).
+    // The notes column inside annotated code panels (annotated read + edit
+    // surfaces): the note body size (titles are 1px larger) and column width.
     noteTextSize: {
       vars: ["--docs-code-note-text-size"],
       kind: "length",
@@ -575,7 +582,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 14,
+      defaultValue: 13,
     },
     notesWidth: {
       vars: ["--docs-code-notes-width"],
@@ -586,6 +593,11 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 280,
     },
+    // The notes column's surface. Undeclared in semantic.css: unset, the
+    // component mixes the panel's own bg 6% toward white (both page modes).
+    notesBg: color("--docs-code-notes-bg"),
+    // Selected text inside any code panel; stock is the UA's `Highlight`.
+    selection: color("--docs-code-selection"),
   },
   // Callout (docs-viewer rich-text/CalloutDocsBlock — one renderer for both
   // surfaces, four variants: eyebrow, hairline, rail, tab). `border`
@@ -623,7 +635,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 8,
       step: 0.5,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: 3,
     },
     hairlineWidth: {
       vars: ["--docs-callout-hairline-width"],
@@ -632,7 +644,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: 0,
     },
     radius: {
       vars: ["--docs-callout-radius"],
@@ -650,7 +662,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: 14,
     },
     padY: {
       vars: ["--docs-callout-pad-y"],
@@ -659,8 +671,10 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: 2,
     },
+    // Stock follows the body size: semantic.css declares
+    // var(--style-font-size, 18px), so the label line matches the body.
     titleTextSize: {
       vars: ["--docs-callout-title-text-size"],
       kind: "length",
@@ -668,7 +682,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: 18,
     },
     titleWeight: {
       vars: ["--docs-callout-title-weight"],
@@ -676,7 +690,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: 600,
     },
     iconSize: {
       vars: ["--docs-callout-icon-size"],
@@ -685,7 +699,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 14,
+      defaultValue: 16,
     },
     bodyTextScale: {
       vars: ["--docs-callout-body-text-scale"],
@@ -1119,25 +1133,6 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     fg: color("--docs-table-fg"),
     // Identifier (mono) cells in the first column; other mono cells stay ink.
     keyFg: color("--docs-table-key-fg"),
-    // The optional title, set in the panel head.
-    titleFg: color("--docs-table-title-fg"),
-    titleTextSize: {
-      vars: ["--docs-table-title-text-size"],
-      kind: "length",
-      min: 10,
-      max: 24,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 13.5,
-    },
-    titleWeight: {
-      vars: ["--docs-table-title-weight"],
-      kind: "number",
-      min: 300,
-      max: 900,
-      step: 50,
-      defaultValue: 600,
-    },
     handleRadius: {
       vars: ["--docs-table-handle-radius"],
       kind: "length",
@@ -1172,19 +1167,30 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   // component's var() fallbacks): untouched, the block follows the State
   // shape knobs; set here, the override wins for this block only. "Header"
   // is the operation line; "Column head" the Parameters / Returns labels.
-  // The kind badge reads the --docs-kind-* role tokens directly (no knob).
+  // The kind badge reads the --docs-kind-* role tokens directly; its knobs
+  // write those role vars (only this block reads them), declared once for
+  // every theme scope in semantic.css's role block.
   // Every length default must equal both the semantic.css default and the
   // component's literal var() fallback, so a slider starts where the
   // unstyled block actually renders. Corner radius follows the global
   // --radius (2px at stock).
   "interaction-surface": {
+    actionFg: color("--docs-kind-action"),
+    actionLine: color("--docs-kind-action-line"),
+    actionSoft: color("--docs-kind-action-soft"),
+    queryFg: color("--docs-kind-query"),
+    queryLine: color("--docs-kind-query-line"),
+    querySoft: color("--docs-kind-query-soft"),
+    eventFg: color("--docs-kind-event"),
+    eventLine: color("--docs-kind-event-line"),
+    eventSoft: color("--docs-kind-event-soft"),
     border: color("--docs-interaction-border"),
     bg: color("--docs-interaction-bg"),
     rule: color("--docs-interaction-rule"),
     titleFg: color("--docs-interaction-title-fg"),
     // The operation name on each row (default: the function syntax role).
     headerFg: color("--docs-interaction-header-fg"),
-    // The "Parameters" / "Returns" section labels.
+    // The "Parameters" / "Returns <Type>" card head bars (ink, a heading).
     columnHeadFg: color("--docs-interaction-column-head-fg"),
     sigName: color("--docs-interaction-sig-name"),
     sigType: color("--docs-interaction-sig-type"),
@@ -1229,7 +1235,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: 16,
     },
     // The surface title in the panel head.
     titleTextSize: {
@@ -1303,7 +1309,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: 13,
     },
     columnHeadPadY: {
       vars: ["--docs-interaction-column-head-pad-y"],
@@ -1322,7 +1328,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 5,
     },
     indent: {
       vars: ["--docs-interaction-indent"],
@@ -1364,16 +1370,19 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   },
   // State Shape (theme lab, 2026-10-01): a plain reference panel (head with
   // the family tile, mono name and source reference), one field ledger, and
-  // the JSON example in a dark code pane. Colors default to the role tokens
-  // (names --docs-syn-prop, types --docs-syn-type, secondary --docs-muted),
-  // so one default serves both modes; the example pane's furniture (link
-  // wash, pin rail) rides the shared linked-panels tokens in "linking".
+  // the JSON example beside it, the whole panel one code surface (the dark
+  // code panel in both page modes). Colors default to the code theme's
+  // syntax roles, the way the editor colors a TypeScript type (names
+  // --syntax-key, types --syntax-type, ? and type punctuation
+  // --syntax-punctuation; descriptions --docs-muted); the example pane's
+  // furniture (link wash, pin rail) rides the shared linked-panels tokens in
+  // "linking".
   "state-shape": {
     border: color("--docs-shape-border"),
     bg: color("--docs-shape-bg"),
     name: color("--docs-shape-name"),
     type: color("--docs-shape-type"),
-    // Union pipes and other quiet punctuation in the type column.
+    // Union pipes, braces and other punctuation in the type column.
     muted: color("--docs-shape-muted"),
     optionalFg: color("--docs-shape-optional-fg"),
     rule: color("--docs-shape-rule"),
@@ -1382,7 +1391,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
     // The head's bottom rule.
     headerRule: color("--docs-shape-header-rule"),
     descFg: color("--docs-shape-desc-fg"),
-    // The nesting guides.
+    // The nesting connectors (file-tree elbows; ink at 75% like outline rows).
     childRule: color("--docs-shape-child-rule"),
     // Field rows: vertical padding and a height floor (rows still grow to fit a description).
     rowPad: {
@@ -1392,7 +1401,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: 5,
     },
     rowMinHeight: {
       vars: ["--docs-shape-row-min-height"],
@@ -1412,15 +1421,17 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       step: 100,
       defaultValue: 500,
     },
-    // The fixed name column, shared by every field ledger.
+    // The fixed name column, shared by every field ledger (State Shape fields,
+    // Interaction Surface params and returns), in ch of the mono name font so
+    // the type column starts at the same x in every block.
     nameWidth: {
       vars: ["--docs-shape-name-width"],
       kind: "length",
-      min: 96,
-      max: 320,
-      step: 4,
-      unit: "px",
-      defaultValue: 176,
+      min: 12,
+      max: 48,
+      step: 1,
+      unit: "ch",
+      defaultValue: 24,
     },
     textSize: {
       vars: ["--docs-shape-text-size"],
@@ -1474,7 +1485,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: 16,
     },
     headerPadY: {
       vars: ["--docs-shape-header-pad-y"],
@@ -1554,12 +1565,15 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   },
   // Process Outline (docs-viewer process-outline/ProcessOutlineDocsBlock).
   // Theme-lab look: each root step is a panel (frame, head strip with the flow
-  // tile and the root text as Title text); steps are sans text on neutral 1px
-  // rails, and the Depth 1..6 colors mark only the small arrowhead closing each
-  // elbow (levels past 6 inherit depth 6). Every default is the value the
-  // component draws, read with that same literal (the LIGHT value) as its
-  // fallback; colors default to role tokens in semantic.css, so one value
-  // serves both modes. The strength knobs (-tint / accent) are UNITLESS
+  // tile and the root text as Title text) that follows the page, coloured in
+  // the VS Code theme for the mode: Light+ on the light page, Dark+ on the
+  // dark page (Keyword #AF00DB / #C586C0, Note text and the // marker
+  // #008000 / #6A9955; typed chips likewise). Steps are sans text on neutral
+  // 1px rails ending in plain file-tree elbows (no arrowhead), and the Depth
+  // 1..6 colors tint only the note accent and the selection (levels past 6
+  // inherit depth 6). Every default is the value the component draws, read
+  // with that same literal (the LIGHT value) as its fallback; semantic.css
+  // sets the per-mode values. The strength knobs (-tint / accent) are UNITLESS
   // PERCENTAGES, not lengths: the component multiplies them by 1% inside
   // color-mix() at the use site, because a var() in a custom property resolves
   // at :root where the depth color does not exist. The note box (background,
@@ -1628,7 +1642,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 72,
       step: 1,
       unit: "px",
-      defaultValue: 24,
+      defaultValue: 28,
     },
     rowGap: {
       vars: ["--docs-process-outline-row-gap"],
@@ -1648,7 +1662,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: 16,
     },
     rootGap: {
       vars: ["--docs-process-outline-root-gap"],
@@ -1659,7 +1673,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 12,
     },
-    // Clear space between the arrowhead's tip and the step text.
+    // Clear space between the end of each elbow's tick and the step text.
     arrowGap: {
       vars: ["--docs-process-outline-arrow-gap"],
       kind: "length",
@@ -1710,7 +1724,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: 600,
     },
     stepWeight: {
       vars: ["--docs-process-outline-step-weight"],
@@ -1831,16 +1845,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 1,
     },
-    arrowSize: {
-      vars: ["--docs-process-outline-arrow-size"],
-      kind: "length",
-      min: 3,
-      max: 12,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 5,
-    },
-    // Rails and elbows draw at Stroke; the arrowhead at 1.5x Stroke.
+    // Rails and elbows draw at Stroke.
     stroke: {
       vars: ["--docs-process-outline-stroke"],
       kind: "length",
@@ -1848,7 +1853,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.25,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: 1.5,
     },
     noteAccent: {
       vars: ["--docs-process-outline-note-accent"],
@@ -1945,6 +1950,149 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       unit: "px",
       defaultValue: 12,
     },
+  },
+  // Call stack + component tree (docs-viewer outline-rows/OutlineRows): ONE
+  // file for both block types, which share the trees row system (the file
+  // tree's metrics). Frame and neutrals follow the role tokens; the syntax
+  // colors follow the code theme's --syntax-* roles (the rows are a code
+  // surface), as semantic.css declares them; a call stack's bold callee is
+  // the function color. `radius` follows the global --radius (2px at stock).
+  "outline-rows": {
+    bg: color("--docs-outline-rows-bg"),
+    border: color("--docs-outline-rows-border"),
+    borderWidth: {
+      vars: ["--docs-outline-rows-border-width"],
+      kind: "length",
+      min: 0,
+      max: 4,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 1,
+    },
+    radius: {
+      vars: ["--docs-outline-rows-radius"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 2,
+    },
+    padY: {
+      vars: ["--docs-outline-rows-pad-y"],
+      kind: "length",
+      min: 0,
+      max: 24,
+      step: 1,
+      unit: "px",
+      defaultValue: 8,
+    },
+    padX: {
+      vars: ["--docs-outline-rows-pad-x"],
+      kind: "length",
+      min: 0,
+      max: 32,
+      step: 1,
+      unit: "px",
+      defaultValue: 12,
+    },
+    textSize: {
+      vars: ["--docs-outline-rows-text-size"],
+      kind: "length",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 13,
+    },
+    lineHeight: {
+      vars: ["--docs-outline-rows-line-height"],
+      kind: "length",
+      min: 14,
+      max: 40,
+      step: 1,
+      unit: "px",
+      defaultValue: 28,
+    },
+    ink: color("--docs-outline-rows-ink"),
+    commentFg: color("--docs-outline-rows-comment-fg"),
+    commentTextSize: {
+      vars: ["--docs-outline-rows-comment-text-size"],
+      kind: "length",
+      min: 10,
+      max: 18,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 13.5,
+    },
+    sourceTextSize: {
+      vars: ["--docs-outline-rows-source-text-size"],
+      kind: "length",
+      min: 8,
+      max: 16,
+      step: 0.5,
+      unit: "px",
+      defaultValue: 12,
+    },
+    guide: color("--docs-outline-rows-guide"),
+    mutedFg: color("--docs-outline-rows-muted-fg"),
+    added: color("--docs-outline-rows-added"),
+    addedBg: color("--docs-outline-rows-added-bg"),
+    removed: color("--docs-outline-rows-removed"),
+    removedBg: color("--docs-outline-rows-removed-bg"),
+    modified: color("--docs-outline-rows-modified"),
+    modifiedBg: color("--docs-outline-rows-modified-bg"),
+    variable: color("--docs-outline-rows-var-fg"),
+    function: color("--docs-outline-rows-fn-fg"),
+    type: color("--docs-outline-rows-type-fg"),
+    tag: color("--docs-outline-rows-tag-fg"),
+    keyword: color("--docs-outline-rows-keyword-fg"),
+    control: color("--docs-outline-rows-control-fg"),
+    constant: color("--docs-outline-rows-constant-fg"),
+    string: color("--docs-outline-rows-string-fg"),
+    number: color("--docs-outline-rows-number-fg"),
+    punct: color("--docs-outline-rows-punct-fg"),
+    bracket: color("--docs-outline-rows-bracket-fg"),
+  },
+  // Stack (docs-viewer stack/StackDocsBlock): nested layer containers and
+  // leaf cards. Neutrals follow the role tokens; each node color maps onto
+  // the category roster (blue 1, green 3, yellow and orange 4, purple 5, pink
+  // and red 6; gray is the stack's muted ink). Card background is the page
+  // on the light page and the ink mixed 7% into the panel on the dark page.
+  // `radius` follows the global --radius (2px at stock).
+  stack: {
+    ink: color("--docs-stack-ink"),
+    mutedFg: color("--docs-stack-muted"),
+    detailFg: color("--docs-stack-detail"),
+    cardBg: color("--docs-stack-card-bg"),
+    arrow: color("--docs-stack-arrow"),
+    boundary: color("--docs-stack-boundary"),
+    gap: {
+      vars: ["--docs-stack-gap"],
+      kind: "length",
+      min: 0,
+      max: 32,
+      step: 1,
+      unit: "px",
+      defaultValue: 12,
+    },
+    radius: {
+      vars: ["--docs-stack-radius"],
+      kind: "length",
+      min: 0,
+      max: 16,
+      step: 1,
+      unit: "px",
+      defaultValue: 2,
+    },
+    blue: color("--docs-stack-blue"),
+    green: color("--docs-stack-green"),
+    yellow: color("--docs-stack-yellow"),
+    orange: color("--docs-stack-orange"),
+    purple: color("--docs-stack-purple"),
+    red: color("--docs-stack-red"),
+    pink: color("--docs-stack-pink"),
+    gray: color("--docs-stack-gray"),
   },
   // Canvas embed (docs-workbench pages/CanvasEmbed): the frame around the
   // inline board. `radius` follows the global --radius in semantic.css (2px at

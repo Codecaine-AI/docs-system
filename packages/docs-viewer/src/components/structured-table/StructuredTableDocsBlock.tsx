@@ -1,10 +1,11 @@
 "use client";
 
-import { useId, useMemo } from "react";
+import { useMemo } from "react";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { cn } from "../../ui/cn";
 import { tableCellKinds } from "./cell-kind";
 import { renderTableCell } from "./cell-render";
+import { columnCellClasses, hasProseMeasure, tableColumnFits } from "./column-layout";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
   TABLE_CELL_SPACING_CLASS,
@@ -12,27 +13,30 @@ import {
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
+  TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
   TABLE_SECTION_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "./table-classes";
-import { TableTitleBar } from "./table-title";
+import { useTableOverflow } from "./use-table-overflow";
 
 export const STRUCTURED_TABLE_LABEL = "Structured Table";
 
 export const STRUCTURED_TABLE_AGENT_DESCRIPTION =
-  'A structured table rendered from typed props: { title?: string; density?: "compact" | "normal" | "relaxed"; columns: TableCell[]; rows: TableCell[][] }. A TableCell is a plain string (canonical for unmarked content) or a DeltaSpan[] carrying bold/italic/strike/code/link marks (never reference). `columns` is the header row; each entry in `rows` is one body row whose cells align positionally with `columns` (short rows are padded with empty cells). `density` is accepted for schema compatibility; visual spacing is controlled by theme tokens.';
+  'A structured table rendered from typed props: { title?: string; density?: "compact" | "normal" | "relaxed"; columns: TableCell[]; rows: TableCell[][] }. A TableCell is a plain string (canonical for unmarked content) or a DeltaSpan[] carrying bold/italic/strike/code/link marks (never reference). `columns` is the header row; each entry in `rows` is one body row whose cells align positionally with `columns` (short rows are padded with empty cells). `title` is not displayed: it names the table for screen readers only. `density` is accepted for schema compatibility; visual spacing is controlled by theme tokens.';
 
 export type StructuredTableDensity = "compact" | "normal" | "relaxed";
 
 /**
  * Structured table block. Data arrives as structured props (no body parsing)
- * and renders as a panel: the title (when there is one) in the panel head,
- * a muted header row over one rule, soft row rules, and identifier cells
- * typed mono (cell-kind.ts). Ragged rows are padded with empty cells so
- * every row spans the full column set.
+ * and renders as a panel that shrinks to its content: a muted header row over
+ * one rule, soft row rules, and identifier cells typed mono (cell-kind.ts).
+ * Columns size per column-layout.ts; past the lane the frame scrolls under a
+ * pinned first column. The title is never drawn — it only names the table
+ * for assistive tech. Ragged rows are padded with empty cells so every row
+ * spans the full column set.
  */
 export function StructuredTableBlock({
   id,
@@ -46,27 +50,35 @@ export function StructuredTableBlock({
   columns: TableCell[];
   rows: TableCell[][];
 }) {
-  const titleId = useId();
   const cellKinds = useMemo(() => tableCellKinds(rows, columns.length), [rows, columns.length]);
+  const fits = useMemo(
+    () => tableColumnFits(rows, columns.length, cellKinds),
+    [rows, columns.length, cellKinds],
+  );
+  const { frameRef, overflowing } = useTableOverflow();
   return (
     <section
       className={TABLE_SECTION_CLASSES}
       data-docs-block-type="structured-table"
       data-source-id={id}
-      data-table-titled={title ? "" : undefined}
     >
-      {title && <TableTitleBar id={titleId} title={title} />}
-      <div className={TABLE_WRAPPER_CLASSES}>
-        <table className={TABLE_ELEMENT_CLASSES} aria-labelledby={title ? titleId : undefined}>
+      <div
+        ref={frameRef}
+        className={TABLE_WRAPPER_CLASSES}
+        data-table-overflow={overflowing ? "" : undefined}
+      >
+        <table className={TABLE_ELEMENT_CLASSES} aria-label={title || undefined}>
           <thead className={TABLE_HEAD_CLASSES}>
             <tr>
               {columns.map((column, columnIndex) => (
                 <th
                   key={columnIndex}
+                  data-column-fit={fits[columnIndex]}
                   className={cn(
                     TABLE_CELL_SPACING_CLASS,
                     TABLE_HEADER_CELL_TEXT_CLASSES,
                     columnIndex !== columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
+                    columnCellClasses(fits[columnIndex], columnIndex, true),
                   )}
                 >
                   {renderTableCell(column)}
@@ -92,9 +104,16 @@ export function StructuredTableBlock({
                       TABLE_CELL_SPACING_CLASS,
                       TABLE_BODY_CELL_TEXT_CLASSES,
                       columnIndex !== columns.length - 1 && TABLE_COLUMN_RULE_CLASSES,
+                      columnCellClasses(fits[columnIndex], columnIndex, false),
                     )}
                   >
-                    {renderTableCell(row[columnIndex] ?? "")}
+                    {hasProseMeasure(fits[columnIndex]) ? (
+                      <div className={TABLE_PROSE_MEASURE_CLASS}>
+                        {renderTableCell(row[columnIndex] ?? "")}
+                      </div>
+                    ) : (
+                      renderTableCell(row[columnIndex] ?? "")
+                    )}
                   </td>
                 ))}
               </tr>
