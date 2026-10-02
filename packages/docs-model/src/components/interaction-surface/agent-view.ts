@@ -15,7 +15,9 @@ import { readInteractionSurfaceOperations as interactionSurfaceOperations } from
  * Beneath a signature line, each param that carries a description or nested
  * fields adds indented detail lines in the shared field-line grammar
  * (two-space indent per depth, `<name><?>: <type>  # <description>`); params
- * with neither emit nothing extra.
+ * with neither emit nothing extra. An authored `exampleCall` follows the
+ * param lines as an indented `Example call:` block, mirroring the returnShape
+ * `Example:` block.
  */
 function projectInteractionSurface(block: DocBlock): string {
   const title = stringProp(block, "title");
@@ -34,6 +36,7 @@ function projectInteractionSurface(block: DocBlock): string {
       .filter((param) => param.description || (param.fields && param.fields.length > 0))
       .flatMap((param) => fieldLines([param], 1));
     return [`${kindPrefix}${operation.name}(${params})${returns}${description}`, ...detailLines,
+      ...(operation.exampleCall !== undefined ? ["  Example call:", ...operation.exampleCall.split("\n").map(line => "    " + line)] : []),
       ...(operation.returnShape ? [
         `  Returns ${operation.returns || "Result"}:`,
         ...fieldLines(operation.returnShape.fields, 2),

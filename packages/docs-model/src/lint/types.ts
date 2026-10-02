@@ -6,6 +6,8 @@ export interface RuleMatch {
   field: string;
   message: string;
   evidence: string;
+  /** Overrides the rule's suggestion when a finding can name its exact fix. */
+  suggestion?: string;
 }
 export interface LintFinding extends RuleMatch {
   audit?: { id: string; severity: LintSeverity };

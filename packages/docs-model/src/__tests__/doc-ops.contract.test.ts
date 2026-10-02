@@ -505,6 +505,41 @@ describe("componentAction op — typed actions through the kernel", () => {
     expectSameDoc(undone.doc, doc);
   });
 
+  it("applies an action's text result through updateBlock, and undo restores the original text", () => {
+    const doc = objectDoc();
+    doc.blocks.root = { ...doc.blocks.root, children: [...doc.blocks.root.children, "pseudo"] };
+    doc.blocks.pseudo = block("pseudo", {
+      type: "pseudocode",
+      props: { diff: true },
+      text: [{ insert: " keep()\n-old()" }],
+    });
+    const result = applyOps(doc, [
+      {
+        type: "componentAction",
+        blockId: "pseudo",
+        action: "pseudocode.insertLine",
+        params: { index: 2, text: "new()", marker: "+" },
+      },
+      {
+        type: "componentAction",
+        blockId: "pseudo",
+        action: "pseudocode.setLines",
+        params: { lines: [{ text: "only()" }], diff: false },
+      },
+    ]);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(JSON.stringify(result.issues));
+    expect(result.doc.blocks.pseudo.text).toEqual([{ insert: "only()" }]);
+    expect(result.doc.blocks.pseudo.props).toEqual({});
+    expect(result.inverse.every((op) => op.type === "updateBlock" && op.text !== undefined)).toBe(true);
+
+    const undone = applyOps(result.doc, result.inverse);
+    expect(undone.ok).toBe(true);
+    if (!undone.ok) throw new Error(JSON.stringify(undone.issues));
+    expect(undone.doc.blocks.pseudo.text).toEqual([{ insert: " keep()\n-old()" }]);
+    expectSameDoc(undone.doc, doc);
+  });
+
   it('rejects the retired "blockAction" op type as unknown (clean break, no aliasing)', () => {
     const result = applyOp(objectDoc(), {
       type: "blockAction",

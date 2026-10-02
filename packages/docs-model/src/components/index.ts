@@ -16,7 +16,6 @@ import { processOutlineComponent } from "./process-outline";
 import { stackComponent } from "./stack";
 import { callStackComponent } from "./call-stack";
 import { componentTreeComponent } from "./component-tree";
-import { flowStripComponent } from "./flow-strip";
 import { pseudocodeComponent } from "./pseudocode";
 import { fileExplorerComponent } from "./file-explorer";
 import type {
@@ -74,8 +73,6 @@ export type { StackBoundary, StackColor, StackNode } from "./stack";
 export { CALL_STACK_KINDS, callStackComponent, readCallStack } from "./call-stack";
 export { COMPONENT_TREE_KINDS, componentTreeComponent, readComponentTree } from "./component-tree";
 export type { OutlineChange, OutlineRow } from "./shared/outline-rows";
-export { flowStripComponent, readFlowStrip } from "./flow-strip";
-export type { FlowStripStep } from "./flow-strip";
 export { pseudocodeComponent } from "./pseudocode";
 export { fileExplorerComponent } from "./file-explorer";
 
@@ -92,7 +89,6 @@ export const ALL_COMPONENTS: readonly ComponentBundle[] = [
   stackComponent,
   callStackComponent,
   componentTreeComponent,
-  flowStripComponent,
   pseudocodeComponent,
   fileExplorerComponent,
 ];

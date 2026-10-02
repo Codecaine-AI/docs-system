@@ -189,6 +189,11 @@ const FAMILY_TOOL_PREFIX: Readonly<Record<string, string>> = {
   "state-shape": "shape",
   "interaction-surface": "surface",
   "process-outline": "outline",
+  "call-stack": "calls",
+  "component-tree": "components",
+  "file-explorer": "explorer",
+  pseudocode: "pseudo",
+  stack: "stack",
 };
 
 /** Block types whose scalar props are edited directly via set_props. */
@@ -205,7 +210,6 @@ const SET_PROPS_TYPES: ReadonlySet<string> = new Set([
   "stack",
   "call-stack",
   "component-tree",
-  "flow-strip",
   "pseudocode",
   "file-explorer",
 ]);
@@ -392,7 +396,6 @@ const EDITABLE_BLOCK_TYPES = (
     "stack",
     "call-stack",
     "component-tree",
-    "flow-strip",
     "pseudocode",
     "file-explorer",
   ] as const

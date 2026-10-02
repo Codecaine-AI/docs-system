@@ -54,7 +54,6 @@ export const DOC_BLOCK_TYPES = [
   "stack",
   "call-stack",
   "component-tree",
-  "flow-strip",
   "pseudocode",
   "file-explorer",
 ] as const;

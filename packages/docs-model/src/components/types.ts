@@ -1,7 +1,7 @@
 "use client";
 
 import type { Static, TObject } from "@sinclair/typebox";
-import type { DocBlock, DocBlockType, DocValidationIssue } from "../doc-schema";
+import type { DeltaSpan, DocBlock, DocBlockType, DocValidationIssue } from "../doc-schema";
 
 export type ComponentManifest = {
   /** Component name — folder name, discovery key, viewer mirror key. */
@@ -28,7 +28,12 @@ export type BlockStateDefinition = {
 };
 
 export type ComponentActionResult =
-  | { ok: true; props: Record<string, unknown> }   // shallow-merge patch; a key set to undefined removes that prop
+  | {
+      ok: true;
+      props: Record<string, unknown>;   // shallow-merge patch; a key set to undefined removes that prop
+      /** Optional whole replacement of the block's delta text (text-carrying types only). */
+      text?: DeltaSpan[];
+    }
   | { ok: false; issues: DocValidationIssue[] };
 
 export type ComponentAction<P extends TObject = TObject> = {

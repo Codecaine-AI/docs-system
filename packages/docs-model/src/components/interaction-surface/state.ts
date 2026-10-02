@@ -20,6 +20,11 @@ export type InteractionSurfaceOperation = {
   params?: InteractionSurfaceParam[];
   returns?: string;
   returnShape?: { fields: Field[]; example?: string };
+  /**
+   * Authored code text of one example invocation, e.g.
+   * `file-tree.addEntry({\n  path: "src/config.ts",\n})`. Never inferred.
+   */
+  exampleCall?: string;
   kind?: InteractionSurfaceKind;
 };
 
@@ -37,6 +42,7 @@ export const InteractionSurfaceOperationSchema = Type.Object(
     params: Type.Optional(Type.Array(InteractionSurfaceParamSchema)),
     returns: Type.Optional(Type.String()),
     returnShape: Type.Optional(InteractionSurfaceReturnShapeSchema),
+    exampleCall: Type.Optional(Type.String()),
     kind: Type.Optional(
       Type.Union([
         Type.Literal("action"),
@@ -91,6 +97,7 @@ export function readInteractionSurfaceOperations(block: DocBlock): InteractionSu
       operation.returnShape = { fields: readFields(item.returnShape.fields) };
       if (typeof item.returnShape.example === "string") operation.returnShape.example = item.returnShape.example;
     }
+    if (typeof item.exampleCall === "string" && item.exampleCall.length > 0) operation.exampleCall = item.exampleCall;
     if (isInteractionSurfaceKind(item.kind)) operation.kind = item.kind;
     operations.push(operation);
   }

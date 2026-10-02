@@ -13,6 +13,7 @@ function operationToProps(operation: InteractionSurfaceOperation): Record<string
     fields: operation.returnShape.fields.map(cloneField),
     ...(operation.returnShape.example !== undefined ? { example: operation.returnShape.example } : {}),
   };
+  if (operation.exampleCall !== undefined) out.exampleCall = operation.exampleCall;
   if (operation.kind !== undefined) out.kind = operation.kind;
   return out;
 }

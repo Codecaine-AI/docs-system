@@ -144,15 +144,6 @@ export function authoredProse(context: LintContext): ProseField[] {
       case "process-outline":
         steps(p.steps, "props.steps", b);
         break;
-      case "flow-strip":
-        add(p.title, "props.title", b);
-        if (Array.isArray(p.steps))
-          p.steps.forEach((step, i) => {
-            add(step?.name, `props.steps[${i}].name`, b);
-            add(step?.detail, `props.steps[${i}].detail`, b);
-          });
-        add(p.caption, "props.caption", b);
-        break;
     }
   }
   return out;

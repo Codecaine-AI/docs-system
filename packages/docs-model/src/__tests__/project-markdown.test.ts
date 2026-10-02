@@ -149,7 +149,6 @@ describe("projectToMarkdown — the sample fixture", () => {
       "stack",
       "call-stack",
       "component-tree",
-      "flow-strip",
       "pseudocode",
       "file-explorer",
     ];

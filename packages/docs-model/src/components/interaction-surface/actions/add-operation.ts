@@ -17,7 +17,7 @@ export const addOperation = defineComponentAction({
   action: "interaction-surface.addOperation",
   blockType: "interaction-surface",
   description:
-    "Append an operation signature ({ name, description?, params?, returns?, returnShape?, kind? }) to the surface.",
+    "Append an operation signature ({ name, description?, params?, returns?, returnShape?, exampleCall?, kind? }) to the surface.",
   params: Type.Object({
     name: Type.String({
       minLength: 1,
@@ -36,6 +36,13 @@ export const addOperation = defineComponentAction({
       Type.String({ description: "What the operation returns/yields." }),
     ),
     returnShape: Type.Optional(InteractionSurfaceReturnShapeSchema),
+    exampleCall: Type.Optional(
+      Type.String({
+        minLength: 1,
+        description:
+          'Code text of one authored example invocation, e.g. \'file-tree.addEntry({\\n  path: "src/config.ts",\\n})\'. Use real values; never invent them.',
+      }),
+    ),
     kind: Type.Optional(
       Type.Union(
         [Type.Literal("action"), Type.Literal("query"), Type.Literal("event")],
@@ -67,6 +74,7 @@ export const addOperation = defineComponentAction({
     }
     if (params.returns !== undefined) operation.returns = params.returns;
     if (params.returnShape !== undefined) operation.returnShape = params.returnShape;
+    if (params.exampleCall !== undefined) operation.exampleCall = params.exampleCall;
     if (params.kind !== undefined) operation.kind = params.kind;
     return { ok: true, props: operationsPatch([...operations, operation]) };
   },

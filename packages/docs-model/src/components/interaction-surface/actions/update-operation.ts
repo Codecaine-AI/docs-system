@@ -17,7 +17,7 @@ export const updateOperation = defineComponentAction({
   action: "interaction-surface.updateOperation",
   blockType: "interaction-surface",
   description:
-    "Patch an operation (rename via patch.name; null clears description/params/returns/returnShape/kind).",
+    "Patch an operation (rename via patch.name; null clears description/params/returns/returnShape/exampleCall/kind).",
   params: Type.Object(
     {
       name: Type.String({ minLength: 1, description: "Current operation name." }),
@@ -30,6 +30,7 @@ export const updateOperation = defineComponentAction({
           ),
           returns: Type.Optional(Type.Union([Type.String(), Type.Null()])),
           returnShape: Type.Optional(Type.Union([InteractionSurfaceReturnShapeSchema, Type.Null()])),
+          exampleCall: Type.Optional(Type.Union([Type.String({ minLength: 1 }), Type.Null()])),
           kind: Type.Optional(
             Type.Union([
               Type.Literal("action"),
@@ -102,6 +103,10 @@ export const updateOperation = defineComponentAction({
     if (patch.returnShape !== undefined) {
       if (patch.returnShape === null) delete updated.returnShape;
       else updated.returnShape = patch.returnShape;
+    }
+    if (patch.exampleCall !== undefined) {
+      if (patch.exampleCall === null) delete updated.exampleCall;
+      else updated.exampleCall = patch.exampleCall;
     }
     if (kind !== undefined) {
       if (kind === null) delete updated.kind;

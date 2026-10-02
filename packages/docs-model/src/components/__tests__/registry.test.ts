@@ -13,6 +13,11 @@ import {
 import type { ComponentAction, ComponentBundle } from "../types";
 
 const ACTION_KEYS = [
+  "call-stack.insertRow",
+  "call-stack.moveRow",
+  "call-stack.removeRow",
+  "call-stack.setRows",
+  "call-stack.updateRow",
   "canvas.addConnection",
   "canvas.addObject",
   "canvas.removeConnection",
@@ -21,6 +26,14 @@ const ACTION_KEYS = [
   "canvas.updateObject",
   "code.removeAnnotation",
   "code.setAnnotation",
+  "component-tree.insertRow",
+  "component-tree.moveRow",
+  "component-tree.removeRow",
+  "component-tree.setRows",
+  "component-tree.updateRow",
+  "file-explorer.addEntry",
+  "file-explorer.removeEntry",
+  "file-explorer.updateEntry",
   "file-tree.addEntry",
   "file-tree.removeEntry",
   "file-tree.updateEntry",
@@ -32,9 +45,19 @@ const ACTION_KEYS = [
   "process-outline.removeStep",
   "process-outline.setStepText",
   "process-outline.setSteps",
+  "pseudocode.insertLine",
+  "pseudocode.removeLine",
+  "pseudocode.setLines",
+  "pseudocode.updateLine",
   "sequence.setProgram",
   "sequence.setStyle",
   "sequence.setTitle",
+  "stack.addNode",
+  "stack.moveNode",
+  "stack.removeBoundary",
+  "stack.removeNode",
+  "stack.setBoundary",
+  "stack.updateNode",
   "state-shape.addField",
   "state-shape.removeField",
   "state-shape.setExample",
@@ -85,7 +108,7 @@ function syntheticAction(
 
 describe("component registry", () => {
   it("imports ../index with a healthy registry", () => {
-    expect(ALL_COMPONENTS).toHaveLength(15);
+    expect(ALL_COMPONENTS).toHaveLength(14);
     expect(collectRegistryIssues(ALL_COMPONENTS)).toEqual([]);
   });
 

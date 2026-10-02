@@ -39,7 +39,7 @@ export function runLintRules(
         audit: rule.audit,
         ruleId: rule.id,
         severity: rule.severity,
-        suggestion: rule.suggestion,
+        suggestion: match.suggestion ?? rule.suggestion,
         docsPath: rule.docsPath,
         introduced: true,
       })),

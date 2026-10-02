@@ -14,6 +14,7 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "structure.list-length": { gate: true },
   "structure.list-item-sentences": { gate: true },
   "structure.heading-title-case": { gate: true },
+  "process-outline.phase-title-case": { gate: true },
   "structure.label-colon-opener": { gate: true },
   "structure.opening-length": { gate: true },
   "structure.opening-paragraph": { gate: true },

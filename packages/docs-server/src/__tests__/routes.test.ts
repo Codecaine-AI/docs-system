@@ -597,11 +597,15 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "stack",
     "call-stack",
     "component-tree",
-    "flow-strip",
     "pseudocode",
     "file-explorer",
   ] as const;
   const ACTION_KEYS = [
+    "call-stack.insertRow",
+    "call-stack.moveRow",
+    "call-stack.removeRow",
+    "call-stack.setRows",
+    "call-stack.updateRow",
     "canvas.addConnection",
     "canvas.addObject",
     "canvas.removeConnection",
@@ -610,6 +614,14 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "canvas.updateObject",
     "code.removeAnnotation",
     "code.setAnnotation",
+    "component-tree.insertRow",
+    "component-tree.moveRow",
+    "component-tree.removeRow",
+    "component-tree.setRows",
+    "component-tree.updateRow",
+    "file-explorer.addEntry",
+    "file-explorer.removeEntry",
+    "file-explorer.updateEntry",
     "file-tree.addEntry",
     "file-tree.removeEntry",
     "file-tree.updateEntry",
@@ -621,9 +633,19 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "process-outline.removeStep",
     "process-outline.setStepText",
     "process-outline.setSteps",
+    "pseudocode.insertLine",
+    "pseudocode.removeLine",
+    "pseudocode.setLines",
+    "pseudocode.updateLine",
     "sequence.setProgram",
     "sequence.setStyle",
     "sequence.setTitle",
+    "stack.addNode",
+    "stack.moveNode",
+    "stack.removeBoundary",
+    "stack.removeNode",
+    "stack.setBoundary",
+    "stack.updateNode",
     "state-shape.addField",
     "state-shape.removeField",
     "state-shape.setExample",
@@ -667,11 +689,11 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     }
   });
 
-  test("lists all components and partitions the 15 canonical block types", async () => {
+  test("lists all 14 components and partitions the canonical block types", async () => {
     const { body } = await getBlocks();
     const { DOC_BLOCK_TYPES } = await import("@codecaine-ai/docs-model/doc-schema");
 
-    expect(body.components).toHaveLength(15);
+    expect(body.components).toHaveLength(14);
     expect(body.components.map((component) => component.name)).toEqual([...COMPONENT_NAMES]);
 
     const servedTypes = body.components.flatMap((component) =>

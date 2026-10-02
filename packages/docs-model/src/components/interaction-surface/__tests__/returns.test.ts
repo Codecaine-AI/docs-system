@@ -25,3 +25,17 @@ test('update replaces or clears the returned shape independently of return type'
 test('agent projection retains return fields and example',()=>{
  const text=interactionSurfaceAgentView(block(),{listDepth:0,listIndex:0});expect(text).toContain('Returns Prepared:');expect(text).toContain('path: string');expect(text).toContain(shape.example);
 });
+
+test('an authored example call is optional text: validated, read, set and cleared by the typed actions, and projected',()=>{
+ const call='prepare({\n  path: "src/a.ts",\n})';
+ expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',exampleCall:call}]})).toBe(true);
+ expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',exampleCall:1}]})).toBe(false);
+ const withCall:DocBlock={id:'s',type:'interaction-surface',props:{operations:[{name:'prepare',exampleCall:call},{name:'bad',exampleCall:7}]},children:[]};
+ expect(readInteractionSurfaceOperations(withCall).map(op=>op.exampleCall)).toEqual([call,undefined]);
+ if (!("apply" in addOperation)) throw Error("Expected local action");
+ const added=addOperation.apply(block(),{name:'status',exampleCall:'status()'} as any);expect(added.ok).toBe(true);if(added.ok)expect((added.props.operations as any[])[1].exampleCall).toBe('status()');
+ for(const exampleCall of [call,null]){const args={name:'prepare',patch:{exampleCall}};expect(checkParams(updateOperation,args)).toEqual([]);if (!("apply" in updateOperation)) throw Error("Expected local action");const result=updateOperation.apply(block(),args);expect(result.ok).toBe(true);if(result.ok)expect((result.props.operations as any[])[0].exampleCall).toBe(exampleCall??undefined);}
+ expect(checkParams(updateOperation,{name:'prepare',patch:{exampleCall:''}})).not.toEqual([]);
+ const text=interactionSurfaceAgentView(withCall,{listDepth:0,listIndex:0})!;
+ expect(text).toContain('prepare()\n  Example call:\n    prepare({\n      path: "src/a.ts",\n    })');
+});

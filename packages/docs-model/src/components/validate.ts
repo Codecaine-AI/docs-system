@@ -15,7 +15,6 @@ import { processOutlineComponent } from "./process-outline";
 import { stackComponent } from "./stack";
 import { callStackComponent } from "./call-stack";
 import { componentTreeComponent } from "./component-tree";
-import { flowStripComponent } from "./flow-strip";
 import { pseudocodeComponent } from "./pseudocode";
 import { fileExplorerComponent } from "./file-explorer";
 import type { ComponentBundle } from "./types";
@@ -33,7 +32,6 @@ const COMPONENTS: readonly ComponentBundle[] = [
   stackComponent,
   callStackComponent,
   componentTreeComponent,
-  flowStripComponent,
   pseudocodeComponent,
   fileExplorerComponent,
 ];

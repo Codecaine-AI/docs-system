@@ -579,12 +579,17 @@ export function applyOp(
       }
       const result = action.apply(block, params);
       if (!result.ok) return { ok: false, issues: result.issues };
-      // Execute the action's shallow-merge patch through the existing
-      // updateBlock path (never duplicated here) — the inverse comes back as
-      // the usual updateBlock inverse.
+      // Execute the action's shallow-merge patch (and optional text
+      // replacement) through the existing updateBlock path (never duplicated
+      // here) — the inverse comes back as the usual updateBlock inverse.
       return applyOp(
         doc,
-        { type: "updateBlock", blockId: op.blockId, props: result.props },
+        {
+          type: "updateBlock",
+          blockId: op.blockId,
+          props: result.props,
+          ...(result.text !== undefined ? { text: result.text } : {}),
+        },
         idFactory,
         options,
       );
