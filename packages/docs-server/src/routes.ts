@@ -1,4 +1,4 @@
-import { readFile, stat } from "node:fs/promises";
+import { open, readFile, stat } from "node:fs/promises";
 import { join } from "node:path";
 
 import { Elysia, sse, t } from "elysia";
@@ -59,6 +59,52 @@ const CORS_HEADERS = {
   "access-control-allow-methods": "GET, PUT, POST, DELETE, OPTIONS",
   "access-control-allow-headers": "Content-Type",
 } as const;
+
+/**
+ * Serve an asset file, honouring a single-range `Range: bytes=…` header.
+ * Browsers only let a `<video>` seek when the server answers ranges: a plain
+ * 200 with the whole body leaves the scrubber inert, so playback restarts
+ * from wherever it was. Multi-range and malformed headers get the full body;
+ * an out-of-bounds range gets 416.
+ */
+async function assetResponse(
+  assetAbs: string,
+  contentType: string,
+  rangeHeader: string | null,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    "Content-Type": contentType,
+    "Cache-Control": "private, max-age=300",
+    "Accept-Ranges": "bytes",
+  };
+  const size = (await stat(assetAbs)).size;
+  const match = rangeHeader ? /^bytes=(\d*)-(\d*)$/.exec(rangeHeader) : null;
+  if (!match || (match[1] === "" && match[2] === "")) {
+    return new Response(await readFile(assetAbs), { headers });
+  }
+  let start: number;
+  let end: number;
+  if (match[1] === "") {
+    // Suffix range: the last N bytes.
+    start = Math.max(0, size - Number(match[2]));
+    end = size - 1;
+  } else {
+    start = Number(match[1]);
+    end = match[2] === "" ? size - 1 : Math.min(Number(match[2]), size - 1);
+  }
+  if (start >= size || start > end) {
+    return new Response(null, { status: 416, headers: { ...headers, "Content-Range": `bytes */${size}` } });
+  }
+  const length = end - start + 1;
+  const bytes = new Uint8Array(length);
+  const handle = await open(assetAbs, "r");
+  try {
+    await handle.read(bytes, 0, length, start);
+  } finally {
+    await handle.close();
+  }
+  return new Response(bytes, { status: 206, headers: { ...headers, "Content-Range": `bytes ${start}-${end}/${size}` } });
+}
 
 /** Convert internal camelCase records into the server's snake_case wire shape. */
 function toSnakeCaseWire(value: unknown): unknown {
@@ -373,18 +419,13 @@ export function createDocsRoutes(
     )
     .get(
       "/api/asset",
-      async ({ query, set }) => {
+      async ({ query, set, request }) => {
         const result = await store.readAsset(query.path);
         if (!result.ok) {
           set.status = result.status;
           return { detail: result.detail };
         }
-        return new Response(await readFile(result.assetAbs), {
-          headers: {
-            "Content-Type": result.contentType,
-            "Cache-Control": "private, max-age=300",
-          },
-        });
+        return assetResponse(result.assetAbs, result.contentType, request.headers.get("range"));
       },
       { query: t.Object({ path: t.String({ minLength: 1 }) }) },
     )

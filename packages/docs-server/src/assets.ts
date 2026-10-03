@@ -200,7 +200,8 @@ export async function uploadDocVideoAsset(
     };
   }
   const declaredType = (input.kind && input.kind.trim()) || file.type || "";
-  if (declaredType && declaredType !== "application/octet-stream" && !declaredType.startsWith("video/")) {
+  const declaredEssence = declaredType.split(";")[0]!.trim().toLowerCase();
+  if (declaredEssence && declaredEssence !== "application/octet-stream" && !declaredEssence.startsWith("video/")) {
     return { ok: false, status: 415, detail: `Unsupported video content type: ${declaredType}` };
   }
   if (file.size > MAX_VIDEO_ASSET_BYTES) {
@@ -244,7 +245,8 @@ export async function uploadDocVideoAsset(
       src: `./${subfolder}/${finalName}`,
       path: assetRelPath,
       document_path: `docs/${assetRelPath}`,
-      content_type: declaredType || inferAssetContentType(finalName),
+      // An opaque octet-stream declaration says nothing; report the extension type.
+      content_type: declaredEssence.startsWith("video/") ? declaredType : inferAssetContentType(finalName),
       size: buffer.byteLength,
       filename: finalName,
     },

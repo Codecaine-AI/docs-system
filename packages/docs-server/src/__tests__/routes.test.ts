@@ -525,9 +525,28 @@ describe("POST /api/assets/video (strict video upload)", () => {
   test("rejects non-video extensions and non-video content types (415)", async () => {
     expect((await postVideo("notes.txt", "video/mp4", MP4_BYTES)).status).toBe(415);
     expect((await postVideo("page.html", "text/html", MP4_BYTES)).status).toBe(415);
-    // Right extension, hostile declared MIME.
-    expect((await postVideo("clip.mp4", "text/html", MP4_BYTES)).status).toBe(415);
     expect(existsSync(join(docsRoot, "guide", "assets"))).toBe(false);
+  });
+
+  test("rejects an allowlisted extension with a hostile declared MIME (415)", async () => {
+    // Bun's formData() re-infers part types from the filename, so this rule only applies to direct callers (e.g. MCP).
+    const result = await uploadDocVideoAsset(docsRoot, {
+      bundlePath: "guide",
+      file: new File([MP4_BYTES], "clip.mp4", { type: "text/html" }),
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.status).toBe(415);
+    expect(existsSync(join(docsRoot, "guide", "assets"))).toBe(false);
+  });
+
+  test("accepts an allowlisted extension the OS left untyped (application/octet-stream)", async () => {
+    // The editor drop flow admits a video by extension when the browser reports
+    // no type; browsers then send the part as application/octet-stream.
+    const res = await postVideo("screen.mov", "application/octet-stream", MP4_BYTES);
+    expect(res.status).toBe(201);
+    const body = (await res.json()) as { src: string; content_type: string };
+    expect(body.src).toBe("./assets/videos/screen.mov");
+    expect(body.content_type).toBe("video/quicktime");
   });
 
   test("404s for a bundle that does not exist", async () => {
@@ -736,5 +755,58 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
 
     expect(body).toEqual(JSON.parse(expectedJson));
     expect(JSON.stringify(body)).toBe(expectedJson);
+  });
+});
+
+describe("GET /api/asset byte ranges (video seeking)", () => {
+  let docsRoot: string;
+  let app: ReturnType<typeof createDocsRoutes>;
+  const BYTES = new Uint8Array(Array.from({ length: 100 }, (_, i) => i));
+
+  beforeEach(async () => {
+    docsRoot = await mkdtemp(join(tmpdir(), "docs-server-asset-range-"));
+    await mkdir(join(docsRoot, "guide", "assets", "videos"), { recursive: true });
+    await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
+    await writeFile(join(docsRoot, "guide", "assets", "videos", "clip.mp4"), BYTES);
+    app = createDocsRoutes(createDocsStore(docsRoot));
+  });
+
+  afterEach(async () => {
+    await rm(docsRoot, { recursive: true, force: true });
+  });
+
+  function getAsset(range?: string): Promise<Response> {
+    const path = encodeURIComponent("guide/assets/videos/clip.mp4");
+    return app.handle(
+      new Request(`http://localhost/api/asset?path=${path}`, range ? { headers: { range } } : {}),
+    );
+  }
+
+  test("no Range header returns the whole file and advertises range support", async () => {
+    const res = await getAsset();
+    expect(res.status).toBe(200);
+    expect(res.headers.get("accept-ranges")).toBe("bytes");
+    expect(new Uint8Array(await res.arrayBuffer())).toEqual(BYTES);
+  });
+
+  test("bounded, open-ended and suffix ranges return 206 with the requested slice", async () => {
+    const bounded = await getAsset("bytes=10-19");
+    expect(bounded.status).toBe(206);
+    expect(bounded.headers.get("content-range")).toBe("bytes 10-19/100");
+    expect(new Uint8Array(await bounded.arrayBuffer())).toEqual(BYTES.slice(10, 20));
+
+    const open = await getAsset("bytes=90-");
+    expect(open.headers.get("content-range")).toBe("bytes 90-99/100");
+    expect(new Uint8Array(await open.arrayBuffer())).toEqual(BYTES.slice(90));
+
+    const suffix = await getAsset("bytes=-5");
+    expect(suffix.headers.get("content-range")).toBe("bytes 95-99/100");
+    expect(new Uint8Array(await suffix.arrayBuffer())).toEqual(BYTES.slice(95));
+  });
+
+  test("a range past the end returns 416", async () => {
+    const res = await getAsset("bytes=200-300");
+    expect(res.status).toBe(416);
+    expect(res.headers.get("content-range")).toBe("bytes */100");
   });
 });
