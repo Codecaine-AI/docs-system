@@ -20,6 +20,7 @@ export const STANDARDS_BUNDLES: ReadonlyArray<string> = [
 export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
 	"99-appendix/10-style-guide/10-writing-style",
 	"99-appendix/10-style-guide/20-structure",
+	"99-appendix/10-style-guide/30-ste-profile",
 ];
 
 const INDENT = "  ";

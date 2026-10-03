@@ -1,6 +1,6 @@
 # call-stack
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use Call Stack to show which function calls which on one code path, with the file and line each frame lives at. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
 
@@ -67,7 +67,7 @@ Five actions edit `frames` in place instead of replacing the whole tree. Each ac
 
 - **Every result is revalidated**
 
-  - Each action returns the props patch `{ frames }`, and the whole state is checked against `CallStackState` before it persists.
+  - Each action returns the props patch `{ frames }`. The whole state is checked against `CallStackState` before it persists.
 
 ```
 call-stack.insertRow(path: integer[], row: CallStackRow) -> Props patch { frames }, revalidated against CallStackState  # Insert a frame row (with optional nested `frames`) at an index path: the last element is the insert position among the addressed sibling list, preceding elements walk `frames` from the root.

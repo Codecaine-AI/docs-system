@@ -15,6 +15,7 @@ const corpus = join(repo, "docs");
 const authored = [
  "99-appendix/10-style-guide/10-writing-style",
  "99-appendix/10-style-guide/20-structure",
+ "99-appendix/10-style-guide/30-ste-profile",
  "10-system-design/10-doc-standards",
  "10-system-design/10-doc-standards/70-document-purpose",
  "10-system-design/10-doc-standards/80-authoring-lints",

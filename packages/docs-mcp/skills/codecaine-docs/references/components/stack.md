@@ -1,6 +1,6 @@
 # stack
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
 
@@ -8,7 +8,7 @@ Example: Show the package layering: host apps above the docs framework, docs-mod
 
 Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack`.
 
-The stack component owns one block type, `stack`, a boundary stack that shows layering and the rule enforced at each line. Nodes nest top to bottom, a uses arrow points from a node to its next sibling, and a dashed boundary line states what may never cross. The block takes no coordinates. Use canvas when a diagram needs free placement or arbitrary edges.
+The stack component owns one block type, `stack`, a boundary stack that shows layering and the rule enforced at each line. Nodes nest top to bottom, a uses arrow points from a node to its next sibling, and a dashed boundary line states what may never cross. The block takes no coordinates. When a diagram needs free placement or arbitrary edges, use canvas.
 
 ## Example
 

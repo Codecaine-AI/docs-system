@@ -1,6 +1,6 @@
 # rich-text
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
@@ -10,7 +10,7 @@ Canonical document: `10-system-design/40-block-vocabulary/10-text-and-media/10-r
 
 The rich-text component owns the text-and-media block types that make up ordinary document flow. They share the delta-span text model and the markdown-shortcut input rules, which is why they live grouped here, one doc per type.
 
-When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 - paragraph
 
@@ -62,7 +62,7 @@ A paragraph carries **bold**, *italic*, ~~strike~~, and `code` marks, [an outbou
 
 ## State Schema
 
-The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field, each span a string insert plus an optional attributes object. There is no other inline model, no HTML, no nested marks tree. A span either has an attribute or it does not.
+The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field. Each span is a string insert plus an optional attributes object. There is no other inline model, no HTML, no nested marks tree. A span either has an attribute or it does not.
 
 **DeltaSpan** — packages/docs-model/src/doc-schema.ts#DeltaSpan
 
@@ -126,13 +126,13 @@ attributes?: object  # Marks on this span; an empty object is dropped on canonic
 
 - The boolean marks are `bold`, `italic`, `strike`, and `code`.
 
-- A mark is the literal `true` when present; `false` is a validation error, not a no-op.
+- A mark is the literal `true` when present. `false` is a validation error, not a no-op.
 
 - An attributes object left empty after validation is dropped, unmarked text has exactly one encoding.
 
 ### Links and Reference Chips
 
-`link` is a non-empty string URL for outbound destinations, external sites, mailto, anything the repo does not own. Internal identity is different: pointing at a doc or a source file uses the `reference` attribute, which renders as a chip in the viewer and feeds the backlink index.
+`link` is a non-empty string URL for outbound destinations, external sites, mailto, anything the repo does not own. Internal identity is different: pointing at a doc or a source file uses the `reference` attribute. It renders as a chip in the viewer and feeds the backlink index.
 
 ### SpectreRef, the Shared Reference Identity
 
@@ -148,13 +148,13 @@ attributes?: object  # Marks on this span; an empty object is dropped on canonic
 > **L3 (Repo-relative):** path is always repo-relative — no registry ids, no absolute paths in v1.
 > **L4-6 (Optional precision):** symbol, line, and section narrow the target.
 
-> **One link model** — SpectreRef is the single reference identity shared by doc.json delta `reference` spans and canvas `links[].target`. It lives in docs-model as the neutral home; the canvas project imports the type and aliases its on-disk link target to it. docs-model itself never imports from the canvas, the dependency points one way.
+> **One link model** — SpectreRef is the single reference identity shared by doc.json delta `reference` spans and canvas `links[].target`. It lives in docs-model as the neutral home. The canvas project imports the type and aliases its on-disk link target to it. docs-model itself never imports from the canvas, so the dependency points one way.
 
 The object carries no display text. A reference span's insert is the display, for a doc reference, the target's name. When and how to link is cross-doc linking's subject.
 
 ### Which Types Carry Text
 
-Whether a type carries delta text is a per-type fact, declared as `carriesText` in the component state definitions. Text means prose only for the rich-text flow types; for `code` the delta text is the source payload, and marks are not meaningful there.
+Whether a type carries delta text is a per-type fact, declared as `carriesText` in the component state definitions. Text means prose only for the rich-text flow types. For `code` the delta text is the source payload, and marks are not meaningful there.
 
 **Text carriers**
 

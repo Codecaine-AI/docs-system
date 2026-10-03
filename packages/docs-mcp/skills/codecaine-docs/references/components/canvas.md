@@ -1,6 +1,6 @@
 # canvas
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 
@@ -10,15 +10,15 @@ Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/5
 
 The spatial-canvas family of the Block vocabulary. It owns one type, `canvas`. The block itself is only a reference. The canvas document, its objects, and its schema live in the external canvas system (external/canvas, the vendored sibling project); the doc block points at one canvas and optionally crops it to a named view.
 
-When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 Reach for canvas when the question is how things relate: spatial boards, architecture maps, and annotated relationships. Exact exchanges belong to the sequence block, and an end-to-end process flow belongs to process-outline.
 
-The family is the vocabulary's flagship non-default Agent adapter case: the canvas project is the authority, schema truth stays in the canvas package, and every content action forwards there instead of patching doc props.
+The family is the vocabulary's flagship non-default Agent adapter case. The canvas project is the authority, schema truth stays in the canvas package, and every content action forwards there instead of patching doc props.
 
 ## Example
 
-A live embed. The sidecar (`./assets/canvases/interaction-surfaces.canvas.json`) is a bundle-local copy of the canvas embedded on Translation layer; `view` crops it to the `one-state-two-readers` section:
+A live embed. The sidecar (`./assets/canvases/interaction-surfaces.canvas.json`) is a bundle-local copy of the canvas embedded on Translation layer. `view` crops it to the `one-state-two-readers` section:
 
 <!-- canvas: ./assets/canvases/interaction-surfaces.canvas.json view=one-state-two-readers title="One state, two readers" -->
 
@@ -43,7 +43,7 @@ title?: string  # Display title; overrides the canvas document's own title in th
 }
 ```
 
-No text (`carriesText: false`); all state lives in the four props. A block with neither source prop is valid, and the doc renderer shows a missing-source placeholder.
+The block carries no text (`carriesText: false`). All state lives in the four props. A block with neither source prop is valid, and the doc renderer shows a missing-source placeholder.
 
 ## Typed Actions
 
@@ -53,7 +53,7 @@ The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPE
 
   - Maps each descriptor to a `canvas.<type>` action on the `canvas` block type.
 
-  - `Type.Omit(descriptor.params, ["type"])` strips only the wire envelope's discriminant; every param schema is otherwise the canvas package's own.
+  - `Type.Omit(descriptor.params, ["type"])` strips only the wire envelope's discriminant. Every param schema is otherwise the canvas package's own.
 
   - Attaches `forward: { authority: "canvas" }` in place of a local `apply`.
 
@@ -79,9 +79,9 @@ The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
 
 - Inline surface
 
-  - An inert `InteractiveCanvasViewer` renders the real canvas; drag, pan, and wheel zoom are not captured.
+  - An inert `InteractiveCanvasViewer` renders the real canvas. Drag, pan, and wheel zoom are not captured.
 
-  - `view` fits the viewport to the named container or section's bounds; an unknown id shows a View not found notice.
+  - `view` fits the viewport to the named container or section's bounds. An unknown id shows a View not found notice.
 
   - A host that passes `onObjectSelect` keeps the inline viewer interactive instead, so canvas objects stay selectable for annotation targeting.
 
@@ -93,9 +93,9 @@ The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
 
 - Full-screen viewer
 
-  - Clicking the inline surface or the button opens a same-window dialog with an interactive viewer; pan and zoom live here, canvas mutation does not.
+  - Clicking the inline surface or the button opens a same-window dialog with an interactive viewer. Pan and zoom live here, but canvas mutation does not.
 
-  - Escape or the close action restores the surrounding document in place; body scroll locks while it is open.
+  - Escape or the close action restores the surrounding document in place. Body scroll locks while it is open.
 
   - The viewer grows from the inline preview over 260 milliseconds and returns over 220 milliseconds. Escape and Close complete the return animation before unlocking document scrolling and restoring focus. Reduced-motion preferences disable the transitions. Published pages use the same motion from their existing preview.
 
@@ -111,7 +111,7 @@ The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
 
   - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo.
 
-In the editor, the slash menu entry is **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf: its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode; edit mode's embed adds the Edit in Canvas action.
+In the editor, the slash menu entry is **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf. Its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode. Edit mode's embed adds the Edit in Canvas action.
 
 ## Agent Renderer
 
@@ -151,11 +151,11 @@ How agents edit canvas content: the vocabulary's flagship non-default instance o
 
 - Division of labor
 
-  - Reference props (`canvasId`, `src`, `view`, `title`) patch through the generic `updateBlock`; canvas content only moves through the forwarded `canvas.*` actions.
+  - Reference props (`canvasId`, `src`, `view`, `title`) patch through the generic `updateBlock`. Canvas content only moves through the forwarded `canvas.*` actions.
 
   - `"canvas"` is a registered entry in the model's KNOWN_AUTHORITIES list, beside `"sequence"`.
 
 - The processing agent
 
-  - Canvas declares an annotation-processing agent of its own, with a context loader that assembles the canvas file and a router that discovers the agent from the registry.
+  - Canvas declares an annotation-processing agent of its own, with a context loader and a router. The context loader assembles the canvas file, and the router discovers the agent from the registry.
 

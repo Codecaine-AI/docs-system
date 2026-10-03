@@ -114,7 +114,7 @@ export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): Guidan
   const style = section("docs_style_guide");
   const standards = section("docs_structure_standards");
   return [
-    { topic: "style", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(" and ")}. Required once per task before the first edit.`, text: style.join("\n") },
+    { topic: "style", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
     { topic: "components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
     ...STANDARDS_BUNDLES.map(bundle => {
       const doc = page(standards, bundle);

@@ -141,7 +141,9 @@ test("docs_guidance lists topics by default and serves each topic from the task 
     const read = result.structuredContent as Record<string, any>;
     expect([entry.topic, read.snapshot_id, read.guidance.length]).toEqual([entry.topic, task.snapshot_id, entry.chars]);
     // Each topic stays small enough for a client to show inline. Only the unsplit text is larger.
-    if (entry.topic !== "all") expect([entry.topic, Buffer.byteLength(result.content[0]!.text) < 20_000]).toEqual([entry.topic, true]);
+    // The required style topic carries three pages (writing style, structure, STE profile), so it gets a wider cap.
+    const cap = entry.topic === "style" ? 30_000 : 20_000;
+    if (entry.topic !== "all") expect([entry.topic, Buffer.byteLength(result.content[0]!.text) < cap]).toEqual([entry.topic, true]);
   }
   expect((await invoke("docs_guidance", { task_id: task.task_id, topic: "style" })).guidance).toContain("<docs_style_guide");
   const all = await invoke("docs_guidance", { topic: "all" });

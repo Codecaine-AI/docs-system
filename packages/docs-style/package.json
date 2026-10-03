@@ -1,0 +1,29 @@
+{
+  "name": "@codecaine-ai/docs-style",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./cli": "./src/cli.ts"
+  },
+  "scripts": {
+    "test": "bun test src",
+    "generate": "baml-cli generate --from baml_src",
+    "baml:test": "baml-cli test --from baml_src"
+  },
+  "dependencies": {
+    "@boundaryml/baml": "0.222.0",
+    "@codecaine-ai/docs-model": "workspace:*",
+    "@codecaine-ai/docs-server": "workspace:*",
+    "compromise": "14.17.0",
+    "wink-eng-lite-web-model": "1.8.1",
+    "wink-nlp": "2.4.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}

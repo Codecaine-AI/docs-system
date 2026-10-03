@@ -1,6 +1,6 @@
 # structured-table
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use a Structured Table for a comparison, index, or mapping with the same properties across rows. Use State Shape for nested typed fields.
 
@@ -10,7 +10,7 @@ Canonical document: `10-system-design/40-block-vocabulary/40-structured-referenc
 
 The structured-table family owns one block type, `structured-table`: a columns × rows grid of rich-text cells kept in typed props, not prose. Each cell is a plain string or a span array carrying inline marks. Use it for index tables, comparison matrices, and anything an agent should edit cell-by-cell instead of re-flowing text. Each section below instantiates one element of the block-design contract for this family.
 
-When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 ## Example
 
@@ -64,7 +64,7 @@ density?: "compact" | "normal" | "relaxed"  # Accepted by the schema, but the re
 }
 ```
 
-All state is four typed props, with `carriesText: false`, no `text` key; the schema is a closed TypeBox object. The contract is State schema.
+All state is four typed props, with `carriesText: false`, no `text` key. The schema is a closed TypeBox object. The contract is State schema.
 
 ```ts
 export const StructuredTableState = Type.Object(
@@ -87,19 +87,19 @@ export const StructuredTableState = Type.Object(
 > **L4-5 (Cell union):** TableCellSchema is a plain string (the canonical unmarked form) or an array of spans whose closed attribute set is bold/italic/strike/code/link — reference is invalid in cells.
 > **L14 (Closed schema):** additionalProperties: false — unknown props fail validation.
 
-Cells, body and header alike, carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so `reference` chips are rejected. An unmarked cell is stored as the plain string: a span-array cell with zero attributed spans fails validation (`checkStructuredTableProps`, the beyond-schema check that runs after the TypeBox schema passes), so an all-plain table has exactly one encoding.
+Cells, body and header alike, carry the inline mark set: bold, italic, strike, code, and link. The cell attribute schema is closed, so `reference` chips are rejected. An unmarked cell is stored as the plain string: a span-array cell with zero attributed spans fails validation (`checkStructuredTableProps`, the beyond-schema check that runs after the TypeBox schema passes), so an all-plain table has exactly one encoding.
 
 ## Typed Actions
 
-Five verbs cover the grid and form the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch; rejections come back at `$.params.<name>` (an out-of-range index, a duplicate or unknown column name) without touching the document. The contract is Typed actions.
+Five verbs cover the grid and form the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch. Rejections come back at `$.params.<name>` (an out-of-range index, a duplicate or unknown column name) without touching the document. The contract is Typed actions.
 
 - Column addressing takes exactly one of `column` (by name) or `columnIndex` (by position); name matching and the duplicate-name check compare the header's plain text.
 
-- `addColumn` rejects a duplicate name and back-fills existing rows with `fill` (default the empty string); row and column inserts default to the end.
+- `addColumn` rejects a duplicate name and back-fills existing rows with `fill` (default the empty string). Row and column inserts default to the end.
 
-- `addRow` pads or truncates `cells` to the column count; the column actions re-normalize every row on the way through.
+- `addRow` pads or truncates `cells` to the column count. The column actions re-normalize every row on the way through.
 
-- Cell-content params (`value`, `cells`, `name`, `fill`) are inline markdown, parsed to spans by the shared inline tokenizer (`parseTableCellInput`); unmarked input stays the plain string.
+- Cell-content params (`value`, `cells`, `name`, `fill`) are inline markdown, parsed to spans by the shared inline tokenizer (`parseTableCellInput`). Unmarked input stays the plain string.
 
 - Links the parser classifies as doc or source references downgrade to plain `link` marks (`href` is the path plus a `#section`, `#L<line>`, or `#<symbol>` suffix) because cells forbid `reference`.
 
@@ -131,13 +131,35 @@ The read surface and the editor at rest share one light-grid look. The table is 
 
 Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in Block Widths and Lanes. The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
 
-In the editor the block is a ProseMirror atom leaf that swaps in its own editable node view (`editor-node-view.tsx`). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content.
+In the editor the block is a ProseMirror atom leaf that swaps in its own editable node view (`editor-node-view.tsx`). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry. Structured tables enter a document through agent ops or existing content.
 
 ### Editing
 
-Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu: insert left/right or above/below, move, duplicate, clear contents, and delete. Dragging a handle past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted "Column N" placeholder (edit mode only, renumbered with position).
+Notion-style grid controls, revealed on hover.
 
-Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines. Marks apply through the main editor's keyboard shortcuts (`Cmd+B`, `Cmd+I`, strike, `Cmd+E` for code); input rules auto-convert `**bold**` and backtick code while typing. The italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. `Tab`/`Shift-Tab` move between cells (header first, wrapping across rows), `Enter` moves down the column, `Shift-Enter` inserts a newline, `Escape` exits. `Cmd+A` selects only the cell's contents, never the document; `Cmd+Z` / `Cmd+Shift+Z` commit pending text and forward to the editor's history, so table edits undo and redo like any other. The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge.
+- Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows.
+
+- Hovering a column shows a six-dot grab handle above it. Body rows get one on the left.
+
+- Clicking a handle selects the whole column or row (a single accent outline) and opens its menu: insert left/right or above/below, move, duplicate, clear contents, and delete.
+
+- Dragging a handle past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap.
+
+- After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted "Column N" placeholder (edit mode only, renumbered with position).
+
+Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines.
+
+- Marks apply through the main editor's keyboard shortcuts (`Cmd+B`, `Cmd+I`, strike, `Cmd+E` for code).
+
+- Input rules auto-convert `**bold**` and backtick code while typing. The italic and strike input rules are off, matching the main editor.
+
+- Pasting a URL over a selection creates a link. There is no other link UI and no floating toolbar.
+
+- `Tab`/`Shift-Tab` move between cells (header first, wrapping across rows), `Enter` moves down the column, `Shift-Enter` inserts a newline, `Escape` exits.
+
+- `Cmd+A` selects only the cell's contents, never the document. `Cmd+Z` / `Cmd+Shift+Z` commit pending text and forward to the editor's history, so table edits undo and redo like any other.
+
+- The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge.
 
 The header row is the `columns` array: it has a column handle but no row handle (it cannot be moved or deleted), and the last remaining column cannot be deleted. Structural actions first commit any focused cell's pending text and apply to the freshest data, so cell edits are never lost or duplicated by a move. Every edit lands as a single `updateBlock` replacing `columns`/`rows` through the standard op pipeline (validation, undo ledger, and auto-save), and agent-facing mutations stay on the typed actions above.
 
@@ -186,7 +208,7 @@ This block's theme file is `components/structured-table.json` in the active them
 
 ## Agent Adapter
 
-The family uses the default adapter: no agent of its own and no forwarding authority. All five actions carry a local apply. On the wire an edit is a `componentAction` op (one of the generic doc ops) naming the block, the action key, and params; the kernel (`doc-ops.ts`) resolves the action from the registry, validates params against the action's schema, runs apply, and executes the returned patch through the standard `updateBlock` path. The undo inverse is an ordinary `updateBlock`. Structural work on the table as a block, such as insert, move, and delete, stays on the generic ops. The contract is Agent adapter.
+The family uses the default adapter: no agent of its own and no forwarding authority. All five actions carry a local apply. On the wire an edit is a `componentAction` op (one of the generic doc ops) naming the block, the action key, and params. The kernel (`doc-ops.ts`) resolves the action from the registry, validates params against the action's schema, runs apply, and executes the returned patch through the standard `updateBlock` path. The undo inverse is an ordinary `updateBlock`. Structural work on the table as a block, such as insert, move, and delete, stays on the generic ops. The contract is Agent adapter.
 
 Edit cells through the actions, never by hand-patching the `rows` array. Actions validate, normalize row widths, and return undo inverses.
 

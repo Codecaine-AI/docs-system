@@ -1,35 +1,35 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08",
+  "snapshotId": "sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
-      "sha256": "579802b2c2429ce955dcbadda58403cb12d82237746a13e0f1a5d527d22011f7",
+      "sha256": "cd20d61c8a7f6497a0ddabf80f958b503adf05d48a16df3457058093e61e3b6d",
       "kind": "standard"
     },
     {
       "path": "docs/10-system-design/10-doc-standards/20-numbering/doc.json",
-      "sha256": "225b2dc39430b9768fd728728ab160da9b44d5fb7aeaa49ead0436ee47cf5b30",
+      "sha256": "addeeabc84d78eed758e5c647a3fbeb953fc1301be026fafea9f3fc479afcf5c",
       "kind": "standard"
     },
     {
       "path": "docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json",
-      "sha256": "1f358b5d2b1fb6a914971d4bb555f7a8c88fb1b6c837ceff13072cf945170325",
+      "sha256": "aae19e0a4efc0355b0bfae3ff0f2bd2dd1f4fd8d9bd8bed048348cd1f19eefc2",
       "kind": "standard"
     },
     {
       "path": "docs/10-system-design/10-doc-standards/40-code-linking/doc.json",
-      "sha256": "6eede1e8074ff0d9540c9003c62cd98b0ae584b01f41a39da3c8e001a2acf128",
+      "sha256": "33cc2d14b91108e4d82f62e779ff7f7902f34761be414b185bc37e51975f3c5e",
       "kind": "standard"
     },
     {
       "path": "docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json",
-      "sha256": "5ce490a31e03c24927749d0c5ba77f3baea4fd744a403cd6e9e7020eda361106",
+      "sha256": "9eb0aa1e54174b9b0e8f83ccf87d2d3f71c838b3cc5f53670699d454b758b7df",
       "kind": "standard"
     },
     {
       "path": "docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json",
-      "sha256": "3ad65a5c70c09f4f24e26342ab0385d3e0d1618ac879afcf361f089cbb044b11",
+      "sha256": "7dfac522b271af5908079617a21816039a86cd4b52c1830ec316f0cf06153cfd",
       "kind": "standard"
     },
     {
@@ -39,12 +39,12 @@
     },
     {
       "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
-      "sha256": "dc0ef34063f04bc640481ee2862e44621e73719c0aa201f6515cbd34a86d7202",
+      "sha256": "cf3103193fd72d6ea0981a2062bfdfbb04dfa238c5b2ac10d4d2ac64eb79d2e2",
       "kind": "standard"
     },
     {
       "path": "docs/99-appendix/10-style-guide/10-writing-style/doc.json",
-      "sha256": "7f25385a7c1fbdd0b2f1aaab4deb8bcbdfc72214e55a53fd89d2a1eda0c27cd7",
+      "sha256": "e78e5e2569fe0b4d8fb6d825d182c0efe0db88fec9ef7248c6beb92cf9e17ed8",
       "kind": "style"
     },
     {
@@ -53,78 +53,83 @@
       "kind": "style"
     },
     {
+      "path": "docs/99-appendix/10-style-guide/30-ste-profile/doc.json",
+      "sha256": "f4be659414f2e6c26b8d86adfc2564a2e328b4a1165ca9d2c727c5affdbd06d3",
+      "kind": "style"
+    },
+    {
       "path": "docs/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/doc.json",
-      "sha256": "1c7153fe82dce245c19b2eb534190095982cb81c89fdb3f1ec559615f9d5b0ad",
+      "sha256": "2e25c60962801576ca22be34d773d999a7502b748877d596213ec01cf1645221",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/10-code-block/doc.json",
-      "sha256": "cda3ed48e98469d1cb5ef8528b47140f152c26fcaaeb861b94977f6a1c3b41d0",
+      "sha256": "4bc71fbd7fcbb610b742cc6543f3856698ac34806532614cb400e8047fa6289c",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree/doc.json",
-      "sha256": "a370b8a9f540c39fa353ca9d7285d9652b672db0a366e179016b47dd7445a76f",
+      "sha256": "e1c94fc2cc26c3230253cc6f09c0e3bb1e1f54002912ab2d6c3b05951f779671",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table/doc.json",
-      "sha256": "be99c78094466acc84b86580cb2c6726f6cc3a2d363d0957d8ff916504704322",
+      "sha256": "8ee5ef97c5b49c32c177133c92bb2085fdfbff82ec9d9e8f3e74f7f0fc1e5406",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface/doc.json",
-      "sha256": "55df303e7c0977fa8d812bfb274753381ee52f6a4512dbb5c04a63516314ac1b",
+      "sha256": "10c76aec0c50bc8bb5cfd79b33aca565a21b5753e77d9284e22e67dc08f234f7",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape/doc.json",
-      "sha256": "5f4ab0f1eb81ac463b85901e81831dba3254144d6149b1514d333c5b814b0306",
+      "sha256": "c9d198e653d957b534f3b1e363cbb261c5d597780e251392b8c401fab3b3637a",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas/doc.json",
-      "sha256": "0a8e2b05b405ab0b29fa4a22e7068e684f364e6228034e7d3b0da58175829c62",
+      "sha256": "216c30fd09bc6434897ebfb8051be1a768a66cec2b1a1e329f282948b32b7016",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence/doc.json",
-      "sha256": "eb2e5caeaf1b401102eae05eca538d53f639c6e91ab022e6a6f3d6885322d5d8",
+      "sha256": "ae81d20e427bf1912c919f9f30a29ed6eaf0e0acaa200a72d426a19314d47a96",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline/doc.json",
-      "sha256": "99b0d94ceb13f68607d63d8c35469fe0c46e3a318214e95913ed298c987fbc67",
+      "sha256": "92df0fb956b49123260980323dbd4472ddb23767e894fed859fb0d8fbde68cd1",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack/doc.json",
-      "sha256": "5993b3cab803b471563ffd73e35ce5ff9ec6b9c632f18083d3968f66a5611f91",
+      "sha256": "c30decf3e92973d3e3479cc92acbc36ca55f75b4ff96672ddc85e31f558c0f1d",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack/doc.json",
-      "sha256": "937f9d30e30465a3eb641aa116f45aa7c1bc82cad72773403bb833652778c035",
+      "sha256": "827b694a3f389882ec0477b256f953ecfbb166115a89e7faa53243a43f9d8a67",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree/doc.json",
-      "sha256": "dae5e06870cf9d9dad9cc21f39e85d7d7884387d0686170b54cfc4d582399ce9",
+      "sha256": "960da3aef82aad050e0af023ad068539e9adb0a579dc1d1f5560cb67b2397dee",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/20-pseudocode/doc.json",
-      "sha256": "a8b61f45eaa1327cd3c3f3f04b9d12a737ffdcaa5d459c6748f891cf5372a97b",
+      "sha256": "42ceb4f4086a6c9f9bd88a9be5cbb4002ad4663581de867a0788773296663cc8",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer/doc.json",
-      "sha256": "88731ec93c6e64e51c3f5438f1cf10fe8613e9ce7c504749b0118172ee37d207",
+      "sha256": "d9f5ad16e906ac48e738d07db1386920140d3d65faa3bbd36b86708e9c625de9",
       "kind": "component-doc"
     },
     {
       "path": "packages/docs-model/src/authoring-guidance.ts",
-      "sha256": "d316b0db7682b2adb7aebe265b3be2d15780c2d5b0dc2bcae5e490d572114e23",
+      "sha256": "c8ea786d889ea99d2a30e2db427c65409389c8ac50f505dfb552f24028354bc2",
       "kind": "renderer"
     },
     {
@@ -134,12 +139,12 @@
     },
     {
       "path": "packages/docs-model/src/project-markdown.ts",
-      "sha256": "c5f8e700b24458a6ecd6a6448a4a77d795d01bebc9508f7daaaeb6a2a7eec873",
+      "sha256": "6d64b95b5ca45de88693a51775db9938c132d9865049bf00883bf19be1780045",
       "kind": "renderer"
     },
     {
       "path": "packages/docs-model/src/components/rich-text/manifest.ts",
-      "sha256": "6fdfc4067ed6cb2846abecc7c707a4aae37870c88ad7104abb339526a4ee90f8",
+      "sha256": "830b68468f26e90f888538fbdaeb8497ac239368994ec30a1f494d0aefe39cb9",
       "kind": "component-manifest"
     },
     {
@@ -159,7 +164,7 @@
     },
     {
       "path": "packages/docs-model/src/components/interaction-surface/manifest.ts",
-      "sha256": "23d935b8415bb8985f623ffd34e473cde4f25c1789190d63c80029aaab311c76",
+      "sha256": "a1757fee29914be9b8de04cc0c5edcdd48f80a205ae6145bc07b67bcf46fd480",
       "kind": "component-manifest"
     },
     {
@@ -179,7 +184,7 @@
     },
     {
       "path": "packages/docs-model/src/components/process-outline/manifest.ts",
-      "sha256": "66114d8057351603635b10d80980cd6bea40c4811384310285119611d2dad8b8",
+      "sha256": "e8dd10edeb729cad7bcc0d976242e2f7718c61d3dbd17e2dfef49075c4343359",
       "kind": "component-manifest"
     },
     {

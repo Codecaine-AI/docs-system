@@ -1,6 +1,6 @@
 # sequence
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior. Verify the sequence against source or trace evidence.
 
@@ -8,11 +8,11 @@ Example: Show a client opening a task, reading a document, applying an operation
 
 Canonical document: `10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence`.
 
-The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference: `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the canvas block.
+The sequence component owns one type of the Block vocabulary: `sequence`, the UML-style sequence-diagram block. The block is only a reference: `src` (or `sequenceId`) points at a `SequenceDocument` owned by the external sequence engine (`external/sequence`). Participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the canvas block.
 
-When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry `forward: { authority: "sequence" }` instead of a local `apply`, so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth, and a compact text program is the agent-facing projection. Agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids.
+The family is the vocabulary's flagship non-default agent-adapter case. Its three typed actions carry `forward: { authority: "sequence" }` instead of a local `apply`, so diagram edits route to the sequence engine and come back validated. The JSON document is the source of truth, and a compact text program is the agent-facing projection. Agents rewrite the whole program, and the language carries no styling, no coordinates, and no ids.
 
 ## Example
 
@@ -69,7 +69,7 @@ title?: string  # Display title.
 
 ## Typed Actions
 
-Three actions are lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_OPERATIONS`. Schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply`, the forwarded shape of Typed actions.
+Three actions are lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_OPERATIONS`. Schema truth stays in the sequence package. The lift strips only the envelope discriminant and prefixes the family name. Each rides a `componentAction` op as `sequence.<verb>` and carries `forward: { authority: "sequence" }` instead of a local `apply`, the forwarded shape of Typed actions.
 
 **sequence forwarded patch operations**
 
@@ -83,7 +83,7 @@ sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set t
 
 - `setProgram`
 
-  - The program parses with `parseSequenceProgram`; a parse failure rejects the patch with per-line errors.
+  - The program parses with `parseSequenceProgram`. A parse failure rejects the patch with per-line errors.
 
   - The document's `id` and stored `style` always survive the rewrite.
 
@@ -93,11 +93,11 @@ sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set t
 
 - `setTitle`
 
-  - Replaces the title string; structure and style stay untouched.
+  - Replaces the title string. Structure and style stay untouched.
 
 ### The Program Language
 
-Language essentials: numbers are participant identity, `text=` is a display name. Arrows are `>` sync, `->` async, `-->` return. `alt`/`opt`/`loop` fragments take `guard=` and nest by indentation alone. There is no `end` keyword. `note` attaches `over`/`left`/`right` of a participant; activations are derived automatically. Styling lives in the document's separate style section, *never* in the program.
+Language essentials: numbers are participant identity. `text=` is a display name. Arrows are `>` sync, `->` async, `-->` return. `alt`/`opt`/`loop` fragments take `guard=` and nest by indentation alone. There is no `end` keyword. `note` attaches `over`/`left`/`right` of a participant. Activations are derived automatically. Styling lives in the document's separate style section, *never* in the program.
 
 ```
 title "Order distribution"
@@ -118,13 +118,13 @@ seq
 
 ## Doc Renderer
 
-The viewer descriptor renders the block through the host's `renderSequence` slot; with no host wired, a dashed placeholder card names the source instead.
+The viewer descriptor renders the block through the host's `renderSequence` slot. With no host wired, a dashed placeholder card names the source instead.
 
 - Slot chain
 
   - `DocBlockRenderer` builds `renderSequence` from `DocsClientProvider`'s `sequenceEmbed` slot, the sequence counterpart of the canvas embed slot.
 
-  - `resolveBundleSequenceSrc` canonicalizes the src first: a `./` prefix resolves against the doc bundle's own assets; anything else is docs-root-relative.
+  - `resolveBundleSequenceSrc` canonicalizes the src first: a `./` prefix resolves against the doc bundle's own assets, and anything else is docs-root-relative.
 
 - Workbench host
 
@@ -136,7 +136,7 @@ The viewer descriptor renders the block through the host's `renderSequence` slot
 
 - Editor surface
 
-  - The block is a non-editable atom leaf (`docSequence`); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading.
+  - The block is a non-editable atom leaf (`docSequence`). The shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading.
 
 ## Agent Renderer
 
@@ -148,7 +148,7 @@ The markdown projection is one comment line, a greppable reference, not the diag
 
 - The comment form
 
-  - `src` wins over `sequenceId` as the source; `title="…"` appends only when a title is set.
+  - `src` wins over `sequenceId` as the source. `title="…"` appends only when a title is set.
 
   - `<!-- sequence: (missing src) -->` when no source is set.
 
@@ -164,25 +164,25 @@ The docs theme owns one token here: the `sequence` entry of `THEME_TOKEN_REGISTR
 
 - `--docs-sequence-border`
 
-  - The one doc-side hook: the border color of the placeholder card and the embed frame, registered as the sequence `border` token and falling back to `--border`.
+  - The one doc-side hook: the border color of the placeholder card and the embed frame. It is registered as the sequence `border` token and falls back to `--border`.
 
 - Engine-side painting
 
   - The renderer paints from `--seq-*` CSS variables with its own defaults (`theme.ts`).
 
-  - Document style overrides field by field: shortcut fields (`accent`, `fragmentAccent`, `participantFill`, `scale`) apply first; per-element groups override them per field.
+  - Document style overrides field by field: shortcut fields (`accent`, `fragmentAccent`, `participantFill`, `scale`) apply first. Per-element groups override them per field.
 
 - One styling channel
 
-  - `setStyle` is the only way style changes; styling never rides the program.
+  - `setStyle` is the only way style changes, and styling never rides the program.
 
 ## Agent Adapter
 
-The flagship non-default case of Agent adapter: the sequence engine is the external authority, and the block's actions forward to it instead of patching props locally. Doc-side props (`src`, `sequenceId`, `title`) still edit through the generic ops; diagram content never does.
+The flagship non-default case of Agent adapter: the sequence engine is the external authority. The block's actions forward to it instead of patching props locally. Doc-side props (`src`, `sequenceId`, `title`) still edit through the generic ops. Diagram content never does.
 
 A forwarded action travels four steps:
 
-1. The dispatcher validates params against the lifted TypeBox schema, then refuses to apply the op locally: a forwarded action "cannot be applied as a doc op" (`doc-ops.ts`).
+1. The dispatcher validates params against the lifted TypeBox schema. It then refuses to apply the op locally: a forwarded action "cannot be applied as a doc op" (`doc-ops.ts`).
 
 2. `forwardSequenceAction` (`store.ts`) takes over under the doc bundle's path lock: doc-hash precondition first, then the target block must exist and be a `sequence` block.
 
@@ -196,9 +196,9 @@ A forwarded action travels four steps:
 
 - A registered authority
 
-  - `"sequence"` is a registered entry in the model's `KNOWN_AUTHORITIES` (`checks.ts`); boot checks reject any action forwarding anywhere else.
+  - `"sequence"` is a registered entry in the model's `KNOWN_AUTHORITIES` (`checks.ts`). Boot checks reject any action forwarding anywhere else.
 
 - The processing agent
 
-  - A sequence-specialist processing agent handles the type's annotations: its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above.
+  - A sequence-specialist processing agent handles the type's annotations. Its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above.
 

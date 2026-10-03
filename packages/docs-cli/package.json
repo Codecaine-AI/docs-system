@@ -18,6 +18,7 @@
   "dependencies": {
     "@codecaine-ai/docs-index": "workspace:*",
     "@codecaine-ai/docs-model": "workspace:*",
+    "@codecaine-ai/docs-style": "workspace:*",
     "@codecaine-ai/docs-workbench": "workspace:*"
   },
   "devDependencies": {

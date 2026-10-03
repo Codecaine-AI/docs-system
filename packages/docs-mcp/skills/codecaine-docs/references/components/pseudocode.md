@@ -1,6 +1,6 @@
 # pseudocode
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
 
@@ -8,7 +8,7 @@ Example: Sketch how the renderer builds header rows, marking the line this chang
 
 Canonical document: `10-system-design/40-block-vocabulary/20-code/20-pseudocode`.
 
-The pseudocode component owns one block type, `pseudocode`, a plain-language code listing that explains an algorithm or a change in logic without real syntax. The viewer highlights control words, calls, and `->` arrows, and it moves each trailing `//` comment into one aligned column. Use the code block when the reader needs the actual source.
+The pseudocode component owns one block type, `pseudocode`, a plain-language code listing that explains an algorithm or a change in logic without real syntax. The viewer highlights control words, calls, and `->` arrows, and it moves each trailing `//` comment into one aligned column. When the reader needs the actual source, use the code block.
 
 ## Example
 

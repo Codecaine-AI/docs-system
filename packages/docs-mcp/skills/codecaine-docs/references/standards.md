@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -16,9 +16,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 <docs_component_catalog source="docs-model component manifests">
   ### rich-text
 
-  Block types: paragraph, heading, list-item, quote, callout, divider, image, image-grid, video, html
+  Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html
 
-  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, quotes for attributed text, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
   Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -58,7 +58,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
   Block types: interaction-surface
 
-  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation has its own kind-labeled card. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
+  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation is one collapsed row. Hovering its name shows the kind and purpose, and opening it shows Parameters and Returns cards. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Add exampleCall with the code text of one real example invocation (authored values, never invented). Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 
   Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
@@ -98,7 +98,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
   Block types: process-outline
 
-  Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace.
+  Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace. Phases are short Title Case labels, and so is the root title. Substeps are sentence case actions.
 
   Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
@@ -133,16 +133,6 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
   Example: Show the doc page render tree from DocPage down to the code block, marking the hook this change added.
 
   Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree
-
-  ### flow-strip
-
-  Block types: flow-strip
-
-  Use Flow Strip to show a short linear loop or pipeline at a glance, three to six steps. Use Process Outline when steps nest or need notes, and Sequence when the exact messages between parties matter.
-
-  Example: Show the docs MCP edit loop: begin, read, apply ops, check, end.
-
-  Details: 10-system-design/40-block-vocabulary/50-flow-and-diagrams/20-flow-strip
 
   ### pseudocode
 
@@ -204,7 +194,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - L1–L3 structure foundation, system design, and agents exactly as they structure implementation.
 
-    - The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.
+    - The doc tree stays at three levels. A subsection appears only when a section genuinely subdivides.
 
     - Below L3 the rungs live in the source — in-code docs owns them.
 
@@ -212,11 +202,11 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - A doc is a folder containing `doc.json` — `10-authentication/` holding a bundle, not `10-authentication.md`. The folder name is the doc's address; the bundle inside is its state.
 
-    - Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.
+    - Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns (logging, caching, error handling) get one primary home, never a scatter.
 
-      - The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.
+      - The mirror goes one level per genuine subdivision: deeper structure becomes entries on the area page, not sub-pages. The implementation layer standard owns the rule.
 
-    - A section folder is itself a document: it carries its own `doc.json` — the parent doc — introducing its immediate children, one level deep, one line each.
+    - A section folder is itself a document. It carries its own `doc.json` (the parent doc), introducing its immediate children, one level deep, one line each.
 
       - An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives.
 
@@ -246,7 +236,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - Every doc is a folder in the repo, versioned with the source it describes.
 
-        - An agent reads and edits it with plain file access — no special tooling.
+        - An agent reads and edits it with plain file access: no special tooling.
 
         - Docs and code change in the same place, so they track together.
 
@@ -298,7 +288,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - Insert mid-gap first, such as `25-` between `20-` and `30-`, before considering any reorganization.
 
-    - When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.
+    - When the gaps are exhausted, the number line tells you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.
 
     | Range     | Reserved for |
     | --- | --- |
@@ -307,7 +297,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
     | 90–98 | Late or supplementary content |
     | 99 | Appendix and meta |
 
-    Violations look like: consecutive numbers with no gaps, mixed formats (`1-intro`, `02-setup`, `section-3`), `99-` on anything but appendix material.
+    Violations look like consecutive numbers with no gaps, mixed formats (`1-intro`, `02-setup`, `section-3`), `99-` on anything but appendix material.
 
     ## Why
 
@@ -333,7 +323,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
   </doc>
   <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
-    Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. 
+    Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose.
 
     This page states the reference object, which directions links run, and the restraint rules against overlinking.
 
@@ -357,7 +347,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - `kind`: `"doc"` plus the target's docs path — nothing else.
 
-      - The backlinks index tracks every reference; `docs links check` holds them at zero stale; moving a doc rewrites its inbound paths.
+      - The backlinks index tracks every reference. `docs links check` holds them at zero stale, and moving a doc rewrites its inbound paths.
 
     - **The text is the doc's name**
 
@@ -391,13 +381,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - Two docs each pointing at the other for the full explanation means neither owns it.
 
-      - One doc owns the substance; the other references it.
+      - One doc owns the substance. The other doc references it.
 
     - **Governed-by links run upward**
 
-      - An implementation area page links one-way up to the design docs that constrain it; design never links back down.
+      - An implementation area page links one-way up to the design docs that constrain it, and design never links back down.
 
-      - Every restraint rule on this page applies; the implementation layer standard owns the area-page shape.
+      - Every restraint rule on this page applies. The implementation layer standard owns the area-page shape.
 
     ## Why
 
@@ -407,11 +397,11 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **The name is the prose**
 
-      - A reference reads as the target's name mid-sentence — no bracket noise on either surface.
+      - A reference reads as the target's name mid-sentence: no bracket noise on either surface.
 
     - **A tree for navigation, a web for substance**
 
-      - Parent docs stay the one place navigation happens, so moving through the docs feels the same everywhere.
+      - Parent docs stay the one place navigation occurs, so moving through the docs feels the same everywhere.
 
     - **Restraint keeps links meaningful**
 
@@ -425,7 +415,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
   </doc>
   <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
-    Docs point at code with typed source references; code never points back. 
+    Docs point at code with typed source references. Code never points back.
 
     This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
 
@@ -450,13 +440,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - `kind`: `"source"` with a repo-relative path — optionally a symbol and line.
 
-      - `docs links check` verifies the target file exists; a doc link resolves through the docs lookup instead.
+      - `docs links check` verifies the target file exists. A doc link resolves through the docs lookup instead.
 
     ## The Rule
 
     - **One-way, doc to code**
 
-      - No doc links in code comments; the source stays ignorant of the docs.
+      - No doc links in code comments. The source stays ignorant of the docs.
 
     - **Full paths**
 
@@ -474,13 +464,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **Code moves, docs update**
 
-      - When code moves or renames, the doc updates; `docs links check` reports references whose target no longer exists.
+      - When code moves or renames, the doc updates. `docs links check` reports references whose target no longer exists.
 
       - No generated navigation scripts
 
         - List files and explain briefly.
 
-    What the code itself carries — file headers, docstrings, inline comments — is in-code docs's subject.
+    What the code itself carries (file headers, docstrings, inline comments) is in-code docs's subject.
 
     ## Why
 
@@ -492,7 +482,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **A full path is a checkable claim**
 
-      - A bare filename is a vibe; a typed path is verified, and a reader opens it without a search.
+      - A bare filename is a vibe. A typed path is verified, and a reader opens it without a search.
 
     - **Inline beats a link farm**
 
@@ -548,7 +538,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - Explain the why of a non-obvious move as the code goes, never restating what the line already says.
 
-    - Each unit answers the question a parent doc answers one level up — is the thing I need below this point?
+    - Each unit answers the question a parent doc answers one level up: is the thing I need below this point?
 
       - The header rules the file in or out.
 
@@ -566,13 +556,13 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **The flow pays off at the file**
 
-      - A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. 
+      - A reader leaves the docs with the question framed. The first screenful confirms or rules the file out.
 
       - Code is read last, and only where the task lives.
 
   </doc>
   <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
-    The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.
+    The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates.
 
     This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
 
@@ -592,7 +582,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **Governed-by links**
 
-      - References up to the design docs that constrain the area — the governed-by convention in cross-doc linking.
+      - References up to the design docs that constrain the area: the governed-by convention in cross-doc linking.
 
     - **Decision entries**
 
@@ -608,7 +598,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation.
 
-      - Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.
+      - Thirty data connectors extend a base class, so connector #31 must too. An inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.
 
     - **Decision / Why / Applies to**
 
@@ -626,7 +616,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **Conform or propose**
 
-      - An agent whose change fits the entries follows them; one whose change conflicts files a proposal.
+      - An agent whose change fits the entries follows them, and one whose change conflicts files a proposal.
 
       - Silent deviation is never an option.
 
@@ -638,11 +628,11 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **One level per genuine subdivision**
 
-      - The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages.
+      - The mirror descends one level for each genuine subdivision of the source. Deeper structure becomes entries on the area page, not sub-pages.
 
     - **What stays out**
 
-      - Everything below already has a home; an area page carries none of it.
+      - Everything below already has a home, and an area page carries none of it.
 
     | Content | Belongs in |
     | --- | --- |
@@ -657,19 +647,19 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision.
 
-      - Deletion happens after the salvage pass, never instead of it.
+      - Deletion occurs after the salvage pass, never instead of it.
 
     ## Why
 
     - **A rule for unwritten code needs a home**
 
-      - In-code docs reach only files that exist; nothing in the source can govern a file nobody has written.
+      - In-code docs reach only files that exist. Nothing in the source can govern a file nobody has written.
 
-      - Design cannot hold it either — the system behaves identically whether the structure is followed or not.
+      - Design cannot hold it either: the system behaves identically whether the structure is followed or not.
 
     - **Proposals keep the architecture deliberate**
 
-      - A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible.
+      - A standardized layout survives only while every restructuring is a recorded decision. One silent deviation makes the next one invisible.
 
     - **Lazy entries stay load-bearing**
 
@@ -679,7 +669,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     - **A shallow mirror survives churn**
 
-      - Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page.
+      - Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page.
 
   </doc>
   <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
@@ -765,7 +755,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - writing/rules.ts registers rule folders with checks and tests derived from Writing Style.
 
-      - Authored prose includes descriptive metadata and document-owned prose fields. Code blocks, quote blocks, inline code, reference spans, paths, signatures, literal examples, and embedded Canvas or Sequence payloads are excluded.
+      - Authored prose includes descriptive metadata and document-owned prose fields. Code blocks, inline code, reference spans, paths, signatures, literal examples, and embedded Canvas or Sequence payloads are excluded.
 
     - **Page Structure Rules**
 
@@ -803,7 +793,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - Existing findings remain visible. A baseline does not waive a different finding introduced by an edit.
 
-      - Docs Writer retains the original valid document for the session after the first successful write.
+      - Docs Writer keeps the original valid document for the session after the first successful write.
 
         - Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit.
 
@@ -861,7 +851,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks.
 
-      - These rules are warnings in the lint engine, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
+      - These rules are warnings in the lint engine, matching the existing audit policy. After reviewing corpus impact, promote a rule by changing its own severity and enforcement metadata.
 
     - **List and Heading Warnings**
 
@@ -877,15 +867,23 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
       - structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five.
 
-    - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
+    - **Component and Asset Checks**
 
-      - Empty outlines, childless roots, and multiple roots produce errors.
+      - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
 
-      - Draft edits remain writable. New violations block completion.
+        - Empty outlines, childless roots, and multiple roots produce errors.
 
-      - Nest related phases under one parent, or split independent processes into separate blocks.
+        - Draft edits remain writable. New violations block completion.
 
-    - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
+        - Nest related phases under one parent, or split independent processes into separate blocks.
+
+      - process-outline.phase-title-case flags a Process Outline root title or phase that breaks Title Case. A phase is a first-level step with its own substeps, the line the renderer draws bold.
+
+        - It shares the heading rule's minor words and skips backtick code spans, acronyms, and code-looking identifiers. Substeps and notes stay sentence case.
+
+        - Each warning names the step field, such as `props.steps[0].steps[1].text`, and its suggestion carries the Title Case text.
+
+      - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
     ## Judgment Rules
 
@@ -929,7 +927,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 </docs_structure_standards>
 <docs_style_guide source="docs-system corpus · 99-appendix/10-style-guide">
   <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
-    Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus.
+    Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The STE Profile adds stricter word and sentence limits to these rules.
 
     - Lead with the fact.
 
@@ -1161,11 +1159,11 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
 
     ## Worked Example
 
-    The revision names the actor, preserves the condition, and states the result.
+    The revision names the actor, preserves the condition, and states the result. The first paragraph below is the original, and the second is the revision.
 
-    > Before: Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails.
+    Configuration of the import budget script parameters is performed via budget.json. Note that it is important to remember that running with --write should only be done when lowering the budget. If exceeded, CI fails.
 
-    > After: budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget.
+    budget.mjs reads budget.json and counts the imports. If the count exceeds the budget, CI fails. Run budget.mjs --write only to lower the budget.
 
     The filenames in this example are illustrative. In a real document, use the project's actual paths and symbols.
 
@@ -1240,6 +1238,147 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872
     - Preserve the established page template. Supporting reasons or reference details can serve the page's primary purpose, as defined in Document Purpose.
 
     - Give every image nonempty alt text that describes the information it contributes.
+
+  </doc>
+  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
+    The STE profile is our software version of ASD-STE100, the Simplified Technical English standard. It sets the word, sentence, and punctuation rules for every page in this corpus. The goal is text that a reader understands on the first read, at a 6th to 7th grade reading level.
+
+    > **Proposed: Not enforced yet** — No lint enforces this profile yet. The Open Decisions section at the end needs an owner ruling, and each row shows its proposed default.
+
+    ## Reading Targets
+
+    The profile serves a reader who scans first and reads second. It encodes five targets from the project owner's own feedback.
+
+    - **ADHD-Friendly Pages**
+
+      - Each block holds one idea, and its first sentence states that idea.
+
+    - **Bullets Over Prose**
+
+      - A lead sentence and bullets replace a long paragraph.
+
+      - A clause after a semicolon moves to its own sub-bullet.
+
+    - **Literal Names**
+
+      - One thing has one name, and that name is the same in the UI, the pages, and the code.
+
+    - **Concise Means Tighter Wording**
+
+      - A shorter sentence keeps every fact. Concise never means less content.
+
+    - **Terms Defined at First Use**
+
+      - Each internal term has a definition or a link where a page first uses it.
+
+    ## Prime, Then Verify
+
+    The profile works in two steps. Agents write with STE in mind, and a pipeline checks what they write.
+
+    - **Prime**
+
+      - The writer prompt tells agents to write in ASD-STE100 plus our house style.
+
+      - Models already know STE, so one line of prompt brings a full, consistent rule set.
+
+    - **Verify**
+
+      - Style Enforcement checks each page against this profile and cleans up the output.
+
+      - The pipeline trusts the primed writer but verifies every page. It stages each fix as a proposal for review.
+
+    ## What ASD-STE100 Is
+
+    ASD-STE100 is a controlled English standard from ASD, the European aerospace and defense industry association. It limits words and sentence shapes so that each sentence has one reading.
+
+    - **Current Edition**
+
+      - Issue 9 is the current edition, and ASD published it in 2025. Issue 10 is due in January 2028.
+
+    - **53 Rules**
+
+      - Part 1 holds 53 writing rules in 9 sections, from single words to writing practices.
+
+    - **About 900 Approved Words**
+
+      - Part 2 is a dictionary of about 900 approved words.
+
+      - Each unapproved word in the dictionary points to an approved alternative.
+
+    - **Aerospace Origin**
+
+      - STE comes from aircraft maintenance manuals. It targets readers whose first language is not English.
+
+    > **Copyright: The STE dictionary stays local** — ASD holds the copyright on the STE dictionary and rules. The full Issue 9 extract stays local in `proposals/ste-writing-profile-2026-10-02/ste100/`, which git ignores. Our replacement lists come from the public style guides of Google, Microsoft, Red Hat, and plainlanguage.gov.
+
+    ## Rules We Adopt
+
+    Each row maps one STE rule to our limit. Status says whether we adopt the rule as written, tighten it, or relax it. Keep marks a house rule from Writing Style or Structure that STE does not state. Authoring Lints lists the checks that run today.
+
+    **STE rules in the profile**
+
+    | Rule | STE Source | Our Limit | Status |
+    | --- | --- | --- | --- |
+    | Procedural sentence length | STE 5.1 | 20 words or fewer per instruction | Adopt |
+    | Descriptive sentence length | STE 6.3 | 25 words or fewer per sentence | Adopt |
+    | Paragraph length | STE 6.6 | 4 sentences or fewer. STE allows 6. | Tighten |
+    | One topic per sentence | STE 4.1 | One topic in each sentence | Adopt |
+    | One instruction per step | STE 5.2 | One instruction in each sentence and each numbered step | Adopt |
+    | Condition first | STE 5.4 | Put the condition before the instruction it guards | Adopt |
+    | Active voice | STE 3.6 | Active voice. Passive only in a description, and only when the actor is unknown or not relevant. | Adopt |
+    | Verb forms | STE 3.2 | Imperative, infinitive, simple present, simple past, and past participle as an adjective. No progressive or perfect tenses. | Adopt |
+    | No semicolons | STE 8.1 | No semicolons. Put each clause on its own sub-bullet. | Tighten |
+    | Noun clusters | STE 2.1 | 3 nouns or fewer. A registered multi-word technical noun counts as 1. | Relax |
+    | One name per thing | STE 1.11, 9.4 | One name for each thing, the same in the UI, the pages, and the code | Adopt |
+    | Internal terms | STE 1.8 | Define or link each internal term at its first use on a page | Tighten |
+    | Modal verbs | STE dictionary | Write "must" or "can". Do not write "should", "may", or "might". | Adopt |
+    | Phrasal verbs and idioms | STE 9.3, 1.10 | No phrasal verbs, such as "kick off", and no idioms | Adopt |
+    | Word counting | STE 8.4 to 8.7 | An inline code span, a number with its unit, and a parenthetical each count as 1 word | Adopt |
+    | No em dashes | House rule | Use a period or a comma. | Keep |
+    | No label-colon openers | House rule | Write a full sentence, or put the label in a parent bullet. | Keep |
+    | Title Case headings | House rule | Capitalize major words. Minor words such as "of" stay lowercase. | Keep |
+
+    ## What We Relax From STE
+
+    Three STE rules do not fit software pages, so the profile relaxes them. Vocabulary lists the words that each change allows.
+
+    - **Approved Words Only (STE 1.1)**
+
+      - The full STE approved-word dictionary stays the base. Our technical nouns and technical verbs extend it.
+
+      - The proposed first lint flags only words in the replacement tables and the banned filler list.
+
+      - Style Enforcement treats vocabulary findings as suggestions. They never block a page, and project vocabulary is never a finding for being new or rare.
+
+    - **The -ing Ban (STE 3.5)**
+
+      - STE allows an "-ing" word only inside a technical noun. The profile bans only the progressive tense, such as "is running".
+
+      - A gerund such as "Before saving, run the check" stays.
+
+    - **Rejected Software Verbs**
+
+      - STE rejects run, create, call, return, build, render, and other core software verbs.
+
+      - The profile allows each one as a technical verb with one meaning.
+
+    ## Open Decisions
+
+    These choices need an owner ruling before any lint uses the profile. Each row shows the proposed default and the reason for it.
+
+    **Open decisions**
+
+    | Decision | Proposed Default | Why |
+    | --- | --- | --- |
+    | Page or doc | "Page". The folder is the bundle, and the file is doc.json. | The MCP tools say "page". 52 of 108 pages mix page, doc, document, and bundle. |
+    | Block, block type, or component | A block is one instance, and a block type is its kind. "Component" means code only. | All three research sources agree. Today "component" names both. |
+    | Heading or header | "Heading". "Header" names the UI region only. | "Header" also means a C header file in the decomp harness. |
+    | Session or thread | "Session". "New thread" stays as the UI action. | The owner already corrected "thread" to "session" in a transcript. |
+    | Run, create, call, return, build, and render as technical verbs | Allow each one with one meaning | STE rejects them. Without them, the lint flags almost every page. |
+    | Make sure or ensure | "Make sure" | STE approves "make sure" and rejects "ensure". |
+    | Click or select | "Click" for a mouse action, "select" for an option | STE lists "click" as a technical verb. Microsoft prefers "select". |
+    | Enough or sufficient | "Enough" | It is the plainer word. STE approves "sufficient", and Microsoft prefers "enough". |
+    | Simple future "will" | Allow it | STE allows the simple future. Writing Style already limits "will" to a later event. |
 
   </doc>
 </docs_style_guide>

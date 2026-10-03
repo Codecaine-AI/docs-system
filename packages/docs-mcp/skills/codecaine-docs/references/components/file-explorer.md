@@ -1,6 +1,6 @@
 # file-explorer
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.
 
@@ -8,7 +8,7 @@ Example: Show the files the file-tree refactor added, modified and renamed, with
 
 Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer`.
 
-The file-explorer component owns one block type, `file-explorer`, which draws flat path entries as IDE-style sidebar rows with collapsible folders and a badge per changed file. Use it to show the files a change touches. File Tree draws the same entry shape as a plain-text `tree` listing.
+The file-explorer component owns one block type, `file-explorer`, which draws flat path entries as IDE-style sidebar rows. It draws them with collapsible folders and a badge per changed file. Use it to show the files a change touches. File Tree draws the same entry shape as a plain-text `tree` listing.
 
 ## Example
 
@@ -64,7 +64,7 @@ Three actions edit `entries`, keyed by exact path as in File Tree. Each action i
 
 - **removeEntry**
 
-  - It deletes by exact path, and a missing path is an error.
+  - It deletes by exact path. A missing path is an error.
 
 ```
 file-explorer.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed") -> Props patch { entries }, revalidated against FileExplorerState  # Append a path entry (optional note and change marker) to the file explorer.
@@ -91,7 +91,7 @@ Each action returns the props patch `{ entries }`, revalidated against `FileExpl
 
 - A renamed entry shows its old name struck through, then an arrow, then the new name.
 
-- The header strip renders only when `title` is set, and it shows only the title.
+- The header strip renders only when `title` is set. It shows only the title.
 
 - Past `maxRows` visible rows, the list folds behind a **Show all N rows** toggle.
 

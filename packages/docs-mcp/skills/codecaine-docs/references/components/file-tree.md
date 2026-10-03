@@ -1,6 +1,6 @@
 # file-tree
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df48bff505633507af34872daf2950bc392aeeae845c9eb67ff4956ad352fb08`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
 
 Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject.
 
@@ -8,7 +8,7 @@ Example: Show the service entry point, skills directory, and generated reference
 
 Canonical document: `10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree`.
 
-The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders on both surfaces as a `tree`-command drawing, with per-entry notes and change markers for describing repo slices and refactors.
+The file-tree component owns one block type, `file-tree`: the vocabulary's annotated path tree. A flat list of path entries in props renders on both surfaces as a `tree`-command drawing. The drawing has per-entry notes and change markers for describing repo slices and refactors.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
@@ -66,7 +66,7 @@ Every fact lives in `entries`, an array of path entries validated by the closed 
 
 - Path rules
 
-  - `path` is /-separated; `validateTreePath` in `lib.ts` rejects a leading "./", a leading "/", and empty segments on every action write.
+  - `path` is /-separated. `validateTreePath` in `lib.ts` rejects a leading "./", a leading "/", and empty segments on every action write.
 
   - Directories need no entries of their own. They are derived from path prefixes, and a derived directory carries no note or change state.
 
@@ -76,7 +76,7 @@ Every fact lives in `entries`, an array of path entries validated by the closed 
 
 - Tolerant read
 
-  - `readFileTreeEntries` skips an entry whose `path` is missing or empty and drops wrong-typed `note`/`change`/`from` values; nothing is repaired.
+  - `readFileTreeEntries` skips an entry whose `path` is missing or empty and drops wrong-typed `note`/`change`/`from` values, and nothing is repaired.
 
   - Actions match the `path` string literally, so keep paths exact.
 
@@ -86,19 +86,19 @@ Three actions are the type's whole custom write surface.
 
 - `addEntry`
 
-  - Appends to the end of `entries`; a duplicate path is an error.
+  - Appends to the end of `entries`. A duplicate path is an error.
 
   - Params are `path` plus optional `note` and `change`. `from` enters only through `updateEntry`.
 
 - `updateEntry`
 
-  - Patches `note`/`change`/`from` in place; `null` clears a field.
+  - The action patches `note`/`change`/`from` in place. `null` clears a field.
 
-  - `newPath` renames without moving, and the entry keeps its array position; a `newPath` that collides with another entry is an error.
+  - `newPath` renames without moving, and the entry keeps its array position. A `newPath` that collides with another entry is an error.
 
 - `removeEntry`
 
-  - Deletes by exact path; a missing path is an error, not a no-op.
+  - Deletes by exact path. A missing path is an error, not a no-op.
 
 **file-tree entry actions**
 
@@ -130,11 +130,11 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel: a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
-  - Directories sort first at every level, then names in ascending codepoint order; directory names render with a trailing "/".
+  - Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing "/".
 
   - The order matches the agent render exactly, so the two surfaces agree by design.
 
@@ -150,7 +150,7 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 - In the editor
 
-  - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES`): read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
+  - `file-tree` is an atom leaf node (`ATOM_BLOCK_TYPES`). It is read-only, rendered by the same `FileTreeDocsBlock` through the shared atom node view.
 
   - There is no slash-menu entry. File trees enter through agent ops or existing content.
 
@@ -174,13 +174,13 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 > **L9 (Renamed):** A renamed entry draws the full old path, an ASCII ->, then the new leaf name — the whole diff story on one line.
 > **L10-11 (Marker padding):** Entries in this tree carry markers, so unmarked lines pad with two spaces and the guides stay aligned.
 
-- Ordering and guides match the doc render; top-level nodes render flat, with no `.` root line.
+- Ordering and guides match the doc render. Top-level nodes render flat, with no `.` root line.
 
-- Notes append as `  # note`; directory names keep the trailing "/".
+- Notes append as `  # note`. Directory names keep the trailing "/".
 
 - Change markers prefix the line: `+` added, `-` removed, `~` modified, `>` renamed.
 
-- The render is pure and pinned byte-for-byte by goldens; the obligations are Agent renderer.
+- The render is pure and pinned byte-for-byte by goldens. The obligations are Agent renderer.
 
 ## Theme
 

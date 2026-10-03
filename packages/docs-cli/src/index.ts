@@ -258,6 +258,7 @@ function usage(): string {
     "  docs-cli backlinks rescan [docsRoot]",
     "  docs-cli links check [docsRoot]",
     "  docs-cli audit [docsRoot]",
+    "  docs-cli style lint|sweep|report|stage [options]   (run `docs-cli style` for details)",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
     "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild] [--repo-url <url>] [--site-title <text>]",
@@ -494,6 +495,13 @@ async function main() {
       if (report.findings.length > 0) console.log("");
       console.log(`${report.errorCount} error(s), ${report.warningCount} warning(s)`);
       process.exitCode = report.errorCount > 0 ? 1 : 0;
+      return;
+    }
+
+    if (command === "style") {
+      // STE writing-style lint, sweep, and A-B report (packages/docs-style).
+      const { styleCommand } = await import("@codecaine-ai/docs-style/cli");
+      process.exitCode = await styleCommand(args);
       return;
     }
 
