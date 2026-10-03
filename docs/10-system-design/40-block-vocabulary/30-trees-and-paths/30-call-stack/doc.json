@@ -585,7 +585,7 @@
           }
         },
         {
-          "insert": ", and the whole state is checked against "
+          "insert": ". The whole state is checked against "
         },
         {
           "insert": "CallStackState",

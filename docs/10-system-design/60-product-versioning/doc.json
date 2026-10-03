@@ -172,7 +172,7 @@
           }
         },
         {
-          "insert": ". Nested external repositories retain the version owned by their own product."
+          "insert": ". Nested external repositories keep the version owned by their own product."
         }
       ],
       "children": []

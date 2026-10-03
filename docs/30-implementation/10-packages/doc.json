@@ -59,7 +59,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structural decisions for the workspace package cut — how the docs system's code divides into packages and why the walls sit where they do. Source: "
+          "insert": "Structural decisions for the workspace package cut: how the docs system's code divides into packages and why the walls sit where they do. Source: "
         },
         {
           "insert": "packages/",
@@ -119,7 +119,7 @@
           }
         },
         {
-          "insert": " — owns the contracts these packages implement; the package cut only decides where the implementations live."
+          "insert": " owns the contracts these packages implement. The package cut only decides where the implementations live."
         }
       ],
       "children": []
@@ -171,7 +171,7 @@
       },
       "text": [
         {
-          "insert": "Why: Directory organization follows dependency permission, not feature grouping — a feature-shaped cut was rejected because it lets one consumer's runtime and host policy leak into every other consumer of the shared code."
+          "insert": "Why: Directory organization follows dependency permission, not feature grouping. A feature-shaped cut was rejected because it lets one consumer's runtime and host policy leak into every other consumer of the shared code."
         }
       ],
       "children": []
@@ -202,7 +202,7 @@
           }
         },
         {
-          "insert": " — including every future package and external mount."
+          "insert": ", including every future package and external mount."
         }
       ],
       "children": []
@@ -398,7 +398,7 @@
           }
         },
         {
-          "insert": " — a new package must land inside exactly one wall, and a new dependency edge must point downward."
+          "insert": ". A new package must land inside exactly one wall, and a new dependency edge must point downward."
         }
       ],
       "children": []
@@ -424,7 +424,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Derived link analysis lives in its own Bun package with no HTTP surface and no binary, consumed by the server and the CLI as a library."
+          "insert": "Decision: Derived link analysis lives in its own Bun package with no HTTP surface and no binary. The server and the CLI consume it as a library."
         }
       ],
       "children": []
@@ -468,7 +468,7 @@
           }
         },
         {
-          "insert": " — future derived-state services follow the same HTTP-free library shape."
+          "insert": ". Future derived-state services follow the same HTTP-free library shape."
         }
       ],
       "children": []
@@ -525,7 +525,7 @@
       },
       "text": [
         {
-          "insert": "Why: Command-only use — render, search, migration, integrity — must be scriptable without starting the browser stack. Merging the CLI into the workbench was considered, since the CLI already depends on it and no runtime incompatibility separates them, and rejected to preserve a named executable surface whose install graph stays deliberate for command-only callers."
+          "insert": "Why: Command-only use (render, search, migration, integrity) must be scriptable without starting the browser stack. Merging the CLI into the workbench was considered, since the CLI already depends on it and no runtime incompatibility separates them, and rejected to preserve a named executable surface whose install graph stays deliberate for command-only callers."
         }
       ],
       "children": []
@@ -556,7 +556,7 @@
           }
         },
         {
-          "insert": " — future app-shaped capability loads lazily behind a command."
+          "insert": ". Future app-shaped capability loads lazily behind a command."
         }
       ],
       "children": []
@@ -582,7 +582,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The methodology manual, templates, and agent skill ship as a workspace package that contributes no runtime code; no running package imports it."
+          "insert": "Decision: The methodology manual, templates, and agent skill ship as a workspace package that contributes no runtime code. No running package imports it."
         }
       ],
       "children": []
@@ -617,7 +617,7 @@
           }
         },
         {
-          "insert": " — including any future content-only package."
+          "insert": ", including any future content-only package."
         }
       ],
       "children": []
@@ -661,7 +661,7 @@
           }
         },
         {
-          "insert": "; the docs system consumes them only through narrow model and host seams."
+          "insert": ". The docs system consumes them only through narrow model and host seams."
         }
       ],
       "children": []
@@ -850,7 +850,7 @@
           }
         },
         {
-          "insert": " — every future package joins the scoped suite."
+          "insert": ". Every future package joins the scoped suite."
         }
       ],
       "children": []
@@ -909,7 +909,7 @@
           }
         },
         {
-          "insert": " — the Bun/SQLite derived backlinks index, reference identity, and move fixup."
+          "insert": ": the Bun/SQLite derived backlinks index, reference identity, and move fixup."
         }
       ],
       "children": []
@@ -932,7 +932,7 @@
           }
         },
         {
-          "insert": " — the embeddable mutation authority for one docs tree."
+          "insert": ": the embeddable mutation authority for one docs tree."
         }
       ],
       "children": []
@@ -955,7 +955,7 @@
           }
         },
         {
-          "insert": " — the browser-pure React renderer and editor with injected data and embed seams."
+          "insert": ": the browser-pure React renderer and editor with injected data and embed seams."
         }
       ],
       "children": []
@@ -978,7 +978,7 @@
           }
         },
         {
-          "insert": " — the runnable composition host; a running installation is docs-model + docs-index + docs-server + docs-viewer composed by this package."
+          "insert": ": the runnable composition host; a running installation is docs-model + docs-index + docs-server + docs-viewer composed by this package."
         }
       ],
       "children": []
@@ -1001,7 +1001,7 @@
           }
         },
         {
-          "insert": " — the scriptable command dialect an agent interacting with an installation speaks."
+          "insert": ": the scriptable command dialect an agent interacting with an installation speaks."
         }
       ],
       "children": []
@@ -1024,7 +1024,7 @@
           }
         },
         {
-          "insert": " — the runtime-optional methodology, templates, and agent skill."
+          "insert": ": the runtime-optional methodology, templates, and agent skill."
         }
       ],
       "children": []
@@ -1047,7 +1047,7 @@
           }
         },
         {
-          "insert": " — the independently owned engines and studios mounted under "
+          "insert": ": the independently owned engines and studios mounted under "
         },
         {
           "insert": "external/",

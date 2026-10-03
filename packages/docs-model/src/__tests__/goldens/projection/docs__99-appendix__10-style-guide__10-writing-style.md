@@ -1,4 +1,4 @@
-Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus.
+Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The STE Profile adds stricter word and sentence limits to these rules.
 
 - Lead with the fact.
 

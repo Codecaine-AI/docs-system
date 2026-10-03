@@ -361,7 +361,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A document is a tree of blocks; rich text is attributed spans inside them."
+          "insert": "A document is a tree of blocks. Rich text is attributed spans inside them."
         }
       ],
       "children": []
@@ -372,7 +372,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Blocks carry typed state; annotations anchor to blocks and spans."
+          "insert": "Blocks carry typed state. Annotations anchor to blocks and spans."
         }
       ],
       "children": []

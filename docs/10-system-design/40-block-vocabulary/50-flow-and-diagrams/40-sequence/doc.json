@@ -125,7 +125,7 @@
           }
         },
         {
-          "insert": "); participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the "
+          "insert": "). Participants, messages, and style never enter the doc. Sequence diagrams are this block's whole territory, and every other diagram type belongs to the "
         },
         {
           "insert": "canvas",
@@ -148,7 +148,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -159,7 +159,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The family is the vocabulary's flagship non-default agent-adapter case: its three typed actions carry "
+          "insert": "The family is the vocabulary's flagship non-default agent-adapter case. Its three typed actions carry "
         },
         {
           "insert": "forward: { authority: \"sequence\" }",
@@ -441,7 +441,7 @@
           }
         },
         {
-          "insert": ". Schema truth stays in the sequence package; the lift strips only the envelope discriminant and prefixes the family name. Each rides a "
+          "insert": ". Schema truth stays in the sequence package. The lift strips only the envelope discriminant and prefixes the family name. Each rides a "
         },
         {
           "insert": "componentAction",
@@ -592,7 +592,7 @@
           }
         },
         {
-          "insert": "; a parse failure rejects the patch with per-line errors."
+          "insert": ". A parse failure rejects the patch with per-line errors."
         }
       ],
       "children": []
@@ -690,7 +690,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Replaces the title string; structure and style stay untouched."
+          "insert": "Replaces the title string. Structure and style stay untouched."
         }
       ],
       "children": []
@@ -714,7 +714,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Language essentials: numbers are participant identity, "
+          "insert": "Language essentials: numbers are participant identity. "
         },
         {
           "insert": "text=",
@@ -831,7 +831,7 @@
           }
         },
         {
-          "insert": " of a participant; activations are derived automatically. Styling lives in the document's separate style section, "
+          "insert": " of a participant. Activations are derived automatically. Styling lives in the document's separate style section, "
         },
         {
           "insert": "never",
@@ -884,7 +884,7 @@
           }
         },
         {
-          "insert": " slot; with no host wired, a dashed placeholder card names the source instead."
+          "insert": " slot. With no host wired, a dashed placeholder card names the source instead."
         }
       ],
       "children": []
@@ -968,7 +968,7 @@
           }
         },
         {
-          "insert": " prefix resolves against the doc bundle's own assets; anything else is docs-root-relative."
+          "insert": " prefix resolves against the doc bundle's own assets, and anything else is docs-root-relative."
         }
       ],
       "children": []
@@ -1095,7 +1095,7 @@
           }
         },
         {
-          "insert": "); the shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading."
+          "insert": "). The shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading."
         }
       ],
       "children": []
@@ -1170,7 +1170,7 @@
           }
         },
         {
-          "insert": " as the source; "
+          "insert": " as the source. "
         },
         {
           "insert": "title=\"…\"",
@@ -1425,7 +1425,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The one doc-side hook: the border color of the placeholder card and the embed frame, registered as the sequence "
+          "insert": "The one doc-side hook: the border color of the placeholder card and the embed frame. It is registered as the sequence "
         },
         {
           "insert": "border",
@@ -1434,7 +1434,7 @@
           }
         },
         {
-          "insert": " token and falling back to "
+          "insert": " token and falls back to "
         },
         {
           "insert": "--border",
@@ -1537,7 +1537,7 @@
           }
         },
         {
-          "insert": ") apply first; per-element groups override them per field."
+          "insert": ") apply first. Per-element groups override them per field."
         }
       ],
       "children": []
@@ -1567,7 +1567,7 @@
           }
         },
         {
-          "insert": " is the only way style changes; styling never rides the program."
+          "insert": " is the only way style changes, and styling never rides the program."
         }
       ],
       "children": []
@@ -1603,7 +1603,7 @@
           }
         },
         {
-          "insert": ": the sequence engine is the external authority, and the block's actions forward to it instead of patching props locally. Doc-side props ("
+          "insert": ": the sequence engine is the external authority. The block's actions forward to it instead of patching props locally. Doc-side props ("
         },
         {
           "insert": "src",
@@ -1630,7 +1630,7 @@
           }
         },
         {
-          "insert": ") still edit through the generic ops; diagram content never does."
+          "insert": ") still edit through the generic ops. Diagram content never does."
         }
       ],
       "children": []
@@ -1654,7 +1654,7 @@
       },
       "text": [
         {
-          "insert": "The dispatcher validates params against the lifted TypeBox schema, then refuses to apply the op locally: a forwarded action \"cannot be applied as a doc op\" ("
+          "insert": "The dispatcher validates params against the lifted TypeBox schema. It then refuses to apply the op locally: a forwarded action \"cannot be applied as a doc op\" ("
         },
         {
           "insert": "doc-ops.ts",
@@ -1856,7 +1856,7 @@
           }
         },
         {
-          "insert": "); boot checks reject any action forwarding anywhere else."
+          "insert": "). Boot checks reject any action forwarding anywhere else."
         }
       ],
       "children": []
@@ -1880,7 +1880,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A sequence-specialist processing agent handles the type's annotations: its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above."
+          "insert": "A sequence-specialist processing agent handles the type's annotations. Its context loader assembles the sequence source instead of the doc render alone, and its writeback path is the forwarding above."
         }
       ],
       "children": []

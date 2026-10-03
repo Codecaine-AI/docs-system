@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "annotations": [
+    {
+      "id": "81dfd369-8669-4050-bd97-3e5aa8dc3d5f",
+      "target": {
+        "kind": "block",
+        "blockId": "ste-052-table",
+        "fingerprint": "811c9dc5"
+      },
+      "body": "Open decisions. Reply here with your picks, or 'all recommended'.",
+      "intent": "note",
+      "author": "Claude",
+      "status": "open",
+      "createdAt": "2026-10-02T13:49:37.142Z"
+    }
+  ]
+}

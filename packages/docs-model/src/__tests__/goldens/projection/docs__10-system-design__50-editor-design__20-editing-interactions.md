@@ -16,7 +16,7 @@ Editing is the default human surface: every document is always editable, with no
 
 - **In-Place Editing**
 
-  - Custom node views edit an object inside its rendered surface; types without one remain read-only atoms edited through typed actions.
+  - Custom node views edit an object inside its rendered surface. Types without one remain read-only atoms edited through typed actions.
 
 ## The Save Loop
 
@@ -24,7 +24,7 @@ The editor flushes on its own. A flush turns the current editor state into a typ
 
 - **Flush triggers**
 
-  - About one second of idle flushes, with a five-second ceiling under continuous typing. `Cmd/Ctrl+S`, focus loss, tab hiding, mode changes, navigating to another document, and closing the editor request the same flush — every trigger reaches the same diff and the same batch path.
+  - About one second of idle flushes, with a five-second ceiling under continuous typing. `Cmd/Ctrl+S`, focus loss, tab hiding, mode changes, going to another document, and closing the editor request the same flush — every trigger reaches the same diff and the same batch path.
 
 - **Reconciliation**
 
@@ -32,7 +32,7 @@ The editor flushes on its own. A flush turns the current editor state into a typ
 
 - **Failure keeps the draft**
 
-  - A stale-hash or foreign-lock refusal pauses autosave without discarding anything: the draft stays intact in the editor, and automatic flushes hold while the conflict is known. The header indicator is the whole save UI — `Not saved` while work is dirty or refused (with the conflict named), `Saving...` in flight, `Saved` at rest.
+  - A stale-hash or foreign-lock refusal pauses autosave without discarding anything: the draft stays intact in the editor, and automatic flushes hold while the conflict is known. The header indicator is the whole save UI: `Not saved` while work is dirty or refused (with the conflict named), `Saving...` in flight, `Saved` at rest.
 
 - **Remote changes**
 

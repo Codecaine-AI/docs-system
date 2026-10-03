@@ -1,4 +1,4 @@
-Every block type declares a closed schema over its `props` — the type's whole state, and the only state it may hold. This page states what a schema owes and what a good one looks like.
+Every block type declares a closed schema over its `props`: the type's whole state, and the only state it may hold. This page states what a schema owes and what a good one looks like.
 
 ## Structure
 
@@ -35,7 +35,7 @@ export const structuredTableState: BlockStateDefinition = {
 
 - **Optional means additive**
 
-  - New capabilities land as optional fields with safe defaults; documents written before the field existed keep validating unchanged.
+  - New capabilities land as optional fields with safe defaults, and documents written before the field existed keep validating unchanged.
 
 - **One schema, three jobs**
 
@@ -53,4 +53,4 @@ export const structuredTableState: BlockStateDefinition = {
 
 - **Agents read schemas, not code**
 
-  - An agent learns exactly what state is legal from discovery — no source archaeology, no guessing.
+  - An agent learns exactly what state is legal from discovery: no source archaeology, no guessing.

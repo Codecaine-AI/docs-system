@@ -172,7 +172,32 @@
       "props": {},
       "text": [
         {
-          "insert": "A Content Security Policy precedes author markup. It blocks fetch, external scripts, external stylesheets, remote images, nested frames, objects, forms, and base URL changes. Inline CSS and data images, fonts, and media are permitted."
+          "insert": "A Content Security Policy precedes author markup."
+        }
+      ],
+      "children": [
+        "html-contract-9-r0",
+        "html-contract-9-r1"
+      ]
+    },
+    "html-contract-9-r0": {
+      "id": "html-contract-9-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Content Security Policy blocks fetch, external scripts, external stylesheets, remote images, nested frames, objects, forms, and base URL changes."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-9-r1": {
+      "id": "html-contract-9-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline CSS and data images, fonts, and media are permitted."
         }
       ],
       "children": []
@@ -194,7 +219,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds; closing returns over 220 milliseconds. Reduced-motion preferences disable both animations."
+          "insert": "The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds. Closing returns over 220 milliseconds. Reduced-motion preferences disable both animations."
         }
       ],
       "children": []
@@ -229,7 +254,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The agent projection labels the artifact with its title and includes the raw source in an html-embed fenced listing. Projection is for inspection; it is not a lossless interchange format for every prop. Canonical doc.json retains all props."
+          "insert": "The agent projection labels the artifact with its title and includes the raw source in an html-embed fenced listing. Projection is for inspection. It is not a lossless interchange format for every prop. Canonical doc.json keeps all props."
         }
       ],
       "children": []
@@ -240,7 +265,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The migration importer recognizes an explicit Html component with title, optional height, optional caption, and allowScripts=\"true\" attributes. Ordinary fenced html listings remain code examples and are never executed implicitly."
+          "insert": "The migration importer recognizes an explicit Html component with title, optional height, optional caption, and allowScripts=\"true\" attributes. Ordinary fenced html listings remain code examples and are never run implicitly."
         }
       ],
       "children": []

@@ -8,7 +8,7 @@ Translation layer owns how canonical state becomes each reader's interaction sur
 
 ### Why
 
-- Humans and agents consume information differently; each needs a surface optimized for how it reads and edits.
+- Humans and agents consume information differently. Each needs a surface optimized for how it reads and edits.
 
 - Neither reader is primary. When their needs diverge, canonical state carries the structure both renderers need so neither surface degrades.
 
@@ -22,7 +22,7 @@ Block design owns this contract and the add-a-type path.
 
 ### Why
 
-- Closed schemas protect the shared tree: a block cannot hold state its type did not declare, so corruption is refused at the door.
+- Closed schemas protect the shared tree. A block cannot hold state its type did not declare, so corruption is refused at the door.
 
 - State, actions, renderers, and theme travel together, so adding a type touches one bundle per home instead of scattered files.
 
@@ -42,7 +42,7 @@ There is no arbitrary React escape hatch. Unsupported interaction requires a del
 
 ## Make It Your Own
 
-Every block type ships its style capabilities as theme knobs; components do not hardcode looks.
+Every block type ships its style capabilities as theme knobs. Components do not hardcode looks.
 
 Style adjustments auto-save to one shared Global theme that every project renders. Hand-edited themes use a closed token vocabulary, and unknown keys are ignored.
 
@@ -58,11 +58,11 @@ Customization is bounded: system UI remains fixed so every theme feels like the 
 
 Each surface uses one ink and one accent. Interaction reveals the rest, and boxes appear only when a step needs clarification.
 
-Restraint removes competing encodings such as per-kind colors, icons, badges, and decorative framing; it does not merely mute them.
+Restraint removes competing encodings such as per-kind colors, icons, badges, and decorative framing. It does not merely mute them.
 
 ### Why
 
-- The intended surface is a virtual version of pen-and-paper thinking. Fewer competing colors and markers keep too much from happening at once.
+- The intended surface is a virtual version of pen-and-paper thinking. Fewer competing colors and markers keep too much from occurring at once.
 
 ## Stable Identity Is a Contract
 

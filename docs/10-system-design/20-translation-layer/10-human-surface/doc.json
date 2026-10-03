@@ -92,7 +92,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The page title is furniture derived from the doc's name; the sidebar walks the numbered tree in reading order."
+          "insert": "The page title is furniture derived from the doc's name. The sidebar walks the numbered tree in reading order."
         }
       ],
       "children": []
@@ -162,7 +162,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No edit touches the file. Every change the surface makes lands as a typed operation against the canonical state — the "
+          "insert": "No edit touches the file. Every change the surface makes lands as a typed operation against the canonical state. The "
         },
         {
           "insert": "mutation model",
@@ -198,7 +198,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The surface is themable through an open token contract — colors, fonts, spacing — and the theme evolves live while editing."
+          "insert": "The surface is themable through an open token contract: colors, fonts, spacing. The theme evolves live while editing."
         }
       ],
       "children": []
@@ -249,7 +249,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Rich components and layout carry more than text alone; the reading surface uses them everywhere it can."
+          "insert": "Rich components and layout carry more than text alone. The reading surface uses them everywhere it can."
         }
       ],
       "children": []
@@ -277,7 +277,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A human never edits bytes; the surface turns intent into typed operations."
+          "insert": "A human never edits bytes. The surface turns intent into typed operations."
         }
       ],
       "children": []

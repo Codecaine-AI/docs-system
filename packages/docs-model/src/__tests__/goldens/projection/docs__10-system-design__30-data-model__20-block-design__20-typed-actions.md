@@ -23,7 +23,7 @@ export const addEntry = defineComponentAction({
 
 - **Keyed and discoverable**
 
-  - The `<type>.<verb>` key plus a params schema is the whole public surface; discovery lists both.
+  - The `<type>.<verb>` key plus a params schema is the whole public surface. Discovery lists both.
 
 - **Apply is pure**
 

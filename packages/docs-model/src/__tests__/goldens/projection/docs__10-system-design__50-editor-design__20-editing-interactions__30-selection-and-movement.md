@@ -16,7 +16,7 @@ Selection and movement treat top-level blocks as a contiguous structural run. Dr
 
 - **The band is contiguous and top-level**
 
-  - The first and last top-level blocks touched by the rectangle bound the range; every block between them joins the selection.
+  - The first and last top-level blocks touched by the rectangle bound the range, and every block between them joins the selection.
 
   - The rectangle and selected blocks use borderless soft fill. The selection has no hard ring.
 
@@ -30,7 +30,7 @@ Selection and movement treat top-level blocks as a contiguous structural run. Dr
 
 - **The visual band and the editor selection are one selection**
 
-  - Every band update writes a real editor selection over the same run; mouse release returns focus to the editor.
+  - Every band update writes a real editor selection over the same run. Mouse release returns focus to the editor.
 
   - Copy and cut serialize complete blocks with their types, order, properties, and children intact.
 
@@ -72,4 +72,4 @@ Selection and movement treat top-level blocks as a contiguous structural run. Dr
 
 - **Top-level slices preserve document shape**
 
-  - Movement and paste retain block boundaries instead of fitting a copied run into another block's child slot.
+  - Movement and paste keep block boundaries instead of fitting a copied run into another block's child slot.

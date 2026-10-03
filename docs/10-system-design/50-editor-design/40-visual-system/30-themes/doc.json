@@ -201,7 +201,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Component files are sparse; an absent value falls through to the base theme and semantic contract."
+          "insert": "Component files are sparse. An absent value falls through to the base theme and semantic contract."
         }
       ],
       "children": []
@@ -236,7 +236,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme resolves over a base chain: the folder's values apply over its named built-in base, and an unknown base ends the chain rather than failing the theme."
+          "insert": "A theme resolves over a base chain. The folder's values apply over its named built-in base, and an unknown base ends the chain rather than failing the theme."
         }
       ],
       "children": []
@@ -287,7 +287,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every theme resolves to a light and a dark value set; a single scalar value applies to both modes."
+          "insert": "Every theme resolves to a light and a dark value set. A single scalar value applies to both modes."
         }
       ],
       "children": []
@@ -309,7 +309,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Theme settings also travel as an exported file; import validates and normalizes the payload, and an invalid file leaves the active state unchanged."
+          "insert": "Theme settings also travel as an exported file. Import validates and normalizes the payload, and an invalid file leaves the active state unchanged."
         }
       ],
       "children": []
@@ -701,7 +701,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look."
+          "insert": "Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change. Selecting Default restores the saved look."
         }
       ],
       "children": []
@@ -734,7 +734,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The repository copy is the durable authority: browser-local state is a cache and a fallback, and never overrides settings loaded from the repository."
+          "insert": "The repository copy is the durable authority. Browser-local state is a cache and a fallback, and never overrides settings loaded from the repository."
         }
       ],
       "children": []
@@ -780,7 +780,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Registered colors, typography, global radius, document layout values, and component tokens may follow a theme. System UI structure stays fixed: unregistered widths, row geometry, visibility breakpoints, and interaction framing do not become theme values. The fixed structure keeps every theme recognizable as the same tool."
+          "insert": "Registered colors, typography, global radius, document layout values, and component tokens may follow a theme. System UI structure stays fixed. Unregistered widths, row geometry, visibility breakpoints, and interaction framing do not become theme values. The fixed structure keeps every theme recognizable as the same tool."
         }
       ],
       "children": []
@@ -820,7 +820,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A typo or unsupported key cannot escape the closed vocabulary and alter an arbitrary application property."
+          "insert": "A typo or unsupported key cannot escape the closed vocabulary and change an arbitrary application property."
         }
       ],
       "children": []

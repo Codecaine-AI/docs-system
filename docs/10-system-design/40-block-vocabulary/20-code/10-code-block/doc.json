@@ -107,7 +107,7 @@
           }
         },
         {
-          "insert": ". The source lives in the block's delta text; the language tag and structured line annotations live in "
+          "insert": ". The source lives in the block's delta text. The language tag and structured line annotations live in "
         },
         {
           "insert": "props",
@@ -138,7 +138,7 @@
       "props": {},
       "text": [
         {
-          "insert": "In the documentation doctrine the type is the source-evidence surface: "
+          "insert": "In the documentation doctrine the type is the source-evidence surface. "
         },
         {
           "insert": "state-shape",
@@ -953,7 +953,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A sticky 3rem column that stays put under horizontal scroll; numbers render at 55% strength at rest."
+          "insert": "A sticky 3rem column that stays put under horizontal scroll. Numbers render at 55% strength at rest."
         }
       ],
       "children": []
@@ -1046,7 +1046,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes stack from the top with the first aligned to line 1, and a faint hairline at half the internal code rule's opacity splits consecutive notes."
+          "insert": "Notes stack from the top with the first aligned to line 1. A faint hairline at half the internal code rule's opacity splits consecutive notes."
         }
       ],
       "children": []
@@ -1081,7 +1081,7 @@
       "props": {},
       "text": [
         {
-          "insert": "At rest an annotated range shows only the 2px accent bar plus accent line numbers; the tint appears when its pair is lit."
+          "insert": "At rest, an annotated range shows only the 2px accent bar plus accent line numbers. The tint appears when its pair is lit."
         }
       ],
       "children": []
@@ -1157,7 +1157,7 @@
           }
         },
         {
-          "insert": " on its content node; wrapping would break every line-geometry computation."
+          "insert": " on its content node. Wrapping would break every line-geometry computation."
         }
       ],
       "children": []
@@ -1279,7 +1279,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Clicking a note sticky-toggles its pair and scrolls the range's first line into view; clicks in the code just place the cursor."
+          "insert": "Clicking a note sticky-toggles its pair and scrolls the range's first line into view. Clicks in the code just place the cursor."
         }
       ],
       "children": []
@@ -1303,7 +1303,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Code Block",
@@ -1350,7 +1350,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Input rule: the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag."
+          "insert": "The input rule is that the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag."
         }
       ],
       "children": []
@@ -1505,7 +1505,7 @@
       "props": {},
       "text": [
         {
-          "insert": "JSON pretty-printing is display-only; the stored text is never mutated."
+          "insert": "JSON pretty-printing is display-only. The stored text is never mutated."
         }
       ],
       "children": [
@@ -1609,7 +1609,7 @@
           }
         },
         {
-          "insert": " key; the label rides in parentheses and drops cleanly when absent."
+          "insert": " key. The label rides in parentheses and drops cleanly when absent."
         }
       ],
       "children": []
@@ -1658,7 +1658,7 @@
           }
         },
         {
-          "insert": " are 1-indexed against the block text at the time you write them; re-check them after editing the source."
+          "insert": " are 1-indexed against the block text at the time you write them. Re-check them after editing the source."
         }
       ],
       "children": []
@@ -1669,7 +1669,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The house style for documenting a system: a "
+          "insert": "The house style for documenting a system is a "
         },
         {
           "insert": "state-shape",
@@ -1971,7 +1971,7 @@
           }
         },
         {
-          "insert": " 1; every other key falls through to the fixed fallbacks in "
+          "insert": " 1. Every other key falls through to the fixed fallbacks in "
         },
         {
           "insert": "packages/docs-viewer/src/components/code/classes.ts",
@@ -2193,7 +2193,7 @@
           }
         },
         {
-          "insert": ") resolves the action from the registry, validates its params, runs "
+          "insert": ") resolves the action from the registry and validates its params. It runs "
         },
         {
           "insert": "apply",
@@ -2202,7 +2202,7 @@
           }
         },
         {
-          "insert": " against the target block, and executes the returned "
+          "insert": " against the target block, and runs the returned "
         },
         {
           "insert": "{ annotations }",

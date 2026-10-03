@@ -1,10 +1,10 @@
-Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations — so nothing pasted can bypass validation.
+Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations, so nothing pasted can bypass validation.
 
 ## The Rule
 
 - **Copy carries structure**
 
-  - A block selection ships a closed, top-level slice — whole blocks, never fragments of a neighbor.
+  - A block selection ships a closed, top-level slice: whole blocks, never fragments of a neighbor.
 
   - Block props, atom text, and references travel as typed JSON payloads in the clipboard markup (`data-block-props`, `data-block-text`, the reference payload), never as lossy HTML alone.
 
@@ -18,11 +18,11 @@ Copy and paste move structure, not strings. The clipboard carries typed block pa
 
 - **The copy is a new block**
 
-  - Pasted blocks mint fresh ids; the original keeps its identity, so anchors and annotations stay with the source.
+  - Pasted blocks mint fresh ids. The original keeps its identity, so anchors and annotations stay with the source.
 
 - **External content converts**
 
-  - HTML from outside lands as separate typed blocks — headings, paragraphs, list items — not one merged blob.
+  - HTML from outside lands as separate typed blocks (headings, paragraphs, list items), not one merged blob.
 
 - **Nothing bypasses the gate**
 
@@ -34,7 +34,7 @@ Copy and paste move structure, not strings. The clipboard carries typed block pa
 
 - **Structure is the point**
 
-  - A paste that flattened blocks would make the human surface a text editor with pictures; structure surviving the clipboard is what keeps both surfaces honest.
+  - A paste that flattened blocks would make the human surface a text editor with pictures. Structure surviving the clipboard is what keeps both surfaces honest.
 
 - **The clipboard is untrusted input**
 

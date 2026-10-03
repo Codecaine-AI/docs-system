@@ -17,7 +17,7 @@ Typography assigns font families by reading role: body, heading, code, and numer
 
 ## The Rule
 
-A font follows its reading role across every surface; components do not choose local font families.
+A font follows its reading role across every surface. Components do not choose local font families.
 
 - **Body**
 
@@ -41,7 +41,7 @@ The style rail exposes all four family roles plus font size, line height, and le
 
 Body and headings default to System Sans, which resolves to `ui-sans-serif, system-ui, sans-serif` and is SF Pro on macOS. The System Serif option resolves to `ui-serif, Georgia, "Times New Roman", serif`, which is New York on macOS. Mono resolves to `ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace`. Numeric emits no separate family while it follows body.
 
-> **Boundary: Fonts resolve from the host** — A theme names font families; a stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no `@font-face` rules.
+> **Boundary: Fonts resolve from the host** — A theme names font families. A stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no `@font-face` rules.
 
 ## Reference Book
 

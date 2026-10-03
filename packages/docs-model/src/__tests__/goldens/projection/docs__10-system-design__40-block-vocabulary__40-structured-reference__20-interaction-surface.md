@@ -1,6 +1,6 @@
 The interaction-surface component owns one block type, `interaction-surface`: the operation list of the block vocabulary. A surface lists the named operations by which a state or system is changed, queried, or observed, operation signatures on a state, not HTTP endpoints. When documenting agentic systems it is one of the three types that carry the whole model: a state-shape block holds the state, shape and example instance side by side, the interaction-surface lists the operations on it, and code blocks hold the source evidence. State first, then operations.
 
-When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
+When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 Descriptions should add non-obvious information about operations, parameters, and returned fields. Omit text that only expands a name, repeats a type, or says an ID is an identifier. Keep constraints, defaults, side effects, failure behavior, lifecycle rules, and other facts the signature does not express. Follow the State Shape description rule. Do not invent details to fill missing descriptions.
 
@@ -119,7 +119,7 @@ operations: Operation[]  # Operation signatures, in document order.
 }
 ```
 
-No text (`carriesText: false`), every fact lives in the two props above. The schema is closed (`additionalProperties: false` at every level); definitions live in packages/docs-model/src/components/interaction-surface/state.ts.
+No text (`carriesText: false`), every fact lives in the two props above. The schema is closed (`additionalProperties: false` at every level). Definitions live in packages/docs-model/src/components/interaction-surface/state.ts.
 
 - `params` are the shared recursive `Field` node, the same node state-shape fields use (packages/docs-model/src/components/shared/field.ts): a name plus optional `type`, `required`, `description`, and nested `fields`. `required: false` means optional; omitted or `true` reads as required.
 
@@ -261,7 +261,7 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
   - One link group per operation, line numbering is per-operation, so keys would collide across operations.
 
-  - Hovering or focusing a note lights the param's signature lines and vice versa; a click pins, Escape clears pins.
+  - Hovering or focusing a note lights the param's signature lines and vice versa. A click pins, Escape clears pins.
 
 - Descriptions
 
@@ -271,13 +271,13 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
   - Why: the two blocks share one ledger reading pattern, so a reader learns the underline cue once and every field row stays one line tall.
 
-In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content.
+In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`). The node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content.
 
 ## Agent Renderer
 
-The markdown render: an optional `**<title>**` bold line, then a bare fence with one signature line per operation, in document order.
+The markdown render is an optional `**<title>**` bold line, then a bare fence with one signature line per operation, in document order.
 
-- The signature line: `[kind] name(param: type, optional?: type) -> returns  # description`, the `[kind]` prefix only for query and event, the `-> returns` and `# description` tails only when present.
+- The signature line is `[kind] name(param: type, optional?: type) -> returns  # description`, the `[kind]` prefix only for query and event, the `-> returns` and `# description` tails only when present.
 
 - Described or nested parameters add indented field lines beneath the signature. A returnShape adds a named Returns section, recursive fields, and the supplied example. Full operation names remain searchable.
 
@@ -318,7 +318,7 @@ Edits arrive as generic doc ops. The three typed actions ride `componentAction`,
 
 ## Operation Kinds
 
-Action changes state or requests work. Query reads state without changing it. Event describes notifications or observation. These are presentation categories, not new execution mechanisms. A subscription can return an unsubscribe function; that return value is different from the event payload delivered to its callback.
+Action changes state or requests work. Query reads state without changing it. Event describes notifications or observation. These are presentation categories, not new execution mechanisms. A subscription can return an unsubscribe function. That return value is different from the event payload delivered to its callback.
 
 The query example uses the real DocsStore.docGet operation from packages/docs-server/src/store.ts and agent-tools.ts. Its success result includes the document, revision hash, Markdown projection, and bundle path. Failure returns ok: false, status, and detail. The example below is a successful read of a minimal document.
 
@@ -430,7 +430,7 @@ DocsChangeEvent is the callback payload, not the subscription return object. The
 
 ## Approved Design and Reuse
 
-Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package retains the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices.
+Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package keeps the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices.
 
 Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name, so neither takes space on screen.
 

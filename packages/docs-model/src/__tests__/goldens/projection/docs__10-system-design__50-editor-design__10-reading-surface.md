@@ -24,11 +24,11 @@ The workbench's stock defaults define the document frame below. Every project re
 
     - A lane is a maximum, so a block whose content is narrower than its lane shrinks to that content.
 
-  - Secondary panes are layout siblings. Opening one pushes and reflows the document; it never covers content.
+  - Secondary panes are layout siblings. Opening one pushes and reflows the document, and it never covers content.
 
 - **Page title**
 
-  - The title is navigation furniture derived from the bundle name: the numeric prefix is removed, hyphens become spaces, Title Case is applied, and domain acronyms are uppercased.
+  - The title is navigation furniture derived from the bundle name. The numeric prefix is removed, hyphens become spaces, Title Case is applied, and domain acronyms are uppercased.
 
   - It sits one visual step above a block H1.
 
@@ -80,7 +80,7 @@ The dialog shows progress and offers download links after completion. Cancel sto
 
   - A pushed layout keeps the document visible while a secondary pane is open.
 
-  - A reference peek lets the reader inspect a target without abandoning the source; explicit gestures still choose full navigation.
+  - A reference peek lets the reader inspect a target without abandoning the source. Explicit gestures still choose full navigation.
 
 - **Navigation identity stays synchronized**
 

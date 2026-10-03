@@ -560,7 +560,7 @@
       },
       "text": [
         {
-          "insert": "launchd starts the docs service with a fixed environment, and the background installer rewrites that environment on every install."
+          "insert": "launchd starts the docs service with a fixed environment. The background installer rewrites that environment on every install."
         }
       ],
       "children": []

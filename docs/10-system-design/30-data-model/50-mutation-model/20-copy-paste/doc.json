@@ -27,7 +27,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations — so nothing pasted can bypass validation."
+          "insert": "Copy and paste move structure, not strings. The clipboard carries typed block payloads, and a paste becomes ordinary typed operations, so nothing pasted can bypass validation."
         }
       ],
       "children": []
@@ -68,7 +68,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A block selection ships a closed, top-level slice — whole blocks, never fragments of a neighbor."
+          "insert": "A block selection ships a closed, top-level slice: whole blocks, never fragments of a neighbor."
         }
       ],
       "children": []
@@ -175,7 +175,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Pasted blocks mint fresh ids; the original keeps its identity, so anchors and annotations stay with the source."
+          "insert": "Pasted blocks mint fresh ids. The original keeps its identity, so anchors and annotations stay with the source."
         }
       ],
       "children": []
@@ -202,7 +202,7 @@
       "props": {},
       "text": [
         {
-          "insert": "HTML from outside lands as separate typed blocks — headings, paragraphs, list items — not one merged blob."
+          "insert": "HTML from outside lands as separate typed blocks (headings, paragraphs, list items), not one merged blob."
         }
       ],
       "children": []
@@ -281,7 +281,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A paste that flattened blocks would make the human surface a text editor with pictures; structure surviving the clipboard is what keeps both surfaces honest."
+          "insert": "A paste that flattened blocks would make the human surface a text editor with pictures. Structure surviving the clipboard is what keeps both surfaces honest."
         }
       ],
       "children": []

@@ -14,7 +14,7 @@ No text (`carriesText: false`), which makes it the simplest block in the vocabul
 
 ## Doc Renderer
 
-Slash menu: **Divider** (aliases: hr, separator, `---`). Input rule: typing `---` converts the moment the third hyphen lands, with no trailing space, matching Notion. It is one of the non-editable atom leaf nodes (`ATOM_BLOCK_TYPES` in the viewer's editor schema), so the cursor steps over it, never into it.
+The slash menu lists **Divider** (aliases: hr, separator, `---`). Input rule: typing `---` converts the moment the third hyphen lands, with no trailing space, matching Notion. The divider is one of the non-editable atom leaf nodes (`ATOM_BLOCK_TYPES` in the viewer's editor schema), so the cursor steps over it, never into it.
 
 ## Agent Renderer
 
@@ -22,7 +22,7 @@ A `---` line.
 
 ## Agent Notes
 
-- Insert with a plain `insertBlock`; nothing to configure, nothing to act on.
+- Insert with a plain `insertBlock`. You have nothing to configure, nothing to act on.
 
 ## Theme
 

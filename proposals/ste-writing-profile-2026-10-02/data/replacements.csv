@@ -1,0 +1,221 @@
+unapproved,approved,autofix_safe,category,sources,note
+in order to,to,yes,wordy-phrase,MS;G;RH;GL;PL;MSV,Google allows it when it adds clarity; rare in docs
+in order that,so that,yes,wordy-phrase,PL,PL dirty-dozen entry
+as a means to,to,yes,wordy-phrase,MS;MSV;PL,
+due to the fact that,because,yes,wordy-phrase,MSV;PL,
+because of the fact that,because,yes,wordy-phrase,MSV,
+based on the fact that,because,yes,wordy-phrase,MSV,
+despite the fact that,although,yes,wordy-phrase,MSV,
+in the event that,if,yes,wordy-phrase,MSV;PL,
+in the event of,if,no,wordy-phrase,PL,needs a clause after 'if'; rewrite
+prior to,before,yes,wordy-phrase,MSV;PL,
+subsequent to,after,yes,wordy-phrase,MSV,
+at this point in time,now,yes,wordy-phrase,MSV;PL,MSV suggests 'at this point'; timeless docs often delete
+at the present time,now,yes,wordy-phrase,MSV;PL,
+has the ability to,can,yes,wordy-phrase,MSV;GL,
+is able to,can,yes,wordy-phrase,GL;OSTE,GL Ability rule; STE: able -> can
+are able to,can,yes,wordy-phrase,GL;OSTE,
+has the capacity to,can,yes,wordy-phrase,MSV,
+a large number of,many,yes,wordy-phrase,MSV,
+a number of,many|some|<exact count>,no,wordy-phrase,MSV;PL;GL;WG,GL: give the number or delete
+a majority of,most,yes,wordy-phrase,MSV,
+with regard to,about,yes,wordy-phrase,MSV;PL,MSV suggests 'regarding'; STE prefers 'about'
+in regard to,about,yes,wordy-phrase,PL,
+pertaining to,about,yes,wordy-phrase,MSV;PL,
+whether or not,whether,no,wordy-phrase,MSV,keep when it means 'regardless of whether'
+until such time as,until,yes,wordy-phrase,MSV;PL,
+for the duration of,during,yes,wordy-phrase,MSV,
+take into account,consider,yes,wordy-phrase,MSV,inflect: takes into account -> considers
+make use of,use,yes,wordy-phrase,MS;MSV,inflect
+in addition,also,no,wordy-phrase,MS;MSV;PL,position of 'also' changes; rewrite
+as well as,and,no,wordy-phrase,GL;RH,can change grouping in lists
+along the lines of,similar to,yes,wordy-phrase,MSV,
+at all times,always,yes,wordy-phrase,MSV,
+in many cases,often,yes,wordy-phrase,MSV,
+in most cases,usually,yes,wordy-phrase,MSV,
+in some cases,sometimes,yes,wordy-phrase,MSV,
+sufficient number of,enough,yes,wordy-phrase,MSV,STE9 approves SUFFICIENT and rejects 'enough'; pick one per profile
+successfully complete,complete,yes,wordy-phrase,MSV;PL,
+conduct a review of,review,yes,wordy-phrase,MSV,
+perform an assessment of,assess,yes,wordy-phrase,MSV,
+establish connectivity,connect,yes,wordy-phrase,MS;MSV,
+in lieu of,instead of,yes,wordy-phrase,MSV;PL,
+with the exception of,except for,yes,wordy-phrase,MSV;PL,
+has a requirement for,needs,yes,wordy-phrase,PL,
+is applicable to,applies to,yes,wordy-phrase,PL,
+in accordance with,by|per|under|following,no,wordy-phrase,PL,PL dirty dozen; pick by context
+as per,per|as,no,wordy-phrase,MSV;G,Google: use 'per' only for rates
+on a regular basis,regularly|<interval>,no,wordy-phrase,PL,state the interval
+in the process of,(delete),no,wordy-phrase,PL,
+there is|there are,(rewrite),no,wordy-phrase,PL;WG,write-good ThereIs rule; rewrite with a real subject
+plays a key role in,is essential to|(rewrite),no,wordy-phrase,MSV,
+in terms of,(rewrite),no,wordy-phrase,WG,
+utilize,use,yes,simple-word,MS;G;RH;PL;OSTE;STE9,inflect: utilizes/utilized/utilizing
+utilization,use|usage,no,simple-word,G;PL;RH,Google: OK for resource quantity (CPU utilization)
+leverage,use,pos,simple-word,MS;G;RH,"verb only; Google also offers 'build on', 'take advantage of'"
+facilitate,help,yes,simple-word,PL;RH;OSTE;STE9,inflect; 'make X easier' sometimes reads better
+commence,start,yes,simple-word,PL;RH;OSTE;STE9,
+initiate,start,yes,simple-word,PL;RH;OSTE;STE9,
+terminate,stop,yes,simple-word,G;RH;PL;OSTE;STE9,G: avoid as synonym for stop except CLI-syntax contexts
+cease,stop,yes,simple-word,RH;OSTE;STE9,
+begin,start,yes,simple-word,OSTE;STE9,STE9 lists begin as unapproved -> START
+attempt,try,pos,simple-word,PL;RH;OSTE;STE9,verb only; noun 'an attempt' needs rewrite
+obtain,get,yes,simple-word,OSTE;STE9,
+acquire,get,no,simple-word,RH;OSTE;STE9,'acquire a lock' is a technical verb; do not swap
+additional,more,no,simple-word,PL;WG;OSTE;STE9,'an additional X' -> 'another X'; article changes
+approximately,about,yes,simple-word,RH;PL,
+assist,help,yes,simple-word,PL;OSTE;STE9,
+assistance,help,yes,simple-word,PL;RH,
+modify,change,yes,simple-word,PL;RH;OSTE;STE9,
+alter,change,yes,simple-word,OSTE;STE9,'ALTER TABLE' in code spans is excluded by scope
+numerous,many,yes,simple-word,PL;RH,
+demonstrate,show,yes,simple-word,PL;RH,
+indicate,show,pos,simple-word,PL;OSTE;STE9,verb only
+display,show,pos,simple-word,OSTE;STE9,verb only; STE9 approves DISPLAY (n)
+exhibit,show,yes,simple-word,PL,
+determine,find|find out|decide,no,simple-word,PL;OSTE;STE9,meaning splits: calculate vs decide
+eliminate,remove,no,simple-word,MS;PL;OSTE;STE9,sometimes means prevent/stop
+encounter,get|find|see,no,simple-word,PL;OSTE;STE9,'If you encounter an error' -> 'If an error occurs'
+ensure,make sure,yes,simple-word,PL;OSTE;STE9,MS keeps 'ensure'; STE requires 'make sure'
+verify,make sure|check,no,simple-word,OSTE;STE9,object grammar changes; 'verify a signature' is technical
+maintain,keep,no,simple-word,PL;RH;OSTE;STE9,'maintain a library' is a different sense
+permit,let,pos,simple-word,PL;RH;OSTE;STE9,verb only; 'permit' (n) is a technical noun
+allow,let,no,simple-word,OSTE;STE9;MS,MS: OK for permission features (firewall allows)
+allows you to,lets you,yes,simple-word,G,inflect: allow you to -> let you
+enables you to,lets you,yes,simple-word,G;MS,MS: focus on the user action instead
+provide,give,no,simple-word,PL;RH;OSTE;STE9,API 'provides' often reads better as 'has' or 'returns'
+purchase,buy,pos,simple-word,PL;RH,verb only
+remain,stay,pos,simple-word,PL;OSTE;STE9,verb only; 'remaining' (adj) -> 'other'
+retain,keep,yes,simple-word,PL;OSTE;STE9,
+require,need|must,no,simple-word,PL;OSTE;STE9,STE9: NECESSARY (adj); 'required field' must stay
+request,ask for,no,simple-word,PL;OSTE;STE9,'HTTP request' is a technical noun
+proceed,continue|go to,no,simple-word,PL;OSTE;STE9,
+previous,earlier,no,simple-word,PL;RH,STE9 now approves PREVIOUS; keep in STE profile
+previously,before|earlier,no,simple-word,PL;RH,STE9 approves PREVIOUSLY
+subsequent,later|next,no,simple-word,PL;RH,
+frequently,often,yes,simple-word,PL;RH,
+identical,same,no,simple-word,PL;RH,'identical to' -> 'the same as'
+however,but,no,simple-word,PL;OSTE;STE9,"sentence-initial 'However,' needs rewrite"
+therefore,thus|so,no,simple-word,PL;STE9,STE9: THUS (adv)
+consequently,so|as a result,no,simple-word,PL;RH,
+accordingly,so,no,simple-word,PL;RH,
+whereas,but|because,no,simple-word,PL,
+comprise,include|consist of,no,simple-word,PL;RH;G;OSTE;STE9,direction of meaning is often inverted by writers
+possess,have,yes,simple-word,PL;RH,
+desire,want,pos,simple-word,PL;RH;G,verb only
+desired,that you want|required,no,simple-word,G;RH,
+wish to,want to,yes,simple-word,RH,
+endeavor,try,yes,simple-word,PL;RH,
+finalize,complete|finish,yes,simple-word,PL;RH,
+methodology,method,yes,simple-word,PL;RH,
+optimum,best,no,simple-word,PL;RH,'optimal' is technical in algorithms; flag only
+relocate,move,yes,simple-word,PL;RH,
+inform,tell,yes,simple-word,MS,
+notify,tell,no,simple-word,PL;RH,'notify' is a technical verb for events/webhooks
+transmit,send,yes,simple-word,PL;RH,STE9 approves TRANSMIT; drop rule in STE profile
+implement,do|carry out,no,simple-word,PL;OSTE;STE9,software technical verb (implement an interface)
+execute,run,yes,simple-word,MS;G;RH;OSTE;STE9,STE9 says DO; software profile uses 'run' (technical verb)
+perform,do|run,no,simple-word,PL;OSTE;STE9,
+generate,create|make,no,simple-word,OSTE;STE9,'generate' is a technical verb for codegen/LLM output
+choose,select,yes,simple-word,OSTE;STE9;G,G: 'choose' is OK in generic contexts
+locate,find,yes,simple-word,OSTE;STE9,
+insert,put|add,no,simple-word,OSTE;STE9,"SQL INSERT, insert mode, insert text are technical"
+whether,if,no,simple-word,OSTE;STE9,'if' can be ambiguous (condition vs alternative)
+via,through|by using|with,no,simple-word,G;RH;GL;OSTE;STE9,Google: do not use; choose by context
+e.g.,for example,yes,latin-abbrev,G;MS;RH;GL;GV,"'e.g.,' -> 'for example,'; keep punctuation"
+i.e.,that is,yes,latin-abbrev,G;MS;RH;GL;GV,
+etc.,and so on|(rewrite list),no,latin-abbrev,MS;RH;G,better: give the full list or 'such as'
+vs.,versus|compared to,no,latin-abbrev,G;RH,
+and/or,"or|'A, B, or both'",no,latin-abbrev,MS;G;PL,
+n/a,not applicable,yes,latin-abbrev,GL,
+aka,also known as,yes,latin-abbrev,G,
+viz.,namely,yes,latin-abbrev,MS,
+click on,click,yes,ui-verb,G;RH;MS,MS prefers device-neutral 'select'; STE9 lists 'click' as a technical verb
+double-click on,double-click,yes,ui-verb,MS;RH,
+tap on,tap,yes,ui-verb,RH,
+hit,press|select,no,ui-verb,G;RH,G: not a synonym for click/press/type; 'cache hit' is technical
+uncheck,clear,yes,ui-verb,G;GV,
+deselect,clear,yes,ui-verb,G;RH;GL,STE9 lists 'deselect' as a technical verb; keep one
+check (a checkbox),select,no,ui-verb,G,
+grayed-out,unavailable,yes,ui-verb,G;GV,
+navigate to,go to,yes,ui-verb,GL;RH,
+pop-up,dialog|menu,no,ui-verb,G;GL,
+mouse over,hover over,yes,ui-verb,MS,Google prefers 'hold the pointer over'
+drag and drop,drag,yes,ui-verb,MS;RH,STE9 lists 'drag and drop' as a technical verb
+start up,start,yes,ui-verb,RH,
+print out,print,yes,ui-verb,RH,
+close down,close,yes,ui-verb,MSV,
+login,log in,pos,ui-verb,GL,verb only; 'login' (n) OK
+setup,set up,pos,ui-verb,GL,verb only
+kill,stop|end,no,process-verb,G;RH,'kill' is the literal signal name in POSIX contexts
+abort,stop|cancel,no,process-verb,G;MS;RH,STE9 lists 'abort' as a technical verb (system operations)
+launch,start|open,no,process-verb,RH,
+spawn,create|start,no,process-verb,RH,'spawn a process' is a technical verb in Node/Rust
+spin up,start|create,no,process-verb,RH,phrasal verb; STE rule 9.3 forbids phrasal verbs
+kick off,start,yes,process-verb,derived:STE9-rule-9.3,not in a published list; derived from the no-phrasal-verbs rule
+ingest,import|load,no,process-verb,G;RH,
+persist (transitive),save|store,no,process-verb,G,
+on the fly,dynamically|as needed,no,idiom,RH,
+out of the box,by default,no,idiom,RH,RH: choose text for the context
+once (= after),after,no,conjunction,G;MS;GL;RH,'once' = one time is valid
+since (= because),because,no,conjunction,MS,temporal 'since' is valid
+while (= although),although,no,conjunction,MS,temporal 'while' is valid
+as (= because),because,no,conjunction,G,
+simply,(delete),yes,filler,MS;G;GL,re-capitalize the next word
+just,(delete)|only,no,filler,G,'just' can mean only/recently
+easily,(delete),no,filler,G;GL;MS,
+easy,(rewrite),no,filler,G;GL,
+simple,(rewrite),no,filler,GL,'simple type' etc. are technical
+quite,(delete),yes,filler,GL;MS,
+very,(delete),no,filler,MS;PS,
+basically,(delete),yes,filler,RH,
+obviously|of course,(delete),no,filler,WG;alex,condescending
+please,(delete),yes,filler,G;MS;GL,keep only when you ask forgiveness/permission
+please note|note that,(delete),yes,filler,G;GL,re-capitalize the next word
+currently,(delete),no,tense-time,G;GL,docs describe the current state
+new|newer,(version or date)|later,no,tense-time,G,
+will (future),(present tense),no,tense-time,GL;G,STE9 allows simple future; GL prefers present
+performant,fast|efficient|<metric>,no,hype,G,
+functionality,feature|capability,no,hype,G;GV,
+state-of-the-art,latest|<specific claim>,no,hype,RH;PL,
+robust|seamless|crucial|powerful,(state the fact),no,hype,ASKL;MSV,LLM-tell words; MSV Adverbs covers -ly forms
+should,must|(rewrite),no,modal,STE9;ASKL,STE9: should -> MUST; keep RFC 2119 meaning explicit
+may (possibility),can|might,no,modal,G;RH;STE9,G: reserve 'may' for permission/legal
+could,can,no,modal,G,STE profile: use can/will
+would,can|will,no,modal,STE9;ASKL,
+whitelist,allowlist,pos,inclusive,G;RH;GL;alex,noun only; rewrite verb forms
+blacklist,denylist|blocklist,pos,inclusive,G;RH;GL;alex,noun only
+master,main|primary,no,inclusive,G;RH;GL;alex,git branch names in code spans excluded
+slave,replica|secondary,no,inclusive,G;RH;GL;alex,
+sanity check,quick check|confidence check,no,inclusive,G;MSV;RH;GL;alex,
+dummy,placeholder,no,inclusive,G;GL;alex,alex adds 'test double|stub|fake'
+he|she,they|you,no,inclusive,G;RH;GL,
+man-hours,person hours,yes,inclusive,G,
+achieve,get,no,ste-core,OSTE;STE9,
+assume,think,no,ste-core,OSTE;STE9,'assume a role' (IAM) is technical
+evaluate,examine,no,ste-core,OSTE;STE9,'evaluate an expression' is a software technical verb
+establish,make sure|make,no,ste-core,OSTE;STE9,'establish a connection' -> 'connect'
+exist,be,no,ste-core,STE9,needs 'there is' or rewrite
+happen,occur,yes,ste-core,STE9,Issue 9 approves OCCUR; OpenSTE v1.01 has the reverse
+wrong,incorrect,pos,ste-core,STE9,adjective only
+finish,complete,pos,ste-core,STE9,verb only; FINISH (n) is approved
+need,necessary|must,no,ste-core,STE9,STE9: need (v) -> NECESSARY (adj); grammar changes
+fail,(if ... not),no,ste-core,STE9,'fail' is common in software; consider technical verb
+able to,can,no,ste-core,OSTE;GL,see 'is able to'
+search,examine|find,no,ste-core,STE9,software technical verb; whitelist in profile
+ask,tell,no,ste-core,STE9,STE9: ask (v) -> TELL (v)
+config,configuration,pos,shorthand,G;GL,not in code spans or file names
+repo,repository,yes,shorthand,GL,
+info,information,yes,shorthand,GL,
+param,parameter,yes,shorthand,GL,
+params,parameters,yes,shorthand,GL,
+spec,specification,yes,shorthand,MSV,
+authN,authentication,yes,shorthand,GV,
+authZ,authorization,yes,shorthand,GV,
+k8s,Kubernetes,yes,shorthand,GV;RH,
+regex,regular expression,yes,shorthand,GV,
+distro,distribution,yes,shorthand,GL,
+e-mail,email,yes,shorthand,G;GL,STE9 cat 19 example spells 'e-mail'
+code base,codebase,yes,shorthand,GL,
+tarball,tar file,yes,shorthand,RH,
+bugfix,bug fix,yes,shorthand,RH,

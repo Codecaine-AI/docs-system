@@ -32,11 +32,15 @@ The read view, editor preview, static Docs export, and article publisher use the
 
 - The sandbox grants allow-scripts but never same-origin access. With allowScripts false, Content Security Policy permits only the exact measurement script by its SHA-256 hash. Author scripts and event handlers remain blocked. Setting allowScripts true permits author inline scripts. The frame cannot read the parent page or its cookies.
 
-- A Content Security Policy precedes author markup. It blocks fetch, external scripts, external stylesheets, remote images, nested frames, objects, forms, and base URL changes. Inline CSS and data images, fonts, and media are permitted.
+- A Content Security Policy precedes author markup.
+
+  - The Content Security Policy blocks fetch, external scripts, external stylesheets, remote images, nested frames, objects, forms, and base URL changes.
+
+  - Inline CSS and data images, fonts, and media are permitted.
 
 - Embed CSS, JavaScript, and data assets directly. Relative files, CDN libraries, and external API calls do not work. The sandbox is not a complete network isolation boundary because frame self-navigation can still request another URL. Do not include secrets in HTML.
 
-- The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds; closing returns over 220 milliseconds. Reduced-motion preferences disable both animations.
+- The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds. Closing returns over 220 milliseconds. Reduced-motion preferences disable both animations.
 
 > **HTML: Interactive HTML example**
 
@@ -46,9 +50,9 @@ The read view, editor preview, static Docs export, and article publisher use the
 
 ## Agent Renderer
 
-The agent projection labels the artifact with its title and includes the raw source in an html-embed fenced listing. Projection is for inspection; it is not a lossless interchange format for every prop. Canonical doc.json retains all props.
+The agent projection labels the artifact with its title and includes the raw source in an html-embed fenced listing. Projection is for inspection. It is not a lossless interchange format for every prop. Canonical doc.json keeps all props.
 
-The migration importer recognizes an explicit Html component with title, optional height, optional caption, and allowScripts="true" attributes. Ordinary fenced html listings remain code examples and are never executed implicitly.
+The migration importer recognizes an explicit Html component with title, optional height, optional caption, and allowScripts="true" attributes. Ordinary fenced html listings remain code examples and are never run implicitly.
 
 ```mdx
 <Html title="Diagram" height="240">

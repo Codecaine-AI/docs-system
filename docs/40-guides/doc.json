@@ -24,7 +24,7 @@
       "props": {},
       "text": [
         {
-          "insert": "This guides tier contains non-normative operating and maintenance procedures. The foundation, system design, and implementation documents own the contracts. These guides explain how to use and maintain those contracts; they do not introduce project-specific standards."
+          "insert": "This guides tier contains non-normative operating and maintenance procedures. The foundation, system design, and implementation documents own the contracts. These guides explain how to use and maintain those contracts. They do not introduce project-specific standards."
         }
       ],
       "children": []

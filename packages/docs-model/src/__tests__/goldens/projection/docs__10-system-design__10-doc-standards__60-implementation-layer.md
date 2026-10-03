@@ -1,4 +1,4 @@
-The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates.
+The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates.
 
 This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
 
@@ -18,7 +18,7 @@ An area page reads top to bottom in four parts:
 
 - **Governed-by links**
 
-  - References up to the design docs that constrain the area — the governed-by convention in cross-doc linking.
+  - References up to the design docs that constrain the area: the governed-by convention in cross-doc linking.
 
 - **Decision entries**
 
@@ -34,7 +34,7 @@ An area page reads top to bottom in four parts:
 
   - The inclusion test: an entry helps the reader locate how the design is implemented or understand why the current code is built this way. Rules governing future additions remain part of that explanation.
 
-  - Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.
+  - Thirty data connectors extend a base class, so connector #31 must too. An inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way.
 
 - **Decision / Why / Applies to**
 
@@ -52,7 +52,7 @@ An area page reads top to bottom in four parts:
 
 - **Conform or propose**
 
-  - An agent whose change fits the entries follows them; one whose change conflicts files a proposal.
+  - An agent whose change fits the entries follows them, and one whose change conflicts files a proposal.
 
   - Silent deviation is never an option.
 
@@ -64,11 +64,11 @@ An area page reads top to bottom in four parts:
 
 - **One level per genuine subdivision**
 
-  - The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages.
+  - The mirror descends one level for each genuine subdivision of the source. Deeper structure becomes entries on the area page, not sub-pages.
 
 - **What stays out**
 
-  - Everything below already has a home; an area page carries none of it.
+  - Everything below already has a home, and an area page carries none of it.
 
 | Content | Belongs in |
 | --- | --- |
@@ -83,19 +83,19 @@ An area page reads top to bottom in four parts:
 
   - When report content is removed from a docs tree, still-normative rules buried in it are first extracted into the owning tier — a parity analysis may hold live behavioral contracts; a findings log may hold a real decision.
 
-  - Deletion happens after the salvage pass, never instead of it.
+  - Deletion occurs after the salvage pass, never instead of it.
 
 ## Why
 
 - **A rule for unwritten code needs a home**
 
-  - In-code docs reach only files that exist; nothing in the source can govern a file nobody has written.
+  - In-code docs reach only files that exist. Nothing in the source can govern a file nobody has written.
 
-  - Design cannot hold it either — the system behaves identically whether the structure is followed or not.
+  - Design cannot hold it either: the system behaves identically whether the structure is followed or not.
 
 - **Proposals keep the architecture deliberate**
 
-  - A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible.
+  - A standardized layout survives only while every restructuring is a recorded decision. One silent deviation makes the next one invisible.
 
 - **Lazy entries stay load-bearing**
 
@@ -105,4 +105,4 @@ An area page reads top to bottom in four parts:
 
 - **A shallow mirror survives churn**
 
-  - Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page.
+  - Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page.

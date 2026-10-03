@@ -128,7 +128,7 @@
       "props": {},
       "text": [
         {
-          "insert": "1. Discover the project, begin a task, and read the section root with docs_read. Keep its hash. docs_rename takes the section path and a new directory name; docs_move takes the source path and a destination path in the same project."
+          "insert": "1. Discover the project, begin a task, and read the section root with docs_read. Keep its hash. docs_rename takes the section path and a new directory name. docs_move takes the source path and a destination path in the same project."
         }
       ],
       "children": []
@@ -150,7 +150,7 @@
       "props": {},
       "text": [
         {
-          "insert": "3. Apply with preview:false and expected_tree_hash set to the preview tree_hash. A change anywhere in the captured corpus invalidates that plan. Read the destination and run docs_check on affected documents. A directory rename preserves page IDs, block IDs, and titles; use docs_set_title when the display title should change."
+          "insert": "3. Apply with preview:false and expected_tree_hash set to the preview tree_hash. A change anywhere in the captured corpus invalidates that plan. Read the destination and run docs_check on affected documents. A directory rename preserves page IDs, block IDs, and titles. When the display title should change, use docs_set_title."
         }
       ],
       "children": []
@@ -185,7 +185,7 @@
       "props": {},
       "text": [
         {
-          "insert": "2. Preview docs_asset_move with path, to, and expected_hash. The destination must be in an existing page assets directory and retain the component file type. For example, move an Architecture Canvas into System Design assets/canvases before removing Architecture."
+          "insert": "2. Preview docs_asset_move with path, to, and expected_hash. The destination must be in an existing page assets directory and keep the component file type. For example, move an Architecture Canvas into System Design assets/canvases before removing Architecture."
         }
       ],
       "children": []
@@ -207,7 +207,7 @@
       "props": {},
       "text": [
         {
-          "insert": "4. Preview docs_delete on the old page with its fresh document hash. Repair any remaining inbound links. Use recursive:true only when the intended deletion includes all children. Apply the reviewed preview and inspect the remaining tree."
+          "insert": "4. Preview docs_delete on the old page with its fresh document hash. Repair any remaining inbound links. Only when the intended deletion includes all children, use recursive:true. Apply the reviewed preview and inspect the remaining tree."
         }
       ],
       "children": []
@@ -253,7 +253,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Management journals live under .changesets/file-management/<id>. They record the plan, captured bytes, application status, and hashes after application. Deleted bundles remain in the journal for recovery. Journals are not published documentation. A process or storage failure may require inspecting the retained journal; a failed rollback is reported explicitly."
+          "insert": "Management journals live under .changesets/file-management/<id>. They record the plan, captured bytes, application status, and hashes after application. Deleted bundles remain in the journal for recovery. Journals are not published documentation. A process or storage failure may require inspecting the retained journal. A failed rollback is reported explicitly."
         }
       ],
       "children": []
@@ -275,7 +275,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Symlinks, overlapping source/destination paths, destination collisions, invalid rewritten documents, and ambiguous asset paths are rejected. Management restore is distinct from docs_undo, which handles tracked content patches. Cross-project relocation is not an operation; use each project's explicit tools and ownership."
+          "insert": "Symlinks, overlapping source/destination paths, destination collisions, invalid rewritten documents, and ambiguous asset paths are rejected. Management restore is distinct from docs_undo, which handles tracked content patches. Cross-project relocation is not an operation. Use each project's explicit tools and ownership."
         }
       ],
       "children": []

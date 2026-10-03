@@ -1,0 +1,1042 @@
+{
+ "documentation unit": {
+  "doc": {
+   "count": 255,
+   "messages": 175,
+   "example": "may go into the actual standards docs themselves.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "page": {
+   "count": 151,
+   "messages": 103,
+   "example": "when I go to the ui page its just a white screen",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "document": {
+   "count": 25,
+   "messages": 22,
+   "example": "Have a document that references each of these things.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "bundle": {
+   "count": 6,
+   "messages": 2,
+   "example": "migrated from markdown to codecaine doc.json bundles (31 pages).",
+   "project": "workspace-codecaine-core-agent-kernel"
+  },
+  "file (md)": {
+   "count": 4,
+   "messages": 4,
+   "example": "Then make a markdown file with the links, and then on this there are the",
+   "project": "Desktop-megaline"
+  },
+  "article": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  }
+ },
+ "docs product name": {
+  "docs system": {
+   "count": 17,
+   "messages": 17,
+   "example": "you please write this into a docs system doc instead of markdown",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "doc system": {
+   "count": 20,
+   "messages": 19,
+   "example": "where would this fit into our doc system context and whatnot?",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "documentation system": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "docs tool(s)": {
+   "count": 2,
+   "messages": 2,
+   "example": "doc edits go through the codecaine-docs tools (docs_begin, then typed ops, then docs_check, then docs_end).",
+   "project": "workspace-codecaine-core-agent-kernel"
+  }
+ },
+ "page building unit": {
+  "component": {
+   "count": 59,
+   "messages": 40,
+   "example": "for this UX decision on these components",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "block": {
+   "count": 56,
+   "messages": 49,
+   "example": "the agent show me this full block?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "element": {
+   "count": 1,
+   "messages": 1,
+   "example": "These are two open-ended elements of judge-quality evals.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "widget": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "componentry": {
+   "count": 2,
+   "messages": 2,
+   "example": "Like, call stack, componentry, and flowstrip are not process outlines.",
+   "project": "workspace-codecaine-core-docs-system"
+  }
+ },
+ "delegated agent": {
+  "sub-agent / subagent": {
+   "count": 83,
+   "messages": 71,
+   "example": "around please just use an opus subagent",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "worker": {
+   "count": 125,
+   "messages": 76,
+   "example": "should be the things that the worker gets given.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "agent (bare)": {
+   "count": 433,
+   "messages": 262,
+   "example": "defines the overall behavior of the agent.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "thread": {
+   "count": 59,
+   "messages": 46,
+   "example": "I have message for a new thread that would run this process",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "child agent": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  }
+ },
+ "writing-quality check": {
+  "lint": {
+   "count": 48,
+   "messages": 27,
+   "example": "sense, similar to how the worker lint gate works?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "check": {
+   "count": 34,
+   "messages": 30,
+   "example": "[ ] Check here if Employee has no Prior Inventions to disclose.",
+   "project": "Github-Repos"
+  },
+  "rule": {
+   "count": 42,
+   "messages": 34,
+   "example": "this could be worth having some rules around.",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "standard": {
+   "count": 39,
+   "messages": 26,
+   "example": "this may go into the actual standards docs themselves.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "guideline/guidance": {
+   "count": 1,
+   "messages": 1,
+   "example": "For brands that pass our brand guidelines, we do Product Finding, and then we would",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "style guide": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  }
+ },
+ "verify step": {
+  "confirm": {
+   "count": 79,
+   "messages": 71,
+   "example": "Okay, so to confirm, most of the changes are just UI changes.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "check": {
+   "count": 41,
+   "messages": 34,
+   "example": "[ ] Check here if Employee has no Prior Inventions to disclose.",
+   "project": "Github-Repos"
+  },
+  "verify": {
+   "count": 22,
+   "messages": 16,
+   "example": "verify that the librarian is actually doing what it's supposed to do",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "validate": {
+   "count": 8,
+   "messages": 5,
+   "example": "I would like you to just validate that they run.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "QA": {
+   "count": 23,
+   "messages": 19,
+   "example": "I want the QA pass to be visual, with a focus on:",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "audit": {
+   "count": 57,
+   "messages": 47,
+   "example": "a kind of LLM-driven approach to audit.",
+   "project": "Github-Repos-oss-gamecube-decomp-harness"
+  },
+  "review": {
+   "count": 134,
+   "messages": 84,
+   "example": "to the PRs so I can review it?",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  }
+ },
+ "model instructions": {
+  "system prompt": {
+   "count": 41,
+   "messages": 30,
+   "example": "Right now, it's system prompt, context, and the state are all there.",
+   "project": "Github-Repos-Codecaine-Core-agent-kernel"
+  },
+  "prompt (bare)": {
+   "count": 116,
+   "messages": 85,
+   "example": "Yes, I'm making updates to the prompt right now, which is fine.",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "instructions": {
+   "count": 8,
+   "messages": 8,
+   "example": "Like, is there some instruction somewhere of, like, here's how you host them locally?",
+   "project": "workspace"
+  },
+  "context": {
+   "count": 126,
+   "messages": 79,
+   "example": "of this could go into the context and get loaded.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  }
+ },
+ "execution record": {
+  "trace": {
+   "count": 49,
+   "messages": 37,
+   "example": "how we then build all the traces into this as well.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "log": {
+   "count": 5,
+   "messages": 5,
+   "example": "and likely these sources and search logs, or maybe just the sources.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "transcript": {
+   "count": 19,
+   "messages": 14,
+   "example": "want you to look at the transcript and understand why it did this",
+   "project": "workspace-clients-active-linkt-master--git-modules-mplrisk-ai"
+  },
+  "history": {
+   "count": 29,
+   "messages": 17,
+   "example": "then add something to the target history.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "session": {
+   "count": 25,
+   "messages": 16,
+   "example": "are M2/M3 and get their own sessions later.",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  }
+ },
+ "one execution": {
+  "run": {
+   "count": 235,
+   "messages": 168,
+   "example": "are now just monitoring the existing run?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "epoch": {
+   "count": 18,
+   "messages": 17,
+   "example": "would still say we are within epoch 1.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "pass": {
+   "count": 41,
+   "messages": 34,
+   "example": "I want the QA pass to be visual, with a focus on:",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "attempt": {
+   "count": 43,
+   "messages": 24,
+   "example": "The tactic would be on the attempt, which is then on a target, and your",
+   "project": "Github-Repos-oss-gamecube-decomp-harness"
+  },
+  "iteration": {
+   "count": 2,
+   "messages": 2,
+   "example": "the file-tree component: build the light/dark iteration playground for the real component, open it in",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "cycle": {
+   "count": 20,
+   "messages": 12,
+   "example": "the rain is a different render cycle than the actual menu items and whatnot as",
+   "project": "Github-Repos-Codecaine-MainMenu"
+  }
+ },
+ "conversation unit": {
+  "thread": {
+   "count": 59,
+   "messages": 46,
+   "example": "I have message for a new thread that would run this process",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "session": {
+   "count": 25,
+   "messages": 16,
+   "example": "but essentially, we could build a session.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "conversation": {
+   "count": 21,
+   "messages": 17,
+   "example": "flow agent would then steer the conversation and whatnot.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "chat": {
+   "count": 1,
+   "messages": 1,
+   "example": "truth; do not reconstruct context from chat history or from the old",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  }
+ },
+ "code container": {
+  "repo": {
+   "count": 51,
+   "messages": 40,
+   "example": "status of all the ccbcu sub repos",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "repository": {
+   "count": 1,
+   "messages": 1,
+   "example": "lane: three active PRs across three repositories, plus one held draft.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "codebase": {
+   "count": 11,
+   "messages": 8,
+   "example": "can be answered by exploring the codebase, explore the codebase instead.",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  },
+  "project": {
+   "count": 27,
+   "messages": 21,
+   "example": "link are the docs for this project hosted at",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "workspace": {
+   "count": 18,
+   "messages": 14,
+   "example": "Within the workspace, for what would be the services computer, i.e.",
+   "project": "workspace"
+  },
+  "folder": {
+   "count": 35,
+   "messages": 31,
+   "example": "migration and LLM file to this folder as well",
+   "project": "workspace-reference-external-docs"
+  },
+  "directory": {
+   "count": 8,
+   "messages": 8,
+   "example": "don't know if we should do Directory in the sense that I guess we can.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  }
+ },
+ "plan document": {
+  "plan": {
+   "count": 35,
+   "messages": 26,
+   "example": "can you create a plan to implement the generalize api based integration?",
+   "project": "Github-Repos-Clients-HeyBubba-bubba-phone"
+  },
+  "spec": {
+   "count": 22,
+   "messages": 20,
+   "example": "tweet (and read it) in the spec",
+   "project": "workspace"
+  },
+  "objective": {
+   "count": 24,
+   "messages": 16,
+   "example": "and like the key thing of objectives is that it like...",
+   "project": "workspace-lascari-ai-personal-site"
+  },
+  "brief": {
+   "count": 2,
+   "messages": 2,
+   "example": "some basic workflow, giving you a brief that just pulls things in is cool and",
+   "project": "Github-Repos-Lascari-AI-Learning-presentations"
+  },
+  "handoff": {
+   "count": 9,
+   "messages": 8,
+   "example": "Can you please write a handoff message, like a short one, around this?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "design doc": {
+   "count": 3,
+   "messages": 3,
+   "example": "planning of this implementation for this design doc?",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  },
+  "proposal": {
+   "count": 4,
+   "messages": 4,
+   "example": "Keep completed work, proposals, and unverified checks distinct.",
+   "project": "workspace-knowledge-network-setup"
+  }
+ },
+ "page heading": {
+  "header": {
+   "count": 16,
+   "messages": 12,
+   "example": "other TUs instead of including/defining the header",
+   "project": "Github-Repos-oss-gamecube-decomp-harness"
+  },
+  "heading": {
+   "count": 3,
+   "messages": 3,
+   "example": "I would like to use the heading case instead of sentence case, so that would",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "title": {
+   "count": 9,
+   "messages": 9,
+   "example": "of the text in these things Title Case.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "subheader/subheading": {
+   "count": 7,
+   "messages": 7,
+   "example": "We don't have the subheaders for anything on the testing page.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "section": {
+   "count": 105,
+   "messages": 75,
+   "example": "existing outline into a full draft, section by section.",
+   "project": "workspace-lascari-ai-personal-site"
+  }
+ },
+ "side UI region": {
+  "sidebar": {
+   "count": 53,
+   "messages": 40,
+   "example": "either should be something in the sidebar or nothing at all.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "panel": {
+   "count": 13,
+   "messages": 12,
+   "example": "This would be a different panel layout depending on the call type.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "pane": {
+   "count": 2,
+   "messages": 2,
+   "example": "like the config on the config pane, with the inline XML tags and the line",
+   "project": "Github-Repos-Codecaine-Core-agent-kernel"
+  },
+  "tab": {
+   "count": 26,
+   "messages": 23,
+   "example": "I don't like the last tab icon with no coloring",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "drawer": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "rail": {
+   "count": 2,
+   "messages": 2,
+   "example": "I like the V2 Adaptive Rail the most.",
+   "project": "workspace-life-budget"
+  }
+ },
+ "list item": {
+  "bullet / bullet point": {
+   "count": 49,
+   "messages": 30,
+   "example": "Why are bullet points and such not working in this editor renderer?",
+   "project": "workspace-lascari-ai-personal-site"
+  },
+  "sub-bullet": {
+   "count": 11,
+   "messages": 8,
+   "example": "to break this down to have sub-bullets a lot.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "list item": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "list": {
+   "count": 29,
+   "messages": 21,
+   "example": "trace list for errors or runs stuck at turn 0.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  }
+ },
+ "test of model output": {
+  "eval": {
+   "count": 135,
+   "messages": 61,
+   "example": "That like, the eval seeded the state wrong so it broke?",
+   "project": "workspace-clients-active-linkt-master--git-modules-mplrisk-ai"
+  },
+  "evaluation": {
+   "count": 28,
+   "messages": 19,
+   "example": "to brainstorm a human feedback and evaluation interface for Canvas.",
+   "project": "workspace-codecaine-core-canvas"
+  },
+  "test": {
+   "count": 61,
+   "messages": 49,
+   "example": "it doing the retries in this test mode?",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "judge": {
+   "count": 7,
+   "messages": 4,
+   "example": "be at the LM as a judge evaluation case.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "benchmark": {
+   "count": 1,
+   "messages": 1,
+   "example": "anything to do with this recall benchmark.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "scorecard": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  }
+ },
+ "data contract": {
+  "state shape": {
+   "count": 9,
+   "messages": 9,
+   "example": "the custom components we have like state shape",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "state structure": {
+   "count": 9,
+   "messages": 8,
+   "example": "Here's the state structure for this specific knowledge base,\" that requires expert knowledge.",
+   "project": "Github-Repos-Lascari-AI-Learning-presentations"
+  },
+  "data shape": {
+   "count": 5,
+   "messages": 4,
+   "example": "on the data shape, can we remove the confidence, also I don't know if we",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "schema": {
+   "count": 7,
+   "messages": 4,
+   "example": "need to do the knowledge base schema migration.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "data model": {
+   "count": 5,
+   "messages": 4,
+   "example": "this, broken into each phase, with data models and style diagrams to make it very",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "type": {
+   "count": 82,
+   "messages": 65,
+   "example": "panel layout depending on the call type.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  }
+ },
+ "diagram surface": {
+  "canvas": {
+   "count": 45,
+   "messages": 33,
+   "example": "some renders of components that weren't canvases.",
+   "project": "workspace-codecaine-core-canvas"
+  },
+  "diagram": {
+   "count": 66,
+   "messages": 35,
+   "example": "I'd also like a diagram in the docs that talks about this.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "board": {
+   "count": 6,
+   "messages": 6,
+   "example": "adjacent to this, which is the board object priority.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "chart": {
+   "count": 1,
+   "messages": 1,
+   "example": "guess you could do a flow chart if you wanted to, but it's more for",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "sequence diagram": {
+   "count": 7,
+   "messages": 7,
+   "example": "image similar to how canvases and sequence diagrams let you expand them.",
+   "project": "workspace-codecaine-core-docs-system"
+  }
+ },
+ "visual mockup": {
+  "mockup": {
+   "count": 9,
+   "messages": 9,
+   "example": "Can you please do an HTML mock-up of the proposed UI?",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "prototype": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "wireframe": {
+   "count": 1,
+   "messages": 1,
+   "example": "has is that called like a wireframe or what is that because I kind of",
+   "project": "workspace-codecaine-core-agent-kernel"
+  },
+  "design": {
+   "count": 46,
+   "messages": 36,
+   "example": "be, I guess, the domain modeling design skill.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "preview": {
+   "count": 3,
+   "messages": 3,
+   "example": "Okay, and what about the context preview?",
+   "project": "Github-Repos-Codecaine-canvas"
+  }
+ },
+ "user-facing app": {
+  "UI": {
+   "count": 118,
+   "messages": 100,
+   "example": "most of the changes are just UI changes.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "viewer": {
+   "count": 24,
+   "messages": 19,
+   "example": "Okay, for now the agent viewer I'm looking at is the source-scout.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "app": {
+   "count": 33,
+   "messages": 27,
+   "example": "get to that in the Electron app?",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "dashboard": {
+   "count": 19,
+   "messages": 12,
+   "example": "the invite do not give the dashboard URL or name the environment.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "frontend": {
+   "count": 16,
+   "messages": 8,
+   "example": "LLMs are getting really good at frontend and can create beautiful experiences, animations, etc.",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "interface": {
+   "count": 4,
+   "messages": 4,
+   "example": "brainstorm a human feedback and evaluation interface for Canvas.",
+   "project": "workspace-codecaine-core-canvas"
+  }
+ },
+ "simplify text/code": {
+  "clean up / cleanup": {
+   "count": 48,
+   "messages": 45,
+   "example": "of documentation that we need to clean up.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "simplify": {
+   "count": 17,
+   "messages": 13,
+   "example": "Just simplify it down and clean up the UI.",
+   "project": "Github-Repos-Codecaine-Core-agent-kernel"
+  },
+  "refactor": {
+   "count": 1,
+   "messages": 1,
+   "example": "whole knowledge system in a big refactor.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "unslop": {
+   "count": 14,
+   "messages": 9,
+   "example": "is two separate questions because it's unslop.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "trim / cut": {
+   "count": 1,
+   "messages": 1,
+   "example": "And I also want to drastically trim down a lot of it because there's just",
+   "project": "workspace-lascari-ai-personal-site"
+  }
+ },
+ "connect parts": {
+  "wire up": {
+   "count": 2,
+   "messages": 2,
+   "example": "Only the wired admin MacBook has a saved NAS administration exception for TCP 5000\u20135001.",
+   "project": "workspace-knowledge-network-setup"
+  },
+  "hook up": {
+   "count": 2,
+   "messages": 2,
+   "example": "fix all of this, and then hook up the codex LB thing so then we",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "integrate": {
+   "count": 15,
+   "messages": 9,
+   "example": "to implement the generalize api based integration?",
+   "project": "Github-Repos-Clients-HeyBubba-bubba-phone"
+  },
+  "connect": {
+   "count": 35,
+   "messages": 29,
+   "example": "I thought we had my site connected to the actual lascari AI site?",
+   "project": "workspace-lascari-ai-personal-site"
+  },
+  "tie in": {
+   "count": 1,
+   "messages": 1,
+   "example": "show up, and how it would tie into our agent kernel.",
+   "project": "workspace-codecaine-core-agent-kernel"
+  }
+ },
+ "start delegated work": {
+  "spawn": {
+   "count": 54,
+   "messages": 43,
+   "example": "Could you spawn a fable sub-agent to knock out this UI stuff?",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "launch": {
+   "count": 2,
+   "messages": 2,
+   "example": "Before launching this too, could we please try adapting the researcher and reviewer for this",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "kick off": {
+   "count": 4,
+   "messages": 4,
+   "example": "They would get kicked off to a resolver agent that would go and try to",
+   "project": "Github-Repos-oss-gamecube-decomp-harness"
+  },
+  "start": {
+   "count": 104,
+   "messages": 90,
+   "example": "to the call with a paragraph start.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "fan out": {
+   "count": 8,
+   "messages": 8,
+   "example": "oaky can you please fan out the agents and do this process and come back",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  }
+ },
+ "ship change": {
+  "push": {
+   "count": 63,
+   "messages": 62,
+   "example": "we're good and we can just push things up now",
+   "project": "workspace-codecaine-core-agent-kernel"
+  },
+  "merge": {
+   "count": 59,
+   "messages": 51,
+   "example": "then they got broken by the merge conflict.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "commit": {
+   "count": 39,
+   "messages": 39,
+   "example": "Also, this should be committed and pushed up to the main branch.",
+   "project": "workspace-codecaine-core-canvas"
+  },
+  "deploy": {
+   "count": 29,
+   "messages": 23,
+   "example": "to figure out on the local deployment.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "land": {
+   "count": 13,
+   "messages": 12,
+   "example": "to get a lay of the land.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "ship": {
+   "count": 2,
+   "messages": 2,
+   "example": "such, because we wouldn't want to ship the real one with evals.",
+   "project": "Github-Repos-Codecaine-canvas"
+  }
+ },
+ "change request": {
+  "PR": {
+   "count": 129,
+   "messages": 96,
+   "example": "they get to 100% if no PR ever touched them?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "pull request": {
+   "count": 8,
+   "messages": 7,
+   "example": "It doesn't matter, or create a pull request.",
+   "project": "Github-Repos-Codecaine-agent-kernel"
+  },
+  "branch": {
+   "count": 51,
+   "messages": 42,
+   "example": "and pushed up to the main branch.",
+   "project": "workspace-codecaine-core-canvas"
+  }
+ },
+ "reviewer feedback": {
+  "annotation": {
+   "count": 15,
+   "messages": 6,
+   "example": "probably have maybe \"Reply to an annotation\" or something like that.",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "comment": {
+   "count": 8,
+   "messages": 6,
+   "example": "that I could then leave a comment on the diagram and stuff.",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  },
+  "note": {
+   "count": 42,
+   "messages": 37,
+   "example": "on 429s or stuck runs, and note the",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "feedback": {
+   "count": 21,
+   "messages": 17,
+   "example": "I want to brainstorm a human feedback and evaluation interface for Canvas.",
+   "project": "workspace-codecaine-core-canvas"
+  }
+ },
+ "reusable agent capability": {
+  "skill": {
+   "count": 43,
+   "messages": 31,
+   "example": "I guess, the domain modeling design skill.",
+   "project": "Github-Repos-Lascari-AI-agent-skills"
+  },
+  "tool": {
+   "count": 90,
+   "messages": 57,
+   "example": "I want all of the old tools to be deprecated and removed.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "MCP": {
+   "count": 19,
+   "messages": 14,
+   "example": "the docs, did you use the MCP?",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "command": {
+   "count": 12,
+   "messages": 11,
+   "example": "I meant in terms of make commands, is that up to date?",
+   "project": "Github-Repos-Lascari-AI-Spectre"
+  },
+  "plugin": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  }
+ },
+ "stored knowledge": {
+  "knowledge base": {
+   "count": 32,
+   "messages": 22,
+   "example": "There's going to be a canonical knowledge base of Discord exports and PRs.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "knowledge system": {
+   "count": 12,
+   "messages": 11,
+   "example": "could set up this second brain knowledge system using a lot of the things I",
+   "project": "workspace"
+  },
+  "knowledge graph": {
+   "count": 4,
+   "messages": 4,
+   "example": "trying to figure out what the knowledge graph and such should look like, because I'm",
+   "project": "Github-Repos-oss-gamecube-decomp-harness"
+  },
+  "KB": {
+   "count": 1,
+   "messages": 1,
+   "example": "I thought we built the KB off the cycle state, did we not?",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "facts": {
+   "count": 69,
+   "messages": 36,
+   "example": "It just needs to find the facts, and then there would be a review.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "records": {
+   "count": 29,
+   "messages": 21,
+   "example": "The test records were simulated, so this behavior still needs verification.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  }
+ },
+ "defect": {
+  "bug": {
+   "count": 12,
+   "messages": 10,
+   "example": "I have some bugs I need to figure out on the local deployment.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "issue": {
+   "count": 50,
+   "messages": 43,
+   "example": "this is a Luna or Terra issue.",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-kurate"
+  },
+  "problem": {
+   "count": 7,
+   "messages": 7,
+   "example": "competition that thing could be having problems with.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "broken": {
+   "count": 9,
+   "messages": 8,
+   "example": "look better, but the lines are broken and such.",
+   "project": "Github-Repos-Codecaine-Core-agent-kernel"
+  },
+  "error": {
+   "count": 15,
+   "messages": 15,
+   "example": "the CCBCU, we got the following error",
+   "project": "workspace-clients-active-linkt-master-mplrisk-ai-clients-ccbcu"
+  }
+ },
+ "configuration": {
+  "set up / setup": {
+   "count": 142,
+   "messages": 110,
+   "example": "flaw in how we have this set up.",
+   "project": "Github-Repos-Clients-linkt-master-mplrisk-ai-clients-ccbcu"
+  },
+  "configure / config": {
+   "count": 38,
+   "messages": 30,
+   "example": "exceptions, or backup jobs have been configured.",
+   "project": "workspace-knowledge-network-setup"
+  },
+  "install": {
+   "count": 6,
+   "messages": 5,
+   "example": "Install the companion skills: run `npx skills add higgsfield-ai/skills`.",
+   "project": "Desktop-life-itself-interactive"
+  }
+ },
+ "model name in prompt": {
+  "Opus": {
+   "count": 30,
+   "messages": 30,
+   "example": "fucking around please just use an opus subagent",
+   "project": "workspace-codecaine-core-docs-system"
+  },
+  "Fable": {
+   "count": 28,
+   "messages": 26,
+   "example": "Could you spawn a fable sub-agent to knock out this UI stuff?",
+   "project": "Github-Repos-Codecaine-canvas"
+  },
+  "Codex": {
+   "count": 31,
+   "messages": 30,
+   "example": "perform the sync workflow on our Codex LB?",
+   "project": "local-services-codex-lb"
+  },
+  "Sonnet": {
+   "count": 0,
+   "messages": 0,
+   "example": null,
+   "project": null
+  },
+  "GPT": {
+   "count": 6,
+   "messages": 5,
+   "example": "I'd like it to default to GPT-6 Astra now.",
+   "project": "Github-Repos-Codecaine-gamecube-decomp-harness"
+  },
+  "model": {
+   "count": 49,
+   "messages": 37,
+   "example": "these decision logic load nodes using models.",
+   "project": "workspace-codecaine-core-agent-kernel"
+  },
+  "LLM": {
+   "count": 23,
+   "messages": 16,
+   "example": "please add the migration and LLM file to this folder as well",
+   "project": "workspace-reference-external-docs"
+  }
+ }
+}

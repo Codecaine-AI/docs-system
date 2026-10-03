@@ -1,0 +1,4806 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-3e434567782c7316c3def07f8c46d8fc",
+  "title": "Vocabulary",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "voc-001-p",
+        "voc-002-callout",
+        "voc-003-h",
+        "voc-004-p",
+        "voc-005-li",
+        "voc-008-li",
+        "voc-010-li",
+        "voc-012-li",
+        "voc-015-li",
+        "voc-017-h",
+        "voc-018-p",
+        "voc-019-table",
+        "voc-020-h",
+        "voc-021-p",
+        "voc-022-table",
+        "voc-023-h",
+        "voc-024-p",
+        "voc-025-h",
+        "voc-026-p",
+        "voc-027-table",
+        "voc-028-h",
+        "voc-029-p",
+        "voc-030-table",
+        "voc-031-h",
+        "voc-032-p",
+        "voc-033-table",
+        "voc-034-h",
+        "voc-035-p",
+        "voc-036-h",
+        "voc-037-p",
+        "voc-038-table",
+        "voc-039-h",
+        "voc-040-p",
+        "voc-041-table",
+        "voc-042-h",
+        "voc-043-p",
+        "voc-044-table",
+        "voc-045-h",
+        "voc-046-p",
+        "voc-047-table",
+        "voc-048-h",
+        "voc-049-p",
+        "voc-050-table"
+      ]
+    },
+    "voc-001-p": {
+      "id": "voc-001-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "This page lists the words that the STE profile allows, replaces, and bans. The full STE approved-word dictionary is the base, and four layers sit on top of it. A later step moves these lists into typed data at "
+        },
+        {
+          "insert": "writing/ste/profile.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in docs-model. A generator then builds this page from that file."
+        }
+      ],
+      "children": []
+    },
+    "voc-002-callout": {
+      "id": "voc-002-callout",
+      "type": "callout",
+      "props": {
+        "kind": "Proposed",
+        "title": "Not enforced yet",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "No lint uses this vocabulary yet. The naming canon follows the proposed defaults in the open decisions on "
+        },
+        {
+          "insert": "STE Profile",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/30-ste-profile"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "voc-003-h": {
+      "id": "voc-003-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Vocabulary Layers"
+        }
+      ],
+      "children": []
+    },
+    "voc-004-p": {
+      "id": "voc-004-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each layer extends or narrows the layer below it. A word that STE approves stays allowed, even if no page in this corpus uses it."
+        }
+      ],
+      "children": []
+    },
+    "voc-005-li": {
+      "id": "voc-005-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE Approved Words (Base)",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "voc-006-li",
+        "voc-007-li"
+      ]
+    },
+    "voc-006-li": {
+      "id": "voc-006-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "All of the about 900 approved words in the STE dictionary are allowed, each in its approved meaning."
+        }
+      ],
+      "children": []
+    },
+    "voc-007-li": {
+      "id": "voc-007-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The full list stays local in "
+        },
+        {
+          "insert": "proposals/ste-writing-profile-2026-10-02/ste100/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and is never published."
+        }
+      ],
+      "children": []
+    },
+    "voc-008-li": {
+      "id": "voc-008-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Technical Nouns",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "voc-009-li"
+      ]
+    },
+    "voc-009-li": {
+      "id": "voc-009-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Our project nouns extend the base. Each noun has one meaning in this corpus."
+        }
+      ],
+      "children": []
+    },
+    "voc-010-li": {
+      "id": "voc-010-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Technical Verbs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "voc-011-li"
+      ]
+    },
+    "voc-011-li": {
+      "id": "voc-011-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Software verbs extend the base, including verbs that STE rejects. Each verb has one meaning."
+        }
+      ],
+      "children": []
+    },
+    "voc-012-li": {
+      "id": "voc-012-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Replacements",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "voc-013-li",
+        "voc-014-li"
+      ]
+    },
+    "voc-013-li": {
+      "id": "voc-013-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each row swaps a rejected word for a plainer word."
+        }
+      ],
+      "children": []
+    },
+    "voc-014-li": {
+      "id": "voc-014-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tier of the row says whether a lint fixes the word or only flags it."
+        }
+      ],
+      "children": []
+    },
+    "voc-015-li": {
+      "id": "voc-015-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Banned Filler",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "voc-016-li"
+      ]
+    },
+    "voc-016-li": {
+      "id": "voc-016-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Filler words add no meaning, so a writer deletes them."
+        }
+      ],
+      "children": []
+    },
+    "voc-017-h": {
+      "id": "voc-017-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Naming Canon"
+        }
+      ],
+      "children": []
+    },
+    "voc-018-p": {
+      "id": "voc-018-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use one name for each concept in prose. Code identifiers keep their own names, such as "
+        },
+        {
+          "insert": "DocDocument",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "voc-019-table": {
+      "id": "voc-019-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Concept",
+          "Use",
+          "Do Not Use in Prose",
+          "Note"
+        ],
+        "rows": [
+          [
+            "The unit a reader opens",
+            "page",
+            "doc (as a noun), article",
+            "The folder is the bundle, and the file is doc.json. \"Document\" names only the data-model object."
+          ],
+          [
+            "A unit of content in a page",
+            "block, block type, component",
+            "widget, element, node",
+            "A block is one instance, and a block type is its kind. A component is the code only."
+          ],
+          [
+            "A page heading",
+            "heading, subheading",
+            "header, subheader",
+            "\"Header\" names the UI region only."
+          ],
+          [
+            "A stored agent conversation",
+            "session",
+            "thread, chat, conversation",
+            "\"New thread\" stays as the name of the UI action."
+          ],
+          [
+            "A spawned helper agent",
+            "sub-agent",
+            "subagent, sub agent, child agent",
+            "\"Worker\" names only the harness worker role."
+          ],
+          [
+            "Something wrong",
+            "bug, error, problem",
+            "issue (meaning a problem)",
+            "A bug is a code defect, and an error is a message. \"Issue\" names only a tracked item or a validation issue."
+          ],
+          [
+            "Lint results",
+            "rule, finding, check",
+            "violation, diagnostic, warning (as a noun)",
+            [
+              {
+                "insert": "A rule is the definition, and a finding is one match. A check is one run, such as "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "Pending changes",
+            "op, patch, proposal, change set",
+            "diff, mutation, edit (as a noun), operation",
+            "An op is one of the 7 ops, and a patch is an applied batch. A proposal is staged, and a change set groups proposals."
+          ],
+          [
+            "Code and folders",
+            "repo, folder, workspace",
+            "repository, codebase, directory, dir",
+            "The workspace is the multi-repo root. \"Project\" names only a docs or prompt project ID."
+          ],
+          [
+            "The product",
+            "docs system",
+            "doc system, documentation system, docs framework",
+            [
+              {
+                "insert": "Matches the repo name "
+              },
+              {
+                "insert": "docs-system",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "Files beside doc.json",
+            "sidecar, asset",
+            "payload, attachment",
+            [
+              {
+                "insert": "A sidecar holds JSON state. An asset is a file under "
+              },
+              {
+                "insert": "assets/",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "An AI actor",
+            "agent, model",
+            "AI, LLM (alone)",
+            "An agent is a model with tools and a loop. A model is the LLM itself."
+          ],
+          [
+            "Tests of model output",
+            "eval, test, judge",
+            "evaluation",
+            "An eval scores model output, and a test checks code. A judge is the model that grades."
+          ],
+          [
+            "A visual draft",
+            "mockup",
+            "mock-up, mock up",
+            "One word with no hyphen."
+          ],
+          [
+            "A code review request",
+            "PR",
+            "pull request",
+            "PR is the short form in every transcript."
+          ],
+          [
+            "Reviewer input on a page",
+            "annotation",
+            "comment, feedback",
+            "Matches the annotation tools. \"Note\" is an annotation intent."
+          ]
+        ],
+        "title": "Naming canon"
+      },
+      "children": []
+    },
+    "voc-020-h": {
+      "id": "voc-020-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Technical Nouns"
+        }
+      ],
+      "children": []
+    },
+    "voc-021-p": {
+      "id": "voc-021-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These nouns extend the STE base. Each one has one meaning in this corpus."
+        }
+      ],
+      "children": []
+    },
+    "voc-022-table": {
+      "id": "voc-022-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Term",
+          "Meaning"
+        ],
+        "rows": [
+          [
+            "page",
+            "One unit that a reader opens. Each page is one bundle."
+          ],
+          [
+            "bundle",
+            "The folder of one page, with its doc.json, sidecars, and assets."
+          ],
+          [
+            "doc.json",
+            "The file that stores one page as a block tree."
+          ],
+          [
+            "document",
+            "The data-model object for one page."
+          ],
+          [
+            "corpus",
+            "All pages under one docs root."
+          ],
+          [
+            "docs root",
+            "The folder that holds one corpus."
+          ],
+          [
+            "project",
+            "A repo with a docs corpus. Tools address it by project ID."
+          ],
+          [
+            "layer",
+            [
+              {
+                "insert": "One of the four numbered root folders, from "
+              },
+              {
+                "insert": "00-foundation",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " to "
+              },
+              {
+                "insert": "30-implementation",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "section",
+            "A folder below a layer that is also a page and introduces its children."
+          ],
+          [
+            "parent page",
+            "The page of a layer or section folder. It introduces each child in one line."
+          ],
+          [
+            "block",
+            "One unit of content, with a stable ID, a type, props, and optional text."
+          ],
+          [
+            "block type",
+            "The kind of a block, such as paragraph or file-tree. There are 23."
+          ],
+          [
+            "block ID",
+            "A stable ID that is unique in its page."
+          ],
+          [
+            "props",
+            "The typed state fields of a block."
+          ],
+          [
+            "state schema",
+            "The closed schema for the props of a block type."
+          ],
+          [
+            "component",
+            "The code for one or more block types."
+          ],
+          [
+            "action",
+            [
+              {
+                "insert": "A named, checked change to one block, such as "
+              },
+              {
+                "insert": "file-tree.addEntry",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "reference",
+            "An inline link to a page or a source file."
+          ],
+          [
+            "backlinks index",
+            "The SQLite index of inbound references."
+          ],
+          [
+            "doc renderer",
+            "The React code that shows a block type to a person."
+          ],
+          [
+            "agent renderer",
+            "The function that writes block state as markdown for agents."
+          ],
+          [
+            "op",
+            [
+              {
+                "insert": "One of the 7 document changes, such as "
+              },
+              {
+                "insert": "insertBlock",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "patch",
+            "One applied batch of ops. It is the unit of undo."
+          ],
+          [
+            "proposal",
+            "A staged batch of ops for one page. It waits until a reviewer accepts or rejects it."
+          ],
+          [
+            "change set",
+            "A group of proposals that a reviewer accepts, rejects, or undoes as one unit."
+          ],
+          [
+            "content hash",
+            "The SHA-256 hash of the bytes of a file. A write fails if the hash changed."
+          ],
+          [
+            "session",
+            [
+              {
+                "insert": "One run of an agent or one editor tab. All its writes share one "
+              },
+              {
+                "insert": "session_id",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "sidecar",
+            "A JSON file beside doc.json that holds state other than content."
+          ],
+          [
+            "asset",
+            [
+              {
+                "insert": "A file in the "
+              },
+              {
+                "insert": "assets/",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " folder of a bundle, such as an image."
+              }
+            ]
+          ],
+          [
+            "annotation",
+            "A note or an agent request on a block, a text range, or a canvas object."
+          ],
+          [
+            "lint rule",
+            "A registered writing or structure rule with an ID and a severity."
+          ],
+          [
+            "finding",
+            "One match of a lint rule on a page."
+          ],
+          [
+            "baseline",
+            "The page as it was before the first write of a task."
+          ],
+          [
+            "judgment rule",
+            "A style rule that a model answers with a confidence score."
+          ],
+          [
+            "style gate",
+            [
+              {
+                "insert": "The gated findings that a task added. They make "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " fail."
+              }
+            ]
+          ],
+          [
+            "task",
+            [
+              {
+                "insert": "One authoring activity, from "
+              },
+              {
+                "insert": "docs_begin",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " to "
+              },
+              {
+                "insert": "docs_end",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "viewer",
+            "The React package that shows and edits pages."
+          ],
+          [
+            "workbench",
+            [
+              {
+                "insert": "The local app that "
+              },
+              {
+                "insert": "docs serve",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " starts."
+              }
+            ]
+          ],
+          [
+            "board",
+            "One canvas file. A canvas block points to it."
+          ]
+        ],
+        "title": "Technical nouns"
+      },
+      "children": []
+    },
+    "voc-023-h": {
+      "id": "voc-023-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Technical Verbs"
+        }
+      ],
+      "children": []
+    },
+    "voc-024-p": {
+      "id": "voc-024-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These verbs extend the STE base, and each has one meaning. Use each verb only in that meaning."
+        }
+      ],
+      "children": []
+    },
+    "voc-025-h": {
+      "id": "voc-025-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Software Verbs STE Rejects"
+        }
+      ],
+      "children": []
+    },
+    "voc-026-p": {
+      "id": "voc-026-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE rejects these verbs, but software pages need them. The profile allows each one as a technical verb, which is a proposed decision."
+        }
+      ],
+      "children": []
+    },
+    "voc-027-table": {
+      "id": "voc-027-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Verb",
+          "One Meaning"
+        ],
+        "rows": [
+          [
+            "run",
+            "Start a program, a script, or a check."
+          ],
+          [
+            "create",
+            "Make a new file, page, block, or object."
+          ],
+          [
+            "call",
+            "Start a function or a tool with arguments."
+          ],
+          [
+            "return",
+            "Give a value back to the caller."
+          ],
+          [
+            "build",
+            "Compile or package code."
+          ],
+          [
+            "render",
+            "Make the visible form or the markdown form of a page or block."
+          ],
+          [
+            "link",
+            "Point one page or object at another."
+          ],
+          [
+            "search",
+            "Find text across pages or files."
+          ],
+          [
+            "test",
+            "Run code that checks other code."
+          ],
+          [
+            "handle",
+            "Respond to an event, an error, or a request."
+          ],
+          [
+            "define",
+            "State the name and shape of a type, a term, or a rule."
+          ],
+          [
+            "generate",
+            "Make code or text with a program or a model."
+          ]
+        ],
+        "title": "Software verbs STE rejects"
+      },
+      "children": []
+    },
+    "voc-028-h": {
+      "id": "voc-028-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Docs System Verbs"
+        }
+      ],
+      "children": []
+    },
+    "voc-029-p": {
+      "id": "voc-029-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These verbs name the acts of the docs tools and the data model."
+        }
+      ],
+      "children": []
+    },
+    "voc-030-table": {
+      "id": "voc-030-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Verb",
+          "One Meaning"
+        ],
+        "rows": [
+          [
+            "read",
+            "Load a page with its markdown, block IDs, hash, and findings."
+          ],
+          [
+            "apply",
+            "Run a batch of ops on a page as one atomic write."
+          ],
+          [
+            "insert",
+            "Add a new block under a parent at an index."
+          ],
+          [
+            "update",
+            "Change the props or text of an item and keep its ID."
+          ],
+          [
+            "delete",
+            "Remove a block, a page, or an asset."
+          ],
+          [
+            "move",
+            "Take an item from one place and put it at another."
+          ],
+          [
+            "split",
+            "Divide one text block, or one page, into two."
+          ],
+          [
+            "merge",
+            "Join sibling blocks, or two pages, into one."
+          ],
+          [
+            "stage",
+            "Record ops as a proposal for review instead of applying them."
+          ],
+          [
+            "accept",
+            "Apply a staged proposal or change set."
+          ],
+          [
+            "reject",
+            "Drop a staged proposal or change set with no change to content."
+          ],
+          [
+            "undo",
+            "Apply the inverse batch of one patch."
+          ],
+          [
+            "validate",
+            "Compare data with its schema and return typed problems."
+          ],
+          [
+            "lint",
+            "Run lint rules on a page and report findings."
+          ],
+          [
+            "check",
+            [
+              {
+                "insert": "Run validation and lint rules on a page, as "
+              },
+              {
+                "insert": "docs_check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " does."
+              }
+            ]
+          ],
+          [
+            "fix",
+            "Apply safe, undoable repairs for lint findings."
+          ],
+          [
+            "annotate",
+            "Put an annotation on a block, a text range, or a canvas object."
+          ],
+          [
+            "resolve",
+            "Close an annotation, with an optional note."
+          ],
+          [
+            "reply",
+            "Add a message to an annotation thread."
+          ]
+        ],
+        "title": "Docs system verbs"
+      },
+      "children": []
+    },
+    "voc-031-h": {
+      "id": "voc-031-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Metaphor Verbs That Need a Ruling"
+        }
+      ],
+      "children": []
+    },
+    "voc-032-p": {
+      "id": "voc-032-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Our pages use these verbs often, but each one is a metaphor. The proposed ruling replaces each one with a literal verb."
+        }
+      ],
+      "children": []
+    },
+    "voc-033-table": {
+      "id": "voc-033-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Verb",
+          "Example",
+          "Proposed Replacement"
+        ],
+        "rows": [
+          [
+            "carry",
+            "\"A span carries marks.\"",
+            "has, holds, or stores"
+          ],
+          [
+            "own",
+            "\"The component owns its schema.\"",
+            "defines or controls"
+          ],
+          [
+            "live",
+            "\"The rules live in lint-feedback.ts.\"",
+            "is in, or is stored in"
+          ],
+          [
+            "stay",
+            "\"Filler and sentence length stay ungated.\"",
+            "is. Keep \"stay\" only for a value that does not change."
+          ],
+          [
+            "govern",
+            "\"Human judgment governs sentence clarity.\"",
+            "controls, sets, or decides"
+          ]
+        ],
+        "title": "Metaphor verbs"
+      },
+      "children": []
+    },
+    "voc-034-h": {
+      "id": "voc-034-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Replacements"
+        }
+      ],
+      "children": []
+    },
+    "voc-035-p": {
+      "id": "voc-035-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each table maps a rejected word to the word to write. Rows come from public style guides, such as Google, Microsoft, Red Hat, and plainlanguage.gov. A lint must skip code spans, link URLs, quoted words, and these tables, because they mention a word without using it."
+        }
+      ],
+      "children": []
+    },
+    "voc-036-h": {
+      "id": "voc-036-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Autofix"
+        }
+      ],
+      "children": []
+    },
+    "voc-037-p": {
+      "id": "voc-037-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lint swaps these words with no review. The swap keeps the inflection, so \"utilizes\" becomes \"uses\". After a deletion, it capitalizes the next word."
+        }
+      ],
+      "children": []
+    },
+    "voc-038-table": {
+      "id": "voc-038-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Do Not Write",
+          "Write",
+          "Category",
+          "Note"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "in order to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "to",
+            "wordy phrase",
+            "Keep it only when it adds clarity."
+          ],
+          [
+            [
+              {
+                "insert": "in order that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "so that",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "as a means to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "to",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "due to the fact that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "because",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "because of the fact that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "because",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "based on the fact that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "because",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "despite the fact that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "although",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in the event that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "if",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "prior to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "before",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "subsequent to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "after",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "at this point in time",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "now",
+            "wordy phrase",
+            "A present-state page can often delete it."
+          ],
+          [
+            [
+              {
+                "insert": "at the present time",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "now",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "has the ability to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "is able to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "wordy phrase",
+            "STE also maps \"able\" to \"can\"."
+          ],
+          [
+            [
+              {
+                "insert": "are able to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "has the capacity to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "a large number of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "many",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "a majority of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "most",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "with regard to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "about",
+            "wordy phrase",
+            "STE prefers \"about\"."
+          ],
+          [
+            [
+              {
+                "insert": "in regard to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "about",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "pertaining to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "about",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "until such time as",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "until",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "for the duration of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "during",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "take into account",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "consider",
+            "wordy phrase",
+            "Inflect the swap, so \"takes into account\" becomes \"considers\"."
+          ],
+          [
+            [
+              {
+                "insert": "make use of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "use",
+            "wordy phrase",
+            "Inflect the swap."
+          ],
+          [
+            [
+              {
+                "insert": "along the lines of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "similar to",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "at all times",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "always",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in many cases",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "often",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in most cases",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "usually",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in some cases",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "sometimes",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "sufficient number of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "enough",
+            "wordy phrase",
+            "STE approves \"sufficient\". The profile proposes \"enough\"."
+          ],
+          [
+            [
+              {
+                "insert": "successfully complete",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "complete",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "conduct a review of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "review",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "perform an assessment of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "assess",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "establish connectivity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "connect",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in lieu of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "instead of",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "with the exception of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "except for",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "has a requirement for",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "needs",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "is applicable to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "applies to",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "utilize",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "use",
+            "simple word",
+            "Inflect the swap, so \"utilizes\" becomes \"uses\"."
+          ],
+          [
+            [
+              {
+                "insert": "facilitate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "help",
+            "simple word",
+            "\"Make X easier\" can read better."
+          ],
+          [
+            [
+              {
+                "insert": "commence",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "initiate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "terminate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "stop",
+            "simple word",
+            "Keep it in CLI syntax."
+          ],
+          [
+            [
+              {
+                "insert": "cease",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "stop",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "begin",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start",
+            "simple word",
+            "STE rejects \"begin\"."
+          ],
+          [
+            [
+              {
+                "insert": "obtain",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "get",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "approximately",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "about",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "assist",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "help",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "assistance",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "help",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "modify",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "change",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "alter",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "change",
+            "simple word",
+            "SQL such as ALTER TABLE in a code span is out of scope."
+          ],
+          [
+            [
+              {
+                "insert": "numerous",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "many",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "demonstrate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "show",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "exhibit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "show",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "ensure",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "make sure",
+            "simple word",
+            "STE requires \"make sure\". Microsoft keeps \"ensure\"."
+          ],
+          [
+            [
+              {
+                "insert": "allows you to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "lets you",
+            "simple word",
+            "Inflect the swap."
+          ],
+          [
+            [
+              {
+                "insert": "enables you to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "lets you",
+            "simple word",
+            "Better still, name the user action."
+          ],
+          [
+            [
+              {
+                "insert": "retain",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "keep",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "frequently",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "often",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "possess",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "have",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "wish to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "want to",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "endeavor",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "try",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "finalize",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "complete or finish",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "methodology",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "method",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "relocate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "move",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "inform",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "tell",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "transmit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "send",
+            "simple word",
+            "STE approves \"transmit\", so this row conflicts with the base."
+          ],
+          [
+            [
+              {
+                "insert": "execute",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "run",
+            "simple word",
+            "STE says \"do\". This profile uses \"run\"."
+          ],
+          [
+            [
+              {
+                "insert": "choose",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "select",
+            "simple word",
+            "Google allows \"choose\" in general text."
+          ],
+          [
+            [
+              {
+                "insert": "locate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "find",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "e.g.",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "for example",
+            "Latin abbreviation",
+            "Keep the comma after it."
+          ],
+          [
+            [
+              {
+                "insert": "i.e.",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "that is",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "n/a",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "not applicable",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "aka",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "also known as",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "viz.",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "namely",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "click on",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "click",
+            "UI verb",
+            "STE lists \"click\" as a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "double-click on",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "double-click",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "tap on",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "tap",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "uncheck",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "clear",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "deselect",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "clear",
+            "UI verb",
+            "STE lists \"deselect\" as a technical verb. Pick one of the two."
+          ],
+          [
+            [
+              {
+                "insert": "grayed-out",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "unavailable",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "navigate to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "go to",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "mouse over",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "hover over",
+            "UI verb",
+            "Google prefers \"hold the pointer over\"."
+          ],
+          [
+            [
+              {
+                "insert": "drag and drop",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "drag",
+            "UI verb",
+            "STE lists \"drag and drop\" as a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "start up",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "print out",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "print",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "close down",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "close",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "kick off",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start",
+            "process verb",
+            "Derived from STE 9.3, not from a published list."
+          ],
+          [
+            [
+              {
+                "insert": "simply",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            "Capitalize the next word if needed."
+          ],
+          [
+            [
+              {
+                "insert": "quite",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "basically",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "please",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            "Keep it only to ask permission or forgiveness."
+          ],
+          [
+            [
+              {
+                "insert": "please note",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "note that",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            "Capitalize the next word if needed."
+          ],
+          [
+            [
+              {
+                "insert": "man-hours",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "person hours",
+            "inclusive",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "happen",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "occur",
+            "STE core",
+            "STE approves \"occur\"."
+          ],
+          [
+            [
+              {
+                "insert": "repo",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "repository",
+            "shorthand",
+            "Conflicts with the naming canon, which keeps \"repo\"."
+          ],
+          [
+            [
+              {
+                "insert": "info",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "information",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "param",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "parameter",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "params",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "parameters",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "spec",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "specification",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "authN",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "authentication",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "authZ",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "authorization",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "k8s",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Kubernetes",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "regex",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "regular expression",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "distro",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "distribution",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "e-mail",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "email",
+            "shorthand",
+            "STE spells it \"e-mail\"."
+          ],
+          [
+            [
+              {
+                "insert": "code base",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "codebase",
+            "shorthand",
+            "The naming canon prefers \"repo\"."
+          ],
+          [
+            [
+              {
+                "insert": "tarball",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "tar file",
+            "shorthand",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "bugfix",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "bug fix",
+            "shorthand",
+            ""
+          ]
+        ],
+        "title": "Autofix replacements"
+      },
+      "children": []
+    },
+    "voc-039-h": {
+      "id": "voc-039-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Autofix After Part-of-Speech Check"
+        }
+      ],
+      "children": []
+    },
+    "voc-040-p": {
+      "id": "voc-040-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lint swaps these words only when a part-of-speech tagger confirms the part of speech in the note. Otherwise the lint only flags the word."
+        }
+      ],
+      "children": []
+    },
+    "voc-041-table": {
+      "id": "voc-041-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Do Not Write",
+          "Write",
+          "Category",
+          "Note"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "leverage",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "use",
+            "simple word",
+            "Verb only."
+          ],
+          [
+            [
+              {
+                "insert": "attempt",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "try",
+            "simple word",
+            "Verb only. The noun needs a rewrite."
+          ],
+          [
+            [
+              {
+                "insert": "indicate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "show",
+            "simple word",
+            "Verb only."
+          ],
+          [
+            [
+              {
+                "insert": "display",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "show",
+            "simple word",
+            "Verb only. STE approves the noun."
+          ],
+          [
+            [
+              {
+                "insert": "permit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "let",
+            "simple word",
+            "Verb only. The noun is a technical noun."
+          ],
+          [
+            [
+              {
+                "insert": "purchase",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "buy",
+            "simple word",
+            "Verb only."
+          ],
+          [
+            [
+              {
+                "insert": "remain",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "stay",
+            "simple word",
+            "Verb only. The adjective \"remaining\" becomes \"other\"."
+          ],
+          [
+            [
+              {
+                "insert": "desire",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "want",
+            "simple word",
+            "Verb only."
+          ],
+          [
+            [
+              {
+                "insert": "login",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "log in",
+            "UI verb",
+            "Verb only. The noun \"login\" is fine."
+          ],
+          [
+            [
+              {
+                "insert": "setup",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "set up",
+            "UI verb",
+            "Verb only. The noun \"setup\" is fine."
+          ],
+          [
+            [
+              {
+                "insert": "whitelist",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "allowlist",
+            "inclusive",
+            "Noun only. Rewrite verb forms."
+          ],
+          [
+            [
+              {
+                "insert": "blacklist",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "denylist or blocklist",
+            "inclusive",
+            "Noun only."
+          ],
+          [
+            [
+              {
+                "insert": "wrong",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "incorrect",
+            "STE core",
+            "Adjective only."
+          ],
+          [
+            [
+              {
+                "insert": "finish",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "complete",
+            "STE core",
+            "Verb only. STE approves the noun."
+          ],
+          [
+            [
+              {
+                "insert": "config",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "configuration",
+            "shorthand",
+            "Not in code spans or file names. The transcripts prefer \"config\"."
+          ]
+        ],
+        "title": "Replacements after a part-of-speech check"
+      },
+      "children": []
+    },
+    "voc-042-h": {
+      "id": "voc-042-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Flag Only"
+        }
+      ],
+      "children": []
+    },
+    "voc-043-p": {
+      "id": "voc-043-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lint flags these words, and a writer or the rewrite model picks the fix. Most rows have more than one correct replacement, or a technical sense that must stay."
+        }
+      ],
+      "children": []
+    },
+    "voc-044-table": {
+      "id": "voc-044-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Do Not Write",
+          "Write",
+          "Category",
+          "Note"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "in the event of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "if",
+            "wordy phrase",
+            "Needs a clause after \"if\". Rewrite the sentence."
+          ],
+          [
+            [
+              {
+                "insert": "a number of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "many, some, or the exact count",
+            "wordy phrase",
+            "Give the number, or delete the phrase."
+          ],
+          [
+            [
+              {
+                "insert": "whether or not",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "whether",
+            "wordy phrase",
+            "Keep it when it means \"regardless of whether\"."
+          ],
+          [
+            [
+              {
+                "insert": "in addition",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "also",
+            "wordy phrase",
+            "The position of \"also\" changes. Rewrite."
+          ],
+          [
+            [
+              {
+                "insert": "as well as",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "and",
+            "wordy phrase",
+            "Can change the grouping in a list."
+          ],
+          [
+            [
+              {
+                "insert": "in accordance with",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "by, per, under, or following",
+            "wordy phrase",
+            "Pick the word by context."
+          ],
+          [
+            [
+              {
+                "insert": "as per",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "per or as",
+            "wordy phrase",
+            "Google uses \"per\" only for rates."
+          ],
+          [
+            [
+              {
+                "insert": "on a regular basis",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "regularly, or the interval",
+            "wordy phrase",
+            "State the interval."
+          ],
+          [
+            [
+              {
+                "insert": "in the process of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "there is",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "there are",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(rewrite)",
+            "wordy phrase",
+            "Rewrite with a real subject."
+          ],
+          [
+            [
+              {
+                "insert": "plays a key role in",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "is essential to, or (rewrite)",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "in terms of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(rewrite)",
+            "wordy phrase",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "utilization",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "use or usage",
+            "simple word",
+            "Keep it for a resource amount, such as CPU utilization."
+          ],
+          [
+            [
+              {
+                "insert": "acquire",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "get",
+            "simple word",
+            "\"Acquire a lock\" is a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "additional",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "more",
+            "simple word",
+            "\"An additional X\" becomes \"another X\"."
+          ],
+          [
+            [
+              {
+                "insert": "determine",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "find, find out, or decide",
+            "simple word",
+            "The meaning splits into calculate and decide."
+          ],
+          [
+            [
+              {
+                "insert": "eliminate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "remove",
+            "simple word",
+            "Sometimes means prevent or stop."
+          ],
+          [
+            [
+              {
+                "insert": "encounter",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "get, find, or see",
+            "simple word",
+            "Rewrite \"if you encounter an error\" as \"if an error occurs\"."
+          ],
+          [
+            [
+              {
+                "insert": "verify",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "make sure or check",
+            "simple word",
+            "\"Verify a signature\" is a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "maintain",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "keep",
+            "simple word",
+            "\"Maintain a library\" is a different sense."
+          ],
+          [
+            [
+              {
+                "insert": "allow",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "let",
+            "simple word",
+            "Fine for a permission feature, such as a firewall rule."
+          ],
+          [
+            [
+              {
+                "insert": "provide",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "give",
+            "simple word",
+            "For an API, \"has\" or \"returns\" often reads better."
+          ],
+          [
+            [
+              {
+                "insert": "require",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "need or must",
+            "simple word",
+            "Keep \"required field\"."
+          ],
+          [
+            [
+              {
+                "insert": "request",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "ask for",
+            "simple word",
+            "\"HTTP request\" is a technical noun."
+          ],
+          [
+            [
+              {
+                "insert": "proceed",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "continue or go to",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "previous",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "earlier",
+            "simple word",
+            "STE approves \"previous\", so the profile keeps it."
+          ],
+          [
+            [
+              {
+                "insert": "previously",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "before or earlier",
+            "simple word",
+            "STE approves \"previously\", so the profile keeps it."
+          ],
+          [
+            [
+              {
+                "insert": "subsequent",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "later or next",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "identical",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "same",
+            "simple word",
+            "\"Identical to\" becomes \"the same as\"."
+          ],
+          [
+            [
+              {
+                "insert": "however",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "but",
+            "simple word",
+            "A sentence that opens with \"However,\" needs a rewrite."
+          ],
+          [
+            [
+              {
+                "insert": "therefore",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "thus or so",
+            "simple word",
+            "STE uses \"thus\"."
+          ],
+          [
+            [
+              {
+                "insert": "consequently",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "so or as a result",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "accordingly",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "so",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "whereas",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "but or because",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "comprise",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "include or consist of",
+            "simple word",
+            "Writers often invert its meaning."
+          ],
+          [
+            [
+              {
+                "insert": "desired",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "that you want or required",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "optimum",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "best",
+            "simple word",
+            "\"Optimal\" is technical in algorithms."
+          ],
+          [
+            [
+              {
+                "insert": "notify",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "tell",
+            "simple word",
+            "A technical verb for events and webhooks."
+          ],
+          [
+            [
+              {
+                "insert": "implement",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "do or carry out",
+            "simple word",
+            "\"Implement an interface\" is a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "perform",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "do or run",
+            "simple word",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "generate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "create or make",
+            "simple word",
+            "A technical verb for code and model output."
+          ],
+          [
+            [
+              {
+                "insert": "insert",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "put or add",
+            "simple word",
+            "SQL INSERT and insert mode are technical."
+          ],
+          [
+            [
+              {
+                "insert": "whether",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "if",
+            "simple word",
+            "\"If\" can blur a condition and a choice."
+          ],
+          [
+            [
+              {
+                "insert": "via",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "through, by using, or with",
+            "simple word",
+            "Pick the word by context."
+          ],
+          [
+            [
+              {
+                "insert": "etc.",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "and so on, or (rewrite the list)",
+            "Latin abbreviation",
+            "Better, give the full list or use \"such as\"."
+          ],
+          [
+            [
+              {
+                "insert": "vs.",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "versus or compared to",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "and/or",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A or B, or \"A, B, or both\"",
+            "Latin abbreviation",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "hit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "press or select",
+            "UI verb",
+            "\"Cache hit\" is technical."
+          ],
+          [
+            [
+              {
+                "insert": "check",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (a checkbox)"
+              }
+            ],
+            "select",
+            "UI verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "pop-up",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "dialog or menu",
+            "UI verb",
+            "The transcripts use \"pop-up\" for this. Pick one name."
+          ],
+          [
+            [
+              {
+                "insert": "kill",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "stop or end",
+            "process verb",
+            "Keep it for the POSIX signal."
+          ],
+          [
+            [
+              {
+                "insert": "abort",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "stop or cancel",
+            "process verb",
+            "STE lists \"abort\" as a technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "launch",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start or open",
+            "process verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "spawn",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "create or start",
+            "process verb",
+            "Technical for processes and sub-agents."
+          ],
+          [
+            [
+              {
+                "insert": "spin up",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "start or create",
+            "process verb",
+            "A phrasal verb. STE 9.3 bans phrasal verbs."
+          ],
+          [
+            [
+              {
+                "insert": "ingest",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "import or load",
+            "process verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "persist",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (transitive)"
+              }
+            ],
+            "save or store",
+            "process verb",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "on the fly",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "dynamically or as needed",
+            "idiom",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "out of the box",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "by default",
+            "idiom",
+            "Pick the text for the context."
+          ],
+          [
+            [
+              {
+                "insert": "once",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (meaning after)"
+              }
+            ],
+            "after",
+            "conjunction",
+            "\"Once\" meaning one time is fine."
+          ],
+          [
+            [
+              {
+                "insert": "since",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (meaning because)"
+              }
+            ],
+            "because",
+            "conjunction",
+            "\"Since\" for time is fine."
+          ],
+          [
+            [
+              {
+                "insert": "while",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (meaning although)"
+              }
+            ],
+            "although",
+            "conjunction",
+            "\"While\" for time is fine."
+          ],
+          [
+            [
+              {
+                "insert": "as",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (meaning because)"
+              }
+            ],
+            "because",
+            "conjunction",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "just",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete), or only",
+            "filler",
+            "\"Just\" can mean only or recently."
+          ],
+          [
+            [
+              {
+                "insert": "easily",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "easy",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(rewrite)",
+            "filler",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "simple",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(rewrite)",
+            "filler",
+            "\"Simple type\" and similar terms are technical."
+          ],
+          [
+            [
+              {
+                "insert": "very",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "obviously",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "of course",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "filler",
+            "Condescending."
+          ],
+          [
+            [
+              {
+                "insert": "currently",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(delete)",
+            "tense and time",
+            "A page describes the present state."
+          ],
+          [
+            [
+              {
+                "insert": "new",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "newer",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "a version, a date, or later",
+            "tense and time",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "will",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (future)"
+              }
+            ],
+            "(present tense)",
+            "tense and time",
+            "STE allows the simple future. The profile proposes to allow it."
+          ],
+          [
+            [
+              {
+                "insert": "performant",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "fast, efficient, or a metric",
+            "hype",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "functionality",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "feature or capability",
+            "hype",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "state-of-the-art",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "latest, or a specific claim",
+            "hype",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "robust",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "seamless",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "crucial",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "powerful",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "(state the fact)",
+            "hype",
+            "Common tells of model-written text."
+          ],
+          [
+            [
+              {
+                "insert": "should",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "must, or (rewrite)",
+            "modal",
+            "STE maps \"should\" to \"must\"."
+          ],
+          [
+            [
+              {
+                "insert": "may",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (possibility)"
+              }
+            ],
+            "can or might",
+            "modal",
+            "Keep \"may\" for permission. The profile proposes \"can\"."
+          ],
+          [
+            [
+              {
+                "insert": "could",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "modal",
+            "The profile uses \"can\" or \"will\"."
+          ],
+          [
+            [
+              {
+                "insert": "would",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can or will",
+            "modal",
+            "STE maps \"would\" to \"can\"."
+          ],
+          [
+            [
+              {
+                "insert": "master",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "main or primary",
+            "inclusive",
+            "Git branch names in code spans are out of scope."
+          ],
+          [
+            [
+              {
+                "insert": "slave",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "replica or secondary",
+            "inclusive",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "sanity check",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "quick check or confidence check",
+            "inclusive",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "dummy",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "placeholder",
+            "inclusive",
+            "Also test double, stub, or fake."
+          ],
+          [
+            [
+              {
+                "insert": "he",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "she",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "they or you",
+            "inclusive",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "achieve",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "get",
+            "STE core",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "assume",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "think",
+            "STE core",
+            "\"Assume a role\" is technical."
+          ],
+          [
+            [
+              {
+                "insert": "evaluate",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "examine",
+            "STE core",
+            "\"Evaluate an expression\" is technical."
+          ],
+          [
+            [
+              {
+                "insert": "establish",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "make sure or make",
+            "STE core",
+            "\"Establish a connection\" becomes \"connect\"."
+          ],
+          [
+            [
+              {
+                "insert": "exist",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "be",
+            "STE core",
+            "Needs \"there is\" or a rewrite."
+          ],
+          [
+            [
+              {
+                "insert": "need",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "necessary or must",
+            "STE core",
+            "The grammar changes. STE uses the adjective \"necessary\"."
+          ],
+          [
+            [
+              {
+                "insert": "fail",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "if ... not",
+            "STE core",
+            "Common in software. A candidate technical verb."
+          ],
+          [
+            [
+              {
+                "insert": "able to",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "can",
+            "STE core",
+            "See the \"is able to\" row."
+          ],
+          [
+            [
+              {
+                "insert": "search",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "examine or find",
+            "STE core",
+            "Allowed as a technical verb in this profile."
+          ],
+          [
+            [
+              {
+                "insert": "ask",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "tell",
+            "STE core",
+            "STE maps \"ask\" to \"tell\"."
+          ]
+        ],
+        "title": "Flag-only replacements"
+      },
+      "children": []
+    },
+    "voc-045-h": {
+      "id": "voc-045-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Habit Replacements"
+        }
+      ],
+      "children": []
+    },
+    "voc-046-p": {
+      "id": "voc-046-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These rows come from the dictation and naming habits of the project owner. The source CSV does not hold them."
+        }
+      ],
+      "children": []
+    },
+    "voc-047-table": {
+      "id": "voc-047-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Do Not Write",
+          "Write",
+          "Tier",
+          "Note"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "doc system",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "docs system",
+            "Autofix",
+            "Matches the repo name."
+          ],
+          [
+            [
+              {
+                "insert": "documentation system",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "docs framework",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "docs system",
+            "Flag only",
+            "\"Docs framework\" is also the name of an older skill."
+          ],
+          [
+            [
+              {
+                "insert": "header",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (a page heading)"
+              }
+            ],
+            "heading",
+            "Flag only",
+            "\"Header\" stays for the UI region."
+          ],
+          [
+            [
+              {
+                "insert": "subheader",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "subheading",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "subagent",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "sub agent",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "sub-agent",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "mock-up",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "mock up",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "mockup",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "data set",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "dataset",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "work tree",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "worktree",
+            "Autofix",
+            "Matches the git spelling."
+          ],
+          [
+            [
+              {
+                "insert": "side bar",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "sidebar",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "pull request",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "PR",
+            "Autofix",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "state structure",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "data shape",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "state shape",
+            "Autofix",
+            "Matches the block type name."
+          ],
+          [
+            [
+              {
+                "insert": "get rid of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "remove",
+            "Autofix",
+            "Inflect the swap."
+          ],
+          [
+            [
+              {
+                "insert": "wire up",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "hook up",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "tie in",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "connect",
+            "Autofix",
+            "Phrasal verbs. Inflect the swap."
+          ],
+          [
+            [
+              {
+                "insert": "figure out",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "find or find out",
+            "Flag only",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "look into",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "dig into",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "examine or find",
+            "Flag only",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "knock out",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "do or finish",
+            "Flag only",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "issue",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (meaning a problem)"
+              }
+            ],
+            "problem, bug, or error",
+            "Flag only",
+            "Keep \"issue\" for a tracked item."
+          ],
+          [
+            [
+              {
+                "insert": "thread",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (a stored conversation)"
+              }
+            ],
+            "session",
+            "Flag only",
+            "\"New thread\" stays as the UI action."
+          ],
+          [
+            [
+              {
+                "insert": "directory",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "dir",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "folder",
+            "Flag only",
+            "Code spans and CLI flags keep \"dir\"."
+          ],
+          [
+            [
+              {
+                "insert": "repository",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "codebase",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "repo",
+            "Flag only",
+            "Conflicts with the CSV row that expands \"repo\"."
+          ],
+          [
+            [
+              {
+                "insert": "land",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "ship",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (a change)"
+              }
+            ],
+            "merge or deploy",
+            "Flag only",
+            "Figurative verbs."
+          ]
+        ],
+        "title": "Habit replacements"
+      },
+      "children": []
+    },
+    "voc-048-h": {
+      "id": "voc-048-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Banned Filler"
+        }
+      ],
+      "children": []
+    },
+    "voc-049-p": {
+      "id": "voc-049-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Filler words add no meaning. Delete each one, or replace a vague word with the full list that it stands for."
+        }
+      ],
+      "children": []
+    },
+    "voc-050-table": {
+      "id": "voc-050-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Filler",
+          "Fix"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "whatnot",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Name the list in full."
+          ],
+          [
+            [
+              {
+                "insert": "and such",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Name the list in full."
+          ],
+          [
+            [
+              {
+                "insert": "or something",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Name the thing, or delete the phrase."
+          ],
+          [
+            [
+              {
+                "insert": "stuff",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Name the things."
+          ],
+          [
+            [
+              {
+                "insert": "thing",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "things",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " (vague)"
+              }
+            ],
+            "Name the thing."
+          ],
+          [
+            [
+              {
+                "insert": "essentially",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "kind of",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "just",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it, or write \"only\"."
+          ],
+          [
+            [
+              {
+                "insert": "actually",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "really",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "basically",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "simply",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ],
+          [
+            [
+              {
+                "insert": "please",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Delete it."
+          ]
+        ],
+        "title": "Banned filler"
+      },
+      "children": []
+    }
+  }
+}

@@ -36,7 +36,7 @@ Six levels — three in the doc tree, three in the source:
 
   - L1–L3 structure foundation, system design, and agents exactly as they structure implementation.
 
-- The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides.
+- The doc tree stays at three levels. A subsection appears only when a section genuinely subdivides.
 
 - Below L3 the rungs live in the source — in-code docs owns them.
 
@@ -44,11 +44,11 @@ Six levels — three in the doc tree, three in the source:
 
 - A doc is a folder containing `doc.json` — `10-authentication/` holding a bundle, not `10-authentication.md`. The folder name is the doc's address; the bundle inside is its state.
 
-- Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter.
+- Implementation mirrors the source: `src/core/workflow/` documents at `docs/30-implementation/10-core/10-workflow/`. Cross-cutting concerns (logging, caching, error handling) get one primary home, never a scatter.
 
-  - The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the implementation layer standard owns the rule.
+  - The mirror goes one level per genuine subdivision: deeper structure becomes entries on the area page, not sub-pages. The implementation layer standard owns the rule.
 
-- A section folder is itself a document: it carries its own `doc.json` — the parent doc — introducing its immediate children, one level deep, one line each.
+- A section folder is itself a document. It carries its own `doc.json` (the parent doc), introducing its immediate children, one level deep, one line each.
 
   - An abstract, not a table of contents: after reading it, a reader can explain the domain and descends only where the task lives.
 
@@ -78,7 +78,7 @@ Foundation owns intent, design owns behavior, agents owns agent definitions, and
 
   - Every doc is a folder in the repo, versioned with the source it describes.
 
-    - An agent reads and edits it with plain file access — no special tooling.
+    - An agent reads and edits it with plain file access: no special tooling.
 
     - Docs and code change in the same place, so they track together.
 

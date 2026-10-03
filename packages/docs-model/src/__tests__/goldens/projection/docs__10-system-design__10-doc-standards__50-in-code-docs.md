@@ -46,7 +46,7 @@ No unit carries doc links: code linking is one-way, and the source stays ignoran
 
   - Explain the why of a non-obvious move as the code goes, never restating what the line already says.
 
-- Each unit answers the question a parent doc answers one level up — is the thing I need below this point?
+- Each unit answers the question a parent doc answers one level up: is the thing I need below this point?
 
   - The header rules the file in or out.
 
@@ -64,6 +64,6 @@ No unit carries doc links: code linking is one-way, and the source stays ignoran
 
 - **The flow pays off at the file**
 
-  - A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. 
+  - A reader leaves the docs with the question framed. The first screenful confirms or rules the file out.
 
   - Code is read last, and only where the task lives.

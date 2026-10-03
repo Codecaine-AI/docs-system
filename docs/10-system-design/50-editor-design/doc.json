@@ -225,7 +225,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The designed surface degrades by capability, not by error. Every host-dependent power — persistence, annotation writes, live change events, theme writes, asset upload — is a supplied capability, and an absent capability removes its affordances instead of failing. A static export is the limit case: the same surface with no write capabilities renders the same documents read-only, with editing, annotation composing, live updates, and theme authoring simply absent rather than broken."
+          "insert": "The designed surface degrades by capability, not by error. Every host-dependent power (persistence, annotation writes, live change events, theme writes, asset upload) is a supplied capability, and an absent capability removes its affordances instead of failing. A static export is the limit case: the same surface with no write capabilities renders the same documents read-only, with editing, annotation composing, live updates, and theme authoring simply absent rather than broken."
         }
       ],
       "children": []

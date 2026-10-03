@@ -284,7 +284,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Project IDs depend on the project name and canonical docs-root path. Rediscover after moving or renaming a checkout. For a prompt that edits two projects, use the two returned IDs on separate tool calls and check each changed page. There is no cross-project transaction or rollback."
+          "insert": "Project IDs depend on the project name and canonical docs-root path. After moving or renaming a checkout, rediscover. For a prompt that edits two projects, use the two returned IDs on separate tool calls and check each changed page. There is no cross-project transaction or rollback."
         }
       ],
       "children": []
@@ -321,7 +321,7 @@
       "props": {},
       "text": [
         {
-          "insert": "This workbench uses the same editing service as the external clients. Valid tool edits become visible immediately. Existing standalone or kernel workbenches have separate process-local coordination; finish their edits before editing the same documents through MCP."
+          "insert": "This workbench uses the same editing service as the external clients. Valid tool edits become visible immediately. Existing standalone or kernel workbenches have separate process-local coordination. Finish their edits before editing the same documents through MCP."
         }
       ],
       "children": []

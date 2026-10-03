@@ -234,7 +234,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The doc tree stays at three levels; a subsection appears only when a section genuinely subdivides."
+          "insert": "The doc tree stays at three levels. A subsection appears only when a section genuinely subdivides."
         }
       ],
       "children": []
@@ -337,7 +337,7 @@
           }
         },
         {
-          "insert": ". Cross-cutting concerns — logging, caching, error handling — get one primary home, never a scatter."
+          "insert": ". Cross-cutting concerns (logging, caching, error handling) get one primary home, never a scatter."
         }
       ],
       "children": [
@@ -350,7 +350,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The mirror goes one level per genuine subdivision — deeper structure becomes entries on the area page, not sub-pages; the "
+          "insert": "The mirror goes one level per genuine subdivision: deeper structure becomes entries on the area page, not sub-pages. The "
         },
         {
           "insert": "implementation layer",
@@ -373,7 +373,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A section folder is itself a document: it carries its own "
+          "insert": "A section folder is itself a document. It carries its own "
         },
         {
           "insert": "doc.json",
@@ -382,7 +382,7 @@
           }
         },
         {
-          "insert": " — the parent doc — introducing its immediate children, one level deep, one line each."
+          "insert": " (the parent doc), introducing its immediate children, one level deep, one line each."
         }
       ],
       "children": [
@@ -594,7 +594,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An agent reads and edits it with plain file access — no special tooling."
+          "insert": "An agent reads and edits it with plain file access: no special tooling."
         }
       ],
       "children": []

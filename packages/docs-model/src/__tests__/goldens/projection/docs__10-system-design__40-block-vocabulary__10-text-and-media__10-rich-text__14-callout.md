@@ -6,7 +6,7 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 > **INFO** — Tone only, the agent render labels this `INFO`.
 
-> **DECISION: Keep the original available** — Retain the captured source and review history so the selected design can be compared with its starting point.
+> **DECISION: Keep the original available** — Keep the captured source and review history so the selected design can be compared with its starting point.
 
 > **RISK: Source may have changed** — A source edit made after capture can conflict with the selected revision. Compare the current file before integrating the design.
 
@@ -50,15 +50,23 @@ Carries delta text (`carriesText: true`) as the callout body.
 
 ### The Coercion Target
 
-> **Decision: Retired types never break a corpus** — After legacy `flavour` aliasing, any block whose type is a string but not one of the canonical block types coerces to a callout, preserving the old type name as `props.kind` (unless the block already carries its own non-empty `kind`); props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all.
+> **Decision: Retired types never break a corpus** — After legacy `flavour` aliasing, any block whose type is a string but not one of the canonical block types coerces to a callout, preserving the old type name as `props.kind` (unless the block already carries its own non-empty `kind`). Props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all.
 
 ## Doc Renderer
 
-Slash menu: **Callout** (aliases: note, info, tip). No input rule, type `/callout` or convert an existing line.
+The slash menu lists **Callout** (aliases: note, info, tip). No input rule, type `/callout` or convert an existing line.
 
 The editable view and the read view share `CalloutDocsBlock`, including the rail, the icon, the printed label, the optional title, and the body. In the editor, ProseMirror owns the body while the head row stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata keep the existing document schema. Both views support info, decision, risk, warning, and success, and unknown tones fall back to info.
 
-Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default. The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600. A `·` separator and the title in ink at the same weight follow the label. The body sits below. The icon has no tooltip, and the label is always printed.
+Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default.
+
+- The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600.
+
+- A `·` separator and the title in ink at the same weight follow the label.
+
+- The body sits below.
+
+- The icon has no tooltip, and the label is always printed.
 
 ## Agent Renderer
 
@@ -68,9 +76,13 @@ Every callout is one rail note: a 3px left rail in the tone color, with no fill 
 
 - Keep the body to one or two sentences, the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section (`heading` level 2 or 3 plus paragraphs) placed after the callout; a callout that scrolls is a section wearing a border.
 
-- Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences. The callout stays greppable; the section carries the why.
+- Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences.
 
-- Prefer `kind` for semantic labels ("Decision", "Boundary under review") and `tone` for the visual register; the pair is how this corpus encodes decision records.
+  - The callout stays greppable.
+
+  - The section carries the why.
+
+- Prefer `kind` for semantic labels ("Decision", "Boundary under review") and `tone` for the visual register. The pair is how this corpus encodes decision records.
 
 - No typed actions exist. Patch `tone`, `kind`, `title`, and `variant` via `updateBlock`, and edit the body via text ops.
 

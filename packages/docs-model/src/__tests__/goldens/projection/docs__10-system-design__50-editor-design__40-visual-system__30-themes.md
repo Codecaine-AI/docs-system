@@ -25,23 +25,23 @@ themes/
 
 - The `THEME_TOKEN_REGISTRY` allow-list bounds every component file and key a theme may reach.
 
-- Component files are sparse; an absent value falls through to the base theme and semantic contract.
+- Component files are sparse. An absent value falls through to the base theme and semantic contract.
 
 - Unknown files, unknown keys, and malformed mode values are ignored rather than applied.
 
 ### Resolution and Selection
 
-- A theme resolves over a base chain: the folder's values apply over its named built-in base, and an unknown base ends the chain rather than failing the theme.
+- A theme resolves over a base chain. The folder's values apply over its named built-in base, and an unknown base ends the chain rather than failing the theme.
 
 - A repository theme shadows a built-in theme with the same id.
 
 - The id `global` is reserved. A repository folder named `global` is ignored, so it never shadows the Global theme.
 
-- Every theme resolves to a light and a dark value set; a single scalar value applies to both modes.
+- Every theme resolves to a light and a dark value set. A single scalar value applies to both modes.
 
 - Selecting a theme applies its declared mode, adopts its rail defaults as the working settings, and persists as the active selection across sessions.
 
-- Theme settings also travel as an exported file; import validates and normalizes the payload, and an invalid file leaves the active state unchanged.
+- Theme settings also travel as an exported file. Import validates and normalizes the payload, and an invalid file leaves the active state unchanged.
 
 | Layer | May decide | Precedence |
 | --- | --- | --- |
@@ -91,13 +91,13 @@ The Global theme shares the document's look. Workbench layout state stays with e
 
 ### The Living Default
 
-Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change; selecting Default restores the saved look.
+Default is the repository's living theme on a host that serves no Global theme. Every rail setting, dark toggle, and component override auto-saves into it shortly after the last change. Selecting Default restores the saved look.
 
 - The saved state is complete: every scalar setting carries a saved value, so Default restores the whole look rather than a diff; component values are saved only where they diverge.
 
 - Active rail overrides still win over the saved values.
 
-- The repository copy is the durable authority: browser-local state is a cache and a fallback, and never overrides settings loaded from the repository.
+- The repository copy is the durable authority. Browser-local state is a cache and a fallback, and never overrides settings loaded from the repository.
 
 - A fresh browser profile hydrates from the repository Default before autosave engages.
 
@@ -105,13 +105,13 @@ Default is the repository's living theme on a host that serves no Global theme. 
 
 ### The Customization Boundary
 
-Registered colors, typography, global radius, document layout values, and component tokens may follow a theme. System UI structure stays fixed: unregistered widths, row geometry, visibility breakpoints, and interaction framing do not become theme values. The fixed structure keeps every theme recognizable as the same tool.
+Registered colors, typography, global radius, document layout values, and component tokens may follow a theme. System UI structure stays fixed. Unregistered widths, row geometry, visibility breakpoints, and interaction framing do not become theme values. The fixed structure keeps every theme recognizable as the same tool.
 
 ## Why
 
 - **Hand editing fails safely**
 
-  - A typo or unsupported key cannot escape the closed vocabulary and alter an arbitrary application property.
+  - A typo or unsupported key cannot escape the closed vocabulary and change an arbitrary application property.
 
 - **Default is adjustable by eye**
 

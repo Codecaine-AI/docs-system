@@ -123,7 +123,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Humans and agents consume information differently; each needs a surface optimized for how it reads and edits."
+          "insert": "Humans and agents consume information differently. Each needs a surface optimized for how it reads and edits."
         }
       ],
       "children": []
@@ -219,7 +219,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Closed schemas protect the shared tree: a block cannot hold state its type did not declare, so corruption is refused at the door."
+          "insert": "Closed schemas protect the shared tree. A block cannot hold state its type did not declare, so corruption is refused at the door."
         }
       ],
       "children": []
@@ -344,7 +344,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every block type ships its style capabilities as theme knobs; components do not hardcode looks."
+          "insert": "Every block type ships its style capabilities as theme knobs. Components do not hardcode looks."
         }
       ],
       "children": []
@@ -436,7 +436,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Restraint removes competing encodings such as per-kind colors, icons, badges, and decorative framing; it does not merely mute them."
+          "insert": "Restraint removes competing encodings such as per-kind colors, icons, badges, and decorative framing. It does not merely mute them."
         }
       ],
       "children": []
@@ -460,7 +460,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The intended surface is a virtual version of pen-and-paper thinking. Fewer competing colors and markers keep too much from happening at once."
+          "insert": "The intended surface is a virtual version of pen-and-paper thinking. Fewer competing colors and markers keep too much from occurring at once."
         }
       ],
       "children": []

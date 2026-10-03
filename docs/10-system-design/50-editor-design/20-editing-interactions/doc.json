@@ -178,7 +178,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Custom node views edit an object inside its rendered surface; types without one remain read-only atoms edited through typed actions."
+          "insert": "Custom node views edit an object inside its rendered surface. Types without one remain read-only atoms edited through typed actions."
         }
       ],
       "children": []
@@ -238,7 +238,7 @@
           }
         },
         {
-          "insert": ", focus loss, tab hiding, mode changes, navigating to another document, and closing the editor request the same flush — every trigger reaches the same diff and the same batch path."
+          "insert": ", focus loss, tab hiding, mode changes, going to another document, and closing the editor request the same flush — every trigger reaches the same diff and the same batch path."
         }
       ],
       "children": []
@@ -292,7 +292,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A stale-hash or foreign-lock refusal pauses autosave without discarding anything: the draft stays intact in the editor, and automatic flushes hold while the conflict is known. The header indicator is the whole save UI — "
+          "insert": "A stale-hash or foreign-lock refusal pauses autosave without discarding anything: the draft stays intact in the editor, and automatic flushes hold while the conflict is known. The header indicator is the whole save UI: "
         },
         {
           "insert": "Not saved",

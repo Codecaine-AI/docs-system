@@ -18,24 +18,24 @@ function structuredTableData(block: DocBlock): StructuredTableData | null {
 
 - **Schema state only**
 
-  - Nothing renders that the state schema does not declare; the renderer adds no state of its own.
+  - Nothing renders that the state schema does not declare. The renderer adds no state of its own.
 
 - **Read and edit**
 
   - A read rendering for every surface, and — where the type edits in place — a node view with the type's own interactions.
 
-  - Structural behavior (drag, select, delete) comes from the editor for free; the renderer supplies only what is specific to the type.
+  - Structural behavior (drag, select, delete) comes from the editor for free. The renderer supplies only what is specific to the type.
 
 - **Themed through tokens**
 
-  - Looks come from the component's theme knobs, resolved per theme — see theming.
+  - Looks come from the component's theme knobs, resolved per theme. See theming.
 
 ## Why
 
 - **The human surface is components, not text**
 
-  - Rich rendering is the human half of the translation layer — the reason a table is a table and not a wall of pipes.
+  - Rich rendering is the human half of the translation layer: the reason a table is a table and not a wall of pipes.
 
 - **A bad block never takes the page down**
 
-  - Defensive rendering isolates damage to one placeholder block; the document around it stays readable and editable.
+  - Defensive rendering isolates damage to one placeholder block. The document around it stays readable and editable.

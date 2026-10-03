@@ -759,7 +759,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A short table stays narrow, and a dense state shape grows to 1100px without widening the prose around it."
+          "insert": "A short table stays narrow. A dense state shape grows to 1100px without widening the prose around it."
         }
       ],
       "children": []

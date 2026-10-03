@@ -22,7 +22,7 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 ### Reset by property removal
 
-- Decision: A default or unset rail value translates to `null` in the variable map, and applying `null` removes the inline property; nothing writes a copied default into inline style.
+- Decision: A default or unset rail value translates to `null` in the variable map, and applying `null` removes the inline property. Nothing writes a copied default into inline style.
 
 - Why: A second reset path was rejected. Removing the property makes the theme layer or base stylesheet below authoritative automatically, so a default value never forks between layers.
 
@@ -38,7 +38,7 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 ### Sparse per-surface component files
 
-- Decision: A component theme is one `components/<surface>.json` file per registered surface holding only the keys it overrides; the server replaces a theme's manifest whole but writes component files individually, leaving files omitted from a write on disk.
+- Decision: A component theme is one `components/<surface>.json` file per registered surface holding only the keys it overrides. The server replaces a theme's manifest whole but writes component files individually, leaving files omitted from a write on disk.
 
 - Why: One merged theme document was rejected. Sparse per-surface files keep a theme readable as its divergences and let a write touch one surface without re-serializing the rest.
 
@@ -62,7 +62,11 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 ### Living Default file layout
 
-- Decision: The Living Default persists in the package-owned folder `themes/default/`. `theme.json` carries the complete normalized scalar settings under `railDefaults` with an empty `components` member, and `components/*.json` carry the sparse per-surface overrides. Workbench autosave from an unlocked serve without a Global theme is its only writer.
+- Decision: The Living Default persists in the package-owned folder `themes/default/`.
+
+  - `theme.json` carries the complete normalized scalar settings under `railDefaults` with an empty `components` member, and `components/*.json` carry the sparse per-surface overrides.
+
+  - Workbench autosave from an unlocked serve without a Global theme is its only writer.
 
 - Why: A browser-local or exported-file home was rejected. A repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging.
 
@@ -72,7 +76,7 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 - Decision: The reserved theme id `global` resolves to `<stateDirectory>/themes/global/`, by default `~/.local/state/codecaine-docs/themes/global/`. `themesRootForId` sends that id to the global root and every other id to the repository root. The route factory never reads the environment. Each host resolves the root and passes it as `globalThemesRoot`, and a host without one serves repository themes only.
 
-- Why: A theme copy in each repository was rejected. The owner wants one reading look across all projects, and per-repository themes drifted apart and hid changes made in other projects. A host option instead of an environment read keeps route tests and hosts without the docs service on repository themes.
+- Why: A theme copy in each repository was rejected. The owner wants one reading look across all projects. Per-repository themes drifted apart and hid changes made in other projects. A host option instead of an environment read keeps route tests and hosts without the docs service on repository themes.
 
 - Applies to: `packages/docs-server/src/themes.ts`, `packages/docs-server/src/routes.ts`, and every host that constructs `createDocsRoutes`. Future hosts pass the same root.
 

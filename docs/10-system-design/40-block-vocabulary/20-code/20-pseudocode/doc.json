@@ -67,7 +67,7 @@
           }
         },
         {
-          "insert": " comment into one aligned column. Use the code block when the reader needs the actual source."
+          "insert": " comment into one aligned column. When the reader needs the actual source, use the code block."
         }
       ],
       "children": []

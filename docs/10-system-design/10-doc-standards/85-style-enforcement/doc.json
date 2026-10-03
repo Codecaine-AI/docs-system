@@ -1,0 +1,3342 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-e5c39da5f4f0fa83f65d2a691573f63c",
+  "title": "Style Enforcement",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "se-open",
+        "se-proposed",
+        "se-structure-h",
+        "se-structure-lead",
+        "se-tiers-outline",
+        "se-table-lead",
+        "se-rule-table",
+        "se-rule-h",
+        "se-rule-lead",
+        "se-sfw-h",
+        "se-sfw-lead",
+        "se-sfw-gate",
+        "se-sfw-vocab",
+        "se-sfw-autofix",
+        "se-sfw-unknown",
+        "se-t0-h",
+        "se-t0-lead",
+        "se-t0-digest",
+        "se-t0-guide",
+        "se-t0-skill",
+        "se-t0-why",
+        "se-t1-h",
+        "se-t1-lead",
+        "se-t1-fix",
+        "se-t1-vocab",
+        "se-t1-exempt",
+        "se-t1-tools",
+        "se-afg-h",
+        "se-afg-lead",
+        "se-afg-sentence",
+        "se-afg-page",
+        "se-afg-corpus",
+        "se-t2-h",
+        "se-t2-lead",
+        "se-t2-topic",
+        "se-t2-step",
+        "se-t2-cond",
+        "se-t2-passive",
+        "se-t2-term",
+        "se-t2-fact",
+        "se-t2-after",
+        "se-t3-h",
+        "se-t3-lead",
+        "se-t3-outline",
+        "se-t3-ops-lead",
+        "se-t3-inplace",
+        "se-t3-struct",
+        "se-t3-check",
+        "se-t3-whole",
+        "se-t3-content",
+        "se-guard-h",
+        "se-guard-lead",
+        "se-guard-table",
+        "se-guard-split-lead",
+        "se-guard-split-colon",
+        "se-guard-split-cite",
+        "se-guard-split-scope",
+        "se-guard-split-subject",
+        "se-guard-split-case",
+        "se-model-h",
+        "se-model-lead",
+        "se-model-table",
+        "se-model-qwen",
+        "se-model-baml",
+        "se-quota",
+        "se-editor-h",
+        "se-editor-lead",
+        "se-editor-scope",
+        "se-editor-guard",
+        "se-rollout-h",
+        "se-rollout-lead",
+        "se-review-h",
+        "se-review-lead",
+        "se-review-1",
+        "se-review-2",
+        "se-review-3",
+        "se-review-4",
+        "se-review-5",
+        "se-base-h",
+        "se-base-lead",
+        "se-base-table",
+        "se-quick-lead",
+        "se-quick-1",
+        "se-quick-2",
+        "se-quick-3",
+        "se-quick-4",
+        "se-why-h",
+        "se-why-lead",
+        "se-why-cheap",
+        "se-why-prime",
+        "se-why-review",
+        "se-why-sentences",
+        "se-why-context"
+      ]
+    },
+    "se-open": {
+      "id": "se-open",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style enforcement makes every page follow the "
+        },
+        {
+          "insert": "STE Profile",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/30-ste-profile"
+            }
+          }
+        },
+        {
+          "insert": " and the "
+        },
+        {
+          "insert": "Vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/40-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": ", so pages stay consistent and easy to read. Tier 0 primes the writer before the first edit. Tiers 1 to 3 then verify the result, cheapest first. A rollout writes a change to a page only when three independent reviewer agents approve it."
+        }
+      ],
+      "children": []
+    },
+    "se-proposed": {
+      "id": "se-proposed",
+      "type": "callout",
+      "props": {
+        "kind": "Status",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "The pipeline lives in "
+        },
+        {
+          "insert": "packages/docs-style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", runs as "
+        },
+        {
+          "insert": "bun run docs style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and does not gate "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". On 2026-10-02 the owner authorized an agent-reviewed rollout across 15 local corpora. The rollout wrote a change only when three independent reviewer agents agreed. A fourth audit then read every written block on disk. The rollout results are in "
+        },
+        {
+          "insert": "proposals/ste-writing-profile-2026-10-02/ab-report/ROLLOUT.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-structure-h": {
+      "id": "se-structure-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "se-structure-lead": {
+      "id": "se-structure-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style enforcement runs as one loop. Tier 0 primes the writer, and each later tier passes on only the blocks it could not settle. Reviewer agents then check each change before a rollout writes it."
+        }
+      ],
+      "children": []
+    },
+    "se-tiers-outline": {
+      "id": "se-tiers-outline",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Style Enforcement Tiers",
+            "steps": [
+              {
+                "text": "Tier 0 Prime the Writer",
+                "steps": [
+                  {
+                    "text": "Give the writer STE and the house style before it writes"
+                  }
+                ]
+              },
+              {
+                "text": "Tier 1 Lint the Draft",
+                "steps": [
+                  {
+                    "text": "Flag findings with deterministic rules and autofix the safe cases for free"
+                  }
+                ]
+              },
+              {
+                "text": "Tier 2 Judge Each Block",
+                "steps": [
+                  {
+                    "text": "Ask Jev one cached yes-or-no question per block"
+                  }
+                ]
+              },
+              {
+                "text": "Tier 3 Rewrite Failing Blocks",
+                "steps": [
+                  {
+                    "text": "Rewrite only the blocks that still fail with a cheap model"
+                  },
+                  {
+                    "text": "Give the blocks that Tier 3 declines to Opus editor agents"
+                  }
+                ]
+              },
+              {
+                "text": "Review and Apply the Changes",
+                "steps": [
+                  {
+                    "text": "Write only the changes that three reviewer agents approve"
+                  },
+                  {
+                    "text": "Audit every written block on disk"
+                  }
+                ]
+              },
+              {
+                "text": "Tiers 1 to 3 trust nothing from Tier 0 and check every block the writer produced.",
+                "kind": "note"
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "se-table-lead": {
+      "id": "se-table-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each rule runs in the cheapest tier that can decide it. An empty cell means the tier skips that rule. \"Only inside a structure rewrite\" means Tier 3 fixes the rule only in a block that a structure finding sent to Tier 3. Opus editor agents take the structure findings that Tier 3 skips."
+        }
+      ],
+      "children": []
+    },
+    "se-rule-table": {
+      "id": "se-rule-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Rule",
+          "Tier 1 Lint",
+          "Tier 2 Jev",
+          "Tier 3 Rewrite"
+        ],
+        "rows": [
+          [
+            "Replacement table, autofix-safe rows",
+            "Autofix",
+            "",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "Naming canon, such as "
+              },
+              {
+                "insert": "subagent",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " to "
+              },
+              {
+                "insert": "sub-agent",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Autofix where 1:1",
+            "",
+            "Context-dependent cases"
+          ],
+          [
+            [
+              {
+                "insert": "Banned filler, such as "
+              },
+              {
+                "insert": "whatnot",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " and "
+              },
+              {
+                "insert": "essentially",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Flag",
+            "",
+            ""
+          ],
+          [
+            "One name per thing",
+            "Flag per page",
+            "",
+            "Only inside a structure rewrite"
+          ],
+          [
+            "Sentence length of 20 or 25 words",
+            "Flag",
+            "",
+            "Yes"
+          ],
+          [
+            "Paragraph of 4 sentences or fewer",
+            "Flag",
+            "",
+            ""
+          ],
+          [
+            "Semicolons and em dashes",
+            "Flag, and autofix two common em-dash shapes",
+            "",
+            "Sentence-level fix, never bullets"
+          ],
+          [
+            "Progressive and perfect tense",
+            "Flag",
+            "",
+            ""
+          ],
+          [
+            "Passive voice",
+            "Flag at warn severity",
+            "Is this passive necessary?",
+            "Yes"
+          ],
+          [
+            [
+              {
+                "insert": "Modals "
+              },
+              {
+                "insert": "should",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "may",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", and "
+              },
+              {
+                "insert": "might",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Flag",
+            "",
+            [
+              {
+                "insert": "Only inside a structure rewrite. Change to "
+              },
+              {
+                "insert": "must",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " or "
+              },
+              {
+                "insert": "can",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": "."
+              }
+            ]
+          ],
+          [
+            "Noun cluster of 4 or more",
+            "Flag",
+            "",
+            "Only inside a structure rewrite"
+          ],
+          [
+            "Flag-only replacement rows",
+            "Flag",
+            "",
+            "Only inside a structure rewrite, with the options as hints"
+          ],
+          [
+            "One topic per sentence",
+            "",
+            "Judge",
+            "Only with another structure finding"
+          ],
+          [
+            "One instruction per step",
+            "",
+            "Judge",
+            ""
+          ],
+          [
+            "Condition before instruction",
+            "",
+            "Judge",
+            ""
+          ],
+          [
+            "Internal term used before its definition",
+            "Glossary lookup",
+            "Judge if ambiguous",
+            "Add a link or definition"
+          ]
+        ],
+        "title": "Rule to tier mapping"
+      },
+      "children": []
+    },
+    "se-rule-h": {
+      "id": "se-rule-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "se-rule-lead": {
+      "id": "se-rule-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 0 changes what the writer reads. Tiers 1 to 3 live in "
+        },
+        {
+          "insert": "packages/docs-style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and run as "
+        },
+        {
+          "insert": "bun run docs style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-h": {
+      "id": "se-sfw-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Structure First, Words Second"
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-lead": {
+      "id": "se-sfw-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure findings carry more weight than vocabulary findings, because each project uses its own vocabulary."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-gate": {
+      "id": "se-sfw-gate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure Rules Gate a Page",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-sfw-gate-1",
+        "se-sfw-gate-2"
+      ]
+    },
+    "se-sfw-gate-1": {
+      "id": "se-sfw-gate-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Structure rules cover sentence length, semicolons and em dashes, paragraph length, label-colon openers, and one idea per bullet."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-gate-2": {
+      "id": "se-sfw-gate-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Model rewrites start from structure findings."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-vocab": {
+      "id": "se-sfw-vocab",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Vocabulary Rules Advise",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-sfw-vocab-1",
+        "se-sfw-vocab-2"
+      ]
+    },
+    "se-sfw-vocab-1": {
+      "id": "se-sfw-vocab-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A vocabulary finding never blocks a page."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-vocab-2": {
+      "id": "se-sfw-vocab-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A vocabulary finding alone never triggers a model rewrite. Tier 3 fixes a vocabulary finding only inside a rewrite that a structure finding started."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-autofix": {
+      "id": "se-sfw-autofix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Meaning-Safe Autofix",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-sfw-autofix-1",
+        "se-sfw-autofix-2"
+      ]
+    },
+    "se-sfw-autofix-1": {
+      "id": "se-sfw-autofix-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Autofix makes only the fixes that cannot change meaning, such as "
+        },
+        {
+          "insert": "in order to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", Latin abbreviations, "
+        },
+        {
+          "insert": "utilize",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and two common em-dash shapes."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-autofix-2": {
+      "id": "se-sfw-autofix-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every other replacement stays a finding."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-unknown": {
+      "id": "se-sfw-unknown",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Unknown Words Are Allowed",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-sfw-unknown-1",
+        "se-sfw-unknown-2"
+      ]
+    },
+    "se-sfw-unknown-1": {
+      "id": "se-sfw-unknown-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rule flags a word only when the word is on the deny list. The deny list combines the replacement tables and the banned filler list from "
+        },
+        {
+          "insert": "Vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/40-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-sfw-unknown-2": {
+      "id": "se-sfw-unknown-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Project vocabulary is never a finding for being new or rare."
+        }
+      ],
+      "children": []
+    },
+    "se-t0-h": {
+      "id": "se-t0-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tier 0 Priming"
+        }
+      ],
+      "children": []
+    },
+    "se-t0-lead": {
+      "id": "se-t0-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each writer agent gets ASD-STE100 Simplified Technical English (STE) plus the house style from three sources."
+        }
+      ],
+      "children": []
+    },
+    "se-t0-digest": {
+      "id": "se-t0-digest",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style Digest",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t0-digest-1"
+      ]
+    },
+    "se-t0-digest-1": {
+      "id": "se-t0-digest-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opens its result with the style digest, a short list of the top rules."
+        }
+      ],
+      "children": []
+    },
+    "se-t0-guide": {
+      "id": "se-t0-guide",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style Guide",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t0-guide-1"
+      ]
+    },
+    "se-t0-guide-1": {
+      "id": "se-t0-guide-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the full guide. The docs MCP refuses writes until the task reads it."
+        }
+      ],
+      "children": []
+    },
+    "se-t0-skill": {
+      "id": "se-t0-skill",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Writing Skill",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t0-skill-1"
+      ]
+    },
+    "se-t0-skill-1": {
+      "id": "se-t0-skill-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "codecaine-docs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skill tells the agent to write in STE and the house style."
+        }
+      ],
+      "children": []
+    },
+    "se-t0-why": {
+      "id": "se-t0-why",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE is strong priming because models already know the spec. Tiers 1 to 3 then verify the draft and clean up what the writer missed."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-h": {
+      "id": "se-t1-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tier 1 Deterministic Lints"
+        }
+      ],
+      "children": []
+    },
+    "se-t1-lead": {
+      "id": "se-t1-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 1 runs the STE rules in "
+        },
+        {
+          "insert": "packages/docs-style/src/rules",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the core rules of the lint engine in "
+        },
+        {
+          "insert": "packages/docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " owns the core rule catalog, phases, baselines, and style gate. Tier 1 also autofixes the safe cases."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-fix": {
+      "id": "se-t1-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Autofix",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t1-fix-1",
+        "se-t1-fix-2",
+        "se-t1-fix-3"
+      ]
+    },
+    "se-t1-fix-1": {
+      "id": "se-t1-fix-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "ste.replacement",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rule applies the autofix-safe rows of the replacement table."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-fix-2": {
+      "id": "se-t1-fix-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "ste.dash-gloss",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " rule repairs the two most common em-dash shapes, such as a dash after a leading link or code span."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-fix-3": {
+      "id": "se-t1-fix-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 1 keeps a fix only when the fix adds no finding to its block."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-vocab": {
+      "id": "se-t1-vocab",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Vocabulary Rule",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t1-vocab-1",
+        "se-t1-vocab-2",
+        "se-t1-vocab-3",
+        "se-t1-vocab-4"
+      ]
+    },
+    "se-t1-vocab-1": {
+      "id": "se-t1-vocab-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The base vocabulary is the full STE approved-word dictionary, extended with our technical nouns and technical verbs."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-vocab-2": {
+      "id": "se-t1-vocab-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE100 is copyrighted, so the dictionary stays local in "
+        },
+        {
+          "insert": "proposals/ste-writing-profile-2026-10-02/ste100/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". We never publish it."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-vocab-3": {
+      "id": "se-t1-vocab-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule flags an unapproved word only when the word has a known replacement. A word that our corpus rarely uses is not a finding."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-vocab-4": {
+      "id": "se-t1-vocab-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The profile lives as typed data in "
+        },
+        {
+          "insert": "packages/docs-style/src/profile/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which the rules, the guardrails, and the rewrite prompt read."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-exempt": {
+      "id": "se-t1-exempt",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Exemptions",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t1-exempt-1",
+        "se-t1-exempt-2",
+        "se-t1-exempt-3"
+      ]
+    },
+    "se-t1-exempt-1": {
+      "id": "se-t1-exempt-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A word inside quotes or a \"do not write\" example is a mention, not a use. The vocabulary rule skips mentions."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-exempt-2": {
+      "id": "se-t1-exempt-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A registered multi-word technical noun, such as \"change set\" or \"list item\", counts as one noun. Without this, about 40% of noun-cluster hits are false."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-exempt-3": {
+      "id": "se-t1-exempt-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code span counts as one word for sentence length. No rule edits the inside of a code span."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-tools": {
+      "id": "se-t1-tools",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Language Tools",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t1-tools-1",
+        "se-t1-tools-2"
+      ]
+    },
+    "se-t1-tools-1": {
+      "id": "se-t1-tools-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "wink-nlp tags parts of speech, so a swap can depend on the role of the word."
+        }
+      ],
+      "children": []
+    },
+    "se-t1-tools-2": {
+      "id": "se-t1-tools-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "compromise inflects the replacement, so "
+        },
+        {
+          "insert": "utilizes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " becomes "
+        },
+        {
+          "insert": "uses",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-h": {
+      "id": "se-afg-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Autofix Guards"
+        }
+      ],
+      "children": []
+    },
+    "se-afg-lead": {
+      "id": "se-afg-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An autofix-safe row swaps a word only where the swap cannot change meaning. The guards read the sentence, the page, or the corpus around each match."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-sentence": {
+      "id": "se-afg-sentence",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sentence Guards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-afg-sentence-1",
+        "se-afg-sentence-2",
+        "se-afg-sentence-3"
+      ]
+    },
+    "se-afg-sentence-1": {
+      "id": "se-afg-sentence-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "attempt",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " changes only in \"attempt to <verb>\"."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-sentence-2": {
+      "id": "se-afg-sentence-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "purchase",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " never changes as a noun, as in \"purchase costs\"."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-sentence-3": {
+      "id": "se-afg-sentence-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "initiate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keeps its networking sense, as in \"initiate a connection\"."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-page": {
+      "id": "se-afg-page",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Page Guards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-afg-page-1",
+        "se-afg-page-2"
+      ]
+    },
+    "se-afg-page-1": {
+      "id": "se-afg-page-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A word that the page uses in a heading or a capitalized name is never swapped on that page."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-page-2": {
+      "id": "se-afg-page-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The swap from "
+        },
+        {
+          "insert": "execute",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to \"run\" skips a page that uses \"run\" as a noun or names a \"runner\"."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-corpus": {
+      "id": "se-afg-corpus",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Corpus Guards",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-afg-corpus-1",
+        "se-afg-corpus-2"
+      ]
+    },
+    "se-afg-corpus-1": {
+      "id": "se-afg-corpus-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The replacement rows skip project terms, such as the technical nouns in "
+        },
+        {
+          "insert": "Vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/40-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-afg-corpus-2": {
+      "id": "se-afg-corpus-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A row can name corpora to skip. The "
+        },
+        {
+          "insert": "purchase",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " row skips "
+        },
+        {
+          "insert": "network-setup",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", where \"purchased\" is an equipment status."
+        }
+      ],
+      "children": []
+    },
+    "se-t2-h": {
+      "id": "se-t2-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tier 2 Judgment Rules"
+        }
+      ],
+      "children": []
+    },
+    "se-t2-lead": {
+      "id": "se-t2-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 2 sends six yes-or-no questions to Jev through "
+        },
+        {
+          "insert": "packages/docs-style/src/judge/jev.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Jev, the TypeSafe System One model "
+        },
+        {
+          "insert": "jev-1.13.0",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", answers each question once per block. "
+        },
+        {
+          "insert": "jev.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " caches each answer and runs 6 requests at once."
+        }
+      ],
+      "children": []
+    },
+    "se-t2-topic": {
+      "id": "se-t2-topic",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One Topic per Sentence",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-topic-1"
+      ]
+    },
+    "se-t2-topic-1": {
+      "id": "se-t2-topic-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does any sentence in the block carry two topics?"
+        }
+      ],
+      "children": []
+    },
+    "se-t2-step": {
+      "id": "se-t2-step",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One Instruction per Step",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-step-1"
+      ]
+    },
+    "se-t2-step-1": {
+      "id": "se-t2-step-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does a step give more than one instruction?"
+        }
+      ],
+      "children": []
+    },
+    "se-t2-cond": {
+      "id": "se-t2-cond",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Condition First",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-cond-1"
+      ]
+    },
+    "se-t2-cond-1": {
+      "id": "se-t2-cond-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does a condition come after the instruction it guards?"
+        }
+      ],
+      "children": []
+    },
+    "se-t2-passive": {
+      "id": "se-t2-passive",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Necessary Passive",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-passive-1"
+      ]
+    },
+    "se-t2-passive-1": {
+      "id": "se-t2-passive-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Is this passive necessary? Jev asks only about passive sentences that Tier 1 flagged."
+        }
+      ],
+      "children": []
+    },
+    "se-t2-term": {
+      "id": "se-t2-term",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undefined Internal Term",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-term-1"
+      ]
+    },
+    "se-t2-term-1": {
+      "id": "se-t2-term-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does the block use an internal term before the page defines or links it? Jev judges only the cases a glossary lookup cannot decide."
+        }
+      ],
+      "children": []
+    },
+    "se-t2-fact": {
+      "id": "se-t2-fact",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fact Check",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t2-fact-1",
+        "se-t2-fact-2"
+      ]
+    },
+    "se-t2-fact-1": {
+      "id": "se-t2-fact-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does the rewrite drop a fact, condition, or qualifier, or add a claim the original does not make?"
+        }
+      ],
+      "children": []
+    },
+    "se-t2-fact-2": {
+      "id": "se-t2-fact-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Jev asks this question only inside Tier 3, about the before-and-after pair of each rewrite."
+        }
+      ],
+      "children": []
+    },
+    "se-t2-after": {
+      "id": "se-t2-after",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "jev.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mirrors the request format, key, and cache of "
+        },
+        {
+          "insert": "packages/docs-mcp/src/jev-engine.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-h": {
+      "id": "se-t3-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tier 3 Model Rewrite"
+        }
+      ],
+      "children": []
+    },
+    "se-t3-lead": {
+      "id": "se-t3-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 3 rewrites only the blocks that still fail after Tiers 1 and 2. The "
+        },
+        {
+          "insert": "docs style sweep",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " command sends those blocks to GPT-6 Luna and retries a rejected rewrite on GPT-6.1 Sol."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-outline": {
+      "id": "se-t3-outline",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Tier 3 Rewrite Pass",
+            "steps": [
+              {
+                "text": "Protect the Block",
+                "trace": true,
+                "steps": [
+                  {
+                    "text": "Mask each code span and link as `⟦n⟧`"
+                  },
+                  {
+                    "text": "The model cannot change text it never sees.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Rewrite the block on `gpt-6-luna`",
+                "trace": true
+              },
+              {
+                "text": "Verify the Rewrite",
+                "trace": true,
+                "steps": [
+                  {
+                    "text": "Run the twelve cheap guardrails"
+                  },
+                  {
+                    "text": "Ask Jev the fact check question"
+                  },
+                  {
+                    "text": "Check the meaning with Sol"
+                  },
+                  {
+                    "text": "Each paid check runs only when every earlier check passes.",
+                    "kind": "note"
+                  },
+                  {
+                    "text": "Ignore the model's own fix claims"
+                  },
+                  {
+                    "text": "Luna once claimed a fix it did not make.",
+                    "kind": "note"
+                  }
+                ]
+              },
+              {
+                "text": "Retry Once on `gpt-6.1-sol` When Verification Fails",
+                "trace": true,
+                "steps": [
+                  {
+                    "text": "Skip the block and report it when the retry fails"
+                  }
+                ]
+              },
+              {
+                "text": "Send Accepted Rewrites to Review",
+                "trace": true,
+                "steps": [
+                  {
+                    "text": "Split `sweep.json` into review batches with `docs style batches`"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "se-t3-ops-lead": {
+      "id": "se-t3-ops-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rewrite prompt and the sweep keep each rewrite small and at the sentence level."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-inplace": {
+      "id": "se-t3-inplace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One Block, No Bullets",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t3-inplace-2",
+        "se-t3-inplace-1"
+      ]
+    },
+    "se-t3-inplace-2": {
+      "id": "se-t3-inplace-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 3 never makes bullets, so every rewrite stays one block."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-inplace-1": {
+      "id": "se-t3-inplace-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op replaces the text of one block."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-struct": {
+      "id": "se-t3-struct",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "What Starts a Rewrite",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t3-struct-1",
+        "se-t3-struct-2",
+        "se-t3-struct-3"
+      ]
+    },
+    "se-t3-struct-1": {
+      "id": "se-t3-struct-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sentence length, semicolons, em dashes, and passive voice can start a rewrite."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-struct-2": {
+      "id": "se-t3-struct-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "ste.one-topic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finding alone starts no rewrite. It joins a rewrite that another structure finding starts."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-struct-3": {
+      "id": "se-t3-struct-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Opus editor agents take the other structure findings, such as paragraph length and tense."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-check": {
+      "id": "se-t3-check",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Check Before Editing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t3-check-1",
+        "se-t3-check-2",
+        "se-t3-check-3"
+      ]
+    },
+    "se-t3-check-1": {
+      "id": "se-t3-check-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The prompt makes the model check each flagged sentence before it edits the block."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-check-2": {
+      "id": "se-t3-check-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The model keeps the author's pronouns and each \"this X\" phrase."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-check-3": {
+      "id": "se-t3-check-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the model is unsure, it returns the block unchanged."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-whole": {
+      "id": "se-t3-whole",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sentences That Stay Whole",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t3-whole-1",
+        "se-t3-whole-2",
+        "se-t3-whole-3",
+        "se-t3-whole-4"
+      ]
+    },
+    "se-t3-whole-1": {
+      "id": "se-t3-whole-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The model never splits a sentence that holds a list-introducing colon or ends with a citation."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-whole-2": {
+      "id": "se-t3-whole-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A sentence that opens with a scope phrase covering several clauses also stays whole."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-whole-3": {
+      "id": "se-t3-whole-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A short contrast and any sentence under 15 words stay whole too."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-whole-4": {
+      "id": "se-t3-whole-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "To make a split, the model never repeats a subject phrase."
+        }
+      ],
+      "children": []
+    },
+    "se-t3-content": {
+      "id": "se-t3-content",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No Lost Content",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-t3-content-1"
+      ]
+    },
+    "se-t3-content-1": {
+      "id": "se-t3-content-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rewrite keeps every fact, condition, and qualifier from the original block. The checks in Rewrite Guardrails, such as the 20% shrink limit, reject a rewrite that loses content."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-h": {
+      "id": "se-guard-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Rewrite Guardrails"
+        }
+      ],
+      "children": []
+    },
+    "se-guard-lead": {
+      "id": "se-guard-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tier 3 accepts a rewrite only when the rewrite passes every guardrail. The twelve cheap guardrails always run, so a report shows every reason for a rejection. The two paid guardrails, "
+        },
+        {
+          "insert": "fact-check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "meaning-equivalence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", run last. Each one runs only when every earlier guardrail passed."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-table": {
+      "id": "se-guard-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Guardrail",
+          "What It Catches"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "tokens",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A protected code span, link, or reference that does not come back exactly once"
+          ],
+          [
+            [
+              {
+                "insert": "fact-ledger",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A number, code span, link, path, name, or quote that the rewrite loses or adds"
+          ],
+          [
+            [
+              {
+                "insert": "content-coverage",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A content word of the original that the rewrite drops, compared by lemma"
+          ],
+          [
+            [
+              {
+                "insert": "list-integrity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Moved punctuation that changes what a sentence lists"
+          ],
+          [
+            [
+              {
+                "insert": "sentence-shape",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A broken new sentence, such as a phrase with no main verb"
+          ],
+          [
+            [
+              {
+                "insert": "split-integrity",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A split that breaks the sentence it splits, in one of five ways"
+          ],
+          [
+            [
+              {
+                "insert": "meaning-words",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "A logic word, such as "
+              },
+              {
+                "insert": "only",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "not",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", or "
+              },
+              {
+                "insert": "must",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", that the rewrite drops, adds, or swaps"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "shrink-limit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A loss of over 20% of the content words, counting every word inside parentheses. A vocabulary-only fix is exempt."
+          ],
+          [
+            [
+              {
+                "insert": "smallest-edit",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A change to a sentence that has no finding"
+          ],
+          [
+            [
+              {
+                "insert": "fixes-target",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A rewrite that fixes none of its target findings"
+          ],
+          [
+            [
+              {
+                "insert": "no-new-findings",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A lint finding that the rewrite adds"
+          ],
+          [
+            [
+              {
+                "insert": "slop",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            [
+              {
+                "insert": "Model filler that the rewrite adds, such as "
+              },
+              {
+                "insert": "robust",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " or "
+              },
+              {
+                "insert": "it is important to note",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "fact-check",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "A dropped, changed, or added fact, condition, or qualifier, as Jev judges it"
+          ],
+          [
+            [
+              {
+                "insert": "meaning-equivalence",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Any difference in meaning, as Sol judges it in both directions"
+          ]
+        ],
+        "title": "Rewrite guardrails"
+      },
+      "children": []
+    },
+    "se-guard-split-lead": {
+      "id": "se-guard-split-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "split-integrity",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " guardrail reads each sentence that a rewrite split into two or more. It rejects the split for any of five defects."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-split-colon": {
+      "id": "se-guard-split-colon",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Colon Lead-In",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-guard-split-colon-1"
+      ]
+    },
+    "se-guard-split-colon-1": {
+      "id": "se-guard-split-colon-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The lead-in clause of a colon goes to a different sentence than the colon."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-split-cite": {
+      "id": "se-guard-split-cite",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Trailing Citation",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-guard-split-cite-1"
+      ]
+    },
+    "se-guard-split-cite-1": {
+      "id": "se-guard-split-cite-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A trailing citation ends up backing only part of its claim."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-split-scope": {
+      "id": "se-guard-split-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Scope Phrase",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-guard-split-scope-1"
+      ]
+    },
+    "se-guard-split-scope-1": {
+      "id": "se-guard-split-scope-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clauses fall outside the scope phrase that covered them."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-split-subject": {
+      "id": "se-guard-split-subject",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repeated Subject",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-guard-split-subject-1"
+      ]
+    },
+    "se-guard-split-subject-1": {
+      "id": "se-guard-split-subject-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A piece repeats the subject of the original sentence word for word."
+        }
+      ],
+      "children": []
+    },
+    "se-guard-split-case": {
+      "id": "se-guard-split-case",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Identifier Case",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-guard-split-case-1"
+      ]
+    },
+    "se-guard-split-case-1": {
+      "id": "se-guard-split-case-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lowercase identifier, such as a lint rule ID, gains a capital letter."
+        }
+      ],
+      "children": []
+    },
+    "se-model-h": {
+      "id": "se-model-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Rewrite Model Stack"
+        }
+      ],
+      "children": []
+    },
+    "se-model-lead": {
+      "id": "se-model-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "BAML defines the rewrite prompt and the model clients. codex-lb is a local proxy at "
+        },
+        {
+          "insert": "127.0.0.1:2455/v1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that pools ChatGPT accounts. Times assume about 1,200 flagged blocks, with 16 calls at once."
+        }
+      ],
+      "children": []
+    },
+    "se-model-table": {
+      "id": "se-model-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Role",
+          "Model and route",
+          "Reasoning",
+          "Cost per pass",
+          "Time per pass"
+        ],
+        "rows": [
+          [
+            "Primary, local",
+            [
+              {
+                "insert": "gpt-6-luna",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " through codex-lb"
+              }
+            ],
+            "low",
+            "$0 extra",
+            "4.9 min, measured"
+          ],
+          [
+            "Fallback, when codex-lb does not answer",
+            [
+              {
+                "insert": "openai/gpt-6-luna",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " on OpenRouter"
+              }
+            ],
+            "none",
+            "$0.13 to $0.29",
+            "about 2.2 min"
+          ],
+          [
+            "Strong retry, 10 to 15% of blocks",
+            [
+              {
+                "insert": "gpt-6.1-sol",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " through codex-lb"
+              }
+            ],
+            "low",
+            "$0 extra",
+            "adds 1 to 2 min"
+          ]
+        ],
+        "title": "Rewrite model stack"
+      },
+      "children": []
+    },
+    "se-model-qwen": {
+      "id": "se-model-qwen",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why Not Qwen",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-model-qwen-1"
+      ]
+    },
+    "se-model-qwen-1": {
+      "id": "se-model-qwen-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Qwen is slow and reasons by default. Its slowest 10% of calls take 18 seconds."
+        }
+      ],
+      "children": []
+    },
+    "se-model-baml": {
+      "id": "se-model-baml",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "BAML Gotchas",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-model-baml-1",
+        "se-model-baml-2"
+      ]
+    },
+    "se-model-baml-1": {
+      "id": "se-model-baml-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A BAML fallback chain needs every client key up front. The pipeline builds its routes at runtime from the services and keys that exist."
+        }
+      ],
+      "children": []
+    },
+    "se-model-baml-2": {
+      "id": "se-model-baml-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bad output does not trigger a BAML fallback. The retry on "
+        },
+        {
+          "insert": "gpt-6.1-sol",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " runs in TypeScript."
+        }
+      ],
+      "children": []
+    },
+    "se-quota": {
+      "id": "se-quota",
+      "type": "callout",
+      "props": {
+        "kind": "Quota",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "codex-lb traffic uses the same ChatGPT-plan quota as your interactive Codex work. Before a full-corpus run, confirm that the plan terms cover bulk rewrites. The OpenRouter route avoids this question and costs under $1 per pass."
+        }
+      ],
+      "children": []
+    },
+    "se-editor-h": {
+      "id": "se-editor-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Editor Pass"
+        }
+      ],
+      "children": []
+    },
+    "se-editor-lead": {
+      "id": "se-editor-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Opus editor agents take the blocks that Tier 3 declines. "
+        },
+        {
+          "insert": "docs style export-jobs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes one job per block, and "
+        },
+        {
+          "insert": "docs style import-answers",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reads the answers back."
+        }
+      ],
+      "children": []
+    },
+    "se-editor-scope": {
+      "id": "se-editor-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sentence Level Only",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-editor-scope-1"
+      ]
+    },
+    "se-editor-scope-1": {
+      "id": "se-editor-scope-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editors change sentences only, because review often rejected their bullet restructures."
+        }
+      ],
+      "children": []
+    },
+    "se-editor-guard": {
+      "id": "se-editor-guard",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Same Guardrails",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-editor-guard-1",
+        "se-editor-guard-2"
+      ]
+    },
+    "se-editor-guard-1": {
+      "id": "se-editor-guard-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "import-answers",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " checks each answer with the guardrails that a model rewrite passes."
+        }
+      ],
+      "children": []
+    },
+    "se-editor-guard-2": {
+      "id": "se-editor-guard-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each answer that passes then goes through the same review."
+        }
+      ],
+      "children": []
+    },
+    "se-rollout-h": {
+      "id": "se-rollout-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Rollout"
+        }
+      ],
+      "children": []
+    },
+    "se-rollout-lead": {
+      "id": "se-rollout-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rollout runs the pipeline over one corpus at a time. It writes only the changes that the reviewer agents approve."
+        }
+      ],
+      "children": []
+    },
+    "se-review-h": {
+      "id": "se-review-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Review and Apply"
+        }
+      ],
+      "children": []
+    },
+    "se-review-lead": {
+      "id": "se-review-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four reviewer agents, R1 to R4, check the changes before and after "
+        },
+        {
+          "insert": "docs style apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes them."
+        }
+      ],
+      "children": []
+    },
+    "se-review-1": {
+      "id": "se-review-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "R1 labels every change and approves only an \"improved\" or \"neutral\" change."
+        }
+      ],
+      "children": []
+    },
+    "se-review-2": {
+      "id": "se-review-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "R2 audits each R1 approval without seeing the R1 review."
+        }
+      ],
+      "children": []
+    },
+    "se-review-3": {
+      "id": "se-review-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "R3 audits meaning only."
+        }
+      ],
+      "children": []
+    },
+    "se-review-4": {
+      "id": "se-review-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "docs style apply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes only the changes that R1, R2, and R3 all approve."
+        }
+      ],
+      "children": [
+        "se-review-4-1",
+        "se-review-4-2",
+        "se-review-4-3"
+      ]
+    },
+    "se-review-4-1": {
+      "id": "se-review-4-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each page must still hash to what the sweep read."
+        }
+      ],
+      "children": []
+    },
+    "se-review-4-2": {
+      "id": "se-review-4-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A page with uncommitted work that the rollout did not make is skipped."
+        }
+      ],
+      "children": []
+    },
+    "se-review-4-3": {
+      "id": "se-review-4-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Apply backs up every page first, and "
+        },
+        {
+          "insert": "docs style restore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the pages to their backups."
+        }
+      ],
+      "children": []
+    },
+    "se-review-5": {
+      "id": "se-review-5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "R4 compares each written block on disk with its backup. A flagged block goes back to its original text through a one-block revert."
+        }
+      ],
+      "children": []
+    },
+    "se-base-h": {
+      "id": "se-base-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Baseline"
+        }
+      ],
+      "children": []
+    },
+    "se-base-lead": {
+      "id": "se-base-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The research pass on 2026-10-02 measured 108 pages, 5,487 sentences, and about 57,600 words. The last two rows come from "
+        },
+        {
+          "insert": "bun run docs audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which runs the current rules."
+        }
+      ],
+      "children": []
+    },
+    "se-base-table": {
+      "id": "se-base-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Problem",
+          "Hits",
+          "Pages"
+        ],
+        "rows": [
+          [
+            "Semicolons",
+            "401",
+            "76"
+          ],
+          [
+            "Passive voice",
+            "322",
+            "84"
+          ],
+          [
+            "Unapproved words, starter list",
+            "251",
+            "71"
+          ],
+          [
+            "Descriptive sentences over 25 words",
+            "226",
+            "61"
+          ],
+          [
+            "Noun clusters of 4 or more, about 60% true",
+            "178",
+            "69"
+          ],
+          [
+            "Procedural sentences over 20 words",
+            "35",
+            "22"
+          ],
+          [
+            [
+              {
+                "insert": "Em dashes, "
+              },
+              {
+                "insert": "writing.no-em-dash",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "221",
+            ""
+          ],
+          [
+            [
+              {
+                "insert": "Label-colon openers, "
+              },
+              {
+                "insert": "structure.label-colon-opener",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "210",
+            ""
+          ]
+        ],
+        "title": "Corpus baseline"
+      },
+      "children": []
+    },
+    "se-quick-lead": {
+      "id": "se-quick-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The research pass also listed four quick wins."
+        }
+      ],
+      "children": []
+    },
+    "se-quick-1": {
+      "id": "se-quick-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Fix the 221 em dashes. This clears 221 of the 225 lint errors."
+        }
+      ],
+      "children": []
+    },
+    "se-quick-2": {
+      "id": "se-quick-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Rewrite the 28-word boilerplate sentence that repeats on 8 or more block-vocabulary pages."
+        }
+      ],
+      "children": []
+    },
+    "se-quick-3": {
+      "id": "se-quick-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Fix two stale facts."
+        }
+      ],
+      "children": [
+        "se-quick-3-1",
+        "se-quick-3-2"
+      ]
+    },
+    "se-quick-3-1": {
+      "id": "se-quick-3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The README and BLOCK-ARCHITECTURE say \"14 block types\", but the code has 23."
+        }
+      ],
+      "children": []
+    },
+    "se-quick-3-2": {
+      "id": "se-quick-3-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The README says "
+        },
+        {
+          "insert": "blockAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", but the code says "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "se-quick-4": {
+      "id": "se-quick-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Remove the stray "
+        },
+        {
+          "insert": "docs/assets/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder at the docs root. It causes 3 more lint errors."
+        }
+      ],
+      "children": []
+    },
+    "se-why-h": {
+      "id": "se-why-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "se-why-lead": {
+      "id": "se-why-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Five choices shape the design."
+        }
+      ],
+      "children": []
+    },
+    "se-why-cheap": {
+      "id": "se-why-cheap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cheapest First",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-why-cheap-1",
+        "se-why-cheap-2"
+      ]
+    },
+    "se-why-cheap-1": {
+      "id": "se-why-cheap-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lint costs nothing and never guesses. Jev costs little and caches its answers."
+        }
+      ],
+      "children": []
+    },
+    "se-why-cheap-2": {
+      "id": "se-why-cheap-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A model rewrite costs the most, so it sees only the blocks the cheaper tiers could not settle."
+        }
+      ],
+      "children": []
+    },
+    "se-why-prime": {
+      "id": "se-why-prime",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prime, Then Verify",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-why-prime-1",
+        "se-why-prime-2"
+      ]
+    },
+    "se-why-prime-1": {
+      "id": "se-why-prime-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Priming moves the first draft close to the profile at no extra cost."
+        }
+      ],
+      "children": []
+    },
+    "se-why-prime-2": {
+      "id": "se-why-prime-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A primed writer still drifts, so Tiers 1 to 3 check every block."
+        }
+      ],
+      "children": []
+    },
+    "se-why-review": {
+      "id": "se-why-review",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Review Before Any Write",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-why-review-1"
+      ]
+    },
+    "se-why-review-1": {
+      "id": "se-why-review-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rollout writes a change only when three reviewer agents approve it. A bad change that passes review costs a one-block revert, not a broken page."
+        }
+      ],
+      "children": []
+    },
+    "se-why-sentences": {
+      "id": "se-why-sentences",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sentences, Not Bullets",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-why-sentences-1"
+      ]
+    },
+    "se-why-sentences-1": {
+      "id": "se-why-sentences-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rewrites that cut a block into bullets often lost or changed meaning, so Tier 3 and the editor agents change sentences only."
+        }
+      ],
+      "children": []
+    },
+    "se-why-context": {
+      "id": "se-why-context",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the Context",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "se-why-context-1",
+        "se-why-context-2"
+      ]
+    },
+    "se-why-context-1": {
+      "id": "se-why-context-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Concise means tighter words, not less content."
+        }
+      ],
+      "children": []
+    },
+    "se-why-context-2": {
+      "id": "se-why-context-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rewrite that loses a fact costs more than a long sentence, so the rewrite guardrails reject that rewrite."
+        }
+      ],
+      "children": []
+    }
+  }
+}

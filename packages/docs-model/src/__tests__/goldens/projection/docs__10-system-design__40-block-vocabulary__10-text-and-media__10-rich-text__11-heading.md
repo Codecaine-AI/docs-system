@@ -22,7 +22,7 @@ Carries delta text (`carriesText: true`) with the full mark set.
 
 ## Doc Renderer
 
-Slash menu: **Heading 1**-**3** as top-level entries, with levels 4-6 under an **Other Headings** submenu. Input rules convert `#`, `##`, or `###` plus a space at the start of a line (levels 4-6 have no input rule). One round-trip subtlety: the editor keeps a `null` level sentinel for headings whose source props never set `level`, so editing one doesn't grow a spurious `props.level` on save.
+The slash menu lists **Heading 1**-**3** as top-level entries, with levels 4-6 under an **Other Headings** submenu. Input rules convert `#`, `##`, or `###` plus a space at the start of a line (levels 4-6 have no input rule). One round-trip subtlety: the editor keeps a `null` level sentinel for headings whose source props never set `level`, so editing one doesn't grow a spurious `props.level` on save.
 
 ## Agent Renderer
 
@@ -30,7 +30,7 @@ Slash menu: **Heading 1**-**3** as top-level entries, with levels 4-6 under an *
 
 ## Agent Notes
 
-- Set the level with a plain `updateBlock` props patch; there are no typed actions.
+- Set the level with a plain `updateBlock` props patch. There are no typed actions.
 
 - Corpus convention: at most one `level: 1` heading per doc. The page title is furniture rendered above the body, so most docs have none; sections use `level: 2`.
 

@@ -2,7 +2,7 @@ The video block of the block vocabulary: either a bundle-local file (`src`) or a
 
 ## Example
 
-A `url`-only block. external YouTube URL, no bundle asset. The player is the `youtube-nocookie` embed.
+A `url`-only block (external YouTube URL, no bundle asset). The player is the `youtube-nocookie` embed.
 
 > **Video: Big Buck Bunny** — https://www.youtube.com/watch?v=YE7VzlLtp-4 — Blender Foundation's open-movie short, embedded from an external URL.
 
@@ -25,21 +25,21 @@ caption?: string  # Caption appended to the agent render line.
 }
 ```
 
-No text (`carriesText: false`); a useful block sets at least one of `src` / `url`.
+The block has no text (`carriesText: false`). A useful block sets at least one of `src` / `url`.
 
 ## Doc Renderer
 
-Deliberately **no slash-menu entry**. video blocks appear *from content*: paste or drop a YouTube/Vimeo/Loom URL, or drop a video file, which uploads to the bundle's `assets/videos/` through `POST /api/assets/video`. A non-editable atom leaf node (`VideoDocsBlock`) renders the player.
+Deliberately **no slash-menu entry**. Video blocks appear *from content*: paste or drop a YouTube/Vimeo/Loom URL, or drop a video file, which uploads to the bundle's `assets/videos/` through `POST /api/assets/video`. A non-editable atom leaf node (`VideoDocsBlock`) renders the player.
 
 ## Agent Renderer
 
-A labeled blockquote in the callout family's shape: `> **Video[: <title>]** — <url ?? src>[ — <caption>]`. external `url` wins over the bundle-relative `src`, the same precedence the render surface applies. Chosen over a markdown link because the target may be a bare provider URL; the leading `> **Video` token greps cleanly.
+A labeled blockquote in the callout family's shape: `> **Video[: <title>]** — <url ?? src>[ — <caption>]`. External `url` wins over the bundle-relative `src`, the same precedence the render surface applies. Chosen over a markdown link because the target may be a bare provider URL; the leading `> **Video` token greps cleanly.
 
 ## Agent Notes
 
-- No typed actions. patch props via `updateBlock`; prefer `url` for external content and let `src` carry uploaded files.
+- No typed actions. Patch props via `updateBlock`; prefer `url` for external content and let `src` carry uploaded files.
 
-- Give every video a `title`. in the rendered markdown, that title is most of what a reading agent gets.
+- Give every video a `title`. In the rendered markdown, that title is most of what a reading agent gets.
 
 ## Theme
 
@@ -52,6 +52,6 @@ This block's theme file is `components/video.json` in the active theme folder. B
 
 ## Bundled Publication
 
-A bundle-relative src ships with a published article and plays through the native video element. A provider url takes precedence when both are supplied. The dedicated video upload and asset read paths accept up to 64 MiB; generic uploads accept up to 20 MiB. Small compressed clips are practical repository assets. Longer recordings increase Git history and deployment size.
+A bundle-relative src ships with a published article and plays through the native video element. A provider url takes precedence when both are supplied. The dedicated video upload and asset read paths accept up to 64 MiB. Generic uploads accept up to 20 MiB. Small compressed clips are practical repository assets. Longer recordings increase Git history and deployment size.
 
 Static hosts must return the correct video MIME type and support byte ranges for reliable seeking. External player availability still depends on the provider and recording access settings.

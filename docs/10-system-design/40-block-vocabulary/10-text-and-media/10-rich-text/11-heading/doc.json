@@ -159,7 +159,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Heading 1",
@@ -321,7 +321,7 @@
           }
         },
         {
-          "insert": " props patch; there are no typed actions."
+          "insert": " props patch. There are no typed actions."
         }
       ],
       "children": []

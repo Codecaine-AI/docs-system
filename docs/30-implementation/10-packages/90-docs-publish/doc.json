@@ -99,7 +99,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Build-rendered Canvas and Sequence images appear directly in article HTML and remain visible without JavaScript. Clicking one loads the same StandaloneCanvasEmbed or StandaloneSequenceEmbed fullscreen UI used by Docs workbench. Optional initialDocument, initiallyOpen, and onViewerClose props let static hosts supply validated data without workbench API requests. The native Canvas stage retains pan and zoom; Sequence retains its existing toolbar. No download controls are added. The preview remains a browser image that can be dragged or saved normally. Escape closes the viewer and restores focus. The landing imports none of this code."
+          "insert": "Build-rendered Canvas and Sequence images appear directly in article HTML and remain visible without JavaScript. Clicking one loads the same StandaloneCanvasEmbed or StandaloneSequenceEmbed fullscreen UI used by Docs workbench. Optional initialDocument, initiallyOpen, and onViewerClose props let static hosts supply validated data without workbench API requests. The native Canvas stage keeps pan and zoom. Sequence keeps its existing toolbar. No download controls are added. The preview remains a browser image that can be dragged or saved normally. Escape closes the viewer and restores focus. The landing imports none of this code."
         }
       ],
       "children": []
@@ -169,7 +169,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Run bun packages/docs-publish/build.ts from the docs-system root, then npm pack ./packages/docs-publish. Build output includes the Node publisher, browser chunks, generated component CSS, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout."
+          "insert": "Run bun packages/docs-publish/build.ts from the docs-system root. Then run npm pack ./packages/docs-publish. Build output includes the Node publisher, browser chunks, generated component CSS, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout."
         }
       ],
       "children": []
@@ -283,7 +283,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A video block with bundle-relative src is portable: the publisher copies the file into its assets output. Hosts must supply the video MIME type and support byte ranges for reliable seeking. The Docs server uses its 64 MiB video upload limit when reading accepted video extensions; other attachments retain the 20 MiB limit. Small compressed clips can ship with the repository. External providers remain an option for longer recordings."
+          "insert": "A video block with bundle-relative src is portable: the publisher copies the file into its assets output. Hosts must supply the video MIME type and support byte ranges for reliable seeking. The Docs server uses its 64 MiB video upload limit when reading accepted video extensions. Other attachments keep the 20 MiB limit. Small compressed clips can ship with the repository. External providers remain an option for longer recordings."
         }
       ],
       "children": []

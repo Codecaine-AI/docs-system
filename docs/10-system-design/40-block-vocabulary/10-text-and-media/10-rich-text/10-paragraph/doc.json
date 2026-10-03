@@ -173,7 +173,7 @@
           }
         },
         {
-          "insert": "): an array of spans with optional "
+          "insert": "). The delta text is an array of spans with optional "
         },
         {
           "insert": "bold",
@@ -218,7 +218,7 @@
           }
         },
         {
-          "insert": " URL, or a reference chip (a shared SpectreRef pointing at a doc or code location)."
+          "insert": " URL, or a reference chip. A reference chip is a shared SpectreRef pointing at a doc or code location."
         }
       ],
       "children": []
@@ -400,7 +400,7 @@
           }
         },
         {
-          "insert": " output; don't rely on it as a spacer."
+          "insert": " output. Don't rely on it as a spacer."
         }
       ],
       "children": []

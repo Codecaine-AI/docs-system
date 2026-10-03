@@ -100,7 +100,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Nothing renders that the state schema does not declare; the renderer adds no state of its own."
+          "insert": "Nothing renders that the state schema does not declare. The renderer adds no state of its own."
         }
       ],
       "children": []
@@ -139,7 +139,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Structural behavior (drag, select, delete) comes from the editor for free; the renderer supplies only what is specific to the type."
+          "insert": "Structural behavior (drag, select, delete) comes from the editor for free. The renderer supplies only what is specific to the type."
         }
       ],
       "children": []
@@ -166,7 +166,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Looks come from the component's theme knobs, resolved per theme — see "
+          "insert": "Looks come from the component's theme knobs, resolved per theme. See "
         },
         {
           "insert": "theming",
@@ -218,7 +218,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Rich rendering is the human half of the translation layer — the reason a table is a table and not a wall of pipes."
+          "insert": "Rich rendering is the human half of the translation layer: the reason a table is a table and not a wall of pipes."
         }
       ],
       "children": []
@@ -245,7 +245,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Defensive rendering isolates damage to one placeholder block; the document around it stays readable and editable."
+          "insert": "Defensive rendering isolates damage to one placeholder block. The document around it stays readable and editable."
         }
       ],
       "children": []

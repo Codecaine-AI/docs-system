@@ -33,7 +33,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Docs point at code with typed source references; code never points back. "
+          "insert": "Docs point at code with typed source references. Code never points back."
         }
       ],
       "children": []
@@ -142,7 +142,7 @@
           }
         },
         {
-          "insert": " verifies the target file exists; a doc link resolves through the docs lookup instead."
+          "insert": " verifies the target file exists. A doc link resolves through the docs lookup instead."
         }
       ],
       "children": []
@@ -182,7 +182,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No doc links in code comments; the source stays ignorant of the docs."
+          "insert": "No doc links in code comments. The source stays ignorant of the docs."
         }
       ],
       "children": []
@@ -309,7 +309,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When code moves or renames, the doc updates; "
+          "insert": "When code moves or renames, the doc updates. "
         },
         {
           "insert": "docs links check",
@@ -353,7 +353,7 @@
       "props": {},
       "text": [
         {
-          "insert": "What the code itself carries — file headers, docstrings, inline comments — is "
+          "insert": "What the code itself carries (file headers, docstrings, inline comments) is "
         },
         {
           "insert": "in-code docs",
@@ -444,7 +444,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A bare filename is a vibe; a typed path is verified, and a reader opens it without a search."
+          "insert": "A bare filename is a vibe. A typed path is verified, and a reader opens it without a search."
         }
       ],
       "children": []

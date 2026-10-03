@@ -354,7 +354,7 @@
       "props": {},
       "text": [
         {
-          "insert": "If Chromium is missing, run bunx playwright install chromium from packages/docs-workbench, then retry. The printer also attempts an installed Google Chrome browser when bundled Chromium cannot start."
+          "insert": "If Chromium is missing, run bunx playwright install chromium from packages/docs-workbench, then retry. The printer also tries an installed Google Chrome browser when bundled Chromium cannot start."
         }
       ],
       "children": []
@@ -376,7 +376,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The sidebar export button requires a live Docs server. The docs-cli export command creates a static website with Markdown copies; that website does not provide PDF generation."
+          "insert": "The sidebar export button requires a live Docs server. The docs-cli export command creates a static website with Markdown copies. That website does not provide PDF generation."
         }
       ],
       "children": []

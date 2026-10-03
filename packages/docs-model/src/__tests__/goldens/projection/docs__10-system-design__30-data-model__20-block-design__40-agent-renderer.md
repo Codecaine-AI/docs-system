@@ -23,7 +23,7 @@ function projectStructuredTable(block: DocBlock): string {
 
 - **Greppable output**
 
-  - Structure survives as plain text — headers, labels, and values an agent can find with `docs grep`, no parsing required.
+  - Structure survives as plain text: headers, labels, and values an agent can find with `docs grep`, no parsing required.
 
 ## Why
 

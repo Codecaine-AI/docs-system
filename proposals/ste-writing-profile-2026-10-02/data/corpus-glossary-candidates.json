@@ -1,0 +1,1620 @@
+{
+  "technicalNames": [
+    {
+      "term": "document",
+      "definition": "One canonical state, stored as a doc.json block tree, that humans and agents read through separate surfaces.",
+      "source": "docs/10-system-design/20-translation-layer",
+      "aliases": [
+        "doc",
+        "page",
+        "bundle",
+        "DocDocument",
+        "doc.json"
+      ]
+    },
+    {
+      "term": "doc.json",
+      "definition": "The file that stores one document as a normalized, id-keyed block tree.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "aliases": [
+        "document file",
+        "doc bundle file"
+      ]
+    },
+    {
+      "term": "bundle",
+      "definition": "A doc folder: the folder that holds doc.json plus its sidecars and assets. The folder name is the address of the doc.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "doc folder",
+        "doc bundle",
+        "page"
+      ]
+    },
+    {
+      "term": "corpus",
+      "definition": "The complete tree of docs under one docs root.",
+      "source": "docs-kernel.corpora.json",
+      "aliases": [
+        "docs tree",
+        "project docs",
+        "documentation corpus"
+      ]
+    },
+    {
+      "term": "docs root",
+      "definition": "The directory that holds a corpus. It is the unit of write authority.",
+      "source": "docs/30-implementation/10-packages/30-docs-server",
+      "aliases": [
+        "docsRoot",
+        "--root"
+      ]
+    },
+    {
+      "term": "project",
+      "definition": "A repository that MCP discovery found with a normalized doc.json corpus. Tools address it by project ID.",
+      "source": "packages/docs-mcp/src/discovery.ts",
+      "aliases": [
+        "DocsProject"
+      ]
+    },
+    {
+      "term": "block",
+      "definition": "A node in the document tree. It has a stable ID, a type, props, optional text, and ordered child IDs. Tree order lives only in the children arrays.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "aliases": [
+        "DocBlock",
+        "node"
+      ]
+    },
+    {
+      "term": "block type",
+      "definition": "One of the registered type strings in DOC_BLOCK_TYPES, such as paragraph or file-tree. There are 23 today.",
+      "source": "packages/docs-model/src/doc-schema.ts",
+      "aliases": [
+        "type",
+        "DocBlockType",
+        "kind (retired key: flavour)"
+      ]
+    },
+    {
+      "term": "block ID",
+      "definition": "A stable ASCII ID that is unique in its document. Annotations, patches, and backlinks anchor to it.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "aliases": [
+        "id",
+        "blockId",
+        "anchor"
+      ]
+    },
+    {
+      "term": "props",
+      "definition": "The typed state fields of a block. The state schema of the block type validates them.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "aliases": [
+        "properties",
+        "block props"
+      ]
+    },
+    {
+      "term": "delta span",
+      "definition": "One unit of rich text: an insert string plus optional mark attributes.",
+      "source": "packages/docs-model/src/doc-schema.ts",
+      "aliases": [
+        "DeltaSpan",
+        "span",
+        "rich text",
+        "text"
+      ]
+    },
+    {
+      "term": "mark",
+      "definition": "An inline attribute on a span: bold, italic, strike, code, link, or reference.",
+      "source": "packages/docs-model/src/doc-schema.ts",
+      "aliases": [
+        "attribute",
+        "DeltaSpanAttributes",
+        "inline mark"
+      ]
+    },
+    {
+      "term": "reference",
+      "definition": "An inline span attribute that points at a doc or source file. It shows as a chip and feeds the backlinks index.",
+      "source": "docs/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text",
+      "aliases": [
+        "reference span",
+        "reference chip",
+        "SpectreRef",
+        "mention"
+      ]
+    },
+    {
+      "term": "backlinks index",
+      "definition": "A derived SQLite index of inbound references, stored under .index/ and rebuilt by rescan.",
+      "source": "packages/docs-index/src/backlinks.ts",
+      "aliases": [
+        "backlinks",
+        "docs index",
+        "backlink index"
+      ]
+    },
+    {
+      "term": "component",
+      "definition": "An editing world that owns one or more block types: state schema, actions, agent view, and user view.",
+      "source": "BLOCK-ARCHITECTURE.md",
+      "aliases": [
+        "component family",
+        "family",
+        "component bundle",
+        "block family",
+        "family (corpus: 15 families in 5 groups)"
+      ]
+    },
+    {
+      "term": "block contract",
+      "definition": "The parts every block type owns: state schema, typed actions, doc renderer, agent renderer, theme, and agent adapter.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "closed contract",
+        "bundle contract",
+        "four-part contract"
+      ]
+    },
+    {
+      "term": "state schema",
+      "definition": "The closed TypeBox schema over the props of a block type. A write that does not conform is refused.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "state.ts",
+        "schema",
+        "component-state schema"
+      ]
+    },
+    {
+      "term": "action",
+      "definition": "A named, validated change keyed <blockType>.<verb>, such as file-tree.addEntry. It returns a props patch.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "typed action",
+        "component action",
+        "componentAction",
+        "blockAction"
+      ]
+    },
+    {
+      "term": "forwarded action",
+      "definition": "An action that the owning engine (canvas or sequence) applies to its own sidecar instead of patching document props.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "forward",
+        "lifted action",
+        "forward action"
+      ]
+    },
+    {
+      "term": "doc renderer",
+      "definition": "The React component that shows a block type to a human and edits it in place.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "user view",
+        "human renderer",
+        "block renderer",
+        "DocBlockRenderer"
+      ]
+    },
+    {
+      "term": "agent renderer",
+      "definition": "The function that renders block state as deterministic markdown for agents.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "agent view",
+        "agent-view.ts",
+        "markdown projection",
+        "projection"
+      ]
+    },
+    {
+      "term": "agent adapter",
+      "definition": "The way an agent edits a block type when it processes an annotation. Canvas and sequence bring their own agents.",
+      "source": "docs/10-system-design/30-data-model/20-block-design",
+      "aliases": [
+        "context loader"
+      ]
+    },
+    {
+      "term": "discovery payload",
+      "definition": "The GET /api/blocks response that lists ops, components, block types, state schemas, and actions.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "discovery",
+        "GET /api/blocks",
+        "BlocksDiscovery"
+      ]
+    },
+    {
+      "term": "theme knob",
+      "definition": "A style capability that a component exposes and that each theme resolves.",
+      "source": "docs/00-foundation/10-design-principles",
+      "aliases": [
+        "token",
+        "theme token",
+        "knob",
+        "Global theme (the one shared theme)"
+      ]
+    },
+    {
+      "term": "op",
+      "definition": "One of seven document mutations: insertBlock, updateBlock, deleteBlock, moveBlock, splitBlock, mergeBlocks, componentAction.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "DocOp",
+        "operation",
+        "typed operation",
+        "document operation"
+      ]
+    },
+    {
+      "term": "inverse",
+      "definition": "The ops that exactly revert an applied batch. The ledger records them for undo.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "inverse op",
+        "inverse batch"
+      ]
+    },
+    {
+      "term": "patch",
+      "definition": "One applied op batch, recorded in the undo ledger under a patch ID. It is the unit of undo.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "patch_id",
+        "patchId"
+      ]
+    },
+    {
+      "term": "undo ledger",
+      "definition": "The in-memory store of inverse batches keyed by patch ID. It is not durable history.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model/10-undo-redo",
+      "aliases": [
+        "patch ledger",
+        "ledger"
+      ]
+    },
+    {
+      "term": "content hash",
+      "definition": "The SHA-256 hash of the canonical bytes of a file. A write names it as expected_hash and fails if the file changed.",
+      "source": "docs/10-system-design/30-data-model/40-serialization",
+      "aliases": [
+        "hash",
+        "revision hash",
+        "expected_hash",
+        "document hash"
+      ]
+    },
+    {
+      "term": "draft lock",
+      "definition": "An expiring, heartbeat-renewed write claim held by one session. A conflicting writer gets HTTP 423.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "lock",
+        "DraftLock"
+      ]
+    },
+    {
+      "term": "session",
+      "definition": "One editing actor, such as a browser tab or an agent run, identified by one session_id on all its writes.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "editing session",
+        "session_id",
+        "docs-edit session"
+      ]
+    },
+    {
+      "term": "write authority",
+      "definition": "The server part that runs read, check, apply, and write for each document in one critical section and refuses invalid writes.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "mutation authority",
+        "authority",
+        "DocsStore",
+        "store"
+      ]
+    },
+    {
+      "term": "change event",
+      "definition": "The SSE message {path, changedIds, patchId, actor} sent after a write commits.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "aliases": [
+        "DocsChangeEvent",
+        "live update",
+        "SSE event"
+      ]
+    },
+    {
+      "term": "validation issue",
+      "definition": "A typed problem that a validator returns with a JSONPath-style path. Validators never throw.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "aliases": [
+        "issue",
+        "DocValidationIssue",
+        "AnnotationsValidationIssue"
+      ]
+    },
+    {
+      "term": "sidecar",
+      "definition": "A JSON file stored beside doc.json that holds non-content state, such as annotations.json, proposals.json, or a canvas file.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "sidecar file",
+        "component sidecar"
+      ]
+    },
+    {
+      "term": "asset",
+      "definition": "A file under the assets/ directory of a bundle: an image, video, attachment, canvas file, or sequence file.",
+      "source": "packages/docs-mcp/src/tools.ts",
+      "aliases": [
+        "bundle asset",
+        "attachment"
+      ]
+    },
+    {
+      "term": "annotation",
+      "definition": "A record in annotations.json that marks a target in a doc and states a request or a note. Its intent is note or agent-request; its status is open or resolved.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "comment",
+        "request",
+        "agent request",
+        "annotation thread",
+        "DocAnnotation"
+      ]
+    },
+    {
+      "term": "annotation target",
+      "definition": "The thing an annotation points at: a block, a text range, or a canvas object.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "target",
+        "AnnotationTarget"
+      ]
+    },
+    {
+      "term": "intent",
+      "definition": "The kind of annotation: note (a margin note) or agent-request (work for an agent).",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "AnnotationIntent"
+      ]
+    },
+    {
+      "term": "agent run",
+      "definition": "The receipt on a handled annotation: session ID, patch ID, summary, and changed IDs.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "agentRun",
+        "receipt",
+        "AnnotationAgentRun"
+      ]
+    },
+    {
+      "term": "dangling target",
+      "definition": "An annotation target that no longer resolves, for example because its block was deleted, split, or merged.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "dangling annotation",
+        "stranded anchor"
+      ]
+    },
+    {
+      "term": "proposal",
+      "definition": "A staged batch of ops for one doc, stored in proposals.json until a reviewer accepts or rejects it.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "aliases": [
+        "staged proposal",
+        "DocProposal",
+        "DocsEditProposal",
+        "staged diff",
+        "staged region"
+      ]
+    },
+    {
+      "term": "change-set",
+      "definition": "A record that groups per-doc proposals and tree ops so that they are accepted, rejected, and undone as one unit.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "aliases": [
+        "changeset",
+        "change set",
+        "Doc PR",
+        "DocChangeSet"
+      ]
+    },
+    {
+      "term": "change-set entry",
+      "definition": "A pointer {docPath, proposalId} from a change-set to one staged proposal.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "aliases": [
+        "entry",
+        "DocChangeSetEntry"
+      ]
+    },
+    {
+      "term": "tree op",
+      "definition": "A document-level operation: create-doc, delete-doc, or move-doc.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "aliases": [
+        "treeOps",
+        "document-tree operation",
+        "DocChangeSetTreeOp",
+        "management change"
+      ]
+    },
+    {
+      "term": "layer",
+      "definition": "One of the four numbered root folders: 00-foundation, 10-system-design, 20-agents, 30-implementation.",
+      "source": "docs/10-system-design/10-doc-standards",
+      "aliases": [
+        "tier",
+        "root tier",
+        "doc layer"
+      ]
+    },
+    {
+      "term": "extension tier",
+      "definition": "A numbered root folder from 40 to 98 that holds non-normative procedure, such as guides.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "guides tier",
+        "tier"
+      ]
+    },
+    {
+      "term": "section",
+      "definition": "A folder below a layer that is itself a doc and introduces its children.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "section folder",
+        "XX-section"
+      ]
+    },
+    {
+      "term": "parent doc",
+      "definition": "The doc.json of a layer or section folder. It introduces each child in one line.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "section doc",
+        "overview (retired 00-overview)"
+      ]
+    },
+    {
+      "term": "concept doc",
+      "definition": "A level-3 doc that covers one coherent idea.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "leaf doc",
+        "page"
+      ]
+    },
+    {
+      "term": "area page",
+      "definition": "An implementation-layer page that mirrors one source directory and holds decision entries.",
+      "source": "docs/10-system-design/10-doc-standards/60-implementation-layer",
+      "aliases": [
+        "implementation page"
+      ]
+    },
+    {
+      "term": "depth ladder",
+      "definition": "The six levels L1 to L6, from the parent doc of a layer down to the code.",
+      "source": "docs/10-system-design/10-doc-standards/10-structure",
+      "aliases": [
+        "L1-L6",
+        "levels"
+      ]
+    },
+    {
+      "term": "lint rule",
+      "definition": "A registered writing or structure rule with an ID, a docsPath, a severity, enforcement phases, and a repair suggestion.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "aliases": [
+        "rule",
+        "LintRule",
+        "check",
+        "audit check"
+      ]
+    },
+    {
+      "term": "finding",
+      "definition": "One match of a lint rule in a doc, with rule ID, severity, evidence, and suggestion.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "aliases": [
+        "LintFinding",
+        "AuditFinding",
+        "style finding",
+        "violation",
+        "warning"
+      ]
+    },
+    {
+      "term": "baseline",
+      "definition": "The page state that a task's first write replaced. Findings already in the baseline are not introduced findings.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "aliases": [
+        "edit baseline",
+        "pinned baseline"
+      ]
+    },
+    {
+      "term": "judgment rule",
+      "definition": "A model-judged style rule, such as packed-bullet or join-test, that reports a confidence score.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "aliases": [
+        "Judgment Rules",
+        "judged finding"
+      ]
+    },
+    {
+      "term": "style gate",
+      "definition": "The gated findings that a task introduced and that make docs_check fail.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "aliases": [
+        "style_gate",
+        "gated violation"
+      ]
+    },
+    {
+      "term": "task",
+      "definition": "One MCP authoring activity, from docs_begin to docs_end. It holds a pinned guidance snapshot and one baseline per page.",
+      "source": "docs/40-guides/10-docs-mcp/40-recovery",
+      "aliases": [
+        "task_id",
+        "task context",
+        "authoring task"
+      ]
+    },
+    {
+      "term": "guidance",
+      "definition": "The maintained authoring standards that docs_guidance serves by topic.",
+      "source": "packages/docs-mcp/src/guidance.ts",
+      "aliases": [
+        "guidance snapshot",
+        "style digest",
+        "standards",
+        "style guide",
+        "skill"
+      ]
+    },
+    {
+      "term": "human surface",
+      "definition": "The Notion-style editor where a person reads and edits rendered blocks.",
+      "source": "docs/10-system-design/20-translation-layer",
+      "aliases": [
+        "doc renderer",
+        "user view",
+        "read surface",
+        "workbench"
+      ]
+    },
+    {
+      "term": "agent surface",
+      "definition": "The rendered markdown and typed operations that agents use through the CLI, API, and MCP tools.",
+      "source": "docs/10-system-design/20-translation-layer",
+      "aliases": [
+        "agent view",
+        "markdown render",
+        "docs render"
+      ]
+    },
+    {
+      "term": "viewer",
+      "definition": "The embeddable React package that holds all doc-viewing and doc-editing UX.",
+      "source": "VIEWER-HOST-SEPARATION.md",
+      "aliases": [
+        "docs-viewer",
+        "editor"
+      ]
+    },
+    {
+      "term": "host",
+      "definition": "An app that embeds the viewer and supplies data through DocsClient and navigation through callbacks.",
+      "source": "VIEWER-HOST-SEPARATION.md",
+      "aliases": [
+        "host app",
+        "embedding app"
+      ]
+    },
+    {
+      "term": "DocsClient",
+      "definition": "The interface that a host implements to give the viewer its data.",
+      "source": "VIEWER-HOST-SEPARATION.md",
+      "aliases": [
+        "client",
+        "seam"
+      ]
+    },
+    {
+      "term": "workbench",
+      "definition": "The runnable host app that `docs serve` starts, with Edit and Annotate modes.",
+      "source": "README.md",
+      "aliases": [
+        "docs serve app",
+        "Docs Lab",
+        "app"
+      ]
+    },
+    {
+      "term": "Central Docs Service",
+      "definition": "The signed local service on port 4820 that routes projects and runs the docs MCP daemon.",
+      "source": "docs/40-guides/10-docs-mcp",
+      "aliases": [
+        "daemon",
+        "managed runtime",
+        "service"
+      ]
+    },
+    {
+      "term": "board",
+      "definition": "A canvas document: the spatial diagram stored in a .canvas.json file that a canvas block references.",
+      "source": "../canvas/README.md",
+      "aliases": [
+        "canvas",
+        "canvas document",
+        "canvas file"
+      ]
+    },
+    {
+      "term": "canvas object",
+      "definition": "A shape, sticky, or icon on a board that an annotation can target by objectId.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "aliases": [
+        "object",
+        "node",
+        "custom_element"
+      ]
+    },
+    {
+      "term": "participant",
+      "definition": "A lifeline owner in a sequence diagram, such as a service or actor.",
+      "source": "../sequence/README.md",
+      "aliases": [
+        "lifeline",
+        "actor"
+      ]
+    }
+  ],
+  "technicalVerbs": [
+    {
+      "verb": "render",
+      "meaning": "Produce the deterministic markdown form of a doc for agents.",
+      "source": "packages/docs-cli/src/index.ts",
+      "objectNouns": [
+        "doc",
+        "page",
+        "block"
+      ]
+    },
+    {
+      "verb": "read",
+      "meaning": "Load a doc with its markdown, block IDs, hash, and findings.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_read)",
+      "objectNouns": [
+        "doc",
+        "page",
+        "sidecar",
+        "asset",
+        "changeset"
+      ]
+    },
+    {
+      "verb": "search",
+      "meaning": "Find text across the rendered docs of a project.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_search); docs grep",
+      "objectNouns": [
+        "corpus",
+        "page title"
+      ]
+    },
+    {
+      "verb": "apply",
+      "meaning": "Run a batch of ops on a document as one atomic write.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "objectNouns": [
+        "op",
+        "batch",
+        "action",
+        "patch"
+      ]
+    },
+    {
+      "verb": "insert",
+      "meaning": "Add a new block under a parent at an index.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (insertBlock)",
+      "objectNouns": [
+        "block",
+        "step"
+      ]
+    },
+    {
+      "verb": "update",
+      "meaning": "Change props or text of an existing item and keep its ID.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (updateBlock)",
+      "objectNouns": [
+        "block",
+        "cell",
+        "entry",
+        "field",
+        "operation"
+      ]
+    },
+    {
+      "verb": "delete",
+      "meaning": "Remove a block, a page, or an asset.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (deleteBlock)",
+      "objectNouns": [
+        "block",
+        "page",
+        "asset",
+        "subtree"
+      ]
+    },
+    {
+      "verb": "move",
+      "meaning": "Detach an item and attach it at a new place.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (moveBlock)",
+      "objectNouns": [
+        "block",
+        "blocks",
+        "doc",
+        "asset",
+        "step"
+      ]
+    },
+    {
+      "verb": "split",
+      "meaning": "Divide a text block at an offset into two siblings, or divide a doc into two docs.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (splitBlock)",
+      "objectNouns": [
+        "block",
+        "doc"
+      ]
+    },
+    {
+      "verb": "merge",
+      "meaning": "Combine contiguous sibling blocks into one fresh block, or combine two docs.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model (mergeBlocks)",
+      "objectNouns": [
+        "blocks",
+        "docs"
+      ]
+    },
+    {
+      "verb": "add",
+      "meaning": "Append an item to a structured collection in a block.",
+      "source": "packages/docs-model/src/components/*/actions",
+      "objectNouns": [
+        "entry",
+        "row",
+        "column",
+        "field",
+        "operation",
+        "annotation",
+        "reply"
+      ]
+    },
+    {
+      "verb": "remove",
+      "meaning": "Take an item out of a structured collection in a block.",
+      "source": "packages/docs-model/src/components/*/actions",
+      "objectNouns": [
+        "entry",
+        "row",
+        "column",
+        "field",
+        "operation",
+        "step",
+        "annotation"
+      ]
+    },
+    {
+      "verb": "set",
+      "meaning": "Replace one value in a block with a new value.",
+      "source": "packages/docs-model/src/components/*/actions",
+      "objectNouns": [
+        "annotation",
+        "example",
+        "step text",
+        "steps",
+        "title"
+      ]
+    },
+    {
+      "verb": "write",
+      "meaning": "Replace the inline markdown of one text block.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_write_text)",
+      "objectNouns": [
+        "text",
+        "text block"
+      ]
+    },
+    {
+      "verb": "stage",
+      "meaning": "Record ops as a proposal for review instead of applying them, or group proposals into a change-set.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_proposal_stage, docs_changeset_stage)",
+      "objectNouns": [
+        "ops",
+        "proposal",
+        "change-set"
+      ]
+    },
+    {
+      "verb": "accept",
+      "meaning": "Apply a staged proposal or change-set through the per-document write path.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "objectNouns": [
+        "proposal",
+        "change-set",
+        "entry"
+      ]
+    },
+    {
+      "verb": "reject",
+      "meaning": "Drop a staged proposal or change-set without changing content.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "objectNouns": [
+        "proposal",
+        "change-set"
+      ]
+    },
+    {
+      "verb": "undo",
+      "meaning": "Apply the inverse batch recorded under a patch ID. Redo is undoing the undo.",
+      "source": "docs/10-system-design/30-data-model/50-mutation-model",
+      "objectNouns": [
+        "patch",
+        "change-set",
+        "management change"
+      ]
+    },
+    {
+      "verb": "validate",
+      "meaning": "Check a document, sidecar, or props against its schema and return typed issues.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "objectNouns": [
+        "document",
+        "props",
+        "sidecar",
+        "params"
+      ]
+    },
+    {
+      "verb": "serialize",
+      "meaning": "Write a document as canonical bytes with a stable key order.",
+      "source": "docs/10-system-design/30-data-model/40-serialization",
+      "objectNouns": [
+        "document"
+      ]
+    },
+    {
+      "verb": "check",
+      "meaning": "Run validation and lint rules on a page, or verify that links resolve.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_check); docs links check",
+      "objectNouns": [
+        "page",
+        "links",
+        "task"
+      ]
+    },
+    {
+      "verb": "lint",
+      "meaning": "Evaluate lint rules on a doc and report findings.",
+      "source": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "objectNouns": [
+        "doc",
+        "block"
+      ]
+    },
+    {
+      "verb": "audit",
+      "meaning": "Run corpus-wide structure and content checks E1-E6 and W1-W4.",
+      "source": "packages/docs-cli/src/audit.ts",
+      "objectNouns": [
+        "corpus",
+        "bundle"
+      ]
+    },
+    {
+      "verb": "fix",
+      "meaning": "Apply safe, undoable automatic repairs for lint findings.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_fix_lints)",
+      "objectNouns": [
+        "lint",
+        "finding"
+      ]
+    },
+    {
+      "verb": "annotate",
+      "meaning": "Mark a target in a doc with an annotation.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "objectNouns": [
+        "block",
+        "text range",
+        "canvas object"
+      ]
+    },
+    {
+      "verb": "reply",
+      "meaning": "Add a message to the thread of an annotation.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_annotation_reply)",
+      "objectNouns": [
+        "annotation",
+        "request"
+      ]
+    },
+    {
+      "verb": "resolve",
+      "meaning": "Close an annotation, with an optional resolution note.",
+      "source": "docs/10-system-design/30-data-model/30-annotations",
+      "objectNouns": [
+        "annotation",
+        "request"
+      ]
+    },
+    {
+      "verb": "anchor",
+      "meaning": "Attach an annotation, patch, or backlink to a block ID.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "objectNouns": [
+        "annotation",
+        "patch",
+        "backlink"
+      ]
+    },
+    {
+      "verb": "mint",
+      "meaning": "Create a fresh block ID.",
+      "source": "docs/10-system-design/30-data-model/10-document-tree",
+      "objectNouns": [
+        "id"
+      ]
+    },
+    {
+      "verb": "retarget",
+      "meaning": "Rewrite inbound references so that they point at a new doc path.",
+      "source": "docs/10-system-design/30-data-model/60-change-sets",
+      "objectNouns": [
+        "reference",
+        "link",
+        "backlink"
+      ]
+    },
+    {
+      "verb": "rescan",
+      "meaning": "Rebuild the backlinks index from the files on disk.",
+      "source": "packages/docs-cli/src/index.ts (backlinks rescan)",
+      "objectNouns": [
+        "backlinks index"
+      ]
+    },
+    {
+      "verb": "migrate",
+      "meaning": "Convert Markdown or MDX files into doc.json bundles without deleting the originals.",
+      "source": "README.md (docs migrate)",
+      "objectNouns": [
+        "Markdown file",
+        "corpus",
+        "annotation sidecar entry"
+      ]
+    },
+    {
+      "verb": "serve",
+      "meaning": "Start the read-and-write workbench on a local port.",
+      "source": "README.md (docs serve)",
+      "objectNouns": [
+        "workbench",
+        "corpus"
+      ]
+    },
+    {
+      "verb": "export",
+      "meaning": "Produce a static, read-only site from a corpus.",
+      "source": "README.md (docs export)",
+      "objectNouns": [
+        "corpus",
+        "site"
+      ]
+    },
+    {
+      "verb": "discover",
+      "meaning": "Find projects in a workspace, or learn the block roster from the discovery payload.",
+      "source": "packages/docs-mcp/src/discovery.ts; docs/10-system-design/30-data-model/20-block-design",
+      "objectNouns": [
+        "project",
+        "block type",
+        "action"
+      ]
+    },
+    {
+      "verb": "begin",
+      "meaning": "Start an authoring task and pin its guidance snapshot. docs_end finishes the task.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_begin)",
+      "objectNouns": [
+        "task"
+      ]
+    },
+    {
+      "verb": "forward",
+      "meaning": "Hand an action to the engine that owns the referenced state.",
+      "source": "BLOCK-ARCHITECTURE.md",
+      "objectNouns": [
+        "action"
+      ]
+    },
+    {
+      "verb": "acquire",
+      "meaning": "Take a draft lock for a session. The lock is then renewed by heartbeat and given back by release.",
+      "source": "packages/docs-server/src/routes.ts (/api/draft-lock/*)",
+      "objectNouns": [
+        "draft lock"
+      ]
+    },
+    {
+      "verb": "preview",
+      "meaning": "Report what a page or asset management change would do, with a tree hash, before it is applied.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_move, docs_delete preview)",
+      "objectNouns": [
+        "move",
+        "delete",
+        "rename",
+        "title change"
+      ]
+    },
+    {
+      "verb": "restore",
+      "meaning": "Revert a completed page or asset management change.",
+      "source": "packages/docs-mcp/src/tools.ts (docs_management_restore)",
+      "objectNouns": [
+        "management change"
+      ]
+    }
+  ],
+  "definingSources": [
+    {
+      "path": "docs/10-system-design/30-data-model/10-document-tree",
+      "termsDefined": [
+        "document envelope",
+        "block",
+        "root",
+        "children",
+        "block ID",
+        "anchor contract",
+        "graph invariants",
+        "seven ops (signatures)"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/30-data-model/20-block-design",
+      "termsDefined": [
+        "block type",
+        "block contract",
+        "state schema",
+        "typed action",
+        "doc renderer",
+        "agent renderer",
+        "theming",
+        "agent adapter"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/30-data-model/30-annotations",
+      "termsDefined": [
+        "annotation",
+        "annotation target (block, text_range, visual_point, custom_element)",
+        "intent",
+        "status",
+        "agentRun receipt",
+        "resolution",
+        "dangling target"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/30-data-model/40-serialization",
+      "termsDefined": [
+        "deterministic serializer",
+        "canonical key order",
+        "markdown render",
+        "content hash"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/30-data-model/50-mutation-model",
+      "termsDefined": [
+        "op algebra",
+        "inverse",
+        "patch_id",
+        "undo ledger",
+        "expected_hash",
+        "draft lock",
+        "session_id",
+        "write authority",
+        "validation gate",
+        "change event",
+        "discovery",
+        "forwarded action"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/30-data-model/60-change-sets",
+      "termsDefined": [
+        "change-set",
+        "change-set entry",
+        "tree op",
+        "accept protocol",
+        "compound ledger entry",
+        "move_blocks",
+        "merge_docs",
+        "split_doc"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/20-translation-layer",
+      "termsDefined": [
+        "document (one canonical state)",
+        "translation layer",
+        "human surface",
+        "agent surface"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards",
+      "termsDefined": [
+        "four layers",
+        "00-foundation",
+        "10-system-design",
+        "20-agents",
+        "30-implementation"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/10-structure",
+      "termsDefined": [
+        "doc",
+        "bundle",
+        "depth ladder L1-L6",
+        "section",
+        "parent doc",
+        "concept doc",
+        "extension tier",
+        "guides tier"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/60-implementation-layer",
+      "termsDefined": [
+        "area page",
+        "decision entry",
+        "lazy accretion"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/10-doc-standards/80-authoring-lints",
+      "termsDefined": [
+        "lint rule",
+        "finding",
+        "draft and complete phases",
+        "baseline",
+        "introduced finding",
+        "blocking finding",
+        "judgment rule",
+        "style gate"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/40-block-vocabulary",
+      "termsDefined": [
+        "block vocabulary",
+        "23 block types",
+        "family",
+        "five groups"
+      ]
+    },
+    {
+      "path": "docs/00-foundation/10-design-principles",
+      "termsDefined": [
+        "closed block contract",
+        "small vocabulary",
+        "theme knob",
+        "Global theme",
+        "stable identity"
+      ]
+    },
+    {
+      "path": "BLOCK-ARCHITECTURE.md",
+      "termsDefined": [
+        "block vs component (D1a)",
+        "component roster",
+        "bundle contract",
+        "apply vs forward",
+        "action rule"
+      ]
+    },
+    {
+      "path": "CHANGESETS-DESIGN.md",
+      "termsDefined": [
+        "change-set as Doc PR",
+        "staged regions",
+        "propose_ops",
+        "PR card"
+      ]
+    },
+    {
+      "path": "VIEWER-HOST-SEPARATION.md",
+      "termsDefined": [
+        "viewer",
+        "host",
+        "DocsClient seam"
+      ]
+    },
+    {
+      "path": "packages/docs-model/src/doc-schema.ts",
+      "termsDefined": [
+        "DOC_BLOCK_TYPES",
+        "DocBlock",
+        "DocDocument",
+        "DeltaSpan",
+        "DeltaSpanAttributes"
+      ]
+    },
+    {
+      "path": "packages/docs-model/src/annotations-schema.ts",
+      "termsDefined": [
+        "AnnotationTarget (block, canvas-object, text-range)",
+        "AnnotationIntent",
+        "AnnotationStatus",
+        "DocAnnotation",
+        "AnnotationsDocument"
+      ]
+    },
+    {
+      "path": "packages/docs-model/src/lint/types.ts",
+      "termsDefined": [
+        "LintPhase",
+        "LintSeverity",
+        "RuleMatch",
+        "LintFinding",
+        "LintReport",
+        "LintRule"
+      ]
+    },
+    {
+      "path": "packages/docs-cli/src/audit.ts",
+      "termsDefined": [
+        "audit checks E1-E6 (errors)",
+        "W1, W2, W4 (warnings)"
+      ]
+    },
+    {
+      "path": "docs/40-guides/10-docs-mcp/40-recovery",
+      "termsDefined": [
+        "task context"
+      ]
+    },
+    {
+      "path": "docs/10-system-design/50-editor-design/40-visual-system/30-themes",
+      "termsDefined": [
+        "Global theme"
+      ]
+    },
+    {
+      "path": "../annotations/README.md",
+      "termsDefined": [
+        "annotation envelope",
+        "zone",
+        "target adapter",
+        "reply thread"
+      ]
+    },
+    {
+      "path": "docs/99-appendix/10-style-guide/10-writing-style",
+      "termsDefined": [],
+      "note": "Defines no domain terms. It sets the rules 'one name per thing' and 'one action one name', and lists 'surface', 'primitive', and 'harness' as metaphors to review, which collide with technical names."
+    }
+  ],
+  "conflicts": [
+    {
+      "terms": [
+        "page",
+        "doc",
+        "document",
+        "bundle",
+        "doc.json",
+        "DocDocument"
+      ],
+      "note": "One concept, six words. MCP tool descriptions say 'page'; the structure standard says 'doc' and 'bundle'; the data model says 'document'. 'document' is also used for SequenceDocument, canvas document, AnnotationsDocument, and ProposalsDocument."
+    },
+    {
+      "terms": [
+        "block",
+        "block type",
+        "component",
+        "family",
+        "component bundle"
+      ],
+      "note": "BLOCK-ARCHITECTURE D1a says components are not 1:1 with block types, but block-design says 'A block type is a component' and 'A block is a component, not a snippet'. 'component' also means a React component, the component-tree block type's rows, and MCP 'component tools' (docs_component_create creates a canvas or sequence sidecar)."
+    },
+    {
+      "terms": [
+        "14 block types / 7 components",
+        "23 block types / 15 families"
+      ],
+      "note": "README.md, BLOCK-ARCHITECTURE.md, and the document-tree page say 14 types. DOC_BLOCK_TYPES and the block-vocabulary page say 23. A change-set backup says 24. BLOCK-ARCHITECTURE has a four-part contract; block-design has six parts."
+    },
+    {
+      "terms": [
+        "componentAction",
+        "blockAction",
+        "component action",
+        "typed action",
+        "action"
+      ],
+      "note": "README names the seventh op blockAction. The data model and doc-ops use componentAction. Other code also uses 'action' for PeekAction, OutlineAction, and DocPeekAction."
+    },
+    {
+      "terms": [
+        "sidecar",
+        "asset"
+      ],
+      "note": "Canvas and sequence files are 'sidecars' in docs_component_create and the annotations page, and 'assets' in docs_asset_move. annotations.json and proposals.json are sidecars but not assets. .changesets/ is a 'corpus-level sidecar' outside every bundle."
+    },
+    {
+      "terms": [
+        "finding",
+        "issue",
+        "violation",
+        "lint",
+        "rule",
+        "check",
+        "audit check",
+        "warning",
+        "warn"
+      ],
+      "note": "LintFinding, AuditFinding, DocValidationIssue, style_findings, and 'style violation' overlap. LintSeverity uses 'warning'; AuditFinding uses 'warn'. 'check' means a rule function, the docs_check tool, an audit checkId, and 'docs links check'."
+    },
+    {
+      "terms": [
+        "proposal",
+        "staged proposal",
+        "staged diff",
+        "staged region",
+        "proposals/ (design)"
+      ],
+      "note": "'proposal' means a staged op batch in proposals.json, and also a design-change proposal ('files a proposal' on the implementation-layer page, and the root proposals/ folder)."
+    },
+    {
+      "terms": [
+        "change-set",
+        "changeset",
+        "change set",
+        "Doc PR"
+      ],
+      "note": "The corpus uses 'change-set' (about 128 times). MCP tool names and descriptions use 'changeset'. CHANGESETS-DESIGN.md also says 'Doc PR'."
+    },
+    {
+      "terms": [
+        "op",
+        "operation",
+        "typed operation",
+        "tree op",
+        "management change"
+      ],
+      "note": "'operation' is also the item type of the interaction-surface block (addOperation). Tree ops and MCP management changes are separate from the seven ops."
+    },
+    {
+      "terms": [
+        "stage",
+        "propose"
+      ],
+      "note": "MCP uses docs_proposal_stage. The docs-kernel session tool for the same act is propose_ops."
+    },
+    {
+      "terms": [
+        "add/insert",
+        "remove/delete",
+        "set/update",
+        "write"
+      ],
+      "note": "Same act, two verbs: insertStep vs addRow, removeRow vs deleteBlock, setStepText vs updateCell, write_text vs updateBlock text, set_props vs updateBlock props."
+    },
+    {
+      "terms": [
+        "search",
+        "grep"
+      ],
+      "note": "The CLI says 'docs grep'. MCP says docs_search. Both find text in rendered docs."
+    },
+    {
+      "terms": [
+        "human surface",
+        "doc renderer",
+        "user view",
+        "human renderer",
+        "read surface",
+        "viewer",
+        "workbench"
+      ],
+      "note": "Several names for the human side. Same for the agent side: agent surface, agent renderer, agent view, agent-view.ts, markdown render, projection, projectToMarkdown, docs render."
+    },
+    {
+      "terms": [
+        "surface"
+      ],
+      "note": "Means human or agent surface, the interaction-surface block type, the read surface, and 'interaction surfaces for intelligence' in the Core README. The writing-style page lists 'surface' as a metaphor to review."
+    },
+    {
+      "terms": [
+        "section"
+      ],
+      "note": "Means an L2 doc folder, a heading section, a canvas section (the board container), a prompt-kit section node, and 'page or entire section' in docs_move."
+    },
+    {
+      "terms": [
+        "layer",
+        "tier"
+      ],
+      "note": "'layer' means the four doc layers, the translation layer, stack block layers, and DocTargetingLayer. 'tier' is used for the same root folders ('implementation tier', 'extension tier')."
+    },
+    {
+      "terms": [
+        "annotation",
+        "comment",
+        "line annotation"
+      ],
+      "note": "'annotation' means an annotations.json record and also a code-block side note (props.annotations, code.setAnnotation). README and design principles call annotations 'comments'."
+    },
+    {
+      "terms": [
+        "session",
+        "docs-edit session",
+        "agent run",
+        "task"
+      ],
+      "note": "session_id names any editing actor. docs-edit session is a docs-kernel agent session. agent-kernel has its own session and run model. MCP uses 'task' and 'connection' for its own scope."
+    },
+    {
+      "terms": [
+        "patch"
+      ],
+      "note": "Means a ledger patch (patch_id), a props patch returned by an action, and a canvas patch (canvas_apply_patch)."
+    },
+    {
+      "terms": [
+        "hash",
+        "content hash",
+        "expected_hash",
+        "revision hash",
+        "tree hash",
+        "annotations hash",
+        "component hash"
+      ],
+      "note": "One SHA-256 definition, many parameter names: expected_hash, expected_tree_hash, expected_annotations_hash, expected_component_hash, expected_proposals_hash."
+    },
+    {
+      "terms": [
+        "authority",
+        "write authority",
+        "mutation authority",
+        "store"
+      ],
+      "note": "README says mutation authority; the data model says write authority; code says DocsStore and store. The canvas and sequence engines are also 'authorities'."
+    },
+    {
+      "terms": [
+        "resolve"
+      ],
+      "note": "Means close an annotation, compute a file path (resolveDocBundleJsonPath), and a target that still exists ('resolves' versus 'dangles')."
+    },
+    {
+      "terms": [
+        "discover",
+        "discovery"
+      ],
+      "note": "Means GET /api/blocks block discovery and docs_discover project discovery."
+    },
+    {
+      "terms": [
+        "project"
+      ],
+      "note": "Means an MCP docs project, the canvas project as authority, an Observatory registry project, and any project that renders the Global theme."
+    },
+    {
+      "terms": [
+        "text-range",
+        "text_range",
+        "canvas-object",
+        "custom_element",
+        "visual_point"
+      ],
+      "note": "The schema uses text-range and canvas-object. The annotations page lists text_range, visual_point, and custom_element as target kinds."
+    },
+    {
+      "terms": [
+        "model",
+        "agent"
+      ],
+      "note": "'model' means the data model (docs-model) and also an LLM (model-judged rules, judgment engine). 'agent' is the AI reader, and 'agent-request' is an annotation intent."
+    },
+    {
+      "terms": [
+        "registry"
+      ],
+      "note": "Means the component registry, THEME_TOKEN_REGISTRY, and Observatory registry.json."
+    },
+    {
+      "terms": [
+        "entry"
+      ],
+      "note": "Means a change-set entry, a file-tree or file-explorer entry, a ledger entry, and an area-page decision entry."
+    },
+    {
+      "terms": [
+        "view"
+      ],
+      "note": "Means a canvas view crop, the agent view, the user view, a node view, and LabView."
+    }
+  ],
+  "meta": {
+    "repo": "/Users/Ford/workspace/codecaine/core/docs-system",
+    "siblingGlossaryFiles": "none found (GLOSSARY*.md, CONTEXT.md, CONTEXT-MAP.md) under /Users/Ford/workspace/codecaine at maxdepth 6",
+    "componentActionsInCode": [
+      "code.setAnnotation",
+      "code.removeAnnotation",
+      "file-tree.addEntry",
+      "file-tree.removeEntry",
+      "file-tree.updateEntry",
+      "interaction-surface.addOperation",
+      "interaction-surface.removeOperation",
+      "interaction-surface.updateOperation",
+      "process-outline.insertStep",
+      "process-outline.moveStep",
+      "process-outline.removeStep",
+      "process-outline.setStepText",
+      "process-outline.setSteps",
+      "state-shape.addField",
+      "state-shape.removeField",
+      "state-shape.setExample",
+      "state-shape.updateField",
+      "structured-table.addColumn",
+      "structured-table.addRow",
+      "structured-table.removeColumn",
+      "structured-table.removeRow",
+      "structured-table.updateCell"
+    ],
+    "cliCommands": [
+      "render",
+      "grep",
+      "backlinks rescan",
+      "links check",
+      "audit",
+      "migrate",
+      "code-theme",
+      "serve",
+      "export"
+    ],
+    "kernelSessionTools": [
+      "read_doc",
+      "insert_block",
+      "set_props",
+      "write_text",
+      "delete_block",
+      "move_block",
+      "split_block",
+      "merge_blocks",
+      "move_blocks",
+      "edit_canvas",
+      "edit_sequence",
+      "reply_request",
+      "resolve_request",
+      "propose_ops"
+    ]
+  }
+}

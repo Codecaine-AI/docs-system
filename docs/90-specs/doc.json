@@ -79,7 +79,7 @@
           }
         },
         {
-          "insert": " proposes ERDs for SQLite tables and for non-SQL structures such as doc bundles and canvas boards. It compares an inline block, an entity object on canvas boards, relations on state-shape, and a text DSL sidecar, and recommends the same staged path as the mockups spec."
+          "insert": " proposes ERDs for SQLite tables and for non-SQL structures such as doc bundles and canvas boards. It compares an inline block, an entity object on canvas boards, relations on state-shape, and a text DSL sidecar. It recommends the same staged path as the mockups spec."
         }
       ],
       "children": []

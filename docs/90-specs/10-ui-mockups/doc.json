@@ -1177,7 +1177,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No package ships a wireframe stylesheet or tokens, and none depends on rough.js."
+          "insert": "No package ships a wireframe stylesheet or tokens. None depends on rough.js."
         }
       ],
       "children": []
@@ -1210,7 +1210,7 @@
           }
         },
         {
-          "insert": " accepts any HTML, and "
+          "insert": " accepts any HTML. "
         },
         {
           "insert": "lintRules",
@@ -1665,7 +1665,7 @@
           }
         },
         {
-          "insert": " block (A), add the "
+          "insert": " block (A). Add the "
         },
         {
           "insert": "screen",
@@ -1674,7 +1674,7 @@
           }
         },
         {
-          "insert": " object kind to canvas boards second (B), and treat the page review area (C) as a page convention."
+          "insert": " object kind to canvas boards second (B). Treat the page review area (C) as a page convention."
         }
       ],
       "children": []
@@ -2806,7 +2806,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A change to an existing screen reproduces that screen first and alters only the delta."
+          "insert": "A change to an existing screen reproduces that screen first and changes only the delta."
         }
       ],
       "children": []

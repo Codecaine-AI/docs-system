@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Simplified Technical English (ASD-STE100): overview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #111;
+    --muted: #666;
+    --faint: #999;
+    --line: #d6d6d6;
+    --rule: #111;
+    --blue: #1f5fa8;
+    --blue-soft: #e6eef8;
+    --red: #c0332b;
+    --red-soft: #fbeaea;
+    --amber: #a86a00;
+    --amber-soft: #fff4dd;
+    --row: #f4f4f4;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ececec; color: var(--ink); font: 14px/1.45 var(--sans); }
+  code, .mono { font-family: var(--mono); }
+
+  /* ---------- drawing sheet ---------- */
+  .sheet { max-width: 1680px; margin: 24px auto; background: #fff; border: 1.5px solid var(--rule); padding: 22px; position: relative; }
+  .frame { border: 1px solid var(--rule); padding: 22px; position: relative; }
+  .ruler-x { display: grid; grid-template-columns: repeat(8, 1fr); font: 11px var(--mono); color: var(--muted); text-align: center; }
+  .ruler-x span { border-left: 1px solid var(--rule); }
+  .ruler-x span:first-child { border-left: 0; }
+  .ruler-x.top { margin: -22px 0 0; height: 22px; line-height: 22px; }
+  .ruler-x.bottom { margin: 0 0 -22px; height: 22px; line-height: 22px; }
+  .ruler-y { position: absolute; top: 22px; bottom: 22px; width: 22px; display: grid; font: 11px var(--mono); color: var(--muted); }
+  .ruler-y span { display: flex; align-items: center; justify-content: center; border-top: 1px solid var(--rule); }
+  .ruler-y span:first-child { border-top: 0; }
+  .ruler-y.left { left: 0; } .ruler-y.right { right: 0; }
+
+  .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 22px; }
+  .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; } .span-5 { grid-column: span 5; }
+  .span-6 { grid-column: span 6; } .span-7 { grid-column: span 7; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; }
+  @media (max-width: 1200px) { .grid > * { grid-column: span 12 !important; } }
+
+  /* ---------- panels ---------- */
+  .panel { border: 1.5px solid var(--rule); display: flex; flex-direction: column; min-width: 0; }
+  .panel > header { display: flex; align-items: stretch; border-bottom: 1.5px solid var(--rule); }
+  .panel > header .tag { background: var(--ink); color: #fff; font-weight: 600; width: 34px; display: grid; place-items: center; }
+  .panel > header h2 { margin: 0; font-size: 16px; font-weight: 600; padding: 8px 12px; flex: 1; }
+  .panel > header .meta { font: 11px var(--mono); color: var(--muted); padding: 0 12px; align-self: center; }
+  .panel .body { padding: 14px 16px; flex: 1; }
+  .panel .foot { border-top: 1px solid var(--line); padding: 10px 16px; font-size: 12px; color: var(--muted); }
+  .eyebrow { font: 11px var(--mono); color: var(--muted); margin: 0 0 4px; }
+  .ok { color: var(--blue); } .bad { color: var(--red); } .warn { color: var(--amber); }
+  .ok::before { content: "✓ "; } .bad::before { content: "✕ "; }
+
+  /* ---------- A: structure ---------- */
+  .root-box { margin: 4px auto 0; width: 230px; text-align: center; border: 1.5px solid var(--rule); background: var(--blue-soft); padding: 8px; }
+  .root-box b { font-size: 17px; display: block; }
+  .root-box small { color: var(--muted); }
+  .branch { height: 18px; width: 50%; margin: 0 auto; border: 1px solid var(--rule); border-bottom: 0; position: relative; }
+  .parts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .part-head { border: 1.5px solid var(--rule); text-align: center; font-weight: 600; padding: 6px; }
+  .tree { list-style: none; margin: 8px 0 0 14px; padding: 0 0 0 12px; border-left: 1px solid var(--faint); }
+  .tree li { position: relative; padding: 3px 0 3px 10px; }
+  .tree li::before { content: ""; position: absolute; left: -12px; top: 13px; width: 16px; border-top: 1px solid var(--faint); }
+  .tree .n { font: 11px var(--mono); color: var(--muted); margin-right: 6px; }
+  .tree small { display: block; color: var(--muted); font-size: 11.5px; }
+  .tree button { all: unset; cursor: pointer; border-bottom: 1px dotted var(--faint); }
+  .tree button:hover, .tree button.active { color: var(--blue); border-color: var(--blue); }
+  .callout { margin-top: 10px; background: var(--row); border: 1px solid var(--line); padding: 8px 10px; font-size: 13px; }
+  .callout small { display: block; color: var(--muted); }
+
+  /* ---------- B: anatomy ---------- */
+  .ex { padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .ex:last-child { border-bottom: 0; }
+  .ex h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+  .orig { font-size: 14px; }
+  .orig em { color: var(--red); font-style: normal; border-bottom: 1px solid var(--red); }
+  .ste { font: 17px/2.2 var(--mono); }
+  .a { position: relative; border-bottom: 2px solid var(--blue); cursor: help; padding-bottom: 1px; }
+  .a.r { border-color: var(--red); }
+  .a sup { font: 600 10px var(--sans); color: var(--blue); margin-left: 1px; }
+  .a.r sup { color: var(--red); }
+  .notes { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 4px 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--blue); }
+  .notes li.r { color: var(--red); }
+  .notes b { font-weight: 600; margin-right: 3px; }
+  .count { font: 11px var(--mono); color: var(--muted); display: flex; align-items: center; gap: 8px; margin: 2px 0; }
+  .count .bar { flex: 1; height: 1px; background: var(--muted); position: relative; }
+  .count .bar::before, .count .bar::after { content: ""; position: absolute; top: -4px; height: 9px; border-left: 1px solid var(--muted); }
+  .count .bar::before { left: 0; } .count .bar::after { right: 0; }
+
+  /* ---------- tables ---------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font: 400 11px var(--mono); color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  td { padding: 7px 8px; border-bottom: 1px solid #fff; }
+  tbody tr:nth-child(odd) td { background: var(--row); }
+  td.m { font-family: var(--mono); }
+  .filters { display: flex; gap: 6px; margin-bottom: 8px; }
+  .chip { all: unset; cursor: pointer; font: 11px var(--mono); padding: 3px 8px; border: 1px solid var(--line); }
+  .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  td.alt { color: var(--blue); font-weight: 500; }
+  td.badex { color: var(--red); }
+
+  /* ---------- E: limits ---------- */
+  .limit { margin: 0 0 14px; }
+  .limit .top { display: flex; justify-content: space-between; font-size: 13px; }
+  .limit .top span { font: 11.5px var(--mono); color: var(--blue); }
+  .track { position: relative; height: 12px; background: #f2f2f2; border: 1px solid var(--line); margin-top: 4px; }
+  .fill { position: absolute; inset: 0 auto 0 0; background: var(--blue-soft); border-right: 2px solid var(--blue); }
+  .ticks { display: flex; justify-content: space-between; font: 9.5px var(--mono); color: var(--faint); margin-top: 2px; }
+  .square { list-style: none; padding: 0; margin: 0; font-size: 12.5px; }
+  .square li { padding-left: 14px; position: relative; margin: 3px 0; }
+  .square li::before { content: ""; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; background: var(--ink); }
+
+  /* ---------- F: history + title block ---------- */
+  .timeline { display: grid; grid-template-columns: repeat(4, 1fr); position: relative; margin: 10px 0 6px; text-align: center; }
+  .timeline::before { content: ""; position: absolute; left: 4%; right: 4%; top: 33px; border-top: 1px solid var(--ink); }
+  .timeline b { display: block; font-size: 15px; font-weight: 500; }
+  .timeline i { display: block; width: 11px; height: 11px; margin: 6px auto; border: 1.5px solid var(--ink); border-radius: 50%; background: #fff; position: relative; }
+  .timeline small { color: var(--muted); font-size: 11.5px; display: block; padding: 0 4px; }
+  .titleblock { border: 1.5px solid var(--rule); margin-top: 22px; }
+  .titleblock .row { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--rule); }
+  .titleblock .row > div { padding: 6px 10px; }
+  .titleblock .row > div + div { border-left: 1px solid var(--rule); }
+  .titleblock .t { padding: 6px 10px; }
+  .titleblock .t b { font-size: 17px; font-weight: 600; }
+  .titleblock label { display: block; font: 10.5px var(--mono); color: var(--muted); }
+
+  /* ---------- G: sections ---------- */
+  .sections { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 900px) { .sections { grid-template-columns: 1fr; } }
+  .sec { border: 1px solid var(--line); padding: 10px 12px; transition: border-color .15s, background .15s; }
+  .sec.flash { border-color: var(--blue); background: var(--blue-soft); }
+  .sec h3 { margin: 0 0 6px; font-size: 14px; }
+  .sec h3 .n { font: 11px var(--mono); color: var(--muted); margin-right: 6px; }
+  .sec ul { margin: 0; padding-left: 16px; font-size: 12.5px; }
+  .sec li { margin: 2px 0; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; font: 11.5px var(--mono); }
+  .pair div { padding: 4px 6px; }
+  .pair .x { background: var(--red-soft); color: var(--red); }
+  .pair .y { background: var(--blue-soft); color: var(--blue); }
+
+  /* ---------- H: checker ---------- */
+  textarea { width: 100%; min-height: 140px; font: 13px/1.5 var(--mono); padding: 8px; border: 1px solid var(--rule); resize: vertical; }
+  .controls { display: flex; gap: 6px; align-items: center; margin: 8px 0; flex-wrap: wrap; font-size: 12px; }
+  .out { font-size: 13.5px; line-height: 1.9; }
+  .sent { display: block; padding: 4px 6px; border-left: 3px solid var(--blue); margin: 4px 0; background: #fafafa; }
+  .sent.over { border-color: var(--red); background: var(--red-soft); }
+  .sent .wc { float: right; font: 11px var(--mono); color: var(--muted); }
+  .sent.over .wc { color: var(--red); }
+  mark { background: none; border-bottom: 2px solid var(--red); color: var(--red); cursor: help; }
+  mark.w { border-color: var(--amber); color: var(--amber); }
+  .summary { display: flex; gap: 14px; font: 12px var(--mono); margin: 6px 0; flex-wrap: wrap; }
+  .tip { font-size: 11.5px; color: var(--muted); }
+
+  /* ---------- I: LLM use ---------- */
+  pre { background: #f6f6f6; border: 1px solid var(--line); padding: 10px 12px; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; margin: 6px 0 12px; }
+  .cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cmp > div { border: 1px solid var(--line); padding: 10px 12px; font-size: 13px; }
+  .cmp h4 { margin: 0 0 6px; font-size: 12px; font: 11px var(--mono); color: var(--muted); font-weight: 400; }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="ruler-y left"></div><div class="ruler-y right"></div>
+  <div class="ruler-x top"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+  <div class="frame">
+  <div class="grid">
+
+    <!-- ===================== A ===================== -->
+    <section class="panel span-4" id="A">
+      <header><div class="tag">A</div><h2>Document structure</h2><div class="meta">ASD-STE100 specification</div></header>
+      <div class="body">
+        <div class="root-box"><b>ASD-STE100</b><small>Simplified Technical English</small></div>
+        <div class="branch"></div>
+        <div class="parts">
+          <div>
+            <div class="part-head">Part 1: Writing rules</div>
+            <ul class="tree" id="secTree"></ul>
+          </div>
+          <div>
+            <div class="part-head">Part 2: Dictionary</div>
+            <ul class="tree">
+              <li>Approved words<small>UPPERCASE, one meaning, one part of speech</small></li>
+              <li>Unapproved words<small>lowercase, each with an approved alternative</small></li>
+              <li>Technical names<small>your company’s nouns, in defined categories</small></li>
+              <li>Technical verbs<small>your company’s verbs, in defined categories</small></li>
+            </ul>
+            <div class="callout">About 900 approved words<small>Each word: one part of speech, one meaning</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="foot">Rules are numbered by section, for example Rule 5.1 belongs to Section 5, Procedures. Click a section to jump to its rules in panel G.</div>
+    </section>
+
+    <!-- ===================== B ===================== -->
+    <section class="panel span-5" id="B">
+      <header><div class="tag">B</div><h2>Anatomy of STE sentences</h2><div class="meta">annotated examples</div></header>
+      <div class="body">
+        <p class="eyebrow">Original text, not STE: unapproved words in red</p>
+        <div class="orig">It is <em>imperative</em> that the operator <em>ensures</em> the hydraulic reservoir is <em>replenished prior to commencing</em> operation.</div>
+
+        <div class="ex">
+          <h3>1 · Procedural sentence (the same instruction, rewritten)</h3>
+          <div class="count"><div class="bar"></div>13 words, limit 20<div class="bar"></div></div>
+          <div class="ste">
+            <span class="a" title="Approved verb in command (imperative) form">Make sure<sup>1</sup></span> that the
+            <span class="a" title="Technical name: a 2-word noun cluster, max is 3">hydraulic reservoir<sup>2</sup></span> is
+            <span class="a" title="Replaces 'replenished'">full<sup>3</sup></span>
+            <span class="a" title="Replaces 'prior to'">before<sup>4</sup></span>
+            <span class="a" title="Active voice: 'you' is the subject">you<sup>5</sup></span>
+            <span class="a" title="Replaces 'commencing'">start<sup>6</sup></span> the operation.
+          </div>
+          <ul class="notes">
+            <li><b>1</b>Approved verb, command form</li><li><b>2</b>Technical name, 2-word noun cluster (max 3)</li>
+            <li><b>3</b>Not “replenished”</li><li><b>4</b>Not “prior to”</li><li><b>5</b>Active voice</li><li><b>6</b>Not “commencing”</li>
+          </ul>
+        </div>
+
+        <div class="ex">
+          <h3>2 · Safety instruction</h3>
+          <div class="ste">
+            <span class="a r" title="WARNING = risk of injury or death. CAUTION = risk of damage to equipment.">WARNING:<sup>1</sup></span>
+            <span class="a" title="Start with a clear, simple command">Do not touch the brake unit until it is cool.<sup>2</sup></span>
+            <span class="a" title="Then give the risk">Hot parts can cause injury.<sup>3</sup></span>
+          </div>
+          <ul class="notes">
+            <li class="r"><b>1</b>WARNING = risk of injury. CAUTION = risk of damage.</li><li><b>2</b>First: a clear, simple command</li><li><b>3</b>Then: the risk</li>
+          </ul>
+        </div>
+
+        <div class="ex">
+          <h3>3 · Descriptive sentence</h3>
+          <div class="ste">The pump <span class="a" title="Simple present tense">supplies<sup>1</sup></span> fuel to the engine when the switch is on.</div>
+          <div class="count" style="justify-content:space-between"><span>1 · Simple present tense</span><span>12 words, limit 25 · max 6 sentences per paragraph</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== C ===================== -->
+    <section class="panel span-3" id="C">
+      <header><div class="tag">C</div><h2>Verb forms</h2><div class="meta">Section 3</div></header>
+      <div class="body" style="padding:0">
+        <table>
+          <thead><tr><th>Form</th><th>Example</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Command (imperative)</td><td class="m">Close the valve.</td><td class="ok">Approved</td></tr>
+            <tr><td>Simple present</td><td class="m">The valve closes.</td><td class="ok">Approved</td></tr>
+            <tr><td>Simple past</td><td class="m">The valve closed.</td><td class="ok">Approved</td></tr>
+            <tr><td>Simple future</td><td class="m">The valve will close.</td><td class="ok">Approved</td></tr>
+            <tr><td>Infinitive</td><td class="m">Turn the knob to close it.</td><td class="ok">Approved</td></tr>
+            <tr><td>Past participle (adjective)</td><td class="m">The closed valve</td><td class="ok">Approved</td></tr>
+            <tr><td>Progressive (-ing)</td><td class="m">The valve is closing.</td><td class="bad">Not approved</td></tr>
+            <tr><td>Perfect</td><td class="m">The valve has closed.</td><td class="bad">Not approved</td></tr>
+            <tr><td>Passive, in procedures</td><td class="m">The valve must be closed.</td><td class="bad">Not approved</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot">Use the -ing form only inside a technical name, for example “landing gear”. Descriptive text can use the passive only when it is necessary.</div>
+    </section>
+
+    <!-- ===================== D ===================== -->
+    <section class="panel span-5" id="D">
+      <header><div class="tag">D</div><h2>Dictionary entries</h2><div class="meta">Part 2 format</div></header>
+      <div class="body">
+        <div class="filters">
+          <button class="chip on" data-f="all">all</button>
+          <button class="chip" data-f="ok">approved</button>
+          <button class="chip" data-f="bad">not approved</button>
+        </div>
+        <table id="dict">
+          <thead><tr><th>Word (part of speech)</th><th>Status</th><th>Meaning or alternative</th><th>Approved example</th><th>Not approved</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="foot">Convention: approved words are shown in UPPERCASE, unapproved words in lowercase. An approved word keeps only its listed meaning and part of speech. “Close” is a verb only, never an adjective meaning “near”.</div>
+    </section>
+
+    <!-- ===================== E ===================== -->
+    <section class="panel span-4" id="E">
+      <header><div class="tag">E</div><h2>Writing rule limits</h2><div class="meta">maximum values</div></header>
+      <div class="body" id="limits"></div>
+      <div class="foot" style="color:var(--ink)">
+        <ul class="square">
+          <li>Use the same word for the same thing every time.</li>
+          <li>Do not leave out words like “the”, “a” and “this”.</li>
+          <li>Use the active voice in procedures.</li>
+          <li>Use vertical lists for complex text.</li>
+          <li>Write one topic in each paragraph.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== F ===================== -->
+    <section class="span-3" style="display:flex;flex-direction:column" id="F">
+      <div class="panel" style="flex:1">
+        <header><div class="tag">F</div><h2>History</h2></header>
+        <div class="body">
+          <div class="timeline">
+            <div><b>1979</b><i></i><small>AECMA starts work on controlled English for airlines</small></div>
+            <div><b>1986</b><i></i><small>First AECMA Simplified English Guide</small></div>
+            <div><b>2005</b><i></i><small>Becomes ASD-STE100 after AECMA joins ASD in 2004</small></div>
+            <div><b>Now</b><i></i><small>Free on request, revised by the STEMG about every 3 years</small></div>
+          </div>
+        </div>
+        <div class="foot"><i>STEMG: Simplified Technical English Maintenance Group</i></div>
+      </div>
+      <div class="titleblock">
+        <div class="t"><label>Title</label><b>Simplified Technical English: overview</b></div>
+        <div class="row"><div><label>Specification</label>ASD-STE100</div><div><label>Owner</label>ASD</div></div>
+        <div class="row"><div><label>Original domain</label>Aircraft maintenance</div><div><label>Now also used in</label>Defence, rail, industry, software</div></div>
+        <div class="row"><div><label>Source</label>asd-ste100.org</div><div><label>Sheet</label>1 of 1</div></div>
+      </div>
+    </section>
+
+    <!-- ===================== G ===================== -->
+    <section class="panel span-12" id="G">
+      <header><div class="tag">G</div><h2>The nine sections: main rules</h2><div class="meta">Part 1, paraphrased</div></header>
+      <div class="body"><div class="sections" id="sections"></div></div>
+      <div class="foot">Paraphrased summary for learning. The official rule text and numbering are in the specification from asd-ste100.org.</div>
+    </section>
+
+    <!-- ===================== H ===================== -->
+    <section class="panel span-7" id="H">
+      <header><div class="tag">H</div><h2>Try it: STE checker</h2><div class="meta">heuristic, not official</div></header>
+      <div class="body">
+        <textarea id="input">It is imperative that the operator ensures the hydraulic reservoir is replenished prior to commencing operation. The system is being monitored continuously; utilize the dashboard in order to verify that approximately all checks have passed.
+
+Make sure that the hydraulic reservoir is full before you start the operation. The pump supplies fuel to the engine when the switch is on.</textarea>
+        <div class="controls">
+          <span>Sentence type:</span>
+          <button class="chip on" data-mode="20">procedural (20)</button>
+          <button class="chip" data-mode="25">descriptive (25)</button>
+          <span class="tip">· red = rule break · amber = check by hand · hover a mark for the fix</span>
+        </div>
+        <div class="summary" id="summary"></div>
+        <div class="out" id="output"></div>
+      </div>
+      <div class="foot">Checks: sentence length, a sample list of unapproved words, -ing forms, perfect tense, passive voice, semicolons, and paragraph length. A real checker needs the full dictionary and a parser.</div>
+    </section>
+
+    <!-- ===================== I ===================== -->
+    <section class="panel span-5" id="I">
+      <header><div class="tag">I</div><h2>Using STE with an LLM</h2><div class="meta">prompt patterns</div></header>
+      <div class="body">
+        <p class="eyebrow">Strict</p>
+        <pre>Explain how our build cache works.
+Write in ASD-STE100 Simplified Technical English.</pre>
+        <p class="eyebrow">Softened (spec is very strict for prose)</p>
+        <pre>Explain how our build cache works. Write about
+80% of the way to ASD-STE100: short sentences,
+one topic per sentence, active voice, the same
+word for the same thing. Keep normal technical
+vocabulary.</pre>
+        <div class="cmp">
+          <div><h4>WHY IT WORKS</h4>Models already know the spec. One short name in the prompt brings a full, consistent set of style rules.</div>
+          <div><h4>WHAT TO RELAX</h4>The ~900-word dictionary. Software words (cache, deploy, schema) are “technical names” anyway.</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  </div>
+  <div class="ruler-x bottom"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span></div>
+</div>
+
+<script>
+/* ---------- side rulers ---------- */
+for (const el of document.querySelectorAll(".ruler-y")) {
+  const rows = ["A","B","C","D","E"];
+  el.style.gridTemplateRows = `repeat(${rows.length}, 1fr)`;
+  el.innerHTML = rows.map(r => `<span>${r}</span>`).join("");
+}
+
+/* ---------- sections (A tree + G cards) ---------- */
+const SECTIONS = [
+  { n: 1, name: "Words", rules: [
+      "Use only approved words, and only with their approved meaning and part of speech.",
+      "Technical names and technical verbs from your field are allowed.",
+      "Use one word for one thing. Do not use synonyms for variety.",
+      "Use American English spelling."],
+    pair: ["Utilize the wrench.", "Use the wrench."] },
+  { n: 2, name: "Noun clusters", rules: [
+      "Do not use clusters of more than 3 nouns.",
+      "Break a long cluster with a preposition or a hyphen.",
+      "If a long cluster is a technical name, define it once, then use it."],
+    pair: ["runway light connection resistance test", "test of the resistance at the runway light connection"] },
+  { n: 3, name: "Verbs", rules: [
+      "Use only the approved forms (see panel C).",
+      "Use the active voice. In descriptions, use the passive only when necessary.",
+      "Do not use the -ing form except in technical names.",
+      "Use an approved verb to show an action, not a noun made from a verb."],
+    pair: ["Perform an inspection of the seal.", "Examine the seal."] },
+  { n: 4, name: "Sentences", rules: [
+      "Write one topic in each sentence.",
+      "Do not leave out words to make text shorter (articles, “that”).",
+      "Use vertical lists for complex text.",
+      "Use connecting words (if, then, but) to link sentences."],
+    pair: ["Remove cover, check seal.", "Remove the cover. Then examine the seal."] },
+  { n: 5, name: "Procedures", rules: [
+      "Max 20 words in each procedural sentence.",
+      "Write instructions as commands (imperative).",
+      "Write one instruction in each sentence, unless the actions are simultaneous.",
+      "Put a condition before the instruction: “If…, do…”."],
+    pair: ["The valve should be opened by the operator.", "Open the valve."] },
+  { n: 6, name: "Descriptive writing", rules: [
+      "Max 25 words in each descriptive sentence.",
+      "Max 6 sentences in each paragraph, one topic per paragraph.",
+      "Put the most important information first (topic sentence).",
+      "Use key words and headings so the reader can find information."],
+    pair: ["Pressure, which is regulated by…, is then…", "The regulator controls the pressure. …"] },
+  { n: 7, name: "Safety instructions", rules: [
+      "Use WARNING for risk of injury or death, CAUTION for risk of damage.",
+      "Start with a clear, simple command.",
+      "Then give the risk, in a short explanation.",
+      "Use NOTE for information that is not a safety instruction."],
+    pair: ["Hot parts can cause injury, so be careful.", "WARNING: Do not touch… Hot parts can cause injury."] },
+  { n: 8, name: "Punctuation and word counts", rules: [
+      "Do not use semicolons.",
+      "Use a colon only to introduce a vertical list.",
+      "Use hyphens to join words in a noun cluster when clarity needs it.",
+      "Rules for counting: a number, a technical name, or a hyphenated group counts as one word."],
+    pair: ["Close the valve; then start the pump.", "Close the valve. Then start the pump."] },
+  { n: 9, name: "Writing practices", rules: [
+      "Be specific. Give exact values, not “a few” or “some”.",
+      "Use the same structure for the same type of information.",
+      "Write logically: give steps in the order the reader does them.",
+      "Do not use slang, idioms, or jargon outside your technical names."],
+    pair: ["Tighten the bolt a bit.", "Tighten the bolt to 12 N·m."] },
+];
+
+document.getElementById("secTree").innerHTML = SECTIONS.map(s =>
+  `<li><span class="n">Section ${s.n}</span><button data-sec="${s.n}">${s.name}</button></li>`).join("");
+
+document.getElementById("sections").innerHTML = SECTIONS.map(s => `
+  <div class="sec" id="sec-${s.n}">
+    <h3><span class="n">${s.n}</span>${s.name}</h3>
+    <ul>${s.rules.map(r => `<li>${r}</li>`).join("")}</ul>
+    <div class="pair"><div class="x">${s.pair[0]}</div><div class="y">${s.pair[1]}</div></div>
+  </div>`).join("");
+
+document.getElementById("secTree").addEventListener("click", e => {
+  const b = e.target.closest("button[data-sec]"); if (!b) return;
+  const card = document.getElementById("sec-" + b.dataset.sec);
+  card.scrollIntoView({ behavior: "smooth", block: "center" });
+  card.classList.add("flash"); setTimeout(() => card.classList.remove("flash"), 1400);
+});
+
+/* ---------- D dictionary ---------- */
+const DICT = [
+  ["CLOSE (v)", true, "To move together, to stop flow", "CLOSE the valve.", "–"],
+  ["close (adj)", false, "NEAR", "Put the tool NEAR the panel.", "Put the tool close to the panel."],
+  ["commence (v)", false, "START", "START the pump.", "Commence pumping."],
+  ["ensure (v)", false, "MAKE SURE", "MAKE SURE THAT the switch is off.", "Ensure the switch is off."],
+  ["prior to (prep)", false, "BEFORE", "BEFORE you start the engine,", "Prior to starting the engine,"],
+  ["replenish (v)", false, "FILL", "FILL the reservoir.", "Replenish the reservoir."],
+  ["utilize (v)", false, "USE", "USE a torque wrench.", "Utilize a torque wrench."],
+  ["approximately (adv)", false, "ABOUT", "Wait for ABOUT 10 minutes.", "Wait approximately 10 minutes."],
+  ["TEST (v)", true, "To find if it operates correctly", "TEST the circuit.", "–"],
+  ["in order to", false, "TO", "Remove the panel TO get access.", "Remove the panel in order to access."],
+];
+const dictBody = document.querySelector("#dict tbody");
+function renderDict(f) {
+  dictBody.innerHTML = DICT.filter(d => f === "all" || (f === "ok") === d[1]).map(d => `
+    <tr><td class="m">${d[0]}</td><td class="${d[1] ? "ok" : "bad"}">${d[1] ? "Approved" : "Not approved"}</td>
+    <td class="${d[1] ? "" : "alt"}">${d[2]}</td><td>${d[3]}</td><td class="${d[1] ? "" : "badex"}">${d[4]}</td></tr>`).join("");
+}
+renderDict("all");
+document.querySelector("#D .filters").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  document.querySelectorAll("#D .chip").forEach(c => c.classList.toggle("on", c === b));
+  renderDict(b.dataset.f);
+});
+
+/* ---------- E limits ---------- */
+const LIMITS = [
+  ["Procedural sentence", "max 20 words", 20, 30, 5],
+  ["Descriptive sentence", "max 25 words", 25, 30, 5],
+  ["Descriptive paragraph", "max 6 sentences", 6, 10, 1],
+  ["Noun cluster", "max 3 words", 3, 5, 1],
+  ["Instructions in each sentence", "max 1 (except simultaneous actions)", 1, 3, 1],
+];
+document.getElementById("limits").innerHTML = LIMITS.map(([name, lab, v, max, step]) => {
+  const ticks = []; for (let i = 0; i <= max; i += step) ticks.push(`<span>${i}</span>`);
+  return `<div class="limit"><div class="top">${name}<span>${lab}</span></div>
+    <div class="track"><div class="fill" style="width:${v / max * 100}%"></div></div>
+    <div class="ticks">${ticks.join("")}</div></div>`;
+}).join("");
+
+/* ---------- H checker ---------- */
+// Sample only. The official dictionary has about 900 approved words and many more unapproved ones.
+const UNAPPROVED = {
+  "utilize": "USE", "utilise": "USE", "commence": "START", "commencing": "START", "ensure": "MAKE SURE",
+  "ensures": "MAKE SURE", "replenish": "FILL", "replenished": "FILL", "prior to": "BEFORE",
+  "approximately": "ABOUT", "in order to": "TO", "terminate": "STOP", "initiate": "START",
+  "assist": "HELP", "sufficient": "ENOUGH", "numerous": "MANY", "obtain": "GET",
+  "imperative": "NECESSARY", "verify": "MAKE SURE / DO A CHECK", "additional": "MORE",
+  "subsequently": "THEN", "facilitate": "HELP", "commence": "START", "perform": "DO",
+};
+const ING_OK = new Set(["during","thing","things","nothing","anything","something","everything","string","bring","ring","spring","king","sing","bearing","ceiling","landing","wing","wiring","coupling","fitting","housing","tubing","building"]);
+let limit = 20;
+
+function esc(s) { return s.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c])); }
+
+function check() {
+  const text = document.getElementById("input").value.trim();
+  const paras = text.split(/\n\s*\n/).filter(Boolean);
+  let totals = { sentences: 0, over: 0, words: 0, ing: 0, passive: 0, semi: 0, longPara: 0 };
+  const html = paras.map(p => {
+    const sents = p.replace(/\s+/g, " ").match(/[^.!?]+[.!?]*/g) || [];
+    if (sents.length > 6) totals.longPara++;
+    const out = sents.map(s => {
+      s = s.trim(); if (!s) return "";
+      const wc = (s.match(/[A-Za-z0-9][A-Za-z0-9'’-]*/g) || []).length;
+      totals.sentences++; const over = wc > limit; if (over) totals.over++;
+      let h = esc(s);
+      // multi-word unapproved first, then single words
+      for (const [bad, alt] of Object.entries(UNAPPROVED).sort((a, b) => b[0].length - a[0].length)) {
+        const re = new RegExp(`\\b(${bad.replace(/ /g, "\\s+")})\\b(?![^<]*</mark>)`, "gi");
+        h = h.replace(re, m => { totals.words++; return `<mark title="Not approved. Use: ${alt}">${m}</mark>`; });
+      }
+      h = h.replace(/;/g, () => { totals.semi++; return `<mark title="No semicolons. Write two sentences.">;</mark>`; });
+      h = h.replace(/\b(is|are|was|were|be|been|being)\s+(\w+(?:ed|en))\b(?![^<]*<\/mark>)/gi, m => {
+        totals.passive++; return `<mark class="w" title="Passive voice? Not approved in procedures.">${m}</mark>`; });
+      h = h.replace(/\b(has|have|had)\s+(\w+(?:ed|en))\b(?![^<]*<\/mark>)/gi, m => {
+        totals.passive++; return `<mark class="w" title="Perfect tense is not approved. Use simple past.">${m}</mark>`; });
+      h = h.replace(/\b([A-Za-z]{3,}ing)\b(?![^<]*<\/mark>)(?![^<]*">)/g, (m, w) => {
+        if (ING_OK.has(w.toLowerCase())) return m;
+        totals.ing++; return `<mark class="w" title="-ing form. Approved only inside a technical name.">${m}</mark>`; });
+      return `<span class="sent${over ? " over" : ""}"><span class="wc">${wc} / ${limit} words</span>${h}</span>`;
+    }).join("");
+    return `<div style="margin-bottom:10px">${out}${sents.length > 6 ? `<div class="bad" style="font-size:12px">Paragraph has ${sents.length} sentences (max 6)</div>` : ""}</div>`;
+  }).join("");
+  document.getElementById("output").innerHTML = html;
+  const s = (n, label, cls) => `<span class="${n ? cls : "ok"}">${n} ${label}</span>`;
+  document.getElementById("summary").innerHTML =
+    `<span>${totals.sentences} sentences</span>` +
+    s(totals.over, "too long", "bad") + s(totals.words, "unapproved words", "bad") + s(totals.semi, "semicolons", "bad") +
+    s(totals.passive, "passive/perfect", "warn") + s(totals.ing, "-ing forms", "warn");
+}
+document.getElementById("input").addEventListener("input", check);
+document.querySelector("#H .controls").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  document.querySelectorAll("#H .controls .chip").forEach(c => c.classList.toggle("on", c === b));
+  limit = +b.dataset.mode; check();
+});
+check();
+</script>
+</body>
+</html>

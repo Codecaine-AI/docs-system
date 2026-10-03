@@ -1,0 +1,471 @@
+{
+  "reviewer": "Opus content reviewer A (run 3)",
+  "summary": "Net positive, but not safe to stage unreviewed. Of 58 accepted rewrites, 33 improved, 17 neutral, and 8 harmful: 3 meaning-changed, 1 lost-context, 4 worse-readability, 0 slop. Autofixes are low risk (20 of 23 neutral), but dash-gloss turns 3 'Applies to' glosses into verbless fragments. Semicolon splits are the reliable win; dash-to-comma or colon swaps are compliance only. no-new-findings blocks clean prose splits (list-item-sentences, paragraph-length), so the strong model falls back to bullets with false hierarchy or bare colon swaps. Worst: sidecar-d puts sequence sidecars under assets/canvases/, the editing intro drops the save loop from its scope, and reconcile-gloss becomes a comma-spliced run-on; fact-check passed all three (0.27, 0.32, 0.11). All 4 rejections were correct. Fix first: skip dash-gloss when the gloss has no verb, exempt role lines, let splits raise sentence counts, require every structural target fixed, and send bulleted or scope-bearing rewrites to human review.",
+  "labels": {
+    "00-foundation/10-design-principles#b-dprin-intro": {
+      "label": "worse-readability",
+      "note": "Page-scope statements became sub-bullets of the system description; 'Their' dangles across bullets. The fast prose split was better.",
+      "kind": "rewrite"
+    },
+    "00-foundation/10-design-principles#b-dprin-readers-different": {
+      "label": "neutral",
+      "note": "Semicolon removed, but a lone sub-bullet adds nesting; the sibling item keeps two flat sentences.",
+      "kind": "rewrite"
+    },
+    "00-foundation/10-design-principles#b-dprin-contracts-safe": {
+      "label": "improved",
+      "note": "Colon split into two sentences; the explanation stays adjacent, nothing lost.",
+      "kind": "rewrite"
+    },
+    "00-foundation/10-design-principles#b-dprin-own-rule": {
+      "label": "improved",
+      "note": "Clean semicolon split into two short sentences; meaning intact.",
+      "kind": "rewrite"
+    },
+    "00-foundation/10-design-principles#b-dprin-restraint-encodings": {
+      "label": "improved",
+      "note": "Clean semicolon split; 'It' and 'them' still resolve.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-intro-1": {
+      "label": "improved",
+      "note": "Colon and dash removed; the contract list and vocabulary reference stay intact.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-state-sub1-6": {
+      "label": "neutral",
+      "note": "Dash swapped for a colon; same sentence, no gain or loss.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-state-sub2-7": {
+      "label": "improved",
+      "note": "Clean semicolon split into two short sentences.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-actions-sub1-9": {
+      "label": "meaning-changed",
+      "note": "Role label 'The update logic:' became an actor that 'treats' changes as actions; the definitional mapping is lost.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-actions-sub2-10": {
+      "label": "improved",
+      "note": "Split keeps the causal link through 'This'; undo still follows from the patch.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-docrender-sub1-12": {
+      "label": "neutral",
+      "note": "Dash swapped for a comma; reads the same.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-agentrender-sub1-14": {
+      "label": "neutral",
+      "note": "Appositive became 'is'; meaning kept, but parallelism with the doc-renderer sibling breaks.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-theme-sub1-16": {
+      "label": "worse-readability",
+      "note": "A comma replaces the contrast dash, so 'never hardcoded looks' dangles as a loose tag.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-adapter-sub1-33": {
+      "label": "neutral",
+      "note": "Dash became ', and'; the colon now joins a noun phrase and a clause. Slightly awkward.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-adapter-sub2-34": {
+      "label": "neutral",
+      "note": "Dash aside became a classification sentence; meaning kept, but 'complex types. Complex types' is clunky.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-perfamily-36": {
+      "label": "improved",
+      "note": "Semicolon contrast split cleanly; dash became a colon; all facts kept.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-add-5-22": {
+      "label": "improved",
+      "note": "Procedure step is now short; its result moved to a sub-bullet under it.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-closed-23": {
+      "label": "neutral",
+      "note": "Dash aside became an 'including' phrase; same content, same length.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-why-component-sub-26": {
+      "label": "improved",
+      "note": "Clean semicolon split; both facts intact.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-why-closed-sub-28": {
+      "label": "improved",
+      "note": "Clean semicolon split; cause and effect stay clear by adjacency.",
+      "kind": "rewrite"
+    },
+    "10-system-design/30-data-model/20-block-design#b-bd-why-two-sub-30": {
+      "label": "lost-context",
+      "note": "Apposition dropped: the text no longer says answering both readers from one state IS the promise.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-role": {
+      "label": "worse-readability",
+      "note": "Role phrase forced into 'authority … defines one definition', a tautology; 'share it' blurs what is shared.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-pure-d": {
+      "label": "improved",
+      "note": "Second clause moved to a sub-bullet; the decision line is shorter, nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-pure-w": {
+      "label": "improved",
+      "note": "Premise as lead, consequence and 'Rejected:' as sub-bullets; all content and role labels kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-pure-a": {
+      "label": "neutral",
+      "note": "Keeps the autofix's verbless fragment; 'enforces this' is as vague as 'enforced by'.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-modules-d": {
+      "label": "improved",
+      "note": "Wall became bullets, a big scan win. Flaw: doc-schema.ts stays in the lead while four peers are bullets.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-modules-w": {
+      "label": "improved",
+      "note": "Rule and rejected alternative separated; a long sentence halved, nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-bundle-d": {
+      "label": "improved",
+      "note": "Shared-primitives fact split to a sub-bullet; the bundle definition reads cleaner.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-registry-d": {
+      "label": "improved",
+      "note": "Dense block now scannable. Minor: checks.ts, a peer of index.ts, nests under it.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-actions-d": {
+      "label": "improved",
+      "note": "Big scan win. Minor: 'external, canvas and sequence,' garden-paths; the named-actions versus updateBlock contrast is split.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-actions-w": {
+      "label": "neutral",
+      "note": "Lead now chains 'and…and…and'; the second peer reason is demoted to a sub-bullet. Content kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-thin-d": {
+      "label": "neutral",
+      "note": "Core workbench decision demoted to a sub-bullet and still a 26-word sentence. Content kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-input-d": {
+      "label": "improved",
+      "note": "The two halves of the decision are now separate lines; nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-input-w": {
+      "label": "neutral",
+      "note": "Lone sub-bullet for a 20-word item; sibling Why items stay flat. Content kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-catalog-d": {
+      "label": "neutral",
+      "note": "Lone sub-bullet for a short item; the sibling Why line uses two flat sentences.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-static-d": {
+      "label": "improved",
+      "note": "Run-on of three coordinated clauses split; the capability-agreement rule is now its own line.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#b-wb-static-w": {
+      "label": "improved",
+      "note": "Reasons for rejecting flags now sit under the rejection as two clear sub-bullets.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#pdf-workbench-6": {
+      "label": "improved",
+      "note": "Three sentences became a lead plus two sub-bullets, meeting the two-sentence cap; nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/20-workbench#pdf-workbench-7": {
+      "label": "improved",
+      "note": "Limits and the frame rule split from the handler sentence; 'It' still resolves to the handler.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-role": {
+      "label": "neutral",
+      "note": "Role phrase forced into a sentence with the invented verb 'includes'; facts kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-sole-d": {
+      "label": "improved",
+      "note": "Dense decision split; invariants are now separate lines. 'Uses … inverse ops recorded' is slightly loose.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-sole-w": {
+      "label": "improved",
+      "note": "Dash became an explicit 'because'; the stated reason is unchanged.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-embed-d": {
+      "label": "neutral",
+      "note": "The React-free half of the decision, named in the heading, is demoted to a lone sub-bullet.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-embed-w": {
+      "label": "improved",
+      "note": "Dash split into two sentences; the rejected alternative is on its own line.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-root-d": {
+      "label": "improved",
+      "note": "Two long sentences split into three scannable facts; nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-root-w": {
+      "label": "neutral",
+      "note": "The server-versus-hosts contrast now spans two levels, a mild false hierarchy. Content kept.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint-intro": {
+      "label": "meaning-changed",
+      "note": "Section scope shrank: it no longer says it defines the save loop; that became a standalone claim.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint-in-place-gloss": {
+      "label": "improved",
+      "note": "Clean semicolon split; 'one' still refers to custom node views.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-triggers-gloss": {
+      "label": "neutral",
+      "note": "Dash swapped for a colon. The fast model's cleaner sentence split was blocked by list-item-sentences.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-reconcile-gloss": {
+      "label": "worse-readability",
+      "note": "Comma-spliced 32-word run-on fuses unrelated facts; 'never resets cursor' is cut from its cause. Still three sentences.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-failure-gloss": {
+      "label": "neutral",
+      "note": "Dash swapped for a colon; the long sentence is unchanged. The fast attempt's 'It shows…' split was better.",
+      "kind": "rewrite"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-remote-gloss": {
+      "label": "improved",
+      "note": "Long semicolon-and-dash sentence split into three; meaning kept. The item now has five sentences.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-mount-d": {
+      "label": "improved",
+      "note": "Long decision split at the semicolon; the workspace rule is on its own line.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-mount-w": {
+      "label": "improved",
+      "note": "Dash and semicolon resolved into short sentences; the 'Rejected:' marker is kept.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-schema-d": {
+      "label": "improved",
+      "note": "Import rule is now a crisp lead, with details and enforcement below. Nothing lost.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-slots-d": {
+      "label": "improved",
+      "note": "Dense decision split. Minor: the dash became ', and', flattening the read-only versus mutation-route contrast.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-slots-w": {
+      "label": "improved",
+      "note": "Mid-sentence dash aside removed; two reasons and the rejection are separate. The second reason nests under the first.",
+      "kind": "rewrite"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-sidecar-d": {
+      "label": "meaning-changed",
+      "note": "Canvas-only path example now scopes canvas and sequence docs under assets/canvases/, attached to 'served by'.",
+      "kind": "rewrite"
+    },
+    "00-foundation/10-design-principles#b-dprin-restraint-paper": {
+      "label": "neutral",
+      "note": "'happening' to 'occurring': same meaning, stiffer, loses the author's plain voice.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-gov-data": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-gov-vocab": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-gov-mut": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-pure-a@autofix": {
+      "label": "worse-readability",
+      "note": "Period after the path leaves 'Every future module in the package;' as a verbless fragment.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-modules-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-bundle-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-registry-a": {
+      "label": "worse-readability",
+      "note": "Creates the verbless fragment 'Every future component and block type.', cut off from 'Applies to'.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/10-docs-model#b-dm-actions-a": {
+      "label": "worse-readability",
+      "note": "Creates the verbless fragment 'Every new block action, local or forwarded, in any future component.'",
+      "kind": "autofix"
+    },
+    "30-implementation/20-workbench#pdf-workbench-2": {
+      "label": "neutral",
+      "note": "'retains' to 'keeps': plainer word, same meaning.",
+      "kind": "autofix"
+    },
+    "30-implementation/20-workbench#pdf-workbench-6@autofix": {
+      "label": "neutral",
+      "note": "'retains' to 'keeps' creates 'keeps … while keeping'; a minor clash, meaning intact.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-gov-mut": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-gov-ser": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-sole-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-embed-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/30-docs-server#b-ds-root-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-triggers-gloss@autofix": {
+      "label": "neutral",
+      "note": "'navigating' to 'going': same meaning, slightly less precise for a UI action.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-gov-canvas": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-gov-media": {
+      "label": "neutral",
+      "note": "'Link — gloss' became 'Link: gloss'; reads the same.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-mount-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-schema-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-slots-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-sidecar-a": {
+      "label": "neutral",
+      "note": "Gloss is a full sentence, so the period split reads cleanly.",
+      "kind": "autofix"
+    }
+  },
+  "rejected": {
+    "30-implementation/10-packages/10-docs-model#b-dm-bundle-w": {
+      "correct": true,
+      "check": "fixes-target (ste.one-topic 1 -> 1)",
+      "note": "Strong only swapped 'which' for 'because', so one-topic still fired. The fast split dropped the 'so' causal link."
+    },
+    "10-system-design/50-editor-design/20-editing-interactions#b-edint25-save-lead": {
+      "correct": true,
+      "check": "no-new-findings (structure.list-length 0 -> 1)",
+      "note": "Six bullets broke the 5-item cap, and the 'It never emits…' bullet dangles. The fast prose split tripped ste.paragraph-length."
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-schema-w": {
+      "correct": true,
+      "check": "fixes-target (ste.one-topic 1 -> 1)",
+      "note": "Strong only swapped 'which' for 'because'. The fast split altered 'without dragging' and failed meaning-words."
+    },
+    "30-implementation/10-packages/80-external-canvas#b-ec-sidecar-w": {
+      "correct": true,
+      "check": "fixes-target (ste.one-topic 1 -> 1)",
+      "note": "Strong only swapped 'which' for 'because'. The fast attempt dropped the 'Rejected:' role marker."
+    }
+  },
+  "pageConcerns": [
+    {
+      "page": "30-implementation/10-packages/10-docs-model",
+      "note": "dash-gloss autofix makes verbless fragments in 3 of 5 'Applies to' lines, and its test fixture encodes that output. The b-dm-pure-a rewrite then kept the fragment."
+    },
+    {
+      "page": "30-implementation/10-packages/10-docs-model",
+      "note": "Page grows from 26 to 45 blocks. The 5-item list cap likely kept doc-schema.ts in the lead while its four peer modules became bullets."
+    },
+    {
+      "page": "10-system-design/50-editor-design/20-editing-interactions",
+      "note": "fixes-target passes when any one target clears: reconcile-gloss and remote-gloss were accepted while still over the 2-sentence cap (remote grew from 4 to 5 sentences)."
+    },
+    {
+      "page": "10-system-design/50-editor-design/20-editing-interactions",
+      "note": "The intro scope loss passed fact-check at 0.32 against a 0.35 limit. The densest block, b-edint25-save-lead, stays unrewritten because clean splits trip ste.paragraph-length."
+    },
+    {
+      "page": "30-implementation/10-packages/80-external-canvas",
+      "note": "b-ec-sidecar-d now claims sequence sidecars live under assets/canvases/; fact-check passed it at 0.27. Revert before staging."
+    },
+    {
+      "page": "10-system-design/30-data-model/20-block-design",
+      "note": "The Contract list loses parallelism: the agent-renderer bullet is now a sentence while the doc-renderer bullet stays a noun phrase, and the 'update logic' role mapping is gone."
+    },
+    {
+      "page": "00-foundation/10-design-principles",
+      "note": "The intro paragraph became a lead plus four bullets. The fast model's clean prose split was blocked by structure.opening-length and ste.paragraph-length."
+    },
+    {
+      "page": "30-implementation/20-workbench",
+      "note": "Some Decision and Why items now nest sub-bullets while untouched siblings stay flat two-sentence items, so the page mixes two shapes."
+    },
+    {
+      "page": "30-implementation/10-packages/30-docs-server",
+      "note": "Package role lines get invented verbs ('includes' here, 'defines one definition' in docs-model). Exempt role lines or give them an 'X is ...' template."
+    }
+  ]
+}

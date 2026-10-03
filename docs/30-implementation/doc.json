@@ -100,7 +100,7 @@
           }
         },
         {
-          "insert": " — the composition host where the server and viewer meet; host-wiring decisions live under "
+          "insert": ": the composition host where the server and viewer meet. Host-wiring decisions live under "
         },
         {
           "insert": "Workbench",
@@ -136,7 +136,7 @@
           }
         },
         {
-          "insert": " — the independently owned Canvas and Sequence projects, mounted as submodules; boundary decisions live under "
+          "insert": ": the independently owned Canvas and Sequence projects, mounted as submodules. Boundary decisions live under "
         },
         {
           "insert": "External Canvas and Sequence",
@@ -172,7 +172,7 @@
           }
         },
         {
-          "insert": " — theme folders and component style knobs; decisions live under "
+          "insert": ": theme folders and component style knobs. Decisions live under "
         },
         {
           "insert": "Theming",
@@ -220,13 +220,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Inclusion test",
+          "insert": "The "
+        },
+        {
+          "insert": "inclusion test",
           "attributes": {
             "bold": true
           }
         },
         {
-          "insert": ": an entry helps the reader locate how the design is implemented or understand why the code is built this way."
+          "insert": " is that an entry helps the reader locate how the design is implemented or understand why the code is built this way."
         }
       ],
       "children": []
@@ -237,7 +240,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Agents adding code either conform to the decisions recorded here or file a proposal to change them — never silently deviate."
+          "insert": "Agents adding code either conform to the decisions recorded here or file a proposal to change them: never silently deviate."
         }
       ],
       "children": []

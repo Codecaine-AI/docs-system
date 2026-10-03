@@ -83,7 +83,19 @@
       "props": {},
       "text": [
         {
-          "insert": "Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus."
+          "insert": "Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The "
+        },
+        {
+          "insert": "STE Profile",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/30-ste-profile"
+            }
+          }
+        },
+        {
+          "insert": " adds stricter word and sentence limits to these rules."
         }
       ],
       "children": []

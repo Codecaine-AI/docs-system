@@ -1,4 +1,4 @@
-A change-set is the reviewable unit for one logical change spanning multiple documents. It groups ordinary per-document proposals with document-tree operations, then accepts, rejects, and undoes the group as one PR-like action. The model keeps the existing proposal mutation path intact, so each document retains its own staged diff and hash precondition.
+A change-set is the reviewable unit for one logical change spanning multiple documents. It groups ordinary per-document proposals with document-tree operations, then accepts, rejects, and undoes the group as one PR-like action. The model keeps the existing proposal mutation path intact, so each document keeps its own staged diff and hash precondition.
 
 ## Structure
 
@@ -21,7 +21,7 @@ type DocChangeSet = {
 };
 ```
 
-Each record is one file at `docs/.changesets/<id>.json`. The corpus-level sidecar sits outside every bundle because its entries span bundles; its absence means no change-sets, writes are atomic and path-mutex guarded, and the dot-directory is invisible to the document tree and corpus audit.
+Each record is one file at `docs/.changesets/<id>.json`. The corpus-level sidecar sits outside every bundle because its entries span bundles. Its absence means no change-sets, writes are atomic and path-mutex guarded, and the dot-directory is invisible to the document tree and corpus audit.
 
 ## Entry State and Review
 
@@ -45,7 +45,7 @@ Accept is one ordered action with rollback, not a second write authority. Every 
 
 - A failed entry replays the already applied prefix's ledger inverses in reverse order. The record remains open and reports the stale or failed entry, so no partial merge is represented as applied.
 
-- A complete accept marks the record applied, attaches the agent run, resolves its originating annotation, and records one compound ledger entry containing the member patch ids.
+- A complete accept marks the record applied, attaches the agent run, and resolves its originating annotation. It records one compound ledger entry containing the member patch ids.
 
 - A reviewer may accept one entry through the ordinary proposal route. That resolves only that entry and updates change-set progress; the grouped Accept action remains the primary review path.
 
@@ -53,7 +53,7 @@ Accept is one ordered action with rollback, not a second write authority. Every 
 
 - Reject drops every staged entry through the existing per-document reject behavior and marks the record declined. It never changes document content.
 
-- Undo consumes the successful compound ledger entry and replays the grouped work as one action, restoring the member patches through the same inverse mechanism used by undo and redo.
+- Undo consumes the successful compound ledger entry and replays the grouped work as one action. It restores the member patches through the same inverse mechanism used by undo and redo.
 
 - Applied and declined records remain in `docs/.changesets/` as review history. Resolution changes status and records `resolvedAt`; it does not prune the record.
 
@@ -67,7 +67,7 @@ move_blocks is the primitive that turns a cross-document structural change into 
 
   - A destination id collision mints fresh ids and carries an id-remap map through the rest of the transaction.
 
-  - After both proposals apply, matching annotation sidecar entries move from source to destination; block targets remain valid when ids persist, text-range offsets move verbatim, and collision fallback rewrites targets through the remap.
+  - After both proposals apply, matching annotation sidecar entries move from source to destination. Block targets remain valid when ids persist, text-range offsets move verbatim, and collision fallback rewrites targets through the remap.
 
   - Inbound references found by the docs index retarget to the destination docPath as additional reviewable entries in the same change-set.
 

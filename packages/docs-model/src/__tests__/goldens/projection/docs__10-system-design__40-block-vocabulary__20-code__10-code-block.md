@@ -1,8 +1,8 @@
-The code component owns a single block type, `code`: the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text; the language tag and structured line annotations live in `props`.
+The code component owns a single block type, `code`: the language-tagged block for real, annotated source listings in the Block vocabulary. The source lives in the block's delta text. The language tag and structured line annotations live in `props`.
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-In the documentation doctrine the type is the source-evidence surface: state-shape blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source.
+In the documentation doctrine the type is the source-evidence surface. state-shape blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source.
 
 ## Example
 
@@ -151,7 +151,7 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - Gutter.
 
-  - A sticky 3rem column that stays put under horizontal scroll; numbers render at 55% strength at rest.
+  - A sticky 3rem column that stays put under horizontal scroll. Numbers render at 55% strength at rest.
 
   - Its background must be opaque (it is sticky) but defaults to a mix matching the block background, so no band is perceptible.
 
@@ -165,13 +165,13 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
   - Each note shows a head row with the `L#` line chip and the bold title, then its text below in smaller muted sans, 13px by default.
 
-  - Notes stack from the top with the first aligned to line 1, and a faint hairline at half the internal code rule's opacity splits consecutive notes.
+  - Notes stack from the top with the first aligned to line 1. A faint hairline at half the internal code rule's opacity splits consecutive notes.
 
   - Each note's title attribute names its lines.
 
 - Design principle: one surface, one accent, interaction reveals the rest.
 
-  - At rest an annotated range shows only the 2px accent bar plus accent line numbers; the tint appears when its pair is lit.
+  - At rest, an annotated range shows only the 2px accent bar plus accent line numbers. The tint appears when its pair is lit.
 
 ### The 20px Line
 
@@ -181,7 +181,7 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - Soft wrap is off on every surface.
 
-  - The edit surface forces `white-space: pre` on its content node; wrapping would break every line-geometry computation.
+  - The edit surface forces `white-space: pre` on its content node. Wrapping would break every line-geometry computation.
 
 ### Annotation Pairing
 
@@ -199,13 +199,13 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - The edit surface pairs from the notes side only.
 
-  - Clicking a note sticky-toggles its pair and scrolls the range's first line into view; clicks in the code just place the cursor.
+  - Clicking a note sticky-toggles its pair and scrolls the range's first line into view. Clicks in the code just place the cursor.
 
 ### Editor Entry
 
-- Slash menu: **Code Block** (aliases `codeblock`, `code`, `````).
+- The slash menu lists **Code Block** (aliases `codeblock`, `code`, `````).
 
-- Input rule: the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag.
+- The input rule is that the paragraph converts the moment the third backtick lands, with no trailing space and no typed language tag.
 
 - The header label is the language picker.
 
@@ -225,7 +225,7 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - Token colors come from the host's `.hljs-*` rules, mapped to the `--syntax-*` theme vars for light and dark.
 
-- JSON pretty-printing is display-only; the stored text is never mutated.
+- JSON pretty-printing is display-only. The stored text is never mutated.
 
   - `prettyPrintIfJson` re-renders one-liner JSON as the nested 2-space form when the language is json/jsonc, or is undeclared and the text sniffs as JSON.
 
@@ -239,13 +239,13 @@ On the agent surface the block renders as a fenced markdown block: the fence tag
 > **L4-9 (Validation):** Rejects orphan children.
 ```
 
-- The L-prefixed range is the annotation's `lines` key; the label rides in parentheses and drops cleanly when absent.
+- The L-prefixed range is the annotation's `lines` key. The label rides in parentheses and drops cleanly when absent.
 
 - Entries missing a `lines` or `note` string drop from the projection, the same tolerant read as the doc surfaces.
 
-- Line numbers in `lines` are 1-indexed against the block text at the time you write them; re-check them after editing the source.
+- Line numbers in `lines` are 1-indexed against the block text at the time you write them. Re-check them after editing the source.
 
-- The house style for documenting a system: a state-shape carrying both the shape and an example instance, then an interaction-surface for the operations. Code blocks enter as source evidence: annotated listings of the defining source, not state examples.
+- The house style for documenting a system is a state-shape carrying both the shape and an example instance, then an interaction-surface for the operations. Code blocks enter as source evidence: annotated listings of the defining source, not state examples.
 
 ## Theme
 
@@ -274,7 +274,7 @@ The theme file is `components/code.json` in the active theme folder. By default 
 
   - Every internal hairline, including the header rule and the code/notes column divider, runs through the one rule token set.
 
-- The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1; every other key falls through to the fixed fallbacks in packages/docs-viewer/src/components/code/classes.ts.
+- The `docs-system-classic` repo theme sets `ruleOpacity` 0.9 and `zebraOpacity` 1. Every other key falls through to the fixed fallbacks in packages/docs-viewer/src/components/code/classes.ts.
 
 - The annotated read surface additionally rides the shared linked-panels tokens.
 
@@ -288,7 +288,7 @@ The family uses the default adapter: no agent of its own, and nothing forwards t
 
 - An agent edit arrives as a `componentAction` op, one of the generic doc ops, alongside `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`, `splitBlock`, and `mergeBlocks`.
 
-- The op kernel (packages/docs-model/src/doc-ops.ts) resolves the action from the registry, validates its params, runs `apply` against the target block, and executes the returned `{ annotations }` patch through the existing `updateBlock` path.
+- The op kernel (packages/docs-model/src/doc-ops.ts) resolves the action from the registry and validates its params. It runs `apply` against the target block, and runs the returned `{ annotations }` patch through the existing `updateBlock` path.
 
   - Merge semantics stay single-sourced, and the inverse comes back as the usual `updateBlock` inverse.
 

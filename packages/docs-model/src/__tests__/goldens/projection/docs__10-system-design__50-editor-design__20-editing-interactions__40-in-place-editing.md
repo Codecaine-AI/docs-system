@@ -1,4 +1,4 @@
-Object blocks edit inside the surface where they render; no modal editor replaces the document context. Custom node views add block-specific editing while the outer editor keeps structural authority. This page defines that shared pattern and the read-only fallback for types without it.
+Object blocks edit inside the surface where they render. No modal editor replaces the document context. Custom node views add block-specific editing while the outer editor keeps structural authority. This page defines that shared pattern and the read-only fallback for types without it.
 
 ## Structure
 
@@ -30,7 +30,7 @@ Object blocks edit inside the surface where they render; no modal editor replace
 
   - Their state changes through Typed actions until the type deliberately earns an editable node view.
 
-> **Decision: Editability Is Per-Type and Deliberate** — No general policy grants object types in-place editing. Each editable node view is a deliberate per-type decision, and the shared read-only atom view is the designed fallback for every type without one.
+> **Decision: Editability Is Per-Type and Deliberate** — No general policy grants object types in-place editing. Each editable node view is a deliberate per-type decision. The shared read-only atom view is the designed fallback for every type without one.
 
 ## Why
 

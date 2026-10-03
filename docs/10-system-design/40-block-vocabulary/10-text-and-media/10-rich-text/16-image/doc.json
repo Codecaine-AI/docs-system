@@ -71,7 +71,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A live block over a real bundle asset. the SVG lives at "
+          "insert": "A live block over a real bundle asset. The SVG lives at "
         },
         {
           "insert": "assets/images/two-renders.svg",
@@ -118,7 +118,7 @@
           {
             "name": "src",
             "type": "string",
-            "description": "Image source. conventionally a bundle-relative path under assets/images/."
+            "description": "Image source: conventionally a bundle-relative path under assets/images/."
           },
           {
             "name": "alt",
@@ -180,7 +180,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Image",
@@ -189,7 +189,7 @@
           }
         },
         {
-          "insert": " (aliases: picture, photo). inserts an empty block that renders a missing-"
+          "insert": " (aliases: picture, photo). Inserts an empty block that renders a missing-"
         },
         {
           "insert": "src",
@@ -327,7 +327,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No typed actions. set "
+          "insert": "No typed actions. Set "
         },
         {
           "insert": "src",
@@ -383,7 +383,7 @@
           }
         },
         {
-          "insert": ": the agent surface is text-first, and "
+          "insert": ". The agent surface is text-first, and "
         },
         {
           "insert": "![](path)",

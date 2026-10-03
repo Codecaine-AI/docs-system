@@ -1,4 +1,4 @@
-Docs point at code with typed source references; code never points back. 
+Docs point at code with typed source references. Code never points back.
 
 This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
 
@@ -23,13 +23,13 @@ This page states the source-link object, how paths are written, and why the docs
 
   - `kind`: `"source"` with a repo-relative path — optionally a symbol and line.
 
-  - `docs links check` verifies the target file exists; a doc link resolves through the docs lookup instead.
+  - `docs links check` verifies the target file exists. A doc link resolves through the docs lookup instead.
 
 ## The Rule
 
 - **One-way, doc to code**
 
-  - No doc links in code comments; the source stays ignorant of the docs.
+  - No doc links in code comments. The source stays ignorant of the docs.
 
 - **Full paths**
 
@@ -47,13 +47,13 @@ This page states the source-link object, how paths are written, and why the docs
 
 - **Code moves, docs update**
 
-  - When code moves or renames, the doc updates; `docs links check` reports references whose target no longer exists.
+  - When code moves or renames, the doc updates. `docs links check` reports references whose target no longer exists.
 
   - No generated navigation scripts
 
     - List files and explain briefly.
 
-What the code itself carries — file headers, docstrings, inline comments — is in-code docs's subject.
+What the code itself carries (file headers, docstrings, inline comments) is in-code docs's subject.
 
 ## Why
 
@@ -65,7 +65,7 @@ What the code itself carries — file headers, docstrings, inline comments — i
 
 - **A full path is a checkable claim**
 
-  - A bare filename is a vibe; a typed path is verified, and a reader opens it without a search.
+  - A bare filename is a vibe. A typed path is verified, and a reader opens it without a search.
 
 - **Inline beats a link farm**
 

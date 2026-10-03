@@ -106,7 +106,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The component declares its knobs and their defaults; a theme overrides values, never invents knobs."
+          "insert": "The component declares its knobs and their defaults. A theme overrides values, never invents knobs."
         }
       ],
       "children": []
@@ -162,7 +162,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A theme file carries only the knobs it changes; an absent knob falls through to the base theme and the component's declared default."
+          "insert": "A theme file carries only the knobs it changes. An absent knob falls through to the base theme and the component's declared default."
         }
       ],
       "children": []
@@ -173,7 +173,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A knob value is a single scalar or a light/dark pair; a scalar applies to both modes."
+          "insert": "A knob value is a single scalar or a light/dark pair. A scalar applies to both modes."
         }
       ],
       "children": []

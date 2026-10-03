@@ -8,7 +8,7 @@ This paragraph is a live example: it carries **bold**, *italic*, ~~strike~~, and
 
 **ParagraphState** — packages/docs-model/src/components/rich-text/state.ts#ParagraphState
 
-Carries delta text (`carriesText: true`): an array of spans with optional `bold` / `italic` / `strike` / `code` marks, a `link` URL, or a reference chip (a shared SpectreRef pointing at a doc or code location).
+Carries delta text (`carriesText: true`). The delta text is an array of spans with optional `bold` / `italic` / `strike` / `code` marks, a `link` URL, or a reference chip. A reference chip is a shared SpectreRef pointing at a doc or code location.
 
 ## Doc Renderer
 
@@ -22,7 +22,7 @@ A plain text line. Marks render as standard markdown syntax (code innermost, the
 
 - Edit through the generic text ops (`updateBlock`, `splitBlock`, `mergeBlocks`). A paragraph has no typed actions and no props to patch.
 
-- An empty paragraph is invisible in `docs render` output; don't rely on it as a spacer.
+- An empty paragraph is invisible in `docs render` output. Don't rely on it as a spacer.
 
 ## Theme
 

@@ -44,9 +44,9 @@ Translation layer defines both.
 
 The data model defines canonical document state, block identity, annotations, serialization, and mutation.
 
-- A document is a tree of blocks; rich text is attributed spans inside them.
+- A document is a tree of blocks. Rich text is attributed spans inside them.
 
-- Blocks carry typed state; annotations anchor to blocks and spans.
+- Blocks carry typed state. Annotations anchor to blocks and spans.
 
 - The same document state always serializes to the same canonical bytes.
 

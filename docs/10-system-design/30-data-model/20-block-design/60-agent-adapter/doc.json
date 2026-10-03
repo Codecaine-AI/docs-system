@@ -49,7 +49,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The adapter is the execute step of the annotations lifecycle: annotate mode's processing reaches each type through it."
+          "insert": "The adapter is the execute step of the annotations lifecycle. Annotate mode's processing reaches each type through it."
         }
       ],
       "children": []
@@ -73,7 +73,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Default: generic ops",
+          "insert": "The default is generic ops",
           "attributes": {
             "bold": true
           }
@@ -167,7 +167,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The annotation router learns from the registry which agent handles which type — routing is data, not hardcoded knowledge."
+          "insert": "The annotation router learns from the registry which agent handles which type. Routing is data, not hardcoded knowledge."
         }
       ],
       "children": []
@@ -207,7 +207,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Editing a sequence diagram and editing a paragraph are different crafts; the contract makes that a per-type declaration instead of a special case."
+          "insert": "Editing a sequence diagram and editing a paragraph are different crafts. The contract makes that a per-type declaration instead of a special case."
         }
       ],
       "children": []
@@ -234,7 +234,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The annotations queue stays uniform while execution specializes — one lifecycle, per-type hands."
+          "insert": "The annotations queue stays uniform while execution specializes: one lifecycle, per-type hands."
         }
       ],
       "children": []

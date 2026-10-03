@@ -99,7 +99,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Four shapes describe the state; one behavior model describes every change. "
+          "insert": "Four shapes describe the state. One behavior model describes every change."
         }
       ],
       "children": []
@@ -310,7 +310,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The roster of block types — what each is for, with an example — is the "
+          "insert": "The roster of block types (what each is for, with an example) is the "
         },
         {
           "insert": "block vocabulary",
@@ -322,7 +322,7 @@
           }
         },
         {
-          "insert": "'s subject; type counts live there. Package structure and transport wiring are the "
+          "insert": "'s subject. Type counts live there. Package structure and transport wiring are the "
         },
         {
           "insert": "implementation tier",

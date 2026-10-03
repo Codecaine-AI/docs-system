@@ -218,7 +218,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers."
+          "insert": "When the gaps are exhausted, the number line tells you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers."
         }
       ],
       "children": []
@@ -258,7 +258,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Violations look like: consecutive numbers with no gaps, mixed formats ("
+          "insert": "Violations look like consecutive numbers with no gaps, mixed formats ("
         },
         {
           "insert": "1-intro",

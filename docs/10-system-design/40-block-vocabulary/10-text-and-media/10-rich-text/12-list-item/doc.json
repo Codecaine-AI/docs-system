@@ -56,7 +56,7 @@
           }
         },
         {
-          "insert": " siblings, and nesting is expressed by child "
+          "insert": " siblings. Nesting is expressed by child "
         },
         {
           "insert": "list-item",
@@ -216,7 +216,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Bullet list",
@@ -252,7 +252,7 @@
           }
         },
         {
-          "insert": " plus a space starts a bullet item; a number plus "
+          "insert": " plus a space starts a bullet item. A number plus "
         },
         {
           "insert": ".",
@@ -330,7 +330,7 @@
           }
         },
         {
-          "insert": ", indented two spaces per nesting depth. Numbering is computed per consecutive run of list-item siblings: a non-list sibling resets the run, so an ordered list always restarts at 1 after an interruption. A list-item's children render as nested list lines (depth + 1) instead of flowing back to depth zero."
+          "insert": ", indented two spaces per nesting depth. Numbering is computed per consecutive run of list-item siblings. A non-list sibling resets the run, so an ordered list always restarts at 1 after an interruption. A list-item's children render as nested list lines (depth + 1) instead of flowing back to depth zero."
         }
       ],
       "children": []
@@ -383,7 +383,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Ordered numbering is derived at render time from sibling position; there is no stored number to keep in sync."
+          "insert": "Ordered numbering is derived at render time from sibling position. There is no stored number to keep in sync."
         }
       ],
       "children": []

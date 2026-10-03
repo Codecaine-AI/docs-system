@@ -31,13 +31,13 @@ The style rail is the right-docked authoring surface for tuning the active value
 
     - Diagrams holds Sequence, Canvas, Process Outline, and Stack.
 
-  - Each destination opens one detail pane; the family labels add no navigation level.
+  - Each destination opens one detail pane, and the family labels add no navigation level.
 
 ## The Rule
 
 - **Every control is reachable in two clicks**
 
-  - Open the panel, then select a navigation item.
+  - Open the panel. Then select a navigation item.
 
   - Every subgroup in the selected pane stays expanded. There are no accordions or chevrons.
 
@@ -67,11 +67,11 @@ The style rail is the right-docked authoring surface for tuning the active value
 
   - A color-row reset clears that color and returns it to the theme value.
 
-  - Reset {block} to theme appears only when the pane has an effective override and deletes only that block's component override record.
+  - Reset {block} to theme appears only when the pane has an effective override. It deletes only that block's component override record.
 
   - List item also restores its marker and indent settings because those leaves belong to the List item pane.
 
-  - Reset Surfaces tokens to theme clears only registered Surfaces component tokens; independent surface settings remain.
+  - Reset Surfaces tokens to theme clears only registered Surfaces component tokens. Independent surface settings remain.
 
   - Reset to defaults restores the complete rail settings object.
 
@@ -93,7 +93,7 @@ The style rail is the right-docked authoring surface for tuning the active value
 
 > **Decision: Navigation rows omit value previews** — Each navigation row contains an icon, label, and override status. Colors and Typography use the same row shape as every other destination.
 
-> **Decision: Navigation classification is explicit** — The registry supplies controls within a component pane. Each user-facing component also has an explicit icon, label, and content-type group in the navigation roster; a registered theme file alone does not create a destination.
+> **Decision: Navigation classification is explicit** — The registry supplies controls within a component pane. Each user-facing component also has an explicit icon, label, and content-type group in the navigation roster. A registered theme file alone does not create a destination.
 
 ## Why
 

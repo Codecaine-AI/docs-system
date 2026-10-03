@@ -153,7 +153,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The selected view renders as a static figure in the document flow; clicking it requests exploration."
+          "insert": "The selected view renders as a static figure in the document flow, and clicking it requests exploration."
         }
       ],
       "children": []
@@ -440,7 +440,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The canvas block references a bundle-local sidecar. Studio reads and writes that same file; it does not copy the board into local draft storage."
+          "insert": "The canvas block references a bundle-local sidecar. Studio reads and writes that same file, and it does not copy the board into local draft storage."
         }
       ],
       "children": []

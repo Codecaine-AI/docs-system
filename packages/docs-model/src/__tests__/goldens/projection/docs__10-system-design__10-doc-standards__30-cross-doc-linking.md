@@ -1,4 +1,4 @@
-Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. 
+Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose.
 
 This page states the reference object, which directions links run, and the restraint rules against overlinking.
 
@@ -22,7 +22,7 @@ This page states the reference object, which directions links run, and the restr
 
   - `kind`: `"doc"` plus the target's docs path — nothing else.
 
-  - The backlinks index tracks every reference; `docs links check` holds them at zero stale; moving a doc rewrites its inbound paths.
+  - The backlinks index tracks every reference. `docs links check` holds them at zero stale, and moving a doc rewrites its inbound paths.
 
 - **The text is the doc's name**
 
@@ -56,13 +56,13 @@ This page states the reference object, which directions links run, and the restr
 
   - Two docs each pointing at the other for the full explanation means neither owns it.
 
-  - One doc owns the substance; the other references it.
+  - One doc owns the substance. The other doc references it.
 
 - **Governed-by links run upward**
 
-  - An implementation area page links one-way up to the design docs that constrain it; design never links back down.
+  - An implementation area page links one-way up to the design docs that constrain it, and design never links back down.
 
-  - Every restraint rule on this page applies; the implementation layer standard owns the area-page shape.
+  - Every restraint rule on this page applies. The implementation layer standard owns the area-page shape.
 
 ## Why
 
@@ -72,11 +72,11 @@ This page states the reference object, which directions links run, and the restr
 
 - **The name is the prose**
 
-  - A reference reads as the target's name mid-sentence — no bracket noise on either surface.
+  - A reference reads as the target's name mid-sentence: no bracket noise on either surface.
 
 - **A tree for navigation, a web for substance**
 
-  - Parent docs stay the one place navigation happens, so moving through the docs feels the same everywhere.
+  - Parent docs stay the one place navigation occurs, so moving through the docs feels the same everywhere.
 
 - **Restraint keeps links meaningful**
 

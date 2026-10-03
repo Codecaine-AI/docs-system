@@ -507,7 +507,7 @@
       },
       "text": [
         {
-          "insert": "Use an html replica when the reader must match the picture to a physical object by port number, position, or scale."
+          "insert": "When the reader must match the picture to a physical object by port number, position, or scale, use an html replica."
         }
       ],
       "children": []
@@ -520,7 +520,7 @@
       },
       "text": [
         {
-          "insert": "Use an html explorable when the reader must change an input and watch the result."
+          "insert": "When the reader must change an input and watch the result, use an html explorable."
         }
       ],
       "children": []
@@ -956,7 +956,7 @@
           }
         },
         {
-          "insert": " hold the same facts in machine-readable form, and no builder reads them."
+          "insert": " hold the same facts in machine-readable form. No builder reads them."
         }
       ],
       "children": []
@@ -984,7 +984,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Cables E, F, and G are NETGEAR ports 2, 5, and 6 in the current figure and the eero, Nest, and Mac mini runs in the target figure."
+          "insert": "Cables E, F, and G are NETGEAR ports 2, 5, and 6 in the current figure. They are the eero, Nest, and Mac mini runs in the target figure."
         }
       ],
       "children": []
@@ -1723,7 +1723,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Draw to scale where scale matters, and state the scale inside the figure."
+          "insert": "Draw to scale where scale matters. State the scale inside the figure."
         }
       ],
       "children": []
@@ -1785,7 +1785,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give every pointer action a keyboard path, and mark the selection with an outline and text."
+          "insert": "Give every pointer action a keyboard path. Mark the selection with an outline and text."
         }
       ],
       "children": []
@@ -2468,7 +2468,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Phase 3 unblocks the network-setup cleanup. That work rebuilds both rack figures from the current config, gives cables stable ids across current and target, and moves the static topology figures to canvas."
+          "insert": "Phase 3 unblocks the network-setup cleanup. That work rebuilds both rack figures from the current config and gives cables stable ids across current and target. It also moves the static topology figures to canvas."
         }
       ],
       "children": []

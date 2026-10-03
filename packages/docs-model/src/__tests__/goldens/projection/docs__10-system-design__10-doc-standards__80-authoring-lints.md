@@ -50,7 +50,7 @@ Every registered rule has a stable ID, a corpus docsPath, a severity, enforcemen
 
   - Existing findings remain visible. A baseline does not waive a different finding introduced by an edit.
 
-  - Docs Writer retains the original valid document for the session after the first successful write.
+  - Docs Writer keeps the original valid document for the session after the first successful write.
 
     - Later writes and docs_check compare against that original. Checking an untouched document runs an absolute audit.
 
@@ -108,7 +108,7 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - structure.image-alt requires nonempty alt text on standalone images and every image-grid entry. Grid headings and captions also pass through the shared prose checks.
 
-  - These rules are warnings in the lint engine, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact.
+  - These rules are warnings in the lint engine, matching the existing audit policy. After reviewing corpus impact, promote a rule by changing its own severity and enforcement metadata.
 
 - **List and Heading Warnings**
 

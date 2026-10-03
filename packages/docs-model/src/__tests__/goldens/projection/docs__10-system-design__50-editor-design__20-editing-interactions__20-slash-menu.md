@@ -31,7 +31,7 @@ The type registry described in Block design and slash-menu membership are separa
 
   - Enter runs the selected action. Escape closes the menu without inserting.
 
-  - When the query has no results, keys pass through to the editor. Backspace keeps the query open so it can match again; any other key closes it.
+  - When the query has no results, keys pass through to the editor. Backspace keeps the query open so it can match again, and any other key closes it.
 
 - **Commands Preserve Block Structure**
 

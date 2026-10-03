@@ -342,7 +342,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One project directory removes the need to remember a port for each corpus. Separating the stable signed launcher, the replaceable write runtime, and the shared viewer allows code updates while retaining one local address."
+          "insert": "One project directory removes the need to remember a port for each corpus. Separating the stable signed launcher, the replaceable write runtime, and the shared viewer allows code updates while keeping one local address."
         }
       ],
       "children": []

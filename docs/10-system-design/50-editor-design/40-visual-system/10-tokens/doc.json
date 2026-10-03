@@ -41,7 +41,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Tokens are the visual contract between palette, theme, and rendered surface. They define how mode-aware colors, shared sharpness, component rules, and fixed geometry reach consumers. This page owns the shared contract; per-block appearance remains in the "
+          "insert": "Tokens are the visual contract between palette, theme, and rendered surface. They define how mode-aware colors, shared sharpness, component rules, and fixed geometry reach consumers. This page owns the shared contract. Per-block appearance remains in the "
         },
         {
           "insert": "Block vocabulary",
@@ -168,7 +168,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Consumers read semantic variables only; light and dark mode never produce a branch at the use site."
+          "insert": "Consumers read semantic variables only. Light and dark mode never produce a branch at the use site."
         }
       ],
       "children": []
@@ -179,7 +179,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Zebra and rule tokens belong to the component or shared surface whose geometry they control; similar values do not create shared ownership."
+          "insert": "Zebra and rule tokens belong to the component or shared surface whose geometry they control. Similar values do not create shared ownership."
         }
       ],
       "children": []
@@ -317,7 +317,7 @@
           }
         },
         {
-          "insert": " repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px."
+          "insert": " repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present. The structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px."
         }
       ],
       "children": []
@@ -396,7 +396,7 @@
           }
         },
         {
-          "insert": " is a semantic token, not a theme-folder key; the closed theme registry does not include it."
+          "insert": " is a semantic token, not a theme-folder key. The closed theme registry does not include it."
         }
       ],
       "children": []
@@ -472,7 +472,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A consumer names what a value means once; palette and theme changes re-resolve behind that name."
+          "insert": "A consumer names what a value means once. Palette and theme changes re-resolve behind that name."
         }
       ],
       "children": []

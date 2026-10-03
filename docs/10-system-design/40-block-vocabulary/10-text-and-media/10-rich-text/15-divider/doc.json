@@ -146,7 +146,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Divider",
@@ -173,7 +173,7 @@
           }
         },
         {
-          "insert": " converts the moment the third hyphen lands, with no trailing space, matching Notion. It is one of the non-editable atom leaf nodes ("
+          "insert": " converts the moment the third hyphen lands, with no trailing space, matching Notion. The divider is one of the non-editable atom leaf nodes ("
         },
         {
           "insert": "ATOM_BLOCK_TYPES",
@@ -252,7 +252,7 @@
           }
         },
         {
-          "insert": "; nothing to configure, nothing to act on."
+          "insert": ". You have nothing to configure, nothing to act on."
         }
       ],
       "children": []

@@ -43,7 +43,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A change-set is the reviewable unit for one logical change spanning multiple documents. It groups ordinary per-document proposals with document-tree operations, then accepts, rejects, and undoes the group as one PR-like action. The model keeps the existing proposal mutation path intact, so each document retains its own staged diff and hash precondition."
+          "insert": "A change-set is the reviewable unit for one logical change spanning multiple documents. It groups ordinary per-document proposals with document-tree operations, then accepts, rejects, and undoes the group as one PR-like action. The model keeps the existing proposal mutation path intact, so each document keeps its own staged diff and hash precondition."
         }
       ],
       "children": []
@@ -89,7 +89,7 @@
           }
         },
         {
-          "insert": ". The corpus-level sidecar sits outside every bundle because its entries span bundles; its absence means no change-sets, writes are atomic and path-mutex guarded, and the dot-directory is invisible to the document tree and corpus audit."
+          "insert": ". The corpus-level sidecar sits outside every bundle because its entries span bundles. Its absence means no change-sets, writes are atomic and path-mutex guarded, and the dot-directory is invisible to the document tree and corpus audit."
         }
       ],
       "children": []
@@ -212,7 +212,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A complete accept marks the record applied, attaches the agent run, resolves its originating annotation, and records one compound ledger entry containing the member patch ids."
+          "insert": "A complete accept marks the record applied, attaches the agent run, and resolves its originating annotation. It records one compound ledger entry containing the member patch ids."
         }
       ],
       "children": []
@@ -258,7 +258,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Undo consumes the successful compound ledger entry and replays the grouped work as one action, restoring the member patches through the same inverse mechanism used by "
+          "insert": "Undo consumes the successful compound ledger entry and replays the grouped work as one action. It restores the member patches through the same inverse mechanism used by "
         },
         {
           "insert": "undo and redo",
@@ -375,7 +375,7 @@
       "props": {},
       "text": [
         {
-          "insert": "After both proposals apply, matching annotation sidecar entries move from source to destination; block targets remain valid when ids persist, text-range offsets move verbatim, and collision fallback rewrites targets through the remap."
+          "insert": "After both proposals apply, matching annotation sidecar entries move from source to destination. Block targets remain valid when ids persist, text-range offsets move verbatim, and collision fallback rewrites targets through the remap."
         }
       ],
       "children": []

@@ -126,7 +126,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The first and last top-level blocks touched by the rectangle bound the range; every block between them joins the selection."
+          "insert": "The first and last top-level blocks touched by the rectangle bound the range, and every block between them joins the selection."
         }
       ],
       "children": []
@@ -229,7 +229,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every band update writes a real editor selection over the same run; mouse release returns focus to the editor."
+          "insert": "Every band update writes a real editor selection over the same run. Mouse release returns focus to the editor."
         }
       ],
       "children": []
@@ -498,7 +498,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Movement and paste retain block boundaries instead of fitting a copied run into another block's child slot."
+          "insert": "Movement and paste keep block boundaries instead of fitting a copied run into another block's child slot."
         }
       ],
       "children": []

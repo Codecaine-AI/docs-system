@@ -19,7 +19,7 @@ Every type ships its style capabilities as theme knobs, never hardcoded looks. T
 
 - **One theme file per type**
 
-  - The component declares its knobs and their defaults; a theme overrides values, never invents knobs.
+  - The component declares its knobs and their defaults. A theme overrides values, never invents knobs.
 
 - **Knobs are typed**
 
@@ -27,9 +27,9 @@ Every type ships its style capabilities as theme knobs, never hardcoded looks. T
 
 - **Overrides are sparse and tolerant**
 
-  - A theme file carries only the knobs it changes; an absent knob falls through to the base theme and the component's declared default.
+  - A theme file carries only the knobs it changes. An absent knob falls through to the base theme and the component's declared default.
 
-  - A knob value is a single scalar or a light/dark pair; a scalar applies to both modes.
+  - A knob value is a single scalar or a light/dark pair. A scalar applies to both modes.
 
   - Unknown files, unknown knobs, and malformed values are ignored rather than applied. A value survives only when it parses as its declared kind, and lengths and numbers must fall inside the knob's declared range.
 

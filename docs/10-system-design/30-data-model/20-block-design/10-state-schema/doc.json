@@ -36,7 +36,7 @@
           }
         },
         {
-          "insert": " — the type's whole state, and the only state it may hold. This page states what a schema owes and what a good one looks like."
+          "insert": ": the type's whole state, and the only state it may hold. This page states what a schema owes and what a good one looks like."
         }
       ],
       "children": []
@@ -147,7 +147,7 @@
       "props": {},
       "text": [
         {
-          "insert": "New capabilities land as optional fields with safe defaults; documents written before the field existed keep validating unchanged."
+          "insert": "New capabilities land as optional fields with safe defaults, and documents written before the field existed keep validating unchanged."
         }
       ],
       "children": []
@@ -274,7 +274,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An agent learns exactly what state is legal from discovery — no source archaeology, no guessing."
+          "insert": "An agent learns exactly what state is legal from discovery: no source archaeology, no guessing."
         }
       ],
       "children": []

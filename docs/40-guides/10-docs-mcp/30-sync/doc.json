@@ -36,7 +36,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Use this runbook when code, standards, skill instructions, or checkout locations change. Synchronization currently means shared source rendering, generated installed references, and explicit process reloads. It is not an automatic package-release resolver."
+          "insert": "When code, standards, skill instructions, or checkout locations change, use this runbook. Synchronization currently means shared source rendering, generated installed references, and explicit process reloads. It is not an automatic package-release resolver."
         }
       ],
       "children": []
@@ -241,7 +241,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The development manifest records runtime package source hashes, repository commits and dirty flags, guidance sources and identity, client declarations, and the tool-contract hash. Source hashing covers package.json and selected src TypeScript and JSON files, excluding tests and fixtures. A snapshot identifies these inputs; it is not a full repository archive."
+          "insert": "The development manifest records runtime package source hashes, repository commits and dirty flags, guidance sources and identity, client declarations, and the tool-contract hash. Source hashing covers package.json and selected src TypeScript and JSON files, excluding tests and fixtures. A snapshot identifies these inputs. It is not a full repository archive."
         }
       ],
       "children": []
@@ -287,7 +287,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Update the implementation contract when ownership or behavior changes. Update these procedures when commands or refresh steps change. Keep installation examples in the package README and the HTML handoff linked to the maintained corpus. Keep dated test results and user acceptance reports in objective artifacts rather than turning reference pages into status reports."
+          "insert": "When ownership or behavior changes, update the implementation contract. When commands or refresh steps change, update these procedures. Keep installation examples in the package README and the HTML handoff linked to the maintained corpus. Keep dated test results and user acceptance reports in objective artifacts rather than turning reference pages into status reports."
         }
       ],
       "children": []

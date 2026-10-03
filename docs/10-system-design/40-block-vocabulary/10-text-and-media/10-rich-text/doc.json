@@ -74,7 +74,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -533,7 +533,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field, each span a string insert plus an optional attributes object. There is no other inline model, no HTML, no nested marks tree. A span either has an attribute or it does not."
+          "insert": "The family's internal state is rich text itself: an array of Delta JSON spans in the block's text field. Each span is a string insert plus an optional attributes object. There is no other inline model, no HTML, no nested marks tree. A span either has an attribute or it does not."
         }
       ],
       "children": []
@@ -704,7 +704,7 @@
           }
         },
         {
-          "insert": " when present; "
+          "insert": " when present. "
         },
         {
           "insert": "false",
@@ -763,7 +763,7 @@
           }
         },
         {
-          "insert": " attribute, which renders as a chip in the viewer and feeds the backlink index."
+          "insert": " attribute. It renders as a chip in the viewer and feeds the backlink index."
         }
       ],
       "children": []
@@ -838,7 +838,7 @@
           }
         },
         {
-          "insert": ". It lives in docs-model as the neutral home; the canvas project imports the type and aliases its on-disk link target to it. docs-model itself never imports from the canvas, the dependency points one way."
+          "insert": ". It lives in docs-model as the neutral home. The canvas project imports the type and aliases its on-disk link target to it. docs-model itself never imports from the canvas, so the dependency points one way."
         }
       ],
       "children": []
@@ -894,7 +894,7 @@
           }
         },
         {
-          "insert": " in the component state definitions. Text means prose only for the rich-text flow types; for "
+          "insert": " in the component state definitions. Text means prose only for the rich-text flow types. For "
         },
         {
           "insert": "code",

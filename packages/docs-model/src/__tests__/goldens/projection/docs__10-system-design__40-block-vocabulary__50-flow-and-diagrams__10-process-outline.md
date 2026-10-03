@@ -1,4 +1,4 @@
-Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree; notation supplies the import and agent projection forms.
+Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree. Notation supplies the import and agent projection forms.
 
 For examples of this component's API, show the relevant state, real operation signature, and actual result when they clarify the contract. Ordinary process explanations need only the outline and useful context. Verify behavior against source and keep descriptions non-redundant.
 
@@ -69,7 +69,7 @@ Process-outline notation is the block's plain-text form: `serializeProcessOutlin
 
 - Backticks
 
-  - A backtick-wrapped span is a code value; the render gives it a code chip.
+  - A backtick-wrapped span is a code value. The render gives it a code chip.
 
 - `> note`
 
@@ -83,7 +83,7 @@ Process-outline notation is the block's plain-text form: `serializeProcessOutlin
 
 Write one named process per outline. Nest its phases beneath that shared parent so readers can follow one connected tree. Give independent processes separate diagrams. Steps and supporting notes each carry one bite-sized action or idea.
 
-The process-outline.single-parent lint enforces this authoring structure at completion: exactly one named, non-note root with at least one action child. Empty or unfinished outlines remain editable in drafts but fail completion checks. The parser retains support for older multi-root data so it can be opened and repaired. Wrap related phases in a meaningful parent; split independent processes into separate blocks.
+The process-outline.single-parent lint enforces this authoring structure at completion: exactly one named, non-note root with at least one action child. Empty or unfinished outlines remain editable in drafts but fail completion checks. The parser keeps support for older multi-root data so it can be opened and repaired. Wrap related phases in a meaningful parent and split independent processes into separate blocks.
 
 - Mark the trace events
 
@@ -95,7 +95,7 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Write one short action or idea per arrow line, usually ten words or fewer. Use present tense and a concrete verb. Split multiple sentences or independent actions into separate steps.
 
-  - Move explanations into notes. Keep conditions that change whether an action happens explicit in the step or its parent.
+  - Move explanations into notes. Keep conditions that change whether an action occurs explicit in the step or its parent.
 
   - Write the root title and each phase as a short Title Case label, and keep substeps as sentence-case actions. The `process-outline.phase-title-case` lint enforces this.
 
@@ -103,7 +103,7 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Keep each supporting note bite-sized: one useful fact about the step. Explain a constraint, reason, or expected result without repeating the step label. Split separate facts into separate note bullets.
 
-  - Notes are prose, and notes never have children: a note that wants substructure is a step.
+  - Notes are prose. Notes never have children: a note that wants substructure is a step.
 
 - Branches are steps
 
@@ -121,7 +121,7 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
 - Split relentlessly
 
-  - Split compound actions into steps and keep explanations in short notes. Use nesting to clarify the process, not to manufacture depth. Every step and note is visible by default; presentation must not depend on truncating prose.
+  - Split compound actions into steps and keep explanations in short notes. Use nesting to clarify the process, not to manufacture depth. Every step and note is visible by default, and presentation must not depend on truncating prose.
 
 Compare one overloaded step with short actions and a separate explanation:
 

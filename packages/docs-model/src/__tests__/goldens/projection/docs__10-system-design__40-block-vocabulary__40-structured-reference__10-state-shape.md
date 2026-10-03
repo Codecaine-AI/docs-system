@@ -2,7 +2,7 @@ The state-shape component owns one block type, `state-shape`, the object-shape b
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
-It is the state carrier of the corpus documentation doctrine: a state-shape block carries the shape of state and an example instance side by side, an interaction-surface lists the operations that change or query it, and annotated code blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape, a real source listing.
+It is the state carrier of the corpus documentation doctrine: a state-shape block carries the shape of state and an example instance side by side, an interaction-surface lists the operations that change or query it, and annotated code blocks hold the source evidence. State comes first, then operations. A code block is for material that is not an instance of the shape, a real source listing.
 
 Write field and type descriptions only when they add information beyond the name, type, nesting, and optionality. Omit restatements such as "Record identifier" for recordId or "Source to capture" for source. Keep non-obvious constraints, units, defaults, ownership, null meaning, side effects, or lifecycle rules. For a path, "Path to the source" adds nothing; "Relative to the repository root" adds a useful constraint. Do not invent semantics to fill an empty description. This rule also applies to Interaction Surface parameters and returned fields.
 
@@ -34,7 +34,7 @@ slider?: object  # Numeric control metadata.
 }
 ```
 
-Starting with the TableTheme field definition above, call state-shape.addField with field { name: "enabled", type: "boolean" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object; it is not the action success envelope.
+Starting with the TableTheme field definition above, call state-shape.addField with field { name: "enabled", type: "boolean" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object. It is not the action success envelope.
 
 **Edit the Field Definition**
 
@@ -199,19 +199,23 @@ example?: string  # JSON text of an example instance of this shape; renders as t
 }
 ```
 
-- `fields` is the one required key; `name`, `description`, `source`, and `example` are optional, and `additionalProperties: false` rejects anything else.
+- `fields` is the one required key. `name`, `description`, `source`, and `example` are optional, and `additionalProperties: false` rejects anything else.
 
 - `Field` is the shared recursive node in `packages/docs-model/src/components/shared/field.ts`, the same node interaction-surface operation params use. `required: false` means optional; omitted or `true` reads as required.
 
 - A custom check past the schema enforces sibling-unique field names at every level, dot-path addressing depends on it, and that a present `example` parses as JSON.
 
-- Reads are tolerant: `readStateShapeFields`, `readStateShapeExample`, and `readStateShapeSource` skip malformed entries instead of throwing.
+- Reads are tolerant. `readStateShapeFields`, `readStateShapeExample`, and `readStateShapeSource` skip malformed entries instead of throwing.
 
 ## Typed Actions
 
-Four actions instantiate the Typed actions contract element. Params validate against each action's TypeBox schema before `apply()` runs; every action returns a shallow props patch, `{ fields }` from the tree actions, `{ example }` from `setExample`.
+Four actions instantiate the Typed actions contract element. Params validate against each action's TypeBox schema before `apply()` runs. Every action returns a shallow props patch, `{ fields }` from the tree actions, `{ example }` from `setExample`.
 
-- Dot-path addressing over sibling-unique names: `"operations.params"` names the `params` field under `operations`; `""` or an omitted path names the root `fields` array.
+- Dot-path addressing over sibling-unique names:
+
+  - `"operations.params"` names the `params` field under `operations`.
+
+  - `""` or an omitted path names the root `fields` array.
 
 - `state-shape.addField` inserts a field under the parent named by `path`; `index` defaults to the end, so document order is curated order and survives edits. Duplicate names, among the target siblings or inside the inserted subtree, are rejected.
 
@@ -219,7 +223,7 @@ Four actions instantiate the Typed actions contract element. Params validate aga
 
 - `state-shape.removeField` removes the field at `path` together with its entire subtree.
 
-- `state-shape.setExample` sets or clears the example; the string must parse as JSON, `null` clears it.
+- `state-shape.setExample` sets or clears the example. The string must parse as JSON, `null` clears it.
 
 **state-shape, actions**
 
@@ -294,9 +298,9 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
 - Cross-linking
 
-  - Field rows and example lines link by field dot-path; array indices normalize away, so a field matches its path at every array position.
+  - Field rows and example lines link by field dot-path. Array indices normalize away, so a field matches its path at every array position.
 
-  - Hover or pin paints the field's full extent in both panes; activating an ancestor lights its whole brace-to-brace range.
+  - Hover or pin paints the field's full extent in both panes. Activating an ancestor lights its whole brace-to-brace range.
 
   - Without an example the card is the single-pane tree, nothing linkable.
 
@@ -304,7 +308,7 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
   - The descriptor reads `fields` and `source` strictly: any malformed entry renders the invalid-block placeholder.
 
-  - `example` is read tolerantly: present-but-invalid JSON falls back to the single-pane tree; schema validation reports it at authoring time.
+  - `example` is read tolerantly: present-but-invalid JSON falls back to the single-pane tree. Schema validation reports it at authoring time.
 
 - Descriptions
 
@@ -312,7 +316,7 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
   - Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description.
 
-In the editor the block is a ProseMirror atom leaf (`docStateShape`) rendered read-only through the shared `AtomBlockView`, the same `StateShapeBlock` output as the reader. No slash-menu entry; instances enter through agent ops or existing content.
+In the editor the block is a ProseMirror atom leaf (`docStateShape`) rendered read-only through the shared `AtomBlockView`, the same `StateShapeBlock` output as the reader. The block has no slash-menu entry. Instances enter through agent ops or existing content.
 
 ## Agent Renderer
 
@@ -322,7 +326,7 @@ The Agent renderer contract element: a deterministic markdown projection.
 
 - Then a bare fence, one line per field in the shared field-line grammar: two-space indent per nesting depth, `<name><? when required: false>: <type>  # <description>`.
 
-- When a valid `example` is present, a blank line and a `json` fence follow, pretty-printed through `printJsonLines`; the tolerant read drops a non-JSON example, so a malformed prop renders no fence rather than crashing.
+- When a valid `example` is present, a blank line and a `json` fence follow, pretty-printed through `printJsonLines`. The tolerant read drops a non-JSON example, so a malformed prop renders no fence rather than crashing.
 
 Projected, the live Example above is the header line `**TableTheme**` plus this field fence:
 
@@ -373,10 +377,10 @@ Example-pane and range-chip linking styles come from the shared linking theme co
 
 ## Agent Adapter
 
-The type uses the default adapter, no agent of its own; the contract is Agent adapter. The four typed actions ride `componentAction` ops in the doc-op vocabulary (`packages/docs-model/src/doc-ops.ts`).
+The type uses the default adapter, no agent of its own. The contract is Agent adapter. The four typed actions ride `componentAction` ops in the doc-op vocabulary (`packages/docs-model/src/doc-ops.ts`).
 
 - A `componentAction` names the registry key (`"state-shape.addField"`), resolves the action, validates params, and runs `apply()` against the target block.
 
-- The returned props patch executes through the existing `updateBlock` path, merge semantics are single-sourced, the block id is preserved, and the inverse is the usual `updateBlock` inverse.
+- The returned props patch runs through the existing `updateBlock` path. Merge semantics are single-sourced, the block id is preserved, and the inverse is the usual `updateBlock` inverse.
 
 - Structural edits ride the generic ops, `insertBlock`, `updateBlock`, `deleteBlock`, `moveBlock`. `splitBlock` and `mergeBlocks` never apply: the type carries no text.

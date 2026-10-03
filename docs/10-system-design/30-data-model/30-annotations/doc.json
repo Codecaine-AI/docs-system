@@ -229,7 +229,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's."
+          "insert": "A target addresses anything a reader can point at. The annotation shape is the same for every one of them. What differs is how it gets processed, and that is the block type's business, not the annotation's."
         }
       ],
       "children": []
@@ -333,7 +333,7 @@
           }
         },
         {
-          "insert": " offsets into the block's rendered text and the quoted slice) is this kind's persisted form; a drifted quote surfaces as dangling rather than re-anchoring."
+          "insert": " offsets into the block's rendered text and the quoted slice) is this kind's persisted form. A drifted quote surfaces as dangling rather than re-anchoring."
         }
       ],
       "children": []
@@ -449,7 +449,7 @@
           }
         },
         {
-          "insert": ". The sidecar schema persists block, canvas-object, and text-range targets today; the remaining kinds land additively, under the same optional-fields growth rule."
+          "insert": ". The sidecar schema persists block, canvas-object, and text-range targets today. The remaining kinds land additively, under the same optional-fields growth rule."
         }
       ],
       "children": []
@@ -489,7 +489,7 @@
       "props": {},
       "text": [
         {
-          "insert": "You mark spots and state requests; the set of open annotations is what the agent works through."
+          "insert": "You mark spots and state requests. The set of open annotations is what the agent works through."
         }
       ],
       "children": []
@@ -535,7 +535,7 @@
           }
         },
         {
-          "insert": " — the exact block or canvas-object ids touched."
+          "insert": ": the exact block or canvas-object ids touched."
         }
       ],
       "children": []
@@ -573,7 +573,7 @@
       "props": {},
       "text": [
         {
-          "insert": "How the agent edits the target is the block type's business — the agent adapter in "
+          "insert": "How the agent edits the target is the block type's business: the agent adapter in "
         },
         {
           "insert": "block design",
@@ -622,7 +622,7 @@
           }
         },
         {
-          "insert": " note; nothing is deleted."
+          "insert": " note. Nothing is deleted."
         }
       ],
       "children": []
@@ -633,7 +633,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The kept record is reference material — real request-to-change pairs, including for building eval sets."
+          "insert": "The kept record is reference material: real request-to-change pairs, including for building eval sets."
         }
       ],
       "children": []
@@ -726,7 +726,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Canvas checks distinguish \"not loaded yet\" from \"loaded and absent\": while the canvas index is still loading, canvas-target checks are skipped entirely (block checks still run) — otherwise every canvas-object annotation would flash \"target removed\" during load. Once loaded, a missing "
+          "insert": "Canvas checks distinguish \"not loaded yet\" from \"loaded and absent\": while the canvas index loads, canvas-target checks are skipped entirely (block checks still run). Otherwise, every canvas-object annotation would flash \"target removed\" during load. Once loaded, a missing "
         },
         {
           "insert": "canvasSrc",

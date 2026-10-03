@@ -1,4 +1,4 @@
-A `doc.json` document is a normalized block tree: a root pointer, a flat id-keyed `blocks` map, and ordered child-id arrays. There is no nesting in the JSON itself — tree order lives entirely in the `children` arrays. The vocabulary of valid block shapes stays deliberately small; see the block vocabulary.
+A `doc.json` document is a normalized block tree: a root pointer, a flat id-keyed `blocks` map, and ordered child-id arrays. There is no nesting in the JSON itself. Tree order lives entirely in the `children` arrays. The vocabulary of valid block shapes stays deliberately small (see the block vocabulary).
 
 ## The Document Envelope
 
@@ -70,13 +70,13 @@ The kind key is `type`; the retired `flavour` key is rejected with a typed valid
 
 ## Ids Are Anchors
 
-Document ids, block ids, and child references are all stable ASCII ids matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$`. Every block's `id` must equal its key in the `blocks` map — the id is stored twice on purpose, so a block stays self-describing when it travels without its map.
+Document ids, block ids, and child references are all stable ASCII ids matching `^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$`. Every block's `id` must equal its key in the `blocks` map. The id is stored twice on purpose, so a block stays self-describing when it travels without its map.
 
-> **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. A type change is an identity boundary too: a block converted to another type is a new block with a fresh id — in-place edits keep identity, changes of kind do not. Anything that anchors to a split, merged, or converted block must expect the anchor to dangle.
+> **Anchor contract** — Annotations, patches, and backlinks anchor to block ids, so id stability is a behavioral contract: `updateBlock` and `moveBlock` preserve ids, while `splitBlock` and `mergeBlocks` mint fresh ids for the blocks they create. A type change is an identity boundary too: a block converted to another type is a new block with a fresh id. In-place edits keep identity, changes of kind do not. Anything that anchors to a split, merged, or converted block must expect the anchor to dangle.
 
 ## Graph Invariants
 
-`validateDocDocument` treats the tree as a real graph, not a bag of blocks. It is pure and never throws — failures come back as a typed issue list with JSONPath-style paths. Beyond per-block shape checks, five structural invariants hold:
+`validateDocDocument` treats the tree as a real graph, not a bag of blocks. It is pure and never throws. Failures come back as a typed issue list with JSONPath-style paths. Beyond per-block shape checks, five structural invariants hold:
 
 - **No orphan references**
 
@@ -84,7 +84,7 @@ Document ids, block ids, and child references are all stable ASCII ids matching 
 
 - **Single parent**
 
-  - A block may be referenced as a child by at most one parent; shared children are rejected.
+  - A block may be referenced as a child by at most one parent, and shared children are rejected.
 
 - **Root is nobody's child**
 
@@ -96,11 +96,11 @@ Document ids, block ids, and child references are all stable ASCII ids matching 
 
 - **Everything reachable**
 
-  - Every non-root block must be reachable from the root exactly once; detached subtrees are rejected.
+  - Every non-root block must be reachable from the root exactly once. Detached subtrees are rejected.
 
 ## Nesting
 
-Any block may parent any block — the invariants constrain the graph, not the pairing. Convention keeps the tree flat:
+Any block may parent any block. The invariants constrain the graph, not the pairing. Convention keeps the tree flat:
 
 - List-items nest: a list-item's children render as indented sub-bullets.
 
@@ -110,7 +110,7 @@ Any block may parent any block — the invariants constrain the graph, not the p
 
 ## Seven Ops, One Write Path
 
-Everything that changes a document is one of seven ops, and every successful apply returns exact inverse ops that become undo units. The full mutation concept lives in the mutation model; this surface is the data shape.
+Everything that changes a document is one of seven ops. Every successful apply returns exact inverse ops that become undo units. The full mutation concept lives in the mutation model. This surface is the data shape.
 
 **DocOp kernel**
 

@@ -178,7 +178,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Run "
+          "insert": "Before reporting completion, run "
         },
         {
           "insert": "docs_check",
@@ -187,7 +187,7 @@
           }
         },
         {
-          "insert": " with the task ID on each changed page before reporting completion. It fails on required findings and on gated style warnings the task introduced, which it lists in "
+          "insert": " with the task ID on each changed page. It fails on required findings and on gated style warnings the task introduced, which it lists in "
         },
         {
           "insert": "style_gate",
@@ -749,7 +749,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between tasks. The managed host rebuilds runtime source automatically and waits for active tasks and editor leases before replacement. Standalone daemons require a manual restart after imported implementation changes. Docs Lab and docs-writer retain their staged review behavior."
+          "insert": "The snapshot command records package source hashes, repository revisions, tool contracts, and guidance sources. Standards reload between tasks. The managed host rebuilds runtime source automatically and waits for active tasks and editor leases before replacement. Standalone daemons require a manual restart after imported implementation changes. Docs Lab and docs-writer keep their staged review behavior."
         }
       ],
       "children": []
@@ -760,7 +760,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Content and component edits expose guarded undo while the service is running. Page creation does not expose undo because the existing tree inverse cannot safely remove a page after later additions."
+          "insert": "Content and component edits expose guarded undo while the service runs. Page creation does not expose undo because the existing tree inverse cannot safely remove a page after later additions."
         }
       ],
       "children": []
@@ -837,7 +837,7 @@
           }
         },
         {
-          "insert": " topic, and keeps one edit baseline per page, without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes retain independent process-local state."
+          "insert": " topic, and keeps one edit baseline per page, without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes keep independent process-local state."
         }
       ],
       "children": []
@@ -982,7 +982,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal contexts share the renderer while retaining their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
+          "insert": "Canonical standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
         }
       ],
       "children": []
@@ -1006,25 +1006,40 @@
       "props": {},
       "text": [
         {
-          "insert": "docs"
-        },
-        {
-          "insert": "create adds pages. docs",
+          "insert": "docs_create",
           "attributes": {
-            "italic": true
+            "code": true
           }
         },
         {
-          "insert": "move and docs"
+          "insert": " adds pages. "
         },
         {
-          "insert": "rename relocate pages or sections with descendants. The shared management service rewrites descendant document links, Canvas links, and asset references while preserving document identity. docs",
+          "insert": "docs_move",
           "attributes": {
-            "italic": true
+            "code": true
           }
         },
         {
-          "insert": "set_title changes a display title without moving its path. Management operations use a reviewed corpus fingerprint."
+          "insert": " and "
+        },
+        {
+          "insert": "docs_rename",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " move pages or sections with descendants. The shared management service rewrites descendant document links, Canvas links, and asset references while preserving document identity. "
+        },
+        {
+          "insert": "docs_set_title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " changes a display title without moving its path. Management operations use a reviewed corpus fingerprint."
         }
       ],
       "children": []
@@ -1035,25 +1050,40 @@
       "props": {},
       "text": [
         {
-          "insert": "docs"
-        },
-        {
-          "insert": "asset",
+          "insert": "docs_asset_move",
           "attributes": {
-            "italic": true
+            "code": true
           }
         },
         {
-          "insert": "move transfers shared assets and updates their references. docs"
+          "insert": " transfers shared assets and updates their references. "
         },
         {
-          "insert": "delete can remove reviewed subtrees with recursive:true and refuses remaining external references. Management journals support guarded restoration through docs",
+          "insert": "docs_delete",
           "attributes": {
-            "italic": true
+            "code": true
           }
         },
         {
-          "insert": "management_restore. The maintenance guide owns the operating procedure."
+          "insert": " can remove reviewed subtrees with "
+        },
+        {
+          "insert": "recursive:true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and refuses remaining external references. Management journals support guarded restoration through "
+        },
+        {
+          "insert": "docs_management_restore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The maintenance guide owns the operating procedure."
         }
       ],
       "children": []

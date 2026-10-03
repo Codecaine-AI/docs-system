@@ -116,7 +116,7 @@
           }
         },
         {
-          "insert": " defines save, conflict, and reload behavior."
+          "insert": ": the human interaction semantics, including save, conflict, and reload behavior."
         }
       ],
       "children": []
@@ -196,7 +196,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks, data, persistence, locks, uploads, navigation, embeds, without defining block rendering, editor semantics, or write rules of its own."
+          "insert": "Decision: Capabilities live in docs-viewer and docs-server. The workbench composes them and supplies the callbacks (data, persistence, locks, uploads, navigation, embeds) without defining block rendering, editor semantics, or write rules of its own."
         }
       ],
       "children": []
@@ -257,7 +257,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions; the workbench receives document updates through the host callbacks rather than intercepting input."
+          "insert": "Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions. The workbench receives document updates through the host callbacks rather than intercepting input."
         }
       ],
       "children": []
@@ -270,7 +270,7 @@
       },
       "text": [
         {
-          "insert": "Why: One interaction implementation serves every host; host-side input handling was rejected because it duplicates editor behavior per host."
+          "insert": "Why: One interaction implementation serves every host. Host-side input handling was rejected because it duplicates editor behavior per host."
         }
       ],
       "children": []
@@ -327,7 +327,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The workbench maintains no block reference of its own; block definitions and examples belong to "
+          "insert": "Decision: The workbench maintains no block reference of its own. Block definitions and examples belong to "
         },
         {
           "insert": "Block vocabulary",
@@ -401,7 +401,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The static export ships no write endpoints, the exported artifact contains no mutation surface, and the build-time data adapter in "
+          "insert": "Decision: The static export ships no write endpoints, and the exported artifact contains no mutation surface. The build-time data adapter in "
         },
         {
           "insert": "packages/docs-workbench/web/src/data/api.ts",
@@ -462,7 +462,32 @@
       },
       "text": [
         {
-          "insert": "Why: Runtime capability flags alone were rejected. An export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural."
+          "insert": "Why: Runtime capability flags alone were rejected."
+        }
+      ],
+      "children": [
+        "b-wb-static-w-r0",
+        "b-wb-static-w-r1"
+      ]
+    },
+    "b-wb-static-w-r0": {
+      "id": "b-wb-static-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An export that merely hides write UI but still ships write paths can drift."
+        }
+      ],
+      "children": []
+    },
+    "b-wb-static-w-r1": {
+      "id": "b-wb-static-w-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Omitting the endpoints makes the read-only guarantee structural."
         }
       ],
       "children": []
@@ -523,7 +548,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Why: Reusing the viewer retains typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by "
+          "insert": "Why: Reusing the viewer keeps typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by "
         },
         {
           "insert": "pdf-selection.ts",

@@ -135,7 +135,7 @@
           }
         },
         {
-          "insert": " blocks hold the source evidence. State first, then operations; a code block is for material that is not an instance of the shape, a real source listing."
+          "insert": " blocks hold the source evidence. State comes first, then operations. A code block is for material that is not an instance of the shape, a real source listing."
         }
       ],
       "children": []
@@ -220,7 +220,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Starting with the TableTheme field definition above, call state-shape.addField with field { name: \"enabled\", type: \"boolean\" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object; it is not the action success envelope."
+          "insert": "Starting with the TableTheme field definition above, call state-shape.addField with field { name: \"enabled\", type: \"boolean\" }. Omit path and index to append at the root. StateShapeFieldsPatch below names the returned props object. It is not the action success envelope."
         }
       ],
       "children": []
@@ -539,7 +539,7 @@
           }
         },
         {
-          "insert": " is the one required key; "
+          "insert": " is the one required key. "
         },
         {
           "insert": "name",
@@ -675,7 +675,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reads are tolerant: "
+          "insert": "Reads are tolerant. "
         },
         {
           "insert": "readStateShapeFields",
@@ -747,7 +747,7 @@
           }
         },
         {
-          "insert": " runs; every action returns a shallow props patch, "
+          "insert": " runs. Every action returns a shallow props patch, "
         },
         {
           "insert": "{ fields }",
@@ -785,8 +785,19 @@
       "props": {},
       "text": [
         {
-          "insert": "Dot-path addressing over sibling-unique names: "
-        },
+          "insert": "Dot-path addressing over sibling-unique names:"
+        }
+      ],
+      "children": [
+        "b-25-state-shape-actions-b1-r0",
+        "b-25-state-shape-actions-b1-r1"
+      ]
+    },
+    "b-25-state-shape-actions-b1-r0": {
+      "id": "b-25-state-shape-actions-b1-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "\"operations.params\"",
           "attributes": {
@@ -812,8 +823,16 @@
           }
         },
         {
-          "insert": "; "
-        },
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-actions-b1-r1": {
+      "id": "b-25-state-shape-actions-b1-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "\"\"",
           "attributes": {
@@ -997,7 +1016,7 @@
           }
         },
         {
-          "insert": " sets or clears the example; the string must parse as JSON, "
+          "insert": " sets or clears the example. The string must parse as JSON, "
         },
         {
           "insert": "null",
@@ -1486,7 +1505,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Field rows and example lines link by field dot-path; array indices normalize away, so a field matches its path at every array position."
+          "insert": "Field rows and example lines link by field dot-path. Array indices normalize away, so a field matches its path at every array position."
         }
       ],
       "children": []
@@ -1497,7 +1516,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Hover or pin paints the field's full extent in both panes; activating an ancestor lights its whole brace-to-brace range."
+          "insert": "Hover or pin paints the field's full extent in both panes. Activating an ancestor lights its whole brace-to-brace range."
         }
       ],
       "children": []
@@ -1568,7 +1587,7 @@
           }
         },
         {
-          "insert": " is read tolerantly: present-but-invalid JSON falls back to the single-pane tree; schema validation reports it at authoring time."
+          "insert": " is read tolerantly: present-but-invalid JSON falls back to the single-pane tree. Schema validation reports it at authoring time."
         }
       ],
       "children": []
@@ -1642,7 +1661,7 @@
           }
         },
         {
-          "insert": " output as the reader. No slash-menu entry; instances enter through agent ops or existing content."
+          "insert": " output as the reader. The block has no slash-menu entry. Instances enter through agent ops or existing content."
         }
       ],
       "children": []
@@ -1774,7 +1793,7 @@
           }
         },
         {
-          "insert": "; the tolerant read drops a non-JSON example, so a malformed prop renders no fence rather than crashing."
+          "insert": ". The tolerant read drops a non-JSON example, so a malformed prop renders no fence rather than crashing."
         }
       ],
       "children": []
@@ -2128,7 +2147,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The type uses the default adapter, no agent of its own; the contract is "
+          "insert": "The type uses the default adapter, no agent of its own. The contract is "
         },
         {
           "insert": "Agent adapter",
@@ -2211,7 +2230,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The returned props patch executes through the existing "
+          "insert": "The returned props patch runs through the existing "
         },
         {
           "insert": "updateBlock",
@@ -2220,7 +2239,7 @@
           }
         },
         {
-          "insert": " path, merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
+          "insert": " path. Merge semantics are single-sourced, the block id is preserved, and the inverse is the usual "
         },
         {
           "insert": "updateBlock",

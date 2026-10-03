@@ -214,7 +214,7 @@
           }
         },
         {
-          "insert": " so those options retain their original behavior."
+          "insert": " so those options keep their original behavior."
         }
       ],
       "children": []
@@ -285,7 +285,7 @@
           }
         },
         {
-          "insert": ". It starts at login while the user session is running. It does not keep serving while the Mac is asleep or the user is logged out."
+          "insert": ". It starts at login while the user session runs. It does not keep serving while the Mac is asleep or the user is logged out."
         }
       ],
       "children": []

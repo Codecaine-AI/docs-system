@@ -63,7 +63,7 @@ Annotation ids follow the same stable-ASCII id rule as block ids and must be uni
 
 ## The Target
 
-A target addresses anything a reader can point at. The annotation shape is the same for every one of them — what differs is how it gets processed, and that is the block type's business, not the annotation's.
+A target addresses anything a reader can point at. The annotation shape is the same for every one of them. What differs is how it gets processed, and that is the block type's business, not the annotation's.
 
 Capture is surface-native: pointing at a block emits a stable block target, Cmd/Ctrl+drag across a block's text emits a text-range target, and an embedded canvas emits canvas-object targets from the objects it renders.
 
@@ -75,7 +75,7 @@ Capture is surface-native: pointing at a block emits a stable block target, Cmd/
 
   - A span inside a block's text: offsets plus the quoted text and its surrounding context, so the anchor can re-attach after edits.
 
-  - The sidecar's text-range target (`blockId` plus `start`/`end` offsets into the block's rendered text and the quoted slice) is this kind's persisted form; a drifted quote surfaces as dangling rather than re-anchoring.
+  - The sidecar's text-range target (`blockId` plus `start`/`end` offsets into the block's rendered text and the quoted slice) is this kind's persisted form. A drifted quote surfaces as dangling rather than re-anchoring.
 
 - `visual_point`
 
@@ -87,29 +87,29 @@ Capture is surface-native: pointing at a block emits a stable block target, Cmd/
 
   - The sidecar's canvas-object target (`canvasSrc` plus exactly one selector: `objectId`, `connectionId`, or a region rectangle) is this kind's persisted form.
 
-The shape never specializes: an annotation on a sequence diagram looks exactly like an annotation on a paragraph. Special cases are handled at processing time by the type's agent adapter. The sidecar schema persists block, canvas-object, and text-range targets today; the remaining kinds land additively, under the same optional-fields growth rule.
+The shape never specializes: an annotation on a sequence diagram looks exactly like an annotation on a paragraph. Special cases are handled at processing time by the type's agent adapter. The sidecar schema persists block, canvas-object, and text-range targets today. The remaining kinds land additively, under the same optional-fields growth rule.
 
 ## The Lifecycle
 
 - **Open annotations are the work queue**
 
-  - You mark spots and state requests; the set of open annotations is what the agent works through.
+  - You mark spots and state requests. The set of open annotations is what the agent works through.
 
 - **A handled request carries its receipt**
 
-  - The `agentRun` records the session and patch that produced the change, a human-readable summary, and optionally `changedIds` — the exact block or canvas-object ids touched.
+  - The `agentRun` records the session and patch that produced the change, a human-readable summary, and optionally `changedIds`: the exact block or canvas-object ids touched.
 
   - An open viewer can flash exactly those targets without re-diffing.
 
 - **Execution is per-type**
 
-  - How the agent edits the target is the block type's business — the agent adapter in block design. Canvas and sequence bring their own agents.
+  - How the agent edits the target is the block type's business: the agent adapter in block design. Canvas and sequence bring their own agents.
 
 - **Resolved annotations stay**
 
-  - Resolving persists an optional `resolution` note; nothing is deleted.
+  - Resolving persists an optional `resolution` note. Nothing is deleted.
 
-  - The kept record is reference material — real request-to-change pairs, including for building eval sets.
+  - The kept record is reference material: real request-to-change pairs, including for building eval sets.
 
 > **Compatibility** — `changedIds` and `resolution` are optional and additive: sidecars written before those fields existed still validate unchanged. The schema grows by adding optional fields, not by bumping `schemaVersion`.
 
@@ -119,4 +119,4 @@ The name is deliberately shared across packages: the canvas package's own agent 
 
 Because targets anchor by id, deletion — and the fresh ids minted by split and merge — can strand them. `detectDanglingTargets` flags annotations whose targets no longer resolve: a block target dangles when its blockId is missing from the document. Dangling annotations are reported, not auto-deleted — the record of what was asked outlives the block it pointed at.
 
-Canvas checks distinguish "not loaded yet" from "loaded and absent": while the canvas index is still loading, canvas-target checks are skipped entirely (block checks still run) — otherwise every canvas-object annotation would flash "target removed" during load. Once loaded, a missing `canvasSrc`, `objectId`, or `connectionId` is genuinely dangling.
+Canvas checks distinguish "not loaded yet" from "loaded and absent": while the canvas index loads, canvas-target checks are skipped entirely (block checks still run). Otherwise, every canvas-object annotation would flash "target removed" during load. Once loaded, a missing `canvasSrc`, `objectId`, or `connectionId` is genuinely dangling.

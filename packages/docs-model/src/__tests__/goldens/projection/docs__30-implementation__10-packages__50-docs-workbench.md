@@ -20,7 +20,7 @@ The mutation model: the write contract the host's transport policy carries.
 
 - Decision: Transport, hash, and session policy attach in `packages/docs-workbench/web/src/data`. `api.ts` selects live `api/` requests or exported `data/` files and owns HTTP and SSE policy, `client.ts` adapts that layer to the viewer's `DocsClient` seam, and `session.ts` defines the one per-tab actor id shared by locks, writes, and event filtering. Viewer components never learn URLs or response envelopes.
 
-- Why: One transport boundary and one actor identity keep lock ownership, writes, and self-echo filtering naming the same session; scattering fetch calls through pages was rejected because policy then diverges per surface.
+- Why: One transport boundary and one actor identity keep lock ownership, writes, and self-echo filtering naming the same session. Scattering fetch calls through pages was rejected because policy then diverges per surface.
 
 - Applies to: `packages/docs-workbench/web/src/data`. Every future data source, mutation helper, and event consumer routes through this layer.
 

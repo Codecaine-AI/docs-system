@@ -49,7 +49,7 @@
           }
         },
         {
-          "insert": ", which draws flat path entries as IDE-style sidebar rows with collapsible folders and a badge per changed file. Use it to show the files a change touches. "
+          "insert": ", which draws flat path entries as IDE-style sidebar rows. It draws them with collapsible folders and a badge per changed file. Use it to show the files a change touches. "
         },
         {
           "insert": "File Tree",
@@ -418,7 +418,7 @@
       "props": {},
       "text": [
         {
-          "insert": "It deletes by exact path, and a missing path is an error."
+          "insert": "It deletes by exact path. A missing path is an error."
         }
       ],
       "children": []
@@ -655,7 +655,7 @@
           }
         },
         {
-          "insert": " is set, and it shows only the title."
+          "insert": " is set. It shows only the title."
         }
       ],
       "children": []

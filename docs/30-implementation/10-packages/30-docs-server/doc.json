@@ -34,7 +34,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The React-free mutation authority for one filesystem-backed docs tree — reads, preconditioned writes, undo, locks, and change events, exposed as a TypeScript store and an embeddable route factory. Source: "
+          "insert": "The React-free mutation authority for one filesystem-backed docs tree: reads, preconditioned writes, undo, locks, and change events, exposed as a TypeScript store and an embeddable route factory. Source: "
         },
         {
           "insert": "packages/docs-server",
@@ -81,7 +81,7 @@
           }
         },
         {
-          "insert": " — op semantics, inverses, undo, and refusal behavior the server's write path realizes."
+          "insert": ": op semantics, inverses, undo, and refusal behavior the server's write path realizes."
         }
       ],
       "children": []
@@ -102,7 +102,7 @@
           }
         },
         {
-          "insert": " — canonical bytes and the content hashes that make write preconditions possible."
+          "insert": ": canonical bytes and the content hashes that make write preconditions possible."
         }
       ],
       "children": []
@@ -216,7 +216,7 @@
           }
         },
         {
-          "insert": " — every future mutation surface converges on this path."
+          "insert": ". Every future mutation surface converges on this path."
         }
       ],
       "children": []
@@ -304,7 +304,7 @@
           }
         },
         {
-          "insert": " — future server capability lands behind the store and route factory."
+          "insert": ". Future server capability lands behind the store and route factory."
         }
       ],
       "children": []
@@ -396,7 +396,7 @@
           }
         },
         {
-          "insert": " and every future store method — host identity never enters the signature."
+          "insert": " and every future store method. Host identity never enters the signature."
         }
       ],
       "children": []

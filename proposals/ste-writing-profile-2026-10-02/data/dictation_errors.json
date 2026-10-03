@@ -1,0 +1,102 @@
+[
+ {
+  "heard": "agent colonel",
+  "intended": "agent kernel",
+  "count": 1
+ },
+ {
+  "heard": "Curate",
+  "intended": "Kurate",
+  "count": 8
+ },
+ {
+  "heard": "CCPCU / ccbc use",
+  "intended": "CCBCU",
+  "count": 4
+ },
+ {
+  "heard": "Tera",
+  "intended": "Terra",
+  "count": 1
+ },
+ {
+  "heard": "fire crawl",
+  "intended": "Firecrawl",
+  "count": 12
+ },
+ {
+  "heard": "eleven labs / 11 labs",
+  "intended": "ElevenLabs",
+  "count": 7
+ },
+ {
+  "heard": "sql light",
+  "intended": "SQLite",
+  "count": 3
+ },
+ {
+  "heard": "cue (for queue)",
+  "intended": "queue",
+  "count": 7
+ },
+ {
+  "heard": "unswap",
+  "intended": "unslop",
+  "count": 2
+ },
+ {
+  "heard": "on slop",
+  "intended": "unslop",
+  "count": 1
+ },
+ {
+  "heard": "band ingredients",
+  "intended": "banned ingredients",
+  "count": 4
+ },
+ {
+  "heard": "zebra scraping",
+  "intended": "zebra striping",
+  "count": 1
+ },
+ {
+  "heard": "emerge conflict",
+  "intended": "merge conflict",
+  "count": 1
+ },
+ {
+  "heard": "decob",
+  "intended": "decomp",
+  "count": 1
+ },
+ {
+  "heard": "Quinn",
+  "intended": "Qwen",
+  "count": 1
+ },
+ {
+  "heard": "CLAWD",
+  "intended": "CLAUDE(.md)",
+  "count": 2
+ },
+ {
+  "heard": "open sub-agents",
+  "intended": "Opus sub-agents",
+  "count": 1
+ },
+ {
+  "heard": "Jeff / J-E-V",
+  "intended": "Jev",
+  "count": 1
+ },
+ {
+  "heard": "seperate",
+  "intended": "separate (typo)",
+  "count": 3
+ },
+ {
+  "heard": "youeself/impleemnt/layour",
+  "intended": "typos",
+  "count": 5
+ }
+]

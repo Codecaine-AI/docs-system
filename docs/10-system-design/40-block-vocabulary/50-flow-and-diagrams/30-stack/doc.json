@@ -58,7 +58,7 @@
           }
         },
         {
-          "insert": ", a boundary stack that shows layering and the rule enforced at each line. Nodes nest top to bottom, a uses arrow points from a node to its next sibling, and a dashed boundary line states what may never cross. The block takes no coordinates. Use canvas when a diagram needs free placement or arbitrary edges."
+          "insert": ", a boundary stack that shows layering and the rule enforced at each line. Nodes nest top to bottom, a uses arrow points from a node to its next sibling, and a dashed boundary line states what may never cross. The block takes no coordinates. When a diagram needs free placement or arbitrary edges, use canvas."
         }
       ],
       "children": []

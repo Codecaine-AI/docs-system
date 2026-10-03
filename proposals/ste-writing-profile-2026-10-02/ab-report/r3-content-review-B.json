@@ -1,0 +1,537 @@
+{
+ "reviewer": "Opus content reviewer B (run 3)",
+ "summary": "Verdict: safe and mildly positive, but low-yield. Rewrites: 21 of 56 accepted improved, 31 neutral, 4 harmful (7%), and none added slop. Autofixes: 12 of 35 improved, 16 neutral, 7 worse; 5 of the 7 are 'Applies to: X. Every future ...' fragments from dash-gloss. All 4 rejections were correct. Worst: cli-w dropped 'since' and broke grammar, b-fw-role turned an appositive into a list with commas, b-dc-role's 'includes' made a scope list partial, and full-management-17 buried an instruction under a false lead. Pattern: the 3-sentence list-item cap rejects Luna's clean splits, so Sol falls back to dash-to-colon swaps and 13 one-item sub-bullets. Fix before a full pass: a comma for noun-phrase glosses in dash-gloss, parentheses for paired dashes, and connector words (since, while, because) in meaning-words.",
+ "keyConvention": "Rewrite keys are <pagePath>#<blockId>. Autofix keys add '~autofix', because 7 blocks have both an autofix and a rewrite. Every label also carries kind.",
+ "counts": {
+  "rewritesAccepted": {
+   "improved": 21,
+   "neutral": 31,
+   "lost-context": 1,
+   "meaning-changed": 2,
+   "worse-readability": 1
+  },
+  "autofixes": {
+   "neutral": 16,
+   "worse-readability": 7,
+   "improved": 12
+  },
+  "rejectedCorrect": "4 of 4"
+ },
+ "labels": {
+  "30-implementation/10-packages#b-pkga-gov-design@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash after the 'System design' reference becomes a colon. Same meaning, same readability."
+  },
+  "30-implementation/10-packages#b-pkga-firewall-a@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Leaves the fragment 'Including every future package and external mount.' A comma would keep it attached."
+  },
+  "30-implementation/10-packages#b-pkga-walls-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope list and rule become two clean sentences. Small scanning gain, nothing lost."
+  },
+  "30-implementation/10-packages#b-pkga-index-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and forward rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages#b-pkga-cli-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages#b-pkga-fw-a@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Leaves the fragment 'Including any future content-only package.' cut off from 'Applies to'."
+  },
+  "30-implementation/10-packages#b-pkga-ext-a@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Leaves 'Every future externally owned project' as a verbless fragment cut off from the scope list."
+  },
+  "30-implementation/10-packages#b-pkga-enf-d@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "'executes' to 'runs' gives 'every run runs the boundary checks', a stutter. Meaning kept."
+  },
+  "30-implementation/10-packages#b-pkga-enf-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two clean sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages#b-pkga-roster-model@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Makes a double colon: 'docs-model: the dependency-pure format authority: schema, ...'. The two levels blur."
+  },
+  "30-implementation/10-packages#b-pkga-roster-index@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-roster-server@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-roster-viewer@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-roster-workbench@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. The semicolon is left for the rewrite."
+  },
+  "30-implementation/10-packages#b-pkga-roster-cli@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-roster-framework@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the package reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-roster-external@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the reference. No change in meaning or readability."
+  },
+  "30-implementation/10-packages#b-pkga-role": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Dash gloss becomes two full sentences. 'describe' and 'explain' are added verbs but faithful to the gloss."
+  },
+  "30-implementation/10-packages#b-pkga-gov-design": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period on a short line. 'only' kept. Little scanning gain."
+  },
+  "30-implementation/10-packages#b-pkga-firewall-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "32-word dash sentence split in two. The 'rejected because' reason stays whole."
+  },
+  "30-implementation/10-packages#b-pkga-walls-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Examples become bullets, a gain. The unrelated 'more directories than walls' sentence now sits beside them like a third example."
+  },
+  "30-implementation/10-packages#b-pkga-index-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Participle tail becomes an active sentence with named actors. Same meaning."
+  },
+  "30-implementation/10-packages#b-pkga-index-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "44-word dash sentence becomes three bullets in considered, argument, rejected order. 'It' reaches back two bullets."
+  },
+  "30-implementation/10-packages#b-pkga-cli-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet. A period would do the same and keep the item flat."
+  },
+  "30-implementation/10-packages#b-pkga-cli-w": {
+   "label": "lost-context",
+   "kind": "rewrite",
+   "note": "Drops 'since': the sub-bullet no longer says these facts are why merging was considered. 'use: render' breaks grammar."
+  },
+  "30-implementation/10-packages#b-pkga-fw-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet. Meaning kept, little gain."
+  },
+  "30-implementation/10-packages#b-pkga-fw-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Dashes and semicolon gone. The aside now explains 'only on delivery convenience', a compatible reading."
+  },
+  "30-implementation/10-packages#b-pkga-ext-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet. 'never' and 'only' kept. Little gain."
+  },
+  "30-implementation/10-packages#b-pkga-ext-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a colon. Nothing else changes."
+  },
+  "30-implementation/10-packages#b-pkga-ext-a": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Cross-reference moves to a sub-bullet. The autofix fragment 'Every future externally owned project.' stays."
+  },
+  "30-implementation/10-packages#b-pkga-enf-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Colon becomes a period and two short facts become bullets. The 29-word prohibition sentence stays long."
+  },
+  "30-implementation/10-packages#b-pkga-enf-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period, and the caveat moves to a one-item sub-bullet. Meaning kept."
+  },
+  "30-implementation/10-packages#b-pkga-roster-workbench": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Only roster entry with a sub-bullet. A period would keep the eight-item roster flat and parallel."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-intro-1": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Explanatory colon becomes a period and the dash a colon. Facts kept, the 'why' link slightly weaker."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-inverse-s1": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a colon. 'actually' kept, so 'state actually changed' keeps its contrast."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-ledger-s1": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Semicolon split, and the dash tail becomes 'for document, canvas, and sequence writes alike'. Nothing lost."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-ledger-s3": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Only dash to colon and 'has moved on since' to 'moved on since'. The 42-word sentence stays."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-ledger-s4": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a colon. 'only canonical record' kept. No real gain."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-redo-s1": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a colon. Nothing else changes."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-local-s2": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a period. Both short sentences read the same as before."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-why-trust-s1": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period on a short line. 'because reverting is' kept."
+  },
+  "10-system-design/30-data-model/50-mutation-model/10-undo-redo#b-ur-why-one-s1": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Verbless tail 'no privileged writer' becomes a full sentence. Same claim."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-gov-standards@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the reference label. Same meaning."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-gov-agent@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the reference label. Same meaning."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-runtime-w@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "'relocating' to 'moving'. Same meaning here."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-runtime-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. 'never runtime surface' kept."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-authority-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. 'never from standards files here' kept."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-addr-a@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Leaves the verbless fragment 'Every future cookbook and workflow key.' cut off from the scope list."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-role": {
+   "label": "meaning-changed",
+   "kind": "rewrite",
+   "note": "Commas replace the paired dashes, so manual, cookbooks, and interview scripts read as three items, not the manual's contents."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-gov-standards": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period. Meaning kept, little gain."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-runtime-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Evidence moves to two bullets under the decision. Dash becomes a colon. Nothing lost."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-runtime-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Three clear bullets. The last bullet's colon order is slightly awkward, but every fact stays."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-authority-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet for the mechanism. Meaning kept."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-authority-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Copy-tier problem and corpus remedy become parallel bullets. The contrast stays clear."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-addr-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet. 'never' kept. Little gain."
+  },
+  "30-implementation/10-packages/70-framework#b-fw-addr-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a one-item sub-bullet. The 'rejected because' reason stays whole."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-gov-linking@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the reference label. Same meaning."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-derived-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-lib-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-confine-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-role": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Fragment becomes a sentence, but 'with' loosely ties confinement and move fixup to lookup derivation."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-derived-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a sub-bullet. Commas for the dash pair blur the 'never substitute document state' aside."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-derived-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Dash becomes an explicit 'because'. The reason stays attached to the rejection."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-lib-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Verbless dash list becomes 'It has no routes, ...'. 'nothing else' kept."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-lib-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Lead is cleaner, but the separate bun:sqlite fact is demoted into the cross-reference sub-bullet."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-confine-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Long mid-sentence aside becomes its own sentence after the location. Nothing lost."
+  },
+  "30-implementation/10-packages/20-docs-index#b-di-confine-w": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Dash becomes a colon. Nothing else changes."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-gov-trans@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "Dash to colon after the reference label. Same meaning."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-dialect-a@autofix": {
+   "label": "worse-readability",
+   "kind": "autofix",
+   "note": "Leaves the verbless fragment 'Every future command and flag.' cut off from the scope."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-leaf-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. 'not here' kept."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-effects-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-migrate-d@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "'modifying' to 'changing'. Same meaning."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-migrate-a@autofix": {
+   "label": "improved",
+   "kind": "autofix",
+   "note": "Scope and rule become two full sentences. Small gain, meaning intact."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-role": {
+   "label": "meaning-changed",
+   "kind": "rewrite",
+   "note": "Mild: 'includes' makes the six capabilities a partial list, where the dash named the whole scope."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-dialect-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Contract leads, and the exit-status and extension rules become bullets. The parenthetical stays whole."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-dialect-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Long dash sentence split. 'must' and 'whether or not' kept. The 'so' link is now implicit."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-leaf-d": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon split. Entrypoint and serve/export facts share one two-sentence sub-bullet. Little gain."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-effects-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Three semicolon-joined write rules become a lead plus two bullets. Each rule scans alone. 'only' kept."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-migrate-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Ordinary migration and retirement become parallel bullets. The safety contrast reads clearly."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-migrate-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Run-on 'and' plus dash become two sentences. The reason stays attached by a colon."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-10@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "'retain' to 'keep'. Same meaning."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-5": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon between two parallel tool descriptions becomes a period. No loss, small gain."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-7": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period. The condition still trails 'Use docs_set_title', so condition-first is not applied."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-12": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Condition fronted with 'only' kept, a gain. But two instructions merge into one 'and' sentence."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-16": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Splits the semicolon but joins two unrelated sentences with 'and'. Moves the one-topic problem, no net gain."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-17": {
+   "label": "worse-readability",
+   "kind": "rewrite",
+   "note": "Paragraph becomes lead plus five bullets. All facts sit under the first, 'while' is lost, the instruction is buried."
+  },
+  "40-guides/10-docs-mcp/50-document-management#full-management-18": {
+   "label": "neutral",
+   "kind": "rewrite",
+   "note": "Semicolon becomes a period. The instruction still reads as the alternative to cross-project relocation."
+  },
+  "30-implementation/10-packages/40-docs-viewer#grid-doc-1789403405144-1@autofix": {
+   "label": "neutral",
+   "kind": "autofix",
+   "note": "'modifies' to 'changes'. Same meaning."
+  },
+  "30-implementation/10-packages/40-docs-viewer#b-dv-role": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Relative-clause fragment becomes two active sentences. 'Hosts supply' keeps the host role explicit."
+  },
+  "30-implementation/10-packages/40-docs-viewer#b-dv-mirror-d": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Five-clause item becomes a lead plus three bullets. The test sentence is still long but separate."
+  },
+  "30-implementation/10-packages/40-docs-viewer#b-dv-mirror-w": {
+   "label": "improved",
+   "kind": "rewrite",
+   "note": "Benefits split into lead and bullet, repeating the subject. 'which' to 'because it' keeps the claim."
+  }
+ },
+ "rejected": {
+  "30-implementation/10-packages#b-pkga-firewall-d": {
+   "correct": true,
+   "check": "no-new-findings (structure.label-colon-opener 0 -> 1)",
+   "note": "Final split one colon clause into sibling bullets, a false hierarchy. The fast try was cleaner but tripped the same check."
+  },
+  "30-implementation/10-packages#b-pkga-walls-d": {
+   "correct": true,
+   "check": "no-new-findings (structure.list-length 0 -> 1, structure.label-colon-opener 0 -> 2)",
+   "note": "Nine bullets, and the host-seam rule is cut off from the browser-side wall. The fast attempt returned nothing."
+  },
+  "30-implementation/10-packages/60-docs-cli#b-dc-leaf-w": {
+   "correct": true,
+   "check": "fixes-target (ste.one-topic 1 -> 1)",
+   "note": "Strong only swapped 'which' for 'because it', no gain. The fast try weakened 'must not' to 'can'; meaning-words caught it."
+  },
+  "30-implementation/10-packages/40-docs-viewer#b-dv-dep-w": {
+   "correct": true,
+   "check": "fixes-target (ste.one-topic 1 -> 1)",
+   "note": "Only 'which' to 'because it'. The block already reads well. Jev's one-topic flag looks like a false positive."
+  }
+ },
+ "pageConcerns": [
+  {
+   "page": "30-implementation/10-packages",
+   "note": "Dash-gloss autofix leaves 3 'Applies to' fragments (firewall-a, fw-a, ext-a), a double colon in roster-model, and 'every run runs' in enf-d. Seven accepted rewrites end in a one-item sub-bullet where a period would keep the item flat. cli-w passed fact-check at P 0.30 (limit 0.35) yet dropped 'since' and broke grammar. walls-d and firewall-d were rejected twice and still need a person."
+  },
+  {
+   "page": "10-system-design/30-data-model/50-mutation-model/10-undo-redo",
+   "note": "No harm in 9 accepted rewrites, but 7 are dash or semicolon swaps on short sentences with little gain. ledger-s3 keeps a 42-word sentence: Luna's clean split made a 3-sentence list item, which no-new-findings rejects, so Sol only swapped the dash and the tense."
+  },
+  {
+   "page": "30-implementation/10-packages/70-framework",
+   "note": "b-fw-role swapped paired dashes for commas and turned an appositive into a list; parentheses would keep the meaning. addr-a carries the 'Every future ...' fragment from the autofix."
+  },
+  {
+   "page": "30-implementation/10-packages/20-docs-index",
+   "note": "Cleanest page: 3 of 7 rewrites improved, none harmful. The role sentence's new 'with' is loose. derived-d also swapped paired dashes for commas, the b-fw-role pattern, but harmless here."
+  },
+  {
+   "page": "30-implementation/10-packages/60-docs-cli",
+   "note": "The role paragraph gained 'includes', which makes its scope list partial. dialect-a has the 'Every future command and flag.' fragment. The Decision-item splits (dialect-d, effects-d, migrate-d) are the best rewrites in the batch."
+  },
+  {
+   "page": "40-guides/10-docs-mcp/50-document-management",
+   "note": "To meet sentence limits the model merges unrelated sentences with 'and' (blocks 12 and 16), which moves the one-topic problem instead of fixing it. Block 17 turned a guide paragraph into a lead plus 5 bullets with the closing instruction last. Block 7's trailing condition ('use docs_set_title when ...') was never flagged by condition-first. paragraph-length is still open on 4 blocks."
+  },
+  {
+   "page": "30-implementation/10-packages/40-docs-viewer",
+   "note": "Confirmed held: the 7 blocks with '. lowercase' corruption (b-dv-gov-editor, b-dv-gov-vocab, b-dv-dep-d, b-dv-dep-a, b-dv-ops-d, b-dv-ops-a, b-dv-mirror-a) carry ste.broken-sentence and got no autofix and no rewrite. Their 8 findings remain in findingsAfter for a person to repair."
+  },
+  {
+   "page": "99-appendix/10-style-guide/10-writing-style",
+   "note": "Confirmed exempt: 0 findings, 0 changes, 1579 words before and after. packages/docs-style/src/profile/exemptions.ts lists the page with heading '*'."
+  },
+  {
+   "page": "pipeline (all batch B pages)",
+   "note": "meaning-words should also count relational connectors (since, while, because, although, instead): the worst accepted changes dropped exactly these and passed every guardrail. dash-gloss should use a comma before a noun-phrase gloss ('including ...', 'every ...') and skip a gloss that holds its own colon. Paired dashes should become parentheses, not commas or a single colon. Prefer a period over a one-item sub-bullet."
+  }
+ ]
+}

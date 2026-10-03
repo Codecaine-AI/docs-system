@@ -33,7 +33,18 @@
         "b-20-structured-table-editor-12",
         "b-20-structured-table-editing-heading",
         "b-20-structured-table-editing-para-1",
+        "b-20-structured-table-editing-para-1-r0",
+        "b-20-structured-table-editing-para-1-r1",
+        "b-20-structured-table-editing-para-1-r2",
+        "b-20-structured-table-editing-para-1-r3",
+        "b-20-structured-table-editing-para-1-r4",
         "b-20-structured-table-editing-para-2",
+        "b-20-structured-table-editing-para-2-r0",
+        "b-20-structured-table-editing-para-2-r1",
+        "b-20-structured-table-editing-para-2-r2",
+        "b-20-structured-table-editing-para-2-r3",
+        "b-20-structured-table-editing-para-2-r4",
+        "b-20-structured-table-editing-para-2-r5",
         "b-20-structured-table-editing-para-3",
         "b-stfam-agentrender-h",
         "b-20-structured-table-proj-7",
@@ -72,7 +83,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -273,7 +284,7 @@
           }
         },
         {
-          "insert": " key; the schema is a closed TypeBox object. The contract is "
+          "insert": " key. The schema is a closed TypeBox object. The contract is "
         },
         {
           "insert": "State schema",
@@ -326,7 +337,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Cells, body and header alike, carry the inline mark set: bold, italic, strike, code, and link; the cell attribute schema is closed, so "
+          "insert": "Cells, body and header alike, carry the inline mark set: bold, italic, strike, code, and link. The cell attribute schema is closed, so "
         },
         {
           "insert": "reference",
@@ -368,7 +379,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Five verbs cover the grid and form the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch; rejections come back at "
+          "insert": "Five verbs cover the grid and form the family's whole agent write surface for cells. Each action validates, applies against the block's current props, and returns a shallow props patch. Rejections come back at "
         },
         {
           "insert": "$.params.<name>",
@@ -444,7 +455,7 @@
           }
         },
         {
-          "insert": " (default the empty string); row and column inserts default to the end."
+          "insert": " (default the empty string). Row and column inserts default to the end."
         }
       ],
       "children": []
@@ -470,7 +481,7 @@
           }
         },
         {
-          "insert": " to the column count; the column actions re-normalize every row on the way through."
+          "insert": " to the column count. The column actions re-normalize every row on the way through."
         }
       ],
       "children": []
@@ -530,7 +541,7 @@
           }
         },
         {
-          "insert": "); unmarked input stays the plain string."
+          "insert": "). Unmarked input stays the plain string."
         }
       ],
       "children": []
@@ -905,7 +916,7 @@
           }
         },
         {
-          "insert": "). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry; structured tables enter a document through agent ops or existing content."
+          "insert": "). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry. Structured tables enter a document through agent ops or existing content."
         }
       ],
       "children": []
@@ -929,7 +940,62 @@
       "props": {},
       "text": [
         {
-          "insert": "Notion-style grid controls, revealed on hover. Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows. Hovering a column shows a six-dot grab handle above it; body rows get one on the left. Clicking a handle selects the whole column or row (a single accent outline) and opens its menu: insert left/right or above/below, move, duplicate, clear contents, and delete. Dragging a handle past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap. After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
+          "insert": "Notion-style grid controls, revealed on hover."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1-r0": {
+      "id": "b-20-structured-table-editing-para-1-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Add bars sit just outside the right edge (column) and bottom edge (row), with a corner square that adds both: click adds one, dragging adds several live (ghost preview plus a count) or removes trailing empty columns/rows."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1-r1": {
+      "id": "b-20-structured-table-editing-para-1-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hovering a column shows a six-dot grab handle above it. Body rows get one on the left."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1-r2": {
+      "id": "b-20-structured-table-editing-para-1-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Clicking a handle selects the whole column or row (a single accent outline) and opens its menu: insert left/right or above/below, move, duplicate, clear contents, and delete."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1-r3": {
+      "id": "b-20-structured-table-editing-para-1-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Dragging a handle past a small dead zone reorders it: a semi-transparent preview follows the cursor, the source dims, and an accent drop-indicator line marks the target gap."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-1-r4": {
+      "id": "b-20-structured-table-editing-para-1-r4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "After a single add, focus lands in the new column's header cell or the new row's first cell, the added region flashes accent briefly, and empty header cells show a muted \"Column N\" placeholder (edit mode only, renumbered with position)."
         }
       ],
       "children": []
@@ -940,7 +1006,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines. Marks apply through the main editor's keyboard shortcuts ("
+          "insert": "Each cell hosts its own mini rich-text editor: a single paragraph carrying the five cell marks, with hard breaks as in-cell newlines."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r0": {
+      "id": "b-20-structured-table-editing-para-2-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Marks apply through the main editor's keyboard shortcuts ("
         },
         {
           "insert": "Cmd+B",
@@ -967,7 +1044,18 @@
           }
         },
         {
-          "insert": " for code); input rules auto-convert "
+          "insert": " for code)."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r1": {
+      "id": "b-20-structured-table-editing-para-2-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Input rules auto-convert "
         },
         {
           "insert": "**bold**",
@@ -976,8 +1064,27 @@
           }
         },
         {
-          "insert": " and backtick code while typing. The italic and strike input rules are off, matching the main editor. Pasting a URL over a selection creates a link; there is no other link UI and no floating toolbar. "
-        },
+          "insert": " and backtick code while typing. The italic and strike input rules are off, matching the main editor."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r2": {
+      "id": "b-20-structured-table-editing-para-2-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pasting a URL over a selection creates a link. There is no other link UI and no floating toolbar."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r3": {
+      "id": "b-20-structured-table-editing-para-2-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "Tab",
           "attributes": {
@@ -1021,8 +1128,16 @@
           }
         },
         {
-          "insert": " exits. "
-        },
+          "insert": " exits."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r4": {
+      "id": "b-20-structured-table-editing-para-2-r4",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "Cmd+A",
           "attributes": {
@@ -1030,7 +1145,7 @@
           }
         },
         {
-          "insert": " selects only the cell's contents, never the document; "
+          "insert": " selects only the cell's contents, never the document. "
         },
         {
           "insert": "Cmd+Z",
@@ -1048,7 +1163,18 @@
           }
         },
         {
-          "insert": " commit pending text and forward to the editor's history, so table edits undo and redo like any other. The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge."
+          "insert": " commit pending text and forward to the editor's history, so table edits undo and redo like any other."
+        }
+      ],
+      "children": []
+    },
+    "b-20-structured-table-editing-para-2-r5": {
+      "id": "b-20-structured-table-editing-para-2-r5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The focused cell draws a 2px accent outline plus small gray notches on its column's top edge and row's left edge."
         }
       ],
       "children": []
@@ -1488,7 +1614,7 @@
           }
         },
         {
-          "insert": " op (one of the generic doc ops) naming the block, the action key, and params; the kernel ("
+          "insert": " op (one of the generic doc ops) naming the block, the action key, and params. The kernel ("
         },
         {
           "insert": "doc-ops.ts",

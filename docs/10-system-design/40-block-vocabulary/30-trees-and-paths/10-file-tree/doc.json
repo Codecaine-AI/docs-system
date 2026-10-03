@@ -74,7 +74,7 @@
           }
         },
         {
-          "insert": "-command drawing, with per-entry notes and change markers for describing repo slices and refactors."
+          "insert": "-command drawing. The drawing has per-entry notes and change markers for describing repo slices and refactors."
         }
       ],
       "children": []
@@ -313,7 +313,7 @@
           }
         },
         {
-          "insert": " is /-separated; "
+          "insert": " is /-separated. "
         },
         {
           "insert": "validateTreePath",
@@ -447,7 +447,7 @@
           }
         },
         {
-          "insert": " values; nothing is repaired."
+          "insert": " values, and nothing is repaired."
         }
       ],
       "children": []
@@ -528,7 +528,7 @@
           }
         },
         {
-          "insert": "; a duplicate path is an error."
+          "insert": ". A duplicate path is an error."
         }
       ],
       "children": []
@@ -612,7 +612,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Patches "
+          "insert": "The action patches "
         },
         {
           "insert": "note",
@@ -639,7 +639,7 @@
           }
         },
         {
-          "insert": " in place; "
+          "insert": " in place. "
         },
         {
           "insert": "null",
@@ -665,7 +665,7 @@
           }
         },
         {
-          "insert": " renames without moving, and the entry keeps its array position; a "
+          "insert": " renames without moving, and the entry keeps its array position. A "
         },
         {
           "insert": "newPath",
@@ -701,7 +701,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Deletes by exact path; a missing path is an error, not a no-op."
+          "insert": "Deletes by exact path. A missing path is an error, not a no-op."
         }
       ],
       "children": []
@@ -950,7 +950,7 @@
           }
         },
         {
-          "insert": " draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel: a "
+          "insert": " draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a "
         },
         {
           "insert": ".",
@@ -1050,7 +1050,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Directories sort first at every level, then names in ascending codepoint order; directory names render with a trailing \"/\"."
+          "insert": "Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing \"/\"."
         }
       ],
       "children": []
@@ -1230,7 +1230,7 @@
           }
         },
         {
-          "insert": "): read-only, rendered by the same "
+          "insert": "). It is read-only, rendered by the same "
         },
         {
           "insert": "FileTreeDocsBlock",
@@ -1316,7 +1316,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Ordering and guides match the doc render; top-level nodes render flat, with no "
+          "insert": "Ordering and guides match the doc render. Top-level nodes render flat, with no "
         },
         {
           "insert": ".",
@@ -1345,7 +1345,7 @@
           }
         },
         {
-          "insert": "; directory names keep the trailing \"/\"."
+          "insert": ". Directory names keep the trailing \"/\"."
         }
       ],
       "children": []
@@ -1403,7 +1403,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The render is pure and pinned byte-for-byte by goldens; the obligations are "
+          "insert": "The render is pure and pinned byte-for-byte by goldens. The obligations are "
         },
         {
           "insert": "Agent renderer",

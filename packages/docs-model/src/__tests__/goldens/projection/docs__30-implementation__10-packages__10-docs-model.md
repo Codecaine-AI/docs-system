@@ -1,12 +1,12 @@
-The runtime-neutral schema authority for `doc.json` — one definition of document state, valid mutations, canonical bytes, discovery metadata, and agent-facing Markdown, shared by the viewer, server, and CLI. Source: `packages/docs-model`.
+The runtime-neutral schema authority for `doc.json`: one definition of document state, valid mutations, canonical bytes, discovery metadata, and agent-facing Markdown, shared by the viewer, server, and CLI. Source: `packages/docs-model`.
 
 ## Governed By
 
-The data model — the shapes, invariants, block contract, and serialization the package realizes.
+The data model: the shapes, invariants, block contract, and serialization the package realizes.
 
-Block vocabulary — the block roster and per-family element definitions.
+Block vocabulary: the block roster and per-family element definitions.
 
-The mutation model — the op algebra, inverses, and undo semantics behind `doc-ops.ts`.
+The mutation model: the op algebra, inverses, and undo semantics behind `doc-ops.ts`.
 
 ## Decisions
 
@@ -22,17 +22,17 @@ The mutation model — the op algebra, inverses, and undo semantics behind `doc-
 
 - Decision: Everything the data model defines is defined in this package, one authority module per contract: `src/doc-schema.ts` owns the envelope, full-document validation, traversal order, and the canonical serializer; `src/doc-ops.ts` owns the typed operation kernel and inverses; `src/annotations-schema.ts` owns the sidecar schema; `src/discovery.ts` owns agent discovery; and `src/project-markdown.ts` with `src/markdown-to-delta.ts` and `src/delta-markdown.ts` own the agent-facing text forms. Consumers call these modules; they do not reimplement validation or serialization.
 
-- Why: Canonical bytes and hashes only work if every write path round-trips through one validator and one serializer; scattering those contracts across consumers was rejected because a second implementation drifts and pollutes diffs and hashes.
+- Why: Canonical bytes and hashes only work if every write path round-trips through one validator and one serializer. Scattering those contracts across consumers was rejected because a second implementation drifts and pollutes diffs and hashes.
 
-- Applies to: `packages/docs-model/src` — a new format contract lands here as its own module, never inside a consumer package.
+- Applies to: `packages/docs-model/src`. A new format contract lands here as its own module, never inside a consumer package.
 
 ### One component, one vertical bundle folder
 
-- Decision: Each block component is a vertical bundle folder under `packages/docs-model/src/components` holding `manifest.ts` (ownership), `state.ts` (a closed TypeBox schema over props), `actions/` (typed actions), and `agent-view.ts` (state to Markdown); shared primitives live in `components/shared/`.
+- Decision: Each block component is a vertical bundle folder under `packages/docs-model/src/components` holding `manifest.ts` (ownership), `state.ts` (a closed TypeBox schema over props), `actions/` (typed actions), and `agent-view.ts` (state to Markdown). Shared primitives live in `components/shared/`.
 
 - Why: State, update logic, and the agent render travel together, so adding a type touches one bundle per home instead of scattered files. Rejected: role-grouped layout (all schemas together, all actions together), which spreads one component across the tree.
 
-- Applies to: `packages/docs-model/src/components/*` — every future block component follows the same bundle shape.
+- Applies to: `packages/docs-model/src/components/*`. Every future block component follows the same bundle shape.
 
 ### Registration is an explicit allow-list
 
@@ -44,7 +44,7 @@ The mutation model — the op algebra, inverses, and undo semantics behind `doc-
 
 ### Per-component typed-action modules
 
-- Decision: A component's typed actions live one file per action under its bundle's `actions/` directory, keyed `<type>.<verb>` and built with `defineComponentAction`; a local action's pure `apply` returns a props patch. Components whose authority is external — canvas, sequence — lift their descriptors from the external package's `agent-schema` in an `actions/lift.ts` and mark them `forward: { authority }` with no local apply. Named actions exist only for mutations with positional or keyed collection semantics; scalar props and block text change through `updateBlock`.
+- Decision: A component's typed actions live one file per action under its bundle's `actions/` directory, keyed `<type>.<verb>` and built with `defineComponentAction`. A local action's pure `apply` returns a props patch. Components whose authority is external (canvas, sequence) lift their descriptors from the external package's `agent-schema` in an `actions/lift.ts` and mark them `forward: { authority }` with no local apply. Named actions exist only for mutations with positional or keyed collection semantics. Scalar props and block text change through `updateBlock`.
 
 - Why: Actions as data on one registry let any surface list and invoke them and make inverses — and undo — free; forwarding keeps external schema truth in its owning package instead of redefining it here. Rejected: imperative update methods on renderers, and duplicating external schemas locally.
 

@@ -279,7 +279,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each unit answers the question a parent doc answers one level up — is the thing I need below this point?"
+          "insert": "Each unit answers the question a parent doc answers one level up: is the thing I need below this point?"
         }
       ],
       "children": [
@@ -396,7 +396,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A reader leaves the docs with the question framed; the first screenful confirms or rules the file out. "
+          "insert": "A reader leaves the docs with the question framed. The first screenful confirms or rules the file out."
         }
       ],
       "children": []

@@ -37,7 +37,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The executable command dialect for agents, humans, and repository automation — reading, discovery, integrity checks, migration, serving, and export as stable process calls. Source: "
+          "insert": "The executable command dialect for agents, humans, and repository automation: reading, discovery, integrity checks, migration, serving, and export as stable process calls. Source: "
         },
         {
           "insert": "packages/docs-cli",
@@ -84,7 +84,7 @@
           }
         },
         {
-          "insert": " — the text-first agent reading surface the CLI makes operational."
+          "insert": ": the text-first agent reading surface the CLI makes operational."
         }
       ],
       "children": []
@@ -255,7 +255,7 @@
           }
         },
         {
-          "insert": " — future shared logic lands in a lower package, not here."
+          "insert": ". Future shared logic lands in a lower package, not here."
         }
       ],
       "children": []
@@ -334,7 +334,7 @@
           }
         },
         {
-          "insert": " — every future command declares and confines its write scope."
+          "insert": ". Every future command declares and confines its write scope."
         }
       ],
       "children": []
@@ -373,7 +373,7 @@
           }
         },
         {
-          "insert": " directory, separate from steady-state commands. Ordinary migration writes bundles alongside Markdown sources without modifying or deleting them; retirement is a separate "
+          "insert": " directory, separate from steady-state commands. Ordinary migration writes bundles alongside Markdown sources without changing or deleting them; retirement is a separate "
         },
         {
           "insert": "--retire-twins",
@@ -404,7 +404,7 @@
       },
       "text": [
         {
-          "insert": "Why: Adoption is not steady-state reading, and a converter that silently destroys its sources was rejected — deletion is a separate, doubly confirmed act."
+          "insert": "Why: Adoption is not steady-state reading, and a converter that silently destroys its sources was rejected. Deletion is a separate, doubly confirmed act."
         }
       ],
       "children": []
@@ -426,7 +426,7 @@
           }
         },
         {
-          "insert": " — future adoption tooling lands here under the same safety split."
+          "insert": ". Future adoption tooling lands here under the same safety split."
         }
       ],
       "children": []

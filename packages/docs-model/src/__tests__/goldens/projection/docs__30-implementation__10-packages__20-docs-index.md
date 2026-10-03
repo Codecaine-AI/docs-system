@@ -1,8 +1,8 @@
-The Bun-side package deriving inbound-reference lookup from document bundles and canvas sidecars — SQLite storage, reference-path identity, docs-root confinement, and move-time fixup. Source: `packages/docs-index`.
+The Bun-side package deriving inbound-reference lookup from document bundles and canvas sidecars: SQLite storage, reference-path identity, docs-root confinement, and move-time fixup. Source: `packages/docs-index`.
 
 ## Governed By
 
-Cross-doc linking — the corpus-level linking contract this package makes queryable and maintainable.
+Cross-doc linking: the corpus-level linking contract this package makes queryable and maintainable.
 
 ## Decisions
 
@@ -12,7 +12,7 @@ Cross-doc linking — the corpus-level linking contract this package makes query
 
 - Why: Canonical content must stay in the files so clones and branches never exchange the database as document state. Making index maintenance part of the save transaction was rejected — a broken or locked index would then fail document saves.
 
-- Applies to: `packages/docs-index/src`, `packages/docs-server/src/backlinks-cache.ts` — future derived state follows the same rebuildable, non-vetoing pattern.
+- Applies to: `packages/docs-index/src`, `packages/docs-server/src/backlinks-cache.ts`. Future derived state follows the same rebuildable, non-vetoing pattern.
 
 ### Library subpaths only — no HTTP, no binary, no React
 
@@ -20,7 +20,7 @@ Cross-doc linking — the corpus-level linking contract this package makes query
 
 - Why: An HTTP-free library keeps link checks and maintenance scripts usable without constructing a server; the merge into docs-server was considered and rejected on the packages page. `bun:sqlite` already forces the package out of every browser bundle.
 
-- Applies to: `packages/docs-index` — future index capabilities land as library subpaths.
+- Applies to: `packages/docs-index`. Future index capabilities land as library subpaths.
 
 ### Confinement is one package contract
 
@@ -28,4 +28,4 @@ Cross-doc linking — the corpus-level linking contract this package makes query
 
 - Why: One confinement implementation instead of per-caller checks — a caller with its own path logic would eventually diverge from the contract. Rejected: duplicating confinement in each consumer.
 
-- Applies to: `packages/docs-index/src/paths.ts` and its consumers — every future path-accepting entry point routes through these helpers.
+- Applies to: `packages/docs-index/src/paths.ts` and its consumers. Every future path-accepting entry point routes through these helpers.

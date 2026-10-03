@@ -52,7 +52,7 @@
           }
         },
         {
-          "insert": " — one definition of document state, valid mutations, canonical bytes, discovery metadata, and agent-facing Markdown, shared by the viewer, server, and CLI. Source: "
+          "insert": ": one definition of document state, valid mutations, canonical bytes, discovery metadata, and agent-facing Markdown, shared by the viewer, server, and CLI. Source: "
         },
         {
           "insert": "packages/docs-model",
@@ -99,7 +99,7 @@
           }
         },
         {
-          "insert": " — the shapes, invariants, block contract, and serialization the package realizes."
+          "insert": ": the shapes, invariants, block contract, and serialization the package realizes."
         }
       ],
       "children": []
@@ -120,7 +120,7 @@
           }
         },
         {
-          "insert": " — the block roster and per-family element definitions."
+          "insert": ": the block roster and per-family element definitions."
         }
       ],
       "children": []
@@ -141,7 +141,7 @@
           }
         },
         {
-          "insert": " — the op algebra, inverses, and undo semantics behind "
+          "insert": ": the op algebra, inverses, and undo semantics behind "
         },
         {
           "insert": "doc-ops.ts",
@@ -339,7 +339,7 @@
       },
       "text": [
         {
-          "insert": "Why: Canonical bytes and hashes only work if every write path round-trips through one validator and one serializer; scattering those contracts across consumers was rejected because a second implementation drifts and pollutes diffs and hashes."
+          "insert": "Why: Canonical bytes and hashes only work if every write path round-trips through one validator and one serializer. Scattering those contracts across consumers was rejected because a second implementation drifts and pollutes diffs and hashes."
         }
       ],
       "children": []
@@ -361,7 +361,7 @@
           }
         },
         {
-          "insert": " — a new format contract lands here as its own module, never inside a consumer package."
+          "insert": ". A new format contract lands here as its own module, never inside a consumer package."
         }
       ],
       "children": []
@@ -436,7 +436,7 @@
           }
         },
         {
-          "insert": " (state to Markdown); shared primitives live in "
+          "insert": " (state to Markdown). Shared primitives live in "
         },
         {
           "insert": "components/shared/",
@@ -480,7 +480,7 @@
           }
         },
         {
-          "insert": " — every future block component follows the same bundle shape."
+          "insert": ". Every future block component follows the same bundle shape."
         }
       ],
       "children": []
@@ -648,7 +648,7 @@
           }
         },
         {
-          "insert": "; a local action's pure "
+          "insert": ". A local action's pure "
         },
         {
           "insert": "apply",
@@ -657,7 +657,7 @@
           }
         },
         {
-          "insert": " returns a props patch. Components whose authority is external — canvas, sequence — lift their descriptors from the external package's "
+          "insert": " returns a props patch. Components whose authority is external (canvas, sequence) lift their descriptors from the external package's "
         },
         {
           "insert": "agent-schema",
@@ -684,7 +684,7 @@
           }
         },
         {
-          "insert": " with no local apply. Named actions exist only for mutations with positional or keyed collection semantics; scalar props and block text change through "
+          "insert": " with no local apply. Named actions exist only for mutations with positional or keyed collection semantics. Scalar props and block text change through "
         },
         {
           "insert": "updateBlock",

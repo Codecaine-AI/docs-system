@@ -1,0 +1,1330 @@
+{
+ "documentation (the corpus)": [
+  {
+   "variant": "docs",
+   "msgs": 518,
+   "hits": 773,
+   "quote": "... please now compare our current context docs to the original note of grouping scale goal ..."
+  },
+  {
+   "variant": "doc (noun)",
+   "msgs": 129,
+   "hits": 142,
+   "quote": "... I think everything to do with this doc rendering components should be at the top ..."
+  },
+  {
+   "variant": "documents",
+   "msgs": 113,
+   "hits": 134,
+   "quote": "And then also, can we now document somewhere to our versioning structure and whatnot?"
+  },
+  {
+   "variant": "documentation",
+   "msgs": 59,
+   "hits": 66,
+   "quote": "... Can you search the fireworks documentation and such for models that are able to have ..."
+  },
+  {
+   "variant": "knowledge base",
+   "msgs": 52,
+   "hits": 74,
+   "quote": "... now back up this fully updated knowledge base somewhere so we just have a timestamp ..."
+  },
+  {
+   "variant": "write-up",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "docs system (the product)": [
+  {
+   "variant": "docs system",
+   "msgs": 34,
+   "hits": 37,
+   "quote": "Okay, have we centralized the Docs system and then run this for the Docs?"
+  },
+  {
+   "variant": "doc system",
+   "msgs": 29,
+   "hits": 31,
+   "quote": "Can you please migrate the docs to the Codex doc system setup?"
+  },
+  {
+   "variant": "docs framework",
+   "msgs": 13,
+   "hits": 15,
+   "quote": "... a Spectre session, put this in a doc file that uses the docs framework structure? ..."
+  },
+  {
+   "variant": "docs site / docs viewer",
+   "msgs": 6,
+   "hits": 6,
+   "quote": "can we now make the doc viewer content slightly wider"
+  },
+  {
+   "variant": "documentation system",
+   "msgs": 3,
+   "hits": 3,
+   "quote": "... migrate the Spectre docs to use the new documentation system instead of the Markdown docs. ..."
+  }
+ ],
+ "sub-agent": [
+  {
+   "variant": "worker",
+   "msgs": 336,
+   "hits": 519,
+   "quote": "... here, because I'm just trying to understand how the workers are doing things and learning. ..."
+  },
+  {
+   "variant": "sub-agent",
+   "msgs": 48,
+   "hits": 54,
+   "quote": "Can you please spawn some sub-agents to go out and start handling this?"
+  },
+  {
+   "variant": "subagent",
+   "msgs": 30,
+   "hits": 33,
+   "quote": "... Yeah, can you please use subagents to go update the docs and then make the ..."
+  },
+  {
+   "variant": "sub agent",
+   "msgs": 24,
+   "hits": 24,
+   "quote": "... open, please make it so each sub agent has a tab for itself and you ..."
+  },
+  {
+   "variant": "child agent",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  },
+  {
+   "variant": "helper agent",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "the language model": [
+  {
+   "variant": "agent",
+   "msgs": 808,
+   "hits": 1327,
+   "quote": "... please make it so each sub agent has a tab for itself and you feed ..."
+  },
+  {
+   "variant": "model",
+   "msgs": 171,
+   "hits": 249,
+   "quote": "... need you to change the default model for the docs system agent to be gpt-6-astra ..."
+  },
+  {
+   "variant": "AI",
+   "msgs": 164,
+   "hits": 192,
+   "quote": "... and we should just name them AI and Reviewer, not AI Activated and Reviewer Added. ..."
+  },
+  {
+   "variant": "LLM",
+   "msgs": 53,
+   "hits": 69,
+   "quote": "... is accurate to how the actual logic and prompts are for the LLM judge runner. ..."
+  }
+ ],
+ "conversation unit": [
+  {
+   "variant": "session",
+   "msgs": 195,
+   "hits": 353,
+   "quote": "... Instead of saying, in a recent session, next to the session, can we have it ..."
+  },
+  {
+   "variant": "thread",
+   "msgs": 115,
+   "hits": 132,
+   "quote": "... i can send in a new thread that would implement everything discussed in the file ..."
+  },
+  {
+   "variant": "conversation",
+   "msgs": 87,
+   "hits": 115,
+   "quote": "... new things, have longer turn values, like 20 to 30, because these are longer conversations? ..."
+  },
+  {
+   "variant": "chat",
+   "msgs": 17,
+   "hits": 21,
+   "quote": "... needs to end with the /chat/completions, but internally we can have it be whatever we ..."
+  },
+  {
+   "variant": "context window",
+   "msgs": 4,
+   "hits": 4,
+   "quote": "... if we can get a fresh context window to do something very gross in specific ..."
+  }
+ ],
+ "instruction text sent to an agent": [
+  {
+   "variant": "prompt",
+   "msgs": 371,
+   "hits": 656,
+   "quote": "To note, in the prompt creation we don't need user prompts."
+  },
+  {
+   "variant": "message",
+   "msgs": 149,
+   "hits": 182,
+   "quote": "Yeah, we should not do anything with the message history matching."
+  },
+  {
+   "variant": "instructions",
+   "msgs": 31,
+   "hits": 33,
+   "quote": "... Can you see where the instructions are on how to update the current state and ..."
+  },
+  {
+   "variant": "kickoff / handoff",
+   "msgs": 22,
+   "hits": 27,
+   "quote": "... seeing them in the draft PR board or any handoff artifacts for our current run. ..."
+  },
+  {
+   "variant": "directive",
+   "msgs": 1,
+   "hits": 2,
+   "quote": "... for accuracy and voice and issue directives; the ledger walk resumes at docs/00-foundation/00-manifesto in the ..."
+  }
+ ],
+ "unit of planned work": [
+  {
+   "variant": "objective",
+   "msgs": 252,
+   "hits": 434,
+   "quote": "... Okay, can we redo the objective now with significantly more configuration options, because I'm like ..."
+  },
+  {
+   "variant": "goal",
+   "msgs": 168,
+   "hits": 240,
+   "quote": "... the original note of grouping scale goal context and see if anything is missed from ..."
+  },
+  {
+   "variant": "plan",
+   "msgs": 153,
+   "hits": 186,
+   "quote": "... the current misses rendered, devise a plan, and use the phase to cache to try ..."
+  },
+  {
+   "variant": "task",
+   "msgs": 47,
+   "hits": 66,
+   "quote": "... Can you please make another background task that pulls every three minutes to then make ..."
+  },
+  {
+   "variant": "spec",
+   "msgs": 42,
+   "hits": 62,
+   "quote": "... where I could then use the spec command to do the fuller spec phase within ..."
+  },
+  {
+   "variant": "todo",
+   "msgs": 7,
+   "hits": 10,
+   "quote": "I need you to read TODO.md, understand the requirements."
+  },
+  {
+   "variant": "ticket",
+   "msgs": 1,
+   "hits": 1,
+   "quote": ""
+  }
+ ],
+ "code container": [
+  {
+   "variant": "repo",
+   "msgs": 220,
+   "hits": 305,
+   "quote": "... those repos were remove, I know these are the same person and this solution is ..."
+  },
+  {
+   "variant": "project",
+   "msgs": 212,
+   "hits": 301,
+   "quote": "... can we make it so that projects is just like a list, and then I ..."
+  },
+  {
+   "variant": "codebase",
+   "msgs": 49,
+   "hits": 60,
+   "quote": "... value based off of the actual code base and such, so that then it's like ..."
+  },
+  {
+   "variant": "workspace",
+   "msgs": 38,
+   "hits": 46,
+   "quote": "In the workspace, I think in reference, there's like something called like the Gen.AI Launchpad."
+  },
+  {
+   "variant": "repository",
+   "msgs": 12,
+   "hits": 18,
+   "quote": "... up, would you be able to fork that to the codecaine repository or organization repos? ..."
+  }
+ ],
+ "folder": [
+  {
+   "variant": "folder",
+   "msgs": 332,
+   "hits": 404,
+   "quote": "... please just setup this initial life folder and then start the docs there, so we ..."
+  },
+  {
+   "variant": "directory",
+   "msgs": 158,
+   "hits": 182,
+   "quote": "Could we please, in the Wisprsync directory, I don't like it just being top-level files?"
+  },
+  {
+   "variant": "dir",
+   "msgs": 13,
+   "hits": 18,
+   "quote": "... we already have the run output dir runs, we have the folder there with the ..."
+  }
+ ],
+ "user interface": [
+  {
+   "variant": "UI",
+   "msgs": 436,
+   "hits": 532,
+   "quote": "... On the pipeline UI, can we make it so that projects is just like a ..."
+  },
+  {
+   "variant": "viewer",
+   "msgs": 179,
+   "hits": 223,
+   "quote": "... Can we group the viewer dropdown to have subsections of these are the good ones, ..."
+  },
+  {
+   "variant": "dashboard",
+   "msgs": 63,
+   "hits": 91,
+   "quote": "... Yes, the client dashboard is for stakeholders who are non technical, the idea here is ..."
+  },
+  {
+   "variant": "frontend",
+   "msgs": 55,
+   "hits": 78,
+   "quote": "... in the sidebar of the frontend can you make it so the selected item, only ..."
+  },
+  {
+   "variant": "interface",
+   "msgs": 7,
+   "hits": 7,
+   "quote": "... to be a very simple canvas-style interface, very specifically built to the diagrams that I ..."
+  },
+  {
+   "variant": "user interface",
+   "msgs": 1,
+   "hits": 1,
+   "quote": ""
+  }
+ ],
+ "side region of the screen": [
+  {
+   "variant": "sidebar",
+   "msgs": 194,
+   "hits": 237,
+   "quote": "... in the sidebar of the frontend can you make it so the selected item, only ..."
+  },
+  {
+   "variant": "panel",
+   "msgs": 47,
+   "hits": 57,
+   "quote": "... about the animation of the Shapes panel: can we make it animate away when it ..."
+  },
+  {
+   "variant": "side panel",
+   "msgs": 18,
+   "hits": 26,
+   "quote": "... opened the web UI and the T3 code side panel that you have access to. ..."
+  },
+  {
+   "variant": "side bar",
+   "msgs": 16,
+   "hits": 18,
+   "quote": "... I kinda want the side bar to contain the projects and then we load the ..."
+  },
+  {
+   "variant": "side peek",
+   "msgs": 4,
+   "hits": 4,
+   "quote": "... make it so that when the side peek is open to view a second dock, ..."
+  },
+  {
+   "variant": "drawer",
+   "msgs": 1,
+   "hits": 1,
+   "quote": "... maybe below everything there would be drawer / dropdown that could open up to show ..."
+  }
+ ],
+ "pop-up surface": [
+  {
+   "variant": "popup",
+   "msgs": 18,
+   "hits": 20,
+   "quote": "Okay, I'm not seeing it pop up as a tooltip for each of the properties."
+  },
+  {
+   "variant": "modal",
+   "msgs": 8,
+   "hits": 9,
+   "quote": "... Can we add a modal pop-up for each viewer pane of the images, similar to ..."
+  },
+  {
+   "variant": "overlay",
+   "msgs": 8,
+   "hits": 8,
+   "quote": "I'd like to overlay it on when I joined, based on my first PR."
+  },
+  {
+   "variant": "dialog",
+   "msgs": 1,
+   "hits": 1,
+   "quote": ""
+  },
+  {
+   "variant": "popover",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "heading text": [
+  {
+   "variant": "header",
+   "msgs": 68,
+   "hits": 74,
+   "quote": "... sure everything in the selectors and headers is title case, and then add a tooltip ..."
+  },
+  {
+   "variant": "title",
+   "msgs": 52,
+   "hits": 66,
+   "quote": "... in the selectors and headers is title case, and then add a tooltip for each ..."
+  },
+  {
+   "variant": "label",
+   "msgs": 42,
+   "hits": 66,
+   "quote": "... on the full dataset and would essentially just replace our labels that we currently have. ..."
+  },
+  {
+   "variant": "subheader",
+   "msgs": 27,
+   "hits": 34,
+   "quote": "... actual calls table, and then we remove the headers completely and subheaders from this page? ..."
+  },
+  {
+   "variant": "heading",
+   "msgs": 3,
+   "hits": 4,
+   "quote": "... go through and remove this secondary Heading 1 because once we have the actual name, ..."
+  }
+ ],
+ "reusable doc unit": [
+  {
+   "variant": "component",
+   "msgs": 127,
+   "hits": 168,
+   "quote": "... can do this back and forth on a file tree component in the docs system ..."
+  },
+  {
+   "variant": "block",
+   "msgs": 92,
+   "hits": 123,
+   "quote": "... Also, for these JSON blocks and such, can we make them render with text and ..."
+  },
+  {
+   "variant": "element",
+   "msgs": 10,
+   "hits": 10,
+   "quote": "... issue where I can't copy and paste something into an element, or into this system. ..."
+  },
+  {
+   "variant": "widget",
+   "msgs": 5,
+   "hits": 6,
+   "quote": "... For the actual widget, can we make the card that it's in centered top to ..."
+  }
+ ],
+ "drawn picture of a structure": [
+  {
+   "variant": "graph",
+   "msgs": 141,
+   "hits": 207,
+   "quote": "... Could you please compute the full graph and then use that for the first pass, ..."
+  },
+  {
+   "variant": "diagram",
+   "msgs": 104,
+   "hits": 143,
+   "quote": "... Can you give me an ASCII diagram or something showing how this process is running, ..."
+  },
+  {
+   "variant": "canvas",
+   "msgs": 69,
+   "hits": 94,
+   "quote": "... change the default model for the canvas agent to be gpt-6-astra on low thinking, then ..."
+  },
+  {
+   "variant": "visual",
+   "msgs": 61,
+   "hits": 76,
+   "quote": "... Yeah, could you look at the visual sheets for these to understand what specifically is ..."
+  },
+  {
+   "variant": "visualization",
+   "msgs": 30,
+   "hits": 32,
+   "quote": "... You make a visualization or something that kind of explains the pattern here, because I'm ..."
+  },
+  {
+   "variant": "chart",
+   "msgs": 4,
+   "hits": 4,
+   "quote": "... make kind of like a flow chart diagram or sequence or something and put this ..."
+  }
+ ],
+ "remove": [
+  {
+   "variant": "remove",
+   "msgs": 377,
+   "hits": 406,
+   "quote": "... logic in, and then we can remove this agent_state-shared.db because we don't need it, I ..."
+  },
+  {
+   "variant": "clean up / clear out",
+   "msgs": 152,
+   "hits": 165,
+   "quote": "... it and thus will be rebuilding, I am just wanting to clean up this flow ..."
+  },
+  {
+   "variant": "kill",
+   "msgs": 85,
+   "hits": 91,
+   "quote": "... it to have something that either kills it or waits until the codex lb is ..."
+  },
+  {
+   "variant": "drop",
+   "msgs": 62,
+   "hits": 65,
+   "quote": "... shape, I guess, instead of automatically dropping down, because the sphere ends is kind of ..."
+  },
+  {
+   "variant": "delete",
+   "msgs": 52,
+   "hits": 75,
+   "quote": "... feel like this directory should show up, or does it get deleted after each run? ..."
+  },
+  {
+   "variant": "get rid of",
+   "msgs": 12,
+   "hits": 12,
+   "quote": "Okay, why did we get rid of the custom component for the call sequence?"
+  },
+  {
+   "variant": "rip out",
+   "msgs": 1,
+   "hits": 1,
+   "quote": ""
+  }
+ ],
+ "create": [
+  {
+   "variant": "make (a/an/the)",
+   "msgs": 650,
+   "hits": 714,
+   "quote": "Can we make the sidebar collapsible so that it can then be popped back out?"
+  },
+  {
+   "variant": "set up",
+   "msgs": 616,
+   "hits": 805,
+   "quote": "We need all of the tools set up."
+  },
+  {
+   "variant": "add",
+   "msgs": 597,
+   "hits": 707,
+   "quote": "... I'm asking you to do is add the logic in, and then we can remove ..."
+  },
+  {
+   "variant": "build",
+   "msgs": 411,
+   "hits": 531,
+   "quote": "... having merge conflicts, and then we would build and such after that in the epoch ..."
+  },
+  {
+   "variant": "create",
+   "msgs": 192,
+   "hits": 214,
+   "quote": "... Please create an agents item d that is like \"unless specifically stated otherwise, do not ..."
+  },
+  {
+   "variant": "generate",
+   "msgs": 102,
+   "hits": 124,
+   "quote": "... these pinned values, go through and generate and cache the phase 2 values for candidates ..."
+  },
+  {
+   "variant": "spin up",
+   "msgs": 6,
+   "hits": 6,
+   "quote": "... Docker container that we can then spin up to have all of the things needed, ..."
+  },
+  {
+   "variant": "scaffold",
+   "msgs": 1,
+   "hits": 1,
+   "quote": "could you please setup this scaffold for"
+  }
+ ],
+ "change": [
+  {
+   "variant": "change",
+   "msgs": 693,
+   "hits": 872,
+   "quote": "... to be doing a lot of changes to this system to customize it and thus ..."
+  },
+  {
+   "variant": "update",
+   "msgs": 649,
+   "hits": 785,
+   "quote": "... lets us choose between these two options, like the baseline and then this updated one? ..."
+  },
+  {
+   "variant": "adjust",
+   "msgs": 226,
+   "hits": 259,
+   "quote": "... add something that allows us to adjust whether the text in these is left justified, ..."
+  },
+  {
+   "variant": "edit",
+   "msgs": 166,
+   "hits": 197,
+   "quote": "... click into melee and then I can edit the project name and such as well? ..."
+  },
+  {
+   "variant": "modify",
+   "msgs": 7,
+   "hits": 7,
+   "quote": "... exactly, but basically it's okay to modify any file as long as the primary motivation ..."
+  },
+  {
+   "variant": "tweak",
+   "msgs": 2,
+   "hits": 2,
+   "quote": "... would be not optimizing, when I say optimizing I don't mean just tweaking little variables. ..."
+  }
+ ],
+ "verify": [
+  {
+   "variant": "make sure",
+   "msgs": 488,
+   "hits": 560,
+   "quote": "... For the config, can we make sure everything in the selectors and headers is title ..."
+  },
+  {
+   "variant": "confirm",
+   "msgs": 287,
+   "hits": 332,
+   "quote": "... So to confirm, we now have this set up in our production-based system currently, so ..."
+  },
+  {
+   "variant": "check",
+   "msgs": 184,
+   "hits": 227,
+   "quote": "... works and then also just double check that in the phase 3 you have set ..."
+  },
+  {
+   "variant": "audit",
+   "msgs": 98,
+   "hits": 107,
+   "quote": "... making any changes, and then come back with an audit of yourself having done this? ..."
+  },
+  {
+   "variant": "verify",
+   "msgs": 91,
+   "hits": 98,
+   "quote": "... on this PR can you verify that all the changes were made for the comments ..."
+  },
+  {
+   "variant": "ensure",
+   "msgs": 64,
+   "hits": 68,
+   "quote": "Did you ensure things merged in and we didn't break things like matches and whatnot?"
+  },
+  {
+   "variant": "validate",
+   "msgs": 52,
+   "hits": 60,
+   "quote": "... to the objects and stuff in the pipeline and then you can validate the changes? ..."
+  },
+  {
+   "variant": "double check / sanity check",
+   "msgs": 2,
+   "hits": 2,
+   "quote": "... run works and then also just double check that in the phase 3 you have ..."
+  }
+ ],
+ "investigate": [
+  {
+   "variant": "figure out",
+   "msgs": 378,
+   "hits": 458,
+   "quote": "... shot ones, because I need to figure out better how these exterior groups should look? ..."
+  },
+  {
+   "variant": "research",
+   "msgs": 143,
+   "hits": 198,
+   "quote": "... For the research run, if we reload the page and whatnot, it shouldn't have a ..."
+  },
+  {
+   "variant": "audit",
+   "msgs": 93,
+   "hits": 102,
+   "quote": "... making any changes, and then come back with an audit of yourself having done this? ..."
+  },
+  {
+   "variant": "explore",
+   "msgs": 60,
+   "hits": 63,
+   "quote": "... please read docs/.drafts/agent-kernel-contracts.design.md and docs/.drafts/agent-kernel-platform.design.md, explore the codebase and lets start brainstorming the actual process ..."
+  },
+  {
+   "variant": "look into",
+   "msgs": 18,
+   "hits": 18,
+   "quote": "... Are we able to look into the pi sessions to see if they're actually making ..."
+  },
+  {
+   "variant": "investigate",
+   "msgs": 12,
+   "hits": 13,
+   "quote": "... as the list of models to investigate and using a short text prompt for the ..."
+  },
+  {
+   "variant": "dig into",
+   "msgs": 8,
+   "hits": 8,
+   "quote": "... see which ones are reviewed without a separate tab and dig into a review more. ..."
+  }
+ ],
+ "start a process": [
+  {
+   "variant": "run",
+   "msgs": 1327,
+   "hits": 2073,
+   "quote": "Okay, how many of them were run?"
+  },
+  {
+   "variant": "start",
+   "msgs": 491,
+   "hits": 635,
+   "quote": "... we add a color selector for start and end, and can we make it so ..."
+  },
+  {
+   "variant": "trigger",
+   "msgs": 40,
+   "hits": 59,
+   "quote": "... question, but does the small threshold ever get triggered by any of our data sets? ..."
+  },
+  {
+   "variant": "kick off",
+   "msgs": 17,
+   "hits": 17,
+   "quote": "... to a new thread that would kick off the director and monitor it with eight ..."
+  },
+  {
+   "variant": "launch",
+   "msgs": 11,
+   "hits": 13,
+   "quote": "... them from the local disk, we should also move gen ai launch pad to reference. ..."
+  },
+  {
+   "variant": "execute",
+   "msgs": 10,
+   "hits": 10,
+   "quote": "... think we can moved everything into the server as it is the one executing things ..."
+  },
+  {
+   "variant": "spin up",
+   "msgs": 6,
+   "hits": 6,
+   "quote": "... Docker container that we can then spin up to have all of the things needed, ..."
+  },
+  {
+   "variant": "fire off",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "stop a process": [
+  {
+   "variant": "stop",
+   "msgs": 155,
+   "hits": 180,
+   "quote": "Why did we stop then?"
+  },
+  {
+   "variant": "kill",
+   "msgs": 85,
+   "hits": 91,
+   "quote": "... it to have something that either kills it or waits until the codex lb is ..."
+  },
+  {
+   "variant": "pause",
+   "msgs": 38,
+   "hits": 46,
+   "quote": "... but none seem to be being paused after the tool call, unless they are all ..."
+  },
+  {
+   "variant": "cancel",
+   "msgs": 4,
+   "hits": 6,
+   "quote": "... have the card around it and we get rid of this confirm and cancel logic? ..."
+  },
+  {
+   "variant": "abort",
+   "msgs": 1,
+   "hits": 3,
+   "quote": ""
+  },
+  {
+   "variant": "halt",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "make simpler": [
+  {
+   "variant": "clean up",
+   "msgs": 143,
+   "hits": 153,
+   "quote": "... it and thus will be rebuilding, I am just wanting to clean up this flow ..."
+  },
+  {
+   "variant": "simplify",
+   "msgs": 46,
+   "hits": 48,
+   "quote": "... not, we can remove it just to simplify this contract a little bit as well. ..."
+  },
+  {
+   "variant": "trim",
+   "msgs": 27,
+   "hits": 31,
+   "quote": "... clean it up and trim the adapter down as much as possible / move those ..."
+  },
+  {
+   "variant": "condense",
+   "msgs": 14,
+   "hits": 16,
+   "quote": "... up there and then it's the diagram below it just so it's like more condensed. ..."
+  },
+  {
+   "variant": "consolidate",
+   "msgs": 2,
+   "hits": 3,
+   "quote": "... I would like to consolidate the research folder and data folder together, it seems, because ..."
+  },
+  {
+   "variant": "declutter",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  },
+  {
+   "variant": "streamline",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "something wrong": [
+  {
+   "variant": "issue",
+   "msgs": 304,
+   "hits": 387,
+   "quote": "... I also think a big issue here is the server.ts file contains literally all the ..."
+  },
+  {
+   "variant": "error",
+   "msgs": 220,
+   "hits": 360,
+   "quote": "... to how it works on the error classification page where we can view everything stacked? ..."
+  },
+  {
+   "variant": "regression",
+   "msgs": 80,
+   "hits": 110,
+   "quote": "Okay, if we lose matches, that's fine as long as we don't have any regressions."
+  },
+  {
+   "variant": "failure",
+   "msgs": 54,
+   "hits": 69,
+   "quote": "... score, error counts (like number of failure types), and it should just be a useful ..."
+  },
+  {
+   "variant": "broken",
+   "msgs": 43,
+   "hits": 44,
+   "quote": "... of any changes there, requeuing the broken things into the system, and then we will ..."
+  },
+  {
+   "variant": "problem",
+   "msgs": 30,
+   "hits": 37,
+   "quote": "... each of these fixes, re-render the problem images, and when things look good, we can ..."
+  },
+  {
+   "variant": "bug",
+   "msgs": 29,
+   "hits": 34,
+   "quote": "... feel like this is adding a lot of just weirdness and bugs to the system. ..."
+  }
+ ],
+ "configuration": [
+  {
+   "variant": "config",
+   "msgs": 157,
+   "hits": 220,
+   "quote": "... For the config, can we make sure everything in the selectors and headers is title ..."
+  },
+  {
+   "variant": "configuration",
+   "msgs": 104,
+   "hits": 120,
+   "quote": "... the objective now with significantly more configuration options, because I'm like that was so fast? ..."
+  },
+  {
+   "variant": "options",
+   "msgs": 72,
+   "hits": 80,
+   "quote": "... the objective now with significantly more configuration options, because I'm like that was so fast? ..."
+  },
+  {
+   "variant": "settings",
+   "msgs": 40,
+   "hits": 45,
+   "quote": "... like to be able to adjust the number of snakes and similar settings as well. ..."
+  },
+  {
+   "variant": "env / env vars",
+   "msgs": 28,
+   "hits": 31,
+   "quote": "... objectives like objectives/18-phase02-exposure-fragment-coverage-loop use mlx, should be make a dedicate env for it or something? ..."
+  }
+ ],
+ "reusable agent capability": [
+  {
+   "variant": "tool",
+   "msgs": 260,
+   "hits": 378,
+   "quote": "... like you added all of the tools, like using MWCC, all the things like that, ..."
+  },
+  {
+   "variant": "skill",
+   "msgs": 217,
+   "hits": 308,
+   "quote": "... so one we say in the skill to not have this H1 and the title ..."
+  },
+  {
+   "variant": "command",
+   "msgs": 129,
+   "hits": 146,
+   "quote": "... that we could just have a special command to run this shard on this cache? ..."
+  },
+  {
+   "variant": "script",
+   "msgs": 68,
+   "hits": 86,
+   "quote": "... and make this like a batch script, and then also, once it's done, note it ..."
+  },
+  {
+   "variant": "CLI",
+   "msgs": 46,
+   "hits": 55,
+   "quote": "... run with the current configuration what the extractor would run on this from the CLI? ..."
+  },
+  {
+   "variant": "MCP",
+   "msgs": 45,
+   "hits": 67,
+   "quote": "... I run the ccydb for the Postgres MCP, it leaves that container just always running. ..."
+  },
+  {
+   "variant": "plugin",
+   "msgs": 4,
+   "hits": 4,
+   "quote": "... know you can use the codecs plugins directly to do this, but then it's also ..."
+  }
+ ],
+ "explain": [
+  {
+   "variant": "explain",
+   "msgs": 120,
+   "hits": 127,
+   "quote": "... visualization or something that kind of explains the pattern here, because I'm just trying to ..."
+  },
+  {
+   "variant": "break down",
+   "msgs": 44,
+   "hits": 47,
+   "quote": "... is done, and we are ready to break it down into multiple pieces and such. ..."
+  },
+  {
+   "variant": "summarize",
+   "msgs": 29,
+   "hits": 33,
+   "quote": "... God dang, concisely summarize what we've been talking about so far and put it in ..."
+  },
+  {
+   "variant": "describe",
+   "msgs": 19,
+   "hits": 20,
+   "quote": "... a description field or something that describes which of these teams it is, but we ..."
+  },
+  {
+   "variant": "help me understand",
+   "msgs": 7,
+   "hits": 7,
+   "quote": "Can you please help me understand what this is?"
+  },
+  {
+   "variant": "walk me through",
+   "msgs": 2,
+   "hits": 2,
+   "quote": "Please walk me through what we're going to do."
+  }
+ ],
+ "written result of work": [
+  {
+   "variant": "report",
+   "msgs": 289,
+   "hits": 370,
+   "quote": "... low thinking, then I would like you to run the eval process and report back ..."
+  },
+  {
+   "variant": "results",
+   "msgs": 101,
+   "hits": 111,
+   "quote": "... i want a results sub tab and all the tentaive predictions should be shown in ..."
+  },
+  {
+   "variant": "overview",
+   "msgs": 49,
+   "hits": 57,
+   "quote": "... On the overview page, can we make it so that there aren't these gray things ..."
+  },
+  {
+   "variant": "summary",
+   "msgs": 33,
+   "hits": 38,
+   "quote": "... Do we have a like summary page of like here are the VLANs and here ..."
+  },
+  {
+   "variant": "status update",
+   "msgs": 13,
+   "hits": 13,
+   "quote": "... Please give me status updates every three minutes, just saying what the progress is and ..."
+  },
+  {
+   "variant": "findings",
+   "msgs": 13,
+   "hits": 15,
+   "quote": "... Can you please write up these findings into a top-level markdown document, explaining the issue, ..."
+  },
+  {
+   "variant": "recap",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "design before building": [
+  {
+   "variant": "plan",
+   "msgs": 176,
+   "hits": 228,
+   "quote": "... the current misses rendered, devise a plan, and use the phase to cache to try ..."
+  },
+  {
+   "variant": "design",
+   "msgs": 151,
+   "hits": 210,
+   "quote": "... please make this app be intelligently designed with like _components folders and such, this is ..."
+  },
+  {
+   "variant": "brainstorm",
+   "msgs": 77,
+   "hits": 86,
+   "quote": "... top level doc that will start brainstorming the flow we would do for this optimization ..."
+  },
+  {
+   "variant": "outline",
+   "msgs": 23,
+   "hits": 33,
+   "quote": "... an easy way to hide this outline / AI panel when we don't need that ..."
+  },
+  {
+   "variant": "think through",
+   "msgs": 2,
+   "hits": 2,
+   "quote": "... Could you help me think through this by using some subagents and creating HTML files ..."
+  },
+  {
+   "variant": "map out",
+   "msgs": 0,
+   "hits": 0,
+   "quote": ""
+  }
+ ],
+ "ship code": [
+  {
+   "variant": "PR",
+   "msgs": 339,
+   "hits": 579,
+   "quote": "... on this PR can you verify that all the changes were made for the comments ..."
+  },
+  {
+   "variant": "push",
+   "msgs": 188,
+   "hits": 214,
+   "quote": "How would I go about setting up push and CI deployment?"
+  },
+  {
+   "variant": "merge",
+   "msgs": 181,
+   "hits": 287,
+   "quote": "Did you ensure things merged in and we didn't break things like matches and whatnot?"
+  },
+  {
+   "variant": "commit",
+   "msgs": 79,
+   "hits": 95,
+   "quote": "... can we just then push a commit though that has these removed, but locally they're ..."
+  },
+  {
+   "variant": "land",
+   "msgs": 29,
+   "hits": 37,
+   "quote": "... favorite so far, and then we can start working on the actual landing page itself. ..."
+  },
+  {
+   "variant": "ship",
+   "msgs": 11,
+   "hits": 15,
+   "quote": "... out, the actual object that gets shipped as the website only contains the assets that ..."
+  },
+  {
+   "variant": "pull request",
+   "msgs": 9,
+   "hits": 11,
+   "quote": "... as I don't see the updated pull request or commits pushed to the pull request. ..."
+  }
+ ],
+ "parallel isolated checkout": [
+  {
+   "variant": "branch",
+   "msgs": 99,
+   "hits": 132,
+   "quote": "... you please push this up and then pull down and rebase from the main branch? ..."
+  },
+  {
+   "variant": "work tree",
+   "msgs": 33,
+   "hits": 48,
+   "quote": "... process, do we clean up the work trees for a worker epoch whenever it is ..."
+  },
+  {
+   "variant": "worktree",
+   "msgs": 18,
+   "hits": 26,
+   "quote": "... page, tentative improvements are improvements over our current worktree, not just improvements over the baseline ..."
+  }
+ ],
+ "arrangement of parts": [
+  {
+   "variant": "structure",
+   "msgs": 215,
+   "hits": 264,
+   "quote": "And then also, can we now document somewhere to our versioning structure and whatnot?"
+  },
+  {
+   "variant": "layout",
+   "msgs": 150,
+   "hits": 172,
+   "quote": "... score delta, where we would re use the score delta layout from the confirmed column ..."
+  },
+  {
+   "variant": "format",
+   "msgs": 89,
+   "hits": 101,
+   "quote": "... and then do a bullet point formatted comment on the PR that quickly details the ..."
+  },
+  {
+   "variant": "shape",
+   "msgs": 72,
+   "hits": 104,
+   "quote": "... essentially donutify it if we need to and widen it out to get different shapes? ..."
+  },
+  {
+   "variant": "schema",
+   "msgs": 17,
+   "hits": 21,
+   "quote": "... want to start mocking up the schemas and such to be able to have this ..."
+  },
+  {
+   "variant": "organization",
+   "msgs": 15,
+   "hits": 17,
+   "quote": "... dump, could we make this more organized like folders per day and then a folder ..."
+  }
+ ],
+ "one segment of a process": [
+  {
+   "variant": "phase",
+   "msgs": 398,
+   "hits": 716,
+   "quote": "... we now make it to this phase so that the phase we are in is ..."
+  },
+  {
+   "variant": "step",
+   "msgs": 191,
+   "hits": 256,
+   "quote": "... the workflow prompts themselves, and each step you said should have its own workflow prompt ..."
+  },
+  {
+   "variant": "pass",
+   "msgs": 184,
+   "hits": 240,
+   "quote": "... then use that for the first pass, then just kind of get an understanding of ..."
+  },
+  {
+   "variant": "epoch",
+   "msgs": 151,
+   "hits": 246,
+   "quote": "... the historical guard just doesn't let things that were in the last epoch get re-cued? ..."
+  },
+  {
+   "variant": "stage",
+   "msgs": 104,
+   "hits": 157,
+   "quote": "... something to be had here, because whatever we find at this stage is very generalized. ..."
+  },
+  {
+   "variant": "round",
+   "msgs": 60,
+   "hits": 86,
+   "quote": "... to have to start with in Round 1 and such, and what are the essentially ..."
+  }
+ ],
+ "dataset": [
+  {
+   "variant": "dataset",
+   "msgs": 186,
+   "hits": 284,
+   "quote": "... this would run on the full dataset and would essentially just replace our labels that ..."
+  },
+  {
+   "variant": "data set",
+   "msgs": 120,
+   "hits": 175,
+   "quote": "... so if I just ran any data set through the production system, it would use ..."
+  }
+ ],
+ "rules for writing/code": [
+  {
+   "variant": "rules",
+   "msgs": 184,
+   "hits": 247,
+   "quote": "... phase to cache to try to new rules and sweep until we hit those numbers? ..."
+  },
+  {
+   "variant": "standards",
+   "msgs": 112,
+   "hits": 183,
+   "quote": "... the sub nav they have some spacing between them, im looking at the standards page ..."
+  },
+  {
+   "variant": "conventions",
+   "msgs": 14,
+   "hits": 14,
+   "quote": "... whatever the numbers are so it's very clear that these are the VLAN's naming convention. ..."
+  },
+  {
+   "variant": "guidance",
+   "msgs": 7,
+   "hits": 8,
+   "quote": "I don't think we need the guidance at all."
+  },
+  {
+   "variant": "guidelines",
+   "msgs": 5,
+   "hits": 5,
+   "quote": "... dry run that makes sure it is in line with all of the submission guidelines? ..."
+  },
+  {
+   "variant": "style guide",
+   "msgs": 1,
+   "hits": 1,
+   "quote": ""
+  }
+ ],
+ "root of a tree": [
+  {
+   "variant": "top level / top-level",
+   "msgs": 150,
+   "hits": 166,
+   "quote": "Could we please, in the Wisprsync directory, I don't like it just being top-level files?"
+  },
+  {
+   "variant": "root",
+   "msgs": 12,
+   "hits": 21,
+   "quote": ""
+  }
+ ],
+ "file listing": [
+  {
+   "variant": "file tree",
+   "msgs": 76,
+   "hits": 90,
+   "quote": "Could you suggest a possible file tree that's a little cleaner than this?"
+  },
+  {
+   "variant": "folder structure",
+   "msgs": 11,
+   "hits": 11,
+   "quote": "... Could we make the folder structure actually like the solution folder, then there's docs and ..."
+  },
+  {
+   "variant": "file structure",
+   "msgs": 10,
+   "hits": 10,
+   "quote": "Can we please brainstorm a better file structure here?"
+  },
+  {
+   "variant": "directory structure",
+   "msgs": 2,
+   "hits": 2,
+   "quote": "... noted somewhere / do we have a readme that explains the directory structure and such ..."
+  }
+ ]
+}

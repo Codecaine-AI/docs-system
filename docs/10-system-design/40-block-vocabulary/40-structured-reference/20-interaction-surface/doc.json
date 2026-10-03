@@ -127,7 +127,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+          "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
         }
       ],
       "children": []
@@ -477,7 +477,7 @@
           }
         },
         {
-          "insert": " at every level); definitions live in "
+          "insert": " at every level). Definitions live in "
         },
         {
           "insert": "packages/docs-model/src/components/interaction-surface/state.ts",
@@ -1151,7 +1151,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Hovering or focusing a note lights the param's signature lines and vice versa; a click pins, Escape clears pins."
+          "insert": "Hovering or focusing a note lights the param's signature lines and vice versa. A click pins, Escape clears pins."
         }
       ],
       "children": []
@@ -1240,7 +1240,7 @@
           }
         },
         {
-          "insert": "); the node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content."
+          "insert": "). The node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content."
         }
       ],
       "children": []
@@ -1264,7 +1264,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The markdown render: an optional "
+          "insert": "The markdown render is an optional "
         },
         {
           "insert": "**<title>**",
@@ -1284,7 +1284,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The signature line: "
+          "insert": "The signature line is "
         },
         {
           "insert": "[kind] name(param: type, optional?: type) -> returns  # description",
@@ -1736,7 +1736,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Action changes state or requests work. Query reads state without changing it. Event describes notifications or observation. These are presentation categories, not new execution mechanisms. A subscription can return an unsubscribe function; that return value is different from the event payload delivered to its callback."
+          "insert": "Action changes state or requests work. Query reads state without changing it. Event describes notifications or observation. These are presentation categories, not new execution mechanisms. A subscription can return an unsubscribe function. That return value is different from the event payload delivered to its callback."
         }
       ],
       "children": []
@@ -1927,7 +1927,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package retains the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices."
+          "insert": "Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package keeps the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices."
         }
       ],
       "children": []

@@ -99,7 +99,7 @@
           }
         },
         {
-          "insert": " — the reference-block contract and forwarded-authority pattern the boundary implements."
+          "insert": ": the reference-block contract and forwarded-authority pattern the boundary implements."
         }
       ],
       "children": []
@@ -120,7 +120,7 @@
           }
         },
         {
-          "insert": " — the presentation and interaction contract for embedded surfaces."
+          "insert": ": the presentation and interaction contract for embedded surfaces."
         }
       ],
       "children": []
@@ -168,7 +168,7 @@
           }
         },
         {
-          "insert": ", keeping their own repositories, workspace roots, and tooling; the root "
+          "insert": ", keeping their own repositories, workspace roots, and tooling. The root "
         },
         {
           "insert": "package.json",
@@ -261,7 +261,7 @@
           }
         },
         {
-          "insert": " — every future externally owned project mounts the same way."
+          "insert": ". Every future externally owned project mounts the same way."
         }
       ],
       "children": []
@@ -353,7 +353,7 @@
           }
         },
         {
-          "insert": " — every future external authority exposes an agent-schema leaf and nothing more to the model."
+          "insert": ". Every future external authority exposes an agent-schema leaf and nothing more to the model."
         }
       ],
       "children": []
@@ -441,7 +441,7 @@
           }
         },
         {
-          "insert": " — every future engine embed uses a provider slot and stays mutation-free."
+          "insert": ". Every future engine embed uses a provider slot and stays mutation-free."
         }
       ],
       "children": []
@@ -518,7 +518,7 @@
       },
       "text": [
         {
-          "insert": "Decision: Canvas and sequence documents are sidecar files in the docs tree — "
+          "insert": "Decision: Canvas and sequence documents are sidecar files in the docs tree ("
         },
         {
           "insert": ".canvas.json",
@@ -536,7 +536,7 @@
           }
         },
         {
-          "insert": " segment — confined and served by docs-server; Studio drafts stay separate, and opening a project board never creates a second authoritative copy in an engine-local store."
+          "insert": " segment) confined and served by docs-server. Studio drafts stay separate, and opening a project board never creates a second authoritative copy in an engine-local store."
         }
       ],
       "children": []
@@ -580,7 +580,7 @@
           }
         },
         {
-          "insert": ", docs trees — every future sidecar kind keeps its canonical file in the repository."
+          "insert": ", docs trees. Every future sidecar kind keeps its canonical file in the repository."
         }
       ],
       "children": []

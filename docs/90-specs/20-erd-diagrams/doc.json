@@ -4368,7 +4368,7 @@
       },
       "text": [
         {
-          "insert": "Rerun with ELK's "
+          "insert": "After an author pins an entity, rerun with ELK's "
         },
         {
           "insert": "INTERACTIVE",
@@ -4377,7 +4377,7 @@
           }
         },
         {
-          "insert": " strategies after an author pins an entity, so pinned entities stay put."
+          "insert": " strategies, so pinned entities stay put."
         }
       ],
       "children": []

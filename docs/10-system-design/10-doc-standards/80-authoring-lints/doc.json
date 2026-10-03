@@ -501,7 +501,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Docs Writer retains the original valid document for the session after the first successful write."
+          "insert": "Docs Writer keeps the original valid document for the session after the first successful write."
         }
       ],
       "children": [
@@ -1049,7 +1049,7 @@
       },
       "text": [
         {
-          "insert": "These rules are warnings in the lint engine, matching the existing audit policy. Promote a rule by changing its own severity and enforcement metadata after reviewing corpus impact."
+          "insert": "These rules are warnings in the lint engine, matching the existing audit policy. After reviewing corpus impact, promote a rule by changing its own severity and enforcement metadata."
         }
       ],
       "children": []

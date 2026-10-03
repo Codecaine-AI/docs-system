@@ -269,7 +269,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each destination opens one detail pane; the family labels add no navigation level."
+          "insert": "Each destination opens one detail pane, and the family labels add no navigation level."
         }
       ],
       "children": []
@@ -310,7 +310,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Open the panel, then select a navigation item."
+          "insert": "Open the panel. Then select a navigation item."
         }
       ],
       "children": []
@@ -505,7 +505,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reset {block} to theme appears only when the pane has an effective override and deletes only that block's component override record."
+          "insert": "Reset {block} to theme appears only when the pane has an effective override. It deletes only that block's component override record."
         }
       ],
       "children": []
@@ -527,7 +527,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reset Surfaces tokens to theme clears only registered Surfaces component tokens; independent surface settings remain."
+          "insert": "Reset Surfaces tokens to theme clears only registered Surfaces component tokens. Independent surface settings remain."
         }
       ],
       "children": []
@@ -679,7 +679,7 @@
       },
       "text": [
         {
-          "insert": "The registry supplies controls within a component pane. Each user-facing component also has an explicit icon, label, and content-type group in the navigation roster; a registered theme file alone does not create a destination."
+          "insert": "The registry supplies controls within a component pane. Each user-facing component also has an explicit icon, label, and content-type group in the navigation roster. A registered theme file alone does not create a destination."
         }
       ],
       "children": []

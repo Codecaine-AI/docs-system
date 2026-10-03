@@ -52,7 +52,7 @@ Typing patterns convert only at the start of a paragraph or when their closing i
 
   - When the preceding visual block is an atom or code block, the editor's ordinary node-boundary behavior owns the key.
 
-> **Decision: Two Inline Typing Conversions** — Bold and inline code delimiters convert as the closing delimiter lands. Italic and strike delimiters stay literal; their formatting commands remain available through keyboard shortcuts.
+> **Decision: Two Inline Typing Conversions** — Bold and inline code delimiters convert as the closing delimiter lands. Italic and strike delimiters stay literal. Their formatting commands remain available through keyboard shortcuts.
 
 - **Code owns its line break**
 

@@ -336,7 +336,7 @@
       },
       "text": [
         {
-          "insert": "Bold and inline code delimiters convert as the closing delimiter lands. Italic and strike delimiters stay literal; their formatting commands remain available through keyboard shortcuts."
+          "insert": "Bold and inline code delimiters convert as the closing delimiter lands. Italic and strike delimiters stay literal. Their formatting commands remain available through keyboard shortcuts."
         }
       ],
       "children": []

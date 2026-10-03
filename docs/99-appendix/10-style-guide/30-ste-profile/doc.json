@@ -1,0 +1,964 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-961d80af08b9eba817975215936cae41",
+  "title": "STE Profile",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "ste-001-p",
+        "ste-002-callout",
+        "ste-003-h",
+        "ste-004-p",
+        "ste-005-li",
+        "ste-007-li",
+        "ste-010-li",
+        "ste-012-li",
+        "ste-014-li",
+        "ste-016-h",
+        "ste-017-p",
+        "ste-018-li",
+        "ste-021-li",
+        "ste-024-h",
+        "ste-025-p",
+        "ste-026-li",
+        "ste-028-li",
+        "ste-030-li",
+        "ste-033-li",
+        "ste-035-callout",
+        "ste-036-h",
+        "ste-037-p",
+        "ste-038-table",
+        "ste-039-h",
+        "ste-040-p",
+        "ste-041-li",
+        "ste-044-li",
+        "ste-047-li",
+        "ste-050-h",
+        "ste-051-p",
+        "ste-052-table"
+      ]
+    },
+    "ste-001-p": {
+      "id": "ste-001-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The STE profile is our software version of ASD-STE100, the Simplified Technical English standard. It sets the word, sentence, and punctuation rules for every page in this corpus. The goal is text that a reader understands on the first read, at a 6th to 7th grade reading level."
+        }
+      ],
+      "children": []
+    },
+    "ste-002-callout": {
+      "id": "ste-002-callout",
+      "type": "callout",
+      "props": {
+        "kind": "Proposed",
+        "title": "Not enforced yet",
+        "tone": "info"
+      },
+      "text": [
+        {
+          "insert": "No lint enforces this profile yet. The Open Decisions section at the end needs an owner ruling, and each row shows its proposed default."
+        }
+      ],
+      "children": []
+    },
+    "ste-003-h": {
+      "id": "ste-003-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Reading Targets"
+        }
+      ],
+      "children": []
+    },
+    "ste-004-p": {
+      "id": "ste-004-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The profile serves a reader who scans first and reads second. It encodes five targets from the project owner's own feedback."
+        }
+      ],
+      "children": []
+    },
+    "ste-005-li": {
+      "id": "ste-005-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "ADHD-Friendly Pages",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-006-li"
+      ]
+    },
+    "ste-006-li": {
+      "id": "ste-006-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each block holds one idea, and its first sentence states that idea."
+        }
+      ],
+      "children": []
+    },
+    "ste-007-li": {
+      "id": "ste-007-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bullets Over Prose",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-008-li",
+        "ste-009-li"
+      ]
+    },
+    "ste-008-li": {
+      "id": "ste-008-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lead sentence and bullets replace a long paragraph."
+        }
+      ],
+      "children": []
+    },
+    "ste-009-li": {
+      "id": "ste-009-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A clause after a semicolon moves to its own sub-bullet."
+        }
+      ],
+      "children": []
+    },
+    "ste-010-li": {
+      "id": "ste-010-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Literal Names",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-011-li"
+      ]
+    },
+    "ste-011-li": {
+      "id": "ste-011-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One thing has one name, and that name is the same in the UI, the pages, and the code."
+        }
+      ],
+      "children": []
+    },
+    "ste-012-li": {
+      "id": "ste-012-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Concise Means Tighter Wording",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-013-li"
+      ]
+    },
+    "ste-013-li": {
+      "id": "ste-013-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A shorter sentence keeps every fact. Concise never means less content."
+        }
+      ],
+      "children": []
+    },
+    "ste-014-li": {
+      "id": "ste-014-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Terms Defined at First Use",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-015-li"
+      ]
+    },
+    "ste-015-li": {
+      "id": "ste-015-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each internal term has a definition or a link where a page first uses it."
+        }
+      ],
+      "children": []
+    },
+    "ste-016-h": {
+      "id": "ste-016-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Prime, Then Verify"
+        }
+      ],
+      "children": []
+    },
+    "ste-017-p": {
+      "id": "ste-017-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The profile works in two steps. Agents write with STE in mind, and a pipeline checks what they write."
+        }
+      ],
+      "children": []
+    },
+    "ste-018-li": {
+      "id": "ste-018-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prime",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-019-li",
+        "ste-020-li"
+      ]
+    },
+    "ste-019-li": {
+      "id": "ste-019-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The writer prompt tells agents to write in ASD-STE100 plus our house style."
+        }
+      ],
+      "children": []
+    },
+    "ste-020-li": {
+      "id": "ste-020-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Models already know STE, so one line of prompt brings a full, consistent rule set."
+        }
+      ],
+      "children": []
+    },
+    "ste-021-li": {
+      "id": "ste-021-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Verify",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-022-li",
+        "ste-023-li"
+      ]
+    },
+    "ste-022-li": {
+      "id": "ste-022-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style Enforcement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/85-style-enforcement"
+            }
+          }
+        },
+        {
+          "insert": " checks each page against this profile and cleans up the output."
+        }
+      ],
+      "children": []
+    },
+    "ste-023-li": {
+      "id": "ste-023-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The pipeline trusts the primed writer but verifies every page. It stages each fix as a proposal for review."
+        }
+      ],
+      "children": []
+    },
+    "ste-024-h": {
+      "id": "ste-024-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What ASD-STE100 Is"
+        }
+      ],
+      "children": []
+    },
+    "ste-025-p": {
+      "id": "ste-025-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "ASD-STE100 is a controlled English standard from ASD, the European aerospace and defense industry association. It limits words and sentence shapes so that each sentence has one reading."
+        }
+      ],
+      "children": []
+    },
+    "ste-026-li": {
+      "id": "ste-026-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Current Edition",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-027-li"
+      ]
+    },
+    "ste-027-li": {
+      "id": "ste-027-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Issue 9 is the current edition, and ASD published it in 2025. Issue 10 is due in January 2028."
+        }
+      ],
+      "children": []
+    },
+    "ste-028-li": {
+      "id": "ste-028-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "53 Rules",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-029-li"
+      ]
+    },
+    "ste-029-li": {
+      "id": "ste-029-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Part 1 holds 53 writing rules in 9 sections, from single words to writing practices."
+        }
+      ],
+      "children": []
+    },
+    "ste-030-li": {
+      "id": "ste-030-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "About 900 Approved Words",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-031-li",
+        "ste-032-li"
+      ]
+    },
+    "ste-031-li": {
+      "id": "ste-031-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Part 2 is a dictionary of about 900 approved words."
+        }
+      ],
+      "children": []
+    },
+    "ste-032-li": {
+      "id": "ste-032-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each unapproved word in the dictionary points to an approved alternative."
+        }
+      ],
+      "children": []
+    },
+    "ste-033-li": {
+      "id": "ste-033-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Aerospace Origin",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-034-li"
+      ]
+    },
+    "ste-034-li": {
+      "id": "ste-034-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE comes from aircraft maintenance manuals. It targets readers whose first language is not English."
+        }
+      ],
+      "children": []
+    },
+    "ste-035-callout": {
+      "id": "ste-035-callout",
+      "type": "callout",
+      "props": {
+        "kind": "Copyright",
+        "title": "The STE dictionary stays local",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "ASD holds the copyright on the STE dictionary and rules. The full Issue 9 extract stays local in "
+        },
+        {
+          "insert": "proposals/ste-writing-profile-2026-10-02/ste100/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which git ignores. Our replacement lists come from the public style guides of Google, Microsoft, Red Hat, and plainlanguage.gov."
+        }
+      ],
+      "children": []
+    },
+    "ste-036-h": {
+      "id": "ste-036-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Rules We Adopt"
+        }
+      ],
+      "children": []
+    },
+    "ste-037-p": {
+      "id": "ste-037-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each row maps one STE rule to our limit. Status says whether we adopt the rule as written, tighten it, or relax it. Keep marks a house rule from "
+        },
+        {
+          "insert": "Writing Style",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/10-writing-style"
+            }
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "Structure",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/20-structure"
+            }
+          }
+        },
+        {
+          "insert": " that STE does not state. "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " lists the checks that run today."
+        }
+      ],
+      "children": []
+    },
+    "ste-038-table": {
+      "id": "ste-038-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Rule",
+          "STE Source",
+          "Our Limit",
+          "Status"
+        ],
+        "rows": [
+          [
+            "Procedural sentence length",
+            "STE 5.1",
+            "20 words or fewer per instruction",
+            "Adopt"
+          ],
+          [
+            "Descriptive sentence length",
+            "STE 6.3",
+            "25 words or fewer per sentence",
+            "Adopt"
+          ],
+          [
+            "Paragraph length",
+            "STE 6.6",
+            "4 sentences or fewer. STE allows 6.",
+            "Tighten"
+          ],
+          [
+            "One topic per sentence",
+            "STE 4.1",
+            "One topic in each sentence",
+            "Adopt"
+          ],
+          [
+            "One instruction per step",
+            "STE 5.2",
+            "One instruction in each sentence and each numbered step",
+            "Adopt"
+          ],
+          [
+            "Condition first",
+            "STE 5.4",
+            "Put the condition before the instruction it guards",
+            "Adopt"
+          ],
+          [
+            "Active voice",
+            "STE 3.6",
+            "Active voice. Passive only in a description, and only when the actor is unknown or not relevant.",
+            "Adopt"
+          ],
+          [
+            "Verb forms",
+            "STE 3.2",
+            "Imperative, infinitive, simple present, simple past, and past participle as an adjective. No progressive or perfect tenses.",
+            "Adopt"
+          ],
+          [
+            "No semicolons",
+            "STE 8.1",
+            "No semicolons. Put each clause on its own sub-bullet.",
+            "Tighten"
+          ],
+          [
+            "Noun clusters",
+            "STE 2.1",
+            "3 nouns or fewer. A registered multi-word technical noun counts as 1.",
+            "Relax"
+          ],
+          [
+            "One name per thing",
+            "STE 1.11, 9.4",
+            "One name for each thing, the same in the UI, the pages, and the code",
+            "Adopt"
+          ],
+          [
+            "Internal terms",
+            "STE 1.8",
+            "Define or link each internal term at its first use on a page",
+            "Tighten"
+          ],
+          [
+            "Modal verbs",
+            "STE dictionary",
+            "Write \"must\" or \"can\". Do not write \"should\", \"may\", or \"might\".",
+            "Adopt"
+          ],
+          [
+            "Phrasal verbs and idioms",
+            "STE 9.3, 1.10",
+            "No phrasal verbs, such as \"kick off\", and no idioms",
+            "Adopt"
+          ],
+          [
+            "Word counting",
+            "STE 8.4 to 8.7",
+            "An inline code span, a number with its unit, and a parenthetical each count as 1 word",
+            "Adopt"
+          ],
+          [
+            "No em dashes",
+            "House rule",
+            "Use a period or a comma.",
+            "Keep"
+          ],
+          [
+            "No label-colon openers",
+            "House rule",
+            "Write a full sentence, or put the label in a parent bullet.",
+            "Keep"
+          ],
+          [
+            "Title Case headings",
+            "House rule",
+            "Capitalize major words. Minor words such as \"of\" stay lowercase.",
+            "Keep"
+          ]
+        ],
+        "title": "STE rules in the profile"
+      },
+      "children": []
+    },
+    "ste-039-h": {
+      "id": "ste-039-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What We Relax From STE"
+        }
+      ],
+      "children": []
+    },
+    "ste-040-p": {
+      "id": "ste-040-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three STE rules do not fit software pages, so the profile relaxes them. "
+        },
+        {
+          "insert": "Vocabulary",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "99-appendix/10-style-guide/40-vocabulary"
+            }
+          }
+        },
+        {
+          "insert": " lists the words that each change allows."
+        }
+      ],
+      "children": []
+    },
+    "ste-041-li": {
+      "id": "ste-041-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Approved Words Only (STE 1.1)",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-042-li",
+        "ste-043-li",
+        "ste-043a-li"
+      ]
+    },
+    "ste-042-li": {
+      "id": "ste-042-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The full STE approved-word dictionary stays the base. Our technical nouns and technical verbs extend it."
+        }
+      ],
+      "children": []
+    },
+    "ste-043-li": {
+      "id": "ste-043-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The proposed first lint flags only words in the replacement tables and the banned filler list."
+        }
+      ],
+      "children": []
+    },
+    "ste-043a-li": {
+      "id": "ste-043a-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Style Enforcement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/85-style-enforcement"
+            }
+          }
+        },
+        {
+          "insert": " treats vocabulary findings as suggestions. They never block a page, and project vocabulary is never a finding for being new or rare."
+        }
+      ],
+      "children": []
+    },
+    "ste-044-li": {
+      "id": "ste-044-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The -ing Ban (STE 3.5)",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-045-li",
+        "ste-046-li"
+      ]
+    },
+    "ste-045-li": {
+      "id": "ste-045-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE allows an \"-ing\" word only inside a technical noun. The profile bans only the progressive tense, such as \"is running\"."
+        }
+      ],
+      "children": []
+    },
+    "ste-046-li": {
+      "id": "ste-046-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A gerund such as \"Before saving, run the check\" stays."
+        }
+      ],
+      "children": []
+    },
+    "ste-047-li": {
+      "id": "ste-047-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rejected Software Verbs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ste-048-li",
+        "ste-049-li"
+      ]
+    },
+    "ste-048-li": {
+      "id": "ste-048-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "STE rejects run, create, call, return, build, render, and other core software verbs."
+        }
+      ],
+      "children": []
+    },
+    "ste-049-li": {
+      "id": "ste-049-li",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The profile allows each one as a technical verb with one meaning."
+        }
+      ],
+      "children": []
+    },
+    "ste-050-h": {
+      "id": "ste-050-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open Decisions"
+        }
+      ],
+      "children": []
+    },
+    "ste-051-p": {
+      "id": "ste-051-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "These choices need an owner ruling before any lint uses the profile. Each row shows the proposed default and the reason for it."
+        }
+      ],
+      "children": []
+    },
+    "ste-052-table": {
+      "id": "ste-052-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Decision",
+          "Proposed Default",
+          "Why"
+        ],
+        "rows": [
+          [
+            "Page or doc",
+            "\"Page\". The folder is the bundle, and the file is doc.json.",
+            "The MCP tools say \"page\". 52 of 108 pages mix page, doc, document, and bundle."
+          ],
+          [
+            "Block, block type, or component",
+            "A block is one instance, and a block type is its kind. \"Component\" means code only.",
+            "All three research sources agree. Today \"component\" names both."
+          ],
+          [
+            "Heading or header",
+            "\"Heading\". \"Header\" names the UI region only.",
+            "\"Header\" also means a C header file in the decomp harness."
+          ],
+          [
+            "Session or thread",
+            "\"Session\". \"New thread\" stays as the UI action.",
+            "The owner already corrected \"thread\" to \"session\" in a transcript."
+          ],
+          [
+            "Run, create, call, return, build, and render as technical verbs",
+            "Allow each one with one meaning",
+            "STE rejects them. Without them, the lint flags almost every page."
+          ],
+          [
+            "Make sure or ensure",
+            "\"Make sure\"",
+            "STE approves \"make sure\" and rejects \"ensure\"."
+          ],
+          [
+            "Click or select",
+            "\"Click\" for a mouse action, \"select\" for an option",
+            "STE lists \"click\" as a technical verb. Microsoft prefers \"select\"."
+          ],
+          [
+            "Enough or sufficient",
+            "\"Enough\"",
+            "It is the plainer word. STE approves \"sufficient\", and Microsoft prefers \"enough\"."
+          ],
+          [
+            "Simple future \"will\"",
+            "Allow it",
+            "STE allows the simple future. Writing Style already limits \"will\" to a later event."
+          ]
+        ],
+        "title": "Open decisions"
+      },
+      "children": []
+    }
+  }
+}

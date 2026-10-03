@@ -397,7 +397,7 @@
           }
         },
         {
-          "insert": " removes the inline property; nothing writes a copied default into inline style."
+          "insert": " removes the inline property. Nothing writes a copied default into inline style."
         }
       ],
       "children": []
@@ -573,7 +573,7 @@
           }
         },
         {
-          "insert": " file per registered surface holding only the keys it overrides; the server replaces a theme's manifest whole but writes component files individually, leaving files omitted from a write on disk."
+          "insert": " file per registered surface holding only the keys it overrides. The server replaces a theme's manifest whole but writes component files individually, leaving files omitted from a write on disk."
         }
       ],
       "children": []
@@ -918,8 +918,19 @@
           }
         },
         {
-          "insert": ". "
-        },
+          "insert": "."
+        }
+      ],
+      "children": [
+        "b-thm-impl-d-default-decision-r0",
+        "b-thm-impl-d-default-decision-r1"
+      ]
+    },
+    "b-thm-impl-d-default-decision-r0": {
+      "id": "b-thm-impl-d-default-decision-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "theme.json",
           "attributes": {
@@ -954,7 +965,18 @@
           }
         },
         {
-          "insert": " carry the sparse per-surface overrides. Workbench autosave from an unlocked serve without a Global theme is its only writer."
+          "insert": " carry the sparse per-surface overrides."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-decision-r1": {
+      "id": "b-thm-impl-d-default-decision-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Workbench autosave from an unlocked serve without a Global theme is its only writer."
         }
       ],
       "children": []
@@ -1100,7 +1122,7 @@
       },
       "text": [
         {
-          "insert": "Why: A theme copy in each repository was rejected. The owner wants one reading look across all projects, and per-repository themes drifted apart and hid changes made in other projects. A host option instead of an environment read keeps route tests and hosts without the docs service on repository themes."
+          "insert": "Why: A theme copy in each repository was rejected. The owner wants one reading look across all projects. Per-repository themes drifted apart and hid changes made in other projects. A host option instead of an environment read keeps route tests and hosts without the docs service on repository themes."
         }
       ],
       "children": []

@@ -833,7 +833,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Copy the export into a standalone repository and push it as "
+          "insert": "Copy the export into a standalone repository. Push it as "
         },
         {
           "insert": "gh-pages",
@@ -1154,7 +1154,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Open the site in a headless browser at two hash routes and check the network log."
+          "insert": "Open the site in a headless browser at two hash routes. Check the network log."
         }
       ],
       "children": []

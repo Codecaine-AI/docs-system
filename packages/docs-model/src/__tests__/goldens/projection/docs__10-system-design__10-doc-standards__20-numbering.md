@@ -26,7 +26,7 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 
 - Insert mid-gap first, such as `25-` between `20-` and `30-`, before considering any reorganization.
 
-- When the gaps are exhausted, the number line is telling you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.
+- When the gaps are exhausted, the number line tells you the section has outgrown its shape: reorganize into a subfolder rather than packing consecutive numbers.
 
 | Range     | Reserved for |
 | --- | --- |
@@ -35,7 +35,7 @@ This page states the scheme, the reserved ranges, and what running out of gap sp
 | 90–98 | Late or supplementary content |
 | 99 | Appendix and meta |
 
-Violations look like: consecutive numbers with no gaps, mixed formats (`1-intro`, `02-setup`, `section-3`), `99-` on anything but appendix material.
+Violations look like consecutive numbers with no gaps, mixed formats (`1-intro`, `02-setup`, `section-3`), `99-` on anything but appendix material.
 
 ## Why
 

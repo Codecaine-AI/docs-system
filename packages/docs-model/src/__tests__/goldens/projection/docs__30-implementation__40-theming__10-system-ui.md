@@ -10,7 +10,7 @@ Tokens: the semantic variable vocabulary the rail may set.
 
 ### One module owns the settings pipeline
 
-- Decision: `StyleRail.tsx` owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application; rail settings never gain a second reader or writer module.
+- Decision: `StyleRail.tsx` owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application. Rail settings never gain a second reader or writer module.
 
 - Why: Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object.
 
@@ -18,7 +18,7 @@ Tokens: the semantic variable vocabulary the rail may set.
 
 ### All rail variables flow through one translation map
 
-- Decision: `styleRailVars` returns the complete map of CSS-variable names to serialized values or null, and `applyStyleRailVars` is the only writer of rail properties on the document root; a null entry removes the inline property so the theme layer beneath becomes authoritative.
+- Decision: `styleRailVars` returns the complete map of CSS-variable names to serialized values or null, and `applyStyleRailVars` is the only writer of rail properties on the document root. A null entry removes the inline property so the theme layer beneath becomes authoritative.
 
 - Why: Ad hoc `setProperty` calls were rejected. One map keeps reset single-mechanism (property removal, per the layer-precedence decision on Theming: Overview) and makes the full set of rail-owned variables enumerable in one place.
 

@@ -38,7 +38,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The browser-only React package that turns validated documents into reading, editing, peeking, and annotation surfaces, with hosts supplying data access, navigation, persistence callbacks, and embed implementations. Source: "
+          "insert": "The browser-only React package turns validated documents into reading, editing, peeking, and annotation surfaces. Hosts supply data access, navigation, persistence callbacks, and embed implementations. Source: "
         },
         {
           "insert": "packages/docs-viewer",
@@ -85,7 +85,7 @@
           }
         },
         {
-          "insert": ". the interaction and presentation rules the package implements."
+          "insert": ": the interaction and presentation rules the package implements."
         }
       ],
       "children": []
@@ -106,7 +106,7 @@
           }
         },
         {
-          "insert": ". the block definitions each renderer realizes."
+          "insert": ": the block definitions each renderer realizes."
         }
       ],
       "children": []
@@ -145,7 +145,7 @@
       },
       "text": [
         {
-          "insert": "Decision: The package's only workspace dependency is docs-model; it imports no docs-index, docs-server, docs-workbench, filesystem, SQLite, or external engine code. Every host-dependent action. data reads, navigation, persistence, locks, uploads, canvas and sequence embeds. enters or leaves through the "
+          "insert": "Decision: The package's only workspace dependency is docs-model; it imports no docs-index, docs-server, docs-workbench, filesystem, SQLite, or external engine code. Every host-dependent action (data reads, navigation, persistence, locks, uploads, canvas and sequence embeds) enters or leaves through the "
         },
         {
           "insert": "DocsClientProvider",
@@ -202,7 +202,7 @@
           }
         },
         {
-          "insert": ". every future surface and capability; host-app imports are enforced by "
+          "insert": " (every future surface and capability). Host-app imports are enforced by "
         },
         {
           "insert": "import-boundaries.test.ts",
@@ -250,7 +250,7 @@
           }
         },
         {
-          "insert": " batches by identity diff. "
+          "insert": " batches by identity diff ("
         },
         {
           "insert": "pmToDoc",
@@ -281,7 +281,7 @@
           }
         },
         {
-          "insert": ". and hands them to the host through the single "
+          "insert": ") and hands them to the host through the single "
         },
         {
           "insert": "onApplyOps",
@@ -325,7 +325,7 @@
           }
         },
         {
-          "insert": ". every future editing surface and flush trigger converges on the same conversion, diff, and "
+          "insert": ". Every future editing surface and flush trigger converges on the same conversion, diff, and "
         },
         {
           "insert": "onApplyOps",
@@ -475,7 +475,7 @@
           }
         },
         {
-          "insert": ", the two parity tests. every future block component."
+          "insert": ", the two parity tests: every future block component."
         }
       ],
       "children": []
@@ -499,7 +499,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Decision: The rich-text image-grid descriptor and editor node view share ImageGrid. The editor modifies typed props through updateAttributes and the existing operation diff."
+          "insert": "Decision: The rich-text image-grid descriptor and editor node view share ImageGrid. The editor changes typed props through updateAttributes and the existing operation diff."
         }
       ],
       "children": []

@@ -19,6 +19,10 @@
         "b-20-mutation-model-op-algebra-intro-5",
         "b-20-mutation-model-op-algebra-table-6",
         "b-20-mutation-model-update-semantics-7",
+        "b-20-mutation-model-update-semantics-7-r0",
+        "b-20-mutation-model-update-semantics-7-r1",
+        "b-20-mutation-model-update-semantics-7-r2",
+        "b-20-mutation-model-update-semantics-7-r3",
         "b-20-mutation-model-id-semantics-8",
         "b-20-mutation-model-inverses-9",
         "b-20-mutation-model-inverses-ledger-10",
@@ -34,6 +38,8 @@
         "b-10-save-pipeline-structured-object-blocks-22",
         "b-10-save-pipeline-block-action-examples-23",
         "b-mm25-forwarded-1",
+        "b-mm25-forwarded-1-r0",
+        "b-mm25-forwarded-1-r1",
         "b-20-mutation-model-change-events-15",
         "b-20-mutation-model-change-events-sse-16",
         "b-mm25-event-shape-1",
@@ -41,6 +47,10 @@
         "b-10-save-pipeline-callout-dirty-suppress-20",
         "b-20-mutation-model-discovery-18",
         "b-20-mutation-model-discovery-surface-19",
+        "b-20-mutation-model-discovery-surface-19-r0",
+        "b-20-mutation-model-discovery-surface-19-r1",
+        "b-20-mutation-model-discovery-surface-19-r4",
+        "b-20-mutation-model-discovery-surface-19-r5",
         "b-mm-change-sets-h-20",
         "b-mm-change-sets-bridge-21"
       ]
@@ -51,7 +61,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every document change is one of seven ops. Six are generic structural/text mutations; the seventh, "
+          "insert": "Every document change is one of seven ops. Six are generic structural/text mutations. The seventh, "
         },
         {
           "insert": "componentAction",
@@ -106,7 +116,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The point is standardization. Components define what can change — their own actions. This model defines how any change behaves: validated, inverted, recorded, broadcast. A table cell edit and a file-tree entry undo the same way, not because they share code, but because both are ops."
+          "insert": "The point is standardization. Components define what can change: their own actions. This model defines how any change behaves: validated, inverted, recorded, broadcast. A table cell edit and a file-tree entry undo the same way, not because they share code, but because both are ops."
         }
       ],
       "children": []
@@ -290,8 +300,16 @@
           }
         },
         {
-          "insert": " is a shallow patch, not a replacement object. "
-        },
+          "insert": " is a shallow patch, not a replacement object."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-update-semantics-7-r0": {
+      "id": "b-20-mutation-model-update-semantics-7-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "props",
           "attributes": {
@@ -299,7 +317,18 @@
           }
         },
         {
-          "insert": " keys merge one level deep; a key set to "
+          "insert": " keys merge one level deep."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-update-semantics-7-r1": {
+      "id": "b-20-mutation-model-update-semantics-7-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A key set to "
         },
         {
           "insert": "undefined",
@@ -308,8 +337,16 @@
           }
         },
         {
-          "insert": " removes that prop; "
-        },
+          "insert": " removes that prop."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-update-semantics-7-r2": {
+      "id": "b-20-mutation-model-update-semantics-7-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "text",
           "attributes": {
@@ -317,7 +354,18 @@
           }
         },
         {
-          "insert": " replaces the block's rich-text array wholesale when present. The block id is preserved, which keeps comment and backlink anchors stable through ordinary edits."
+          "insert": " replaces the block's rich-text array wholesale when present."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-update-semantics-7-r3": {
+      "id": "b-20-mutation-model-update-semantics-7-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The block id is preserved, which keeps comment and backlink anchors stable through ordinary edits."
         }
       ],
       "children": []
@@ -427,7 +475,7 @@
           }
         },
         {
-          "insert": ", applyOp validates the resulting props against the owning component’s closed state schema; "
+          "insert": ", applyOp validates the resulting props against the owning component’s closed state schema. "
         },
         {
           "insert": "componentAction",
@@ -454,10 +502,7 @@
           }
         },
         {
-          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Ops also refuse structural illegality outright — a missing target block, an invalid child index, an illegal root change, or a move that would create a cycle. Reads and loads remain tolerant: structural validation never rejects a document for props content."
-        },
-        {
-          "insert": " Undo replay is exempt from strict props validation because it restores a previously-accepted state."
+          "insert": ". splitBlock and mergeBlocks are not revalidated because they copy existing props. Ops also refuse structural illegality outright: a missing target block, an invalid child index, an illegal root change, or a move that would create a cycle. Reads and loads remain tolerant: structural validation never rejects a document for props content. Undo replay is exempt from strict props validation because it restores a previously-accepted state."
         }
       ],
       "children": []
@@ -476,7 +521,7 @@
           }
         },
         {
-          "insert": " — the content hash the change was computed against. If the current content has a different hash, the apply is rejected; over HTTP this is "
+          "insert": ": the content hash the change was computed against. If the current content has a different hash, the apply is rejected; over HTTP this is "
         },
         {
           "insert": "409",
@@ -498,7 +543,33 @@
       },
       "text": [
         {
-          "insert": "draft lock — an expiring, heartbeat-renewed per-session claim rejects a writer with a different session identity. Over HTTP this is "
+          "insert": "draft lock"
+        }
+      ],
+      "children": [
+        "b-20-mutation-model-draft-lock-14-r0",
+        "b-20-mutation-model-draft-lock-14-r1",
+        "b-20-mutation-model-draft-lock-14-r2"
+      ]
+    },
+    "b-20-mutation-model-draft-lock-14-r0": {
+      "id": "b-20-mutation-model-draft-lock-14-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An expiring, heartbeat-renewed per-session claim rejects a writer with a different session identity."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-draft-lock-14-r1": {
+      "id": "b-20-mutation-model-draft-lock-14-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Over HTTP this is "
         },
         {
           "insert": "423",
@@ -507,7 +578,18 @@
           }
         },
         {
-          "insert": ". The lock is coordination, not correctness: expiry, absence, or loss of a lock never proves freshness, so the hash precondition remains the correctness check."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-draft-lock-14-r2": {
+      "id": "b-20-mutation-model-draft-lock-14-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The lock is coordination, not correctness: expiry, absence, or loss of a lock never proves freshness, so the hash precondition remains the correctness check."
         }
       ],
       "children": []
@@ -518,7 +600,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One session identity threads through all of this. Each editing session — a browser tab, an agent run — carries a single "
+          "insert": "One session identity threads through all of this. Each editing session (a browser tab, an agent run) carries a single "
         },
         {
           "insert": "session_id",
@@ -560,7 +642,7 @@
           }
         },
         {
-          "insert": " comparison happens inside that critical section — two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a "
+          "insert": " comparison occurs inside that critical section — two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a "
         },
         {
           "insert": "patch_id",
@@ -617,7 +699,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The structured bundles — tables, file trees, interaction surfaces, code, and the diagram types — expose named actions for their collections. A "
+          "insert": "The structured bundles (tables, file trees, interaction surfaces, code, and the diagram types) expose named actions for their collections. A "
         },
         {
           "insert": "componentAction",
@@ -626,7 +708,7 @@
           }
         },
         {
-          "insert": " carries an action name plus params; the folded registry validates the params schema, applies, and returns the same inverse-op contract as every generic op. Discovery lists the current roster."
+          "insert": " carries an action name plus params. The folded registry validates the params schema, applies, and returns the same inverse-op contract as every generic op. Discovery lists the current roster."
         }
       ],
       "children": []
@@ -700,7 +782,29 @@
       "props": {},
       "text": [
         {
-          "insert": "Canvas and sequence actions are the exception that proves the authority boundary: they carry their owning engine's schema truth and forward to that engine's authority instead of patching document props. A forwarded action travels alone — a batch that mixes one with any other op is refused, because no single transaction can span the document file and another authority's sidecar, and the model does not pretend otherwise. The document's bytes stay unchanged; the sidecar authority applies the action under its own hash precondition and returns its own hash and undo token."
+          "insert": "Canvas and sequence actions are the exception that proves the authority boundary: they carry their owning engine's schema truth and forward to that engine's authority instead of patching document props."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-forwarded-1-r0": {
+      "id": "b-mm25-forwarded-1-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A forwarded action travels alone. A batch that mixes one with any other op is refused, because no single transaction can span the document file and another authority's sidecar, and the model does not pretend otherwise."
+        }
+      ],
+      "children": []
+    },
+    "b-mm25-forwarded-1-r1": {
+      "id": "b-mm25-forwarded-1-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The document's bytes stay unchanged. The sidecar authority applies the action under its own hash precondition and returns its own hash and undo token."
         }
       ],
       "children": []
@@ -724,7 +828,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks; the event is a notification of the applied patch, not a second write path."
+          "insert": "A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks. The event is a notification of the applied patch, not a second write path."
         }
       ],
       "children": []
@@ -764,7 +868,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Auto-apply of incoming change events is held while a consumer has an unsaved or dirty draft. Remote changes therefore never clobber local work; if both sides touched overlapping state, the overlap appears as the "
+          "insert": "Auto-apply of incoming change events is held while a consumer has an unsaved or dirty draft. Remote changes therefore never clobber local work. If both sides touched overlapping state, the overlap appears as the "
         },
         {
           "insert": "409",
@@ -836,7 +940,43 @@
           }
         },
         {
-          "insert": ". Ops carry kernel descriptions. Each component has name, description, types, and actions; types contain "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19-r0": {
+      "id": "b-20-mutation-model-discovery-surface-19-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ops carry kernel descriptions."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19-r1": {
+      "id": "b-20-mutation-model-discovery-surface-19-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each component has name, description, types, and actions."
+        }
+      ],
+      "children": [
+        "b-20-mutation-model-discovery-surface-19-r2",
+        "b-20-mutation-model-discovery-surface-19-r3"
+      ]
+    },
+    "b-20-mutation-model-discovery-surface-19-r2": {
+      "id": "b-20-mutation-model-discovery-surface-19-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Types contain "
         },
         {
           "insert": "{ type, carriesText, state }",
@@ -845,7 +985,18 @@
           }
         },
         {
-          "insert": ", and actions contain "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19-r3": {
+      "id": "b-20-mutation-model-discovery-surface-19-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Actions contain "
         },
         {
           "insert": "{ action, description, params }",
@@ -854,7 +1005,29 @@
           }
         },
         {
-          "insert": ". TypeBox state and params schemas are served verbatim as JSON Schema. There is no text/object category."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19-r4": {
+      "id": "b-20-mutation-model-discovery-surface-19-r4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "TypeBox state and params schemas are served verbatim as JSON Schema."
+        }
+      ],
+      "children": []
+    },
+    "b-20-mutation-model-discovery-surface-19-r5": {
+      "id": "b-20-mutation-model-discovery-surface-19-r5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "There is no text/object category."
         }
       ],
       "children": []

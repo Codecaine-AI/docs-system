@@ -300,7 +300,7 @@
       },
       "text": [
         {
-          "insert": "Why: One transport boundary and one actor identity keep lock ownership, writes, and self-echo filtering naming the same session; scattering fetch calls through pages was rejected because policy then diverges per surface."
+          "insert": "Why: One transport boundary and one actor identity keep lock ownership, writes, and self-echo filtering naming the same session. Scattering fetch calls through pages was rejected because policy then diverges per surface."
         }
       ],
       "children": []

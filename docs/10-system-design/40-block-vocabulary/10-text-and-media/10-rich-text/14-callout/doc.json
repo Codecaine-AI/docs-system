@@ -32,6 +32,10 @@
         "b-15-callout-editor-11",
         "callout-read-edit-scope",
         "callout-styling-scope",
+        "callout-styling-scope-r0",
+        "callout-styling-scope-r1",
+        "callout-styling-scope-r2",
+        "callout-styling-scope-r3",
         "b-15-callout-proj-h-6",
         "b-15-callout-proj-7",
         "b-15-callout-agent-h-12",
@@ -110,7 +114,7 @@
       },
       "text": [
         {
-          "insert": "Retain the captured source and review history so the selected design can be compared with its starting point."
+          "insert": "Keep the captured source and review history so the selected design can be compared with its starting point."
         }
       ],
       "children": []
@@ -389,7 +393,7 @@
           }
         },
         {
-          "insert": "); props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all."
+          "insert": "). Props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all."
         }
       ],
       "children": []
@@ -413,7 +417,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Slash menu: "
+          "insert": "The slash menu lists "
         },
         {
           "insert": "Callout",
@@ -462,7 +466,29 @@
       "props": {},
       "text": [
         {
-          "insert": "Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default. The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600. A "
+          "insert": "Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default."
+        }
+      ],
+      "children": []
+    },
+    "callout-styling-scope-r0": {
+      "id": "callout-styling-scope-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600."
+        }
+      ],
+      "children": []
+    },
+    "callout-styling-scope-r1": {
+      "id": "callout-styling-scope-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
         },
         {
           "insert": "·",
@@ -471,7 +497,29 @@
           }
         },
         {
-          "insert": " separator and the title in ink at the same weight follow the label. The body sits below. The icon has no tooltip, and the label is always printed."
+          "insert": " separator and the title in ink at the same weight follow the label."
+        }
+      ],
+      "children": []
+    },
+    "callout-styling-scope-r2": {
+      "id": "callout-styling-scope-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The body sits below."
+        }
+      ],
+      "children": []
+    },
+    "callout-styling-scope-r3": {
+      "id": "callout-styling-scope-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The icon has no tooltip, and the label is always printed."
         }
       ],
       "children": []
@@ -581,7 +629,32 @@
       "props": {},
       "text": [
         {
-          "insert": "Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences. The callout stays greppable; the section carries the why."
+          "insert": "Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences."
+        }
+      ],
+      "children": [
+        "b-15-callout-agent-0-decision-pattern-r0",
+        "b-15-callout-agent-0-decision-pattern-r1"
+      ]
+    },
+    "b-15-callout-agent-0-decision-pattern-r0": {
+      "id": "b-15-callout-agent-0-decision-pattern-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The callout stays greppable."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-0-decision-pattern-r1": {
+      "id": "b-15-callout-agent-0-decision-pattern-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The section carries the why."
         }
       ],
       "children": []
@@ -610,7 +683,7 @@
           }
         },
         {
-          "insert": " for the visual register; the pair is how this corpus encodes decision records."
+          "insert": " for the visual register. The pair is how this corpus encodes decision records."
         }
       ],
       "children": []

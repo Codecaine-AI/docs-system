@@ -163,7 +163,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A font follows its reading role across every surface; components do not choose local font families."
+          "insert": "A font follows its reading role across every surface. Components do not choose local font families."
         }
       ],
       "children": []
@@ -348,7 +348,7 @@
       },
       "text": [
         {
-          "insert": "A theme names font families; a stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no "
+          "insert": "A theme names font families. A stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no "
         },
         {
           "insert": "@font-face",

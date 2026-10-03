@@ -36,7 +36,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Docs link to docs with typed reference spans — tracked by the backlinks index, held at zero stale, rewritten when targets move — never with raw paths in prose. "
+          "insert": "Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose."
         }
       ],
       "children": []
@@ -139,7 +139,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The backlinks index tracks every reference; "
+          "insert": "The backlinks index tracks every reference. "
         },
         {
           "insert": "docs links check",
@@ -148,7 +148,7 @@
           }
         },
         {
-          "insert": " holds them at zero stale; moving a doc rewrites its inbound paths."
+          "insert": " holds them at zero stale, and moving a doc rewrites its inbound paths."
         }
       ],
       "children": []
@@ -371,7 +371,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One doc owns the substance; the other references it."
+          "insert": "One doc owns the substance. The other doc references it."
         }
       ],
       "children": []
@@ -399,7 +399,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An implementation area page links one-way up to the design docs that constrain it; design never links back down."
+          "insert": "An implementation area page links one-way up to the design docs that constrain it, and design never links back down."
         }
       ],
       "children": []
@@ -410,7 +410,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every restraint rule on this page applies; the "
+          "insert": "Every restraint rule on this page applies. The "
         },
         {
           "insert": "implementation layer",
@@ -489,7 +489,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A reference reads as the target's name mid-sentence — no bracket noise on either surface."
+          "insert": "A reference reads as the target's name mid-sentence: no bracket noise on either surface."
         }
       ],
       "children": []
@@ -516,7 +516,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Parent docs stay the one place navigation happens, so moving through the docs feels the same everywhere."
+          "insert": "Parent docs stay the one place navigation occurs, so moving through the docs feels the same everywhere."
         }
       ],
       "children": []

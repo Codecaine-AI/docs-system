@@ -4,7 +4,7 @@ That state is a translation layer between humans and AI
 
 - Each reader meets it through a renderer that speaks its language, and changes it through interactions built for how it works. 
 
-This section defines the idea and the contract between the surfaces; each surface's own doc goes deeper.
+This section defines the idea and the contract between the surfaces. Each surface's own doc goes deeper.
 
 ## The Issue
 
@@ -42,7 +42,7 @@ The key idea we need to accept is that AI and humans consume information differe
 
 <!-- canvas: ./assets/canvases/interaction-surfaces.canvas.json view=one-state-two-readers title="One state, two readers" -->
 
-Every document is a `doc.json` bundle: an id-keyed tree of blocks — the data model — serialized to serialization. 
+Every document is a `doc.json` bundle: an id-keyed tree of blocks (the data model) serialized to serialization.
 
 No reader consumes this form directly**.** 
 

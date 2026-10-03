@@ -358,7 +358,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Secondary panes are layout siblings. Opening one pushes and reflows the document; it never covers content."
+          "insert": "Secondary panes are layout siblings. Opening one pushes and reflows the document, and it never covers content."
         }
       ],
       "children": []
@@ -387,7 +387,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The title is navigation furniture derived from the bundle name: the numeric prefix is removed, hyphens become spaces, Title Case is applied, and domain acronyms are uppercased."
+          "insert": "The title is navigation furniture derived from the bundle name. The numeric prefix is removed, hyphens become spaces, Title Case is applied, and domain acronyms are uppercased."
         }
       ],
       "children": []
@@ -719,7 +719,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A reference peek lets the reader inspect a target without abandoning the source; explicit gestures still choose full navigation."
+          "insert": "A reference peek lets the reader inspect a target without abandoning the source. Explicit gestures still choose full navigation."
         }
       ],
       "children": []

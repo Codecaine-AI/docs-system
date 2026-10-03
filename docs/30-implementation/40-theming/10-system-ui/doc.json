@@ -182,7 +182,7 @@
           }
         },
         {
-          "insert": " owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application; rail settings never gain a second reader or writer module."
+          "insert": " owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application. Rail settings never gain a second reader or writer module."
         }
       ],
       "children": []
@@ -261,7 +261,7 @@
           }
         },
         {
-          "insert": " is the only writer of rail properties on the document root; a null entry removes the inline property so the theme layer beneath becomes authoritative."
+          "insert": " is the only writer of rail properties on the document root. A null entry removes the inline property so the theme layer beneath becomes authoritative."
         }
       ],
       "children": []

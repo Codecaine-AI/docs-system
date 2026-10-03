@@ -90,7 +90,7 @@
           }
         },
         {
-          "insert": " — the canonical rules; agent contexts render them from the corpus rather than from copies here."
+          "insert": ": the canonical rules; agent contexts render them from the corpus rather than from copies here."
         }
       ],
       "children": []
@@ -111,7 +111,7 @@
           }
         },
         {
-          "insert": " — the agent read contract this package's hand-maintained copies deviate from by name."
+          "insert": ": the agent read contract this package's hand-maintained copies deviate from by name."
         }
       ],
       "children": []
@@ -208,7 +208,7 @@
       },
       "text": [
         {
-          "insert": "Why: The package is versioned content — a delivery unit, not a runtime wall; installing, removing, or relocating it must not change storage, serving, rendering, editing, or CLI behavior. The manual instructs agents when to use the CLI, workbench, and server API but implements none of those surfaces. Rejected alternative — unpackaging into plain repository content — is recorded on the "
+          "insert": "Why: The package is versioned content — a delivery unit, not a runtime wall; installing, removing, or moving it must not change storage, serving, rendering, editing, or CLI behavior. The manual instructs agents when to use the CLI, workbench, and server API but implements none of those surfaces. Rejected alternative — unpackaging into plain repository content — is recorded on the "
         },
         {
           "insert": "Packages",
@@ -243,7 +243,7 @@
           }
         },
         {
-          "insert": " — future manual content adds files, never runtime surface."
+          "insert": ". Future manual content adds files, never runtime surface."
         }
       ],
       "children": []
@@ -282,7 +282,32 @@
       },
       "text": [
         {
-          "insert": "Why: Framework must not become a second decision-memory home. A copy tier requires hand synchronization and drifts toward teaching retired conventions; rendering from the corpus leaves one canonical text and nothing to synchronize."
+          "insert": "Why: Framework must not become a second decision-memory home."
+        }
+      ],
+      "children": [
+        "b-fw-authority-w-r0",
+        "b-fw-authority-w-r1"
+      ]
+    },
+    "b-fw-authority-w-r0": {
+      "id": "b-fw-authority-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A copy tier requires hand synchronization and drifts toward teaching retired conventions."
+        }
+      ],
+      "children": []
+    },
+    "b-fw-authority-w-r1": {
+      "id": "b-fw-authority-w-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rendering from the corpus leaves one canonical text and nothing to synchronize."
         }
       ],
       "children": []
@@ -304,7 +329,7 @@
           }
         },
         {
-          "insert": " — standing agent knowledge loads from the corpus, never from standards files here."
+          "insert": ". Standing agent knowledge loads from the corpus, never from standards files here."
         }
       ],
       "children": []
@@ -339,7 +364,7 @@
           }
         },
         {
-          "insert": " routes intent to material named by file keys relative to the mounted skill root; cookbook, workflow, standard, and template addresses never assume an absolute mount path."
+          "insert": " routes intent to material named by file keys relative to the mounted skill root. Cookbook, workflow, standard, and template addresses never assume an absolute mount path."
         }
       ],
       "children": []
@@ -352,7 +377,7 @@
       },
       "text": [
         {
-          "insert": "Why: Codex and Claude skill symlinks must resolve to the same manual content from different mount points; absolute addressing was rejected because it breaks one loader or the other."
+          "insert": "Why: Codex and Claude skill symlinks must resolve to the same manual content from different mount points. Absolute addressing was rejected because it breaks one loader or the other."
         }
       ],
       "children": []

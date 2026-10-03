@@ -1,10 +1,10 @@
-The React-free mutation authority for one filesystem-backed docs tree — reads, preconditioned writes, undo, locks, and change events, exposed as a TypeScript store and an embeddable route factory. Source: `packages/docs-server`.
+The React-free mutation authority for one filesystem-backed docs tree: reads, preconditioned writes, undo, locks, and change events, exposed as a TypeScript store and an embeddable route factory. Source: `packages/docs-server`.
 
 ## Governed By
 
-The mutation model — op semantics, inverses, undo, and refusal behavior the server's write path realizes.
+The mutation model: op semantics, inverses, undo, and refusal behavior the server's write path realizes.
 
-Serialization — canonical bytes and the content hashes that make write preconditions possible.
+Serialization: canonical bytes and the content hashes that make write preconditions possible.
 
 ## Decisions
 
@@ -14,7 +14,7 @@ Serialization — canonical bytes and the content hashes that make write precond
 
 - Why: Hash preconditions, validation, undo, and change events stay consistent only when there is exactly one guarded critical section. Client-side writes and parallel write paths were rejected — a second path would bypass those guarantees and give agents a weaker authority.
 
-- Applies to: `packages/docs-server/src/doc-ops.ts`, `packages/docs-server/src/routes.ts`, `packages/docs-server/src/agent-tools.ts` — every future mutation surface converges on this path.
+- Applies to: `packages/docs-server/src/doc-ops.ts`, `packages/docs-server/src/routes.ts`, `packages/docs-server/src/agent-tools.ts`. Every future mutation surface converges on this path.
 
 ### Embeddable and React-free
 
@@ -22,7 +22,7 @@ Serialization — canonical bytes and the content hashes that make write precond
 
 - Why: Host embeddability is the forcing constraint — a host mounts the route factory in its own server and brings its own UI. A viewer or React dependency was rejected because it would force every host to carry the browser stack.
 
-- Applies to: `packages/docs-server` — future server capability lands behind the store and route factory.
+- Applies to: `packages/docs-server`. Future server capability lands behind the store and route factory.
 
 ### A docs root is the unit of authority
 
@@ -30,4 +30,4 @@ Serialization — canonical bytes and the content hashes that make write precond
 
 - Why: Filesystem and concurrency policy belong to the server; application identity, authentication, and routing outside `/api/*` belong to hosts. A project-aware server was rejected — it would pull every host's identity model into the reusable package.
 
-- Applies to: `packages/docs-server/src/store.ts` and every future store method — host identity never enters the signature.
+- Applies to: `packages/docs-server/src/store.ts` and every future store method. Host identity never enters the signature.

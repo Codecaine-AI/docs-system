@@ -91,7 +91,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree; notation supplies the import and agent projection forms."
+          "insert": "Process Outline explains an ordered process through nested steps and short supporting notes. The stored steps form a typed recursive tree. Notation supplies the import and agent projection forms."
         }
       ],
       "children": []
@@ -574,7 +574,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A backtick-wrapped span is a code value; the render gives it a code chip."
+          "insert": "A backtick-wrapped span is a code value. The render gives it a code chip."
         }
       ],
       "children": []
@@ -686,7 +686,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The process-outline.single-parent lint enforces this authoring structure at completion: exactly one named, non-note root with at least one action child. Empty or unfinished outlines remain editable in drafts but fail completion checks. The parser retains support for older multi-root data so it can be opened and repaired. Wrap related phases in a meaningful parent; split independent processes into separate blocks."
+          "insert": "The process-outline.single-parent lint enforces this authoring structure at completion: exactly one named, non-note root with at least one action child. Empty or unfinished outlines remain editable in drafts but fail completion checks. The parser keeps support for older multi-root data so it can be opened and repaired. Wrap related phases in a meaningful parent and split independent processes into separate blocks."
         }
       ],
       "children": []
@@ -768,7 +768,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Move explanations into notes. Keep conditions that change whether an action happens explicit in the step or its parent."
+          "insert": "Move explanations into notes. Keep conditions that change whether an action occurs explicit in the step or its parent."
         }
       ],
       "children": []
@@ -824,7 +824,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes are prose, and notes never have children: a note that wants substructure is a step."
+          "insert": "Notes are prose. Notes never have children: a note that wants substructure is a step."
         }
       ],
       "children": []
@@ -968,7 +968,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Split compound actions into steps and keep explanations in short notes. Use nesting to clarify the process, not to manufacture depth. Every step and note is visible by default; presentation must not depend on truncating prose."
+          "insert": "Split compound actions into steps and keep explanations in short notes. Use nesting to clarify the process, not to manufacture depth. Every step and note is visible by default, and presentation must not depend on truncating prose."
         }
       ],
       "children": []

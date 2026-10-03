@@ -33,7 +33,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The Bun-side package deriving inbound-reference lookup from document bundles and canvas sidecars — SQLite storage, reference-path identity, docs-root confinement, and move-time fixup. Source: "
+          "insert": "The Bun-side package deriving inbound-reference lookup from document bundles and canvas sidecars: SQLite storage, reference-path identity, docs-root confinement, and move-time fixup. Source: "
         },
         {
           "insert": "packages/docs-index",
@@ -80,7 +80,7 @@
           }
         },
         {
-          "insert": " — the corpus-level linking contract this package makes queryable and maintainable."
+          "insert": ": the corpus-level linking contract this package makes queryable and maintainable."
         }
       ],
       "children": []
@@ -190,7 +190,7 @@
           }
         },
         {
-          "insert": " — future derived state follows the same rebuildable, non-vetoing pattern."
+          "insert": ". Future derived state follows the same rebuildable, non-vetoing pattern."
         }
       ],
       "children": []
@@ -296,7 +296,7 @@
           }
         },
         {
-          "insert": " — future index capabilities land as library subpaths."
+          "insert": ". Future index capabilities land as library subpaths."
         }
       ],
       "children": []
@@ -370,7 +370,7 @@
           }
         },
         {
-          "insert": " and its consumers — every future path-accepting entry point routes through these helpers."
+          "insert": " and its consumers. Every future path-accepting entry point routes through these helpers."
         }
       ],
       "children": []

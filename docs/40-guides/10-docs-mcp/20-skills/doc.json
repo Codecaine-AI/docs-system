@@ -479,7 +479,7 @@
       "props": {},
       "text": [
         {
-          "insert": "2. For component selection, update the component manifest authoring metadata and its canonical reference together. Change the shared visual guidance only when the selection rule itself changes."
+          "insert": "2. For component selection, update the component manifest authoring metadata and its canonical reference together. Only when the selection rule itself changes, change the shared visual guidance."
         }
       ],
       "children": []
@@ -501,7 +501,7 @@
       "props": {},
       "text": [
         {
-          "insert": "4. Refresh the client installation and begin a new authoring task. Restart the service first when imported TypeScript changed. Inspect docs_guidance for the changed component and verify a real typed edit."
+          "insert": "4. Refresh the client installation and begin a new authoring task. When imported TypeScript changed, restart the service first. Inspect docs_guidance for the changed component and verify a real typed edit."
         }
       ],
       "children": []

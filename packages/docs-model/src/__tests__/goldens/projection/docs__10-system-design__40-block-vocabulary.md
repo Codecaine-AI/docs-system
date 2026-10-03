@@ -59,7 +59,7 @@ The family pages sit in five groups. Each group page opens with a table of its b
 
 ## Page Structure
 
-Every family page follows one skeleton; the deep story of how a component operates lives on the family's own page, not here.
+Every family page follows one skeleton. The deep story of how a component operates lives on the family's own page, not here.
 
 - **Opener**
 

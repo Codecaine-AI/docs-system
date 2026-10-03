@@ -1,4 +1,4 @@
-Tokens are the visual contract between palette, theme, and rendered surface. They define how mode-aware colors, shared sharpness, component rules, and fixed geometry reach consumers. This page owns the shared contract; per-block appearance remains in the Block vocabulary.
+Tokens are the visual contract between palette, theme, and rendered surface. They define how mode-aware colors, shared sharpness, component rules, and fixed geometry reach consumers. This page owns the shared contract. Per-block appearance remains in the Block vocabulary.
 
 ## Structure
 
@@ -17,9 +17,9 @@ Tokens are the visual contract between palette, theme, and rendered surface. The
 
 - Semantic variables name the role with the `--docs-<component>-<part>` pattern.
 
-- Consumers read semantic variables only; light and dark mode never produce a branch at the use site.
+- Consumers read semantic variables only. Light and dark mode never produce a branch at the use site.
 
-- Zebra and rule tokens belong to the component or shared surface whose geometry they control; similar values do not create shared ownership.
+- Zebra and rule tokens belong to the component or shared surface whose geometry they control. Similar values do not create shared ownership.
 
 ### One Sharpness Scale
 
@@ -39,7 +39,7 @@ The base semantic contract and token registry set `--radius` to 8px and expose a
 
   - Canvas corners remain shape geometry rather than application sharpness.
 
-> **Named deviation: Classic theme interaction radii** — The `docs-system-classic` repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present; the structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px.
+> **Named deviation: Classic theme interaction radii** — The `docs-system-classic` repo theme selects a 4px radius and sets the block-highlight and drop-cursor radii to 1px through dedicated rail values. Those two effective radii do not follow their global derivations while the overrides are present. The structured-table handle remains derived and resolves to 0px at 4px. The stock defaults set no such overrides, so at 8px the block highlight resolves to 6px and the drop cursor to 2px.
 
 ### Editor Accent
 
@@ -51,7 +51,7 @@ The fixed semantic token `--docs-editor-accent` gives selection outlines, drop i
 | Dark | rgb(82, 156, 202) |
 | Host-neutral consumer fallback | #2383e2 |
 
-> **Boundary: Editor accent is not a theme key** — `--docs-editor-accent` is a semantic token, not a theme-folder key; the closed theme registry does not include it.
+> **Boundary: Editor accent is not a theme key** — `--docs-editor-accent` is a semantic token, not a theme-folder key. The closed theme registry does not include it.
 
 ### Fixed Geometry
 
@@ -61,7 +61,7 @@ The code block uses a 20px line height as a surface contract. Numbered rows, zeb
 
 - **Mode changes stop at the semantic layer**
 
-  - A consumer names what a value means once; palette and theme changes re-resolve behind that name.
+  - A consumer names what a value means once. Palette and theme changes re-resolve behind that name.
 
 - **Sharpness travels across the surface**
 

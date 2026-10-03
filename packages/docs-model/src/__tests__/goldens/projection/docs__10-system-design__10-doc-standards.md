@@ -13,7 +13,7 @@ The structure defined in these standards is built for many agents at once.
 | `20-agents` | Participating agents, their definitions, context, tools, outputs, and responsibilities | When agent contracts change |
 | `30-implementation` | How the current code realizes the system design, including its organization and the reasons for key implementation choices | With the code |
 
-A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. structure owns the rule.
+A repo may declare additional numbered root tiers (40 and above, below 99) for procedural guide content the four layers cannot hold. The structure standard owns the rule.
 
 ## The "Why" Travels With Every Decision
 
@@ -76,3 +76,7 @@ Each standard owns one concern. Every one shows how things are laid out, states 
   - Authoring Lints
 
     - Rule ownership, draft and completion checks, and the distinction between required findings and editorial warnings.
+
+  - Style Enforcement
+
+    - Proposed tiers that prime writers with STE, then verify pages with lints, judgment rules, and model rewrites.

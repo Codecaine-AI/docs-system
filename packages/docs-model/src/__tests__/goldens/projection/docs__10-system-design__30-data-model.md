@@ -8,7 +8,7 @@ The docs system has one on-disk content format
 
   - sidecar per bundle 
 
-Four shapes describe the state; one behavior model describes every change. 
+Four shapes describe the state. One behavior model describes every change.
 
 This section describes shapes and invariants, not transport wiring. 
 
@@ -38,4 +38,4 @@ This section describes shapes and invariants, not transport wiring.
 
 ## Neighbors
 
-The roster of block types — what each is for, with an example — is the block vocabulary's subject; type counts live there. Package structure and transport wiring are the implementation tier's.
+The roster of block types (what each is for, with an example) is the block vocabulary's subject. Type counts live there. Package structure and transport wiring are the implementation tier's.

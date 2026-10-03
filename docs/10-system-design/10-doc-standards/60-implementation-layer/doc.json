@@ -40,7 +40,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal; it never silently deviates."
+          "insert": "The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates."
         }
       ],
       "children": []
@@ -150,7 +150,7 @@
       "props": {},
       "text": [
         {
-          "insert": "References up to the design docs that constrain the area — the governed-by convention in "
+          "insert": "References up to the design docs that constrain the area: the governed-by convention in "
         },
         {
           "insert": "cross-doc linking",
@@ -268,7 +268,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Thirty data connectors extend a base class, so connector #31 must too — an inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way."
+          "insert": "Thirty data connectors extend a base class, so connector #31 must too. An inline comment cannot govern a file nobody has written, and system design does not care: behavior is identical either way."
         }
       ],
       "children": []
@@ -395,7 +395,7 @@
       "props": {},
       "text": [
         {
-          "insert": "An agent whose change fits the entries follows them; one whose change conflicts files a proposal."
+          "insert": "An agent whose change fits the entries follows them, and one whose change conflicts files a proposal."
         }
       ],
       "children": []
@@ -472,7 +472,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The mirror descends one level for each genuine subdivision of the source; deeper structure becomes entries on the area page, not sub-pages."
+          "insert": "The mirror descends one level for each genuine subdivision of the source. Deeper structure becomes entries on the area page, not sub-pages."
         }
       ],
       "children": []
@@ -499,7 +499,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Everything below already has a home; an area page carries none of it."
+          "insert": "Everything below already has a home, and an area page carries none of it."
         }
       ],
       "children": []
@@ -605,7 +605,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Deletion happens after the salvage pass, never instead of it."
+          "insert": "Deletion occurs after the salvage pass, never instead of it."
         }
       ],
       "children": []
@@ -646,7 +646,7 @@
       "props": {},
       "text": [
         {
-          "insert": "In-code docs reach only files that exist; nothing in the source can govern a file nobody has written."
+          "insert": "In-code docs reach only files that exist. Nothing in the source can govern a file nobody has written."
         }
       ],
       "children": []
@@ -657,7 +657,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Design cannot hold it either — the system behaves identically whether the structure is followed or not."
+          "insert": "Design cannot hold it either: the system behaves identically whether the structure is followed or not."
         }
       ],
       "children": []
@@ -684,7 +684,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A standardized layout survives only while every restructuring is a recorded decision; one silent deviation makes the next one invisible."
+          "insert": "A standardized layout survives only while every restructuring is a recorded decision. One silent deviation makes the next one invisible."
         }
       ],
       "children": []
@@ -750,7 +750,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Sub-pages tracking the source tree file by file go stale with every move; entries on an area page move with the page."
+          "insert": "Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page."
         }
       ],
       "children": []

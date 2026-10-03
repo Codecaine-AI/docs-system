@@ -11,7 +11,7 @@ docs grep "depth ladder"
 > **L1 (Render):** Prints the doc as stable markdown — title, then body.
 > **L2 (Grep):** Searches every doc as its rendered text, not its bytes.
 
-- The render is part of the contract: every doc's markdown is pinned byte-for-byte by golden tests.
+- The render is part of the contract. Every doc's markdown is pinned byte-for-byte by golden tests.
 
 - Structure is greppable
 
@@ -19,11 +19,11 @@ docs grep "depth ladder"
 
 ## Writing
 
-- Writes are typed operations addressed by block id — never text patches. The mutation model defines them.
+- Writes are typed operations addressed by block id, never text patches. The mutation model defines them.
 
 - Hash preconditions and draft locks keep concurrent writers off each other.
 
-- Every save is validated before anything persists; an invalid write is rejected whole, and the file is untouched.
+- Every save is validated before anything persists. An invalid write is rejected whole, and the file is untouched.
 
 ## Why
 
@@ -37,4 +37,4 @@ docs grep "depth ladder"
 
   - An operation is validated against the schema before it lands.
 
-  - A text patch could break the state in ways a reader only finds later; a rejected op breaks nothing.
+  - A text patch could break the state in ways a reader only finds later. A rejected op breaks nothing.

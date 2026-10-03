@@ -10,7 +10,7 @@ One board file stays authoritative across three rendered surfaces:
 
 - **Inline preview**
 
-  - The selected view renders as a static figure in the document flow; clicking it requests exploration.
+  - The selected view renders as a static figure in the document flow, and clicking it requests exploration.
 
 - **Full-Screen Viewer**
 
@@ -54,7 +54,7 @@ Images and videos stay in the document instead of passing through the canvas vie
 
 - **The docs repo owns the board file**
 
-  - The canvas block references a bundle-local sidecar. Studio reads and writes that same file; it does not copy the board into local draft storage.
+  - The canvas block references a bundle-local sidecar. Studio reads and writes that same file, and it does not copy the board into local draft storage.
 
   - In doc edit mode, Edit in Canvas opens Studio in a new browser tab, deep-linked to the sidecar.
 

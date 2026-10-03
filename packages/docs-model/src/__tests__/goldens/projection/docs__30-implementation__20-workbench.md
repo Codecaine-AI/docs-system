@@ -4,7 +4,7 @@ Structural decisions for the workbench composition host, the shell that binds th
 
 Editor design defines the surfaces the host composes.
 
-Editing Interactions defines save, conflict, and reload behavior.
+Editing Interactions: the human interaction semantics, including save, conflict, and reload behavior.
 
 The mutation model defines the write contract behind every host callback.
 
@@ -14,7 +14,7 @@ Reading Surface defines PDF selection, format, and printed-content behavior.
 
 ### The workbench is a thin composition host
 
-- Decision: Capabilities live in docs-viewer and docs-server; the workbench composes them and supplies the callbacks, data, persistence, locks, uploads, navigation, embeds, without defining block rendering, editor semantics, or write rules of its own.
+- Decision: Capabilities live in docs-viewer and docs-server. The workbench composes them and supplies the callbacks (data, persistence, locks, uploads, navigation, embeds) without defining block rendering, editor semantics, or write rules of its own.
 
 - Why: Reimplementing interactions in the host was rejected. A second implementation drifts from the packages and breaks every other host that embeds them.
 
@@ -22,15 +22,15 @@ Reading Surface defines PDF selection, format, and printed-content behavior.
 
 ### Editor-owned input stays inside the viewer
 
-- Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions; the workbench receives document updates through the host callbacks rather than intercepting input.
+- Decision: Link authoring, keyboard behavior, paste conversion, and slash insertion live inside docs-viewer's editor extensions. The workbench receives document updates through the host callbacks rather than intercepting input.
 
-- Why: One interaction implementation serves every host; host-side input handling was rejected because it duplicates editor behavior per host.
+- Why: One interaction implementation serves every host. Host-side input handling was rejected because it duplicates editor behavior per host.
 
 - Applies to: `packages/docs-viewer/src/editor`, `packages/docs-workbench/web/src/pages`. Future input features land as viewer extensions.
 
 ### No parallel block catalog
 
-- Decision: The workbench maintains no block reference of its own; block definitions and examples belong to Block vocabulary.
+- Decision: The workbench maintains no block reference of its own. Block definitions and examples belong to Block vocabulary.
 
 - Why: A host-local catalog was rejected. It drifts from the model registry and the design vocabulary the moment a block changes.
 
@@ -38,15 +38,19 @@ Reading Surface defines PDF selection, format, and printed-content behavior.
 
 ### Static export is read-only by construction
 
-- Decision: The static export ships no write endpoints, the exported artifact contains no mutation surface, and the build-time data adapter in `packages/docs-workbench/web/src/data/api.ts`, the reduced `DocsClient` wiring in `packages/docs-workbench/web/src/data/client.ts`, and the page selection over `packages/docs-workbench/src/export.ts` must agree on the same capability set.
+- Decision: The static export ships no write endpoints, and the exported artifact contains no mutation surface. The build-time data adapter in `packages/docs-workbench/web/src/data/api.ts`, the reduced `DocsClient` wiring in `packages/docs-workbench/web/src/data/client.ts`, and the page selection over `packages/docs-workbench/src/export.ts` must agree on the same capability set.
 
-- Why: Runtime capability flags alone were rejected. An export that merely hides write UI but still ships write paths can drift; omitting the endpoints makes the read-only guarantee structural.
+- Why: Runtime capability flags alone were rejected.
+
+  - An export that merely hides write UI but still ships write paths can drift.
+
+  - Omitting the endpoints makes the read-only guarantee structural.
 
 ### PDF Export Reuses the Viewer and an Offline Printer
 
 - Decision: `ExportDialog.tsx` selects saved pages, requests one PDF per page, and assembles the final download. `pdf-document.tsx` reuses DocBlockRenderer with print-specific code and HTML output, static diagram embeds, and inline image assets.
 
-- Why: Reusing the viewer retains typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by `pdf-selection.ts`.
+- Why: Reusing the viewer keeps typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by `pdf-selection.ts`.
 
 - Applies to: Future export formats under `packages/docs-workbench/web/src/lib` and the export dialog must use saved bundles without mutating source documents.
 

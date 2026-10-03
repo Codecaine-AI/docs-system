@@ -100,7 +100,7 @@
           }
         },
         {
-          "insert": "-only block. external YouTube URL, no bundle asset. The player is the "
+          "insert": "-only block (external YouTube URL, no bundle asset). The player is the "
         },
         {
           "insert": "youtube-nocookie",
@@ -183,7 +183,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No text ("
+          "insert": "The block has no text ("
         },
         {
           "insert": "carriesText: false",
@@ -192,7 +192,7 @@
           }
         },
         {
-          "insert": "); a useful block sets at least one of "
+          "insert": "). A useful block sets at least one of "
         },
         {
           "insert": "src",
@@ -243,7 +243,7 @@
           }
         },
         {
-          "insert": ". video blocks appear "
+          "insert": ". Video blocks appear "
         },
         {
           "insert": "from content",
@@ -316,7 +316,7 @@
           }
         },
         {
-          "insert": ". external "
+          "insert": ". External "
         },
         {
           "insert": "url",
@@ -367,7 +367,7 @@
       "props": {},
       "text": [
         {
-          "insert": "No typed actions. patch props via "
+          "insert": "No typed actions. Patch props via "
         },
         {
           "insert": "updateBlock",
@@ -414,7 +414,7 @@
           }
         },
         {
-          "insert": ". in the rendered markdown, that title is most of what a reading agent gets."
+          "insert": ". In the rendered markdown, that title is most of what a reading agent gets."
         }
       ],
       "children": []
@@ -565,7 +565,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A bundle-relative src ships with a published article and plays through the native video element. A provider url takes precedence when both are supplied. The dedicated video upload and asset read paths accept up to 64 MiB; generic uploads accept up to 20 MiB. Small compressed clips are practical repository assets. Longer recordings increase Git history and deployment size."
+          "insert": "A bundle-relative src ships with a published article and plays through the native video element. A provider url takes precedence when both are supplied. The dedicated video upload and asset read paths accept up to 64 MiB. Generic uploads accept up to 20 MiB. Small compressed clips are practical repository assets. Longer recordings increase Git history and deployment size."
         }
       ],
       "children": []
