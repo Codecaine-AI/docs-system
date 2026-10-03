@@ -1,0 +1,1234 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-19cf645aa860468d183023e7158c1439",
+  "title": "Text Measurement",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "tm-intro",
+        "tm-h-structure",
+        "tm-structure-lead",
+        "tm-backends",
+        "tm-h-hosts",
+        "tm-hosts-lead",
+        "tm-host-mcp",
+        "tm-host-server",
+        "tm-host-cli",
+        "tm-host-workbench",
+        "tm-host-tests",
+        "tm-h-rule",
+        "tm-rule-lead",
+        "tm-rule-face",
+        "tm-rule-edge",
+        "tm-rule-covered",
+        "tm-rule-unreliable",
+        "tm-rule-limits",
+        "tm-h-verdicts",
+        "tm-verdicts-lead",
+        "tm-verdict-overflows",
+        "tm-verdict-borderline",
+        "tm-verdict-uncovered",
+        "tm-verdict-approximate",
+        "tm-h-accuracy",
+        "tm-accuracy-lead",
+        "tm-acc-package",
+        "tm-acc-model",
+        "tm-acc-drift",
+        "tm-h-why",
+        "tm-why-one",
+        "tm-why-edge",
+        "tm-why-faces"
+      ]
+    },
+    "tm-intro": {
+      "id": "tm-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text measurement predicts how wide text paints and where it wraps, without rendering a page. The docs layout lints and the sequence layout measure through one package, "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a label that a lint says fits also fits on screen. The answers are exact only when the three conditions in The Rule hold."
+        }
+      ],
+      "children": []
+    },
+    "tm-h-structure": {
+      "id": "tm-h-structure",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Structure"
+        }
+      ],
+      "children": []
+    },
+    "tm-structure-lead": {
+      "id": "tm-structure-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pretext 0.0.9 breaks the lines, and the active backend supplies every width. "
+        },
+        {
+          "insert": "measureWidth",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "wrapText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "fitText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " answer one-line widths, wrapped lines, and fit verdicts. The package bundles Inter 3.19 at weights 400, 500, 600, and 700 and IBM Plex Mono 2.5 at 400, 500, and 600. Each face ships as a woff2 file for browsers and a TTF file for headless hosts. The package lives at "
+        },
+        {
+          "insert": "canvas/packages/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the core workspace, and its "
+        },
+        {
+          "insert": "README.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " documents the full API."
+        }
+      ],
+      "children": []
+    },
+    "tm-backends": {
+      "id": "tm-backends",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Backend",
+          "Runs in",
+          "Widths",
+          "Selected by"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "harfbuzz",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Bun and Node hosts",
+            "Exact, shaped from the bundled TTF files",
+            [
+              {
+                "insert": "useHarfBuzz()",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "canvas",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Browsers",
+            "Exact once the bundled woff2 faces load",
+            [
+              {
+                "insert": "useBrowserFonts()",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "table",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Anywhere",
+            "Approximate, from generated advance and kerning tables",
+            "Default until a host switches"
+          ]
+        ],
+        "title": "text-measure backends"
+      },
+      "children": []
+    },
+    "tm-h-hosts": {
+      "id": "tm-h-hosts",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Hosts"
+        }
+      ],
+      "children": []
+    },
+    "tm-hosts-lead": {
+      "id": "tm-hosts-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each host picks its backend once at startup, before any lint or layout runs. A host whose load fails keeps the "
+        },
+        {
+          "insert": "table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backend, so its lints still run and call their widths approximate."
+        }
+      ],
+      "children": []
+    },
+    "tm-host-mcp": {
+      "id": "tm-host-mcp",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs MCP service",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-host-mcp-a"
+      ]
+    },
+    "tm-host-mcp-a": {
+      "id": "tm-host-mcp-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The daemon and the managed runtime load HarfBuzz before they serve, and every tool call waits for the load. Their "
+        },
+        {
+          "insert": "/health",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " response reports the backend as "
+        },
+        {
+          "insert": "textMeasure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "tm-host-server": {
+      "id": "tm-host-server",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-server",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-host-server-a"
+      ]
+    },
+    "tm-host-server-a": {
+      "id": "tm-host-server-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Creating the routes starts the HarfBuzz load in "
+        },
+        {
+          "insert": "text-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/text-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and every save-time lint waits for it."
+        }
+      ],
+      "children": []
+    },
+    "tm-host-cli": {
+      "id": "tm-host-cli",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-cli",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-host-cli-a"
+      ]
+    },
+    "tm-host-cli-a": {
+      "id": "tm-host-cli-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " load HarfBuzz before they run. "
+        },
+        {
+          "insert": "audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " ends its report with the backend, such as "
+        },
+        {
+          "insert": "text measure: harfbuzz (exact)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "tm-host-workbench": {
+      "id": "tm-host-workbench",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Workbench",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-host-workbench-a"
+      ]
+    },
+    "tm-host-workbench-a": {
+      "id": "tm-host-workbench-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "main.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/main.tsx"
+            }
+          }
+        },
+        {
+          "insert": " imports "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and starts "
+        },
+        {
+          "insert": "loadDocsFonts()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " without blocking the first render. When the faces load, the "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backend takes over, and the sequence and canvas embeds lay out again."
+        }
+      ],
+      "children": []
+    },
+    "tm-host-tests": {
+      "id": "tm-host-tests",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-host-tests-a"
+      ]
+    },
+    "tm-host-tests-a": {
+      "id": "tm-host-tests-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "bun test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " preload "
+        },
+        {
+          "insert": "text-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "text-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": " loads HarfBuzz, so tests lint the way the hosts do."
+        }
+      ],
+      "children": []
+    },
+    "tm-h-rule": {
+      "id": "tm-h-rule",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Rule"
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-lead": {
+      "id": "tm-rule-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An exact backend reproduces the line counts and widths Chromium paints only when three conditions hold:"
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-face": {
+      "id": "tm-rule-face",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The page paints with a bundled face.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-rule-face-a"
+      ]
+    },
+    "tm-rule-face-a": {
+      "id": "tm-rule-face-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The CSS "
+        },
+        {
+          "insert": "font-family",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " starts with "
+        },
+        {
+          "insert": "Inter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "IBM Plex Mono",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A system stack such as "
+        },
+        {
+          "insert": "system-ui",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolves to a face the package never measured."
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-edge": {
+      "id": "tm-rule-edge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Answers near the edge are borderline.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-rule-edge-a"
+      ]
+    },
+    "tm-rule-edge-a": {
+      "id": "tm-rule-edge-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "fitText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " asks whether the text fits at the box width and at 1px either side. When the answers differ, the verdict is "
+        },
+        {
+          "insert": "borderline",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of "
+        },
+        {
+          "insert": "fits",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "overflows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-covered": {
+      "id": "tm-rule-covered",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every character is covered.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-rule-covered-a"
+      ]
+    },
+    "tm-rule-covered-a": {
+      "id": "tm-rule-covered-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The browser paints characters the bundled faces lack, such as CJK, emoji, and Arabic, in a fallback font that varies by machine. The package lists them in "
+        },
+        {
+          "insert": "uncovered",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and sets "
+        },
+        {
+          "insert": "reliable",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to false."
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-unreliable": {
+      "id": "tm-rule-unreliable",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A result is also unreliable on the "
+        },
+        {
+          "insert": "table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backend, for a family outside the bundle, and for a weight the faces lack. Such a weight snaps the way CSS font matching does, so weight 620 paints and measures as Bold."
+        }
+      ],
+      "children": []
+    },
+    "tm-rule-limits": {
+      "id": "tm-rule-limits",
+      "type": "callout",
+      "props": {
+        "kind": "Limitation",
+        "title": "Where the guarantee stops",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "The layout lints assume stock settings. A theme or rail pick that names another face, such as Serif or Mono, paints that face, as "
+        },
+        {
+          "insert": "Typography and Fonts",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts"
+            }
+          }
+        },
+        {
+          "insert": " describes, so findings describe widths its pages do not paint. A page that never loads "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " paints the fallback stack. Published sites ship the faces, but their diagrams come from the "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " copies of canvas and sequence. Those pinned commits predate text-measure. The Chromium truth comes from macOS, and other platforms have not been measured."
+        }
+      ],
+      "children": []
+    },
+    "tm-h-verdicts": {
+      "id": "tm-h-verdicts",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Verdicts in Layout Findings"
+        }
+      ],
+      "children": []
+    },
+    "tm-verdicts-lead": {
+      "id": "tm-verdicts-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layout rules in "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " turn each measurement into a verdict and word the finding to match. Content with at least 1px to spare gets no finding, and every finding names stock theme settings."
+        }
+      ],
+      "children": []
+    },
+    "tm-verdict-overflows": {
+      "id": "tm-verdict-overflows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "overflows",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "tm-verdict-overflows-a"
+      ]
+    },
+    "tm-verdict-overflows-a": {
+      "id": "tm-verdict-overflows-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The content needs more than the available width plus 1px, and the finding states the overflow as a fact."
+        }
+      ],
+      "children": []
+    },
+    "tm-verdict-borderline": {
+      "id": "tm-verdict-borderline",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "borderline",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "tm-verdict-borderline-a"
+      ]
+    },
+    "tm-verdict-borderline-a": {
+      "id": "tm-verdict-borderline-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The answer flips within 1px of the edge, and the finding says the content may overflow."
+        }
+      ],
+      "children": []
+    },
+    "tm-verdict-uncovered": {
+      "id": "tm-verdict-uncovered",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "uncovered",
+          "attributes": {
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "tm-verdict-uncovered-a"
+      ]
+    },
+    "tm-verdict-uncovered-a": {
+      "id": "tm-verdict-uncovered-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The content would fit without the characters the bundled faces lack. The finding says it may overflow and never counts those characters as an overflow."
+        }
+      ],
+      "children": []
+    },
+    "tm-verdict-approximate": {
+      "id": "tm-verdict-approximate",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Approximate widths",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-verdict-approximate-a"
+      ]
+    },
+    "tm-verdict-approximate-a": {
+      "id": "tm-verdict-approximate-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When a result is unreliable, the message ends with "
+        },
+        {
+          "insert": "These widths are approximate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the reason: the "
+        },
+        {
+          "insert": "table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backend, uncovered characters, or a weight the faces lack."
+        }
+      ],
+      "children": []
+    },
+    "tm-h-accuracy": {
+      "id": "tm-h-accuracy",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "How Accuracy Is Tested"
+        }
+      ],
+      "children": []
+    },
+    "tm-accuracy-lead": {
+      "id": "tm-accuracy-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Committed Chromium truth checks the package, and widths measured in Chromium check the docs layout code built on it."
+        }
+      ],
+      "children": []
+    },
+    "tm-acc-package": {
+      "id": "tm-acc-package",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Package accuracy test",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-acc-package-a",
+        "tm-acc-package-b"
+      ]
+    },
+    "tm-acc-package-a": {
+      "id": "tm-acc-package-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "test/accuracy.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " replays "
+        },
+        {
+          "insert": "test/accuracy/chromium-truth.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", recorded in headless Chromium 153, in plain "
+        },
+        {
+          "insert": "bun test",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". On the HarfBuzz backend it finds 0 line-count mismatches on 18,792 covered layouts and 0 "
+        },
+        {
+          "insert": "fitText",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " contradictions on 79,319 checks."
+        }
+      ],
+      "children": []
+    },
+    "tm-acc-package-b": {
+      "id": "tm-acc-package-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Single-line widths land within 1/64px of Chromium's, one layout unit. "
+        },
+        {
+          "insert": "bun run truth",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " records the truth file again."
+        }
+      ],
+      "children": []
+    },
+    "tm-acc-model": {
+      "id": "tm-acc-model",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Docs layout tests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-acc-model-a"
+      ]
+    },
+    "tm-acc-model-a": {
+      "id": "tm-acc-model-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tests in "
+        },
+        {
+          "insert": "packages/docs-model/src/layout/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout"
+            }
+          }
+        },
+        {
+          "insert": " carry widths measured in Chromium 153 with the bundled faces. A Chromium check of all 156 tables in the docs-system, canvas, and agent-kernel corpora put the table model within 0.21px of each table's max-content width."
+        }
+      ],
+      "children": []
+    },
+    "tm-acc-drift": {
+      "id": "tm-acc-drift",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drift tests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-acc-drift-a"
+      ]
+    },
+    "tm-acc-drift-a": {
+      "id": "tm-acc-drift-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drift tests in docs-viewer and docs-workbench fail when the viewer's literals stop matching "
+        },
+        {
+          "insert": "layout/metrics.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/metrics.ts"
+            }
+          }
+        },
+        {
+          "insert": ", which holds the stock widths from "
+        },
+        {
+          "insert": "Block Widths and Lanes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/50-block-widths"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "tm-h-why": {
+      "id": "tm-h-why",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Why"
+        }
+      ],
+      "children": []
+    },
+    "tm-why-one": {
+      "id": "tm-why-one",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One measurer for every consumer",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-why-one-a"
+      ]
+    },
+    "tm-why-one-a": {
+      "id": "tm-why-one-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lints, layouts, and renderers that share one package and one set of faces cannot disagree about a width."
+        }
+      ],
+      "children": []
+    },
+    "tm-why-edge": {
+      "id": "tm-why-edge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Borderline instead of a guess",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-why-edge-a"
+      ]
+    },
+    "tm-why-edge-a": {
+      "id": "tm-why-edge-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Within 1px of the edge, Chromium's layout-unit rounding and end-of-line kerning decide the answer. A finding there says \"may\" instead of claiming a result it cannot know."
+        }
+      ],
+      "children": []
+    },
+    "tm-why-faces": {
+      "id": "tm-why-faces",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Only bundled faces can be measured ahead of time",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tm-why-faces-a"
+      ]
+    },
+    "tm-why-faces-a": {
+      "id": "tm-why-faces-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A system stack resolves to a different face on each platform and machine. Inter and IBM Plex Mono ship with the package, so a page that declares them paints the face the lint measured."
+        }
+      ],
+      "children": []
+    }
+  }
+}

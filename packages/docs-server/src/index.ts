@@ -284,3 +284,4 @@ export {
 // Store + routes
 export { createDocsStore, type DocsStore } from "./store";
 export { createDocsRoutes } from "./routes";
+export { textMeasureBackend, textMeasureReady } from "./text-measure";

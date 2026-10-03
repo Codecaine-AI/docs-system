@@ -1,4 +1,4 @@
-Implementation of theming: compiling theme folders and normalized style-rail state into CSS custom properties on the document root. Source: `packages/docs-workbench/web/src/theme` (`notion-palette.css`, `semantic.css`, `theme-folders.ts`), `packages/docs-workbench/web/src/shell` (`StyleRail.tsx`, `App.tsx`), `packages/docs-server/src/themes.ts` (theme-root reads and writes), `themes/` (the package-owned theme catalogue), and `<stateDirectory>/themes/global/` (the shared Global theme).
+Theming compiles theme folders and normalized style-rail state into CSS custom properties on the document root. The code lives in `packages/docs-workbench/web/src/theme` (`notion-palette.css`, `semantic.css`, `theme-folders.ts`, `read-surface.css`) and `packages/docs-workbench/web/src/shell` (`style-rail-settings.ts`, `StyleRail.tsx`, `App.tsx`). `packages/docs-server/src/themes.ts` reads and writes theme roots, `themes/` holds the package-owned theme catalogue, and `<stateDirectory>/themes/global/` holds the shared Global theme.
 
 ## Governed By
 
@@ -26,7 +26,9 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 - Why: A second reset path was rejected. Removing the property makes the theme layer or base stylesheet below authoritative automatically, so a default value never forks between layers.
 
-- Applies to: `styleRailVars` and `applyStyleRailVars` in `packages/docs-workbench/web/src/shell/StyleRail.tsx`, including future rail settings.
+- **Applies to**
+
+  - The rule covers `styleRailVars` in `style-rail-settings.ts` and `applyStyleRailVars` in `StyleRail.tsx`, including future rail settings.
 
 ### Closed registry is the single theme vocabulary
 
@@ -44,13 +46,31 @@ Theming (block design): the typed component-knob contract and sparse override se
 
 - Applies to: `themes/*/components`, the Global theme's `components/` folder, and `packages/docs-server/src/themes.ts`, including future registered surfaces.
 
-### Font wiring stays in the theming modules
+### Font Wiring Stays in the Theming Modules
 
-- Decision: Font stacks flow through the same two theming paths as every other value. Manifest font strings compile through `FONT_VARS` in `theme-folders.ts` into both mode blocks, and rail font choices map to built-in stack strings in `styleRailVars`. No font-binary or `@font-face` loading path exists, so a stack resolves only against families the browser or host already provides.
+- **Decision**
 
-- Why: A separate font subsystem was rejected. Fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above.
+  - Font stacks flow through the same two theming paths as every other value. Manifest `fonts` strings compile through `FONT_VARS` in `theme-folders.ts` into both mode blocks, and rail font choices map to built-in stacks in `styleRailVars`.
 
-- Applies to: `packages/docs-workbench/web/src/theme/theme-folders.ts` and `packages/docs-workbench/web/src/shell/StyleRail.tsx`. Future font features extend these modules.
+  - The Default theme's `fonts` block in `themes/default/theme.json` sets body and headings to `Inter, ui-sans-serif, system-ui, sans-serif` and code to `"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace`. The rail's stock picks and the `:root` defaults name the same two stacks.
+
+  - A rail pick that differs from stock wins over the theme's `fonts` block, and the theme's block wins over the `:root` defaults in `read-surface.css`.
+
+  - `main.tsx` imports the `fonts.css` of `@codecaine-ai/text-measure`, and `docs-fonts.ts` loads its faces at startup without blocking the first render.
+
+  - docs-publish ships a copy of `fonts.css` and the font files in its build output for published pages.
+
+- **Why**
+
+  - A separate font subsystem was rejected, because fonts are theme values. The font loader adds faces and switches text measurement to them, but it never picks a stack.
+
+  - The Default theme names the faces the layout lints measure with, so lint widths match the page at stock settings.
+
+  - A theme without a `fonts` block, such as `docs-system-classic` or a Global theme that never set one, paints the bundled faces through the `:root` defaults. Layout findings are approximate only where a theme or rail pick names another face.
+
+- **Applies to**
+
+  - The rule covers `theme-folders.ts`, `read-surface.css`, `style-rail-settings.ts`, `docs-fonts.ts`, and `themes/default/theme.json`. Future font features extend these modules.
 
 ### One package-owned theme root
 
@@ -67,6 +87,8 @@ Theming (block design): the typed component-knob contract and sparse override se
   - `theme.json` carries the complete normalized scalar settings under `railDefaults` with an empty `components` member, and `components/*.json` carry the sparse per-surface overrides.
 
   - Workbench autosave from an unlocked serve without a Global theme is its only writer.
+
+  - `theme.json` also carries the `fonts` block, which autosave keeps because `themeWritePayload` in `App.tsx` copies the active manifest.
 
 - Why: A browser-local or exported-file home was rejected. A repository folder makes the core look versionable and shareable, and a single writer keeps the manifest and component files from diverging.
 
@@ -118,11 +140,25 @@ packages/
 | `POST /api/themes` with `id: "global"` | Writes the global folder with atomic file writes and returns 201. A theme-locked serve returns 403, and a host without a global root returns 400. |
 | `GET /api/serve-config` | Returns `globalTheme: true` when the host has a global root. The client then loads and saves only `global`. |
 
-- The supervisor sets `CODECAINE_DOCS_GLOBAL_THEMES` to `<stateDirectory>/themes`. The managed runtime falls back to `dirname(registry)/themes` when an older supervisor omits the variable.
+- **Managed Host**
 
-- `docs-cli serve` and `docs-cli export` call `resolveGlobalThemesRoot`. It uses `CODECAINE_DOCS_GLOBAL_THEMES` first, then `<stateDirectory>/themes` when the state directory exists. `CODECAINE_DOCS_STATE_DIR` overrides the default state directory.
+  - The supervisor sets `CODECAINE_DOCS_GLOBAL_THEMES` to `<stateDirectory>/themes`.
 
-- PDF and ZIP exports render the client's HTML, so they use whichever theme the client shows.
+  - The managed runtime falls back to `dirname(registry)/themes` when an older supervisor omits the variable.
+
+- **Standalone Serve and Export**
+
+  - `docs-cli serve` and `docs-cli export` call `resolveGlobalThemesRoot`.
+
+  - `resolveGlobalThemesRoot` uses `CODECAINE_DOCS_GLOBAL_THEMES` first, then `<stateDirectory>/themes` when the state directory exists.
+
+  - `CODECAINE_DOCS_STATE_DIR` overrides the default state directory.
+
+- **PDF Export**
+
+  - PDF and ZIP exports render the client's HTML, so they use whichever theme the client shows.
+
+  - Print CSS in `pdf-document.tsx` still sets text in Inter and code in IBM Plex Mono, whatever fonts the theme names.
 
 ## In This Section
 

@@ -1,10 +1,20 @@
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
-import { defineConfig } from "vite";
+import { defineConfig, searchForWorkspaceRoot } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
+/**
+ * The bundled Inter / IBM Plex Mono woff2 files (@codecaine-ai/text-measure,
+ * imported by main.tsx) live in the canvas checkout, outside this workspace,
+ * so the dev server must be allowed to serve them.
+ */
+const textMeasureFonts = resolve(
+  dirname(createRequire(import.meta.url).resolve("@codecaine-ai/text-measure/fonts.css")),
+  "fonts",
+);
 
 /**
  * Two build modes (see web/src/data/api.ts):
@@ -42,6 +52,9 @@ export default defineConfig({
   },
   server: {
     port: 4801,
+    fs: {
+      allow: [searchForWorkspaceRoot(here), textMeasureFonts],
+    },
     proxy: {
       "/api": {
         target: process.env.DOCS_API ?? "http://localhost:4800",

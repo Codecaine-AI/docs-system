@@ -1,10 +1,12 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import {
   lintDocument,
   lintRules,
   validateLintRules,
   formatLintReport,
+  type LintRule,
 } from "./index";
+import { runLintRules } from "./engine";
 import { document, paragraph } from "./fixtures";
 import type { DocBlock, DocBlockType } from "../doc-schema";
 
@@ -118,4 +120,31 @@ test("hidden root metadata is not rendered body prose or an opening paragraph", 
   expect(
     lintDocument(doc, { phase: "complete" }).findings.map((f) => f.ruleId),
   ).toEqual(["structure.opening-paragraph"]);
+});
+
+test("a rule that throws becomes one warning that never blocks, and every other rule still runs", () => {
+  const throwing: LintRule = {
+    id: "test.throws", docsPath: "99-appendix/10-style-guide/10-writing-style", severity: "error", enforcement: ["draft", "complete"],
+    audit: { id: "E9", severity: "error" }, applicability: "Always.", exclusions: [], suggestion: "None.",
+    check: () => { throw new Error("fixture failure."); },
+  };
+  const errors = spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const doc = document(paragraph("p", "New — prose."));
+    for (const phase of ["draft", "complete"] as const) {
+      const report = runLintRules(doc, { phase }, [throwing, ...lintRules]);
+      expect(report.findings.find((f) => f.ruleId === "test.throws")).toMatchObject({
+        severity: "warning",
+        audit: undefined,
+        field: "document",
+        message: "The test.throws check failed on this page and was skipped: fixture failure.",
+        evidence: "internal error: fixture failure.",
+      });
+      expect(report.blocking.map((f) => f.ruleId)).toEqual(phase === "complete" ? ["writing.no-em-dash"] : []);
+    }
+    // The failure is logged once, however often the page is linted.
+    expect(errors.mock.calls.filter(([line]) => String(line).includes("test.throws"))).toHaveLength(1);
+  } finally {
+    errors.mockRestore();
+  }
 });

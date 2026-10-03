@@ -49,14 +49,14 @@ export function ExportDialog({ tree, currentPath, onClose }: { tree: DocsTreeNod
     urls.current.forEach(URL.revokeObjectURL); urls.current = [];
     const abort = new AbortController(); controller.current = abort;
     try {
-      const { buildPdfHtml, printStyles } = await import("../lib/pdf-document");
+      const { buildPdfHtml, createPrintContext } = await import("../lib/pdf-document");
       const { PDFDocument, StandardFonts, rgb } = await import("pdf-lib");
-      const css = printStyles();
+      const print = createPrintContext(abort.signal);
       const files: { path: string; bytes: Uint8Array }[] = [];
       for (const [index, page] of selectedPages.entries()) {
         abort.signal.throwIfAborted();
         setProgress(`Rendering ${index + 1} of ${selectedPages.length}: ${page.name}`);
-        const html = await buildPdfHtml(page.path, css);
+        const html = await buildPdfHtml(page.path, print);
         abort.signal.throwIfAborted();
         const response = await fetch("api/export-pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ html, pageNumbers: format !== "combined" }), signal: abort.signal });
         if (!response.ok) {
@@ -98,7 +98,10 @@ export function ExportDialog({ tree, currentPath, onClose }: { tree: DocsTreeNod
         const link = document.createElement("a"); link.href = file.url; link.download = file.name;
         document.body.append(link); link.click(); link.remove();
       }
-      setProgress(`${files.length} ${files.length === 1 ? "page" : "pages"} exported.`);
+      const missingFonts = Array.from(print.missingFonts);
+      setProgress(`${files.length} ${files.length === 1 ? "page" : "pages"} exported.${missingFonts.length
+        ? ` These fonts could not be embedded, so their text uses a fallback font: ${missingFonts.join(", ")}.`
+        : ""}`);
     } catch (error) {
       if (!abort.signal.aborted) setError(error instanceof Error ? error.message : String(error));
       else setProgress("Export canceled.");

@@ -14,6 +14,7 @@ import {
   resolveSequenceSidecarRootRelativePath,
 } from "./confine";
 import { listCanvasSidecars, validateCanvasPayload } from "./canvas-sidecar";
+import { textMeasureReady } from "./text-measure";
 import { validateSequencePayload } from "./sequence-sidecar";
 import type { DocsChangeEvent } from "./docs-events";
 import {
@@ -214,6 +215,8 @@ export function createDocsRoutes(
   const themesRoot = options?.themesRoot ?? themesRootFor(store.docsRoot);
   const globalThemesRoot = options?.globalThemesRoot;
   const codeThemesRoot = options?.codeThemesRoot;
+  // Start loading the exact text-measure backend now: every save-time lint awaits it.
+  void textMeasureReady();
   return new Elysia({ name: "docs-server-routes" })
     // -- dev CORS (see CORS_HEADERS above) -------------------------------------
     // onRequest runs before routing, so success, validation-error, and 404

@@ -128,6 +128,30 @@ The viewer descriptor renders the block through the host's `renderSequence` slot
 
   - The block is a non-editable atom leaf (`docSequence`). The shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading.
 
+### Measured Text
+
+The sequence engine measures every label before it draws it, with `@codecaine-ai/text-measure` unless the host passes its own measurer. `SEQUENCE_TYPOGRAPHY` in the engine's `text.ts` is the one font table that layout and the SVG renderer both read, so measured and painted text use the same font.
+
+- **Fonts**
+
+  - Every label paints in Inter, from 11px stereotypes and guards to the 16px bold title. Participant names use weight 600, and fragment operators use bold.
+
+  - Each `<text>` element sets `text-rendering="geometricPrecision"`, so a scaled diagram keeps the widths layout measured.
+
+- **Wrapping**
+
+  - A note wraps at 140px inside its 160px box at the default 8px note padding, and a long note grows taller instead of wider.
+
+  - A title wraps at the diagram's width and never widens it, and the title band reserves the height of every title line.
+
+  - Columns widen until each message label fits between its lifelines and each note clears the neighbouring lifeline.
+
+- **Re-layout and custom measurers**
+
+  - The workbench embed lays the diagram out again when the bundled fonts finish loading.
+
+  - A host can pass its own measurer through the `measure` prop of `SequenceViewer` or the `measure` argument of `layoutSequence`.
+
 ## Agent Renderer
 
 The markdown projection is one comment line, a greppable reference, not the diagram:

@@ -22,6 +22,11 @@
         "mcp-jev-cache",
         "mcp-jev-timeout",
         "mcp-jev-sample",
+        "mcp-measure-h",
+        "mcp-measure-lead",
+        "mcp-measure-health",
+        "mcp-measure-findings",
+        "mcp-measure-tests",
         "mcp-guide-4",
         "mcp-guide-5",
         "mcp-guide-6",
@@ -565,6 +570,365 @@
         },
         {
           "insert": " runs every rule over the blocks of given pages, read-only, and prints each answer's probability."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-h": {
+      "id": "mcp-measure-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Layout Measurement"
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-lead": {
+      "id": "mcp-measure-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layout lints measure text with the exact HarfBuzz backend of "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "daemon.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/daemon.ts"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "managed-runtime.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/managed-runtime.ts"
+            }
+          }
+        },
+        {
+          "insert": " load it before they serve, and every tool call in "
+        },
+        {
+          "insert": "service.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/service.ts"
+            }
+          }
+        },
+        {
+          "insert": " waits until the load finishes. "
+        },
+        {
+          "insert": "textMeasureReady()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/text-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/text-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": " owns the load, so the service and its routes share one backend per process. "
+        },
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the backends and when their widths are exact."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-health": {
+      "id": "mcp-measure-health",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Health",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-measure-health-1",
+        "mcp-measure-health-2"
+      ]
+    },
+    "mcp-measure-health-1": {
+      "id": "mcp-measure-health-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "/health",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " response of the daemon and of the managed runtime includes "
+        },
+        {
+          "insert": "textMeasure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", such as "
+        },
+        {
+          "insert": "{\"name\":\"harfbuzz\",\"exact\":true}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-health-2": {
+      "id": "mcp-measure-health-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A failed load logs an error and keeps the approximate table backend, and the next tool call retries, up to 3 loads per process. The lints still run, and each layout finding then says its widths are approximate."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-findings": {
+      "id": "mcp-measure-findings",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Findings",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-measure-findings-1",
+        "mcp-measure-findings-2"
+      ]
+    },
+    "mcp-measure-findings-1": {
+      "id": "mcp-measure-findings-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout findings appear as warnings in the "
+        },
+        {
+          "insert": "lint",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " field of "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and in write "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-findings-2": {
+      "id": "mcp-measure-findings-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "They stay out of "
+        },
+        {
+          "insert": "STYLE_RULE_POLICY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "lint-feedback.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/lint-feedback.ts"
+            }
+          }
+        },
+        {
+          "insert": " and have no enforcement phase, so they never block a write or "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-tests": {
+      "id": "mcp-measure-tests",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "mcp-measure-tests-1",
+        "mcp-measure-tests-2"
+      ]
+    },
+    "mcp-measure-tests-1": {
+      "id": "mcp-measure-tests-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-mcp/bunfig.toml",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/bunfig.toml"
+            }
+          }
+        },
+        {
+          "insert": " preloads the shared "
+        },
+        {
+          "insert": "text-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "text-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": ", so package tests measure the way the service does."
+        }
+      ],
+      "children": []
+    },
+    "mcp-measure-tests-2": {
+      "id": "mcp-measure-tests-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "text-measure-host.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-mcp/src/__tests__/text-measure-host.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " starts the daemon and the managed runtime as fresh processes and checks "
+        },
+        {
+          "insert": "textMeasure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on their "
+        },
+        {
+          "insert": "/health",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

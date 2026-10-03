@@ -1,13 +1,14 @@
 {
   "name": "@codecaine-ai/docs-publish",
-  "version": "0.1.0-proof.13",
+  "version": "0.1.0-proof.20",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./dist/publish.js",
+    ".": "./dist/node/publish.js",
     "./search": "./dist/search.js",
     "./editor": "./dist/browser/editor.js",
-    "./editor.css": "./dist/styles/editor.css"
+    "./editor.css": "./dist/styles/editor.css",
+    "./fonts.css": "./dist/fonts.css"
   },
   "files": [
     "dist",

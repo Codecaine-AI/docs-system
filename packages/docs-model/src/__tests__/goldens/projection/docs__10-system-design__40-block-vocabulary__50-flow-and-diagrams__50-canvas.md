@@ -101,6 +101,8 @@ The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
 
   - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo.
 
+Canvas paints its text in Inter and IBM Plex Mono, which the workbench loads at startup. When those fonts finish loading, the embed lays the board out again, so labels measured before the fonts arrived take their final widths. The canvas docs cover how canvas measures and wraps its labels, starting from Workspace themes.
+
 In the editor, the slash menu entry is **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf. Its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode. Edit mode's embed adds the Edit in Canvas action.
 
 ## Agent Renderer

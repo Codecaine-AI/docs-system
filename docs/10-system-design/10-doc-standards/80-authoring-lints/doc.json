@@ -15,6 +15,7 @@
         "b-80-authoring-lints-shared-engine-4",
         "b-80-authoring-lints-writing-rules-6",
         "b-80-authoring-lints-page-structure-rules-9",
+        "layout-rules-owner",
         "b-80-authoring-lints-other-owners-12",
         "b-80-authoring-lints-the-rule-15",
         "b-80-authoring-lints-every-registered-rule-ha-16",
@@ -30,6 +31,7 @@
         "b-80-authoring-lints-page-structure-errors-38",
         "b-80-authoring-lints-page-structure-warning-42",
         "component-lints",
+        "layout-lints",
         "lint-judgment-h",
         "lint-judgment-lead",
         "lint-judgment-ids",
@@ -47,7 +49,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage."
+          "insert": "Authoring lints report writing, page structure, and layout problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage."
         }
       ],
       "children": []
@@ -91,7 +93,8 @@
         }
       ],
       "children": [
-        "b-80-authoring-lints-lint-index-ts-package-5"
+        "b-80-authoring-lints-lint-index-ts-package-5",
+        "lint-engine-isolation"
       ]
     },
     "b-80-authoring-lints-lint-index-ts-package-5": {
@@ -126,6 +129,28 @@
         },
         {
           "insert": " collects findings, compares a baseline, and formats reports."
+        }
+      ],
+      "children": []
+    },
+    "lint-engine-isolation": {
+      "id": "lint-engine-isolation",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A rule that throws is skipped and leaves one non-blocking warning that names the error. One broken check never fails a save, an audit, or "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and never hides the other rules' findings."
         }
       ],
       "children": []
@@ -262,6 +287,101 @@
       "text": [
         {
           "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers."
+        }
+      ],
+      "children": []
+    },
+    "layout-rules-owner": {
+      "id": "layout-rules-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout Rules",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "layout-rules-owner-files",
+        "layout-rules-owner-measure",
+        "layout-rules-owner-hosts"
+      ]
+    },
+    "layout-rules-owner-files": {
+      "id": "layout-rules-owner-files",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "layout/rules.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/rules.ts",
+              "label": "layout/rules.ts"
+            }
+          }
+        },
+        {
+          "insert": " registers the layout rules. "
+        },
+        {
+          "insert": "layout/metrics.ts",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/metrics.ts",
+              "label": "layout/metrics.ts"
+            }
+          }
+        },
+        {
+          "insert": " holds the stock widths the viewer lays blocks out with, and drift tests in docs-viewer and docs-workbench keep both copies equal."
+        }
+      ],
+      "children": []
+    },
+    "layout-rules-owner-measure": {
+      "id": "layout-rules-owner-measure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rules measure text with the bundled Inter and IBM Plex Mono faces through "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", against the lanes and sizes of the stock theme. A theme or style-rail pick that changes them makes the findings describe stock settings, and each message says so."
+        }
+      ],
+      "children": []
+    },
+    "layout-rules-owner-hosts": {
+      "id": "layout-rules-owner-hosts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The docs MCP service, docs-cli, and docs-server load the exact HarfBuzz backend of text-measure at startup. Without it the rules still run and call their widths approximate, as "
+        },
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " explains."
         }
       ],
       "children": []
@@ -1274,6 +1394,118 @@
       "text": [
         {
           "insert": "bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints": {
+      "id": "layout-lints",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout Warnings",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "layout-lints-code-line",
+        "layout-lints-table-fit",
+        "layout-lints-stack-detail",
+        "layout-lints-edge",
+        "layout-lints-never-block"
+      ]
+    },
+    "layout-lints-code-line": {
+      "id": "layout-lints-code-line",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "layout.code-line-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column."
+        }
+      ],
+      "children": [
+        "layout-lints-code-line-px"
+      ]
+    },
+    "layout-lints-code-line-px": {
+      "id": "layout-lints-code-line-px",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints-table-fit": {
+      "id": "layout-lints-table-fit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "layout.table-fit flags a structured table whose columns cannot shrink to the width it has on screen, so it scrolls sideways. It also flags text that cannot wrap inside its column in PDF export, where every column gets an equal share of the page."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints-stack-detail": {
+      "id": "layout-lints-stack-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "layout.stack-detail-fit flags a stack leaf detail that needs a second line at its 60ch cap, or at its card's width inside two-column containers."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints-edge": {
+      "id": "layout-lints-edge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A finding within 1px of the edge says the content may overflow. Characters the bundled fonts lack never count as an overflow, and a finding that rests on them calls its widths approximate."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints-never-block": {
+      "id": "layout-lints-never-block",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layout rules are warnings with no enforcement phase and stay out of "
+        },
+        {
+          "insert": "STYLE_RULE_POLICY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so they never block a save or "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

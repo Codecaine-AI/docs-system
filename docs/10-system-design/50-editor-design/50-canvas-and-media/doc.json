@@ -272,7 +272,16 @@
       "props": {},
       "text": [
         {
-          "insert": "One picture and its optional caption render as a simple figure."
+          "insert": "One picture renders in a framed panel. The "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " button or a click on the image opens it in a full-screen viewer."
         }
       ],
       "children": []
@@ -532,6 +541,7 @@
       ],
       "children": [
         "b-cmed-rule-image-state",
+        "b-cmed-rule-image-head",
         "b-cmed-rule-image-edit",
         "b-cmed-rule-image-viewer"
       ]
@@ -569,7 +579,27 @@
           }
         },
         {
-          "insert": ". It renders the image and caption without a media viewer."
+          "insert": ", and the panel does not draw the caption."
+        }
+      ],
+      "children": []
+    },
+    "b-cmed-rule-image-head": {
+      "id": "b-cmed-rule-image-head",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A light-gray head row holds only the image icon tile and an icon-only "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " button, with no text."
         }
       ],
       "children": []
@@ -591,7 +621,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer."
+          "insert": "Images use their own full-screen viewer, not the canvas viewer. The "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " button or a click on the image opens it, with the caption as its title."
         }
       ],
       "children": []
@@ -739,7 +778,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Provider players, native local playback, safe link fallback, and a simple image figure match the source instead of forcing every visual artifact through canvas."
+          "insert": "Provider players, native local playback, safe link fallback, and a framed image panel match the source instead of forcing every visual artifact through canvas."
         }
       ],
       "children": []

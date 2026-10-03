@@ -14,6 +14,8 @@
         "b-dm-gov-data",
         "b-dm-gov-vocab",
         "b-dm-gov-mut",
+        "b-dm-gov-layout",
+        "b-dm-gov-measure",
         "b-dm-decisions-h",
         "b-dm-pure-h",
         "b-dm-pure-d",
@@ -34,7 +36,15 @@
         "b-dm-actions-h",
         "b-dm-actions-d",
         "b-dm-actions-w",
-        "b-dm-actions-a"
+        "b-dm-actions-a",
+        "b-dm-layout-h",
+        "b-dm-layout-d",
+        "b-dm-layout-w",
+        "b-dm-layout-a",
+        "b-dm-measure-h",
+        "b-dm-measure-d",
+        "b-dm-measure-w",
+        "b-dm-measure-a"
       ]
     },
     "b-dm-role": {
@@ -155,6 +165,58 @@
       ],
       "children": []
     },
+    "b-dm-gov-layout": {
+      "id": "b-dm-gov-layout",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " defines the three layout rules, and "
+        },
+        {
+          "insert": "Block Widths and Lanes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/50-block-widths"
+            }
+          }
+        },
+        {
+          "insert": " defines the page lanes whose widths the layout module records."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-gov-measure": {
+      "id": "b-dm-gov-measure",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the bundled faces, the measuring backends, and the conditions under which a width is exact."
+        }
+      ],
+      "children": []
+    },
     "b-dm-decisions-h": {
       "id": "b-dm-decisions-h",
       "type": "heading",
@@ -176,7 +238,7 @@
       },
       "text": [
         {
-          "insert": "One format crosses three runtimes"
+          "insert": "One Format Crosses Three Runtimes"
         }
       ],
       "children": []
@@ -189,7 +251,35 @@
       },
       "text": [
         {
-          "insert": "Decision: The package stays free of React, TipTap, DOM, document filesystem, network, and host application code; its schema, operation, serialization, and Markdown contracts stay in memory."
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-pure-d-1",
+        "b-dm-pure-d-2"
+      ]
+    },
+    "b-dm-pure-d-1": {
+      "id": "b-dm-pure-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package stays free of React, TipTap, DOM, document filesystem, network, and host application code."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-pure-d-2": {
+      "id": "b-dm-pure-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its schema, operation, serialization, and Markdown contracts stay in memory."
         }
       ],
       "children": []
@@ -202,7 +292,35 @@
       },
       "text": [
         {
-          "insert": "Why: The browser viewer, Bun server, and CLI consume one definition; moving any runtime dependency into the model would make the shared contract unusable in at least one consumer. Rejected: per-runtime copies of the format."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-pure-w-1",
+        "b-dm-pure-w-2"
+      ]
+    },
+    "b-dm-pure-w-1": {
+      "id": "b-dm-pure-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The browser viewer, Bun server, and CLI consume one definition. Moving any runtime dependency into the model would make the shared contract unusable in at least one consumer."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-pure-w-2": {
+      "id": "b-dm-pure-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Per-runtime copies of the format were rejected."
         }
       ],
       "children": []
@@ -215,16 +333,36 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-pure-a-1"
+      ]
+    },
+    "b-dm-pure-a-1": {
+      "id": "b-dm-pure-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers every current and future module in "
         },
         {
           "insert": "packages/docs-model/src",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src"
+            }
           }
         },
         {
-          "insert": " — every future module in the package; enforced by "
+          "insert": ". "
         },
         {
           "insert": "import-boundaries.test.ts",
@@ -237,7 +375,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": " enforces it."
         }
       ],
       "children": []
@@ -493,7 +631,7 @@
       },
       "text": [
         {
-          "insert": "Registration is an explicit allow-list"
+          "insert": "Registration Is an Explicit Allow-List"
         }
       ],
       "children": []
@@ -506,12 +644,31 @@
       },
       "text": [
         {
-          "insert": "Decision: "
-        },
-        {
-          "insert": "src/components/index.ts",
+          "insert": "Decision",
           "attributes": {
-            "code": true
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-registry-d-1",
+        "b-dm-registry-d-2",
+        "b-dm-registry-d-3"
+      ]
+    },
+    "b-dm-registry-d-1": {
+      "id": "b-dm-registry-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/components/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/index.ts"
+            }
           }
         },
         {
@@ -524,16 +681,39 @@
           }
         },
         {
-          "insert": " allow-list and folds it into the type, action, state, and agent-view registries; "
-        },
+          "insert": " allow-list and folds it into the type, action, state, and agent-view registries."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-registry-d-2": {
+      "id": "b-dm-registry-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
-          "insert": "src/components/checks.ts",
+          "insert": "packages/docs-model/src/components/checks.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/checks.ts"
+            }
           }
         },
         {
-          "insert": " runs at module load and throws on ownership, schema, action, or authority drift. A new component registers by adding its bundle to "
+          "insert": " runs at module load and throws on ownership, schema, action, or authority drift."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-registry-d-3": {
+      "id": "b-dm-registry-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A new component registers by adding its bundle to "
         },
         {
           "insert": "ALL_COMPONENTS",
@@ -551,7 +731,7 @@
           }
         },
         {
-          "insert": " — discovery then serves it to every surface."
+          "insert": ". Discovery then serves it to every surface."
         }
       ],
       "children": []
@@ -564,7 +744,35 @@
       },
       "text": [
         {
-          "insert": "Why: Controlled extensibility keeps the block set closed and the allow-list a deliberate review point. Rejected: run-time plug-in discovery and filesystem-scan auto-registration."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-registry-w-1",
+        "b-dm-registry-w-2"
+      ]
+    },
+    "b-dm-registry-w-1": {
+      "id": "b-dm-registry-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Controlled extensibility keeps the block set closed and the allow-list a deliberate review point."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-registry-w-2": {
+      "id": "b-dm-registry-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run-time plug-in discovery and filesystem-scan auto-registration were rejected."
         }
       ],
       "children": []
@@ -577,25 +785,49 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-registry-a-1"
+      ]
+    },
+    "b-dm-registry-a-1": {
+      "id": "b-dm-registry-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-model/src/components/index.ts",
+          "insert": "index.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/index.ts"
+            }
           }
         },
         {
-          "insert": ", "
+          "insert": " and "
         },
         {
-          "insert": "packages/docs-model/src/components/checks.ts",
+          "insert": "checks.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/components/checks.ts"
+            }
           }
         },
         {
-          "insert": " — every future component and block type."
+          "insert": ", and every future component and block type."
         }
       ],
       "children": []
@@ -608,7 +840,7 @@
       },
       "text": [
         {
-          "insert": "Per-component typed-action modules"
+          "insert": "Per-Component Typed-Action Modules"
         }
       ],
       "children": []
@@ -621,7 +853,26 @@
       },
       "text": [
         {
-          "insert": "Decision: A component's typed actions live one file per action under its bundle's "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-actions-d-1",
+        "b-dm-actions-d-2",
+        "b-dm-actions-d-3",
+        "b-dm-actions-d-4"
+      ]
+    },
+    "b-dm-actions-d-1": {
+      "id": "b-dm-actions-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A component's typed actions live one file per action under its bundle's "
         },
         {
           "insert": "actions/",
@@ -648,7 +899,18 @@
           }
         },
         {
-          "insert": ". A local action's pure "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-actions-d-2": {
+      "id": "b-dm-actions-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A local action's pure "
         },
         {
           "insert": "apply",
@@ -657,7 +919,18 @@
           }
         },
         {
-          "insert": " returns a props patch. Components whose authority is external (canvas, sequence) lift their descriptors from the external package's "
+          "insert": " returns a props patch."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-actions-d-3": {
+      "id": "b-dm-actions-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Components whose authority is external (canvas and sequence) lift their descriptors from the external package's "
         },
         {
           "insert": "agent-schema",
@@ -675,7 +948,7 @@
           }
         },
         {
-          "insert": " and mark them "
+          "insert": ". They mark them "
         },
         {
           "insert": "forward: { authority }",
@@ -684,7 +957,18 @@
           }
         },
         {
-          "insert": " with no local apply. Named actions exist only for mutations with positional or keyed collection semantics. Scalar props and block text change through "
+          "insert": " with no local apply."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-actions-d-4": {
+      "id": "b-dm-actions-d-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Named actions exist only for mutations with positional or keyed collection semantics. Scalar props and block text change through "
         },
         {
           "insert": "updateBlock",
@@ -706,7 +990,47 @@
       },
       "text": [
         {
-          "insert": "Why: Actions as data on one registry let any surface list and invoke them and make inverses — and undo — free; forwarding keeps external schema truth in its owning package instead of redefining it here. Rejected: imperative update methods on renderers, and duplicating external schemas locally."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-actions-w-1",
+        "b-dm-actions-w-2",
+        "b-dm-actions-w-3"
+      ]
+    },
+    "b-dm-actions-w-1": {
+      "id": "b-dm-actions-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Actions as data on one registry let any surface list and invoke them, and they make inverses and undo free."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-actions-w-2": {
+      "id": "b-dm-actions-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Forwarding keeps external schema truth in its owning package instead of redefining it here."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-actions-w-3": {
+      "id": "b-dm-actions-w-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Imperative update methods on renderers and local copies of external schemas were rejected."
         }
       ],
       "children": []
@@ -719,7 +1043,23 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-actions-a-1"
+      ]
+    },
+    "b-dm-actions-a-1": {
+      "id": "b-dm-actions-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "packages/docs-model/src/components/*/actions",
@@ -728,7 +1068,571 @@
           }
         },
         {
-          "insert": " — every new block action, local or forwarded, in any future component."
+          "insert": " and every new block action, local or forwarded, in any future component."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-h": {
+      "id": "b-dm-layout-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Layout Facts Have One Home"
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d": {
+      "id": "b-dm-layout-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-layout-d-1",
+        "b-dm-layout-d-2",
+        "b-dm-layout-d-2b",
+        "b-dm-layout-d-2c",
+        "b-dm-layout-d-3",
+        "b-dm-layout-d-4"
+      ]
+    },
+    "b-dm-layout-d-1": {
+      "id": "b-dm-layout-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "packages/docs-model/src/layout/metrics.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/metrics.ts"
+            }
+          }
+        },
+        {
+          "insert": " holds the numbers the docs viewer lays blocks out with at stock theme settings. Its lane caps are 675px for text, 990px for code, and 1100px for wide blocks."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d-2": {
+      "id": "b-dm-layout-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "block-width.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/block-width.ts"
+            }
+          }
+        },
+        {
+          "insert": " gives each block its width on screen and in PDF export."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d-2b": {
+      "id": "b-dm-layout-d-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "inline-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/inline-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": " measures inline text, bold, links, and code chips in the bundled fonts."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d-2c": {
+      "id": "b-dm-layout-d-2c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "table-columns.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/table-columns.ts"
+            }
+          }
+        },
+        {
+          "insert": " copies the viewer's table cell typing and column sizing."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d-3": {
+      "id": "b-dm-layout-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The three layout rules are "
+        },
+        {
+          "insert": "layout.code-line-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "layout.table-fit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "layout.stack-detail-fit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "rules.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/rules.ts"
+            }
+          }
+        },
+        {
+          "insert": " lists them, and "
+        },
+        {
+          "insert": "lint/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/lint/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " adds them to "
+        },
+        {
+          "insert": "lintRules",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-d-4": {
+      "id": "b-dm-layout-d-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Other packages import the module as "
+        },
+        {
+          "insert": "@codecaine-ai/docs-model/layout",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". PDF export reads "
+        },
+        {
+          "insert": "DOCS_DEFAULT_FONTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from it to set the print fonts."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-w": {
+      "id": "b-dm-layout-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-layout-w-1",
+        "b-dm-layout-w-2"
+      ]
+    },
+    "b-dm-layout-w-1": {
+      "id": "b-dm-layout-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One home keeps every layout rule on the widths the viewer paints, so no rule carries its own copy of a lane width."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-w-2": {
+      "id": "b-dm-layout-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The viewer and the workbench cannot import the constants, because Tailwind generates CSS only for literal class strings. "
+        },
+        {
+          "insert": "packages/docs-viewer/src/__tests__/layout-metrics-drift.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/layout-metrics-drift.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/__tests__/layout-metrics-drift.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/__tests__/layout-metrics-drift.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " fail when their copy and this one differ."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-layout-a": {
+      "id": "b-dm-layout-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-layout-a-1"
+      ]
+    },
+    "b-dm-layout-a-1": {
+      "id": "b-dm-layout-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
+        },
+        {
+          "insert": "packages/docs-model/src/layout",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout"
+            }
+          }
+        },
+        {
+          "insert": " and every future layout rule. A new stock width joins "
+        },
+        {
+          "insert": "metrics.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " together with a drift-test assertion."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-h": {
+      "id": "b-dm-measure-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Text Measuring Goes Through the Core Entry"
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-d": {
+      "id": "b-dm-measure-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-measure-d-1",
+        "b-dm-measure-d-2",
+        "b-dm-measure-d-3"
+      ]
+    },
+    "b-dm-measure-d-1": {
+      "id": "b-dm-measure-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-model imports "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only through its core entry, which is synchronous and has no WASM or "
+        },
+        {
+          "insert": "node:*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " imports. The package lives in the canvas repository, in "
+        },
+        {
+          "insert": "canvas/packages/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-d-2": {
+      "id": "b-dm-measure-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hosts choose the backend. The docs MCP service, docs-cli, and docs-server load HarfBuzz through the "
+        },
+        {
+          "insert": "/headless",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry, and the workbench loads the bundled fonts through "
+        },
+        {
+          "insert": "/browser",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-d-3": {
+      "id": "b-dm-measure-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Without an exact backend, the layout rules run on the default "
+        },
+        {
+          "insert": "table",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " backend and call their widths approximate."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-w": {
+      "id": "b-dm-measure-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-measure-w-1",
+        "b-dm-measure-w-2"
+      ]
+    },
+    "b-dm-measure-w-1": {
+      "id": "b-dm-measure-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The core entry runs in the browser viewer, the Bun server, and the CLI, so the package stays usable in all three runtimes."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-w-2": {
+      "id": "b-dm-measure-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "/headless",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry reads font files with "
+        },
+        {
+          "insert": "node:fs",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "/browser",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " needs a DOM."
+        }
+      ],
+      "children": []
+    },
+    "b-dm-measure-a": {
+      "id": "b-dm-measure-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dm-measure-a-1"
+      ]
+    },
+    "b-dm-measure-a-1": {
+      "id": "b-dm-measure-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "import-boundaries.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "import-boundaries.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " enforces the rule for every module in "
+        },
+        {
+          "insert": "packages/docs-model/src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It also rejects direct imports of Pretext and harfbuzzjs."
         }
       ],
       "children": []

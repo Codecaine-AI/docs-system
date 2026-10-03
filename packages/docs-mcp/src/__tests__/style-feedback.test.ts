@@ -63,6 +63,62 @@ describe("style feedback on writes", () => {
   });
 });
 
+describe("layout findings", () => {
+  test("an over-wide code line is reported on write and read as a warning and never fails docs_check", async () => {
+    const line = "x".repeat(130);
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [{
+      type: "insertBlock", blockId: "wide-code", parentId: "root", index: 3, blockType: "code", props: { language: "text" }, text: [{ insert: line }],
+    }] }, task);
+    expect(written.ok).toBe(true);
+    expect(written.style_findings.shown).toContainEqual({
+      block: "wide-code", rule: "layout.code-line-width",
+      problem: expect.stringMatching(/^Line 1 is 130 columns wide, but at stock theme settings the code panel fits 118 before it scrolls sideways\./),
+      fix: expect.stringContaining("PDF export wraps code instead of scrolling"),
+    });
+    const read = await call("docs_read", { path: "page" });
+    const finding = read.lint.findings.find((f: any) => f.ruleId === "layout.code-line-width");
+    expect(finding).toMatchObject({ blockId: "wide-code", severity: "warning", evidence: line });
+    expect(read.lint.blocking).toEqual([]);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect(checked.ok).toBe(true);
+    expect(checked.style_gate).toEqual([]);
+  });
+
+  test("a table too wide for its lane and a stack detail that wraps are reported on write and read, and never fail docs_check", async () => {
+    const sentence = "Short text column under forty characters";
+    const detail = "parses every stored document on load · validates the schema of each block · projects Markdown for agents";
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
+      { type: "insertBlock", blockId: "wide-table", parentId: "root", index: 3, blockType: "structured-table",
+        props: { columns: ["One", "Two", "Three", "Four", "Five", "Six"], rows: [[sentence, sentence, sentence, sentence, sentence, sentence]] } },
+      { type: "insertBlock", blockId: "layers", parentId: "root", index: 4, blockType: "stack",
+        props: { nodes: [{ name: "Model", detail }], boundaries: [] } },
+    ] }, task);
+    expect(written.ok).toBe(true);
+    expect(written.style_findings.shown).toContainEqual({
+      block: "wide-table", rule: "layout.table-fit",
+      problem: expect.stringMatching(/^The table needs at least [\d,]+px but has 1,100px at stock theme settings, so it scrolls sideways on screen\./),
+      fix: expect.stringContaining("split the table"),
+    });
+    expect(written.style_findings.shown).toContainEqual({
+      block: "layers", rule: "layout.stack-detail-fit",
+      problem: expect.stringMatching(/^The detail of "Model" needs [\d,]+px on one line, but at stock theme settings stack details wrap at 506px, so it wraps to 2 lines\./),
+      fix: expect.stringContaining("Shorten the detail to one line"),
+    });
+    const read = await call("docs_read", { path: "page" });
+    const layout = read.lint.findings.filter((f: any) => f.ruleId === "layout.table-fit" || f.ruleId === "layout.stack-detail-fit");
+    expect(layout.map((f: any) => [f.ruleId, f.blockId, f.severity])).toEqual([
+      ["layout.table-fit", "wide-table", "warning"],
+      ["layout.stack-detail-fit", "layers", "warning"],
+    ]);
+    // Measured with the exact backend, so no finding calls its widths approximate.
+    expect(layout.some((f: any) => f.message.includes("approximate"))).toBe(false);
+    expect(read.lint.blocking).toEqual([]);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect(checked.ok).toBe(true);
+    expect(checked.style_gate).toEqual([]);
+  });
+});
+
 describe("docs_check style gate", () => {
   test("blocks on gated findings the task introduced, not on findings that predate it", async () => {
     expect("style_gate" in await call("docs_check", { path: "page" }, task)).toBe(false);

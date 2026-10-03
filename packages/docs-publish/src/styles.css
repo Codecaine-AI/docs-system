@@ -1,38 +1,46 @@
 @layer theme, base, components, utilities;
 @import "../../docs-workbench/node_modules/tailwindcss/theme.css";
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" source(none);
+@plugin "../../docs-workbench/node_modules/@tailwindcss/typography";
+
+/* The workbench read look: the token layer (Notion palette + semantic
+   tokens, light and dark, on :root / [data-theme] / .dark and the dark code
+   panel island), the doc-surface preflight, the viewer component sheets, and
+   the shared read-surface rules. Nothing here styles host elements outside
+   `.docs-markdown`; token declarations on :root are the only page-wide part. */
+@import "../../docs-workbench/web/src/theme/index.css";
+@import "./scoped-preflight.css";
 @import "../../docs-workbench/web/src/pages/sequence-embed.css";
-@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
-@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
 @import "../../docs-viewer/src/styles/list-markers.css";
 @import "../../docs-viewer/src/styles/code.css";
 @import "../../docs-viewer/src/styles/image-grid.css";
 @import "../../docs-viewer/src/styles/image-viewer.css";
+@import "../../docs-workbench/web/src/theme/read-surface.css";
+
+@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
+@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
 @source "../../docs-viewer/src";
 @source "../../../external/canvas/packages/canvas/src";
 @source "../../../external/sequence/packages/sequence/src";
-/* `dark:` keeps its OS-preference meaning and also fires inside a dark code panel ([data-code-surface] under [data-code-panels="dark"], as in the Docs app). Published pages set no such attribute and ship no dark token layer, so panels follow the page unless the host opts in. */
-@custom-variant dark {
- @media (prefers-color-scheme: dark) {@slot;}
- &:where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *) {@slot;}
+
+/* `dark:` as in the Docs workbench: under a dark page (`.dark` or
+   `[data-theme="dark"]` on an ancestor) and inside a dark code panel
+   ([data-code-surface] under [data-code-panels="dark"], the attribute
+   docsThemeHead() puts on <html>). The panel part sits in :where() so `dark:`
+   utilities keep the specificity `.dark *` gives them. */
+@custom-variant dark (&:is(.dark *, [data-theme="dark"] *, :where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *)));
+
+/* The workbench's text softening (style-rail.css, on its app shell), scoped
+   to the article. --style-soften-font-glow comes from docsThemeHead(). */
+.docs-markdown {
+  text-shadow: 0 0 var(--style-soften-font-glow, 0px) color-mix(in srgb, var(--foreground) 22%, transparent);
 }
-@theme inline {
- --color-background: var(--background); --color-foreground: var(--foreground);
- --color-muted: var(--muted); --color-muted-foreground: var(--muted-foreground);
- --color-border: var(--border); --color-primary: var(--primary);
- --font-display: ui-sans-serif, system-ui, sans-serif;
-}
-:root {--background:var(--color-bg-default,#fff);--foreground:var(--color-text-default,#222);--muted:var(--color-bg-sidebar,#eee);--muted-foreground:var(--site-muted,#666);--border:var(--site-rule,#ccc);--primary:var(--color-text-navigation,#2563eb);}
-.docs-article img {max-width:100%;height:auto;}
-/* Docs blocks are styled for a Tailwind preflight that this sheet does not ship.
-   Reset the one browser default they visibly depend on: figure's 40px side
-   margins, which push image and video blocks off the text's left edge. Kept in
-   the base layer so block utilities (my-*, mx-*) still win. */
-@layer base {.docs-article :where(figure) {margin-inline:0;}}
+
 .docs-article pre {overflow:auto;}
 
-.docs-article [data-docs-diagram] {position:relative;margin:2rem 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+/* Published diagrams: a fitted static image that opens the full-screen viewer. */
+.docs-article [data-docs-diagram] {position:relative;margin:2rem 0;border:1px solid var(--border);border-radius:var(--radius,2px);overflow:hidden;}
 .docs-article [data-docs-diagram] figcaption {padding:14px 60px 14px 18px;font-weight:600;}
 .docs-diagram-preview {display:block;background:#fff;}
 .docs-article .docs-diagram-preview img {display:block;width:100%;height:auto;max-height:none;margin:0;padding:0;border:0;}
-.docs-diagram-expand {position:absolute;top:8px;right:12px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#222;font-size:25px;}
+.docs-diagram-expand {position:absolute;top:8px;right:12px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #ccc;border-radius:var(--radius,2px);background:#fff;color:#222;font-size:25px;}

@@ -50,6 +50,12 @@ Reading Surface defines PDF selection, format, and printed-content behavior.
 
 - Decision: `ExportDialog.tsx` selects saved pages, requests one PDF per page, and assembles the final download. `pdf-document.tsx` reuses DocBlockRenderer with print-specific code and HTML output, static diagram embeds, and inline image assets.
 
+  - **Fonts and diagrams**
+
+    - The export embeds the Inter and IBM Plex Mono faces each page uses as data URLs.
+
+    - Canvas and sequence diagrams print as inline SVG with ids scoped per diagram, so their labels use the same faces, as Export Pages as PDF shows.
+
 - Why: Reusing the viewer keeps typed block rendering while print-specific transformations handle pagination and content that cannot remain interactive. pdf-lib joins PDFs and adds combined page numbers. fflate packages per-page PDFs under the paths computed by `pdf-selection.ts`.
 
 - Applies to: Future export formats under `packages/docs-workbench/web/src/lib` and the export dialog must use saved bundles without mutating source documents.

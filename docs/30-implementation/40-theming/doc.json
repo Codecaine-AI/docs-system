@@ -65,7 +65,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Implementation of theming: compiling theme folders and normalized style-rail state into CSS custom properties on the document root. Source: "
+          "insert": "Theming compiles theme folders and normalized style-rail state into CSS custom properties on the document root. The code lives in "
         },
         {
           "insert": "packages/docs-workbench/web/src/theme",
@@ -101,7 +101,16 @@
           }
         },
         {
-          "insert": "), "
+          "insert": ", "
+        },
+        {
+          "insert": "read-surface.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") and "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell",
@@ -111,6 +120,15 @@
         },
         {
           "insert": " ("
+        },
+        {
+          "insert": "style-rail-settings.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
         },
         {
           "insert": "StyleRail.tsx",
@@ -128,7 +146,7 @@
           }
         },
         {
-          "insert": "), "
+          "insert": "). "
         },
         {
           "insert": "packages/docs-server/src/themes.ts",
@@ -137,7 +155,7 @@
           }
         },
         {
-          "insert": " (theme-root reads and writes), "
+          "insert": " reads and writes theme roots, "
         },
         {
           "insert": "themes/",
@@ -146,7 +164,7 @@
           }
         },
         {
-          "insert": " (the package-owned theme catalogue), and "
+          "insert": " holds the package-owned theme catalogue, and "
         },
         {
           "insert": "<stateDirectory>/themes/global/",
@@ -155,7 +173,7 @@
           }
         },
         {
-          "insert": " (the shared Global theme)."
+          "insert": " holds the shared Global theme."
         }
       ],
       "children": []
@@ -423,12 +441,41 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-d-reset-applies-r0"
+      ]
+    },
+    "b-thm-impl-d-reset-applies-r0": {
+      "id": "b-thm-impl-d-reset-applies-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "styleRailVars",
           "attributes": {
             "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "style-rail-settings.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
           }
         },
         {
@@ -444,9 +491,13 @@
           "insert": " in "
         },
         {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "insert": "StyleRail.tsx",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
           }
         },
         {
@@ -639,7 +690,7 @@
       },
       "text": [
         {
-          "insert": "Font wiring stays in the theming modules"
+          "insert": "Font Wiring Stays in the Theming Modules"
         }
       ],
       "children": []
@@ -652,7 +703,36 @@
       },
       "text": [
         {
-          "insert": "Decision: Font stacks flow through the same two theming paths as every other value. Manifest font strings compile through "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-d-fonts-decision-r0",
+        "b-thm-impl-d-fonts-decision-r1",
+        "b-thm-impl-d-fonts-decision-r2",
+        "b-thm-impl-d-fonts-decision-r3",
+        "b-thm-impl-d-fonts-decision-r4"
+      ]
+    },
+    "b-thm-impl-d-fonts-decision-r0": {
+      "id": "b-thm-impl-d-fonts-decision-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Font stacks flow through the same two theming paths as every other value. Manifest "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " strings compile through "
         },
         {
           "insert": "FONT_VARS",
@@ -666,11 +746,15 @@
         {
           "insert": "theme-folders.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {
-          "insert": " into both mode blocks, and rail font choices map to built-in stack strings in "
+          "insert": " into both mode blocks, and rail font choices map to built-in stacks in "
         },
         {
           "insert": "styleRailVars",
@@ -679,16 +763,181 @@
           }
         },
         {
-          "insert": ". No font-binary or "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-decision-r1": {
+      "id": "b-thm-impl-d-fonts-decision-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Default theme's "
         },
         {
-          "insert": "@font-face",
+          "insert": "fonts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " loading path exists, so a stack resolves only against families the browser or host already provides."
+          "insert": " block in "
+        },
+        {
+          "insert": "themes/default/theme.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default/theme.json"
+            }
+          }
+        },
+        {
+          "insert": " sets body and headings to "
+        },
+        {
+          "insert": "Inter, ui-sans-serif, system-ui, sans-serif",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and code to "
+        },
+        {
+          "insert": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The rail's stock picks and the "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults name the same two stacks."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-decision-r2": {
+      "id": "b-thm-impl-d-fonts-decision-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rail pick that differs from stock wins over the theme's "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block, and the theme's block wins over the "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults in "
+        },
+        {
+          "insert": "read-surface.css",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/read-surface.css"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-decision-r3": {
+      "id": "b-thm-impl-d-fonts-decision-r3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "main.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/main.tsx"
+            }
+          }
+        },
+        {
+          "insert": " imports the "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/docs-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": " loads its faces at startup without blocking the first render."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-decision-r4": {
+      "id": "b-thm-impl-d-fonts-decision-r4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-publish ships a copy of "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the font files in its build output for published pages."
         }
       ],
       "children": []
@@ -701,7 +950,74 @@
       },
       "text": [
         {
-          "insert": "Why: A separate font subsystem was rejected. Fonts are theme values, and a dedicated loader would add a second application path beside the layer mechanisms above."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-d-fonts-why-r0",
+        "b-thm-impl-d-fonts-why-r1",
+        "b-thm-impl-d-fonts-why-r2"
+      ]
+    },
+    "b-thm-impl-d-fonts-why-r0": {
+      "id": "b-thm-impl-d-fonts-why-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A separate font subsystem was rejected, because fonts are theme values. The font loader adds faces and switches text measurement to them, but it never picks a stack."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-why-r1": {
+      "id": "b-thm-impl-d-fonts-why-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Default theme names the faces the layout lints measure with, so lint widths match the page at stock settings."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-fonts-why-r2": {
+      "id": "b-thm-impl-d-fonts-why-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A theme without a "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block, such as "
+        },
+        {
+          "insert": "docs-system-classic",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or a Global theme that never set one, paints the bundled faces through the "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults. Layout findings are approximate only where a theme or rail pick names another face."
         }
       ],
       "children": []
@@ -714,21 +1030,84 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-d-fonts-applies-r0"
+      ]
+    },
+    "b-thm-impl-d-fonts-applies-r0": {
+      "id": "b-thm-impl-d-fonts-applies-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-workbench/web/src/theme/theme-folders.ts",
+          "insert": "theme-folders.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/theme-folders.ts"
+            }
           }
         },
         {
-          "insert": " and "
+          "insert": ", "
         },
         {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "insert": "read-surface.css",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/read-surface.css"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "style-rail-settings.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/docs-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "themes/default/theme.json",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "themes/default/theme.json"
+            }
           }
         },
         {
@@ -923,7 +1302,8 @@
       ],
       "children": [
         "b-thm-impl-d-default-decision-r0",
-        "b-thm-impl-d-default-decision-r1"
+        "b-thm-impl-d-default-decision-r1",
+        "b-thm-impl-d-default-decision-r2"
       ]
     },
     "b-thm-impl-d-default-decision-r0": {
@@ -977,6 +1357,54 @@
       "text": [
         {
           "insert": "Workbench autosave from an unlocked serve without a Global theme is its only writer."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-d-default-decision-r2": {
+      "id": "b-thm-impl-d-default-decision-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "theme.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also carries the "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block, which autosave keeps because "
+        },
+        {
+          "insert": "themeWritePayload",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "App.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/App.tsx"
+            }
+          }
+        },
+        {
+          "insert": " copies the active manifest."
         }
       ],
       "children": []
@@ -1395,6 +1823,23 @@
       "props": {},
       "text": [
         {
+          "insert": "Managed Host",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-global-root-managed-r0",
+        "b-thm-impl-global-root-managed-r1"
+      ]
+    },
+    "b-thm-impl-global-root-managed-r0": {
+      "id": "b-thm-impl-global-root-managed-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
           "insert": "The supervisor sets "
         },
         {
@@ -1413,7 +1858,18 @@
           }
         },
         {
-          "insert": ". The managed runtime falls back to "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-managed-r1": {
+      "id": "b-thm-impl-global-root-managed-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The managed runtime falls back to "
         },
         {
           "insert": "dirname(registry)/themes",
@@ -1429,6 +1885,24 @@
     },
     "b-thm-impl-global-root-standalone": {
       "id": "b-thm-impl-global-root-standalone",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Standalone Serve and Export",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-global-root-standalone-r0",
+        "b-thm-impl-global-root-standalone-r1",
+        "b-thm-impl-global-root-standalone-r2"
+      ]
+    },
+    "b-thm-impl-global-root-standalone-r0": {
+      "id": "b-thm-impl-global-root-standalone-r0",
       "type": "list-item",
       "props": {},
       "text": [
@@ -1457,7 +1931,24 @@
           }
         },
         {
-          "insert": ". It uses "
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-standalone-r1": {
+      "id": "b-thm-impl-global-root-standalone-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "resolveGlobalThemesRoot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " uses "
         },
         {
           "insert": "CODECAINE_DOCS_GLOBAL_THEMES",
@@ -1475,8 +1966,16 @@
           }
         },
         {
-          "insert": " when the state directory exists. "
-        },
+          "insert": " when the state directory exists."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-standalone-r2": {
+      "id": "b-thm-impl-global-root-standalone-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "CODECAINE_DOCS_STATE_DIR",
           "attributes": {
@@ -1495,7 +1994,48 @@
       "props": {},
       "text": [
         {
+          "insert": "PDF Export",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-thm-impl-global-root-pdf-r0",
+        "b-thm-impl-global-root-pdf-r1"
+      ]
+    },
+    "b-thm-impl-global-root-pdf-r0": {
+      "id": "b-thm-impl-global-root-pdf-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
           "insert": "PDF and ZIP exports render the client's HTML, so they use whichever theme the client shows."
+        }
+      ],
+      "children": []
+    },
+    "b-thm-impl-global-root-pdf-r1": {
+      "id": "b-thm-impl-global-root-pdf-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Print CSS in "
+        },
+        {
+          "insert": "pdf-document.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/pdf-document.tsx"
+            }
+          }
+        },
+        {
+          "insert": " still sets text in Inter and code in IBM Plex Mono, whatever fonts the theme names."
         }
       ],
       "children": []

@@ -10,6 +10,7 @@ import { StandaloneCanvasEmbed } from '../../docs-workbench/web/src/pages/Canvas
 import { StandaloneSequenceEmbed } from '../../docs-workbench/web/src/pages/SequenceEmbed';
 import { validateInteractiveCanvasDocument, type InteractiveCanvasDocument } from '../../../external/canvas/packages/canvas/src/state/schema';
 import { validateSequenceDocument, type SequenceDocument } from '../../../external/sequence/packages/sequence/src/schema';
+import { loadPublishedFonts } from './browser-fonts';
 
 /**
  * Local draft editor for static-site hosts: mounts the Docs app's DocEditor
@@ -179,6 +180,8 @@ function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onRelo
  */
 export async function mountDraftEditor(container: HTMLElement, options: DraftEditorOptions): Promise<DraftEditorHandle> {
   const { path, onStatus } = options;
+  // Embedded diagrams measure text: load the measured fonts (they re-lay out when they arrive).
+  void loadPublishedFonts();
   const projectId = options.projectId ?? 'local';
   const api = createApi(options.api);
   let bundle: Bundle;

@@ -55,7 +55,7 @@ type UsePanZoomArgs = {
 /**
  * Map-style navigation for a fixed-size content layer: wheel zooms toward the
  * cursor, left-drag pans, arrows pan, +/-/0 zoom and fit. Fits on enable and
- * re-fits on viewport resize until the user moves the view.
+ * re-fits on a viewport or content resize until the user moves the view.
  *
  * Window/DOM APIs are touched only inside effects and handlers, so the hook
  * renders on the server. Call it after any effect that makes the viewport
@@ -96,13 +96,19 @@ export function usePanZoom({ viewportRef, contentWidth, contentHeight, enabled }
     setView(previous => ({ ...previous, x: previous.x + dx, y: previous.y + dy }));
   }, []);
 
+  // `fit` changes identity with the content size: opening always fits, while a
+  // later size change (text re-measured once fonts load) re-fits only a view
+  // the user has not moved.
+  const openRef = useRef(false);
   useEffect(() => {
     if (!enabled) {
+      openRef.current = false;
       panRef.current = null;
       setIsPanning(false);
       return;
     }
-    fit();
+    if (!openRef.current || !movedRef.current) fit();
+    openRef.current = true;
     const viewport = viewportRef.current;
     if (!viewport || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(() => { if (!movedRef.current) fit(); });

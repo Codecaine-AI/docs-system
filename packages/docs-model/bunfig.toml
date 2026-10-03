@@ -1,0 +1,5 @@
+# Package-local `bun test` runs measure layout lints the way the docs hosts
+# do: text-measure's exact HarfBuzz backend, loaded by the shared
+# docs-system preload (root runs get it from the root bunfig.toml).
+[test]
+preload = ["../../text-measure.ts"]

@@ -122,7 +122,7 @@ async function renderEdit(): Promise<HTMLElement> {
   await waitFor(() => {
     expect(container.querySelector("[data-callout-title]")).not.toBeNull();
     expect(container.querySelector("hr")).not.toBeNull();
-    expect(container.querySelector("figcaption")).not.toBeNull();
+    expect(container.querySelector('figure[data-block-id="image"] img')).not.toBeNull();
     expect(container.querySelector("video")).not.toBeNull();
   });
   return container;
@@ -230,17 +230,6 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
       "var(--docs-image-border,#e6e5e3)",
       "var(--docs-image-border-width,1px)",
       "var(--docs-image-radius,var(--radius,2px))",
-    ],
-  },
-  {
-    // The caption is the panel head's title.
-    label: "image caption",
-    read: 'figure[data-block-id="image"] figcaption',
-    edit: 'figure[data-block-id="image"] figcaption',
-    tokens: [
-      "var(--docs-image-caption-fg,#1f1f1f)",
-      "var(--docs-image-caption-text-size,13.5px)",
-      "var(--docs-image-caption-gap,8px)",
     ],
   },
   {

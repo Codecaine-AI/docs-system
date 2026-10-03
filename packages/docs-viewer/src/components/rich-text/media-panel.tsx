@@ -2,7 +2,8 @@ import type { ComponentType, ReactNode } from "react";
 
 /*
  * The one panel the media blocks (image, video, html) share: a head row with
- * the text-family tile, a sans title and a mono meta note, over a body. Each
+ * the text-family tile, a sans title and a mono meta note, over a body. The
+ * image block's head carries only the tile and an Expand button. Each
  * block keeps its own frame knobs (--docs-image-* / --docs-video-*) on the
  * panel element; everything else here reads the shared role tokens, each with
  * its LIGHT default as the literal fallback (docs-publish ships no theme

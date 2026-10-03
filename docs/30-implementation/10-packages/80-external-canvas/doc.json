@@ -13,6 +13,7 @@
         "b-ec-gov-h",
         "b-ec-gov-canvas",
         "b-ec-gov-media",
+        "b-ec-gov-measure",
         "b-ec-decisions-h",
         "b-ec-mount-h",
         "b-ec-mount-d",
@@ -30,7 +31,12 @@
         "b-ec-sidecar-h",
         "b-ec-sidecar-d",
         "b-ec-sidecar-w",
-        "b-ec-sidecar-a"
+        "b-ec-sidecar-a",
+        "b-ec-measure-h",
+        "b-ec-measure-d",
+        "b-ec-measure-w",
+        "b-ec-measure-a",
+        "b-ec-publish-gap"
       ]
     },
     "b-ec-role": {
@@ -125,6 +131,26 @@
       ],
       "children": []
     },
+    "b-ec-gov-measure": {
+      "id": "b-ec-gov-measure",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the shared package that the diagram engines and the docs layout lints measure with."
+        }
+      ],
+      "children": []
+    },
     "b-ec-decisions-h": {
       "id": "b-ec-decisions-h",
       "type": "heading",
@@ -146,7 +172,13 @@
       },
       "text": [
         {
-          "insert": "external/ records ownership"
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " Records Ownership"
         }
       ],
       "children": []
@@ -159,7 +191,68 @@
       },
       "text": [
         {
-          "insert": "Decision: Canvas and Sequence mount as git submodules under "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-mount-d-1",
+        "b-ec-mount-d-2",
+        "b-ec-mount-d-3"
+      ]
+    },
+    "b-ec-mount-d-1": {
+      "id": "b-ec-mount-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and Sequence mount as git submodules under "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "external"
+            }
+          }
+        },
+        {
+          "insert": ", with their own repositories, workspace roots, and tooling."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-d-2": {
+      "id": "b-ec-mount-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "make install",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "Makefile",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "Makefile"
+            }
+          }
+        },
+        {
+          "insert": " installs docs-system from the Core root workspace, whose globs leave "
         },
         {
           "insert": "external/",
@@ -168,7 +261,63 @@
           }
         },
         {
-          "insert": ", keeping their own repositories, workspace roots, and tooling. The root "
+          "insert": " out. In that workspace, "
+        },
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "@codecaine-ai/sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " resolve to the "
+        },
+        {
+          "insert": "canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " checkouts beside docs-system."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-d-3": {
+      "id": "b-ec-mount-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "external/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " copies serve standalone use. The docs-system "
         },
         {
           "insert": "package.json",
@@ -181,25 +330,7 @@
           }
         },
         {
-          "insert": " admits only "
-        },
-        {
-          "insert": "external/canvas/packages/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "external/sequence/packages/*",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " into the Bun workspace so their inner packages resolve for consumers."
+          "insert": " lists them as workspaces, and docs-publish imports their sources by relative path."
         }
       ],
       "children": []
@@ -212,7 +343,35 @@
       },
       "text": [
         {
-          "insert": "Why: The layout makes ownership literal — the docs system supports these projects but does not own them; moving either into "
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-mount-w-1",
+        "b-ec-mount-w-2"
+      ]
+    },
+    "b-ec-mount-w-1": {
+      "id": "b-ec-mount-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layout makes ownership literal, because the docs system supports these projects but does not own them."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-mount-w-2": {
+      "id": "b-ec-mount-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Vendoring the engines as first-party packages under "
         },
         {
           "insert": "packages/",
@@ -221,7 +380,7 @@
           }
         },
         {
-          "insert": " would falsely assign its engine and editor to the docs-system package graph. Rejected: vendoring the engines as first-party packages."
+          "insert": " was rejected, because it would assign their engines and editors to the docs-system package graph."
         }
       ],
       "children": []
@@ -234,7 +393,23 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-mount-a-1"
+      ]
+    },
+    "b-ec-mount-a-1": {
+      "id": "b-ec-mount-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "external/",
@@ -248,11 +423,15 @@
         {
           "insert": ".gitmodules",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": ".gitmodules"
+            }
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
           "insert": "package.json",
@@ -261,7 +440,7 @@
           }
         },
         {
-          "insert": ". Every future externally owned project mounts the same way."
+          "insert": ", and every future externally owned project mounts the same way."
         }
       ],
       "children": []
@@ -310,6 +489,25 @@
         },
         {
           "insert": " enforces the restriction."
+        }
+      ],
+      "children": [
+        "b-ec-schema-d-1"
+      ]
+    },
+    "b-ec-schema-d-1": {
+      "id": "b-ec-schema-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also lives in the canvas repository, but it is a separate package with no engine. docs-model imports only its core entry."
         }
       ],
       "children": []
@@ -366,7 +564,7 @@
       },
       "text": [
         {
-          "insert": "Engines enter only through host slots, and injection grants no authority"
+          "insert": "Engines Enter Only Through Host Slots, and Injection Grants No Authority"
         }
       ],
       "children": []
@@ -379,7 +577,24 @@
       },
       "text": [
         {
-          "insert": "Decision: docs-viewer never imports either engine; hosts inject renderers through the "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-slots-d-1",
+        "b-ec-slots-d-2"
+      ]
+    },
+    "b-ec-slots-d-1": {
+      "id": "b-ec-slots-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-viewer never imports either engine. Hosts inject renderers through the "
         },
         {
           "insert": "canvasEmbed",
@@ -397,7 +612,18 @@
           }
         },
         {
-          "insert": " provider slots, and injected surfaces are read-only — mutation routes through docs-server's typed patches or the standalone Studio's own hash-guarded save."
+          "insert": " provider slots."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-d-2": {
+      "id": "b-ec-slots-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Injected surfaces are read-only. Mutation routes through docs-server's typed patches or the standalone Studio's own hash-guarded save."
         }
       ],
       "children": []
@@ -410,7 +636,47 @@
       },
       "text": [
         {
-          "insert": "Why: The slot keeps the viewer liftable — another host may supply different loaders or renderers — and keeps mutation authority honest instead of leaking it into embeds. Rejected: a viewer engine dependency and embed-side writes."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-slots-w-1",
+        "b-ec-slots-w-2",
+        "b-ec-slots-w-3"
+      ]
+    },
+    "b-ec-slots-w-1": {
+      "id": "b-ec-slots-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The slot keeps the viewer liftable, because another host may supply different loaders or renderers."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-w-2": {
+      "id": "b-ec-slots-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The slot also keeps mutation authority out of the embeds."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-slots-w-3": {
+      "id": "b-ec-slots-w-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A viewer engine dependency and embed-side writes were rejected."
         }
       ],
       "children": []
@@ -423,21 +689,45 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-slots-a-1"
+      ]
+    },
+    "b-ec-slots-a-1": {
+      "id": "b-ec-slots-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "packages/docs-viewer",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer"
+            }
           }
         },
         {
-          "insert": ", "
+          "insert": " and "
         },
         {
           "insert": "packages/docs-workbench/web/src/pages",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages"
+            }
           }
         },
         {
@@ -581,6 +871,297 @@
         },
         {
           "insert": ", docs trees. Every future sidecar kind keeps its canonical file in the repository."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-h": {
+      "id": "b-ec-measure-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Diagram Engines Measure Text With the Shared Package"
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-d": {
+      "id": "b-ec-measure-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-measure-d-1",
+        "b-ec-measure-d-2",
+        "b-ec-measure-d-3",
+        "b-ec-measure-d-4"
+      ]
+    },
+    "b-ec-measure-d-1": {
+      "id": "b-ec-measure-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "@codecaine-ai/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "@codecaine-ai/sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " depend on "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the package the docs layout lints measure with."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-d-2": {
+      "id": "b-ec-measure-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package lives in the canvas repository, in "
+        },
+        {
+          "insert": "canvas/packages/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and installs only from the Core root workspace. The docs-system workspace list does not include it."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-d-3": {
+      "id": "b-ec-measure-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workbench loads the bundled faces at startup. "
+        },
+        {
+          "insert": "CanvasEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/CanvasEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "SequenceEmbed.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages/SequenceEmbed.tsx"
+            }
+          }
+        },
+        {
+          "insert": " lay their diagrams out again when the faces arrive."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-d-4": {
+      "id": "b-ec-measure-d-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs-publish loads HarfBuzz before it lays out diagrams at build time. Each published diagram SVG embeds the faces it paints as woff2 data URLs, because an "
+        },
+        {
+          "insert": "<img>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " SVG cannot load the page's fonts."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-w": {
+      "id": "b-ec-measure-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-measure-w-1",
+        "b-ec-measure-w-2"
+      ]
+    },
+    "b-ec-measure-w-1": {
+      "id": "b-ec-measure-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "With one package and one set of font files, a label that a lint says fits also fits on screen."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-w-2": {
+      "id": "b-ec-measure-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas paints its own text in Inter and IBM Plex Mono, so this corpus records only the dependency boundary and leaves canvas internals to the canvas repository."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-measure-a": {
+      "id": "b-ec-measure-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ec-measure-a-1"
+      ]
+    },
+    "b-ec-measure-a-1": {
+      "id": "b-ec-measure-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers the embeds in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/pages",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/pages"
+            }
+          }
+        },
+        {
+          "insert": ", the font loader in "
+        },
+        {
+          "insert": "docs-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/docs-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": ", the publisher in "
+        },
+        {
+          "insert": "packages/docs-publish/src",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-publish/src"
+            }
+          }
+        },
+        {
+          "insert": ", and every future engine embed that lays out text."
+        }
+      ],
+      "children": []
+    },
+    "b-ec-publish-gap": {
+      "id": "b-ec-publish-gap",
+      "type": "callout",
+      "props": {
+        "kind": "Known gap",
+        "title": "Published diagrams follow the submodule pins",
+        "tone": "warning"
+      },
+      "text": [
+        {
+          "insert": "docs-publish lays out diagrams with the "
+        },
+        {
+          "insert": "external/canvas",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "external/sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sources, so a published diagram measures text the way the pinned commits do. The current pins predate "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so published labels can sit a few pixels off the widths the workbench measures. Moving both pins to commits that use the package closes the gap."
         }
       ],
       "children": []

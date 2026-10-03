@@ -7,12 +7,20 @@ import { readFileSync, realpathSync, statSync } from 'node:fs';
 import { resolve, relative, sep, posix } from 'node:path';
 import { createHash } from 'node:crypto';
 import Renderer from '../../docs-viewer/src/render/DocBlockRenderer';
+import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from '../../docs-viewer/src/render/block-classes';
 import { DocsClientProvider } from '../../docs-viewer/src/client';
 import { projectToMarkdown } from '../../docs-model/src/project-markdown';
 import { validateDocDocument } from '../../docs-model/src/doc-schema';
 import { validateInteractiveCanvasDocument } from '../../../external/canvas/packages/canvas/src/state/schema';
 import { validateSequenceDocument } from '../../../external/sequence/packages/sequence/src/schema';
+import { useHarfBuzz } from '@codecaine-ai/text-measure/headless';
+import { embedDiagramFonts } from './svg-fonts';
+// Exact text measurement (HarfBuzz over the bundled Inter and IBM Plex Mono)
+// before any diagram is laid out: publishCollection lays out canvas and
+// sequence text at build time, and the SVGs paint those same faces.
+await useHarfBuzz();
 export { search } from './search';
+export { docsThemeHead, type DocsThemeHead, type DocsThemeInput } from './theme-head';
 export const escapeHtml = (s: unknown) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export type PostInput = { path: string; slug: string; description: string; date: string; tags: string[]; draft?: boolean };
 export type PublishedPost = PostInput & {title: string; url: string; html: string; text: string; diagrams: boolean; viewers: boolean};
@@ -65,7 +73,7 @@ export function publishCollection({root, posts, basePath = '/blog/'}: {root: str
       const rendered = kind === 'canvas'
         ? renderDocumentToSvg(valid.document ?? sidecar, {fit:'content', ...(view ? {sectionId:view} : {}), padding:24})
         : {...layoutSequence(sidecar), svg:renderSequenceSvgString({...sidecar,title:label})};
-      const svgBytes = Buffer.from(rendered.svg);
+      const svgBytes = Buffer.from(embedDiagramFonts(rendered.svg));
       const filename = `${createHash('sha256').update(svgBytes).digest('hex').slice(0,16)}-${kind}.svg`;
       const url = `${basePath}assets/${filename}`;
       files.set(`assets/${filename}`, svgBytes);
@@ -77,7 +85,7 @@ export function publishCollection({root, posts, basePath = '/blog/'}: {root: str
         </a>
       </figure>;
     };
-    const html = renderToStaticMarkup(<DocsClientProvider canvasEmbed={diagram('canvas')} sequenceEmbed={diagram('sequence')}><div className="docs-markdown"><Renderer document={document} bundlePath={post.path} resolveAssetSrc={asset}/></div></DocsClientProvider>);
+    const html = renderToStaticMarkup(<DocsClientProvider canvasEmbed={diagram('canvas')} sequenceEmbed={diagram('sequence')}><div className={DOC_SURFACE_TYPOGRAPHY_CLASSES}><Renderer document={document} bundlePath={post.path} resolveAssetSrc={asset}/></div></DocsClientProvider>);
     const text = projectToMarkdown(document).replace(/<!--[^]*?-->/g, ' ').replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
     // viewers.js opens diagrams and expandable images; hosts load it when either is present.
     const viewers = diagrams || html.includes('data-docs-image-expand');

@@ -36,11 +36,12 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --radius-sm: calc(var(--radius, 8px) - 4px);
-  --radius-md: calc(var(--radius, 8px) - 2px);
-  --radius-lg: var(--radius, 8px);
-  --radius-xl: calc(var(--radius, 8px) + 4px);
-  --font-display: ui-sans-serif, system-ui, sans-serif;
+  /* One corner for every size, as in the workbench read surface (read-surface.css). */
+  --radius-sm: var(--radius, 2px);
+  --radius-md: var(--radius, 2px);
+  --radius-lg: var(--radius, 2px);
+  --radius-xl: var(--radius, 2px);
+  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
   --color-status-success: var(--status-success);
   --color-status-success-fill: var(--status-success-fill);
   --color-status-success-border: var(--status-success-border);
@@ -78,7 +79,7 @@
   --border: var(--site-rule, color-mix(in srgb, var(--foreground) 16%, transparent));
   --input: var(--border);
   --ring: color-mix(in srgb, var(--primary) 55%, transparent);
-  --radius: 8px;
+  --radius: 2px;
   --status-info: #2383e2;
   --status-info-fill: color-mix(in srgb, #2383e2 10%, transparent);
   --status-info-border: color-mix(in srgb, #2383e2 35%, transparent);
@@ -138,7 +139,7 @@
 .docs-draft-editor .docs-editor-prosemirror .ProseMirror-selectednode,
 .docs-draft-editor .docs-editor-prosemirror .docs-block-multi-selected {
   background-color: var(--docs-highlight-color, var(--color-bg-blue));
-  border-radius: var(--docs-highlight-radius, 6px);
+  border-radius: var(--docs-highlight-radius, var(--radius, 2px));
   box-shadow: 0 0 0 var(--docs-highlight-padding, 4px) var(--docs-highlight-color, var(--color-bg-blue));
   outline: none;
 }
@@ -152,7 +153,7 @@
 .docs-draft-editor .docs-drag-handle {
   position: absolute; z-index: 20; display: flex; align-items: center; justify-content: center;
   width: var(--docs-grip-size, 18px); height: calc(var(--docs-grip-size, 18px) * 4 / 3);
-  border-radius: calc(var(--radius) - 4px); color: var(--docs-grip-color, var(--docs-icon-muted));
+  border-radius: var(--radius); color: var(--docs-grip-color, var(--docs-icon-muted));
   cursor: grab; user-select: none; opacity: 0; pointer-events: none; transition: opacity var(--docs-grip-fade, 100ms) ease;
 }
 .docs-draft-editor .docs-drag-handle-visible { opacity: 1; pointer-events: auto; }
@@ -165,7 +166,7 @@
   position: fixed; z-index: 40; pointer-events: none; border-radius: 2px;
   background-color: color-mix(in srgb, var(--docs-dragselect-color, #2383e2) calc(var(--docs-dragselect-opacity, 0.12) * 100%), transparent);
 }
-.docs-draft-editor [data-docs-changed="true"] { animation: docs-draft-changed-flash 2s ease-out; border-radius: var(--docs-highlight-radius, 6px); }
+.docs-draft-editor [data-docs-changed="true"] { animation: docs-draft-changed-flash 2s ease-out; border-radius: var(--docs-highlight-radius, var(--radius, 2px)); }
 @keyframes docs-draft-changed-flash {
   0% { background-color: var(--docs-highlight-color, var(--color-bg-blue)); box-shadow: 0 0 0 var(--docs-highlight-padding, 4px) var(--docs-highlight-color, var(--color-bg-blue)); }
   100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }

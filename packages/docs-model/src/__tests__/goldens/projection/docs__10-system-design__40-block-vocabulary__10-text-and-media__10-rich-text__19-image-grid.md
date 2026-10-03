@@ -55,4 +55,4 @@ Use docs_insert with type image-grid and typed props, or update the images array
 
 ## Theme
 
-The shared image-grid.css stylesheet supplies spacing, responsive columns, and proportional sizing. Caption color uses the existing image caption token and follows the host light or dark palette. The column preference is stored on the block and travels with the document.
+The shared image-grid.css stylesheet supplies spacing, responsive columns, and proportional sizing. Caption color uses the muted text token, `--docs-muted`, and follows the host light or dark palette. The column preference is stored on the block and travels with the document.

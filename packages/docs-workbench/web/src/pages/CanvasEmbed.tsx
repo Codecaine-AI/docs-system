@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
 import { createPortal } from "react-dom";
 import { ExternalLinkIcon, Maximize2Icon, PencilIcon, XIcon } from "lucide-react";
@@ -12,6 +12,7 @@ import {
 import { syntheticInteractiveCanvas } from "../synthetic-canvas";
 
 import { getCanvasBySrc, IS_STATIC } from "../data/api";
+import { useTextMeasureRevision } from "../lib/docs-fonts";
 
 /**
  * Read-only standalone canvas embed, wired into DocBlockRenderer through
@@ -59,6 +60,15 @@ export function StandaloneCanvasEmbed({
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(initiallyOpen);
+  // Text widths change when the bundled fonts arrive (a text-measure backend
+  // switch). A new document identity re-renders the memoized viewer, which
+  // lays its labels out again.
+  const measureRevision = useTextMeasureRevision();
+  const viewerDocument = useMemo(
+    () => (document ? { ...document, title: title ?? document.title } : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- measureRevision is the re-layout trigger
+    [document, title, measureRevision],
+  );
   const previewRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
@@ -172,7 +182,7 @@ export function StandaloneCanvasEmbed({
     );
   }
 
-  if (!document) {
+  if (!viewerDocument) {
     const detail = src
       ? isLoading
         ? "Loading canvas..."
@@ -191,7 +201,6 @@ export function StandaloneCanvasEmbed({
     );
   }
 
-  const viewerDocument = { ...document, title: title ?? document.title };
   const viewerTitle = viewerDocument.title ?? viewerDocument.id;
   // Inline renders are always the bare static viewer inside this embed's
   // single rounded border — the viewer itself carries no framing. Annotation

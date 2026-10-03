@@ -26,7 +26,7 @@ The media types embed bundle assets, provider videos, and sandboxed HTML.
 
 - image
 
-  - Bundle-asset image with caption.
+  - Bundle-asset image in a framed panel with a full-screen viewer.
 
 - video
 

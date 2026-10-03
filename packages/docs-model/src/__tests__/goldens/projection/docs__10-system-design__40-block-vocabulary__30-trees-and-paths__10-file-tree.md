@@ -136,7 +136,7 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 - Notes
 
-  - `note` renders as a muted `# note` comment after the name, truncated at 48ch with the full text on hover.
+  - `note` renders in one aligned, muted sans column after the names. Each note wraps inside a 60ch cap of its 13.5px face, 506.25px in Inter including its 24px left padding, and is never truncated.
 
 - In the editor
 

@@ -8,7 +8,25 @@ List markers and ordered counters use the shared list-markers.css stylesheet in 
 
 Require an explicit collection allowlist. publishCollection receives a content root, post metadata, and a trailing-slash basePath. It validates metadata and document structure, rejects duplicate slugs, skips drafts before reading content, and resolves referenced files beneath the collection root using real paths. No internal project corpus is discovered or exported automatically.
 
-Build-rendered Canvas and Sequence images appear directly in article HTML and remain visible without JavaScript. Clicking one loads the same StandaloneCanvasEmbed or StandaloneSequenceEmbed fullscreen UI used by Docs workbench. Optional initialDocument, initiallyOpen, and onViewerClose props let static hosts supply validated data without workbench API requests. The native Canvas stage retains pan and zoom; Sequence retains its existing toolbar. No download controls are added. The preview remains a browser image that can be dragged or saved normally. Escape closes the viewer and restores focus. The landing imports none of this code.
+Build-rendered Canvas and Sequence images appear directly in article HTML and remain visible without JavaScript. Clicking one loads the same StandaloneCanvasEmbed or StandaloneSequenceEmbed fullscreen UI used by Docs workbench. Optional initialDocument, initiallyOpen, and onViewerClose props let static hosts supply validated data without workbench API requests. The native Canvas stage keeps pan and zoom. Sequence keeps its existing toolbar. No download controls are added. The preview remains a browser image that can be dragged or saved normally. Escape closes the viewer and restores focus. The landing imports none of this code.
+
+## Measured Fonts
+
+Published text paints in the faces its layout is measured with, Inter and IBM Plex Mono from `@codecaine-ai/text-measure`. Text Measurement defines the guarantee. The publisher covers three places where text is laid out or painted.
+
+- **Article text**
+
+  - The build copies `fonts.css` to `dist/fonts.css` and the woff2 files, TTF files, and OFL licenses to `dist/fonts/`. A host links `fonts.css` on every article page, or the fallback stack paints.
+
+- **Diagram images**
+
+  - `publish.tsx` awaits `useHarfBuzz()` before any canvas or sequence layout.
+
+  - An `<img>` SVG cannot load the page's fonts. `svg-fonts.ts` embeds each face the SVG paints as a woff2 data URL and sets sequence text to Inter.
+
+- **Viewers and the draft editor**
+
+  - `viewers.js` and `editor.js` call `loadPublishedFonts()` in `browser-fonts.ts`. The full-screen Canvas and Sequence viewers lay out again when the faces arrive.
 
 ## Optional Search
 
@@ -20,7 +38,7 @@ Hosts can call search with their own UI. For the bundled widget, supply a data-d
 
 ## Package and Release Boundary
 
-Run bun packages/docs-publish/build.ts from the docs-system root, then npm pack ./packages/docs-publish. Build output includes the Node publisher, browser chunks, generated component CSS, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout.
+Run bun packages/docs-publish/build.ts from the docs-system root. Then run npm pack ./packages/docs-publish. Build output includes the Node publisher with HarfBuzz's WASM file, browser chunks, generated component CSS, the measured fonts, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout.
 
 Version 0.1.0-proof.9 is a compatibility archive built from the current development checkout, which contains uncommitted changes. It is not a clean registry release. The personal-site consumer records exact archive integrity in package-lock.json. Before stable adoption, build from clean tagged sources, pin compatible Canvas and Sequence revisions, and increment the package version for every changed artifact.
 
@@ -40,7 +58,7 @@ GitHub Pages is the proposed default deployment for repository-owned documentati
 
 Shared code styles live in packages/docs-viewer/src/styles/code.css and are imported by workbench and publisher. The renderer emits highlighted tokens during the build; the stylesheet supplies syntax colors and code fonts, with palette fallbacks for static hosts. The code header defines only a bottom border, including on hosts without Tailwind preflight.
 
-A video block with bundle-relative src is portable: the publisher copies the file into its assets output. Hosts must supply the video MIME type and support byte ranges for reliable seeking. The Docs server uses its 64 MiB video upload limit when reading accepted video extensions; other attachments retain the 20 MiB limit. Small compressed clips can ship with the repository. External providers remain an option for longer recordings.
+A video block with bundle-relative src is portable: the publisher copies the file into its assets output. Hosts must supply the video MIME type and support byte ranges for reliable seeking. The Docs server uses its 64 MiB video upload limit when reading accepted video extensions. Other attachments keep the 20 MiB limit. Small compressed clips can ship with the repository. External providers remain an option for longer recordings.
 
 ## Image Grid Publication
 

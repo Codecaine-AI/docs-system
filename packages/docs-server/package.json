@@ -32,6 +32,7 @@
     "@codecaine-ai/docs-index": "workspace:*",
     "@codecaine-ai/docs-model": "workspace:*",
     "@codecaine-ai/sequence": "workspace:*",
+    "@codecaine-ai/text-measure": "workspace:*",
     "elysia": "^1.2.0"
   },
   "devDependencies": {

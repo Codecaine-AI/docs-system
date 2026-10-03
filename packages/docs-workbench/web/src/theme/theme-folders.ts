@@ -1,4 +1,4 @@
-import type { StyleRailSettings } from "../shell/StyleRail";
+import type { StyleRailSettings } from "../shell/style-rail-settings";
 
 /**
  * Theme folders — the canonical theme-file format (see
@@ -742,13 +742,12 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
   },
   // Image and video share one media panel (docs-viewer media-panel.tsx):
   // `border` / `borderWidth` / `radius` frame the panel, `margin` spaces the
-  // block. Image: the caption is the panel head's title (`caption`,
-  // `captionTextSize`) and `captionGap` spaces the head row. Video: the
-  // caption knobs set the muted line below the panel. `radius` follows the
-  // global --radius in semantic.css (2px at stock).
+  // block. Image: the block is the framed panel only, with no head row, so it
+  // has no caption knobs. Video: the caption knobs (unchanged) set the muted
+  // line below the panel. `radius` follows the global --radius in
+  // semantic.css (2px at stock).
   image: {
     border: color("--docs-image-border"),
-    caption: color("--docs-image-caption-fg"),
     borderWidth: {
       vars: ["--docs-image-border-width"],
       kind: "length",
@@ -766,24 +765,6 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       step: 1,
       unit: "px",
       defaultValue: 2,
-    },
-    captionTextSize: {
-      vars: ["--docs-image-caption-text-size"],
-      kind: "length",
-      min: 9,
-      max: 20,
-      step: 0.5,
-      unit: "px",
-      defaultValue: 13.5,
-    },
-    captionGap: {
-      vars: ["--docs-image-caption-gap"],
-      kind: "length",
-      min: 0,
-      max: 24,
-      step: 1,
-      unit: "px",
-      defaultValue: 8,
     },
     margin: {
       vars: ["--docs-image-margin"],

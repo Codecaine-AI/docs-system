@@ -14,6 +14,11 @@ type ExpandableImageProps = {
   className?: string;
   loading?: "lazy" | "eager";
   decoding?: "async" | "auto" | "sync";
+  /** Controlled open state, for a host that also opens the viewer from its own control. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  /** Overlay the corner expand glyph (default). Off when the host draws its own control. */
+  hint?: boolean;
 };
 
 /**
@@ -24,11 +29,16 @@ type ExpandableImageProps = {
  * carries `data-docs-image-expand` plus its src/alt/title; the published
  * page's viewers.tsx opens `ImageViewerDialog` from those attributes.
  */
-export function ExpandableImage({ src, alt, title, className, loading, decoding }: ExpandableImageProps) {
-  const [open, setOpen] = useState(false);
+export function ExpandableImage({ src, alt, title, className, loading, decoding, open: openProp, onOpenChange, hint = true }: ExpandableImageProps) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = useCallback((next: boolean) => {
+    setOpenState(next);
+    onOpenChange?.(next);
+  }, [onOpenChange]);
   const previewRef = useRef<HTMLButtonElement>(null);
   const label = title || alt || "Image";
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => setOpen(false), [setOpen]);
   return (
     <>
       <button
@@ -44,7 +54,7 @@ export function ExpandableImage({ src, alt, title, className, loading, decoding 
         onClick={(event) => { event.stopPropagation(); setOpen(true); }}
       >
         <img src={src} alt={alt} className={className} loading={loading} decoding={decoding} />
-        <span className="docs-image-expand-hint" aria-hidden="true"><Maximize2Icon size={14} /></span>
+        {hint && <span className="docs-image-expand-hint" aria-hidden="true"><Maximize2Icon size={14} /></span>}
       </button>
       {open && <ImageViewerDialog src={src} alt={alt} title={label} expansionSource={previewRef.current} onClose={close} />}
     </>

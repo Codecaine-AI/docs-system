@@ -22,7 +22,8 @@ export const descriptors: DocBlockDescriptor[] = [
     agentDescription:
       "A code block; props.language for syntax hint, text is the source. Optional props.annotations — [{ lines, label?, note }] with 1-indexed lines like \"4\", \"4-9\", or \"1,4-6\" — render as a notes column inside the code panel, on a slightly lighter surface beside the code (under it in a narrow block); each note shows an L#–# range chip and its bold label on one row with the note text below; hovering a note or line lights the annotation's full extent and clicking pins it.",
     patchOps: TEXT_OPS,
-    // The code measure (block-layout.ts): ~110 mono columns at the stock sizes.
+    // The code measure (block-layout.ts): 118 mono columns at the stock sizes
+    // (docs-model layout CODE_VISIBLE_COLUMNS; 82 beside the notes column).
     // An annotated block keeps the same lane; at the stock 88ch it clears the
     // 760px notes breakpoint, so its notes column sits beside the code.
     layout: CODE_LEFT_BLOCK_LAYOUT,

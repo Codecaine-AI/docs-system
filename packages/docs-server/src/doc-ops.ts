@@ -1,4 +1,5 @@
 import { lintDocument, formatLintReport, titleHeadingFixOps, type LintReport } from "@codecaine-ai/docs-model/lint";
+import { textMeasureReady } from "./text-measure";
 import { randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 
@@ -146,6 +147,7 @@ export async function applyDocOpsToBundle(
       message: "Automatically removed the opening H1 that repeated the display title; other headings are unchanged.",
     } : undefined;
 
+    await textMeasureReady();
     const lint = lintDocument(validated.document, {
       phase: options?.lintPhase ?? "draft",
       baseline: loaded.document,

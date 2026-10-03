@@ -1,3 +1,6 @@
+import {loadPublishedFonts} from './browser-fonts';
+// Diagram viewers lay out text: start loading the measured fonts with the page.
+void loadPublishedFonts();
 // Static images stay visible. Load the existing Docs expansion UI on click.
 for (const host of document.querySelectorAll<HTMLElement>('[data-docs-diagram]')) {
   const preview = host.querySelector<HTMLAnchorElement>('.docs-diagram-preview')!;

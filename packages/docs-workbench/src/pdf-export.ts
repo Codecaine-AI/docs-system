@@ -72,7 +72,8 @@ export async function handlePdfExport(request: Request, allowedOrigins: string[]
     }
     const pdf = await page.pdf({ format: "A4", printBackground: true, margin: { top: "16mm", bottom: "18mm", left: "14mm", right: "14mm" },
       displayHeaderFooter: pageNumbers, headerTemplate: "<span></span>",
-      footerTemplate: '<div style="font-size:9px;color:#666;text-align:center;width:100%"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+      // Templates cannot use the page's embedded faces; name a sans stack so the footer is not Times.
+      footerTemplate: '<div style="font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:9px;color:#666;text-align:center;width:100%"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
     });
     return new Response(new Uint8Array(pdf), { headers: { "Content-Type": "application/pdf", "Cache-Control": "no-store" } });
   } catch (error) {

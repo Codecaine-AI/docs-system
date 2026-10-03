@@ -33,6 +33,7 @@
         "b-24-canvas-rendering-expanded",
         "b-24-canvas-rendering-edit",
         "b-24-canvas-rendering-portable",
+        "b-24-canvas-fonts",
         "b-24-canvas-editor-12",
         "b-24-canvas-agent-h-13",
         "b-24-canvas-proj-7",
@@ -958,6 +959,29 @@
         },
         {
           "insert": " renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo."
+        }
+      ],
+      "children": []
+    },
+    "b-24-canvas-fonts": {
+      "id": "b-24-canvas-fonts",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas paints its text in Inter and IBM Plex Mono, which the workbench loads at startup. When those fonts finish loading, the embed lays the board out again, so labels measured before the fonts arrived take their final widths. The canvas docs cover how canvas measures and wraps its labels, starting from "
+        },
+        {
+          "insert": "Workspace themes",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "external/canvas/docs/10-system-design/15-themes"
+            }
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

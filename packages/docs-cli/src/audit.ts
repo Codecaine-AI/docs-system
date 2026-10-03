@@ -39,6 +39,7 @@
  *   opener).
  */
 import { lintDocument, type LintFinding } from "@codecaine-ai/docs-model/lint";
+import { activeBackend } from "@codecaine-ai/text-measure";
 import { readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
@@ -67,6 +68,8 @@ export type AuditReport = {
   findings: AuditFinding[];
   errorCount: number;
   warningCount: number;
+  /** The text-measure backend the layout lints measured with: `harfbuzz` is exact, `table` approximate. */
+  textMeasure: { name: string; exact: boolean };
 };
 
 const PREFIX_RE = /^\d{2}-/;
@@ -279,5 +282,6 @@ export async function auditCommand(docsRootArg?: string): Promise<AuditReport> {
     findings,
     errorCount: findings.filter((finding) => finding.severity === "error").length,
     warningCount: findings.filter((finding) => finding.severity === "warn").length,
+    textMeasure: activeBackend(),
   };
 }

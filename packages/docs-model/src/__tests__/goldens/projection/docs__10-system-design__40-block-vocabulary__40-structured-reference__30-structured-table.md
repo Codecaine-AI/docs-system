@@ -121,6 +121,20 @@ The read surface and the editor at rest share one light-grid look. The table is 
 
 Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in Block Widths and Lanes. The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
 
+The `layout.table-fit` warning checks each table at stock theme settings, with its text measured in the bundled Inter and IBM Plex Mono faces. Like every layout rule in Authoring Lints, it never blocks a save. It flags two cases:
+
+- **On screen**
+
+  - The columns' narrowest widths add up to more than the block's width, 1100px at the top level of a page, so the table scrolls sideways.
+
+  - A column that stays on one line counts its whole text, and a wrapping column counts its longest word or code piece.
+
+- **In PDF export**
+
+  - Every column gets an equal share of the 688px printable width, and most text wraps anywhere.
+
+  - A code chip piece cannot break, and neither can an inline element in a column that stays on one line. Either one runs into the next column when it is wider than its share.
+
 In the editor the block is a ProseMirror atom leaf that swaps in its own editable node view (`editor-node-view.tsx`). Cells edit in place, Notion-style, instead of through the generic static atom views. There is no slash-menu entry. Structured tables enter a document through agent ops or existing content.
 
 ### Editing
@@ -189,9 +203,9 @@ This block's theme file is `components/structured-table.json` in the active them
 | columnRule | --docs-table-column-rule | color | Column rule color (falls back to rowRule) |
 | columnRuleWidth | --docs-table-column-rule-width | length | Column rule thickness (default 0px, so no column rules) |
 | columnRuleOpacity | --docs-table-column-rule-opacity | number | Column rule opacity (falls back to rowRuleOpacity) |
-| cellPaddingY | --docs-table-cell-pad-y | length | Vertical cell padding (default 10px) |
+| cellPaddingY | --docs-table-cell-pad-y | length | Vertical cell padding (default 4px) |
 | cellPaddingX | --docs-table-cell-pad-x | length | Horizontal cell padding on each side (default 12px) |
-| fontSize | --docs-table-font-size | length | Cell text size (default 14px, headers render 1px smaller) |
+| fontSize | --docs-table-font-size | length | Cell text size (default 13.5px, and headers follow it) |
 | handleRadius | --docs-table-handle-radius | length | Corner radius of the column/row grab handles (default 3px) |
 | handleOffset | --docs-table-handle-offset | length | How far outside the table edge the grab handles sit (default 12px) |
 | selectionPadding | --docs-table-selection-pad | length | Outward padding of the column/row selection outline (default 3px) |

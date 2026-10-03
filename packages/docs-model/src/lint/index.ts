@@ -4,6 +4,7 @@ import { writingRules } from "../writing/rules";
 import { pageStructureRules } from "../page-structure/rules";
 import { runLintRules } from "./engine";
 import { bundleRelativeSrcRule } from "./bundle-relative-src";
+import { layoutRules } from "../layout/rules";
 import type { LintOptions, LintReport } from "./types";
 export * from "./types";
 export { formatLintReport, validateLintRules } from "./engine";
@@ -13,6 +14,7 @@ export const lintRules = [
   processOutlineRootRule,
   processOutlinePhaseTitleCaseRule,
   bundleRelativeSrcRule,
+  ...layoutRules,
 ];
 export function lintDocument(
   document: DocDocument,

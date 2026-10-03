@@ -17,6 +17,11 @@
         "b-30-image-state-shape-23",
         "b-30-image-state-note-5",
         "b-30-image-editor-h-8",
+        "b-30-image-render-lead",
+        "b-30-image-render-frame",
+        "b-30-image-render-expand",
+        "b-30-image-render-body",
+        "b-30-image-render-caption",
         "b-30-image-editor-9",
         "b-30-image-proj-h-6",
         "b-30-image-proj-7",
@@ -35,7 +40,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The image block of the "
+          "insert": "The image block shows one picture from the bundle's assets in a framed panel, with alt text and an optional caption. It is part of the "
         },
         {
           "insert": "block vocabulary",
@@ -47,7 +52,7 @@
           }
         },
         {
-          "insert": ": a picture from the bundle's assets, with alt text and an optional caption. Owned by the rich-text component (it lives in the text flow), but carries no text of its own."
+          "insert": ". The rich-text component owns it because it sits in the text flow, but it carries no text of its own."
         }
       ],
       "children": []
@@ -112,7 +117,7 @@
       "id": "b-30-image-state-shape-23",
       "type": "state-shape",
       "props": {
-        "description": "Closed schema; src is the only required prop.",
+        "description": "Closed schema. src is the only required prop.",
         "example": "{\n  \"src\": \"./assets/images/two-renders.svg\",\n  \"alt\": \"A doc.json box with arrows to a doc render and an agent render.\",\n  \"caption\": \"One doc.json, two renders.\"\n}",
         "fields": [
           {
@@ -124,13 +129,13 @@
             "name": "alt",
             "type": "string",
             "required": false,
-            "description": "Alt text; the agent render falls back to caption, then empty."
+            "description": "Alt text. Both renders fall back to caption, then empty."
           },
           {
             "name": "caption",
             "type": "string",
             "required": false,
-            "description": "Caption under the image; an italic line in the agent render."
+            "description": "Names the image. The doc render uses it as the viewer title and does not draw it. The agent render prints it as an italic line."
           }
         ],
         "name": "ImageState",
@@ -170,6 +175,236 @@
       "text": [
         {
           "insert": "Doc Renderer"
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-lead": {
+      "id": "b-30-image-render-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The doc renderer draws the block as one framed panel with a light-gray head row above the image. The block shows no title, caption, or file name."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-frame": {
+      "id": "b-30-image-render-frame",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Panel Frame",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-30-image-render-frame-1",
+        "b-30-image-render-frame-2"
+      ]
+    },
+    "b-30-image-render-frame-1": {
+      "id": "b-30-image-render-frame-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One hairline border frames the panel, and the image itself has no border."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-frame-2": {
+      "id": "b-30-image-render-frame-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "border",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "borderWidth",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "radius",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " theme keys style the frame."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-expand": {
+      "id": "b-30-image-render-expand",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Head Row",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-30-image-render-expand-1",
+        "b-30-image-render-expand-2"
+      ]
+    },
+    "b-30-image-render-expand-1": {
+      "id": "b-30-image-render-expand-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The head row holds the 16px image icon tile on the left and an icon-only "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " ghost button on the right."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-expand-2": {
+      "id": "b-30-image-render-expand-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " button opens the full-screen viewer, where a drag pans and the wheel zooms."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-body": {
+      "id": "b-30-image-render-body",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Image Body",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-30-image-render-body-1",
+        "b-30-image-render-body-2"
+      ]
+    },
+    "b-30-image-render-body-1": {
+      "id": "b-30-image-render-body-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An SVG source sits inside 12px of padding, because a vector brings its own frame."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-body-2": {
+      "id": "b-30-image-render-body-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A raster image fills the panel body. A click on the image also opens the full-screen viewer."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-caption": {
+      "id": "b-30-image-render-caption",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Caption",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-30-image-render-caption-1",
+        "b-30-image-render-caption-2"
+      ]
+    },
+    "b-30-image-render-caption-1": {
+      "id": "b-30-image-render-caption-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The caption is not drawn on the page. It is the alt fallback, the viewer title, and the accessible name of the "
+        },
+        {
+          "insert": "Expand",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " button."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-caption-2": {
+      "id": "b-30-image-render-caption-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Without a caption, the viewer title falls back to the alt text, then "
+        },
+        {
+          "insert": "Image",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -513,12 +748,22 @@
           [
             "border",
             "--docs-image-border",
-            "Image border"
+            "Panel border color"
           ],
           [
-            "caption",
-            "--docs-image-caption-fg",
-            "Caption text color"
+            "borderWidth",
+            "--docs-image-border-width",
+            "Panel border width"
+          ],
+          [
+            "radius",
+            "--docs-image-radius",
+            "Panel corner radius"
+          ],
+          [
+            "margin",
+            "--docs-image-margin",
+            "Space above and below the block"
           ]
         ]
       },

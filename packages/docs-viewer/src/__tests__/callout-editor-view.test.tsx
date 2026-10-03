@@ -11,7 +11,9 @@ test('Callout editor shares the styled title and icon while body edits and undo 
  await waitFor(()=>expect(container.querySelector('[data-callout-title]')?.textContent).toBe('Check before saving'));
  expect(container.querySelector('[data-callout-tone="warning"]')).not.toBeNull();
  expect(container.querySelector('[data-callout-label]')?.textContent).toBe('Requirement');
- expect(container.querySelector('[data-node-view-content]')?.getAttribute('contenteditable')).toBe('true');
+ // One editing host: the body is not a contenteditable island; only the head is furniture.
+ expect(container.querySelector('[data-node-view-content]')?.closest('[contenteditable="true"]')).toBe(editor.view.dom);
+ expect(container.querySelector('[data-callout-head]')?.getAttribute('contenteditable')).toBe('false');
  expect(container.querySelector('[data-callout-body] strong')?.textContent).toBe('Keep this body.');
  act(()=>{editor.commands.insertContentAt(2,'New ');});
  expect(editor.getText()).toContain('New Keep this body.');

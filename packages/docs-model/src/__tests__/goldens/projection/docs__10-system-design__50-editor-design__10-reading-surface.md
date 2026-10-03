@@ -90,6 +90,6 @@ The dialog shows progress and offers download links after completion. Cancel sto
 
 - **The text lane follows a book's measure**
 
-  - The text lane is `60ch`, which holds about 84 characters of the System Sans body. That line runs slightly longer than the reference book's line of about 80 characters in Typography and Fonts, and the owner kept it because the sizing reads well.
+  - The text lane is `60ch`, 675px of the 18px Inter body, and holds about 79 characters. That line is close to the reference book's line of about 80 characters in Typography and Fonts.
 
 The division between tree navigation and substantive reference links is governed by Cross-doc linking.

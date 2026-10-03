@@ -15,6 +15,11 @@
         "publish-shared-list-styles",
         "publish-3",
         "publish-4",
+        "publish-fonts-heading",
+        "publish-fonts-lead",
+        "publish-fonts-article",
+        "publish-fonts-svg",
+        "publish-fonts-viewers",
         "publish-5",
         "publish-6",
         "publish-7",
@@ -104,6 +109,258 @@
       ],
       "children": []
     },
+    "publish-fonts-heading": {
+      "id": "publish-fonts-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Measured Fonts"
+        }
+      ],
+      "children": []
+    },
+    "publish-fonts-lead": {
+      "id": "publish-fonts-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Published text paints in the faces its layout is measured with, Inter and IBM Plex Mono from "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". "
+        },
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the guarantee. The publisher covers three places where text is laid out or painted."
+        }
+      ],
+      "children": []
+    },
+    "publish-fonts-article": {
+      "id": "publish-fonts-article",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Article text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "publish-fonts-article-a"
+      ]
+    },
+    "publish-fonts-article-a": {
+      "id": "publish-fonts-article-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The build copies "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "dist/fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and the woff2 files, TTF files, and OFL licenses to "
+        },
+        {
+          "insert": "dist/fonts/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A host links "
+        },
+        {
+          "insert": "fonts.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on every article page, or the fallback stack paints."
+        }
+      ],
+      "children": []
+    },
+    "publish-fonts-svg": {
+      "id": "publish-fonts-svg",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Diagram images",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "publish-fonts-svg-a",
+        "publish-fonts-svg-b"
+      ]
+    },
+    "publish-fonts-svg-a": {
+      "id": "publish-fonts-svg-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "publish.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-publish/src/publish.tsx"
+            }
+          }
+        },
+        {
+          "insert": " awaits "
+        },
+        {
+          "insert": "useHarfBuzz()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before any canvas or sequence layout."
+        }
+      ],
+      "children": []
+    },
+    "publish-fonts-svg-b": {
+      "id": "publish-fonts-svg-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "<img>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " SVG cannot load the page's fonts. "
+        },
+        {
+          "insert": "svg-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-publish/src/svg-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": " embeds each face the SVG paints as a woff2 data URL and sets sequence text to Inter."
+        }
+      ],
+      "children": []
+    },
+    "publish-fonts-viewers": {
+      "id": "publish-fonts-viewers",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Viewers and the draft editor",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "publish-fonts-viewers-a"
+      ]
+    },
+    "publish-fonts-viewers-a": {
+      "id": "publish-fonts-viewers-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "viewers.js",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "editor.js",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " call "
+        },
+        {
+          "insert": "loadPublishedFonts()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "browser-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-publish/src/browser-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": ". The full-screen Canvas and Sequence viewers lay out again when the faces arrive."
+        }
+      ],
+      "children": []
+    },
     "publish-5": {
       "id": "publish-5",
       "type": "heading",
@@ -169,7 +426,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Run bun packages/docs-publish/build.ts from the docs-system root. Then run npm pack ./packages/docs-publish. Build output includes the Node publisher, browser chunks, generated component CSS, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout."
+          "insert": "Run bun packages/docs-publish/build.ts from the docs-system root. Then run npm pack ./packages/docs-publish. Build output includes the Node publisher with HarfBuzz's WASM file, browser chunks, generated component CSS, the measured fonts, and provenance.json. A host can pin the archive in its lockfile and build under Node without Bun, workspace symlinks, or access to this checkout."
         }
       ],
       "children": []

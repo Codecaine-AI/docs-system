@@ -22,6 +22,11 @@
         "b-typo-controls",
         "b-typo-files-heading",
         "b-typo-stack-rule",
+        "b-typo-precedence-lead",
+        "b-typo-precedence-rail",
+        "b-typo-precedence-theme",
+        "b-typo-precedence-root",
+        "b-typo-system-stacks",
         "b-typo-file-status",
         "b-typo-book-heading",
         "b-typo-book-intro",
@@ -39,7 +44,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. Shared reading metrics set the size, line height, and tracking for the document column. The stock defaults below are built into the workbench, and the shared Global theme from "
+          "insert": "Typography assigns font families by reading role: body, heading, code, and numeric. The Default theme sets body and headings in Inter and code in IBM Plex Mono, the two families the workbench bundles. Shared reading metrics set the size, line height, and tracking for the document column, and the shared Global theme from "
         },
         {
           "insert": "Themes",
@@ -51,7 +56,7 @@
           }
         },
         {
-          "insert": " starts from them, so every project reads with these values until someone tunes that theme. The structural decisions behind theme loading and variable injection live in "
+          "insert": " starts from these stock values. The structural decisions behind theme loading and variable injection live in "
         },
         {
           "insert": "Theming: Overview",
@@ -88,27 +93,32 @@
         "columns": [
           "Reading role",
           "Token",
-          "Stock Default"
+          "Default theme",
+          "Stylesheet default"
         ],
         "rows": [
           [
             "Body",
             "--font-tx02",
-            "System Sans"
+            "Inter",
+            "Inter"
           ],
           [
             "Heading",
             "--font-display + --style-heading-font",
-            "System Sans"
+            "Inter",
+            "Inter"
           ],
           [
             "Code",
             "--docs-font-code",
-            "Mono"
+            "IBM Plex Mono",
+            "IBM Plex Mono"
           ],
           [
             "Numeric",
             "--docs-font-numeric",
+            "Body font",
             "Body font"
           ]
         ]
@@ -306,34 +316,197 @@
       "props": {},
       "text": [
         {
-          "insert": "Body and headings default to System Sans, which resolves to "
+          "insert": "The workbench bundles Inter 3.19 and IBM Plex Mono 2.5 from "
         },
         {
-          "insert": "ui-sans-serif, system-ui, sans-serif",
+          "insert": "@codecaine-ai/text-measure",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " and is SF Pro on macOS. The System Serif option resolves to "
+          "insert": ", the faces the layout lints measure with. "
         },
         {
-          "insert": "ui-serif, Georgia, \"Times New Roman\", serif",
+          "insert": "main.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/main.tsx"
+            }
+          }
+        },
+        {
+          "insert": " imports the package's "
+        },
+        {
+          "insert": "fonts.css",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", which is New York on macOS. Mono resolves to "
+          "insert": ", which declares Inter at weights 400, 500, 600, and 700 and IBM Plex Mono at 400, 500, and 600. "
         },
         {
-          "insert": "ui-monospace, \"SF Mono\", SFMono-Regular, Menlo, monospace",
+          "insert": "loadDocsFonts()",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". Numeric emits no separate family while it follows body."
+          "insert": " in "
+        },
+        {
+          "insert": "docs-fonts.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/lib/docs-fonts.ts"
+            }
+          }
+        },
+        {
+          "insert": " loads the woff2 files at startup without blocking the first render."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-precedence-lead": {
+      "id": "b-typo-precedence-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each reading role takes its family from the first of three sources that sets it:"
+        }
+      ],
+      "children": []
+    },
+    "b-typo-precedence-rail": {
+      "id": "b-typo-precedence-rail",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "A style-rail pick wins when it differs from the rail's stock choice, because the rail sets the role's token inline on the page."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-precedence-theme": {
+      "id": "b-typo-precedence-theme",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "The active theme's "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block comes next. The Default theme sets Inter and IBM Plex Mono there."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-precedence-root": {
+      "id": "b-typo-precedence-root",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults in "
+        },
+        {
+          "insert": "read-surface.css",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/theme/read-surface.css"
+            }
+          }
+        },
+        {
+          "insert": " come last. They also set Inter for body and headings and IBM Plex Mono for code, so a theme without a "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block paints the bundled faces too."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-system-stacks": {
+      "id": "b-typo-system-stacks",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rail's stock choices are the bundled faces. Inter resolves to "
+        },
+        {
+          "insert": "Inter, ui-sans-serif, system-ui, sans-serif",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and IBM Plex Mono, the stock code choice, resolves to "
+        },
+        {
+          "insert": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Serif and Mono name faces the host provides: "
+        },
+        {
+          "insert": "ui-serif, Georgia, 'Times New Roman', serif",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A saved Fira Code pick, the earlier stock code choice, reads as IBM Plex Mono."
         }
       ],
       "children": []
@@ -343,21 +516,42 @@
       "type": "callout",
       "props": {
         "kind": "Boundary",
-        "title": "Fonts resolve from the host",
-        "tone": "info"
+        "title": "Measured text needs the bundled faces",
+        "tone": "warning"
       },
       "text": [
         {
-          "insert": "A theme names font families. A stack resolves only when the browser or host already provides the face. The workbench loads no repository font binaries and registers no "
+          "insert": "The layout lints measure document text in Inter and IBM Plex Mono. A page paints what they measured when it loads text-measure's "
         },
         {
-          "insert": "@font-face",
+          "insert": "fonts.css",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " rules."
+          "insert": " and keeps the stock faces. The workbench loads the file at startup, and a published page links the copy in "
+        },
+        {
+          "insert": "docs-publish",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s build output. A theme or a rail pick that names another face, such as Serif or Mono, paints that face, so layout findings only approximate what its pages paint. Sequence and canvas diagrams paint in the bundled faces whatever the theme sets, and "
+        },
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " states the full guarantee."
         }
       ],
       "children": []
@@ -390,7 +584,7 @@
           }
         },
         {
-          "insert": " by Tiago Forte. The book's face, EB Garamond, was tried as a serif body and replaced with System Sans because the owner preferred the sans body. The owner also chose a slightly smaller size with more open leading, 18px at 1.45 instead of the book's 20px at 1.3. Both give a line pitch of about 26px, so the vertical rhythm matches the book. The book values come from body pages of the calibre-made US Letter PDF, 612 by 792pt. The measure is the line length, and the leading is the distance between baselines."
+          "insert": " by Tiago Forte. The book's face, EB Garamond, was tried as a serif body, and the owner chose a sans body instead. The owner also chose a slightly smaller size with more open leading, 18px at 1.45 instead of the book's 20px at 1.3. Both give a line pitch of about 26px, so the vertical rhythm matches the book. The book values come from body pages of the calibre-made US Letter PDF, 612 by 792pt. The measure is the line length, and the leading is the distance between baselines."
         }
       ],
       "children": []
@@ -408,7 +602,7 @@
           [
             "Body face",
             "EB Garamond",
-            "System Sans, SF Pro on macOS"
+            "Inter in the Default theme"
           ],
           [
             "Font size",
@@ -448,14 +642,14 @@
                 }
               },
               {
-                "insert": " (about 650px), about 84 characters"
+                "insert": " (675px), about 79 characters"
               }
             ]
           ],
           [
             "Headings",
             "Roboto Medium, about 17pt (23px)",
-            "System Sans"
+            "Inter in the Default theme"
           ],
           [
             "Paragraph spacing",
@@ -482,7 +676,7 @@
       "props": {},
       "text": [
         {
-          "insert": "CoreText measures SF Pro, the System Sans face on macOS, at 18px with a "
+          "insert": "Inter's "
         },
         {
           "insert": "0",
@@ -491,7 +685,16 @@
           }
         },
         {
-          "insert": " glyph of about 10.84px and an average of about 7.77px per character of the book's text. A "
+          "insert": " is 0.625em wide, so "
+        },
+        {
+          "insert": "1ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at 18px is 11.25px and a "
         },
         {
           "insert": "60ch",
@@ -500,7 +703,7 @@
           }
         },
         {
-          "insert": " lane is therefore about 650px wide and holds about 84 characters. The lane is set in "
+          "insert": " lane is 675px. On this corpus's prose Inter averages about 8.5px per character at 18px, so the lane holds about 79 characters, close to the book's line of about 80. The lane is set in "
         },
         {
           "insert": "ch",
@@ -509,16 +712,16 @@
           }
         },
         {
-          "insert": ", so its width scales with the font size and the character count stays the same. That line runs slightly longer than the book's line of about 80 characters. The owner kept "
+          "insert": ", so its width scales with the font size and the character count stays the same. A different body face changes the lane width. For example, SF Pro on macOS has a "
         },
         {
-          "insert": "60ch",
+          "insert": "0",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " because the sizing reads well. The content width control ranges from "
+          "insert": " of about 10.84px, which makes the lane about 650px. The content width control ranges from "
         },
         {
           "insert": "40ch",
@@ -632,7 +835,9 @@
         }
       ],
       "children": [
-        "b-typo-why-book-gloss"
+        "b-typo-why-book-gloss",
+        "b-typo-why-book-pitch",
+        "b-typo-why-book-measure"
       ]
     },
     "b-typo-why-book-gloss": {
@@ -641,7 +846,29 @@
       "props": {},
       "text": [
         {
-          "insert": "The stock defaults adapt a printed layout the owner reads comfortably for long sessions, and the Global theme every project renders starts from them. The 18px size at a 1.45 line height keeps the book's 26px line pitch. The measure is set in "
+          "insert": "The stock defaults adapt a printed layout the owner reads comfortably for long sessions, and the Global theme every project renders starts from them."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-book-pitch": {
+      "id": "b-typo-why-book-pitch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 18px size at a 1.45 line height keeps the book's 26px line pitch."
+        }
+      ],
+      "children": []
+    },
+    "b-typo-why-book-measure": {
+      "id": "b-typo-why-book-measure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The measure is set in "
         },
         {
           "insert": "ch",
@@ -650,7 +877,7 @@
           }
         },
         {
-          "insert": ", so the line keeps about 84 characters when the font size changes."
+          "insert": ", so a line keeps about 79 Inter characters when the font size changes."
         }
       ],
       "children": []

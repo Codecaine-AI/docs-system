@@ -12,6 +12,7 @@
         "b-dc-role",
         "b-dc-gov-h",
         "b-dc-gov-trans",
+        "b-dc-gov-measure",
         "b-dc-decisions-h",
         "b-dc-dialect-h",
         "b-dc-dialect-d",
@@ -28,7 +29,11 @@
         "b-dc-migrate-h",
         "b-dc-migrate-d",
         "b-dc-migrate-w",
-        "b-dc-migrate-a"
+        "b-dc-migrate-a",
+        "b-dc-measure-h",
+        "b-dc-measure-d",
+        "b-dc-measure-w",
+        "b-dc-measure-a"
       ]
     },
     "b-dc-role": {
@@ -89,6 +94,26 @@
       ],
       "children": []
     },
+    "b-dc-gov-measure": {
+      "id": "b-dc-gov-measure",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the measuring backends and the startup rule every docs host follows."
+        }
+      ],
+      "children": []
+    },
     "b-dc-decisions-h": {
       "id": "b-dc-decisions-h",
       "type": "heading",
@@ -110,7 +135,7 @@
       },
       "text": [
         {
-          "insert": "The command dialect is durable"
+          "insert": "The Command Dialect Is Durable"
         }
       ],
       "children": []
@@ -123,7 +148,36 @@
       },
       "text": [
         {
-          "insert": "Decision: Command names, arguments, stdout shapes, and exit behavior are a stable contract — verification commands fail through exit status ("
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-dialect-d-1",
+        "b-dc-dialect-d-2",
+        "b-dc-dialect-d-3"
+      ]
+    },
+    "b-dc-dialect-d-1": {
+      "id": "b-dc-dialect-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Command names, arguments, stdout shapes, and exit behavior are a stable contract."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-dialect-d-2": {
+      "id": "b-dc-dialect-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Verification commands fail through exit status. "
         },
         {
           "insert": "links check",
@@ -132,7 +186,7 @@
           }
         },
         {
-          "insert": " on stale references, "
+          "insert": " fails on stale references, and "
         },
         {
           "insert": "audit",
@@ -141,7 +195,18 @@
           }
         },
         {
-          "insert": " on structural errors while warnings stay informational); new capability extends the dialect rather than breaking it."
+          "insert": " fails on structural errors while warnings stay informational."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-dialect-d-3": {
+      "id": "b-dc-dialect-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "New capability extends the dialect rather than breaking it."
         }
       ],
       "children": []
@@ -154,7 +219,47 @@
       },
       "text": [
         {
-          "insert": "Why: Repository instructions, scripts, and agent tools gate work on command vocabulary and failure semantics, not workbench UI state — the process boundary must outlive UI refactors and holds whether or not the package ever merges into the workbench. Rejected: treating the CLI as an internal detail of the app shell."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-dialect-w-1",
+        "b-dc-dialect-w-2",
+        "b-dc-dialect-w-3"
+      ]
+    },
+    "b-dc-dialect-w-1": {
+      "id": "b-dc-dialect-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repository instructions, scripts, and agent tools gate work on command vocabulary and failure semantics, not on workbench UI state."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-dialect-w-2": {
+      "id": "b-dc-dialect-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The process boundary must outlive UI refactors, and it holds whether or not the package ever merges into the workbench."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-dialect-w-3": {
+      "id": "b-dc-dialect-w-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Treating the CLI as an internal detail of the app shell was rejected."
         }
       ],
       "children": []
@@ -167,16 +272,36 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-dialect-a-1"
+      ]
+    },
+    "b-dc-dialect-a-1": {
+      "id": "b-dc-dialect-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "packages/docs-cli/src/index.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/index.ts"
+            }
           }
         },
         {
-          "insert": " — every future command and flag."
+          "insert": " and every future command and flag."
         }
       ],
       "children": []
@@ -427,6 +552,216 @@
         },
         {
           "insert": ". Future adoption tooling lands here under the same safety split."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-measure-h": {
+      "id": "b-dc-measure-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Linting Commands Load HarfBuzz First"
+        }
+      ],
+      "children": []
+    },
+    "b-dc-measure-d": {
+      "id": "b-dc-measure-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-measure-d-r0",
+        "b-dc-measure-d-r1"
+      ]
+    },
+    "b-dc-measure-d-r0": {
+      "id": "b-dc-measure-d-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "serve",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "export",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "migrate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " load the exact HarfBuzz backend of "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before they run, because each one lints documents."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-measure-d-r1": {
+      "id": "b-dc-measure-d-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When HarfBuzz does not load, the command prints one warning and runs on the approximate table backend. audit ends its report with the backend it used, such as "
+        },
+        {
+          "insert": "text measure: harfbuzz (exact)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Commands that never lint skip the load."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-measure-w": {
+      "id": "b-dc-measure-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-measure-w-r0"
+      ]
+    },
+    "b-dc-measure-w-r0": {
+      "id": "b-dc-measure-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Layout lints measure text widths, and only an exact backend matches what the browser paints. Without it, the lints still run and call their widths approximate."
+        }
+      ],
+      "children": []
+    },
+    "b-dc-measure-a": {
+      "id": "b-dc-measure-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-dc-measure-a-r0"
+      ]
+    },
+    "b-dc-measure-a-r0": {
+      "id": "b-dc-measure-a-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
+        },
+        {
+          "insert": "LINTING_COMMANDS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-cli/src/index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/index.ts"
+            }
+          }
+        },
+        {
+          "insert": " and the report in "
+        },
+        {
+          "insert": "packages/docs-cli/src/audit.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-cli/src/audit.ts"
+            }
+          }
+        },
+        {
+          "insert": ". A future command that lints joins "
+        },
+        {
+          "insert": "LINTING_COMMANDS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

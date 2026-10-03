@@ -25,6 +25,7 @@ import DocBlockRenderer, {
   DOC_SURFACE_TYPOGRAPHY_CLASSES,
 } from "@codecaine-ai/docs-viewer/doc-block-renderer";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import "@codecaine-ai/text-measure/fonts.css";
 import "../index.css";
 
 const DOCS = import.meta.glob<DocDocument>("../../../../../docs/**/doc.json", {

@@ -14,6 +14,9 @@
     "noEmit": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
+    // @codecaine-ai/text-measure (canvas/packages) ships source whose
+    // relative imports end in `.ts`.
+    "allowImportingTsExtensions": true,
     "types": ["bun"],
     // Pin React types to this repo's single copy. The bun-linked
     // @codecaine-ai/annotations package ships source and carries its own

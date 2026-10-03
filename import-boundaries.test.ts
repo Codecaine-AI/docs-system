@@ -103,6 +103,27 @@ describe("import boundaries", () => {
     expect(violations).toEqual([]);
   });
 
+  test("docs-model measures text only through text-measure's core entry", () => {
+    // The core entry is synchronous and runs anywhere. /headless reads font
+    // files with node:fs and /browser needs a DOM: hosts load those.
+    const violations: string[] = [];
+    const textMeasureRoot = resolve(repoRoot, "../canvas/packages/text-measure");
+    for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
+      for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
+        const resolved = resolve(dirname(file), spec);
+        const reachesIn = spec.startsWith(".") && !relative(textMeasureRoot, resolved).startsWith("..");
+        if (
+          (spec.startsWith("@codecaine-ai/text-measure") && spec !== "@codecaine-ai/text-measure") ||
+          /^(?:@chenglou\/pretext|harfbuzzjs)(?:$|\/)/.test(spec) ||
+          reachesIn
+        ) {
+          violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+        }
+      }
+    }
+    expect(violations).toEqual([]);
+  });
+
   test("docs-model imports canvas only through the agent-schema leaf", () => {
     const violations: string[] = [];
     const canvasRoot = join(repoRoot, "external/canvas");

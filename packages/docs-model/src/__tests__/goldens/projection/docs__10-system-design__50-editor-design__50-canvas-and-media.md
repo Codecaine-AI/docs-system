@@ -28,7 +28,7 @@ Images and videos stay in the document instead of passing through the canvas vie
 
 - **Image**
 
-  - One picture and its optional caption render as a simple figure.
+  - One picture renders in a framed panel. The **Expand** button or a click on the image opens it in a full-screen viewer.
 
 ## The Rule
 
@@ -70,11 +70,13 @@ Images and videos stay in the document instead of passing through the canvas vie
 
 - **Image stays a simple atom**
 
-  - The atom carries `src` plus optional `alt` and `caption`. It renders the image and caption without a media viewer.
+  - The atom carries `src` plus optional `alt` and `caption`, and the panel does not draw the caption.
+
+  - A light-gray head row holds only the image icon tile and an icon-only **Expand** button, with no text.
 
   - The editor treats the block as an atom and provides no in-place props surface.
 
-  - The canvas viewer contract does not extend to images: an image renders as a figure, with no lightbox or click-to-fullscreen viewer.
+  - Images use their own full-screen viewer, not the canvas viewer. The **Expand** button or a click on the image opens it, with the caption as its title.
 
 ## Why
 
@@ -96,4 +98,4 @@ Images and videos stay in the document instead of passing through the canvas vie
 
 - **Media keeps its native affordances**
 
-  - Provider players, native local playback, safe link fallback, and a simple image figure match the source instead of forcing every visual artifact through canvas.
+  - Provider players, native local playback, safe link fallback, and a framed image panel match the source instead of forcing every visual artifact through canvas.

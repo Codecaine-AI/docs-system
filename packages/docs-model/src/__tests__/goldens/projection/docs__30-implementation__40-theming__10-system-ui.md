@@ -1,4 +1,4 @@
-The style-rail runtime normalizes persisted settings, translates them into CSS custom properties, and applies them to the document root. Source: `packages/docs-workbench/web/src/shell/StyleRail.tsx`, `packages/docs-workbench/web/src/shell/App.tsx`, and `packages/docs-workbench/web/src/data/project-storage.ts`.
+The style-rail runtime normalizes persisted settings, translates them into CSS custom properties, and applies them to the document root. Source: `packages/docs-workbench/web/src/shell/style-rail-settings.ts`, `packages/docs-workbench/web/src/shell/StyleRail.tsx`, `packages/docs-workbench/web/src/shell/App.tsx`, and `packages/docs-workbench/web/src/data/project-storage.ts`.
 
 ## Governed By
 
@@ -8,21 +8,41 @@ Tokens: the semantic variable vocabulary the rail may set.
 
 ## Decisions
 
-### One module owns the settings pipeline
+### Two Modules Own the Settings Pipeline
 
-- Decision: `StyleRail.tsx` owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application. Rail settings never gain a second reader or writer module.
+- **Decision**
 
-- Why: Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object.
+  - `style-rail-settings.ts` owns the settings type, compiled defaults, normalization, and variable conversion. It reads no DOM and no storage, so docs-publish builds its static theme head from the same code.
 
-- Applies to: `packages/docs-workbench/web/src/shell/StyleRail.tsx`. Future settings groups extend this module rather than adding parallel readers.
+  - `StyleRail.tsx` re-exports that module and owns the browser side: the tolerant local-storage reader and root application.
 
-### All rail variables flow through one translation map
+  - Rail settings never gain a third reader or writer module.
 
-- Decision: `styleRailVars` returns the complete map of CSS-variable names to serialized values or null, and `applyStyleRailVars` is the only writer of rail properties on the document root. A null entry removes the inline property so the theme layer beneath becomes authoritative.
+- **Why**
 
-- Why: Ad hoc `setProperty` calls were rejected. One map keeps reset single-mechanism (property removal, per the layer-precedence decision on Theming: Overview) and makes the full set of rail-owned variables enumerable in one place.
+  - Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object.
 
-- Applies to: `packages/docs-workbench/web/src/shell/StyleRail.tsx`. Future rail variables join the map, never bypass it.
+- **Applies to**
+
+  - The rule covers `packages/docs-workbench/web/src/shell/style-rail-settings.ts` and `StyleRail.tsx`. Future settings groups extend these modules rather than adding parallel readers.
+
+### All Rail Variables Flow Through One Translation Map
+
+- **Decision**
+
+  - `styleRailVars` returns the complete map of CSS-variable names to serialized values or null.
+
+  - `applyStyleRailVars` is the only writer of rail properties on the document root. A null entry removes the inline property so the theme layer beneath becomes authoritative.
+
+- **Why**
+
+  - Ad hoc `setProperty` calls were rejected, because one map lists every rail-owned variable in one place.
+
+  - Reset stays one mechanism, property removal, per the layer-precedence decision on Theming: Overview.
+
+- **Applies to**
+
+  - The rule covers `styleRailVars` in `style-rail-settings.ts` and `applyStyleRailVars` in `StyleRail.tsx`. Future rail variables join the map, never bypass it.
 
 ### Persistence writes gate in one place
 
@@ -39,6 +59,24 @@ Tokens: the semantic variable vocabulary the rail may set.
 - Why: Per-project copies of a shared theme were rejected. A copy goes stale when another project changes the theme, and reading it on load would override the server copy.
 
 - Applies to: `packages/docs-workbench/web/src/data/project-storage.ts`, `packages/docs-workbench/web/src/shell/StyleRail.tsx`, and `packages/docs-workbench/web/src/shell/App.tsx`. Future theme-scoped cache keys go through `themeStorage`.
+
+### Font Picks Defer to the Theme at Stock
+
+- **Decision**
+
+  - A rail font pick at its stock value writes no inline property. `styleRailVars` maps it to `null`, so `applyStyleRailVars` removes the property and the active theme's `fonts` stack applies.
+
+  - The stock picks are Inter for body and headings and IBM Plex Mono for code, the faces the Default theme and the `:root` defaults in `read-surface.css` also name. A saved pick of Fira Code, the earlier stock code font, reads as IBM Plex Mono.
+
+  - Only a pick that differs from stock, such as Serif, sets font variables like `--font-tx02` and `--docs-font-code` inline.
+
+- **Why**
+
+  - A stock pick that wrote its own stack would hide the theme's fonts. On the Default theme, it would replace the faces the layout lints measure with.
+
+- **Applies to**
+
+  - The rule covers the font roles in `packages/docs-workbench/web/src/shell/style-rail-settings.ts` and every future font role.
 
 ## Variable Groups
 

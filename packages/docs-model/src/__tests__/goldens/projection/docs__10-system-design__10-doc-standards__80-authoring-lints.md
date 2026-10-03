@@ -1,4 +1,4 @@
-Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
+Authoring lints report writing, page structure, and layout problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
 
 ## Structure
 
@@ -7,6 +7,8 @@ Rule ownership follows the thing being checked.
 - **Shared Engine**
 
   - lint/index.ts exports lintDocument and lintRules. lint/engine.ts collects findings, compares a baseline, and formats reports.
+
+  - A rule that throws is skipped and leaves one non-blocking warning that names the error. One broken check never fails a save, an audit, or `docs_check`, and never hides the other rules' findings.
 
 - **Writing Rules**
 
@@ -19,6 +21,14 @@ Rule ownership follows the thing being checked.
   - page-structure/rules.ts registers rule folders with checks and tests derived from Structure.
 
   - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers.
+
+- **Layout Rules**
+
+  - layout/rules.ts registers the layout rules. layout/metrics.ts holds the stock widths the viewer lays blocks out with, and drift tests in docs-viewer and docs-workbench keep both copies equal.
+
+  - The rules measure text with the bundled Inter and IBM Plex Mono faces through `@codecaine-ai/text-measure`, against the lanes and sizes of the stock theme. A theme or style-rail pick that changes them makes the findings describe stock settings, and each message says so.
+
+  - The docs MCP service, docs-cli, and docs-server load the exact HarfBuzz backend of text-measure at startup. Without it the rules still run and call their widths approximate, as Text Measurement explains.
 
 - **Other Owners**
 
@@ -141,6 +151,20 @@ The executable catalog is the source for exact applicability and exclusions. The
     - Each warning names the step field, such as `props.steps[0].steps[1].text`, and its suggestion carries the Title Case text.
 
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
+
+- **Layout Warnings**
+
+  - `layout.code-line-width` flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column.
+
+    - The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns.
+
+  - layout.table-fit flags a structured table whose columns cannot shrink to the width it has on screen, so it scrolls sideways. It also flags text that cannot wrap inside its column in PDF export, where every column gets an equal share of the page.
+
+  - layout.stack-detail-fit flags a stack leaf detail that needs a second line at its 60ch cap, or at its card's width inside two-column containers.
+
+  - A finding within 1px of the edge says the content may overflow. Characters the bundled fonts lack never count as an overflow, and a finding that rests on them calls its widths approximate.
+
+  - The layout rules are warnings with no enforcement phase and stay out of `STYLE_RULE_POLICY`, so they never block a save or `docs_check`.
 
 ## Judgment Rules
 

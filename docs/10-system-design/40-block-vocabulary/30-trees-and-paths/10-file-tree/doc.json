@@ -1181,16 +1181,7 @@
           }
         },
         {
-          "insert": " renders as a muted "
-        },
-        {
-          "insert": "# note",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " comment after the name, truncated at 48ch with the full text on hover."
+          "insert": " renders in one aligned, muted sans column after the names. Each note wraps inside a 60ch cap of its 13.5px face, 506.25px in Inter including its 24px left padding, and is never truncated."
         }
       ],
       "children": []

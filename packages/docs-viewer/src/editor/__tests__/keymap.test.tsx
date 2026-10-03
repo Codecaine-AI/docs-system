@@ -720,8 +720,15 @@ describe("DocPlaceholder", () => {
     // paragraph-hint test above; the selection dispatch recomputes decorations.
     editor.isFocused = true;
     setCursorInWrapper(editor, 2, 0);
+    // The label sits on the callout's empty text line, never the block
+    // element itself (the node view's header would sit under it).
     expect(
       dom.querySelector('[data-doc-type="callout"]')?.getAttribute("data-placeholder"),
+    ).toBeNull();
+    expect(
+      dom
+        .querySelector('[data-doc-type="callout"] > [data-doc-node="docBlockText"]')
+        ?.getAttribute("data-placeholder"),
     ).toBe("Callout");
     // List items get NO hint even focused — a gray "List" next to the marker
     // read as phantom content while typing (dogfood review 2026-07-16).
@@ -730,6 +737,28 @@ describe("DocPlaceholder", () => {
     // Non-empty blocks carry no placeholder attributes even while focused.
     expect(dom.querySelector('p[data-block-id="p1"]')?.getAttribute("data-placeholder")).toBeNull();
     expect(dom.querySelector("h1")?.getAttribute("data-placeholder")).toBeNull();
+  });
+
+  it("gives no callout hint when the callout body lives in nested children", () => {
+    const editor = createEditor([
+      {
+        type: "docCallout",
+        attrs: { blockId: "co1" },
+        content: [wrapper(undefined), paragraph("A loose goal.", { blockId: "p1" })],
+      },
+    ]);
+    editor.isFocused = true;
+    const emptyLine = () =>
+      editor.view.dom.querySelector('[data-doc-type="callout"] > [data-doc-node="docBlockText"]');
+
+    // Caret in the nested paragraph: the empty text line collapses.
+    editor.commands.setTextSelection(5);
+    expect(editor.view.dom.querySelector(".doc-block-placeholder")).toBeNull();
+    expect(emptyLine()?.classList.contains("doc-block-text-collapsed")).toBe(true);
+
+    // Caret on the empty line itself: it stays visible so the caret is too.
+    setCursorInWrapper(editor, 0, 0);
+    expect(emptyLine()?.classList.contains("doc-block-text-collapsed")).toBe(false);
   });
 
   it("injects its stylesheet exactly once", () => {

@@ -36,6 +36,11 @@
         "b-seqfam-docrender-li-slot",
         "b-seqfam-docrender-li-host",
         "b-seqfam-docrender-li-editor",
+        "b-seqfam-text-h",
+        "b-seqfam-text-lead",
+        "b-seqfam-text-fonts",
+        "b-seqfam-text-wrap",
+        "b-seqfam-text-relayout",
         "b-seqfam-agentrender-h",
         "b-seqfam-agentrender-intro",
         "b-seqfam-agentrender-code",
@@ -1096,6 +1101,240 @@
         },
         {
           "insert": "). The shared atom node view reuses the same descriptor and slot, so edit mode shows the same embed as reading."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-h": {
+      "id": "b-seqfam-text-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Measured Text"
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-lead": {
+      "id": "b-seqfam-text-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The sequence engine measures every label before it draws it, with "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " unless the host passes its own measurer. "
+        },
+        {
+          "insert": "SEQUENCE_TYPOGRAPHY",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the engine's "
+        },
+        {
+          "insert": "text.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the one font table that layout and the SVG renderer both read, so measured and painted text use the same font."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-fonts": {
+      "id": "b-seqfam-text-fonts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fonts",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-text-fonts-a",
+        "b-seqfam-text-fonts-b"
+      ]
+    },
+    "b-seqfam-text-fonts-a": {
+      "id": "b-seqfam-text-fonts-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every label paints in Inter, from 11px stereotypes and guards to the 16px bold title. Participant names use weight 600, and fragment operators use bold."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-fonts-b": {
+      "id": "b-seqfam-text-fonts-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each "
+        },
+        {
+          "insert": "<text>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " element sets "
+        },
+        {
+          "insert": "text-rendering=\"geometricPrecision\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a scaled diagram keeps the widths layout measured."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-wrap": {
+      "id": "b-seqfam-text-wrap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Wrapping",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-text-wrap-a",
+        "b-seqfam-text-wrap-b",
+        "b-seqfam-text-wrap-c"
+      ]
+    },
+    "b-seqfam-text-wrap-a": {
+      "id": "b-seqfam-text-wrap-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note wraps at 140px inside its 160px box at the default 8px note padding, and a long note grows taller instead of wider."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-wrap-b": {
+      "id": "b-seqfam-text-wrap-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A title wraps at the diagram's width and never widens it, and the title band reserves the height of every title line."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-wrap-c": {
+      "id": "b-seqfam-text-wrap-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Columns widen until each message label fits between its lifelines and each note clears the neighbouring lifeline."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-relayout": {
+      "id": "b-seqfam-text-relayout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Re-layout and custom measurers",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-seqfam-text-relayout-a",
+        "b-seqfam-text-relayout-b"
+      ]
+    },
+    "b-seqfam-text-relayout-a": {
+      "id": "b-seqfam-text-relayout-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The workbench embed lays the diagram out again when the bundled fonts finish loading."
+        }
+      ],
+      "children": []
+    },
+    "b-seqfam-text-relayout-b": {
+      "id": "b-seqfam-text-relayout-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A host can pass its own measurer through the "
+        },
+        {
+          "insert": "measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prop of "
+        },
+        {
+          "insert": "SequenceViewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or the "
+        },
+        {
+          "insert": "measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " argument of "
+        },
+        {
+          "insert": "layoutSequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

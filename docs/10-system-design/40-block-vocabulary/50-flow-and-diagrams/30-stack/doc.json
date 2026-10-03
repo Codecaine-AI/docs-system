@@ -32,6 +32,7 @@
         "stack-doc-2",
         "stack-doc-3",
         "stack-doc-4",
+        "stack-doc-fit",
         "stack-h-agent",
         "stack-agent-lead",
         "stack-agent-1",
@@ -918,6 +919,38 @@
         },
         {
           "insert": " lays a container's children in a two-column grid. Arrows and boundaries inside it span both columns."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-fit": {
+      "id": "stack-doc-fit",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "layout.stack-detail-fit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " warning flags a leaf detail that needs a second line at stock theme settings. A prose detail wraps at 60ch of 13.5px Inter, 506.25px, and each path segment wraps at 60ch of 12px IBM Plex Mono, 432px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": ", the warning never blocks a save."
         }
       ],
       "children": []

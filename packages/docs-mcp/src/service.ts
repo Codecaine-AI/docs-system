@@ -7,7 +7,7 @@ import { createDocsTools, type DocsToolResult } from './tools';
 import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, type GuidanceTopic } from './guidance';
 import { STYLE_DIGEST } from './style-digest';
 import { implementationFingerprint } from './lifecycle';
-import { watchDocsRoot } from '@codecaine-ai/docs-server';
+import { textMeasureBackend, textMeasureReady, watchDocsRoot } from '@codecaine-ai/docs-server';
 import { defaultJudgmentEngine } from './jev-engine';
 import type { JudgmentEngine } from './lint-feedback';
 
@@ -62,6 +62,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  })];}
  async function call(workspace:string,name:string,args:Record<string,unknown>={}):Promise<DocsToolResult>{
   try{
+   // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
+   await textMeasureReady();
    const discovery=await discover(name==='docs_discover' && typeof args.workspace==='string'?args.workspace:workspace);
    if(name==='docs_discover')return reply({ok:true,...discovery,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
    if(name==='docs_begin'){
@@ -116,5 +118,5 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));
  }
- return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats:()=>({projects:projects.size,workspaces:workspaces.size,tasks:tasks.size,drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)}),close:()=>{for(const watcher of watchers.values())watcher.close();watchers.clear();}};
+ return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats:()=>({projects:projects.size,workspaces:workspaces.size,tasks:tasks.size,textMeasure:textMeasureBackend(),drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)}),close:()=>{for(const watcher of watchers.values())watcher.close();watchers.clear();}};
 }

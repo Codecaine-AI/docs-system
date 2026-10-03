@@ -1,5 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react";
+import { layoutSequence } from "@codecaine-ai/sequence";
+import { activeBackend, useTableBackend } from "@codecaine-ai/text-measure";
+import { useHarfBuzz } from "@codecaine-ai/text-measure/headless";
 
 import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
 
@@ -18,6 +21,28 @@ const SAMPLE_SEQUENCE = {
   ],
   style: {},
 };
+
+// Accented labels: the table backend has no kerning outside ASCII, so the
+// table and HarfBuzz backends lay this diagram out at different widths.
+const ACCENTED_SEQUENCE = {
+  ...SAMPLE_SEQUENCE,
+  participants: [
+    { id: "a", name: "Ünïcödé façade résumé naïveté coöperation", kind: "participant" },
+    { id: "b", name: "Ångström ölçüm sürüm", kind: "participant" },
+  ],
+  items: [{ kind: "message", id: "m1", from: "a", to: "b", line: "sync", text: "Résumé → façade: Œuvre naïve, «Tête-à-tête»" }],
+};
+const switchBackend = (name: string) => (name === "harfbuzz" ? useHarfBuzz() : Promise.resolve(useTableBackend()));
+/** Switches to the other measuring backend (the fonts arriving), runs `check`, then restores the original. */
+async function withBackendSwitch(check: () => void) {
+  const original = activeBackend().name;
+  try {
+    await act(() => switchBackend(original === "harfbuzz" ? "table" : "harfbuzz"));
+    check();
+  } finally {
+    await act(() => switchBackend(original));
+  }
+}
 
 describe("StandaloneSequenceEmbed central Studio sequences", () => {
   it("renders a plain Open in Sequence Studio affordance (no iframe, no preview)", () => {
@@ -214,4 +239,40 @@ describe("StandaloneSequenceEmbed full-screen pan and zoom", () => {
       fireEvent.keyDown(viewport, { key: "ArrowLeft" });
       expect(parseTransform(layer).x).toBeGreaterThan(after.x);
     }));
+
+  it("keeps a view the user moved when the fonts arriving re-size the diagram", () =>
+    withViewportSize(async () => {
+      const { getByRole } = render(
+        <StandaloneSequenceEmbed id="sequence-block" initialDocument={ACCENTED_SEQUENCE as never} />,
+      );
+      fireEvent.click(getByRole("button", { name: "Open Login flow in full-screen viewer" }));
+      const viewport = document.querySelector(".docs-sequence-viewport")!;
+      const layer = viewport.querySelector(".docs-sequence-expanded") as HTMLElement;
+      fireEvent.click(getByRole("button", { name: "Zoom in" }));
+      fireEvent.keyDown(viewport, { key: "ArrowRight" });
+      const moved = parseTransform(layer);
+      const width = layer.style.width;
+      await withBackendSwitch(() => {
+        expect(layer.style.width).not.toBe(width);
+        expect(parseTransform(layer)).toEqual(moved);
+        expect(getByRole("status", { name: "Zoom level" }).textContent).toBe("125%");
+      });
+    }));
+});
+
+describe("StandaloneSequenceEmbed text measurement", () => {
+  it("re-sizes the full-screen frame when the measuring backend switches (the fonts arriving)", async () => {
+    const { getByRole } = render(
+      <StandaloneSequenceEmbed id="sequence-block" initialDocument={ACCENTED_SEQUENCE as never} />,
+    );
+    fireEvent.click(getByRole("button", { name: "Open Login flow in full-screen viewer" }));
+    const frame = document.querySelector(".docs-sequence-expanded") as HTMLElement;
+    const frameWidth = () => Number.parseFloat(frame.style.width);
+    const before = frameWidth();
+    await withBackendSwitch(() => {
+      const relaid = layoutSequence(ACCENTED_SEQUENCE as never).width;
+      expect(relaid).not.toBe(before);
+      expect(frameWidth()).toBe(relaid);
+    });
+  });
 });

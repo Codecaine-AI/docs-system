@@ -13,6 +13,7 @@
         "b-ds-gov-h",
         "b-ds-gov-mut",
         "b-ds-gov-ser",
+        "b-ds-gov-measure",
         "b-ds-decisions-h",
         "b-ds-sole-h",
         "b-ds-sole-d",
@@ -25,7 +26,11 @@
         "b-ds-root-h",
         "b-ds-root-d",
         "b-ds-root-w",
-        "b-ds-root-a"
+        "b-ds-root-a",
+        "b-ds-measure-h",
+        "b-ds-measure-d",
+        "b-ds-measure-w",
+        "b-ds-measure-a"
       ]
     },
     "b-ds-role": {
@@ -107,6 +112,26 @@
       ],
       "children": []
     },
+    "b-ds-gov-measure": {
+      "id": "b-ds-gov-measure",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " defines the measuring backends and the startup rule every docs host follows."
+        }
+      ],
+      "children": []
+    },
     "b-ds-decisions-h": {
       "id": "b-ds-decisions-h",
       "type": "heading",
@@ -128,7 +153,7 @@
       },
       "text": [
         {
-          "insert": "The server is the sole mutation authority"
+          "insert": "The Server Is the Sole Mutation Authority"
         }
       ],
       "children": []
@@ -141,7 +166,26 @@
       },
       "text": [
         {
-          "insert": "Decision: Every accepted write goes through the ops path in "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-sole-d-1",
+        "b-ds-sole-d-2",
+        "b-ds-sole-d-2b",
+        "b-ds-sole-d-3"
+      ]
+    },
+    "b-ds-sole-d-1": {
+      "id": "b-ds-sole-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every accepted write goes through the ops path in "
         },
         {
           "insert": "packages/docs-server/src/doc-ops.ts",
@@ -154,7 +198,7 @@
           }
         },
         {
-          "insert": " — behind "
+          "insert": ", behind both "
         },
         {
           "insert": "POST /api/ops",
@@ -163,7 +207,40 @@
           }
         },
         {
-          "insert": " and the direct agent tools alike — with an expected-hash guard, a per-path mutex around the whole read-check-apply-write sequence, atomic temp-then-rename persistence, and inverse ops recorded in the undo ledger. Undo re-enters the same guarded path. No client, tool, or secondary route writes document bytes."
+          "insert": " and the direct agent tools."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-sole-d-2": {
+      "id": "b-ds-sole-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The path checks an expected hash and holds a per-path mutex around the whole read-check-apply-write sequence."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-sole-d-2b": {
+      "id": "b-ds-sole-d-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each write persists atomically through temp-then-rename, and its inverse ops land in the undo ledger."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-sole-d-3": {
+      "id": "b-ds-sole-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Undo re-enters the same guarded path. No client, tool, or secondary route writes document bytes."
         }
       ],
       "children": []
@@ -176,7 +253,35 @@
       },
       "text": [
         {
-          "insert": "Why: Hash preconditions, validation, undo, and change events stay consistent only when there is exactly one guarded critical section. Client-side writes and parallel write paths were rejected — a second path would bypass those guarantees and give agents a weaker authority."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-sole-w-1",
+        "b-ds-sole-w-2"
+      ]
+    },
+    "b-ds-sole-w-1": {
+      "id": "b-ds-sole-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hash preconditions, validation, undo, and change events stay consistent only when there is exactly one guarded critical section."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-sole-w-2": {
+      "id": "b-ds-sole-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Client-side writes and parallel write paths were rejected, because a second path would bypass those guarantees and give agents a weaker authority."
         }
       ],
       "children": []
@@ -189,30 +294,58 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-sole-a-1"
+      ]
+    },
+    "b-ds-sole-a-1": {
+      "id": "b-ds-sole-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-server/src/doc-ops.ts",
+          "insert": "doc-ops.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/doc-ops.ts"
+            }
           }
         },
         {
           "insert": ", "
         },
         {
-          "insert": "packages/docs-server/src/routes.ts",
+          "insert": "routes.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/routes.ts"
+            }
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
-          "insert": "packages/docs-server/src/agent-tools.ts",
+          "insert": "agent-tools.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/agent-tools.ts"
+            }
           }
         },
         {
@@ -229,7 +362,7 @@
       },
       "text": [
         {
-          "insert": "Embeddable and React-free"
+          "insert": "Embeddable and React-Free"
         }
       ],
       "children": []
@@ -242,7 +375,24 @@
       },
       "text": [
         {
-          "insert": "Decision: The package exposes "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-embed-d-1",
+        "b-ds-embed-d-2"
+      ]
+    },
+    "b-ds-embed-d-1": {
+      "id": "b-ds-embed-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package exposes "
         },
         {
           "insert": "createDocsStore",
@@ -269,7 +419,18 @@
           }
         },
         {
-          "insert": "; it depends on no React, docs-viewer, or docs-workbench code."
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-embed-d-2": {
+      "id": "b-ds-embed-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It depends on no React, docs-viewer, or docs-workbench code."
         }
       ],
       "children": []
@@ -282,7 +443,35 @@
       },
       "text": [
         {
-          "insert": "Why: Host embeddability is the forcing constraint — a host mounts the route factory in its own server and brings its own UI. A viewer or React dependency was rejected because it would force every host to carry the browser stack."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-embed-w-1",
+        "b-ds-embed-w-2"
+      ]
+    },
+    "b-ds-embed-w-1": {
+      "id": "b-ds-embed-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Host embeddability is the forcing constraint. A host mounts the route factory in its own server and brings its own UI."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-embed-w-2": {
+      "id": "b-ds-embed-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A viewer or React dependency was rejected because it would force every host to carry the browser stack."
         }
       ],
       "children": []
@@ -295,12 +484,32 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-embed-a-1"
+      ]
+    },
+    "b-ds-embed-a-1": {
+      "id": "b-ds-embed-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
           "insert": "packages/docs-server",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server"
+            }
           }
         },
         {
@@ -317,7 +526,7 @@
       },
       "text": [
         {
-          "insert": "A docs root is the unit of authority"
+          "insert": "A Docs Root Is the Unit of Authority"
         }
       ],
       "children": []
@@ -330,8 +539,23 @@
       },
       "text": [
         {
-          "insert": "Decision: "
-        },
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-root-d-1",
+        "b-ds-root-d-2",
+        "b-ds-root-d-3"
+      ]
+    },
+    "b-ds-root-d-1": {
+      "id": "b-ds-root-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "createDocsStore(docsRoot)",
           "attributes": {
@@ -352,7 +576,29 @@
           }
         },
         {
-          "insert": " binds every method to one resolved root and accepts root-relative paths; the package holds no project identifiers, project records, or host database connections. A host resolves its own workspace, project, or command-line selection to a docs root before entering the package."
+          "insert": " binds every method to one resolved root and accepts root-relative paths."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-root-d-2": {
+      "id": "b-ds-root-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The package holds no project identifiers, project records, or host database connections."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-root-d-3": {
+      "id": "b-ds-root-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A host resolves its own workspace, project, or command-line selection to a docs root before entering the package."
         }
       ],
       "children": []
@@ -365,7 +611,24 @@
       },
       "text": [
         {
-          "insert": "Why: Filesystem and concurrency policy belong to the server; application identity, authentication, and routing outside "
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-root-w-1",
+        "b-ds-root-w-2"
+      ]
+    },
+    "b-ds-root-w-1": {
+      "id": "b-ds-root-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Filesystem and concurrency policy belong to the server. Application identity, authentication, and routing outside "
         },
         {
           "insert": "/api/*",
@@ -374,7 +637,18 @@
           }
         },
         {
-          "insert": " belong to hosts. A project-aware server was rejected — it would pull every host's identity model into the reusable package."
+          "insert": " belong to hosts."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-root-w-2": {
+      "id": "b-ds-root-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A project-aware server was rejected, because it would pull every host's identity model into the reusable package."
         }
       ],
       "children": []
@@ -387,16 +661,268 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-root-a-1"
+      ]
+    },
+    "b-ds-root-a-1": {
+      "id": "b-ds-root-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-server/src/store.ts",
+          "insert": "store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store.ts"
+            }
+          }
+        },
+        {
+          "insert": " and every future store method. Host identity never enters the signature."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-measure-h": {
+      "id": "b-ds-measure-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Save-Time Lints Wait for HarfBuzz"
+        }
+      ],
+      "children": []
+    },
+    "b-ds-measure-d": {
+      "id": "b-ds-measure-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-measure-d-r0",
+        "b-ds-measure-d-r1"
+      ]
+    },
+    "b-ds-measure-d-r0": {
+      "id": "b-ds-measure-d-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "createDocsRoutes",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " and every future store method. Host identity never enters the signature."
+          "insert": " starts loading the exact HarfBuzz backend of "
+        },
+        {
+          "insert": "@codecaine-ai/text-measure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and every save-time lint in "
+        },
+        {
+          "insert": "doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "proposal-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/proposal-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": " waits for it."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-measure-d-r1": {
+      "id": "b-ds-measure-d-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "textMeasureReady()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-server/src/text-measure.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " loads the backend once per process. A failed load logs an error and keeps the approximate table backend, and the next lint retries, up to 3 loads per process ("
+        },
+        {
+          "insert": "TEXT_MEASURE_LOAD_ATTEMPTS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-measure-w": {
+      "id": "b-ds-measure-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-measure-w-r0"
+      ]
+    },
+    "b-ds-measure-w-r0": {
+      "id": "b-ds-measure-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A host that embeds the routes, such as the workbench server or the docs MCP service, gets exact layout lints with no setup of its own."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-measure-a": {
+      "id": "b-ds-measure-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-measure-a-r0"
+      ]
+    },
+    "b-ds-measure-a-r0": {
+      "id": "b-ds-measure-a-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
+        },
+        {
+          "insert": "routes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/routes.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "doc-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/doc-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "proposal-ops.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/proposal-ops.ts"
+            }
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "text-measure.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/text-measure.ts"
+            }
+          }
+        },
+        {
+          "insert": ". Every future lint call awaits "
+        },
+        {
+          "insert": "textMeasureReady()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first."
         }
       ],
       "children": []

@@ -69,7 +69,7 @@ describe("style rail token wiring", () => {
     // A state-shape or interaction-surface header is an <h3>/<h4>. The
     // heading color rule in index.css is unlayered, so without this
     // exemption it beats the card's utility class and Header text is dead.
-    const indexCss = readFileSync(join(WEB_SRC, "index.css"), "utf8");
+    const indexCss = ["index.css", "theme/read-surface.css"].map((file) => readFileSync(join(WEB_SRC, file), "utf8")).join("\n");
     expect(indexCss).toContain(
       '.docs-markdown :where(h1, h2, h3, h4, h5, h6):not(:where([data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {\n  color: var(--docs-heading-fg);',
     );

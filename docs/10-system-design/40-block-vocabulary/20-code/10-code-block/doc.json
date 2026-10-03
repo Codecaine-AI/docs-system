@@ -44,6 +44,10 @@
         "b-codefam-20px-h",
         "b-codefam-20px-1",
         "b-codefam-20px-2",
+        "b-codefam-width-h",
+        "b-codefam-width-lead",
+        "b-codefam-width-cols",
+        "b-codefam-width-measure",
         "b-codefam-pairing-h",
         "b-codefam-pairing-1",
         "b-codefam-pairing-2",
@@ -953,7 +957,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A sticky 3rem column that stays put under horizontal scroll. Numbers render at 55% strength at rest."
+          "insert": "A sticky 40px column, the default of "
+        },
+        {
+          "insert": "--docs-code-gutter-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", stays put under horizontal scroll. Numbers render at 55% strength at rest."
         }
       ],
       "children": []
@@ -988,7 +1001,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One absolute layer behind the code column; the gradient period is two 20px lines, aligned to line 1 by construction."
+          "insert": "One absolute layer sits behind the code column. Its gradient period is two 21px lines, aligned to line 1 by construction."
         }
       ],
       "children": []
@@ -1094,7 +1107,7 @@
       },
       "text": [
         {
-          "insert": "The 20px Line"
+          "insert": "The 21px Line"
         }
       ],
       "children": []
@@ -1105,13 +1118,22 @@
       "props": {},
       "text": [
         {
-          "insert": "CODE_LINE_HEIGHT_PX = 20",
+          "insert": "CODE_LINE_HEIGHT_PX = 21",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " is a layout constant, not a theme token."
+          "insert": " is the default of the "
+        },
+        {
+          "insert": "--docs-code-line-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " token."
         }
       ],
       "children": [
@@ -1124,7 +1146,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The zebra gradient period, the gutter row height, and every annotation overlay's top and height are computed from it, so it must never drift per host."
+          "insert": "The zebra gradient period, the gutter row height, and every annotation overlay's top and height resolve from that one variable, so they cannot drift apart."
         }
       ],
       "children": []
@@ -1158,6 +1180,129 @@
         },
         {
           "insert": " on its content node. Wrapping would break every line-geometry computation."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-h": {
+      "id": "b-codefam-width-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Line Width"
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-lead": {
+      "id": "b-codefam-width-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code never wraps on screen, so the "
+        },
+        {
+          "insert": "layout.code-line-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " warning flags a line wider than the panel shows before it scrolls sideways. PDF export wraps code instead. Like every layout rule in "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": ", the warning never blocks a save."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-cols": {
+      "id": "b-codefam-width-cols",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Visible columns",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-codefam-width-cols-a",
+        "b-codefam-width-cols-b"
+      ]
+    },
+    "b-codefam-width-cols-a": {
+      "id": "b-codefam-width-cols-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, or 82 beside a notes column."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-cols-b": {
+      "id": "b-codefam-width-cols-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code block nested under a paragraph shows 78 columns, and one inside a list item shows 75."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-measure": {
+      "id": "b-codefam-width-measure",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Measured widths",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-codefam-width-measure-a",
+        "b-codefam-width-measure-b"
+      ]
+    },
+    "b-codefam-width-measure-a": {
+      "id": "b-codefam-width-measure-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule measures each line in px as the panel paints it, with tabs expanded to stops of 4, against the panel's code width in px. A line within 1px of the edge may scroll, and a finding on an approximate width says so."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-width-measure-b": {
+      "id": "b-codefam-width-measure-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Characters IBM Plex Mono lacks, such as CJK and emoji, are reported but never judged an overflow."
         }
       ],
       "children": []
@@ -1920,7 +2065,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The three knobs are the registry's only non-color code tokens."
+          "insert": "The table's three knobs set the hairlines and the zebra layer."
         }
       ],
       "children": [
@@ -2051,7 +2196,47 @@
       "props": {},
       "text": [
         {
-          "insert": "The 20px line height is a layout constant, deliberately not a token."
+          "insert": "The registry also holds layout lengths, such as "
+        },
+        {
+          "insert": "lineHeight",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at 21px and "
+        },
+        {
+          "insert": "gutterWidth",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at 40px, and "
+        },
+        {
+          "insert": "CODE_METRICS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "layout/metrics.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/metrics.ts"
+            }
+          }
+        },
+        {
+          "insert": " records their stock values."
         }
       ],
       "children": []

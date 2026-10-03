@@ -794,19 +794,7 @@
           }
         },
         {
-          "insert": ", which holds about 84 characters of the System Sans body. That line runs slightly longer than the reference book's line of about 80 characters in "
-        },
-        {
-          "insert": "Typography and Fonts",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/50-editor-design/40-visual-system/20-typography-and-fonts"
-            }
-          }
-        },
-        {
-          "insert": ", and the owner kept it because the sizing reads well."
+          "insert": ", 675px of the 18px Inter body, and holds about 79 characters. That line is close to the reference book's line of about 80 characters in Typography and Fonts."
         }
       ],
       "children": []

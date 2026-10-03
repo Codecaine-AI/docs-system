@@ -11,6 +11,7 @@ import {
 } from "@codecaine-ai/sequence";
 
 import { getSequenceBySrc, IS_STATIC } from "../data/api";
+import { useTextMeasureRevision } from "../lib/docs-fonts";
 import "./sequence-embed.css";
 import { usePanZoom } from "@codecaine-ai/docs-viewer/pan-zoom";
 
@@ -70,9 +71,14 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
     };
   }, [viewerOpen, animateOpen, cancel, captureOrigin, expansionSource]);
 
+  // Text widths change when the bundled fonts arrive (a text-measure backend
+  // switch). A new document identity re-runs both layouts below: the sizing
+  // call here and the one SequenceViewer makes, with the same default measurer.
+  const measureRevision = useTextMeasureRevision();
   const viewerDocument = useMemo(
     () => (document ? { ...document, title: title ?? document.title } : null),
-    [document, title],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- measureRevision is the re-layout trigger
+    [document, title, measureRevision],
   );
   const diagramSize = useMemo(() => (viewerDocument ? layoutSequence(viewerDocument) : null), [viewerDocument]);
   // After the showModal effect above, so the first fit measures an open dialog.

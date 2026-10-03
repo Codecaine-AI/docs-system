@@ -2,7 +2,8 @@ import {test,expect,afterAll} from 'bun:test';
 import {mkdtempSync,writeFileSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
-import {publishCollection,confinedFile} from './publish';
+import {publishCollection,confinedFile,docsThemeHead} from './publish';
+import {DOC_SURFACE_TYPOGRAPHY_CLASSES} from '../../docs-viewer/src/render/block-classes';
 import {search} from './search';
 const root=mkdtempSync(join(tmpdir(),'docs-publish-'));
 afterAll(()=>rmSync(root,{recursive:true,force:true}));
@@ -41,6 +42,9 @@ test('diagrams publish as fitted images without a source-download placeholder',(
  expect([...result.files.keys()]).toHaveLength(2);
  expect([...result.files.keys()][0]).toEndWith('.svg');
  expect(new TextDecoder().decode([...result.files.values()][0])).toContain('Public diagram');
+ // The <img> SVG cannot load page fonts: it carries the measured faces it paints.
+ const svg=new TextDecoder().decode([...result.files.values()][0]);
+ expect(svg).toMatch(/<style>@font-face\{font-family:"Inter";font-style:normal;font-weight:400;src:url\(data:font\/woff2;base64,/);
 });
 
 test('image grids bundle every image and index headings, captions and alt text',()=>{
@@ -65,4 +69,12 @@ test('images publish as expand buttons and mark the post as needing viewers.js',
  expect(published.viewers).toBe(true);
  fixture();
  expect(publishCollection({root,posts:[post]}).posts[0].viewers).toBe(false);
+});
+
+test('docsThemeHead is the Default theme as a static head, and articles carry the workbench doc surface',()=>{
+ const head=docsThemeHead();
+ expect(head.htmlAttributes).toEqual({'data-code-panels':'dark'});
+ expect(head.css).toContain(':root {');
+ expect(head.css).toContain('[data-doc-lane][data-doc-block-type="state-shape"] { max-width: 1120px; --docs-pane-split: 48%; }');
+ fixture(); expect(publishCollection({root,posts:[post]}).posts[0].html).toStartWith(`<div class="${DOC_SURFACE_TYPOGRAPHY_CLASSES}">`);
 });

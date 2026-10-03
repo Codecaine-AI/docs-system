@@ -5,10 +5,16 @@
 
 /* Style rail (right-docked live theme-tuning panel) styling. */
 @import "./theme/style-rail.css";
+
 @import "../../../docs-viewer/src/styles/list-markers.css";
 @import "../../../docs-viewer/src/styles/code.css";
 @import "../../../docs-viewer/src/styles/image-grid.css";
 @import "../../../docs-viewer/src/styles/image-viewer.css";
+
+/* Read-surface rules shared with docs-publish: doc typography, the dark code
+   panel base, font tokens and the Tailwind token bridge. Imported after the
+   viewer sheets so it keeps the cascade position these rules had inline. */
+@import "./theme/read-surface.css";
 
 @plugin "@tailwindcss/typography";
 
@@ -32,120 +38,7 @@
  */
 @custom-variant dark (&:is(.dark *, :where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *)));
 
-/*
- * Dark code panel base. The tokens re-declare on the panel, but inherited
- * properties computed on an ancestor do not: the page's text color and the
- * Typography plugin's --tw-prose-pre-* (resolved on .docs-markdown) would
- * arrive at their light values. Restate them here so they resolve against
- * the panel's dark tokens. The background gives a pane that is transparent
- * over its light block (the linked code panes in state-shape and
- * interaction-surface) its own dark fill. Base layer, so component
- * utilities (the code block frame's own bg) still win.
- */
-@layer base {
-  [data-code-panels="dark"] [data-code-surface] {
-    color: var(--docs-code-fg, var(--docs-viewer-text-body, var(--foreground)));
-    background-color: var(--docs-code-block-bg, var(--background));
-    --tw-prose-pre-bg: var(--docs-code-block-bg, var(--docs-surface-muted));
-    --tw-prose-pre-code: var(--docs-viewer-text-muted);
-  }
-}
 
-/*
- * Font stacks: Spectre ships proprietary display/body fonts (Bank Gothic,
- * TX-02) that are not vendored into the standalone viewer — the variables
- * keep the same names so the token structure matches, with system fallbacks.
- */
-:root {
-  --font-display: ui-sans-serif, system-ui, sans-serif;
-  --font-tx02: ui-sans-serif, system-ui, sans-serif;
-  --font-tx02-semicondensed: ui-sans-serif, system-ui, sans-serif;
-  --font-tx02-condensed: ui-sans-serif, system-ui, sans-serif;
-  /* Canonical per-surface font tokens (style-rail "Code font" / "Number
-     font" override these; --docs-font-numeric defaults to inherit at the
-     use sites, so no :root entry). */
-  --docs-font-code: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-/*
- * Tailwind token bridge — the subset of Spectre's `@theme inline` mapping the
- * docs-viewer + canvas components actually use (core shadcn palette,
- * radius scale, fonts, and the status-* family).
- */
-/*
- * Bare `rounded` reads Tailwind's `--radius` theme key (stock 0.25rem). Point it
- * at the runtime --radius; `reference` keeps Tailwind from emitting a
- * self-referential `--radius: var(--radius)` into :root.
- */
-@theme inline reference {
-  --radius: var(--radius);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-tx02);
-  --font-display: var(--font-display);
-  --font-semicondensed: var(--font-tx02-semicondensed);
-  --font-condensed: var(--font-tx02-condensed);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  /* One corner radius app-wide: every rounded-* step resolves to the global
-     --radius (2px at stock), so components follow the Surfaces setting
-     instead of drifting by a few pixels per size. rounded-full stays a pill. */
-  --radius-xs: var(--radius);
-  --radius-sm: var(--radius);
-  --radius-md: var(--radius);
-  --radius-lg: var(--radius);
-  --radius-xl: var(--radius);
-  --radius-2xl: var(--radius);
-  --radius-3xl: var(--radius);
-  --radius-4xl: var(--radius);
-
-  --color-status-success: var(--status-success);
-  --color-status-success-fill: var(--status-success-fill);
-  --color-status-success-border: var(--status-success-border);
-  --color-status-success-foreground: var(--status-success-foreground);
-  --color-status-info: var(--status-info);
-  --color-status-info-fill: var(--status-info-fill);
-  --color-status-info-border: var(--status-info-border);
-  --color-status-info-foreground: var(--status-info-foreground);
-  --color-status-warning: var(--status-warning);
-  --color-status-warning-fill: var(--status-warning-fill);
-  --color-status-warning-border: var(--status-warning-border);
-  --color-status-warning-foreground: var(--status-warning-foreground);
-  --color-status-danger: var(--status-danger);
-  --color-status-danger-fill: var(--status-danger-fill);
-  --color-status-danger-border: var(--status-danger-border);
-  --color-status-danger-foreground: var(--status-danger-foreground);
-  --color-status-error: var(--status-error);
-  --color-status-error-fill: var(--status-error-fill);
-  --color-status-error-border: var(--status-error-border);
-  --color-status-error-foreground: var(--status-error-foreground);
-  --color-status-neutral: var(--status-neutral);
-  --color-status-neutral-fill: var(--status-neutral-fill);
-  --color-status-neutral-border: var(--status-neutral-border);
-  --color-status-neutral-foreground: var(--status-neutral-foreground);
-}
 
 @layer base {
   * {
@@ -247,12 +140,6 @@
      beneath it. */
 }
 
-/* The typography plugin's `.prose` carries `max-width: 65ch`. Docs surfaces
-   size their own column (DocPage's max-w wrapper) — kill the cap with plain
-   author CSS so no utility-ordering or stale-build accident can revive it. */
-.docs-markdown.prose {
-  max-width: none;
-}
 
 /* Edit-surface text lane. The read surface wraps every top-level block in its
    own lane element (docs-viewer render/block-layout.ts, applied by
@@ -304,100 +191,6 @@
   --style-editor-text-lane: var(--style-content-width, 60ch);
 }
 
-/* Docs typography bridge — mirrors Spectre's .docs-markdown block. */
-.docs-markdown {
-  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
-  --tw-prose-body: var(--docs-viewer-text-body);
-  --tw-prose-headings: var(--docs-viewer-text-heading);
-  --tw-prose-lead: var(--docs-viewer-text-muted);
-  --tw-prose-links: var(--docs-viewer-link);
-  --tw-prose-bold: var(--docs-viewer-text-heading);
-  --tw-prose-counters: var(--docs-viewer-text-muted);
-  --tw-prose-bullets: var(--docs-viewer-text-muted);
-  --tw-prose-hr: var(--docs-border-default);
-  --tw-prose-quotes: var(--docs-viewer-text-muted);
-  --tw-prose-quote-borders: var(--docs-viewer-callout-border);
-  --tw-prose-captions: var(--docs-viewer-text-muted);
-  --tw-prose-kbd: var(--docs-viewer-text-heading);
-  --tw-prose-code: var(--docs-viewer-text-muted);
-  --tw-prose-pre-code: var(--docs-viewer-text-muted);
-  --tw-prose-pre-bg: var(--docs-surface-muted);
-  --tw-prose-th-borders: var(--docs-border-strong);
-  --tw-prose-td-borders: var(--docs-border-default);
-  color: var(--docs-viewer-text-body);
-}
-
-/* Headings follow the per-block-type token (--docs-heading-fg defaults to
-   the heading text var in theme/semantic.css); strong stays on the shared
-   heading text var — bold text is not a heading block. */
-.docs-markdown :where(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
-}
-
-/* Headings inside a state-shape or interaction-surface card are the card's
-   own header, not a heading block: this unlayered rule would beat their
-   utility classes and leave the card's header-text color token dead. */
-.docs-markdown :where(h1, h2, h3, h4, h5, h6):not(:where([data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  color: var(--docs-heading-fg);
-}
-
-.docs-markdown :where(strong) {
-  font-family: var(--font-tx02), ui-sans-serif, system-ui, sans-serif;
-  color: var(--docs-viewer-text-heading);
-}
-
-/* Style-rail typography hooks — the vars are only set on <html> while the
-   corresponding knob is off its STOCK default (StyleRail.tsx
-   DEFAULT_STYLE_RAIL_SETTINGS: 18px / 1.45 / 0em), so these fallbacks MUST
-   equal that stock — they are what renders when no var is emitted. */
-.docs-markdown.prose {
-  font-size: var(--style-font-size, 18px);
-  line-height: var(--style-line-height, 1.45);
-  letter-spacing: var(--style-letter-spacing, 0em);
-}
-
-/* The block renderer/editor pins each text block with its own font-size /
-   line-height utilities (block-classes.ts), so container-level values never
-   reach the text. Re-assert the knobs at the block level; the fallbacks equal
-   the utilities' own fallbacks, so this is a no-op until a knob moves.
-
-   Structured-table, state-shape and interaction-surface descendants are
-   EXEMPT (here and in the color rules below). These rules sit outside any
-   cascade layer, so they beat Tailwind's `@layer utilities` no matter the
-   specificity: left in, they pinned every table cell to the prose size/leading/color and the table's own
-   --docs-table-* type tokens (font size, header size, line height, header
-   text color in edit mode, where a cell hosts a <p>) did nothing. Exempt
-   cells inherit letter-spacing from `.docs-markdown.prose`, so that knob
-   still reaches them. */
-.docs-markdown :where(p, li, td, th, dd, dt, blockquote):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  font-size: var(--style-font-size, 18px);
-  line-height: var(--style-line-height, 1.45);
-  letter-spacing: var(--style-letter-spacing, 0em);
-}
-
-.docs-markdown :where(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--style-heading-font, var(--font-tx02)), ui-sans-serif, system-ui, sans-serif;
-}
-
-/* Paragraph text follows the per-block-type token (--docs-paragraph-fg
-   defaults to the body text var in theme/semantic.css); list items and
-   table cells stay on the shared body var — they have their own tokens. */
-.docs-markdown :where(p):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  color: var(--docs-paragraph-fg);
-}
-
-.docs-markdown :where(li, td):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  color: var(--docs-viewer-text-body);
-}
-
-/* List-item text follows the list-item token on the edit surface, where an
-   item is an <li> and the rule above would otherwise pin it to the shared
-   body var (the read surface renders a div, which the LIST_ITEM_CLASSES
-   color utility reaches directly). --docs-list-item-fg defaults to the body
-   text var in theme/semantic.css, so this is a no-op until the knob moves. */
-.docs-markdown :where(li):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  color: var(--docs-list-item-fg);
-}
 
 /* Tailwind Typography zeroes the top margin of whatever directly follows an
    h2-h4 (`.prose :where(h2 + *)`). On the edit surface the text blocks are
@@ -410,87 +203,6 @@
   margin-top: 0;
 }
 
-/* Callout body text follows its own token on both surfaces (read: the
-   aside wraps a nested .docs-markdown body div; edit: the callout node's
-   div[data-doc-type]). Re-pins the descendants the paragraph rule above
-   would otherwise color. The default in theme/semantic.css is the approved
-   callout body ink (the value CalloutDocsBlock falls back to), so this is a
-   no-op until a theme moves --docs-callout-fg. */
-[data-docs-block-type="callout"] .docs-markdown,
-[data-docs-block-type="callout"] .docs-markdown :where(p, li, td),
-.docs-markdown [data-doc-type="callout"],
-.docs-markdown [data-doc-type="callout"] :where(p, li, td) {
-  color: var(--docs-callout-fg);
-}
-
-/* Callout body text size. The body div is itself `.docs-markdown.prose`, so
-   the reading-size rules above (which are unlayered and beat the component's
-   own size utility) set it and its paragraphs to --style-font-size. The
-   callout's text-scale knob multiplies that size; at the default scale of 1
-   this restates the same value, so the body keeps tracking the reading
-   size. Must stay BELOW the `.docs-markdown.prose` rule: equal specificity. */
-[data-docs-block-type="callout"] [data-callout-body],
-[data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote) {
-  font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));
-}
-
-/* Inline code chip. This rule is UNLAYERED, so it beats the Tailwind
-   utilities on INLINE_CODE_CLASSES (docs-viewer render/block-classes.ts) —
-   every property it sets must therefore read the same --docs-inline-code-*
-   token the utility does, or that style-rail knob goes dead here. Padding is
-   a unitless em multiplier. Font size, weight and border are deliberately
-   NOT set: the utilities own them for delta-span chips (an unlayered border
-   here would also wipe other components' own bordered <code> elements), and
-   markdown-projected code keeps its Typography values. The color reads the
-   typed-chip kind first (--docs-chip-kind-fg, set per kind by
-   INLINE_CODE_KIND_CLASSES), then the plain chip ink. */
-.docs-markdown :where(code:not(pre code)) {
-  background: var(--docs-inline-code-bg);
-  border-radius: var(--docs-inline-code-radius);
-  padding: calc(var(--docs-inline-code-pad-y) * 1em) calc(var(--docs-inline-code-pad-x) * 1em);
-  color: var(--docs-chip-kind-fg, var(--docs-inline-code-fg));
-}
-
-/* Tailwind Typography wraps inline code in literal backtick pseudo-elements;
-   the Notion-style chip carries the meaning instead, on both the read
-   surface and the ProseMirror editor. */
-.docs-markdown code::before,
-.docs-markdown code::after,
-.docs-editor-prosemirror code::before,
-.docs-editor-prosemirror code::after {
-  content: none;
-}
-
-.docs-markdown :where(a) {
-  color: var(--docs-viewer-link);
-}
-
-/* Prose rhythm (theme lab, text group). The read surface wraps every
-   top-level block in a lane element carrying data-doc-block-type, so its
-   adjacency selectors step over lanes; the edit surface's blocks are direct
-   siblings (atoms sit in Tiptap's react-renderer wrapper).
-   - A heading right after a divider drops its own space above: the rule's
-     spacing already separates the sections.
-   - An h3 straight under its h2 needs less than the full section gap.
-   - A text block straight under a heading sits on the heading's space below
-     (Typography's `h2 + *` reset, restated for the read surface). */
-.docs-markdown [data-doc-block-type="divider"] + [data-doc-block-type="heading"] :is(h1, h2, h3, h4, h5, h6),
-.docs-editor-prosemirror > :is(hr, :has(> [data-doc-node="docDivider"]), :has(> * > hr)) + :is(h1, h2, h3, h4, h5, h6) {
-  margin-top: 0;
-}
-.docs-markdown [data-doc-block-type="heading"]:has(h2) + [data-doc-block-type="heading"] h3,
-.docs-editor-prosemirror > h2 + h3 {
-  margin-top: 16px;
-}
-.docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="paragraph"] > [data-block-id] > p:first-child,
-.docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="list-item"] > [role="listitem"] {
-  margin-top: 0;
-}
-
-[data-block-id] {
-  transition: background 0.1s ease;
-  border-radius: var(--radius);
-}
 
 /*
  * Changed-id highlight flash (D12) — ids recently changed by a save, an

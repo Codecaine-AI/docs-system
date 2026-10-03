@@ -1,4 +1,5 @@
 import { createInteractionService } from './service';
+import { textMeasureReady } from '@codecaine-ai/docs-server';
 import { loadGuidance } from './guidance';
 import type { DocsProject } from './discovery';
 import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
@@ -15,6 +16,8 @@ const registry = await Bun.file(process.env.CODECAINE_DOCS_REGISTRY!).json() as 
 const globalThemesRoot = resolve(process.env.CODECAINE_DOCS_GLOBAL_THEMES || join(dirname(process.env.CODECAINE_DOCS_REGISTRY!), 'themes'));
 // The central code-theme folder sits beside it: <state dir>/code-themes.
 const codeThemesRoot = resolve(process.env.CODECAINE_DOCS_CODE_THEMES || join(dirname(process.env.CODECAINE_DOCS_REGISTRY!), 'code-themes'));
+// Layout lints measure with text-measure's exact HarfBuzz backend: load it before serving (health reports it as textMeasure).
+await textMeasureReady();
 const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, codeThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])) });
 for (const workspace of registry.workspaces) {
   try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }

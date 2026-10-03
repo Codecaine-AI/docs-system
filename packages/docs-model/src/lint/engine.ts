@@ -25,6 +25,35 @@ export function validateLintRules(rules: readonly LintRule[]): void {
       throw new Error(`Missing corpus reference: ${rule.id}`);
   }
 }
+/** Rule failures already logged, so a rule that throws on every lint of a page logs once. */
+const loggedFailures = new Set<string>();
+
+/**
+ * The finding a rule that threw leaves behind. A warning, never blocking,
+ * and never carrying the rule's audit severity: one broken check must not
+ * fail a save, an audit or docs_check, or hide the other rules' findings.
+ */
+function failedRuleFinding(rule: LintRule, error: unknown): LintFinding {
+  const reason = (error instanceof Error ? error.message : String(error)).trim() || "unknown error";
+  const key = `${rule.id}\u0000${reason}`;
+  if (!loggedFailures.has(key)) {
+    if (loggedFailures.size >= 200) loggedFailures.clear();
+    loggedFailures.add(key);
+    console.error(`lint: rule ${rule.id} threw and was skipped: ${reason}`);
+  }
+  return {
+    field: "document",
+    message: `The ${rule.id} check failed on this page and was skipped: ${reason.replace(/[.\s]*$/, "")}.`,
+    evidence: `internal error: ${reason}`,
+    audit: undefined,
+    ruleId: rule.id,
+    severity: "warning",
+    suggestion: "The page itself may be fine. Report the error to the docs-system maintainers.",
+    docsPath: rule.docsPath,
+    introduced: true,
+  };
+}
+
 export function runLintRules(
   document: DocDocument,
   options: LintOptions,
@@ -33,8 +62,14 @@ export function runLintRules(
   validateLintRules(rules);
   function collect(doc: DocDocument): LintFinding[] {
     const context = { document: doc, blocks: orderedBlocks(doc) };
-    return rules.flatMap((rule) =>
-      rule.check(context).map((match) => ({
+    return rules.flatMap((rule): LintFinding[] => {
+      let matches;
+      try {
+        matches = rule.check(context);
+      } catch (error) {
+        return [failedRuleFinding(rule, error)];
+      }
+      return matches.map((match) => ({
         ...match,
         audit: rule.audit,
         ruleId: rule.id,
@@ -42,8 +77,8 @@ export function runLintRules(
         suggestion: match.suggestion ?? rule.suggestion,
         docsPath: rule.docsPath,
         introduced: true,
-      })),
-    );
+      }));
+    });
   }
   // Match exact semantic evidence with multiplicity. IDs and array positions may
   // change during full-document writes; different content never inherits a waiver.

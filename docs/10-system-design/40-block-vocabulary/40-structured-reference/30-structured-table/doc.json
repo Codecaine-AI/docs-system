@@ -30,6 +30,9 @@
         "b-20-structured-table-proj-h-6",
         "b-stfam-docrender-read",
         "b-stfam-docrender-columns",
+        "b-stfam-tablefit-lead",
+        "b-stfam-tablefit-screen",
+        "b-stfam-tablefit-pdf",
         "b-20-structured-table-editor-12",
         "b-20-structured-table-editing-heading",
         "b-20-structured-table-editing-para-1",
@@ -897,6 +900,116 @@
       ],
       "children": []
     },
+    "b-stfam-tablefit-lead": {
+      "id": "b-stfam-tablefit-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "layout.table-fit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " warning checks each table at stock theme settings, with its text measured in the bundled Inter and IBM Plex Mono faces. Like every layout rule in "
+        },
+        {
+          "insert": "Authoring Lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": ", it never blocks a save. It flags two cases:"
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-tablefit-screen": {
+      "id": "b-stfam-tablefit-screen",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On screen",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-stfam-tablefit-screen-a",
+        "b-stfam-tablefit-screen-b"
+      ]
+    },
+    "b-stfam-tablefit-screen-a": {
+      "id": "b-stfam-tablefit-screen-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The columns' narrowest widths add up to more than the block's width, 1100px at the top level of a page, so the table scrolls sideways."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-tablefit-screen-b": {
+      "id": "b-stfam-tablefit-screen-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A column that stays on one line counts its whole text, and a wrapping column counts its longest word or code piece."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-tablefit-pdf": {
+      "id": "b-stfam-tablefit-pdf",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In PDF export",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-stfam-tablefit-pdf-a",
+        "b-stfam-tablefit-pdf-b"
+      ]
+    },
+    "b-stfam-tablefit-pdf-a": {
+      "id": "b-stfam-tablefit-pdf-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every column gets an equal share of the 688px printable width, and most text wraps anywhere."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-tablefit-pdf-b": {
+      "id": "b-stfam-tablefit-pdf-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code chip piece cannot break, and neither can an inline element in a column that stays on one line. Either one runs into the next column when it is wider than its share."
+        }
+      ],
+      "children": []
+    },
     "b-20-structured-table-editor-12": {
       "id": "b-20-structured-table-editor-12",
       "type": "paragraph",
@@ -1550,7 +1663,7 @@
             "cellPaddingY",
             "--docs-table-cell-pad-y",
             "length",
-            "Vertical cell padding (default 10px)"
+            "Vertical cell padding (default 4px)"
           ],
           [
             "cellPaddingX",
@@ -1562,7 +1675,7 @@
             "fontSize",
             "--docs-table-font-size",
             "length",
-            "Cell text size (default 14px, headers render 1px smaller)"
+            "Cell text size (default 13.5px, and headers follow it)"
           ],
           [
             "handleRadius",

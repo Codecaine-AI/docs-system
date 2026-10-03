@@ -1,5 +1,10 @@
 {
   "name": "Default",
+  "fonts": {
+    "body": "Inter, ui-sans-serif, system-ui, sans-serif",
+    "heading": "Inter, ui-sans-serif, system-ui, sans-serif",
+    "code": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace"
+  },
   "dark": false,
   "railDefaults": {
     "transition": {
@@ -16,7 +21,7 @@
     "typography": {
       "bodyFont": "sans",
       "headingFont": "sans",
-      "codeFont": "fira-code",
+      "codeFont": "plex-mono",
       "codePanels": "dark",
       "numberFont": "body",
       "fontSize": 18,

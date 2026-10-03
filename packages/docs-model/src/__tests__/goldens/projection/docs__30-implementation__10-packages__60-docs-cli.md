@@ -4,15 +4,31 @@ The executable command dialect for agents, humans, and repository automation: re
 
 Translation layer: the text-first agent reading surface the CLI makes operational.
 
+Text Measurement defines the measuring backends and the startup rule every docs host follows.
+
 ## Decisions
 
-### The command dialect is durable
+### The Command Dialect Is Durable
 
-- Decision: Command names, arguments, stdout shapes, and exit behavior are a stable contract — verification commands fail through exit status (`links check` on stale references, `audit` on structural errors while warnings stay informational); new capability extends the dialect rather than breaking it.
+- **Decision**
 
-- Why: Repository instructions, scripts, and agent tools gate work on command vocabulary and failure semantics, not workbench UI state — the process boundary must outlive UI refactors and holds whether or not the package ever merges into the workbench. Rejected: treating the CLI as an internal detail of the app shell.
+  - Command names, arguments, stdout shapes, and exit behavior are a stable contract.
 
-- Applies to: `packages/docs-cli/src/index.ts` — every future command and flag.
+  - Verification commands fail through exit status. `links check` fails on stale references, and `audit` fails on structural errors while warnings stay informational.
+
+  - New capability extends the dialect rather than breaking it.
+
+- **Why**
+
+  - Repository instructions, scripts, and agent tools gate work on command vocabulary and failure semantics, not on workbench UI state.
+
+  - The process boundary must outlive UI refactors, and it holds whether or not the package ever merges into the workbench.
+
+  - Treating the CLI as an internal detail of the app shell was rejected.
+
+- **Applies to**
+
+  - The rule covers `packages/docs-cli/src/index.ts` and every future command and flag.
 
 ### The executable is a leaf
 
@@ -37,3 +53,19 @@ Translation layer: the text-first agent reading surface the CLI makes operationa
 - Why: Adoption is not steady-state reading, and a converter that silently destroys its sources was rejected. Deletion is a separate, doubly confirmed act.
 
 - Applies to: `packages/docs-cli/src/migrate`. Future adoption tooling lands here under the same safety split.
+
+### Linting Commands Load HarfBuzz First
+
+- **Decision**
+
+  - `audit`, `style`, `serve`, `export`, and `migrate` load the exact HarfBuzz backend of `@codecaine-ai/text-measure` before they run, because each one lints documents.
+
+  - When HarfBuzz does not load, the command prints one warning and runs on the approximate table backend. audit ends its report with the backend it used, such as `text measure: harfbuzz (exact)`. Commands that never lint skip the load.
+
+- **Why**
+
+  - Layout lints measure text widths, and only an exact backend matches what the browser paints. Without it, the lints still run and call their widths approximate.
+
+- **Applies to**
+
+  - The rule covers `LINTING_COMMANDS` in `packages/docs-cli/src/index.ts` and the report in `packages/docs-cli/src/audit.ts`. A future command that lints joins `LINTING_COMMANDS`.

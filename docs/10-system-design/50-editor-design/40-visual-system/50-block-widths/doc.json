@@ -19,6 +19,11 @@
         "bw-rule-5",
         "bw-lanes-lead",
         "bw-lanes",
+        "bw-h-px",
+        "bw-px-lead",
+        "bw-px-lanes",
+        "bw-px-prose",
+        "bw-px-drift",
         "bw-h-table",
         "bw-table-lead",
         "bw-table-1",
@@ -437,6 +442,199 @@
           ]
         ]
       },
+      "children": []
+    },
+    "bw-h-px": {
+      "id": "bw-h-px",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Stock Widths"
+        }
+      ],
+      "children": []
+    },
+    "bw-px-lead": {
+      "id": "bw-px-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "LANE_PX",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "layout/metrics.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-model/src/layout/metrics.ts"
+            }
+          }
+        },
+        {
+          "insert": " turns the lane caps into pixels at the stock 18px body size, where Inter's "
+        },
+        {
+          "insert": "1ch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is 11.25px. The layout lints read these constants instead of rendering a page, and "
+        },
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        },
+        {
+          "insert": " explains when they match what a reader sees."
+        }
+      ],
+      "children": []
+    },
+    "bw-px-lanes": {
+      "id": "bw-px-lanes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Lanes",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-px-lanes-a",
+        "bw-px-lanes-b"
+      ]
+    },
+    "bw-px-lanes-a": {
+      "id": "bw-px-lanes-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text lane is 675px, the code lane is 990px, and the wide lane is 1100px."
+        }
+      ],
+      "children": []
+    },
+    "bw-px-lanes-b": {
+      "id": "bw-px-lanes-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A window narrower than a lane plus the page margin narrows that lane further."
+        }
+      ],
+      "children": []
+    },
+    "bw-px-prose": {
+      "id": "bw-px-prose",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Prose inside blocks",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-px-prose-a",
+        "bw-px-prose-b"
+      ]
+    },
+    "bw-px-prose-a": {
+      "id": "bw-px-prose-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Table prose columns and stack details wrap at 60ch of 13.5px Inter, 506.25px. File tree notes share that cap, and their 24px left padding counts inside it."
+        }
+      ],
+      "children": []
+    },
+    "bw-px-prose-b": {
+      "id": "bw-px-prose-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A stack's path details wrap at 60ch of 12px IBM Plex Mono, 432px."
+        }
+      ],
+      "children": []
+    },
+    "bw-px-drift": {
+      "id": "bw-px-drift",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drift tests",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-px-drift-a"
+      ]
+    },
+    "bw-px-drift-a": {
+      "id": "bw-px-drift-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The drift tests in "
+        },
+        {
+          "insert": "docs-viewer",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/__tests__/layout-metrics-drift.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs-workbench",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/__tests__/layout-metrics-drift.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " fail when the viewer's class strings or the workbench's stock settings and theme defaults stop matching these constants."
+        }
+      ],
       "children": []
     },
     "bw-h-table": {

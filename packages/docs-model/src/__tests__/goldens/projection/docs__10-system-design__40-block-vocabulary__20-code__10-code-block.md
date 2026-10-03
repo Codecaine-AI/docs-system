@@ -151,13 +151,13 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
 - Gutter.
 
-  - A sticky 3rem column that stays put under horizontal scroll. Numbers render at 55% strength at rest.
+  - A sticky 40px column, the default of `--docs-code-gutter-width`, stays put under horizontal scroll. Numbers render at 55% strength at rest.
 
   - Its background must be opaque (it is sticky) but defaults to a mix matching the block background, so no band is perceptible.
 
 - Zebra.
 
-  - One absolute layer behind the code column; the gradient period is two 20px lines, aligned to line 1 by construction.
+  - One absolute layer sits behind the code column. Its gradient period is two 21px lines, aligned to line 1 by construction.
 
 - Notes aside.
 
@@ -173,15 +173,31 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
   - At rest, an annotated range shows only the 2px accent bar plus accent line numbers. The tint appears when its pair is lit.
 
-### The 20px Line
+### The 21px Line
 
-- `CODE_LINE_HEIGHT_PX = 20` is a layout constant, not a theme token.
+- `CODE_LINE_HEIGHT_PX = 21` is the default of the `--docs-code-line-height` token.
 
-  - The zebra gradient period, the gutter row height, and every annotation overlay's top and height are computed from it, so it must never drift per host.
+  - The zebra gradient period, the gutter row height, and every annotation overlay's top and height resolve from that one variable, so they cannot drift apart.
 
 - Soft wrap is off on every surface.
 
   - The edit surface forces `white-space: pre` on its content node. Wrapping would break every line-geometry computation.
+
+### Line Width
+
+Code never wraps on screen, so the `layout.code-line-width` warning flags a line wider than the panel shows before it scrolls sideways. PDF export wraps code instead. Like every layout rule in Authoring Lints, the warning never blocks a save.
+
+- **Visible columns**
+
+  - At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, or 82 beside a notes column.
+
+  - A code block nested under a paragraph shows 78 columns, and one inside a list item shows 75.
+
+- **Measured widths**
+
+  - The rule measures each line in px as the panel paints it, with tabs expanded to stops of 4, against the panel's code width in px. A line within 1px of the edge may scroll, and a finding on an approximate width says so.
+
+  - Characters IBM Plex Mono lacks, such as CJK and emoji, are reported but never judged an overflow.
 
 ### Annotation Pairing
 
@@ -270,7 +286,7 @@ The theme file is `components/code.json` in the active theme folder. By default 
 | ruleOpacity | --docs-code-rule-opacity | number 0–1 | Hairline opacity (step 0.05, default 0.5) |
 | zebraOpacity | --docs-code-zebra-opacity | number 0–1 | Zebra layer opacity (step 0.05, default 1) |
 
-- The three knobs are the registry's only non-color code tokens.
+- The table's three knobs set the hairlines and the zebra layer.
 
   - Every internal hairline, including the header rule and the code/notes column divider, runs through the one rule token set.
 
@@ -280,7 +296,7 @@ The theme file is `components/code.json` in the active theme folder. By default 
 
   - `--docs-zebra`, `--docs-link-bg`, and `--docs-link-pin` are registered once under the registry's `linking` entry, not per component.
 
-- The 20px line height is a layout constant, deliberately not a token.
+- The registry also holds layout lengths, such as `lineHeight` at 21px and `gutterWidth` at 40px, and `CODE_METRICS` in `layout/metrics.ts` records their stock values.
 
 ## Agent Adapter
 

@@ -394,7 +394,7 @@
           }
         },
         {
-          "insert": ". The folder has the same shape as a repository theme: a "
+          "insert": ". The folder has the same shape as a repository theme, with a "
         },
         {
           "insert": "theme.json",
@@ -412,7 +412,7 @@
           }
         },
         {
-          "insert": " folder. Its values start from this repository's Default: System Sans at 18px, a 1.45 line height, and a "
+          "insert": " folder. Its values start from this repository's Default, which sets Inter at 18px, a 1.45 line height, and a "
         },
         {
           "insert": "60ch",

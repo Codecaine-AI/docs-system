@@ -27,8 +27,11 @@ import { NODE_TYPE_TO_BLOCK_TYPE } from "../core/schema";
  * - docListItem: NO hint — a gray "List" next to the marker read as
  *   phantom content while typing (Ford, dogfood review 2026-07-16); an
  *   empty item is self-explanatory, the marker is already visible.
- * - docCallout: editor focused — its block type name capitalized
- *   ("Callout").
+ * - docCallout: editor focused and no nested children — its block type
+ *   name capitalized ("Callout"), set on the empty `docBlockText` wrapper
+ *   rather than the block so it sits on the body line, below the header.
+ *   With nested children, that empty line is collapsed instead
+ *   (`doc-block-text-collapsed`) unless the caret is on it.
  *
  * Focus changes recompute correctly because TipTap's core FocusEvents
  * extension dispatches a meta transaction on focus/blur (keeping
@@ -45,6 +48,9 @@ const PLACEHOLDER_CSS = `
   float: left;
   height: 0;
 }
+.docs-editor-prosemirror .doc-block-text-collapsed {
+  display: none;
+}
 `;
 
 /** Injects the placeholder stylesheet once per document (SSR-safe; the docs-viewer package ships no stylesheet of its own). */
@@ -59,6 +65,11 @@ function injectPlaceholderStyles(): void {
 
 /** Node type names that show their block type name when empty and the editor is focused (callout). */
 const FOCUS_LABELED_NODE_NAMES: ReadonlySet<string> = new Set([
+  "docCallout",
+]);
+
+/** Node type names whose empty text line is hidden while nested blocks carry the body (callout). */
+const COLLAPSIBLE_TEXT_NODE_NAMES: ReadonlySet<string> = new Set([
   "docCallout",
 ]);
 
@@ -91,8 +102,34 @@ function buildDecorations(state: EditorState, editorFocused: boolean): Decoratio
       if (node.childCount === 1 && hasEmptyWrapper(node) && cursorInside && editorFocused) {
         text = "Type '/' for commands";
       }
-    } else if (FOCUS_LABELED_NODE_NAMES.has(name) && hasEmptyWrapper(node) && editorFocused) {
-      text = capitalize(NODE_TYPE_TO_BLOCK_TYPE[name] ?? name);
+    } else if (
+      FOCUS_LABELED_NODE_NAMES.has(name) &&
+      node.childCount === 1 &&
+      hasEmptyWrapper(node) &&
+      editorFocused
+    ) {
+      // Decorate the empty docBlockText line, not the block: the callout node
+      // view renders its eyebrow header above the editable body, so a
+      // block-level ::before floated over "Info · Title". A callout whose body
+      // lives in nested children is not empty, so it gets no hint at all.
+      const wrapper = node.firstChild!;
+      decorations.push(
+        Decoration.node(pos + 1, pos + 1 + wrapper.nodeSize, {
+          class: "doc-block-placeholder",
+          "data-placeholder": capitalize(NODE_TYPE_TO_BLOCK_TYPE[name] ?? name),
+        }),
+      );
+    } else if (COLLAPSIBLE_TEXT_NODE_NAMES.has(name) && node.childCount > 1 && hasEmptyWrapper(node)) {
+      // A callout whose body is nested blocks keeps a mandatory, empty text
+      // line above them; ProseMirror's trailing <br> gives it a full blank
+      // line under the header. Collapse it unless the caret is on it.
+      const wrapper = node.firstChild!;
+      const wrapperFrom = pos + 1;
+      const wrapperTo = wrapperFrom + wrapper.nodeSize;
+      const caretOnLine = cursorPos !== null && cursorPos > wrapperFrom && cursorPos < wrapperTo;
+      if (!caretOnLine) {
+        decorations.push(Decoration.node(wrapperFrom, wrapperTo, { class: "doc-block-text-collapsed" }));
+      }
     }
 
     if (text !== null) {

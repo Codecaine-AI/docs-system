@@ -74,7 +74,7 @@ const ACCENT_OPTIONS: Array<{ id: AccentFamily; label: string }> = [
 ];
 
 const FONT_OPTIONS: Array<{ id: FontChoice; label: string }> = [
-  { id: "sans", label: "System Sans" },
+  { id: "sans", label: "Inter" },
   { id: "serif", label: "Serif" },
   { id: "mono", label: "Mono" },
 ];
@@ -86,7 +86,7 @@ const NUMBER_FONT_OPTIONS: Array<{ id: NumberFontChoice; label: string }> = [
 
 const CODE_FONT_OPTIONS: Array<{ id: CodeFontChoice; label: string }> = [
   ...FONT_OPTIONS,
-  { id: "fira-code", label: "Fira Code" },
+  { id: "plex-mono", label: "IBM Plex Mono" },
 ];
 
 const CODE_PANEL_OPTIONS: Array<{ id: CodePanelMode; label: string }> = [

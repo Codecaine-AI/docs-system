@@ -34,6 +34,13 @@ type CalloutData = {
   body: string;
 };
 
+/**
+ * The editor node view sets `nonEditableFurniture` (the CodeShell flag): the
+ * head row becomes contentEditable={false} so the caret never lands in it,
+ * while the body stays inside ProseMirror's one editing host.
+ */
+type CalloutRenderContext = DocsMdxBlockRenderContext & { nonEditableFurniture?: boolean };
+
 type CalloutTone = "info" | "decision" | "risk" | "warning" | "success";
 export type CalloutVariant = "eyebrow" | "hairline" | "rail" | "tab";
 
@@ -202,7 +209,7 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
 
   render(
     block: DocsMdxParsedBlock<CalloutData>,
-    ctx: DocsMdxBlockRenderContext,
+    ctx: CalloutRenderContext,
   ) {
     const { data } = block;
     const tone = calloutTone(data.tone);
@@ -221,7 +228,11 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
         data-source-id={data.id}
       >
         <style>{CALLOUT_STYLES}</style>
-        <div data-callout-head="true" className={CALLOUT_HEAD_CLASSES}>
+        <div
+          data-callout-head="true"
+          className={CALLOUT_HEAD_CLASSES}
+          contentEditable={ctx.nonEditableFurniture ? false : undefined}
+        >
           <span data-callout-icon="true" aria-hidden="true" className={CALLOUT_ICON_WRAP_CLASSES}>
             <Icon aria-hidden="true" className={CALLOUT_ICON_CLASSES} />
           </span>

@@ -1,4 +1,5 @@
 import { lintDocument, type LintReport } from "@codecaine-ai/docs-model/lint";
+import { textMeasureReady } from "./text-measure";
 import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -205,6 +206,7 @@ export async function stageBundleProposal(
     if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
     const dryRun = applyOps(loaded.document, input.ops, () => randomUUID());
     if (!dryRun.ok) return { ok: false as const, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
+    await textMeasureReady();
     const lint = lintDocument(dryRun.doc, { phase: "draft", baseline: loaded.document });
     const existing = await readProposalsSidecar(sidecarAbs);
     if (!existing.ok) return existing;
@@ -248,6 +250,7 @@ export async function stageBundleProposalAgainstDocument(
   const dryRun = applyOps(baseDocument, input.ops, () => randomUUID());
   if (!dryRun.ok) return { ok: false, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
 
+  await textMeasureReady();
   const lint = lintDocument(dryRun.doc, { phase: "draft", baseline: baseDocument });
   const sidecarAbs = proposalSidecarAbs(jsonAbs);
   return withPathLock(sidecarAbs, async () => {

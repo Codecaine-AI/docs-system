@@ -13,7 +13,10 @@
         "b-vsys-contract-heading",
         "b-vsys-tokens",
         "b-vsys-typography",
-        "b-vsys-themes"
+        "b-vsys-themes",
+        "b-vsys-code-colors",
+        "b-vsys-block-widths",
+        "b-vsys-text-measurement"
       ]
     },
     "b-vsys-intro": {
@@ -107,7 +110,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Body, heading, code, and numeric roles; the stock reading metrics; and the boundary around custom font files."
+          "insert": "Body, heading, code, and numeric roles, the bundled Inter and IBM Plex Mono faces, and the stock reading metrics."
         }
       ],
       "children": []
@@ -138,6 +141,96 @@
       "text": [
         {
           "insert": "The closed customization boundary, sparse theme folders, overlay precedence, the shared Global theme, and the living Default."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-code-colors": {
+      "id": "b-vsys-code-colors",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code Colors From Your Editor",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/40-code-colors"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-code-colors-gloss"
+      ]
+    },
+    "b-vsys-code-colors-gloss": {
+      "id": "b-vsys-code-colors-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The syntax roles that color every code surface from your VS Code or Cursor theme, and the colors of inline code chips."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-block-widths": {
+      "id": "b-vsys-block-widths",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Block Widths and Lanes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/50-block-widths"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-block-widths-gloss"
+      ]
+    },
+    "b-vsys-block-widths-gloss": {
+      "id": "b-vsys-block-widths-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The text, code, and wide lanes, their stock pixel widths, and how blocks and table columns size inside them."
+        }
+      ],
+      "children": []
+    },
+    "b-vsys-text-measurement": {
+      "id": "b-vsys-text-measurement",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Text Measurement",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/50-editor-design/40-visual-system/60-text-measurement"
+            }
+          }
+        }
+      ],
+      "children": [
+        "b-vsys-text-measurement-gloss"
+      ]
+    },
+    "b-vsys-text-measurement-gloss": {
+      "id": "b-vsys-text-measurement-gloss",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How layout lints and diagram layouts measure text without rendering, and when their widths are exact."
         }
       ],
       "children": []

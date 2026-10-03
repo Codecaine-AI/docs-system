@@ -540,6 +540,59 @@
           "insert": " reuses DocBlockRenderer with print-specific code and HTML output, static diagram embeds, and inline image assets."
         }
       ],
+      "children": [
+        "pdf-workbench-1-fonts"
+      ]
+    },
+    "pdf-workbench-1-fonts": {
+      "id": "pdf-workbench-1-fonts",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fonts and diagrams",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pdf-workbench-1-fonts-a",
+        "pdf-workbench-1-fonts-b"
+      ]
+    },
+    "pdf-workbench-1-fonts-a": {
+      "id": "pdf-workbench-1-fonts-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The export embeds the Inter and IBM Plex Mono faces each page uses as data URLs."
+        }
+      ],
+      "children": []
+    },
+    "pdf-workbench-1-fonts-b": {
+      "id": "pdf-workbench-1-fonts-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Canvas and sequence diagrams print as inline SVG with ids scoped per diagram, so their labels use the same faces, as "
+        },
+        {
+          "insert": "Export Pages as PDF",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/40-export-pdf"
+            }
+          }
+        },
+        {
+          "insert": " shows."
+        }
+      ],
       "children": []
     },
     "pdf-workbench-2": {

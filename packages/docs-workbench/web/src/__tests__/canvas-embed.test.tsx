@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, within } from "@testing-library/react";
+import { activeBackend, useTableBackend } from "@codecaine-ai/text-measure";
+import { useHarfBuzz } from "@codecaine-ai/text-measure/headless";
 import { syntheticInteractiveCanvas } from "../synthetic-canvas";
 
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
@@ -266,6 +268,29 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
     for (const link of editLinks) {
       expect(link.href).toBe("http://localhost:3999/");
       expect(link.href).not.toContain("/canvas/");
+    }
+  });
+});
+
+describe("StandaloneCanvasEmbed text measurement", () => {
+  it("keeps a view the user moved when the fonts arriving re-lay out the canvas", async () => {
+    const { getByRole } = render(
+      <StandaloneCanvasEmbed id="canvas-block" canvasId="synthetic" title="Interview inputs" />,
+    );
+    fireEvent.click(getByRole("button", { name: "Open Interview inputs in full-screen viewer" }));
+    const dialog = getByRole("dialog", { name: "Interview inputs canvas viewer" });
+    const zoomLevel = () => within(dialog).getByRole("button", { name: /^Zoom level/ }).getAttribute("aria-label");
+    const fitted = zoomLevel();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Zoom in" }));
+    const moved = zoomLevel();
+    expect(moved).not.toBe(fitted);
+    const original = activeBackend().name;
+    const switchBackend = (name: string) => (name === "harfbuzz" ? useHarfBuzz() : Promise.resolve(useTableBackend()));
+    try {
+      await act(() => switchBackend(original === "harfbuzz" ? "table" : "harfbuzz"));
+      expect(zoomLevel()).toBe(moved);
+    } finally {
+      await act(() => switchBackend(original));
     }
   });
 });

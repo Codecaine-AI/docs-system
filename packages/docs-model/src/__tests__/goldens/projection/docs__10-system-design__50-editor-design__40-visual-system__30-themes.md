@@ -52,7 +52,7 @@ themes/
 
 ### The Global Theme
 
-The Global theme is one shared look that every project renders and any project can edit. It has the reserved id `global` and lives outside every repository at `<stateDirectory>/themes/global/`, by default `~/.local/state/codecaine-docs/themes/global/`. The folder has the same shape as a repository theme: a `theme.json` manifest and a `components/` folder. Its values start from this repository's Default: System Sans at 18px, a 1.45 line height, and a `60ch` measure.
+The Global theme is one shared look that every project renders and any project can edit. It has the reserved id `global` and lives outside every repository at `<stateDirectory>/themes/global/`, by default `~/.local/state/codecaine-docs/themes/global/`. The folder has the same shape as a repository theme, with a `theme.json` manifest and a `components/` folder. Its values start from this repository's Default, which sets Inter at 18px, a 1.45 line height, and a `60ch` measure.
 
 - **One look, edited from any project**
 

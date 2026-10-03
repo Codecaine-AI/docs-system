@@ -27,6 +27,16 @@
         "pdf-guide-15",
         "pdf-guide-16",
         "pdf-guide-17",
+        "pdf-fonts-h",
+        "pdf-fonts-lead",
+        "pdf-fonts-diagrams",
+        "pdf-fonts-missing",
+        "pdf-check-h",
+        "pdf-check-lead",
+        "pdf-check-1",
+        "pdf-check-2",
+        "pdf-check-3",
+        "pdf-check-notes",
         "pdf-guide-18",
         "pdf-guide-19",
         "pdf-guide-20",
@@ -41,7 +51,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Use Export to download saved Docs pages as PDFs. This guide covers choosing pages, selecting a download format, and recovering from export errors."
+          "insert": "Use Export to download saved Docs pages as PDFs. This guide covers choosing pages, selecting a download format, checking the embedded fonts, and recovering from export errors."
         }
       ],
       "children": []
@@ -297,6 +307,250 @@
       "text": [
         {
           "insert": "Keep embedded HTML self-contained. Scripts do not run during printing. Split an HTML block if export reports that it exceeds one PDF sheet."
+        }
+      ],
+      "children": []
+    },
+    "pdf-fonts-h": {
+      "id": "pdf-fonts-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Fonts and Diagrams in the PDF"
+        }
+      ],
+      "children": []
+    },
+    "pdf-fonts-lead": {
+      "id": "pdf-fonts-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every PDF prints text in Inter and code in IBM Plex Mono, the faces the "
+        },
+        {
+          "insert": "layout lints",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/10-doc-standards/80-authoring-lints"
+            }
+          }
+        },
+        {
+          "insert": " measure with. Theme and style rail font choices do not apply to print. Export embeds the font files each page uses, so the printer needs no network access and no installed fonts."
+        }
+      ],
+      "children": []
+    },
+    "pdf-fonts-diagrams": {
+      "id": "pdf-fonts-diagrams",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Canvas and Sequence diagrams print as inline SVG, so their labels use the same embedded faces as the text around them."
+        }
+      ],
+      "children": []
+    },
+    "pdf-fonts-missing": {
+      "id": "pdf-fonts-missing",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "If a font file does not download within 10 seconds, the page prints without it. The completed dialog lists each face it could not embed, such as "
+        },
+        {
+          "insert": "IBM Plex Mono 600",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and text in that face uses a fallback font."
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-h": {
+      "id": "pdf-check-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Check the Embedded Fonts"
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-lead": {
+      "id": "pdf-check-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use "
+        },
+        {
+          "insert": "pdffonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from Poppler to list the fonts a downloaded PDF embeds."
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-1": {
+      "id": "pdf-check-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "On macOS, install Poppler with "
+        },
+        {
+          "insert": "brew install poppler",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-2": {
+      "id": "pdf-check-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Run "
+        },
+        {
+          "insert": "pdffonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on the downloaded file, for example "
+        },
+        {
+          "insert": "pdffonts docs.pdf",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-3": {
+      "id": "pdf-check-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Check that the "
+        },
+        {
+          "insert": "name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " column lists Inter and IBM Plex Mono faces, such as "
+        },
+        {
+          "insert": "Inter-Regular",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "IBMPlexMono",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and that the "
+        },
+        {
+          "insert": "emb",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " column shows "
+        },
+        {
+          "insert": "yes",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for each."
+        }
+      ],
+      "children": []
+    },
+    "pdf-check-notes": {
+      "id": "pdf-check-notes",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each name starts with a six-letter subset tag, such as "
+        },
+        {
+          "insert": "AAAAAA+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Page numbers can add one more face. Chromium draws the footer of a ZIP or separate PDF with an installed font, such as "
+        },
+        {
+          "insert": ".SFNS-Regular",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on macOS, because the footer cannot use the page's embedded faces. A combined PDF numbers its pages in Helvetica, a standard PDF font that is not embedded."
         }
       ],
       "children": []

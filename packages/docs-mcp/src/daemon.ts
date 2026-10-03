@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { createInteractionService } from './service';
+import { textMeasureReady } from '@codecaine-ai/docs-server';
 import { PACKAGE_ROOT, writeDaemonState, implementationFingerprint, stateDirectory } from './lifecycle';
 import { join } from 'node:path';
 import { unlink, mkdir, open, readFile } from 'node:fs/promises';
@@ -17,6 +18,8 @@ export async function runDaemon(){
   await unlink(lockPath);lock=await open(lockPath,'wx',0o600);
  }
  await lock.writeFile(String(process.pid));
+ // Layout lints measure with text-measure's exact HarfBuzz backend: load it before serving (health reports it as textMeasure).
+ await textMeasureReady();
  const service=createInteractionService({globalThemesRoot:process.env.CODECAINE_DOCS_GLOBAL_THEMES||join(stateDirectory(),'themes'),codeThemesRoot:process.env.CODECAINE_DOCS_CODE_THEMES||join(stateDirectory(),'code-themes')});const token=randomBytes(32).toString('hex');const fingerprint=await implementationFingerprint();
  const startedAt=new Date().toISOString();
  const server=Bun.serve({hostname:'127.0.0.1',port:0,idleTimeout:120,async fetch(request){

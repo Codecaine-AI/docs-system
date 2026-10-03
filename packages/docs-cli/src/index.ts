@@ -438,10 +438,26 @@ async function migrateCommand(args: string[]): Promise<void> {
   }
 }
 
+/** Commands that lint documents: directly (audit, the style sweep) or through docs-server's save-time lint (serve, export, migrate). */
+const LINTING_COMMANDS = new Set(["audit", "style", "serve", "export", "migrate"]);
+
 async function main() {
   const [command, ...args] = process.argv.slice(2);
 
   try {
+    // Layout lints measure text with text-measure's exact HarfBuzz backend. A failed load logs one warning
+    // and the command still runs on the approximate table backend: findings say "approximate", and audit
+    // prints the backend it measured with.
+    if (command && LINTING_COMMANDS.has(command)) {
+      const { useHarfBuzz } = await import("@codecaine-ai/text-measure/headless");
+      try {
+        await useHarfBuzz();
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        console.error(`text-measure: HarfBuzz did not load, so layout lints stay approximate: ${reason}`);
+      }
+    }
+
     if (command === "render" && args[0]) {
       const markdown = await renderCommand(args[0]);
       console.log(markdown);
@@ -494,6 +510,8 @@ async function main() {
       }
       if (report.findings.length > 0) console.log("");
       console.log(`${report.errorCount} error(s), ${report.warningCount} warning(s)`);
+      const measure = report.textMeasure;
+      console.log(`text measure: ${measure.name} (${measure.exact ? "exact" : "approximate: layout widths are estimates"})`);
       process.exitCode = report.errorCount > 0 ? 1 : 0;
       return;
     }

@@ -30,6 +30,10 @@
         "b-system-ui-dec4-d",
         "b-system-ui-dec4-w",
         "b-system-ui-dec4-a",
+        "b-system-ui-dec5-h",
+        "b-system-ui-dec5-d",
+        "b-system-ui-dec5-w",
+        "b-system-ui-dec5-a",
         "b-system-ui-roster-h",
         "b-system-ui-knobs-layout-10"
       ]
@@ -41,6 +45,19 @@
       "text": [
         {
           "insert": "The style-rail runtime normalizes persisted settings, translates them into CSS custom properties, and applies them to the document root. Source: "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/style-rail-settings.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
         },
         {
           "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
@@ -160,7 +177,7 @@
       },
       "text": [
         {
-          "insert": "One module owns the settings pipeline"
+          "insert": "Two Modules Own the Settings Pipeline"
         }
       ],
       "children": []
@@ -173,8 +190,40 @@
       },
       "text": [
         {
-          "insert": "Decision: "
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec1-d-r0",
+        "b-system-ui-dec1-d-r1",
+        "b-system-ui-dec1-d-r2"
+      ]
+    },
+    "b-system-ui-dec1-d-r0": {
+      "id": "b-system-ui-dec1-d-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "style-rail-settings.ts",
+          "attributes": {
+            "code": true
+          }
         },
+        {
+          "insert": " owns the settings type, compiled defaults, normalization, and variable conversion. It reads no DOM and no storage, so docs-publish builds its static theme head from the same code."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec1-d-r1": {
+      "id": "b-system-ui-dec1-d-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "StyleRail.tsx",
           "attributes": {
@@ -182,7 +231,18 @@
           }
         },
         {
-          "insert": " owns the settings type, compiled defaults, tolerant local-storage reader, normalization, variable conversion, and root application. Rail settings never gain a second reader or writer module."
+          "insert": " re-exports that module and owns the browser side: the tolerant local-storage reader and root application."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec1-d-r2": {
+      "id": "b-system-ui-dec1-d-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rail settings never gain a third reader or writer module."
         }
       ],
       "children": []
@@ -195,7 +255,23 @@
       },
       "text": [
         {
-          "insert": "Why: Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object."
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec1-w-r0"
+      ]
+    },
+    "b-system-ui-dec1-w-r0": {
+      "id": "b-system-ui-dec1-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Scattering settings parsing across shell components was rejected. A single pipeline keeps normalization and defaults consistent, so every consumer sees one complete settings object."
         }
       ],
       "children": []
@@ -208,16 +284,49 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec1-a-r0"
+      ]
+    },
+    "b-system-ui-dec1-a-r0": {
+      "id": "b-system-ui-dec1-a-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "insert": "packages/docs-workbench/web/src/shell/style-rail-settings.ts",
           "attributes": {
-            "code": true
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
           }
         },
         {
-          "insert": ". Future settings groups extend this module rather than adding parallel readers."
+          "insert": " and "
+        },
+        {
+          "insert": "StyleRail.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
+          }
+        },
+        {
+          "insert": ". Future settings groups extend these modules rather than adding parallel readers."
         }
       ],
       "children": []
@@ -230,7 +339,7 @@
       },
       "text": [
         {
-          "insert": "All rail variables flow through one translation map"
+          "insert": "All Rail Variables Flow Through One Translation Map"
         }
       ],
       "children": []
@@ -243,8 +352,22 @@
       },
       "text": [
         {
-          "insert": "Decision: "
-        },
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec2-d-r0",
+        "b-system-ui-dec2-d-r1"
+      ]
+    },
+    "b-system-ui-dec2-d-r0": {
+      "id": "b-system-ui-dec2-d-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "styleRailVars",
           "attributes": {
@@ -252,8 +375,16 @@
           }
         },
         {
-          "insert": " returns the complete map of CSS-variable names to serialized values or null, and "
-        },
+          "insert": " returns the complete map of CSS-variable names to serialized values or null."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec2-d-r1": {
+      "id": "b-system-ui-dec2-d-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "applyStyleRailVars",
           "attributes": {
@@ -274,7 +405,24 @@
       },
       "text": [
         {
-          "insert": "Why: Ad hoc "
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec2-w-r0",
+        "b-system-ui-dec2-w-r1"
+      ]
+    },
+    "b-system-ui-dec2-w-r0": {
+      "id": "b-system-ui-dec2-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ad hoc "
         },
         {
           "insert": "setProperty",
@@ -283,7 +431,18 @@
           }
         },
         {
-          "insert": " calls were rejected. One map keeps reset single-mechanism (property removal, per the layer-precedence decision on "
+          "insert": " calls were rejected, because one map lists every rail-owned variable in one place."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec2-w-r1": {
+      "id": "b-system-ui-dec2-w-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reset stays one mechanism, property removal, per the layer-precedence decision on "
         },
         {
           "insert": "Theming: Overview",
@@ -296,7 +455,7 @@
           }
         },
         {
-          "insert": ") and makes the full set of rail-owned variables enumerable in one place."
+          "insert": "."
         }
       ],
       "children": []
@@ -309,12 +468,63 @@
       },
       "text": [
         {
-          "insert": "Applies to: "
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec2-a-r0"
+      ]
+    },
+    "b-system-ui-dec2-a-r0": {
+      "id": "b-system-ui-dec2-a-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
         },
         {
-          "insert": "packages/docs-workbench/web/src/shell/StyleRail.tsx",
+          "insert": "styleRailVars",
           "attributes": {
             "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "style-rail-settings.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "applyStyleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "StyleRail.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/StyleRail.tsx"
+            }
           }
         },
         {
@@ -553,6 +763,209 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-h": {
+      "id": "b-system-ui-dec5-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Font Picks Defer to the Theme at Stock"
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-d": {
+      "id": "b-system-ui-dec5-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec5-d-r0",
+        "b-system-ui-dec5-d-r1",
+        "b-system-ui-dec5-d-r2"
+      ]
+    },
+    "b-system-ui-dec5-d-r0": {
+      "id": "b-system-ui-dec5-d-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rail font pick at its stock value writes no inline property. "
+        },
+        {
+          "insert": "styleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " maps it to "
+        },
+        {
+          "insert": "null",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so "
+        },
+        {
+          "insert": "applyStyleRailVars",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes the property and the active theme's "
+        },
+        {
+          "insert": "fonts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stack applies."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-d-r1": {
+      "id": "b-system-ui-dec5-d-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stock picks are Inter for body and headings and IBM Plex Mono for code, the faces the Default theme and the "
+        },
+        {
+          "insert": ":root",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defaults in "
+        },
+        {
+          "insert": "read-surface.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also name. A saved pick of Fira Code, the earlier stock code font, reads as IBM Plex Mono."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-d-r2": {
+      "id": "b-system-ui-dec5-d-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Only a pick that differs from stock, such as Serif, sets font variables like "
+        },
+        {
+          "insert": "--font-tx02",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "--docs-font-code",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " inline."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-w": {
+      "id": "b-system-ui-dec5-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec5-w-r0"
+      ]
+    },
+    "b-system-ui-dec5-w-r0": {
+      "id": "b-system-ui-dec5-w-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A stock pick that wrote its own stack would hide the theme's fonts. On the Default theme, it would replace the faces the layout lints measure with."
+        }
+      ],
+      "children": []
+    },
+    "b-system-ui-dec5-a": {
+      "id": "b-system-ui-dec5-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-system-ui-dec5-a-r0"
+      ]
+    },
+    "b-system-ui-dec5-a-r0": {
+      "id": "b-system-ui-dec5-a-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers the font roles in "
+        },
+        {
+          "insert": "packages/docs-workbench/web/src/shell/style-rail-settings.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-workbench/web/src/shell/style-rail-settings.ts"
+            }
+          }
+        },
+        {
+          "insert": " and every future font role."
         }
       ],
       "children": []

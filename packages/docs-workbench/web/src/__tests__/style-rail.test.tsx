@@ -966,7 +966,7 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     new URL("../../../../docs-viewer/src/render/block-classes.ts", import.meta.url),
     "utf8",
   );
-  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
 
   it("DocPage's left-margin fallback equals stock layout.contentMargin", () => {
     expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin).toBe(88);
@@ -1090,13 +1090,18 @@ describe("style rail code panels", () => {
     expect(pageColorOverrideCss(DEFAULT_STYLE_RAIL_SETTINGS)).toBe("");
   });
 
-  it("offers Fira Code as the stock code font, matching the stylesheet default", () => {
+  it("offers IBM Plex Mono as the stock code font, matching the stylesheet default", () => {
     // Stock emits no --docs-font-code, so index.css's :root value is what
     // renders: the two must name the same font.
-    expect(DEFAULT_STYLE_RAIL_SETTINGS.typography.codeFont).toBe("fira-code");
+    expect(DEFAULT_STYLE_RAIL_SETTINGS.typography.codeFont).toBe("plex-mono");
     expect(styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS)["--docs-font-code"]).toBeNull();
-    const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
-    expect(indexCss).toMatch(/--docs-font-code: "Fira Code", /);
+    const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
+    expect(indexCss).toMatch(/--docs-font-code: "IBM Plex Mono", /);
+    // A saved pick of the retired stock reads as its successor, whatever the baseline holds.
+    const monoBaseline = normalizeSettings({ typography: { codeFont: "mono" } }, DEFAULT_STYLE_RAIL_SETTINGS);
+    for (const baseline of [DEFAULT_STYLE_RAIL_SETTINGS, monoBaseline]) {
+      expect(normalizeSettings({ typography: { codeFont: "fira-code" } }, baseline).typography.codeFont).toBe("plex-mono");
+    }
     // Moving off stock emits the chosen stack.
     const mono = normalizeSettings({ typography: { codeFont: "mono" } });
     expect(mono.typography.codeFont).toBe("mono");
@@ -1852,6 +1857,24 @@ describe("style rail component token kinds", () => {
     );
   });
 
+  it("loads a theme file that still sets the retired image caption knobs", () => {
+    // The image block lost its head row; older theme files keep loading and
+    // the retired keys drop while the live image knobs survive.
+    const theme = readThemeDefinition(
+      "legacy-image",
+      {
+        name: "Legacy image",
+        components: {
+          image: { caption: "#123456", captionTextSize: "14px", captionGap: "4px", radius: "0px" },
+        },
+      },
+      "repo",
+    );
+
+    expect(theme?.components.image).toEqual({ radius: "0px" });
+    expect(compileThemeCss(theme!)).not.toContain("--docs-image-caption");
+  });
+
   it("normalizes and applies color, length, and number overrides", () => {
     const settings = normalizeSettings({
       components: {
@@ -2055,7 +2078,7 @@ describe("style rail structured-table tokens", () => {
       "utf8",
     );
   const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const tableClasses = viewerSource("table-classes.ts");
   const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
 
@@ -3136,7 +3159,7 @@ describe("style rail code-family tokens are wired to their consumers", () => {
     read(`${viewer}components/linked-panels/classes.ts`),
     read(`${viewer}render/block-classes.ts`),
     read(`${viewer}styles/code.css`),
-    read("../index.css"),
+    [read("../index.css"), read("../theme/read-surface.css")].join("\n"),
   ].join("\n");
   const FILES = ["code", "inline-code", "linking"] as const;
   const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -3224,7 +3247,7 @@ describe("style rail code-family tokens are wired to their consumers", () => {
   });
 
   it("the workbench's unlayered inline-code rule reads the same tokens as the utilities", () => {
-    const indexCss = read("../index.css");
+    const indexCss = [read("../index.css"), read("../theme/read-surface.css")].join("\n");
     const rule = indexCss.slice(indexCss.indexOf(".docs-markdown :where(code:not(pre code)) {"));
     const body = rule.slice(0, rule.indexOf("}"));
     expect(body).toContain("background: var(--docs-inline-code-bg);");
@@ -4366,9 +4389,13 @@ describe("style rail rich-text block tokens", () => {
   };
   const RADIUS_DECLARED = "var(--radius)";
   const RADIUS_FALLBACK = "var(--radius,2px)";
-  const mediaTokens = (pane: string, prefix: string): BlockTokens => ({
+  // The image block is the framed panel only (no head row, no caption), so
+  // it registers no caption knobs; the video keeps its caption line knobs.
+  const mediaTokens = (pane: string, prefix: string, { caption }: { caption: boolean }): BlockTokens => ({
     pane,
-    colors: { border: `${prefix}-border`, caption: `${prefix}-caption-fg` },
+    colors: caption
+      ? { border: `${prefix}-border`, caption: `${prefix}-caption-fg` }
+      : { border: `${prefix}-border` },
     lengths: {
       borderWidth: { cssVar: `${prefix}-border-width`, min: 0, max: 4, step: 0.5, defaultValue: 1 },
       radius: {
@@ -4380,14 +4407,18 @@ describe("style rail rich-text block tokens", () => {
         declared: RADIUS_DECLARED,
         fallback: RADIUS_FALLBACK,
       },
-      captionTextSize: {
-        cssVar: `${prefix}-caption-text-size`,
-        min: 9,
-        max: 20,
-        step: 0.5,
-        defaultValue: 13.5,
-      },
-      captionGap: { cssVar: `${prefix}-caption-gap`, min: 0, max: 24, step: 1, defaultValue: 8 },
+      ...(caption
+        ? {
+            captionTextSize: {
+              cssVar: `${prefix}-caption-text-size`,
+              min: 9,
+              max: 20,
+              step: 0.5,
+              defaultValue: 13.5,
+            },
+            captionGap: { cssVar: `${prefix}-caption-gap`, min: 0, max: 24, step: 1, defaultValue: 8 },
+          }
+        : {}),
       margin: { cssVar: `${prefix}-margin`, min: 0, max: 64, step: 1, defaultValue: 24 },
     },
     numbers: {},
@@ -4522,8 +4553,8 @@ describe("style rail rich-text block tokens", () => {
         spacing: { cssVar: "--docs-divider-spacing", min: 0, max: 6, step: 0.05, defaultValue: 2 },
       },
     },
-    image: mediaTokens("Image", "--docs-image"),
-    video: mediaTokens("Video", "--docs-video"),
+    image: mediaTokens("Image", "--docs-image", { caption: false }),
+    video: mediaTokens("Video", "--docs-video", { caption: true }),
   };
   /**
    * The callout palette: [semantic.css declaration (both theme blocks), the
@@ -4602,7 +4633,7 @@ describe("style rail rich-text block tokens", () => {
   const viewerSource = (path: string) =>
     readFileSync(new URL(`../../../../docs-viewer/src/${path}`, import.meta.url), "utf8");
   const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const indexCss = readFileSync(new URL("../index.css", import.meta.url), "utf8");
+  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const blockClasses = viewerSource("render/block-classes.ts");
   const calloutSource = viewerSource("components/rich-text/CalloutDocsBlock.tsx");
   /** Where each block's tokens are read. The list marker color is host CSS. */
@@ -4815,7 +4846,8 @@ describe("style rail rich-text block tokens", () => {
           bodyTextScale: "0.8",
         },
         divider: { thickness: "3px", spacing: "1.5" },
-        image: { radius: "0px", captionTextSize: "14px" },
+        // captionTextSize is a retired image knob: a saved setting drops.
+        image: { radius: "0px", margin: "16px", captionTextSize: "14px" },
         video: { borderWidth: "2px", margin: "32px" },
       },
     });
@@ -4835,7 +4867,7 @@ describe("style rail rich-text block tokens", () => {
         bodyTextScale: "0.8",
       },
       divider: { thickness: "3px", spacing: "1.5" },
-      image: { radius: "0px", captionTextSize: "14px" },
+      image: { radius: "0px", margin: "16px" },
       video: { borderWidth: "2px", margin: "32px" },
     });
     expect(styleRailVars(settings)).toMatchObject({
@@ -4856,10 +4888,11 @@ describe("style rail rich-text block tokens", () => {
       "--docs-divider-thickness": "3px",
       "--docs-divider-spacing": "1.5",
       "--docs-image-radius": "0px",
-      "--docs-image-caption-text-size": "14px",
+      "--docs-image-margin": "16px",
       "--docs-video-border-width": "2px",
       "--docs-video-margin": "32px",
     });
+    expect(styleRailVars(settings)).not.toHaveProperty("--docs-image-caption-text-size");
   });
 
   it("removes every geometry override when its knob sits at the registry default", () => {
