@@ -37,8 +37,13 @@ function files(path: string, pattern: RegExp): string[] {
   return readdirSync(path).flatMap((entry) => files(join(path, entry), pattern));
 }
 
-/** The workbench stylesheets: index.css and every theme/ stylesheet. */
-const stylesheets = () => [join(webSrc, "index.css"), ...files(join(webSrc, "theme"), /\.css$/)].map(read).join("\n");
+/**
+ * The workbench stylesheets: index.css and every theme/ stylesheet, plus the
+ * design-system tokens.css that theme/index.css imports first. The theme
+ * stylesheets declare --ds-* tokens, so a var() chain ends at a token value.
+ */
+const tokensCss = Bun.resolveSync("@codecaine-ai/design-system/tokens.css", webSrc);
+const stylesheets = () => [tokensCss, join(webSrc, "index.css"), ...files(join(webSrc, "theme"), /\.css$/)].map(read).join("\n");
 
 /** Every value `css` declares for one custom property. */
 function declaredIn(css: string, name: string): string[] {
@@ -91,9 +96,11 @@ describe("style-rail stock", () => {
   });
 
   test("the stylesheets declare the lane widths the metrics assume", () => {
-    for (const value of declared("--style-content-width")) expect(value).toBe(`${LANE_TEXT_CH}ch`);
-    expect(new Set(declared("--style-code-width"))).toEqual(new Set([`${LANE_CODE_CH}ch`]));
-    expect(new Set(declared("--style-wide-width"))).toEqual(new Set([`${LANE_WIDE_PX}px`]));
+    const css = stylesheets();
+    const painted = (name: string) => declared(name).flatMap((value) => resolvedValues(value, css));
+    for (const value of painted("--style-content-width")) expect(value).toBe(`${LANE_TEXT_CH}ch`);
+    expect(new Set(painted("--style-code-width"))).toEqual(new Set([`${LANE_CODE_CH}ch`]));
+    expect(new Set(painted("--style-wide-width"))).toEqual(new Set([`${LANE_WIDE_PX}px`]));
   });
 });
 
@@ -144,7 +151,7 @@ describe("theme token defaults", () => {
 
   test("a declaration derived through var() is checked at the value it resolves to", () => {
     // A stock size that reads an undeclared variable renders its fallback, so it must equal the metric too.
-    const mutated = stylesheets().replaceAll("--docs-table-font-size: 13.5px;", "--docs-table-font-size: var(--unknown-font-size,99px);");
+    const mutated = stylesheets().replaceAll("--docs-table-font-size: var(--ds-font-size-ui-md);", "--docs-table-font-size: var(--unknown-font-size,99px);");
     expect(mutated).not.toBe(stylesheets());
     expect(tokenDrift(["--docs-table-font-size"], "13.5px", mutated)).toContain("--docs-table-font-size: var(--unknown-font-size,99px) -> 99px");
     // The header size follows the body size, so the same mutation moves it too.

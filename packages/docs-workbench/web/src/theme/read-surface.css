@@ -37,14 +37,14 @@
  * fonts.css (the workbench entry does); without it the fallbacks paint.
  */
 :root {
-  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-tx02: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--ds-font-family-sans);
+  --font-tx02: var(--ds-font-family-sans);
   --font-tx02-semicondensed: ui-sans-serif, system-ui, sans-serif;
   --font-tx02-condensed: ui-sans-serif, system-ui, sans-serif;
   /* Canonical per-surface font tokens (style-rail "Code font" / "Number
      font" override these; --docs-font-numeric defaults to inherit at the
      use sites, so no :root entry). */
-  --docs-font-code: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --docs-font-code: var(--ds-font-family-mono);
 }
 
 /*
@@ -181,9 +181,9 @@
    DEFAULT_STYLE_RAIL_SETTINGS: 18px / 1.45 / 0em), so these fallbacks MUST
    equal that stock — they are what renders when no var is emitted. */
 .docs-markdown.prose {
-  font-size: var(--style-font-size, 18px);
-  line-height: var(--style-line-height, 1.45);
-  letter-spacing: var(--style-letter-spacing, 0em);
+  font-size: var(--style-font-size, var(--ds-font-size-reading));
+  line-height: var(--style-line-height, var(--ds-line-height-reading));
+  letter-spacing: var(--style-letter-spacing, var(--ds-letter-spacing-normal));
 }
 
 /* The block renderer/editor pins each text block with its own font-size /
@@ -200,9 +200,9 @@
    cells inherit letter-spacing from `.docs-markdown.prose`, so that knob
    still reaches them. */
 .docs-markdown :where(p, li, td, th, dd, dt, blockquote):not(:where([data-docs-block-type="structured-table"] *, [data-docs-block-type="state-shape"] *, [data-docs-block-type="interaction-surface"] *)) {
-  font-size: var(--style-font-size, 18px);
-  line-height: var(--style-line-height, 1.45);
-  letter-spacing: var(--style-letter-spacing, 0em);
+  font-size: var(--style-font-size, var(--ds-font-size-reading));
+  line-height: var(--style-line-height, var(--ds-line-height-reading));
+  letter-spacing: var(--style-letter-spacing, var(--ds-letter-spacing-normal));
 }
 
 .docs-markdown :where(h1, h2, h3, h4, h5, h6) {
@@ -250,7 +250,7 @@
    size. Must stay BELOW the `.docs-markdown.prose` rule: equal specificity. */
 [data-docs-block-type="callout"] [data-callout-body],
 [data-docs-block-type="callout"] [data-callout-body] :where(p, li, td, th, dd, dt, blockquote) {
-  font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));
+  font-size: calc(var(--style-font-size, var(--ds-font-size-reading)) * var(--docs-callout-body-text-scale, 1));
 }
 
 /* Inline code chip. This rule is UNLAYERED, so it beats the Tailwind
@@ -299,7 +299,7 @@
 }
 .docs-markdown [data-doc-block-type="heading"]:has(h2) + [data-doc-block-type="heading"] h3,
 .docs-editor-prosemirror > h2 + h3 {
-  margin-top: 16px;
+  margin-top: var(--ds-space-4);
 }
 .docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="paragraph"] > [data-block-id] > p:first-child,
 .docs-markdown [data-doc-block-type="heading"] + [data-doc-block-type="list-item"] > [role="listitem"] {
@@ -307,6 +307,6 @@
 }
 
 [data-block-id] {
-  transition: background 0.1s ease;
+  transition: background var(--ds-motion-duration-fast) var(--ds-motion-easing-standard);
   border-radius: var(--radius);
 }

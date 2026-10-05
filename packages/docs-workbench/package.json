@@ -21,6 +21,7 @@
   "dependencies": {
     "@codecaine-ai/annotations": "workspace:*",
     "@codecaine-ai/canvas": "workspace:*",
+    "@codecaine-ai/design-system": "workspace:*",
     "@codecaine-ai/docs-index": "workspace:*",
     "@codecaine-ai/docs-model": "workspace:*",
     "@codecaine-ai/docs-server": "workspace:*",

@@ -1,4 +1,12 @@
-import { readFileSync } from "node:fs";
+import { readFileSync as readFileSyncRaw } from "node:fs";
+import { resolveDsVars } from "./ds-tokens";
+
+/**
+ * Every source this suite reads, with var(--ds-*) resolved to the design-system
+ * token values (see ds-tokens.ts): the stylesheets declare tokens, and the
+ * assertions pin the values those tokens paint.
+ */
+const readFileSync = (path: string | URL, encoding: "utf8") => resolveDsVars(readFileSyncRaw(path, encoding));
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
@@ -731,18 +739,22 @@ describe("per-block-type layout overrides", () => {
     const css = blockLayoutOverrideCss(withLayout({ code: { width: "920px" } }));
     expect(css).toContain('[data-doc-lane][data-doc-block-type="pseudocode"] { max-width: 920px; }');
     expect(
-      blockLayoutOverrideCss(withLayout({ code: { width: "920px" }, pseudocode: { width: "text" } })),
+      resolveDsVars(blockLayoutOverrideCss(withLayout({ code: { width: "920px" }, pseudocode: { width: "text" } }))),
     ).toContain('[data-doc-lane][data-doc-block-type="pseudocode"] { max-width: var(--style-content-width,60ch); }');
   });
 
   it("maps each named width onto the lane token it stands for", () => {
+    // The lane fallbacks are the design-system lane tokens (--ds-layout-lane-*), read here at their values.
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "text" } }))).toContain(
+      "max-width: var(--style-content-width,var(--ds-layout-lane-text));",
+    );
+    expect(resolveDsVars(blockLayoutOverrideCss(withLayout({ code: { width: "text" } })))).toContain(
       "max-width: var(--style-content-width,60ch);",
     );
-    expect(blockLayoutOverrideCss(withLayout({ code: { width: "code" } }))).toContain(
+    expect(resolveDsVars(blockLayoutOverrideCss(withLayout({ code: { width: "code" } })))).toContain(
       "max-width: var(--style-code-width,88ch);",
     );
-    expect(blockLayoutOverrideCss(withLayout({ code: { width: "wide" } }))).toContain(
+    expect(resolveDsVars(blockLayoutOverrideCss(withLayout({ code: { width: "wide" } })))).toContain(
       "max-width: var(--style-wide-width,1100px);",
     );
     expect(blockLayoutOverrideCss(withLayout({ code: { width: "full" } }))).toContain(
@@ -1105,7 +1117,7 @@ describe("style rail code panels", () => {
     // Moving off stock emits the chosen stack.
     const mono = normalizeSettings({ typography: { codeFont: "mono" } });
     expect(mono.typography.codeFont).toBe("mono");
-    expect(styleRailVars(mono)["--docs-font-code"]).toContain("ui-monospace");
+    expect(resolveDsVars(styleRailVars(mono)["--docs-font-code"]!)).toContain("ui-monospace");
   });
 });
 
@@ -1715,7 +1727,9 @@ describe("style rail sidebar settings", () => {
       }),
     );
     expect(vars["--docs-sidebar-item-fg"]).toBe("#123456");
-    expect(vars["--docs-sidebar-font"]).toBe(
+    // The rail writes the design-system font token; it paints the platform mono stack.
+    expect(vars["--docs-sidebar-font"]).toBe("var(--ds-font-family-mono-system)");
+    expect(resolveDsVars(vars["--docs-sidebar-font"]!)).toBe(
       "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace",
     );
     expect(vars["--docs-sidebar-font-size"]).toBe("17px");
@@ -3949,9 +3963,10 @@ describe("style rail process-outline tokens", () => {
       "cycle-4": ["var(--docs-cat-4)", "var(--docs-cat-4)"],
       "cycle-5": ["var(--docs-cat-2)", "var(--docs-cat-2)"],
       "cycle-6": ["var(--docs-cat-6)", "var(--docs-cat-6)"],
-      "keyword-fg": ["#AF00DB", "#C586C0"],
-      "note-fg": ["#008000", "#6A9955"],
-      "note-bullet": ["#008000", "#6A9955"],
+      // The design-system syntax tokens (VS Code Light+ / Dark+), read here at their lowercase token values.
+      "keyword-fg": ["#af00db", "#c586c0"],
+      "note-fg": ["#008000", "#6a9955"],
+      "note-bullet": ["#008000", "#6a9955"],
       "code-bg": ["var(--docs-chip-bg)", "var(--docs-chip-bg)"],
       border: ["var(--docs-rule)", "var(--docs-rule)"],
     };

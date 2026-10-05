@@ -1,4 +1,5 @@
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
+import { dsNumber } from "../theme/design-tokens";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 
 /**
@@ -313,22 +314,24 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     codeFont: "plex-mono",
     codePanels: "dark",
     numberFont: "body",
-    fontSize: 18,
-    lineHeight: 1.45,
-    letterSpacing: 0,
+    // read-surface.css: var(--style-font-size / -line-height / -letter-spacing, var(--ds-*)).
+    fontSize: dsNumber("font.size.reading", "px"),
+    lineHeight: dsNumber("line-height.reading", ""),
+    letterSpacing: dsNumber("letter-spacing.normal", "em"),
   },
   layout: {
-    contentWidth: 60,
-    codeWidth: 88,
-    wideWidth: 1100,
+    // The lanes: index.css and semantic.css read --ds-layout-lane-*.
+    contentWidth: dsNumber("layout.lane.text", "ch"),
+    codeWidth: dsNumber("layout.lane.code", "ch"),
+    wideWidth: dsNumber("layout.lane.wide", "px"),
     // The page is left-anchored and full-width, so this is the global left
     // rail every block hangs off — generous by default rather than the tight
     // gutter a centered column wanted.
     contentMargin: 88,
     topPadding: 24,
-    titlePadding: 20,
+    titlePadding: dsNumber("space.5", "px"),
     bottomPadding: 24,
-    radius: 2,
+    radius: dsNumber("radius.base", "px"),
     borderStrength: 1,
     backgroundTint: 0,
     sidebarTint: 0,
@@ -336,11 +339,12 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
   sidebar: {
     textColor: null,
     font: "sans",
-    fontSize: 14,
-    padding: 4,
+    // Sidebar.tsx reads these knobs with the same design tokens as fallbacks.
+    fontSize: dsNumber("font.size.ui-lg", "px"),
+    padding: dsNumber("space.1", "px"),
     guides: true,
     guideColor: null,
-    guideWidth: 1,
+    guideWidth: dsNumber("border.width.hairline", "px"),
     guideOpacity: 0.6,
   },
   grain: {
@@ -353,26 +357,42 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     blendMode: "auto",
     softening: { background: 1, font: 0.8, icons: 0.8 },
   },
-  highlight: { color: null, radius: 2, padding: 4, dragOpacity: 0.3, dropColor: null, dropWidth: 3, dropOpacity: 0.9, dropRadius: 2 },
+  highlight: {
+    color: null,
+    radius: dsNumber("radius.base", "px"),
+    padding: dsNumber("space.1", "px"),
+    dragOpacity: 0.3,
+    dropColor: null,
+    dropWidth: dsNumber("border.width.rail", "px"),
+    dropOpacity: 0.9,
+    dropRadius: dsNumber("radius.base", "px"),
+  },
   dragSelect: { color: null, opacity: 0.12 },
-  list: { discSize: 6, circleSize: 6, circleThickness: 1.5, squareSize: 5, indent: 24 },
-  grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: 100 },
-  scrollbar: { width: 10, color: null, opacity: 1, padding: 0 },
+  list: {
+    discSize: dsNumber("space.1-5", "px"),
+    circleSize: dsNumber("space.1-5", "px"),
+    circleThickness: dsNumber("border.width.ring", "px"),
+    squareSize: 5,
+    indent: 24,
+  },
+  grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: dsNumber("motion.duration.fast", "ms") },
+  scrollbar: { width: 10, color: null, opacity: 1, padding: dsNumber("space.0", "px") },
   transition: { type: "fade", fadeOutMs: 80, fadeInMs: 120 },
   peek: {
     width: 48,
     durationMs: 300,
-    padding: 1.5,
+    // rem: semantic.css --docs-peek-padding is var(--ds-space-6), 24px at the 16px root.
+    padding: dsNumber("space.6", "px") / 16,
     dividerColor: null,
-    dividerWidth: 1,
+    dividerWidth: dsNumber("border.width.hairline", "px"),
     dividerStyle: "solid",
   },
   reference: {
     color: null,
     underlineColor: null,
-    iconSize: 12,
+    iconSize: dsNumber("space.3", "px"),
     iconColor: null,
-    iconGap: 2,
+    iconGap: dsNumber("space.0-5", "px"),
     iconPosition: "before",
   },
   annotate: {
@@ -590,13 +610,14 @@ function normalizeBlockLayout(
   return kept;
 }
 
-// The stock stacks equal theme/read-surface.css's :root --font-tx02 and
-// --docs-font-code, and docs-model DOCS_DEFAULT_FONTS.
+// The font stacks are @codecaine-ai/design-system tokens. The stock ones are
+// what theme/read-surface.css's :root --font-tx02 and --docs-font-code read,
+// and they equal docs-model DOCS_DEFAULT_FONTS.
 const FONT_STACKS: Record<CodeFontChoice, string> = {
-  sans: "Inter, ui-sans-serif, system-ui, sans-serif",
-  serif: "ui-serif, Georgia, 'Times New Roman', serif",
-  mono: "ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace",
-  "plex-mono": "\"IBM Plex Mono\", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+  sans: "var(--ds-font-family-sans)",
+  serif: "var(--ds-font-family-serif)",
+  mono: "var(--ds-font-family-mono-system)",
+  "plex-mono": "var(--ds-font-family-mono)",
 };
 
 function clampNumber(value: unknown, min: number, max: number, fallback: number): number {
@@ -1184,9 +1205,9 @@ export const BLOCK_LAYOUT_STYLE_ELEMENT_ID = "docs-style-rail-block-layout";
 
 /** Named lane widths, resolved to the same values docBlockLayoutClasses uses. */
 const BLOCK_LAYOUT_WIDTH_VALUES: Record<BlockLayoutWidth, string> = {
-  text: "var(--style-content-width,60ch)",
-  code: "var(--style-code-width,88ch)",
-  wide: "var(--style-wide-width,1100px)",
+  text: "var(--style-content-width,var(--ds-layout-lane-text))",
+  code: "var(--style-code-width,var(--ds-layout-lane-code))",
+  wide: "var(--style-wide-width,var(--ds-layout-lane-wide))",
   full: "none",
 };
 

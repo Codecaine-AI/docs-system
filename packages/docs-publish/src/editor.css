@@ -6,6 +6,10 @@
  * this, so the site's article styles keep control of the text.
  */
 @layer theme, base, components, utilities;
+/* The design-system token layer (--ds-* custom properties only): the bundled
+   workbench sequence-embed.css reads --ds-* vars, so this sheet defines them
+   itself instead of depending on docs.css loading first. */
+@import "../../docs-workbench/web/src/theme/tokens.css";
 @import "../../docs-workbench/node_modules/tailwindcss/theme.css" layer(theme) theme(inline);
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" layer(utilities) source(none);
 @import "../../docs-workbench/web/src/pages/sequence-embed.css";

@@ -85,7 +85,7 @@
 
 /* Decorators, doctypes, shebangs, `!important`, Rust attributes. */
 .hljs-meta {
-  color: var(--syntax-keyword, var(--syntax-boolean, var(--color-text-orange, #d9730d)));
+  color: var(--syntax-keyword, var(--syntax-boolean, var(--color-text-orange, var(--ds-light-color-notion-text-orange))));
   font-style: var(--syntax-keyword-font-style, normal);
   font-weight: var(--syntax-keyword-font-weight, inherit);
 }
@@ -215,7 +215,7 @@
 .hljs-literal,
 .hljs-literal .hljs-keyword,
 .hljs-boolean {
-  color: var(--syntax-boolean, var(--color-text-orange, #d9730d));
+  color: var(--syntax-boolean, var(--color-text-orange, var(--ds-light-color-notion-text-orange)));
   font-style: var(--syntax-boolean-font-style, normal);
   font-weight: var(--syntax-boolean-font-weight, inherit);
 }
@@ -234,7 +234,7 @@
 }
 
 .hljs-strong {
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
 }
 
 .hljs-emphasis {
@@ -243,11 +243,11 @@
 
 /* Diff roles: the dark palette's red / green inside a dark code panel. */
 .hljs-deletion {
-  color: var(--docs-diff-del, var(--status-danger, #c62121));
+  color: var(--docs-diff-del, var(--status-danger, var(--ds-light-color-red-text)));
 }
 
 .hljs-addition {
-  color: var(--docs-diff-add, var(--status-success, #26744f));
+  color: var(--docs-diff-add, var(--status-success, var(--ds-light-color-green-text)));
 }
 
 /* The header only has a bottom rule. Hosts without Tailwind preflight must
@@ -271,15 +271,15 @@
  */
 .docs-pseudo-grid {
   display: grid;
-  grid-template-columns: var(--docs-code-gutter-width, 40px) minmax(0, max-content) minmax(16ch, 1fr);
-  padding-top: var(--docs-code-pad-top, 12px);
-  padding-bottom: var(--docs-code-pad-bottom, 12px);
-  font-size: var(--docs-code-text-size, 13px);
-  line-height: var(--docs-code-line-height, 21px);
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, max-content) minmax(16ch, 1fr);
+  padding-top: var(--docs-code-pad-top, var(--ds-space-3));
+  padding-bottom: var(--docs-code-pad-bottom, var(--ds-space-3));
+  font-size: var(--docs-code-text-size, var(--ds-font-size-code));
+  line-height: var(--docs-code-line-height, var(--ds-line-height-code));
 }
 
 .docs-pseudo-grid[data-pseudo-diff] {
-  grid-template-columns: var(--docs-code-gutter-width, 40px) 2ch minmax(0, max-content) minmax(16ch, 1fr);
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) 2ch minmax(0, max-content) minmax(16ch, 1fr);
 }
 
 .docs-pseudo-row {
@@ -291,9 +291,9 @@
 
 /* Line numbers: the code block's gutter color and size (>= 3:1, 12px). */
 .docs-pseudo-num {
-  padding-right: var(--docs-code-gutter-pad-x, 12px);
+  padding-right: var(--docs-code-gutter-pad-x, var(--ds-space-3));
   text-align: right;
-  font-size: var(--docs-code-gutter-text-size, 12px);
+  font-size: var(--docs-code-gutter-text-size, var(--ds-font-size-ui-xs));
   font-variant-numeric: tabular-nums;
   color: var(--docs-code-gutter-fg, #888784);
   user-select: none;
@@ -301,20 +301,20 @@
 
 .docs-pseudo-code {
   min-width: 0;
-  padding-left: var(--docs-code-pad-x, 12px);
+  padding-left: var(--docs-code-pad-x, var(--ds-space-3));
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
 .docs-pseudo-row:not(:has(.docs-pseudo-comment)) .docs-pseudo-code {
   grid-column: span 2;
-  padding-right: var(--docs-code-pad-x, 12px);
+  padding-right: var(--docs-code-pad-x, var(--ds-space-3));
 }
 
 /* The comment column keeps the .hljs-comment color and font style. */
 .docs-pseudo-comment {
   min-width: 0;
-  padding: 0 var(--docs-code-pad-x, 12px) 0 4ch;
+  padding: 0 var(--docs-code-pad-x, var(--ds-space-3)) 0 4ch;
   white-space: pre-wrap;
 }
 
@@ -327,36 +327,36 @@
  * the same roles over the panel, so they suit any code theme background.
  */
 .docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-num {
-  padding-right: 6px;
+  padding-right: var(--ds-space-1-5);
 }
 
 .docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
-  padding-left: 4px;
+  padding-left: var(--ds-space-1);
 }
 
 .docs-pseudo-sign {
   text-align: center;
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   user-select: none;
 }
 
 .docs-pseudo-row[data-code-diff="add"] {
-  background-color: color-mix(in srgb, var(--docs-diff-add, #26744f) 8%, transparent);
+  background-color: color-mix(in srgb, var(--docs-diff-add, var(--ds-light-color-green-text)) 8%, transparent);
 }
 
 .docs-pseudo-row[data-code-diff="del"] {
-  background-color: color-mix(in srgb, var(--docs-diff-del, #c62121) 8%, transparent);
+  background-color: color-mix(in srgb, var(--docs-diff-del, var(--ds-light-color-red-text)) 8%, transparent);
 }
 
 .docs-pseudo-row[data-code-diff="add"] .docs-pseudo-sign {
-  color: var(--docs-diff-add, #26744f);
+  color: var(--docs-diff-add, var(--ds-light-color-green-text));
 }
 
 .docs-pseudo-row[data-code-diff="del"] .docs-pseudo-sign {
-  color: var(--docs-diff-del, #c62121);
+  color: var(--docs-diff-del, var(--ds-light-color-red-text));
 }
 
 .docs-pseudo-row[data-code-diff="del"] .docs-pseudo-body {
   text-decoration: line-through;
-  text-decoration-color: color-mix(in srgb, var(--docs-diff-del, #c62121) 70%, transparent);
+  text-decoration-color: color-mix(in srgb, var(--docs-diff-del, var(--ds-light-color-red-text)) 70%, transparent);
 }

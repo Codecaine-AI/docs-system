@@ -21,18 +21,18 @@
 
 .docs-image-expand-hint {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--ds-space-2);
+  right: var(--ds-space-2);
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--docs-rule, #e6e5e3);
-  border-radius: var(--radius, 2px);
-  background: var(--docs-page, #fdfdfd);
-  color: var(--docs-ink, #1f1f1f);
+  width: var(--ds-space-7);
+  height: var(--ds-space-7);
+  border: var(--ds-border-width-hairline) solid var(--docs-rule, var(--ds-light-color-border-default));
+  border-radius: var(--radius, var(--ds-radius-base));
+  background: var(--docs-page, var(--ds-light-color-surface-page));
+  color: var(--docs-ink, var(--ds-light-color-text-ink));
   opacity: 0;
-  transition: opacity 120ms ease-out;
+  transition: opacity 120ms var(--ds-motion-easing-decelerate);
 }
 
 .docs-image-expand-trigger:hover .docs-image-expand-hint,
@@ -41,8 +41,8 @@
 }
 
 .docs-image-expand-trigger:focus-visible {
-  outline: 2px solid var(--docs-focus-ring, #0078df);
-  outline-offset: 2px;
+  outline: var(--ds-border-width-focus) solid var(--docs-focus-ring, var(--ds-light-color-focus-ring));
+  outline-offset: var(--ds-focus-ring-offset);
 }
 
 /* Inside a media panel the image fills the body and the panel clips its
@@ -84,7 +84,7 @@
 }
 
 .docs-image-viewport:focus-visible {
-  outline: 2px solid var(--docs-focus-ring, #0078df);
+  outline: var(--ds-border-width-focus) solid var(--docs-focus-ring, var(--ds-light-color-focus-ring));
   outline-offset: -2px;
 }
 

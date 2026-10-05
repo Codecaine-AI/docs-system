@@ -53,8 +53,8 @@ function TreeNode({
   const focusHere = () => onFocus(node.path);
   const rowStyle = {
     paddingLeft: `${depth * 12 + 8}px`,
-    paddingTop: "var(--docs-sidebar-item-py, 4px)",
-    paddingBottom: "var(--docs-sidebar-item-py, 4px)",
+    paddingTop: "var(--docs-sidebar-item-py, var(--ds-space-1))",
+    paddingBottom: "var(--docs-sidebar-item-py, var(--ds-space-1))",
   };
 
   if (node.kind === "dir") {
@@ -86,8 +86,8 @@ function TreeNode({
               data-docs-tree-guide
               className="pointer-events-none absolute inset-y-0"
               style={{
-                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, 1px) / 2)`,
-                width: "var(--docs-sidebar-guide-width, 1px)",
+                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, var(--ds-border-width-hairline)) / 2)`,
+                width: "var(--docs-sidebar-guide-width, var(--ds-border-width-hairline))",
                 background: "var(--docs-sidebar-guide-color, var(--border))",
                 opacity: "var(--docs-sidebar-guide-opacity, 0.6)",
                 display: "var(--docs-sidebar-guide-display, block)",
@@ -158,8 +158,8 @@ function TreeNode({
               data-docs-tree-guide
               className="pointer-events-none absolute inset-y-0"
               style={{
-                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, 1px) / 2)`,
-                width: "var(--docs-sidebar-guide-width, 1px)",
+                left: `calc(${depth * 12 + 14}px - var(--docs-sidebar-guide-width, var(--ds-border-width-hairline)) / 2)`,
+                width: "var(--docs-sidebar-guide-width, var(--ds-border-width-hairline))",
                 background: "var(--docs-sidebar-guide-color, var(--border))",
                 opacity: "var(--docs-sidebar-guide-opacity, 0.6)",
                 display: "var(--docs-sidebar-guide-display, block)",
@@ -213,7 +213,7 @@ export function Sidebar({
       aria-label="Docs tree"
       style={{
         fontFamily: "var(--docs-sidebar-font, inherit)",
-        fontSize: "var(--docs-sidebar-font-size, 0.875rem)",
+        fontSize: "var(--docs-sidebar-font-size, var(--ds-font-size-ui-lg))",
         color: "var(--docs-sidebar-item-fg, var(--foreground))",
       }}
     >

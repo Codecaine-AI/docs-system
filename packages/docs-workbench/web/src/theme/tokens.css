@@ -1,0 +1,8 @@
+/*
+ * The @codecaine-ai/design-system token layer: --ds-* custom properties only,
+ * so importing it changes nothing by itself. theme/index.css imports it first.
+ * docs-publish's editor.css imports it too, because the workbench stylesheet it
+ * bundles (pages/sequence-embed.css) reads --ds-* vars. The package resolves
+ * from here, docs-workbench, which declares the dependency.
+ */
+@import "@codecaine-ai/design-system/tokens.css";

@@ -4,7 +4,7 @@
    gutter. */
 .docs-markdown [data-doc-list-marker] {
   font-family: var(--docs-font-numeric, inherit);
-  color: var(--docs-list-marker-fg, #666562);
+  color: var(--docs-list-marker-fg, var(--ds-light-color-text-muted));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -45,7 +45,7 @@
  */
 .docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker] {
   justify-content: flex-end;
-  padding-right: 8px;
+  padding-right: var(--ds-space-2);
   box-sizing: border-box;
   font-family: var(--docs-font-numeric, var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, monospace));
   font-variant-numeric: tabular-nums;
@@ -56,7 +56,7 @@
 .docs-markdown [data-doc-ordered="true"] > [data-doc-list-marker]::before {
   content: counter(docs-ordered-list) ".";
   font-size: 0.8125em;
-  font-weight: 500;
+  font-weight: var(--ds-font-weight-medium);
 }
 
 .docs-markdown [data-doc-ordered="true"] [data-doc-ordered="true"] > [data-doc-list-marker]::before {
@@ -124,10 +124,10 @@
   [data-doc-bullet="true"]
   [data-doc-bullet="true"]
   > [data-doc-list-marker]::before {
-  width: var(--docs-list-disc-size, 6px);
-  height: var(--docs-list-disc-size, 6px);
+  width: var(--docs-list-disc-size, var(--ds-space-1-5));
+  height: var(--docs-list-disc-size, var(--ds-space-1-5));
   border: 0;
-  border-radius: 9999px;
+  border-radius: var(--ds-radius-pill);
   background: currentColor;
   box-sizing: border-box;
 }
@@ -140,10 +140,10 @@
   [data-doc-bullet="true"]
   [data-doc-bullet="true"]
   > [data-doc-list-marker]::before {
-  width: var(--docs-list-circle-size, 6px);
-  height: var(--docs-list-circle-size, 6px);
-  border: var(--docs-list-circle-thickness, 1.5px) solid currentColor;
-  border-radius: 9999px;
+  width: var(--docs-list-circle-size, var(--ds-space-1-5));
+  height: var(--docs-list-circle-size, var(--ds-space-1-5));
+  border: var(--docs-list-circle-thickness, var(--ds-border-width-ring)) solid currentColor;
+  border-radius: var(--ds-radius-pill);
   background: transparent;
   box-sizing: border-box;
 }
@@ -186,14 +186,14 @@
  */
 .docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]),
 .docs-markdown li:has(> [data-doc-list-content] > li) {
-  margin-top: calc(var(--docs-list-item-gap, 4px) * 3);
-  margin-bottom: calc(var(--docs-list-item-gap, 4px) * 3);
+  margin-top: calc(var(--docs-list-item-gap, var(--ds-space-1)) * 3);
+  margin-bottom: calc(var(--docs-list-item-gap, var(--ds-space-1)) * 3);
 }
 .docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]),
 .docs-markdown li:has(> [data-doc-list-content] > li) > [data-doc-list-content] > [data-doc-node="docBlockText"] {
-  font-weight: 600;
-  color: var(--docs-ink, #1f1f1f);
+  font-weight: var(--ds-font-weight-semibold);
+  color: var(--docs-ink, var(--ds-light-color-text-ink));
 }
 .docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]) > div {
-  font-weight: 400;
+  font-weight: var(--ds-font-weight-regular);
 }

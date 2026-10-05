@@ -59,8 +59,8 @@
      a contenteditable matches :focus-visible whenever it has the caret, and
      the caret is its focus indicator. */
   :focus-visible:not([contenteditable="true"], .ProseMirror) {
-    outline: 2px solid var(--docs-focus-ring);
-    outline-offset: 2px;
+    outline: var(--ds-border-width-focus) solid var(--docs-focus-ring);
+    outline-offset: var(--ds-focus-ring-offset);
   }
 
   /* Text selection: the accent at 18% (light) / 30% (dark), so selected
@@ -87,8 +87,8 @@
  * off the window edge, the content, and the track ends.
  */
 ::-webkit-scrollbar {
-  width: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, 0px) * 2);
-  height: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, 0px) * 2);
+  width: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, var(--ds-space-0)) * 2);
+  height: calc(var(--docs-scrollbar-width, 10px) + var(--docs-scrollbar-padding, var(--ds-space-0)) * 2);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -97,9 +97,9 @@
     var(--docs-scrollbar-color, var(--docs-icon-muted)) calc(var(--docs-scrollbar-opacity, 1) * 100%),
     transparent
   );
-  border: var(--docs-scrollbar-padding, 0px) solid transparent;
+  border: var(--docs-scrollbar-padding, var(--ds-space-0)) solid transparent;
   background-clip: padding-box;
-  border-radius: 999px;
+  border-radius: var(--ds-radius-pill);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -123,13 +123,13 @@
  */
 .docs-page-title {
   font-family: var(--style-heading-font, var(--font-tx02)), ui-sans-serif, system-ui, sans-serif;
-  font-size: 2.25rem;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: var(--ds-font-size-title);
+  line-height: var(--ds-line-height-tight);
+  font-weight: var(--ds-font-weight-bold);
+  letter-spacing: var(--ds-letter-spacing-title);
   color: var(--docs-viewer-text-heading, var(--foreground));
   /* Title→content gap — style-rail Layout knob (default 20px). */
-  margin: 0 0 var(--style-title-padding, 1.25rem);
+  margin: 0 0 var(--style-title-padding, var(--ds-space-5));
   outline: none;
   /* NOTE: the title's text-lane cap deliberately does NOT live here. The
      measure is expressed in `ch`, which resolves against the font-size of the
@@ -188,7 +188,7 @@
 }
 
 .docs-editor-prosemirror {
-  --style-editor-text-lane: var(--style-content-width, 60ch);
+  --style-editor-text-lane: var(--style-content-width, var(--ds-layout-lane-text));
 }
 
 
@@ -214,7 +214,7 @@
 @keyframes docs-changed-flash {
   0% {
     background-color: var(--docs-highlight-color, var(--color-bg-blue));
-    box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
+    box-shadow: 0 0 0 var(--docs-highlight-padding, var(--ds-space-1))
       var(--docs-highlight-color, var(--color-bg-blue));
   }
   100% {
@@ -224,8 +224,8 @@
 }
 
 [data-docs-changed="true"] {
-  animation: docs-changed-flash 2s ease-out;
-  border-radius: var(--docs-highlight-radius, var(--radius, 2px));
+  animation: docs-changed-flash 2s var(--ds-motion-easing-decelerate);
+  border-radius: var(--docs-highlight-radius, var(--radius, var(--ds-radius-base)));
 }
 
 /*
@@ -238,8 +238,8 @@
 .docs-editor-prosemirror .ProseMirror-selectednode,
 .docs-editor-prosemirror .docs-block-multi-selected {
   background-color: var(--docs-highlight-color, var(--color-bg-blue));
-  border-radius: var(--docs-highlight-radius, var(--radius, 2px));
-  box-shadow: 0 0 0 var(--docs-highlight-padding, 4px)
+  border-radius: var(--docs-highlight-radius, var(--radius, var(--ds-radius-base)));
+  box-shadow: 0 0 0 var(--docs-highlight-padding, var(--ds-space-1))
     var(--docs-highlight-color, var(--color-bg-blue));
   outline: none;
 }
@@ -294,7 +294,7 @@
  */
 .docs-drag-select-rect {
   position: fixed;
-  z-index: 40;
+  z-index: var(--ds-z-overlay);
   pointer-events: none;
   background-color: color-mix(
     in srgb,
@@ -327,15 +327,15 @@
 .docs-drop-cursor {
   background-color: var(--docs-dropcursor-color, var(--color-text-blue)) !important;
   opacity: var(--docs-dropcursor-opacity, 0.9);
-  border-radius: var(--docs-dropcursor-radius, var(--radius, 2px));
+  border-radius: var(--docs-dropcursor-radius, var(--radius, var(--ds-radius-base)));
 }
 
 .docs-drop-cursor.prosemirror-dropcursor-block {
-  height: var(--docs-dropcursor-width, 3px) !important;
+  height: var(--docs-dropcursor-width, var(--ds-border-width-rail)) !important;
 }
 
 .docs-drop-cursor.prosemirror-dropcursor-inline {
-  width: var(--docs-dropcursor-width, 3px) !important;
+  width: var(--docs-dropcursor-width, var(--ds-border-width-rail)) !important;
 }
 
 /*
@@ -345,7 +345,7 @@
  */
 .docs-drag-handle {
   position: absolute;
-  z-index: 20;
+  z-index: var(--ds-z-raised);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -361,7 +361,7 @@
      (offsetParent stays readable) but ignores the pointer. */
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--docs-grip-fade, 100ms) ease;
+  transition: opacity var(--docs-grip-fade, var(--ds-motion-duration-fast)) var(--ds-motion-easing-standard);
 }
 
 .docs-drag-handle-visible {

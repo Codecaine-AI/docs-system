@@ -15,6 +15,14 @@ const textMeasureFonts = resolve(
   dirname(createRequire(import.meta.url).resolve("@codecaine-ai/text-measure/fonts.css")),
   "fonts",
 );
+/**
+ * @codecaine-ai/design-system (the --ds-* tokens: theme/index.css imports its
+ * tokens.css, and the style rail reads token values in JS) also lives outside
+ * this workspace, beside it at /Users/Ford/workspace/design-system.
+ */
+const designSystem = dirname(
+  createRequire(import.meta.url).resolve("@codecaine-ai/design-system/package.json"),
+);
 
 /**
  * Two build modes (see web/src/data/api.ts):
@@ -53,7 +61,7 @@ export default defineConfig({
   server: {
     port: 4801,
     fs: {
-      allow: [searchForWorkspaceRoot(here), textMeasureFonts],
+      allow: [searchForWorkspaceRoot(here), textMeasureFonts, designSystem],
     },
     proxy: {
       "/api": {

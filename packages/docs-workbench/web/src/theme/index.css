@@ -1,7 +1,11 @@
 /*
- * Docs-system single theming location. Palette values imported here are
- * Notion's, and semantic tokens are the only color surface consumed by UI.
+ * Docs-system single theming location. Every palette and design value comes
+ * from @codecaine-ai/design-system (/Users/Ford/workspace/design-system):
+ * tokens.css declares the --ds-* custom properties, the palette tier here
+ * points at them, and semantic tokens are the only color surface consumed by
+ * UI. tokens.css only declares --ds-* variables, so it changes nothing by itself.
  */
 
+@import "./tokens.css";
 @import "./notion-palette.css";
 @import "./semantic.css";

@@ -1,4 +1,8 @@
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readdirSync, readFileSync as readFileSyncRaw, statSync } from "node:fs";
+import { resolveDsVars } from "./ds-tokens";
+
+/** Sources read with var(--ds-*) resolved to the design-system token values (see ds-tokens.ts). */
+const readFileSync = (path: string, encoding: "utf8") => resolveDsVars(readFileSyncRaw(path, encoding));
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "bun:test";

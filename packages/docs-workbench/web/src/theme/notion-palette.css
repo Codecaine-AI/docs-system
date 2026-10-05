@@ -6,54 +6,54 @@
 :root, [data-theme="light"] {
   /* Neutrals = the lab's `app` palette (the live Global theme's page,
      sidebar and text): warm grays, AA body text. */
-  --color-text-default: #2A2A2A;
-  --color-text-navigation: #245A81;
+  --color-text-default: var(--ds-light-color-notion-text-default);
+  --color-text-navigation: var(--ds-light-color-notion-text-navigation);
   /* Warm paper off-white (Notion ships pure #FFFFFF; the ~1% headroom
      below white lets the grain overlay brighten as well as darken, so
      texture costs no average brightness). */
-  --color-bg-default: #FDFDFD;
+  --color-bg-default: var(--ds-light-color-notion-bg-default);
   /* Warm off-white — sidebar surface, a step deeper than the page. */
-  --color-bg-sidebar: #F9F9F9;
-  --color-pill-default: rgba(206,205,202,0.5);
+  --color-bg-sidebar: var(--ds-light-color-notion-bg-sidebar);
+  --color-pill-default: var(--ds-light-color-notion-pill-default);
 
-  --color-text-gray: #9B9A97;
-  --color-bg-gray: #EBECED;
-  --color-pill-gray: rgba(155,154,151,0.4);
+  --color-text-gray: var(--ds-light-color-notion-text-gray);
+  --color-bg-gray: var(--ds-light-color-notion-bg-gray);
+  --color-pill-gray: var(--ds-light-color-notion-pill-gray);
 
-  --color-text-brown: #64473A;
-  --color-bg-brown: #E9E5E3;
-  --color-pill-brown: rgba(140,46,0,0.2);
+  --color-text-brown: var(--ds-light-color-notion-text-brown);
+  --color-bg-brown: var(--ds-light-color-notion-bg-brown);
+  --color-pill-brown: var(--ds-light-color-notion-pill-brown);
 
-  --color-text-orange: #D9730D;
-  --color-bg-orange: #FAEBDD;
-  --color-pill-orange: rgba(245,93,0,0.2);
+  --color-text-orange: var(--ds-light-color-notion-text-orange);
+  --color-bg-orange: var(--ds-light-color-notion-bg-orange);
+  --color-pill-orange: var(--ds-light-color-notion-pill-orange);
 
-  --color-text-yellow: #DFAB01;
-  --color-bg-yellow: #FBF3DB;
-  --color-pill-yellow: rgba(233,168,0,0.2);
+  --color-text-yellow: var(--ds-light-color-notion-text-yellow);
+  --color-bg-yellow: var(--ds-light-color-notion-bg-yellow);
+  --color-pill-yellow: var(--ds-light-color-notion-pill-yellow);
 
-  --color-text-green: #0F7B6C;
-  --color-bg-green: #DDEDEA;
-  --color-pill-green: rgba(0,135,107,0.2);
+  --color-text-green: var(--ds-light-color-notion-text-green);
+  --color-bg-green: var(--ds-light-color-notion-bg-green);
+  --color-pill-green: var(--ds-light-color-notion-pill-green);
 
-  --color-text-blue: #0B6E99;
-  --color-bg-blue: #DDEBF1;
-  --color-pill-blue: rgba(0,120,223,0.2);
+  --color-text-blue: var(--ds-light-color-notion-text-blue);
+  --color-bg-blue: var(--ds-light-color-notion-bg-blue);
+  --color-pill-blue: var(--ds-light-color-notion-pill-blue);
   /* Full-strength selection blue (the pill hue at alpha 1) — Notion's
      interactive accent; bg/pill tiers are far too pale for outlines. */
-  --color-accent-blue: rgb(0,120,223);
+  --color-accent-blue: var(--ds-light-color-notion-accent-blue);
 
-  --color-text-purple: #6940A5;
-  --color-bg-purple: #EAE4F2;
-  --color-pill-purple: rgba(103,36,222,0.2);
+  --color-text-purple: var(--ds-light-color-notion-text-purple);
+  --color-bg-purple: var(--ds-light-color-notion-bg-purple);
+  --color-pill-purple: var(--ds-light-color-notion-pill-purple);
 
-  --color-text-pink: #AD1A72;
-  --color-bg-pink: #F4DFEB;
-  --color-pill-pink: rgba(221,0,129,0.2);
+  --color-text-pink: var(--ds-light-color-notion-text-pink);
+  --color-bg-pink: var(--ds-light-color-notion-bg-pink);
+  --color-pill-pink: var(--ds-light-color-notion-pill-pink);
 
-  --color-text-red: #E03E3E;
-  --color-bg-red: #FBE4E4;
-  --color-pill-red: rgba(255,0,26,0.2);
+  --color-text-red: var(--ds-light-color-notion-text-red);
+  --color-bg-red: var(--ds-light-color-notion-bg-red);
+  --color-pill-red: var(--ds-light-color-notion-pill-red);
 }
 
 /* Dark values. The last selector is the "dark code panel" island: a
@@ -66,51 +66,51 @@
      neutrals, fg colors as -text, the solid at 13% over the panel
      (#151B23) as -bg, the solid at 40% as -pill. Primer has no brown, so
      brown keeps Notion's dark values. */
-  --color-text-default: #D1D9E0;
-  --color-text-navigation: #4493F8;
-  --color-bg-default: #0D1117;
+  --color-text-default: var(--ds-dark-color-notion-text-default);
+  --color-text-navigation: var(--ds-dark-color-notion-text-navigation);
+  --color-bg-default: var(--ds-dark-color-notion-bg-default);
   /* Primer canvas-inset: the sidebar sits a step below the page, as the
      light sidebar does. */
-  --color-bg-sidebar: #010409;
-  --color-pill-default: rgba(101,108,118,0.5);
+  --color-bg-sidebar: var(--ds-dark-color-notion-bg-sidebar);
+  --color-pill-default: var(--ds-dark-color-notion-pill-default);
 
-  --color-text-gray: #9198A1;
-  --color-bg-gray: #1F252E;
-  --color-pill-gray: rgba(101,108,118,0.4);
+  --color-text-gray: var(--ds-dark-color-notion-text-gray);
+  --color-bg-gray: var(--ds-dark-color-notion-bg-gray);
+  --color-pill-gray: var(--ds-dark-color-notion-pill-gray);
 
-  --color-text-brown: #937264;
-  --color-bg-brown: #434040;
-  --color-pill-brown: rgba(147,114,100,0.5);
+  --color-text-brown: var(--ds-dark-color-notion-text-brown);
+  --color-bg-brown: var(--ds-dark-color-notion-bg-brown);
+  --color-pill-brown: var(--ds-dark-color-notion-pill-brown);
 
-  --color-text-orange: #DD7330;
-  --color-bg-orange: #2F2624;
-  --color-pill-orange: rgba(219,109,40,0.4);
+  --color-text-orange: var(--ds-dark-color-notion-text-orange);
+  --color-bg-orange: var(--ds-dark-color-notion-bg-orange);
+  --color-pill-orange: var(--ds-dark-color-notion-pill-orange);
 
-  --color-text-yellow: #D29922;
-  --color-bg-yellow: #2E2B23;
-  --color-pill-yellow: rgba(210,153,34,0.4);
+  --color-text-yellow: var(--ds-dark-color-notion-text-yellow);
+  --color-bg-yellow: var(--ds-dark-color-notion-bg-yellow);
+  --color-pill-yellow: var(--ds-dark-color-notion-pill-yellow);
 
-  --color-text-green: #3FB950;
-  --color-bg-green: #1A3029;
-  --color-pill-green: rgba(63,185,80,0.4);
+  --color-text-green: var(--ds-dark-color-notion-text-green);
+  --color-bg-green: var(--ds-dark-color-notion-bg-green);
+  --color-pill-green: var(--ds-dark-color-notion-pill-green);
 
-  --color-text-blue: #4493F8;
-  --color-bg-blue: #1B2B3F;
-  --color-pill-blue: rgba(68,147,248,0.4);
+  --color-text-blue: var(--ds-dark-color-notion-text-blue);
+  --color-bg-blue: var(--ds-dark-color-notion-bg-blue);
+  --color-pill-blue: var(--ds-dark-color-notion-pill-blue);
   /* Full-strength interactive blue (focus rings, outlines). */
-  --color-accent-blue: #4493F8;
+  --color-accent-blue: var(--ds-dark-color-notion-accent-blue);
 
-  --color-text-purple: #AB7DF8;
-  --color-bg-purple: #29283F;
-  --color-pill-purple: rgba(171,125,248,0.4);
+  --color-text-purple: var(--ds-dark-color-notion-text-purple);
+  --color-bg-purple: var(--ds-dark-color-notion-bg-purple);
+  --color-pill-purple: var(--ds-dark-color-notion-pill-purple);
 
-  --color-text-pink: #DD69A6;
-  --color-bg-pink: #2F2434;
-  --color-pill-pink: rgba(219,97,162,0.4);
+  --color-text-pink: var(--ds-dark-color-notion-text-pink);
+  --color-bg-pink: var(--ds-dark-color-notion-bg-pink);
+  --color-pill-pink: var(--ds-dark-color-notion-pill-pink);
 
-  --color-text-red: #F85B53;
-  --color-bg-red: #332228;
-  --color-pill-red: rgba(248,81,73,0.4);
+  --color-text-red: var(--ds-dark-color-notion-text-red);
+  --color-bg-red: var(--ds-dark-color-notion-bg-red);
+  --color-pill-red: var(--ds-dark-color-notion-pill-red);
 }
 
 
@@ -125,82 +125,82 @@
  * audit script) — re-run it after changing a value.
  */
 :root {
-  --palette-page: #fdfdfd;
-  --palette-panel: #f8f8f7;
-  --palette-sidebar: #f9f9f9;
-  --palette-ink: #1f1f1f;
-  --palette-text: #2a2a2a;
-  --palette-muted: #666562;
-  --palette-faint: #9b9a97;
-  --palette-rule: #e6e5e3;
-  --palette-rule-soft: #efeeec;
-  --palette-chip: #ebebe9;
+  --palette-page: var(--ds-light-color-surface-page);
+  --palette-panel: var(--ds-light-color-surface-panel);
+  --palette-sidebar: var(--ds-light-color-surface-sidebar);
+  --palette-ink: var(--ds-light-color-text-ink);
+  --palette-text: var(--ds-light-color-text-body);
+  --palette-muted: var(--ds-light-color-text-muted);
+  --palette-faint: var(--ds-light-color-text-faint);
+  --palette-rule: var(--ds-light-color-border-default);
+  --palette-rule-soft: var(--ds-light-color-border-subtle);
+  --palette-chip: var(--ds-light-color-fill-chip);
   --palette-nav: #ebeced;
-  --palette-link: #245a81;
-  --palette-accent: #0078df;
-  --palette-glyph: #ffffff;
+  --palette-link: var(--ds-light-color-link);
+  --palette-accent: var(--ds-light-color-accent);
+  --palette-glyph: var(--ds-light-color-text-on-solid);
   --palette-soft-t: 8%;
   --palette-line-t: 45%;
   --palette-selection-t: 18%;
   --palette-diff-mod-t: 9%;
 
-  --palette-gray: #666562;   --palette-gray-solid: #9b9a97;   --palette-gray-soft: #ebeced;
-  --palette-blue: #0b6e99;   --palette-blue-solid: #0b6e99;   --palette-blue-soft: #ddebf1;
-  --palette-teal: #0d7164;   --palette-teal-solid: #0f7b6c;   --palette-teal-soft: #ddedea;
-  --palette-green: #26744f;  --palette-green-solid: #287c55;  --palette-green-soft: #e2efe6;
-  --palette-yellow: #805f01; --palette-yellow-solid: #dfab01; --palette-yellow-soft: #fbf3db;
+  --palette-gray: var(--ds-light-color-gray-text);   --palette-gray-solid: var(--ds-light-color-gray-solid);   --palette-gray-soft: var(--ds-light-color-gray-soft);
+  --palette-blue: var(--ds-light-color-blue-text);   --palette-blue-solid: var(--ds-light-color-blue-solid);   --palette-blue-soft: var(--ds-light-color-blue-soft);
+  --palette-teal: var(--ds-light-color-teal-text);   --palette-teal-solid: var(--ds-light-color-teal-solid);   --palette-teal-soft: var(--ds-light-color-teal-soft);
+  --palette-green: var(--ds-light-color-green-text);  --palette-green-solid: var(--ds-light-color-green-solid);  --palette-green-soft: var(--ds-light-color-green-soft);
+  --palette-yellow: var(--ds-light-color-yellow-text); --palette-yellow-solid: var(--ds-light-color-yellow-solid); --palette-yellow-soft: var(--ds-light-color-yellow-soft);
   /* Amber: the warning tone's text hue. Yellow #805f01 reads olive beside
      green at body size; this is a clear amber at 5.3:1 on the page. */
-  --palette-amber: #9a5b00;
-  --palette-orange: #9d530d; --palette-orange-solid: #d9730d; --palette-orange-soft: #faebdd;
-  --palette-red: #c62121;    --palette-red-solid: #e03e3e;    --palette-red-soft: #fbe4e4;
-  --palette-violet: #6940a5; --palette-violet-solid: #6940a5; --palette-violet-soft: #eae4f2;
-  --palette-pink: #ad1a72;   --palette-pink-solid: #ad1a72;   --palette-pink-soft: #f4dfeb;
+  --palette-amber: var(--ds-light-color-amber-text);
+  --palette-orange: var(--ds-light-color-orange-text); --palette-orange-solid: var(--ds-light-color-orange-solid); --palette-orange-soft: var(--ds-light-color-orange-soft);
+  --palette-red: var(--ds-light-color-red-text);    --palette-red-solid: var(--ds-light-color-red-solid);    --palette-red-soft: var(--ds-light-color-red-soft);
+  --palette-violet: var(--ds-light-color-violet-text); --palette-violet-solid: var(--ds-light-color-violet-solid); --palette-violet-soft: var(--ds-light-color-violet-soft);
+  --palette-pink: var(--ds-light-color-pink-text);   --palette-pink-solid: var(--ds-light-color-pink-solid);   --palette-pink-soft: var(--ds-light-color-pink-soft);
 }
 
 /* Primer dark. Also the dark code-panel island, like the Notion dark block. */
 .dark, [data-theme="dark"], [data-code-panels="dark"] [data-code-surface] {
-  --palette-page: #0d1117;
-  --palette-panel: #151b23;
-  --palette-sidebar: #010409;
-  --palette-ink: #f0f6fc;
-  --palette-text: #d1d9e0;
-  --palette-muted: #9198a1;
-  --palette-faint: #656c76;
-  --palette-rule: #3d444d;
-  --palette-rule-soft: #262c36;
-  --palette-chip: #21262d;
+  --palette-page: var(--ds-dark-color-surface-page);
+  --palette-panel: var(--ds-dark-color-surface-panel);
+  --palette-sidebar: var(--ds-dark-color-surface-sidebar);
+  --palette-ink: var(--ds-dark-color-text-ink);
+  --palette-text: var(--ds-dark-color-text-body);
+  --palette-muted: var(--ds-dark-color-text-muted);
+  --palette-faint: var(--ds-dark-color-text-faint);
+  --palette-rule: var(--ds-dark-color-border-default);
+  --palette-rule-soft: var(--ds-dark-color-border-subtle);
+  --palette-chip: var(--ds-dark-color-fill-chip);
   --palette-nav: #212830;
-  --palette-link: #4493f8;
-  --palette-accent: #4493f8;
-  --palette-glyph: #0d1117;
+  --palette-link: var(--ds-dark-color-link);
+  --palette-accent: var(--ds-dark-color-accent);
+  --palette-glyph: var(--ds-dark-color-text-on-solid);
   /* Primer canvas-inset: dark code panels on the dark page sit below it. */
-  --palette-inset: #010409;
+  --palette-inset: var(--ds-dark-color-surface-inset);
   --palette-soft-t: 13%;
   --palette-line-t: 50%;
   --palette-selection-t: 30%;
   --palette-diff-mod-t: 7%;
 
-  --palette-gray: #9198a1;   --palette-gray-solid: #656c76;
-  --palette-blue: #4493f8;   --palette-blue-solid: #4493f8;
-  --palette-teal: #39c5cf;   --palette-teal-solid: #39c5cf;
-  --palette-green: #3fb950;  --palette-green-solid: #3fb950;
-  --palette-yellow: #d29922; --palette-yellow-solid: #d29922;
-  --palette-amber: #d29922;
-  --palette-orange: #dd7330; --palette-orange-solid: #db6d28;
-  --palette-red: #f85b53;    --palette-red-solid: #f85149;
-  --palette-violet: #ab7df8; --palette-violet-solid: #ab7df8;
-  --palette-pink: #dd69a6;   --palette-pink-solid: #db61a2;
+  --palette-gray: var(--ds-dark-color-gray-text);   --palette-gray-solid: var(--ds-dark-color-gray-solid);
+  --palette-blue: var(--ds-dark-color-blue-text);   --palette-blue-solid: var(--ds-dark-color-blue-solid);
+  --palette-teal: var(--ds-dark-color-teal-text);   --palette-teal-solid: var(--ds-dark-color-teal-solid);
+  --palette-green: var(--ds-dark-color-green-text);  --palette-green-solid: var(--ds-dark-color-green-solid);
+  --palette-yellow: var(--ds-dark-color-yellow-text); --palette-yellow-solid: var(--ds-dark-color-yellow-solid);
+  --palette-amber: var(--ds-dark-color-amber-text);
+  --palette-orange: var(--ds-dark-color-orange-text); --palette-orange-solid: var(--ds-dark-color-orange-solid);
+  --palette-red: var(--ds-dark-color-red-text);    --palette-red-solid: var(--ds-dark-color-red-solid);
+  --palette-violet: var(--ds-dark-color-violet-text); --palette-violet-solid: var(--ds-dark-color-violet-solid);
+  --palette-pink: var(--ds-dark-color-pink-text);   --palette-pink-solid: var(--ds-dark-color-pink-solid);
   /* Primer has no soft fills: the solid at 13% over the panel. */
-  --palette-gray-soft: color-mix(in srgb, #656c76 13%, #151b23);
-  --palette-blue-soft: color-mix(in srgb, #4493f8 13%, #151b23);
-  --palette-teal-soft: color-mix(in srgb, #39c5cf 13%, #151b23);
-  --palette-green-soft: color-mix(in srgb, #3fb950 13%, #151b23);
-  --palette-yellow-soft: color-mix(in srgb, #d29922 13%, #151b23);
-  --palette-orange-soft: color-mix(in srgb, #db6d28 13%, #151b23);
-  --palette-red-soft: color-mix(in srgb, #f85149 13%, #151b23);
-  --palette-violet-soft: color-mix(in srgb, #ab7df8 13%, #151b23);
-  --palette-pink-soft: color-mix(in srgb, #db61a2 13%, #151b23);
+  --palette-gray-soft: var(--ds-dark-color-gray-soft);
+  --palette-blue-soft: var(--ds-dark-color-blue-soft);
+  --palette-teal-soft: var(--ds-dark-color-teal-soft);
+  --palette-green-soft: var(--ds-dark-color-green-soft);
+  --palette-yellow-soft: var(--ds-dark-color-yellow-soft);
+  --palette-orange-soft: var(--ds-dark-color-orange-soft);
+  --palette-red-soft: var(--ds-dark-color-red-soft);
+  --palette-violet-soft: var(--ds-dark-color-violet-soft);
+  --palette-pink-soft: var(--ds-dark-color-pink-soft);
 }
 
 /* Inside a dark code panel the panel IS the page: anything in it that paints

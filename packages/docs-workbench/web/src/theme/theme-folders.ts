@@ -1,4 +1,5 @@
 import type { StyleRailSettings } from "../shell/style-rail-settings";
+import { dsNumber } from "./design-tokens";
 
 /**
  * Theme folders — the canonical theme-file format (see
@@ -128,7 +129,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
   },
   // The inline `code` mark chip (docs-viewer render/block-classes.ts
@@ -159,7 +160,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 3,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("border.width.none", "px"),
     },
     // semantic.css points the default at the global --radius (2px at stock).
     radius: {
@@ -169,7 +170,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 12,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     textSize: {
       vars: ["--docs-inline-code-text-size"],
@@ -240,7 +241,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 8,
       step: 0.5,
       unit: "px",
-      defaultValue: 3,
+      defaultValue: dsNumber("border.width.rail", "px"),
     },
     ringWidth: {
       vars: ["--docs-link-ring-width"],
@@ -249,7 +250,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1.5,
+      defaultValue: dsNumber("border.width.ring", "px"),
     },
     // The CodeLines panel (state-shape example, interaction-surface
     // signature): its own metrics, independent of the code block's.
@@ -260,7 +261,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     lineHeight: {
       vars: ["--docs-link-line-height"],
@@ -269,7 +270,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 21,
+      defaultValue: dsNumber("line-height.code", "px"),
     },
     gutterTextSize: {
       vars: ["--docs-link-gutter-text-size"],
@@ -278,7 +279,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     gutterWidth: {
       vars: ["--docs-link-gutter-width"],
@@ -287,7 +288,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 96,
       step: 1,
       unit: "px",
-      defaultValue: 40,
+      defaultValue: dsNumber("space.10", "px"),
     },
   },
   annotate: {
@@ -332,7 +333,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     marginTop: {
       vars: ["--docs-heading-margin-top"],
@@ -341,7 +342,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 72,
       step: 1,
       unit: "px",
-      defaultValue: 40,
+      defaultValue: dsNumber("space.10", "px"),
     },
     marginBottom: {
       vars: ["--docs-heading-margin-bottom"],
@@ -350,7 +351,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Per-level size, in em of the reading size. h4-h6 render at the reading
     // size itself and have no knob.
@@ -391,7 +392,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 0.5,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: dsNumber("space.1", "px"),
     },
   },
   // Every var below is read by all three code surfaces — plain read,
@@ -407,7 +408,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // semantic.css points the default at the global --radius (2px at stock).
     radius: {
@@ -417,7 +418,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     textSize: {
       vars: ["--docs-code-text-size"],
@@ -426,7 +427,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     // ONE token drives row height, zebra period and annotation overlays.
     lineHeight: {
@@ -436,7 +437,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 21,
+      defaultValue: dsNumber("line-height.code", "px"),
     },
     padX: {
       vars: ["--docs-code-pad-x"],
@@ -445,7 +446,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     padTop: {
       vars: ["--docs-code-pad-top"],
@@ -454,7 +455,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     padBottom: {
       vars: ["--docs-code-pad-bottom"],
@@ -463,7 +464,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Header strip: family tile, language label, copy button.
     headerHeight: {
@@ -473,7 +474,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 32,
+      defaultValue: dsNumber("space.8", "px"),
     },
     headerBg: color("--docs-code-header-bg"),
     headerFg: color("--docs-code-header-fg"),
@@ -484,7 +485,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     headerWeight: {
       vars: ["--docs-code-header-weight"],
@@ -492,7 +493,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 800,
       step: 100,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
     // Syntax roles (VS Code Dark+ / Light+ semantics) — docs-viewer
     // styles/code.css maps every hljs class onto one of these.
@@ -524,7 +525,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     gutterWidth: {
       vars: ["--docs-code-gutter-width"],
@@ -533,7 +534,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 96,
       step: 1,
       unit: "px",
-      defaultValue: 40,
+      defaultValue: dsNumber("space.10", "px"),
     },
     gutterPadX: {
       vars: ["--docs-code-gutter-pad-x"],
@@ -542,7 +543,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Defaults to the shared linking zebra (semantic.css), so it only needs
     // setting when code blocks should stripe differently from linked panels.
@@ -555,7 +556,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     ruleOpacity: {
       vars: ["--docs-code-rule-opacity"],
@@ -582,7 +583,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.ui-sm", "px"),
     },
     notesWidth: {
       vars: ["--docs-code-notes-width"],
@@ -635,7 +636,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 8,
       step: 0.5,
       unit: "px",
-      defaultValue: 3,
+      defaultValue: dsNumber("border.width.rail", "px"),
     },
     hairlineWidth: {
       vars: ["--docs-callout-hairline-width"],
@@ -644,7 +645,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("border.width.none", "px"),
     },
     radius: {
       vars: ["--docs-callout-radius"],
@@ -653,7 +654,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     padX: {
       vars: ["--docs-callout-pad-x"],
@@ -671,7 +672,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("space.0-5", "px"),
     },
     // Stock follows the body size: semantic.css declares
     // var(--style-font-size, 18px), so the label line matches the body.
@@ -682,7 +683,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 0.5,
       unit: "px",
-      defaultValue: 18,
+      defaultValue: dsNumber("font.size.reading", "px"),
     },
     titleWeight: {
       vars: ["--docs-callout-title-weight"],
@@ -690,7 +691,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     iconSize: {
       vars: ["--docs-callout-icon-size"],
@@ -699,7 +700,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     bodyTextScale: {
       vars: ["--docs-callout-body-text-scale"],
@@ -716,7 +717,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 64,
       step: 1,
       unit: "px",
-      defaultValue: 20,
+      defaultValue: dsNumber("space.5", "px"),
     },
   },
   divider: {
@@ -728,7 +729,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 8,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // Margin above and below, in em of the reading size.
     spacing: {
@@ -755,7 +756,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-image-radius"],
@@ -764,7 +765,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     margin: {
       vars: ["--docs-image-margin"],
@@ -773,7 +774,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 64,
       step: 1,
       unit: "px",
-      defaultValue: 24,
+      defaultValue: dsNumber("space.6", "px"),
     },
   },
   video: {
@@ -786,7 +787,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-video-radius"],
@@ -795,7 +796,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     captionTextSize: {
       vars: ["--docs-video-caption-text-size"],
@@ -804,7 +805,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 20,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     captionGap: {
       vars: ["--docs-video-caption-gap"],
@@ -813,7 +814,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: dsNumber("space.2", "px"),
     },
     margin: {
       vars: ["--docs-video-margin"],
@@ -822,7 +823,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 64,
       step: 1,
       unit: "px",
-      defaultValue: 24,
+      defaultValue: dsNumber("space.6", "px"),
     },
   },
   // File tree (docs-viewer file-tree/FileTreeDocsBlock; the file explorer
@@ -845,7 +846,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-file-tree-radius"],
@@ -854,7 +855,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     padY: {
       vars: ["--docs-file-tree-pad-y"],
@@ -863,7 +864,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: dsNumber("space.2", "px"),
     },
     padX: {
       vars: ["--docs-file-tree-pad-x"],
@@ -872,7 +873,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     textSize: {
       vars: ["--docs-file-tree-text-size"],
@@ -881,7 +882,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     lineHeight: {
       vars: ["--docs-file-tree-line-height"],
@@ -890,7 +891,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 28,
+      defaultValue: dsNumber("line-height.row", "px"),
     },
     folderFg: color("--docs-file-tree-folder-fg"),
     folderWeight: {
@@ -899,7 +900,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
     fileFg: color("--docs-file-tree-file-fg"),
     fileWeight: {
@@ -908,7 +909,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
     note: color("--docs-file-tree-note-fg"),
     noteTextSize: {
@@ -918,7 +919,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     guide: color("--docs-file-tree-guide-fg"),
     mutedFg: color("--docs-file-tree-muted-fg"),
@@ -967,7 +968,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-table-radius"],
@@ -976,7 +977,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     bg: color("--docs-table-bg"),
     headerBg: color("--docs-table-header-bg"),
@@ -988,7 +989,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     headerWeight: {
       vars: ["--docs-table-header-weight"],
@@ -996,7 +997,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     headerRule: color("--docs-table-header-rule"),
     headerRuleWidth: {
@@ -1006,7 +1007,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     headerRuleOpacity: {
       vars: ["--docs-table-header-rule-opacity"],
@@ -1024,7 +1025,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 3,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     rowRuleOpacity: {
       vars: ["--docs-table-row-rule-opacity"],
@@ -1043,7 +1044,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 3,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("border.width.none", "px"),
     },
     columnRuleOpacity: {
       vars: ["--docs-table-column-rule-opacity"],
@@ -1061,7 +1062,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: dsNumber("space.1", "px"),
     },
     cellPaddingX: {
       vars: ["--docs-table-cell-pad-x"],
@@ -1070,7 +1071,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Floor for a body row's height; rows still grow to fit wrapped cells.
     // 0px lets Row padding alone set the height.
@@ -1081,7 +1082,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 96,
       step: 1,
       unit: "px",
-      defaultValue: 28,
+      defaultValue: dsNumber("space.7", "px"),
     },
     // Body cell text. The range reaches past the prose default (18px) so a
     // table can be set level with the text around it.
@@ -1092,7 +1093,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     // Unitless multiplier of the cell's own font size, header and body alike.
     lineHeight: {
@@ -1101,7 +1102,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 1,
       max: 2.2,
       step: 0.05,
-      defaultValue: 1.45,
+      defaultValue: dsNumber("line-height.reading", ""),
     },
     bodyWeight: {
       vars: ["--docs-table-body-weight"],
@@ -1109,7 +1110,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
     fg: color("--docs-table-fg"),
     // Identifier (mono) cells in the first column; other mono cells stay ink.
@@ -1121,7 +1122,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 10,
       step: 0.5,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     handleOffset: {
       vars: ["--docs-table-handle-offset"],
@@ -1130,7 +1131,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 20,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     selectionPadding: {
       vars: ["--docs-table-selection-pad"],
@@ -1188,7 +1189,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     borderWidth: {
       vars: ["--docs-interaction-border-width"],
@@ -1197,7 +1198,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     ruleWidth: {
       vars: ["--docs-interaction-rule-width"],
@@ -1206,7 +1207,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // One horizontal inset for the head, operation lines, labels and ledger rows.
     padX: {
@@ -1216,7 +1217,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     // The surface title in the panel head.
     titleTextSize: {
@@ -1226,7 +1227,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 22,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     titleWeight: {
       vars: ["--docs-interaction-title-weight"],
@@ -1234,7 +1235,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     // Operation line: its height comes from the vertical padding.
     headerPadY: {
@@ -1253,7 +1254,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 22,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     headerWeight: {
       vars: ["--docs-interaction-header-weight"],
@@ -1261,7 +1262,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     // Operation purpose and parameter / returned-field descriptions.
     descTextSize: {
@@ -1271,7 +1272,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     descLineHeight: {
       vars: ["--docs-interaction-desc-line-height"],
@@ -1290,7 +1291,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.ui-sm", "px"),
     },
     columnHeadPadY: {
       vars: ["--docs-interaction-column-head-pad-y"],
@@ -1299,7 +1300,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 20,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: dsNumber("space.2", "px"),
     },
     // Ledger rows (parameters and returned fields).
     rowPad: {
@@ -1318,7 +1319,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     noteNameTextSize: {
       vars: ["--docs-interaction-note-name-text-size"],
@@ -1327,7 +1328,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     noteNameWeight: {
       vars: ["--docs-interaction-note-name-weight"],
@@ -1335,7 +1336,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     noteTypeTextSize: {
       vars: ["--docs-interaction-note-type-text-size"],
@@ -1344,7 +1345,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     // Signature text size and line height are NOT here: the signature pane
     // is a shared CodeLines panel, tuned once in the "linking" folder.
@@ -1391,7 +1392,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 64,
       step: 1,
       unit: "px",
-      defaultValue: 28,
+      defaultValue: dsNumber("space.7", "px"),
     },
     // Field names are the row's one weight-500 element: its focal point.
     nameWeight: {
@@ -1400,7 +1401,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 800,
       step: 100,
-      defaultValue: 500,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     // The fixed name column, shared by every field ledger (State Shape fields,
     // Interaction Surface params and returns), in ch of the mono name font so
@@ -1421,7 +1422,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     typeTextSize: {
       vars: ["--docs-shape-type-text-size"],
@@ -1430,7 +1431,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     descTextSize: {
       vars: ["--docs-shape-desc-text-size"],
@@ -1439,7 +1440,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     headerTextSize: {
       vars: ["--docs-shape-header-text-size"],
@@ -1448,7 +1449,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 22,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     headerWeight: {
       vars: ["--docs-shape-header-weight"],
@@ -1456,7 +1457,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 100,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     // Horizontal inset shared by the head and the field rows.
     padX: {
@@ -1466,7 +1467,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     headerPadY: {
       vars: ["--docs-shape-header-pad-y"],
@@ -1475,7 +1476,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 6,
+      defaultValue: dsNumber("space.1-5", "px"),
     },
     borderWidth: {
       vars: ["--docs-shape-border-width"],
@@ -1484,7 +1485,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-shape-radius"],
@@ -1493,7 +1494,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     // Hairline between field rows.
     ruleWidth: {
@@ -1503,7 +1504,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     headerRuleWidth: {
       vars: ["--docs-shape-header-rule-width"],
@@ -1512,7 +1513,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // Divider between the fields and the example pane (left edge side by side, top edge stacked).
     paneRuleWidth: {
@@ -1522,7 +1523,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // Nested fields: one indent per level behind a guide of this width.
     indent: {
@@ -1532,7 +1533,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     childRuleWidth: {
       vars: ["--docs-shape-child-rule-width"],
@@ -1541,7 +1542,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
   },
   // Process Outline (docs-viewer process-outline/ProcessOutlineDocsBlock).
@@ -1596,7 +1597,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     padY: {
       vars: ["--docs-process-outline-pad-y"],
@@ -1605,7 +1606,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     padX: {
       vars: ["--docs-process-outline-pad-x"],
@@ -1614,7 +1615,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     indent: {
       vars: ["--docs-process-outline-indent"],
@@ -1623,7 +1624,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 72,
       step: 1,
       unit: "px",
-      defaultValue: 28,
+      defaultValue: dsNumber("space.7", "px"),
     },
     rowGap: {
       vars: ["--docs-process-outline-row-gap"],
@@ -1632,7 +1633,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: dsNumber("space.1", "px"),
     },
     // Branch gap spaces the phases (a root's children) when they have
     // substeps; Root gap spaces root panels.
@@ -1643,7 +1644,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 48,
       step: 1,
       unit: "px",
-      defaultValue: 16,
+      defaultValue: dsNumber("space.4", "px"),
     },
     rootGap: {
       vars: ["--docs-process-outline-root-gap"],
@@ -1652,7 +1653,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 64,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Clear space between the end of each elbow's tick and the step text.
     arrowGap: {
@@ -1662,7 +1663,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 4,
+      defaultValue: dsNumber("space.1", "px"),
     },
     lineHeight: {
       vars: ["--docs-process-outline-line-height"],
@@ -1680,7 +1681,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     rootTextSize: {
       vars: ["--docs-process-outline-root-text-size"],
@@ -1689,7 +1690,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 22,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     rootWeight: {
       vars: ["--docs-process-outline-root-weight"],
@@ -1697,7 +1698,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     branchWeight: {
       vars: ["--docs-process-outline-branch-weight"],
@@ -1705,7 +1706,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 600,
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     stepWeight: {
       vars: ["--docs-process-outline-step-weight"],
@@ -1713,7 +1714,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
     keywordWeight: {
       vars: ["--docs-process-outline-keyword-weight"],
@@ -1721,7 +1722,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: 500,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     emptyTextSize: {
       vars: ["--docs-process-outline-empty-text-size"],
@@ -1730,7 +1731,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     noteTextSize: {
       vars: ["--docs-process-outline-note-text-size"],
@@ -1739,7 +1740,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     noteLineHeight: {
       vars: ["--docs-process-outline-note-line-height"],
@@ -1748,7 +1749,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 21,
+      defaultValue: dsNumber("line-height.code", "px"),
     },
     noteInset: {
       vars: ["--docs-process-outline-note-inset"],
@@ -1757,7 +1758,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("space.0", "px"),
     },
     noteBorderWidth: {
       vars: ["--docs-process-outline-note-border-width"],
@@ -1766,7 +1767,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("border.width.none", "px"),
     },
     noteRuleWidth: {
       vars: ["--docs-process-outline-note-rule-width"],
@@ -1775,7 +1776,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 6,
       step: 0.5,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("border.width.none", "px"),
     },
     notePadY: {
       vars: ["--docs-process-outline-note-pad-y"],
@@ -1784,7 +1785,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("space.0-5", "px"),
     },
     notePadX: {
       vars: ["--docs-process-outline-note-pad-x"],
@@ -1793,7 +1794,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("space.0", "px"),
     },
     // Space between the left rule and the note text, on top of Note padding X.
     noteRuleGap: {
@@ -1803,7 +1804,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("space.0", "px"),
     },
     // The trace mark is a quiet mono "trace" tag after the step text.
     traceTextSize: {
@@ -1813,7 +1814,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     // A focus-ring outline marks the step being hand-edited (the block-wide
     // selection wash is suppressed); 0 leaves just the caret.
@@ -1824,7 +1825,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 3,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     // Rails and elbows draw at Stroke.
     stroke: {
@@ -1834,7 +1835,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.25,
       unit: "px",
-      defaultValue: 1.5,
+      defaultValue: dsNumber("border.width.ring", "px"),
     },
     noteAccent: {
       vars: ["--docs-process-outline-note-accent"],
@@ -1863,7 +1864,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 8,
       step: 0.5,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("space.0-5", "px"),
     },
   },
   // Sequence embed (docs-workbench pages/SequenceEmbed + sequence-embed.css).
@@ -1892,7 +1893,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-sequence-radius"],
@@ -1901,7 +1902,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     padding: {
       vars: ["--docs-sequence-padding"],
@@ -1910,7 +1911,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Cap on the inline preview's height; the 55vh viewport cap still applies.
     maxHeight: {
@@ -1929,7 +1930,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
   },
   // Call stack + component tree (docs-viewer outline-rows/OutlineRows): ONE
@@ -1948,7 +1949,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-outline-rows-radius"],
@@ -1957,7 +1958,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     padY: {
       vars: ["--docs-outline-rows-pad-y"],
@@ -1966,7 +1967,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 8,
+      defaultValue: dsNumber("space.2", "px"),
     },
     padX: {
       vars: ["--docs-outline-rows-pad-x"],
@@ -1975,7 +1976,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     textSize: {
       vars: ["--docs-outline-rows-text-size"],
@@ -1984,7 +1985,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13,
+      defaultValue: dsNumber("font.size.code", "px"),
     },
     lineHeight: {
       vars: ["--docs-outline-rows-line-height"],
@@ -1993,7 +1994,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 28,
+      defaultValue: dsNumber("line-height.row", "px"),
     },
     ink: color("--docs-outline-rows-ink"),
     commentFg: color("--docs-outline-rows-comment-fg"),
@@ -2004,7 +2005,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 18,
       step: 0.5,
       unit: "px",
-      defaultValue: 13.5,
+      defaultValue: dsNumber("font.size.ui-md", "px"),
     },
     sourceTextSize: {
       vars: ["--docs-outline-rows-source-text-size"],
@@ -2013,7 +2014,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 0.5,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("font.size.ui-xs", "px"),
     },
     guide: color("--docs-outline-rows-guide"),
     mutedFg: color("--docs-outline-rows-muted-fg"),
@@ -2055,7 +2056,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 12,
+      defaultValue: dsNumber("space.3", "px"),
     },
     radius: {
       vars: ["--docs-stack-radius"],
@@ -2064,7 +2065,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 16,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     blue: color("--docs-stack-blue"),
     green: color("--docs-stack-green"),
@@ -2089,7 +2090,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: 1,
+      defaultValue: dsNumber("border.width.hairline", "px"),
     },
     radius: {
       vars: ["--docs-canvas-radius"],
@@ -2098,7 +2099,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 24,
       step: 1,
       unit: "px",
-      defaultValue: 2,
+      defaultValue: dsNumber("radius.base", "px"),
     },
     padding: {
       vars: ["--docs-canvas-padding"],
@@ -2107,7 +2108,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 0,
+      defaultValue: dsNumber("space.0", "px"),
     },
   },
 };
