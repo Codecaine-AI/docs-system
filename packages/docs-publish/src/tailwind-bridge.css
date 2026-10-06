@@ -1,0 +1,27 @@
+/*
+ * TEMPORARY host bridge (decision 67, extending canvas-studio's decision 52). Delete this file
+ * and its @import in styles.css and editor.css when BOTH hold:
+ *   1. docs-workbench pass 1 converts pages/CanvasEmbed.tsx and pages/SequenceEmbed.tsx, and
+ *   2. docs-system's external/canvas submodule moves to a converted canvas commit (owner bump).
+ * tailwind-strict.css stops Tailwind's own scales from generating, but docs.css and editor.css
+ * compile those sources (@source), which still use them. Each key reads the token with the same
+ * value or the same role. The mapping is canvas-studio's (decision 44: the same canvas classes take
+ * the same tokens), plus --ease-out for canvas ShapesPanel and CanvasDock. --text-base and
+ * --shadow-sm stay unbridged (no 16px size token; shadow.glass is a panel lift, not a small
+ * bordered control's). --color-white is the pinned light on-solid, #ffffff in both themes like
+ * Tailwind's white: its readers put it on dark:bg-destructive/60.
+ */
+@theme inline {
+  --text-xs: var(--ds-font-size-ui-xs);
+  --text-sm: var(--ds-font-size-ui-lg);
+  --font-weight-normal: var(--ds-font-weight-regular);
+  --tracking-wide: var(--ds-letter-spacing-micro);
+  --tracking-wider: var(--ds-letter-spacing-micro);
+  --shadow-lg: var(--ds-shadow-glass);
+  --shadow-xl: var(--ds-shadow-glass);
+  --blur: var(--ds-blur-glass);
+  --color-white: var(--ds-light-color-text-on-solid);
+  --color-amber-400: var(--ds-color-status-warning-text);
+  --color-amber-600: var(--ds-color-status-warning-text);
+  --ease-out: var(--ds-motion-easing-decelerate);
+}

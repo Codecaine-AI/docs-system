@@ -19,6 +19,9 @@ await copyFile(`${textMeasure}/fonts.css`, `${root}/dist/fonts.css`);
 await copyFile(resolve(dirname(Bun.resolveSync('harfbuzzjs', textMeasure)), 'harfbuzz.wasm'), `${root}/dist/node/harfbuzz.wasm`);
 const {build} = await import('../docs-workbench/node_modules/vite/dist/node/index.js');
 const {default:tailwind} = await import('../docs-workbench/node_modules/@tailwindcss/vite/dist/index.mjs');
-await build({configFile:false, root, plugins:[tailwind()], build:{outDir:'dist/styles', emptyOutDir:true, rollupOptions:{input:{docs:resolve(root,'src/styles.css'),editor:resolve(root,'src/editor.css')},output:{assetFileNames:'[name].css'}}}});
+// docs.css imports the design-system fonts.css: Vite emits its woff2 files next to docs.css under
+// their own names ("[name][extname]"), and base './' writes their url()s relative to the sheet, so a
+// host can serve dist/styles from any path. The stylesheets keep their names (docs.css, editor.css).
+await build({configFile:false, root, base:'./', plugins:[tailwind()], build:{outDir:'dist/styles', emptyOutDir:true, rollupOptions:{input:{docs:resolve(root,'src/styles.css'),editor:resolve(root,'src/editor.css')},output:{assetFileNames:'[name][extname]'}}}});
 const git = (...args:string[]) => execFileSync('git', args, {cwd:resolve(root,'../..'),encoding:'utf8'}).trim();
 await writeFile(`${root}/dist/provenance.json`, JSON.stringify({version:JSON.parse(await readFile(`${root}/package.json`,'utf8')).version,docsCommit:git('rev-parse','HEAD'),dirty:!!git('status','--porcelain'),canvasCommit:git('-C','external/canvas','rev-parse','HEAD'),sequenceCommit:git('-C','external/sequence','rev-parse','HEAD'),note:'Local compatibility artifact; package bytes are pinned by the consuming lockfile. Release from clean tagged sources before production.'},null,2));

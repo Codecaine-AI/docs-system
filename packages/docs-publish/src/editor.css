@@ -11,6 +11,10 @@
    itself instead of depending on docs.css loading first. */
 @import "../../docs-workbench/web/src/theme/tokens.css";
 @import "../../docs-workbench/node_modules/tailwindcss/theme.css" layer(theme) theme(inline);
+/* The same design-system Tailwind wiring as styles.css, with the same temporary bridge (decision 67). */
+@import "@codecaine-ai/design-system/tailwind-strict.css";
+@import "@codecaine-ai/design-system/tailwind.css";
+@import "./tailwind-bridge.css";
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" layer(utilities) source(none);
 @import "../../docs-workbench/web/src/pages/sequence-embed.css";
 @source "./editor.tsx";
@@ -45,7 +49,7 @@
   --radius-md: var(--radius, 2px);
   --radius-lg: var(--radius, 2px);
   --radius-xl: var(--radius, 2px);
-  --font-display: Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--ds-font-family-sans);
   --color-status-success: var(--status-success);
   --color-status-success-fill: var(--status-success-fill);
   --color-status-success-border: var(--status-success-border);
@@ -79,28 +83,30 @@
   --muted-foreground: var(--site-muted, color-mix(in srgb, var(--foreground) 62%, transparent));
   --accent: color-mix(in srgb, var(--primary) 12%, transparent);
   --accent-foreground: var(--primary);
-  --destructive: #d44c47;
+  --destructive: var(--ds-color-status-danger-text);
   --border: var(--site-rule, color-mix(in srgb, var(--foreground) 16%, transparent));
   --input: var(--border);
   --ring: color-mix(in srgb, var(--primary) 55%, transparent);
-  --radius: 2px;
-  --status-info: #2383e2;
-  --status-info-fill: color-mix(in srgb, #2383e2 10%, transparent);
-  --status-info-border: color-mix(in srgb, #2383e2 35%, transparent);
-  --status-success: #448361;
-  --status-success-fill: color-mix(in srgb, #448361 10%, transparent);
-  --status-success-border: color-mix(in srgb, #448361 35%, transparent);
-  --status-warning: #cb912f;
-  --status-warning-fill: color-mix(in srgb, #cb912f 12%, transparent);
-  --status-warning-border: color-mix(in srgb, #cb912f 35%, transparent);
-  --status-danger: #d44c47;
-  --status-danger-fill: color-mix(in srgb, #d44c47 10%, transparent);
-  --status-danger-border: color-mix(in srgb, #d44c47 35%, transparent);
+  --radius: var(--ds-radius-base);
+  /* The status family as the host contract maps it (host-contract.css): text, soft fill, line. */
+  --status-info: var(--ds-color-status-info-text);
+  --status-info-fill: var(--ds-color-status-info-soft);
+  --status-info-border: var(--ds-color-status-info-line);
+  --status-success: var(--ds-color-status-success-text);
+  --status-success-fill: var(--ds-color-status-success-soft);
+  --status-success-border: var(--ds-color-status-success-line);
+  --status-warning: var(--ds-color-status-warning-text);
+  --status-warning-fill: var(--ds-color-status-warning-soft);
+  --status-warning-border: var(--ds-color-status-warning-line);
+  --status-danger: var(--ds-color-status-danger-text);
+  --status-danger-fill: var(--ds-color-status-danger-soft);
+  --status-danger-border: var(--ds-color-status-danger-line);
   --docs-icon-muted: var(--muted-foreground);
   --docs-surface-muted: var(--muted);
   --docs-viewer-text-body: var(--foreground);
-  --color-bg-blue: color-mix(in srgb, #2383e2 14%, transparent);
-  --color-text-blue: #2383e2;
+  /* Selected-block highlight and changed flash (selection role); drop line (accent role). */
+  --color-bg-blue: var(--ds-color-selection);
+  --color-text-blue: var(--ds-color-accent);
   /* Leave room for the drag grip, which floats left of each block. */
   position: relative;
 }
@@ -128,7 +134,7 @@
 .docs-draft-editor .ProseMirror-hideselection { caret-color: transparent; }
 .docs-draft-editor .ProseMirror [draggable][contenteditable=false] { user-select: text; }
 .docs-draft-editor .ProseMirror-gapcursor { display: none; pointer-events: none; position: absolute; }
-.docs-draft-editor .ProseMirror-gapcursor:after { content: ""; display: block; position: absolute; top: -2px; width: 20px; border-top: 1px solid currentColor; animation: docs-draft-cursor-blink 1.1s steps(2, start) infinite; }
+.docs-draft-editor .ProseMirror-gapcursor:after { content: ""; display: block; position: absolute; top: calc(-1 * var(--ds-space-0-5)); width: var(--ds-space-5); border-top: var(--ds-border-width-hairline) solid currentColor; animation: docs-draft-cursor-blink 1.1s steps(2, start) infinite; }
 .docs-draft-editor .ProseMirror-focused .ProseMirror-gapcursor { display: block; }
 @keyframes docs-draft-cursor-blink { to { visibility: hidden; } }
 .docs-draft-editor code::before, .docs-draft-editor code::after { content: none; }
@@ -155,10 +161,10 @@
 .docs-draft-editor .docs-drop-cursor.prosemirror-dropcursor-block { height: var(--docs-dropcursor-width, 3px) !important; }
 .docs-draft-editor .docs-drop-cursor.prosemirror-dropcursor-inline { width: var(--docs-dropcursor-width, 3px) !important; }
 .docs-draft-editor .docs-drag-handle {
-  position: absolute; z-index: 20; display: flex; align-items: center; justify-content: center;
+  position: absolute; z-index: var(--ds-z-raised); display: flex; align-items: center; justify-content: center;
   width: var(--docs-grip-size, 18px); height: calc(var(--docs-grip-size, 18px) * 4 / 3);
   border-radius: var(--radius); color: var(--docs-grip-color, var(--docs-icon-muted));
-  cursor: grab; user-select: none; opacity: 0; pointer-events: none; transition: opacity var(--docs-grip-fade, 100ms) ease;
+  cursor: grab; user-select: none; opacity: 0; pointer-events: none; transition: opacity var(--docs-grip-fade, 100ms) var(--ds-motion-easing-standard);
 }
 .docs-draft-editor .docs-drag-handle-visible { opacity: 1; pointer-events: auto; }
 .docs-draft-editor .docs-drag-handle svg { width: calc(var(--docs-grip-size, 18px) * 0.55); height: auto; }
@@ -167,10 +173,10 @@
 /* Editor-owned overlays appended to <body> (drag ghost, rubber band). */
 .docs-drag-image { opacity: var(--docs-drag-opacity, 0.3); }
 .docs-drag-select-rect {
-  position: fixed; z-index: 40; pointer-events: none; border-radius: 2px;
-  background-color: color-mix(in srgb, var(--docs-dragselect-color, #2383e2) calc(var(--docs-dragselect-opacity, 0.12) * 100%), transparent);
+  position: fixed; z-index: var(--ds-z-overlay); pointer-events: none; border-radius: var(--ds-radius-base);
+  background-color: color-mix(in srgb, var(--docs-dragselect-color, var(--ds-color-accent)) calc(var(--docs-dragselect-opacity, 0.12) * 100%), transparent);
 }
-.docs-draft-editor [data-docs-changed="true"] { animation: docs-draft-changed-flash 2s ease-out; border-radius: var(--docs-highlight-radius, var(--radius, 2px)); }
+.docs-draft-editor [data-docs-changed="true"] { animation: docs-draft-changed-flash 2s var(--ds-motion-easing-decelerate); border-radius: var(--docs-highlight-radius, var(--radius, 2px)); }
 @keyframes docs-draft-changed-flash {
   0% { background-color: var(--docs-highlight-color, var(--color-bg-blue)); box-shadow: 0 0 0 var(--docs-highlight-padding, 4px) var(--docs-highlight-color, var(--color-bg-blue)); }
   100% { background-color: transparent; box-shadow: 0 0 0 0 transparent; }

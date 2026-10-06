@@ -19,7 +19,7 @@
     padding: 0;
     border: 0 solid;
   }
-  :where(.docs-markdown) :where(hr) { height: 0; color: inherit; border-top-width: 1px; }
+  :where(.docs-markdown) :where(hr) { height: 0; color: inherit; border-top-width: var(--ds-border-width-hairline); }
   :where(.docs-markdown) :where(abbr[title]) { text-decoration: underline dotted; }
   :where(.docs-markdown) :where(h1, h2, h3, h4, h5, h6) { font-size: inherit; font-weight: inherit; }
   :where(.docs-markdown) :where(a) { color: inherit; text-decoration: inherit; }
@@ -64,8 +64,8 @@
   }
   :where(.docs-markdown) :where(h1, h2, h3) { font-family: var(--font-display); }
   :where(.docs-markdown) :focus-visible {
-    outline: 2px solid var(--docs-focus-ring);
-    outline-offset: 2px;
+    outline: var(--ds-border-width-focus) solid var(--docs-focus-ring);
+    outline-offset: var(--ds-focus-ring-offset);
   }
   :where(.docs-markdown) ::selection { background-color: var(--docs-selection); }
   :where(.docs-markdown) [data-code-surface] ::selection { background-color: var(--docs-code-selection, var(--docs-selection)); }

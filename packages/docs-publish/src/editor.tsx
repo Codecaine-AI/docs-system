@@ -90,7 +90,7 @@ function createApi(base: string) {
 }
 type Api = ReturnType<typeof createApi>;
 
-const frameClass = 'not-prose my-4 rounded-md border bg-background p-4 text-sm text-muted-foreground';
+const frameClass = 'not-prose my-4 rounded-[var(--radius)] border bg-background p-4 text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground';
 
 type Loaded<T> = { ok: true; value: T } | { ok: false; error: string };
 /** Loads a sidecar through the proxy, then hands validated data to the Docs app's embed. */

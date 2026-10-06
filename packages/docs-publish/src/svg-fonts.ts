@@ -1,3 +1,4 @@
+import { flat } from '@codecaine-ai/design-system';
 import { readBundledWoff2 } from './font-files' with { type: 'macro' };
 
 // Inlined at build time: the bundled woff2 faces as base64, by file stem.
@@ -10,7 +11,7 @@ const FACES: Record<Family, Record<number, string>> = {
 };
 
 /** The family stack diagrams paint with: the face their text is measured in. */
-export const DIAGRAM_FONT_STACK = 'Inter, ui-sans-serif, system-ui, sans-serif';
+export const DIAGRAM_FONT_STACK: string = flat.base['font.family.sans'];
 
 /** The bundled weight CSS font matching paints for `desired` (CSS Fonts 4, 5.2). */
 export function matchWeight(desired: number, available: number[]): number {

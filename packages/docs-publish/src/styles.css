@@ -1,5 +1,13 @@
 @layer theme, base, components, utilities;
+/* The design-system faces (Inter, IBM Plex Mono) load first; Vite emits their woff2 files next to
+   docs.css (build.ts). The tokens arrive with the workbench theme below. */
+@import "@codecaine-ai/design-system/fonts.css";
 @import "../../docs-workbench/node_modules/tailwindcss/theme.css";
+/* Tailwind's own scales off, the design-system utilities on (design-system guide/consume.md).
+   The bridge maps the default-scale keys that unconverted @sources still use (decision 67). */
+@import "@codecaine-ai/design-system/tailwind-strict.css";
+@import "@codecaine-ai/design-system/tailwind.css";
+@import "./tailwind-bridge.css";
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" source(none);
 @plugin "../../docs-workbench/node_modules/@tailwindcss/typography";
 
@@ -39,8 +47,10 @@
 .docs-article pre {overflow:auto;}
 
 /* Published diagrams: a fitted static image that opens the full-screen viewer. */
-.docs-article [data-docs-diagram] {position:relative;margin:2rem 0;border:1px solid var(--border);border-radius:var(--radius,2px);overflow:hidden;}
-.docs-article [data-docs-diagram] figcaption {padding:14px 60px 14px 18px;font-weight:600;}
-.docs-diagram-preview {display:block;background:#fff;}
+.docs-article [data-docs-diagram] {position:relative;margin:var(--ds-space-8) 0;border:var(--ds-border-width-hairline) solid var(--border);border-radius:var(--radius,2px);overflow:hidden;}
+.docs-article [data-docs-diagram] figcaption {padding:14px 60px 14px 18px;font-weight:var(--ds-font-weight-semibold);}
+/* The preview is a static SVG painted in the light preset, so the frame behind it and the expand
+   button over it keep the light theme whatever the page does (pinned --ds-light-* tokens). */
+.docs-diagram-preview {display:block;background:var(--ds-light-color-surface-page);}
 .docs-article .docs-diagram-preview img {display:block;width:100%;height:auto;max-height:none;margin:0;padding:0;border:0;}
-.docs-diagram-expand {position:absolute;top:8px;right:12px;display:grid;place-items:center;width:36px;height:36px;border:1px solid #ccc;border-radius:var(--radius,2px);background:#fff;color:#222;font-size:25px;}
+.docs-diagram-expand {position:absolute;top:var(--ds-space-2);right:var(--ds-space-3);display:grid;place-items:center;width:36px;height:36px;border:var(--ds-border-width-hairline) solid var(--ds-light-color-border-strong);border-radius:var(--radius,2px);background:var(--ds-light-color-surface-page);color:var(--ds-light-color-text-ink);font-size:25px;}
