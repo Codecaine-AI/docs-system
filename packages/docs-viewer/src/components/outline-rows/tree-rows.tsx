@@ -237,14 +237,14 @@ export const TREE_ROWS_CSS = `
 }
 .docs-tree__empty {
   grid-column: path / end;
-  font: 400 var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
+  font: var(--ds-font-weight-regular) var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
   color: var(--tr-muted, #666562);
 }
 
 /* gutter: the change glyph, nothing else */
 .docs-tree__mark {
   grid-column: mark;
-  font: 500 var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
+  font: var(--ds-font-weight-medium) var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
   user-select: none;
 }
 
@@ -253,7 +253,7 @@ export const TREE_ROWS_CSS = `
   grid-column: path;
   min-width: 0;
   padding-left: calc(var(--depth, 0) * var(--tr-indent));
-  font: 400 var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
+  font: var(--ds-font-weight-regular) var(--tr-text-size, 13px) / var(--tr-row, 28px) var(--tr-mono);
   color: var(--tr-ink, #1f1f1f);
 }
 /* a row without a note runs into the note column, so the note column starts
@@ -265,7 +265,7 @@ ${TREE_GUIDES_CSS}
 .docs-tree__name { color: var(--tr-file-fg, #1f1f1f); font-weight: var(--tr-file-weight, 400); }
 .docs-tree__name[data-dir] { color: var(--tr-folder-fg, #1f1f1f); font-weight: var(--tr-folder-weight, 400); }
 .docs-tree__sep { color: var(--tr-muted, #666562); font-weight: var(--ds-font-weight-regular); }
-.docs-tree__from { color: var(--tr-muted, #666562); text-decoration: line-through; text-decoration-thickness: 1px; }
+.docs-tree__from { color: var(--tr-muted, #666562); text-decoration: line-through; text-decoration-thickness: var(--ds-border-width-hairline); }
 .docs-tree__arrow { margin: 0 0.5ch; color: var(--tr-muted, #666562); }
 
 /* diff: glyph + soft tint; a changed file name takes its diff color */
@@ -275,11 +275,11 @@ ${TREE_GUIDES_CSS}
 .docs-tree__row[data-change="renamed"] { --tr-chg: var(--tr-renamed-fg, var(--tr-modified-fg, #805f01)); --tr-chg-name: var(--tr-renamed-name, var(--tr-chg)); background: var(--tr-renamed-bg, var(--tr-modified-bg, color-mix(in srgb, #dfab01 9%, #f8f8f7))); }
 .docs-tree__row[data-change] > .docs-tree__mark { color: var(--tr-chg); }
 .docs-tree__row[data-change] .docs-tree__name { color: var(--tr-chg-name); }
-.docs-tree__row[data-change="removed"] .docs-tree__name { text-decoration: line-through; text-decoration-thickness: 1px; }
+.docs-tree__row[data-change="removed"] .docs-tree__name { text-decoration: line-through; text-decoration-thickness: var(--ds-border-width-hairline); }
 .docs-tree__row[data-change="removed"] .docs-tree__code,
 .docs-tree__row[data-change="removed"] .docs-tree__code * {
   color: var(--tr-muted, #666562);
-  text-decoration: line-through; text-decoration-thickness: 1px;
+  text-decoration: line-through; text-decoration-thickness: var(--ds-border-width-hairline);
 }
 
 /* notes: one aligned, muted, sans column; they wrap at a 60ch prose measure, never truncate */
@@ -289,7 +289,7 @@ ${TREE_GUIDES_CSS}
   padding: 0 0 var(--ds-space-1) var(--ds-space-6);
   max-width: var(--ds-layout-lane-text);
   white-space: normal; overflow-wrap: break-word;
-  font: 400 var(--tr-note-size, 13.5px) / 1.55 var(--tr-sans);
+  font: var(--ds-font-weight-regular) var(--tr-note-size, 13.5px) / 1.55 var(--tr-sans);
   color: var(--tr-note-fg, #666562);
 }
 
@@ -298,7 +298,7 @@ ${TREE_GUIDES_CSS}
   grid-column: src;
   justify-self: start;
   margin-left: var(--ds-space-5);
-  font: 400 var(--tr-source-size, 12px) / var(--tr-row, 28px) var(--tr-mono);
+  font: var(--ds-font-weight-regular) var(--tr-source-size, 12px) / var(--tr-row, 28px) var(--tr-mono);
   color: var(--tr-muted, #666562);
 }
 .docs-tree__row:hover > .docs-tree__src { color: var(--tr-ink, #1f1f1f); }

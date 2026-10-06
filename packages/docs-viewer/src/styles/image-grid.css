@@ -31,7 +31,7 @@
   min-width: 0;
   font-size: var(--ds-font-size-ui-md);
   font-weight: var(--ds-font-weight-semibold);
-  line-height: 1.3;
+  line-height: var(--ds-line-height-tight);
   color: var(--docs-ink, var(--ds-light-color-text-ink));
   overflow-wrap: anywhere;
 }
