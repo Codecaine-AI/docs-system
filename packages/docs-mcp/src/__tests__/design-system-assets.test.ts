@@ -1,5 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readFileSync, realpathSync } from 'node:fs';
+import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { DESIGN_SYSTEM_PREFIX, designSystemAssets } from '../background/design-system-assets';
 import { directoryHtml } from '../background/home';
@@ -40,8 +42,51 @@ test('the design-system route serves the linked files and their fonts byte for b
 
 test('the design-system route answers nothing outside the package files it serves', async () => {
   for (const path of ['apps.json', 'scripts/build.ts', 'tokens/base', 'css/', 'css/.hidden', '.git', 'css/..%2Fpackage.json', 'css/..%2F..%2F..%2Fpackage.json', 'dist%2F..%2F.gitignore', 'css/%E0%A4%A']) {
-    expect((await request(DESIGN_SYSTEM_PREFIX + path)).status).toBe(404);
+    const response = await request(DESIGN_SYSTEM_PREFIX + path);
+    expect(response.status).toBe(404);
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
   }
   expect((await request('/@codecaine-ai/design-systemx/package.json')).status).toBe(404);
-  expect((await request(`${DESIGN_SYSTEM_PREFIX}css/fonts.css`, { method: 'POST' })).status).toBe(405);
+  const post = await request(`${DESIGN_SYSTEM_PREFIX}css/fonts.css`, { method: 'POST' });
+  expect(post.status).toBe(405);
+  expect(post.headers.get('x-content-type-options')).toBe('nosniff');
+  expect((await request(`${DESIGN_SYSTEM_PREFIX}css/fonts.css`)).headers.get('x-content-type-options')).toBe('nosniff');
+});
+
+test('symlinks serve only files whose real path is a served package file, and active content goes out as bytes', async () => {
+  // A fake package in a temp folder: the real design-system checkout is never touched.
+  const temp = realpathSync(await mkdtemp(join(tmpdir(), 'docs-ds-assets-')));
+  try {
+    const pkg = join(temp, 'app/node_modules/@codecaine-ai/design-system');
+    const files: Record<string, string> = {
+      'package.json': '{"name":"@codecaine-ai/design-system"}', 'css/fonts.css': 'fonts', 'dist/page.html': '<script>1</script>', 'dist/index.js': 'run()', 'dist/icon.svg': '<svg/>',
+      'scripts/internal.txt': 'internal', 'tokens/base.json': '{}', '.secret': 'secret', '.hidden/file.css': 'hidden', '../../../outside.css': 'outside',
+    };
+    for (const [path, text] of Object.entries(files)) { await mkdir(dirname(join(pkg, path)), { recursive: true }); await writeFile(join(pkg, path), text); }
+    const links: Record<string, string> = {
+      'dist/alias.css': '../css/fonts.css', 'dist/unserved.txt': '../scripts/internal.txt', 'dist/scripts': '../scripts', 'css/tokens': '../tokens',
+      'dist/secret.txt': '../.secret', 'css/hidden': '../.hidden', 'dist/outside.css': '../../../../outside.css',
+    };
+    for (const [path, target] of Object.entries(links)) await symlink(target, join(pkg, path));
+    const fake = designSystemAssets(join(temp, 'app'));
+    const get = (path: string) => fake(new Request(new URL(DESIGN_SYSTEM_PREFIX + path, 'http://127.0.0.1')));
+    for (const path of ['css/fonts.css', 'dist/alias.css']) {
+      const response = await get(path);
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe('fonts');
+    }
+    for (const path of ['dist/unserved.txt', 'dist/scripts/internal.txt', 'css/tokens/base.json', 'dist/secret.txt', 'css/hidden/file.css', 'dist/outside.css', 'scripts/internal.txt', '.secret']) {
+      const response = await get(path);
+      expect(response.status).toBe(404);
+      expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    }
+    for (const path of ['dist/page.html', 'dist/index.js', 'dist/icon.svg']) {
+      const response = await get(path);
+      expect(response.status).toBe(200);
+      expect(response.headers.get('content-type')).toBe('application/octet-stream');
+      expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    }
+  } finally {
+    await rm(temp, { recursive: true, force: true });
+  }
 });

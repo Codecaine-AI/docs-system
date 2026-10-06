@@ -6,9 +6,10 @@ const escape = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '
  * The page links the design-system package at /@codecaine-ai/design-system/<package path>, which the
  * docs service serves from the package docs-mcp resolves (design-system-assets.ts): fonts.css, then the
  * dark-first tokens. Colors, type, radii and borders come from --ds-* tokens, and so does every
- * spacing step a token equals. The body keeps the browser's root size (the size the rem tokens assume).
- * Kept layout with no equal token: the 850px column, its 72px top margin, the input's 18px and the
- * button's 9px padding, the rows' 7px gap and 22px padding, and the status lines' 1.6 line height.
+ * spacing step a space token equals. The body keeps the browser's root size (the size the rem tokens assume).
+ * Kept layout with no equal space token: the 850px column, its 72px top margin (layout.topbar.height
+ * is 72px but names the shell topbar), the input's 18px and the button's 9px padding, the rows' 7px gap
+ * and 22px padding, and the status lines' 1.6 line height.
  */
 export function directoryHtml(projects: DocsProject[], version: string) {
   const rows = [...projects].sort((a, b) => a.name.localeCompare(b.name) || a.root.localeCompare(b.root)).map(p => `<a class="project" href="/projects/${encodeURIComponent(p.id)}/docs/"><strong>${escape(p.name)}</strong><span>${escape(p.root)}</span><b aria-hidden="true">↗</b></a>`).join('');
