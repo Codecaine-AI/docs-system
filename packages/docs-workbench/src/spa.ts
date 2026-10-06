@@ -1,4 +1,5 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -72,7 +73,25 @@ function spaSourceRoots(): string[] {
     join(packagesDir, "docs-viewer", "src"),
     join(packagesDir, "docs-model", "src"),
     join(repoRoot, "external", "canvas", "packages"),
+    ...designSystemRoots(),
   ];
+}
+
+/**
+ * @codecaine-ai/design-system: the SPA bundles its fonts.css, tokens.css,
+ * Tailwind theme, layout.css and JS tokens, so a rebuilt token (its dist/ and
+ * css/ folders) or a changed font must rebuild the SPA too. The package is a
+ * workspace dependency of docs-workbench; where it does not resolve (a
+ * standalone docs-system install) there is nothing to scan.
+ */
+function designSystemRoots(): string[] {
+  let packageDir: string;
+  try {
+    packageDir = dirname(createRequire(import.meta.url).resolve("@codecaine-ai/design-system/package.json"));
+  } catch {
+    return [];
+  }
+  return ["dist", "css", "fonts"].map((name) => join(packageDir, name));
 }
 
 export interface EnsureSpaBuiltOptions {

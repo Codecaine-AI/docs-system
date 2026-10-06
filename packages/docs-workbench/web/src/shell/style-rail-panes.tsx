@@ -32,6 +32,7 @@ import {
   type StyleRailLeafRef,
 } from "./style-rail-overrides";
 import { getStyleRailPaneItem, type StyleRailPaneId } from "./style-rail-nav";
+import { styleRailColorControls } from "./style-rail-color-controls";
 
 /*
  * Rows read the current settings through this local context so every dot is
@@ -382,6 +383,10 @@ function resolveCssColor(expr: string): string {
   return pixel[3] === 0 ? "#ffffff" : toHex([pixel[0]!, pixel[1]!, pixel[2]!]);
 }
 
+/**
+ * One color picker row. Renders nothing while the rail's color controls are
+ * hidden (style-rail-color-controls.ts); the code stays for when they return.
+ */
 function ColorRow({
   label,
   leaf,
@@ -395,8 +400,9 @@ function ColorRow({
   defaultExpr: string;
   onChange: (value: string | null) => void;
 }) {
+  if (!styleRailColorControls()) return null;
   return (
-    <div className="flex min-h-8 items-center justify-between gap-3 text-xs">
+    <div className="flex min-h-8 items-center justify-between gap-3 text-ui-xs">
       <RowLabel label={label} leaf={leaf} />
       <span className="flex items-center gap-1.5">
         {value !== null && (
@@ -433,7 +439,7 @@ function ToggleRow({
   onChange: (checked: boolean) => void;
 }) {
   return (
-    <label className="flex min-h-8 items-center justify-between gap-3 text-xs">
+    <label className="flex min-h-8 items-center justify-between gap-3 text-ui-xs">
       <RowLabel label={label} leaf={leaf} />
       <input
         checked={checked}
@@ -465,10 +471,10 @@ function SliderRow({
   onChange: (value: number) => void;
 }) {
   return (
-    <label className="grid gap-1.5 text-xs">
+    <label className="grid gap-1.5 text-ui-xs">
       <span className="flex items-center justify-between gap-3">
         <RowLabel label={label} leaf={leaf} />
-        <span className="text-[11px] text-foreground">{valueLabel}</span>
+        <span className="text-ui-2xs text-foreground">{valueLabel}</span>
       </span>
       <input
         className="style-range"
@@ -497,7 +503,7 @@ function SelectRow<T extends string>({
   onChange: (value: T) => void;
 }) {
   return (
-    <label className="flex min-h-8 items-center justify-between gap-3 text-xs">
+    <label className="flex min-h-8 items-center justify-between gap-3 text-ui-xs">
       <RowLabel label={label} leaf={leaf} />
       <select
         className="style-select"
@@ -557,7 +563,7 @@ function CodeThemeRows({ controls }: { controls: CodeThemeControls }) {
   if (themes.length === 0) return null;
   return (
     <>
-      <label className="flex min-h-8 items-center justify-between gap-3 text-xs">
+      <label className="flex min-h-8 items-center justify-between gap-3 text-ui-xs">
         <RowLabel label="Code theme" />
         <select
           className="style-select"
@@ -573,7 +579,7 @@ function CodeThemeRows({ controls }: { controls: CodeThemeControls }) {
         </select>
       </label>
       <button
-        className="style-rail-preset-button w-full border px-2 py-1.5 text-xs text-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+        className="style-rail-preset-button w-full border px-2 py-1.5 text-ui-xs text-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
         disabled={busy}
         onClick={onImport}
         type="button"
@@ -582,7 +588,7 @@ function CodeThemeRows({ controls }: { controls: CodeThemeControls }) {
       </button>
       {status && (
         <p
-          className={cn("text-xs", status.kind === "error" ? "text-destructive" : "text-muted-foreground")}
+          className={cn("text-ui-xs", status.kind === "error" ? "text-destructive" : "text-muted-foreground")}
           role={status.kind === "error" ? "alert" : "status"}
         >
           {status.text}
@@ -862,7 +868,7 @@ export function StyleRailPane({
                 <button
                   key={theme.id}
                   className={cn(
-                    "style-rail-preset-button border px-2 py-1.5 text-xs",
+                    "style-rail-preset-button border px-2 py-1.5 text-ui-xs",
                     theme.id === activeThemeId
                       ? "border-primary/50 bg-muted text-foreground"
                       : "text-foreground hover:bg-muted hover:text-foreground",
@@ -883,7 +889,7 @@ export function StyleRailPane({
             </div>
             {onSaveTheme && (
               <button
-                className="style-rail-preset-button w-full border px-2 py-1.5 text-xs text-foreground hover:bg-muted hover:text-foreground"
+                className="style-rail-preset-button w-full border px-2 py-1.5 text-ui-xs text-foreground hover:bg-muted hover:text-foreground"
                 onClick={saveThemePrompt}
                 type="button"
               >
@@ -897,13 +903,16 @@ export function StyleRailPane({
         return (
           <ControlGroup>
             <ToggleRow checked={dark} label="Dark mode" onChange={onDarkChange} />
-            <SelectRow
-              label="Accent"
-              leaf={settingLeaf("accent")}
-              onChange={(value) => onSettingsChange({ ...settings, accent: value })}
-              options={ACCENT_OPTIONS}
-              value={accent}
-            />
+            {/* The accent family is a color choice: hidden with the color pickers. */}
+            {styleRailColorControls() && (
+              <SelectRow
+                label="Accent"
+                leaf={settingLeaf("accent")}
+                onChange={(value) => onSettingsChange({ ...settings, accent: value })}
+                options={ACCENT_OPTIONS}
+                value={accent}
+              />
+            )}
             <ColorRow
               defaultExpr="var(--color-bg-default)"
               label="Background"
@@ -1086,22 +1095,25 @@ export function StyleRailPane({
       case "theme.references":
         return (
           <>
-            <ControlGroup>
-              <ColorRow
-                defaultExpr="var(--docs-ref-color)"
-                label="Text color"
-                leaf={settingLeaf("reference.color")}
-                onChange={(value) => patchReference({ color: value })}
-                value={settings.reference.color}
-              />
-              <ColorRow
-                defaultExpr="var(--docs-ref-underline-color)"
-                label="Hover underline"
-                leaf={settingLeaf("reference.underlineColor")}
-                onChange={(value) => patchReference({ underlineColor: value })}
-                value={settings.reference.underlineColor}
-              />
-            </ControlGroup>
+            {/* Only color pickers: the whole group hides with them. */}
+            {styleRailColorControls() && (
+              <ControlGroup>
+                <ColorRow
+                  defaultExpr="var(--docs-ref-color)"
+                  label="Text color"
+                  leaf={settingLeaf("reference.color")}
+                  onChange={(value) => patchReference({ color: value })}
+                  value={settings.reference.color}
+                />
+                <ColorRow
+                  defaultExpr="var(--docs-ref-underline-color)"
+                  label="Hover underline"
+                  leaf={settingLeaf("reference.underlineColor")}
+                  onChange={(value) => patchReference({ underlineColor: value })}
+                  value={settings.reference.underlineColor}
+                />
+              </ControlGroup>
+            )}
             <Subgroup label="Icon">
               <ColorRow
                 defaultExpr="var(--docs-ref-color)"
@@ -1205,29 +1217,32 @@ export function StyleRailPane({
       case "theme.annotate":
         return (
           <>
-            <Subgroup label="Colors">
-              <ColorRow
-                defaultExpr="var(--annotation-accent)"
-                label="Accent"
-                leaf={settingLeaf("annotate.accent")}
-                onChange={(value) => patchAnnotate({ accent: value })}
-                value={settings.annotate.accent}
-              />
-              <ColorRow
-                defaultExpr="var(--docs-annotation-add)"
-                label="Add"
-                leaf={settingLeaf("annotate.add")}
-                onChange={(value) => patchAnnotate({ add: value })}
-                value={settings.annotate.add}
-              />
-              <ColorRow
-                defaultExpr="var(--docs-annotation-del)"
-                label="Delete"
-                leaf={settingLeaf("annotate.del")}
-                onChange={(value) => patchAnnotate({ del: value })}
-                value={settings.annotate.del}
-              />
-            </Subgroup>
+            {/* Only color pickers: the whole group hides with them. */}
+            {styleRailColorControls() && (
+              <Subgroup label="Colors">
+                <ColorRow
+                  defaultExpr="var(--annotation-accent)"
+                  label="Accent"
+                  leaf={settingLeaf("annotate.accent")}
+                  onChange={(value) => patchAnnotate({ accent: value })}
+                  value={settings.annotate.accent}
+                />
+                <ColorRow
+                  defaultExpr="var(--docs-annotation-add)"
+                  label="Add"
+                  leaf={settingLeaf("annotate.add")}
+                  onChange={(value) => patchAnnotate({ add: value })}
+                  value={settings.annotate.add}
+                />
+                <ColorRow
+                  defaultExpr="var(--docs-annotation-del)"
+                  label="Delete"
+                  leaf={settingLeaf("annotate.del")}
+                  onChange={(value) => patchAnnotate({ del: value })}
+                  value={settings.annotate.del}
+                />
+              </Subgroup>
+            )}
             <Subgroup label="Surface">
               <SliderRow
                 label="Wash opacity"
@@ -1399,7 +1414,7 @@ export function StyleRailPane({
                 onChange={(value) => onSettingsChange({ ...settings, transition: { ...settings.transition, [field]: value } })}
               />
             ))}
-            <p className="text-xs text-muted-foreground">Page changes and linked previews. Reduced motion skips fades.</p>
+            <p className="text-ui-xs text-muted-foreground">Page changes and linked previews. Reduced motion skips fades.</p>
           </ControlGroup>
         );
 

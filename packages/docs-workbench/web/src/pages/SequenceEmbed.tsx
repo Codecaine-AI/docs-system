@@ -127,13 +127,13 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
 
     return (
       <section
-        className="not-prose my-4 flex items-center justify-between gap-3 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm"
+        className="not-prose my-4 flex items-center justify-between gap-3 rounded border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-ui-lg"
         data-docs-block-type="sequence"
         data-source-id={id}
         data-sequence-id={sequenceId}
       >
         <div className="min-w-0">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="text-ui-2xs font-medium uppercase tracking-micro text-muted-foreground">
             Sequence diagram
           </div>
           <div className="truncate font-medium">{title ?? sequenceId}</div>
@@ -143,7 +143,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
             href={studioUrl.toString()}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-8 shrink-0 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+            className="inline-flex h-8 shrink-0 items-center gap-2 rounded border px-2.5 text-ui-lg font-medium text-foreground hover:bg-muted"
           >
             <ExternalLinkIcon className="h-4 w-4" />
             Open in Sequence Studio
@@ -156,7 +156,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
   if (error) {
     return (
       <section
-        className="not-prose my-4 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm"
+        className="not-prose my-4 rounded border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-ui-lg"
         data-docs-block-type="sequence"
         data-source-id={id}
       >
@@ -174,7 +174,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
       : "Sequence block is missing a src or sequenceId.";
     return (
       <section
-        className="not-prose my-4 rounded-md border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-sm text-muted-foreground"
+        className="not-prose my-4 rounded border border-[color:var(--docs-sequence-border,var(--border))] bg-background p-4 text-ui-lg text-muted-foreground"
         data-docs-block-type="sequence"
         data-source-id={id}
       >
@@ -218,7 +218,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
             <div className="min-w-0 flex-1 truncate font-medium">{viewerTitle}</div>
             <div className="flex items-center gap-2">
               <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom out" disabled={!panZoom.canZoomOut} onClick={panZoom.zoomOut}>−</button>
-              <output className="w-12 text-center text-sm" aria-label="Zoom level">{panZoom.zoomPercent}%</output>
+              <output className="w-12 text-center text-ui-lg" aria-label="Zoom level">{panZoom.zoomPercent}%</output>
               <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={!panZoom.canZoomIn} onClick={panZoom.zoomIn}>+</button>
               <button type="button" className="rounded border px-3 py-1" onClick={panZoom.fit}>Fit</button>
               <button type="button" className="rounded border p-2" aria-label="Close sequence viewer" onClick={closeViewer}><XIcon size={18} /></button>

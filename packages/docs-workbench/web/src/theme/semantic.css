@@ -414,7 +414,7 @@
   --docs-interaction-header-text-size: var(--ds-font-size-code);
   --docs-interaction-header-weight: var(--ds-font-weight-medium);
   --docs-interaction-desc-text-size: var(--ds-font-size-ui-md);
-  --docs-interaction-desc-line-height: 20px;
+  --docs-interaction-desc-line-height: var(--ds-space-5);
   --docs-interaction-column-head-text-size: var(--ds-font-size-ui-sm);
   --docs-interaction-column-head-pad-y: var(--ds-space-2);
   --docs-interaction-row-pad: 5px;
@@ -530,7 +530,7 @@
   --docs-process-outline-branch-gap: var(--ds-space-4);
   --docs-process-outline-root-gap: var(--ds-space-3);
   --docs-process-outline-arrow-gap: var(--ds-space-1);
-  --docs-process-outline-line-height: 24px;
+  --docs-process-outline-line-height: var(--ds-space-6);
   --docs-process-outline-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-weight: var(--ds-font-weight-semibold);
@@ -554,9 +554,9 @@
   --docs-process-outline-stroke: var(--ds-border-width-ring);
   /* Sequence embed (docs-workbench pages/SequenceEmbed + sequence-embed.css).
      Frame values are the literals the stylesheet used to hardcode. The
-     diagram colours are the sequence package's own defaults, handed to its
-     --seq-* vars by sequence-embed.css; the diagram is light-on-white in both
-     modes, so the dark block repeats these. Actor border tracks the line
+     diagram colours are the sequence package's light defaults as pinned light
+     tokens, handed to its --seq-* vars by sequence-embed.css; the diagram is
+     light in both modes, so the dark block repeats these. Actor border tracks the line
      colour and note fill tracks the actor fill until a theme sets them. */
   --docs-sequence-border: var(--border);
   --docs-sequence-border-width: var(--ds-border-width-hairline);
@@ -566,13 +566,13 @@
   --docs-sequence-max-height: 420px;
   --docs-sequence-expand-fg: currentColor;
   --docs-sequence-expand-text-size: var(--ds-font-size-ui-xs);
-  --docs-sequence-diagram-bg: #ffffff;
-  --docs-sequence-diagram-text: #252525;
-  --docs-sequence-line: #c77d2e;
-  --docs-sequence-actor-fill: #fff8f0;
+  --docs-sequence-diagram-bg: var(--ds-light-color-surface-page);
+  --docs-sequence-diagram-text: var(--ds-light-color-text-body);
+  --docs-sequence-line: var(--ds-light-color-orange-solid);
+  --docs-sequence-actor-fill: var(--ds-light-color-surface-panel);
   --docs-sequence-actor-border: var(--docs-sequence-line);
   --docs-sequence-note-bg: var(--docs-sequence-actor-fill);
-  --docs-sequence-fragment: #5b7fbd;
+  --docs-sequence-fragment: var(--ds-light-color-blue-solid);
   /* Canvas embed frame (docs-workbench pages/CanvasEmbed). The radius follows
      the global --radius (2px at stock). The board paints its own opaque
      background, so -bg only shows in the -padding mat (0 by default). */
@@ -1023,7 +1023,7 @@
   --docs-interaction-header-text-size: var(--ds-font-size-code);
   --docs-interaction-header-weight: var(--ds-font-weight-medium);
   --docs-interaction-desc-text-size: var(--ds-font-size-ui-md);
-  --docs-interaction-desc-line-height: 20px;
+  --docs-interaction-desc-line-height: var(--ds-space-5);
   --docs-interaction-column-head-text-size: var(--ds-font-size-ui-sm);
   --docs-interaction-column-head-pad-y: var(--ds-space-2);
   --docs-interaction-row-pad: 5px;
@@ -1119,7 +1119,7 @@
   --docs-process-outline-branch-gap: var(--ds-space-4);
   --docs-process-outline-root-gap: var(--ds-space-3);
   --docs-process-outline-arrow-gap: var(--ds-space-1);
-  --docs-process-outline-line-height: 24px;
+  --docs-process-outline-line-height: var(--ds-space-6);
   --docs-process-outline-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-weight: var(--ds-font-weight-semibold);
@@ -1151,13 +1151,13 @@
   --docs-sequence-max-height: 420px;
   --docs-sequence-expand-fg: currentColor;
   --docs-sequence-expand-text-size: var(--ds-font-size-ui-xs);
-  --docs-sequence-diagram-bg: #ffffff;
-  --docs-sequence-diagram-text: #252525;
-  --docs-sequence-line: #c77d2e;
-  --docs-sequence-actor-fill: #fff8f0;
+  --docs-sequence-diagram-bg: var(--ds-light-color-surface-page);
+  --docs-sequence-diagram-text: var(--ds-light-color-text-body);
+  --docs-sequence-line: var(--ds-light-color-orange-solid);
+  --docs-sequence-actor-fill: var(--ds-light-color-surface-panel);
   --docs-sequence-actor-border: var(--docs-sequence-line);
   --docs-sequence-note-bg: var(--docs-sequence-actor-fill);
-  --docs-sequence-fragment: #5b7fbd;
+  --docs-sequence-fragment: var(--ds-light-color-blue-solid);
   /* Canvas embed frame: same contract as the light block. */
   --docs-canvas-border: var(--border);
   --docs-canvas-border-width: var(--ds-border-width-hairline);

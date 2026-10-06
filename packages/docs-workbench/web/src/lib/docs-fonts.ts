@@ -1,11 +1,12 @@
 /// <reference types="vite/client" />
 /**
  * The faces docs surfaces paint and measure with: Inter 3.19 (prose, tables,
- * tree notes, diagrams) and IBM Plex Mono 2.5 (code), shipped by
- * @codecaine-ai/text-measure. The entry (main.tsx) imports the package's
- * fonts.css, which declares every bundled face; `loadDocsFonts()` loads them
- * and switches text measurement from the approximate table backend to the
- * browser's own canvas, so widths measured in JS match what the page paints.
+ * tree notes, diagrams) and IBM Plex Mono 2.5 (code). The entry stylesheet
+ * (index.css) imports @codecaine-ai/design-system's fonts.css, which declares
+ * every face; its woff2 files are byte-identical to @codecaine-ai/text-measure's
+ * bundled builds. `loadDocsFonts()` loads those declared faces and switches
+ * text measurement from the approximate table backend to the browser's own
+ * canvas, so widths measured in JS match what the page paints.
  * Layouts that measure text re-run when `useTextMeasureRevision()` changes.
  */
 import { useSyncExternalStore } from "react";

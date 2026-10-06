@@ -1,4 +1,5 @@
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
+import { isStyleRailColorLeaf, styleRailColorControls } from "./style-rail-color-controls";
 import {
   getStyleRailBaseline,
   hasBlockColumnSplit,
@@ -293,11 +294,19 @@ function blockLayoutPaneLeaves(paneId: StyleRailPaneId): readonly StyleRailSetti
  * Component tokens keep comparing against the registry default: those live
  * in the theme's own token files, so a value equal to the registry default
  * is genuinely nothing to persist.
+ *
+ * While the color controls are hidden (style-rail-color-controls.ts) a color
+ * leaf is never an override: it has no row and does not paint, so it must not
+ * light a dot or count on its pane.
  */
 export function isLeafOverridden(
   settings: StyleRailSettings,
   leaf: StyleRailLeafRef,
 ): boolean {
+  if (!styleRailColorControls()) {
+    if (leaf.kind === "setting" && isStyleRailColorLeaf(leaf.path)) return false;
+    if (leaf.kind === "component" && THEME_TOKEN_REGISTRY[leaf.file]?.[leaf.key]?.kind === "color") return false;
+  }
   if (leaf.kind === "setting") {
     return settingValue(settings, leaf.path)
       !== settingValue(getStyleRailBaseline(), leaf.path);

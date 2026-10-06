@@ -1,4 +1,5 @@
 import { readFileSync as readFileSyncRaw } from "node:fs";
+import { flat } from "@codecaine-ai/design-system";
 import { resolveDsVars } from "./ds-tokens";
 
 /**
@@ -7,7 +8,7 @@ import { resolveDsVars } from "./ds-tokens";
  * assertions pin the values those tokens paint.
  */
 const readFileSync = (path: string | URL, encoding: "utf8") => resolveDsVars(readFileSyncRaw(path, encoding));
-import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
 
@@ -31,7 +32,10 @@ import {
   normalizeSettings,
   resetStyleRailBaseline,
   saveStyleRailSettings,
+  SHOW_STYLE_RAIL_COLOR_CONTROLS,
+  dropStoredColorPicks,
   setStyleRailBaseline,
+  setStyleRailColorControls,
   styleRailVars,
   type StyleRailSettings,
 } from "../shell/StyleRail";
@@ -50,7 +54,17 @@ import {
 
 beforeEach(() => resetStyleRailBaseline());
 
-const STORAGE_KEY = "docs-style-rail-settings.v2";
+/*
+ * The rail ships with its color controls hidden (style-rail-color-controls.ts).
+ * The suites below keep the kept color code tested, so they run with the
+ * switch on; "style rail color controls hidden" at the end of this file checks
+ * the shipped state. Bun shares modules across test files, so the switch is
+ * put back after this file.
+ */
+beforeAll(() => setStyleRailColorControls(true));
+afterAll(() => setStyleRailColorControls(false));
+
+const STORAGE_KEY = "docs-style-rail-settings.v3";
 const LEGACY_STORAGE_KEY = "docs-style-rail-settings.v1";
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
@@ -1300,7 +1314,9 @@ describe("style rail list settings", () => {
       }),
     );
     const migrated = loadStyleRailSettings();
-    expect(migrated.accent).toBe("green");
+    // The accent family is a color pick: the v3 cache move drops it from an
+    // older blob (StyleRail.tsx dropStoredColorPicks), so it reads as stock.
+    expect(migrated.accent).toBe(DEFAULT_STYLE_RAIL_SETTINGS.accent);
     expect(migrated.typography.bodyFont).toBe("serif");
     expect(migrated.typography.fontSize).toBe(DEFAULT_STYLE_RAIL_SETTINGS.typography.fontSize);
     expect(migrated.typography.lineHeight).toBe(DEFAULT_STYLE_RAIL_SETTINGS.typography.lineHeight);
@@ -4204,16 +4220,20 @@ describe("style rail sequence tokens", () => {
 
     // Diagram colors reach the SVG through the sequence package's own
     // --seq-* vars, on both surfaces that host it; the fallbacks are the
-    // package defaults, so stock rendering is unchanged.
+    // package's light defaults as pinned light tokens (the diagram stays
+    // light in both modes), and the activation bars are pinned the same way.
+    const light = flat.light;
     expect(embedCss).toMatch(/\.docs-sequence-preview,\s*\.docs-sequence-dialog \{\s*--seq-bg:/);
     for (const mapping of [
-      "--seq-bg: var(--docs-sequence-diagram-bg, #ffffff);",
-      "--seq-text: var(--docs-sequence-diagram-text, #252525);",
-      "--seq-accent: var(--docs-sequence-line, #c77d2e);",
-      "--seq-participant-fill: var(--docs-sequence-actor-fill, #fff8f0);",
-      "--seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, #c77d2e));",
-      "--seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, #fff8f0));",
-      "--seq-fragment-accent: var(--docs-sequence-fragment, #5b7fbd);",
+      `--seq-bg: var(--docs-sequence-diagram-bg, ${light["color.surface.page"]});`,
+      `--seq-text: var(--docs-sequence-diagram-text, ${light["color.text.body"]});`,
+      `--seq-accent: var(--docs-sequence-line, ${light["color.orange.solid"]});`,
+      `--seq-participant-fill: var(--docs-sequence-actor-fill, ${light["color.surface.panel"]});`,
+      `--seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, ${light["color.orange.solid"]}));`,
+      `--seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, ${light["color.surface.panel"]}));`,
+      `--seq-fragment-accent: var(--docs-sequence-fragment, ${light["color.blue.solid"]});`,
+      `--seq-activation-fill: ${light["color.gray.solid"]};`,
+      `--seq-activation-stroke: ${light["color.border.default"]};`,
     ]) {
       expect(embedCss).toContain(mapping);
     }
@@ -4227,14 +4247,14 @@ describe("style rail sequence tokens", () => {
       "--docs-sequence-border: var(--border);",
       "--docs-sequence-bg: transparent;",
       "--docs-sequence-expand-fg: currentColor;",
-      "--docs-sequence-diagram-bg: #ffffff;",
-      "--docs-sequence-diagram-text: #252525;",
-      "--docs-sequence-line: #c77d2e;",
-      "--docs-sequence-actor-fill: #fff8f0;",
+      `--docs-sequence-diagram-bg: ${light["color.surface.page"]};`,
+      `--docs-sequence-diagram-text: ${light["color.text.body"]};`,
+      `--docs-sequence-line: ${light["color.orange.solid"]};`,
+      `--docs-sequence-actor-fill: ${light["color.surface.panel"]};`,
       // Derived defaults track their source until a theme sets them.
       "--docs-sequence-actor-border: var(--docs-sequence-line);",
       "--docs-sequence-note-bg: var(--docs-sequence-actor-fill);",
-      "--docs-sequence-fragment: #5b7fbd;",
+      `--docs-sequence-fragment: ${light["color.blue.solid"]};`,
     ]) {
       expect([declaration, semanticCss.split(declaration).length - 1]).toEqual([declaration, 2]);
     }
@@ -5366,5 +5386,193 @@ describe("style rail outline-rows, stack and code-notes tokens", () => {
     });
     expect(vars["--docs-outline-rows-pad-y"]).toBeNull();
     expect(vars["--docs-stack-radius"]).toBeNull();
+  });
+});
+
+describe("style rail color controls hidden (the shipped state)", () => {
+  // The file runs with the switch on (see the top); these cases check it off.
+  beforeEach(() => setStyleRailColorControls(false));
+  afterEach(() => setStyleRailColorControls(true));
+
+  const PREVIOUS_STORAGE_KEY = "docs-style-rail-settings.v2";
+  /** A blob with a pick in every color family and a few non-color knobs beside them. */
+  const withPicks = {
+    accent: "green",
+    colors: { background: "#112233", sidebar: "#223344", text: "#334455" },
+    typography: { fontSize: 20 },
+    layout: { radius: 6, backgroundTint: 4 },
+    sidebar: { textColor: "#445566", guideColor: "#556677", fontSize: 15 },
+    highlight: { color: "#667788", dropColor: "#778899", dropWidth: 5 },
+    dragSelect: { color: "#8899aa", opacity: 0.2 },
+    grip: { color: "#99aabb", size: 20 },
+    scrollbar: { color: "#aabbcc", opacity: 0.5 },
+    peek: { dividerColor: "#bbccdd", dividerWidth: 2 },
+    reference: { color: "#ccddee", underlineColor: "#ddeeff", iconColor: "#eeff00", iconSize: 14 },
+    annotate: { accent: "#ff0011", add: "#00ff22", del: "#0033ff", washOpacity: 0.2 },
+    components: { code: { bg: "#123456", ruleOpacity: "0.9" }, sequence: { border: "#654321", radius: "6px" } },
+  };
+
+  it("ships with the color controls off", () => {
+    expect(SHOW_STYLE_RAIL_COLOR_CONTROLS).toBe(false);
+  });
+
+  it("keeps every stored color but paints none of them; non-color knobs still paint", () => {
+    const settings = normalizeSettings(withPicks);
+    // Stored, so the switch can bring them back and theme writes keep them.
+    expect(settings.colors.background).toBe("#112233");
+    expect(settings.accent).toBe("green");
+    expect(settings.components.code!.bg).toBe("#123456");
+
+    const vars = styleRailVars(settings);
+    for (const cssVar of [
+      "--accent",
+      "--ring",
+      "--docs-viewer-link",
+      "--foreground",
+      "--sidebar-foreground",
+      "--docs-sidebar-item-fg",
+      "--docs-sidebar-guide-color",
+      "--docs-highlight-color",
+      "--docs-dropcursor-color",
+      "--docs-dragselect-color",
+      "--docs-grip-color",
+      "--docs-scrollbar-color",
+      "--docs-peek-divider-color",
+      "--docs-ref-color",
+      "--docs-ref-underline-color",
+      "--docs-ref-icon-color",
+      "--annotation-accent",
+      "--docs-annotation-add",
+      "--docs-annotation-del",
+      "--docs-code-block-bg",
+      "--docs-sequence-border",
+    ]) {
+      expect([cssVar, vars[cssVar]]).toEqual([cssVar, null]);
+    }
+    // Tint, opacity, width and size knobs are intensity and geometry: they stay.
+    expect(vars["--background"]).toBe(
+      "color-mix(in srgb, var(--color-bg-default) 96%, var(--color-bg-blue) 4%)",
+    );
+    expect(vars["--radius"]).toBe("6px");
+    expect(vars["--style-font-size"]).toBe("20px");
+    expect(vars["--docs-sidebar-font-size"]).toBe("15px");
+    expect(vars["--docs-dropcursor-width"]).toBe("5px");
+    expect(vars["--docs-dragselect-opacity"]).toBe("0.2");
+    expect(vars["--docs-scrollbar-opacity"]).toBe("0.5");
+    expect(vars["--docs-peek-divider-width"]).toBe("2px");
+    expect(vars["--docs-ref-icon-size"]).toBe("14px");
+    expect(vars["--docs-code-rule-opacity"]).toBe("0.9");
+    expect(vars["--docs-sequence-radius"]).toBe("6px");
+    // The wash keeps its opacity over the theme's own annotation accent.
+    expect(vars["--docs-annotation-wash"]).toBe("color-mix(in srgb, var(--annotation-accent) 20%, transparent)");
+
+    const css = [pageColorOverrideCss(settings), codePanelOverrideCss(settings)].join("\n");
+    for (const hex of ["#112233", "#223344", "#334455", "#123456", "#654321"]) {
+      expect(css).not.toContain(hex);
+    }
+
+    setStyleRailColorControls(true);
+    expect(styleRailVars(settings)["--docs-code-block-bg"]).toBe("#123456");
+    expect(styleRailVars(settings)["--foreground"]).toBe("#334455");
+  });
+
+  it("leaves a theme folder's color tokens out of its compiled layer, keeping its lengths", () => {
+    const theme = readThemeDefinition(
+      "classic",
+      { manifest: { name: "Classic" }, components: { surfaces: { border: "#8f8f8f" }, sequence: { border: "#654321", radius: "6px" } } },
+      "repo",
+    )!;
+    const css = compileThemeCss(theme);
+    expect(css).toContain("--docs-sequence-radius: 6px;");
+    expect(css).not.toContain("#8f8f8f");
+    expect(css).not.toContain("#654321");
+
+    setStyleRailColorControls(true);
+    expect(compileThemeCss(theme)).toContain("--border: #8f8f8f;");
+  });
+
+  it("never counts a hidden color leaf or color token as an override", () => {
+    const settings = normalizeSettings(withPicks);
+    expect(paneOverrideCount(settings, "theme.colors")).toBe(0);
+    expect(paneOverrideCount(settings, "theme.annotate")).toBe(1); // wash opacity
+    expect(isLeafOverridden(settings, settingLeaf("highlight.dropColor"))).toBe(false);
+    expect(isLeafOverridden(settings, componentLeaf("code", "bg"))).toBe(false);
+    expect(isLeafOverridden(settings, componentLeaf("code", "ruleOpacity"))).toBe(true);
+
+    setStyleRailColorControls(true);
+    expect(paneOverrideCount(settings, "theme.colors")).toBe(4);
+    expect(isLeafOverridden(settings, componentLeaf("code", "bg"))).toBe(true);
+  });
+
+  it("renders no color picker or Accent choice, and keeps Dark mode and the sliders", () => {
+    render(<RailHarness initial={normalizeSettings(withPicks)} />);
+    const rail = document.querySelector("aside")!;
+
+    openPane("Colors");
+    expect(screen.getByLabelText("Dark mode")).toBeTruthy();
+    expect(screen.queryByText("Accent")).toBeNull();
+    expect(rail.querySelectorAll('input[type="color"]')).toHaveLength(0);
+
+    openPane(/^Annotate/);
+    expect(screen.queryByRole("heading", { name: "Colors" })).toBeNull();
+    expect(screen.getAllByLabelText(/Wash opacity/).length).toBeGreaterThan(0);
+
+    openPane(/^References/);
+    expect(screen.queryByLabelText("Text color")).toBeNull();
+    expect(screen.getAllByLabelText(/Size/).length).toBeGreaterThan(0);
+
+    openPane(/^Sequence/);
+    expect(rail.querySelectorAll('input[type="color"]')).toHaveLength(0);
+    expect(screen.getAllByLabelText(/Corner radius/).length).toBeGreaterThan(0);
+
+    openPane(/^Editor/);
+    expect(rail.querySelectorAll('input[type="color"]')).toHaveLength(0);
+    expect(screen.getAllByLabelText(/Code lane/).length).toBeGreaterThan(0);
+  });
+
+  it("moves the cache to v3: carries v2's non-color settings over, drops its color picks, leaves v2 as is", () => {
+    const previous = JSON.stringify(withPicks);
+    window.localStorage.setItem(PREVIOUS_STORAGE_KEY, previous);
+
+    const loaded = loadStyleRailSettings();
+    expect(loaded.typography.fontSize).toBe(20);
+    expect(loaded.layout.radius).toBe(6);
+    expect(loaded.sidebar.fontSize).toBe(15);
+    expect(loaded.annotate.washOpacity).toBe(0.2);
+    expect(loaded.components).toEqual({ code: { ruleOpacity: "0.9" }, sequence: { radius: "6px" } });
+    expect(loaded.accent).toBe(DEFAULT_STYLE_RAIL_SETTINGS.accent);
+    expect(loaded.colors).toEqual(DEFAULT_STYLE_RAIL_SETTINGS.colors);
+    expect(loaded.sidebar.textColor).toBeNull();
+    expect(loaded.highlight.dropColor).toBeNull();
+    expect(loaded.annotate.accent).toBeNull();
+    // Read-only: nothing is written or deleted until a save.
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBeNull();
+    expect(window.localStorage.getItem(PREVIOUS_STORAGE_KEY)).toBe(previous);
+
+    saveStyleRailSettings(loaded);
+    expect(JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? "null").typography.fontSize).toBe(20);
+    expect(window.localStorage.getItem(PREVIOUS_STORAGE_KEY)).toBe(previous);
+  });
+
+  it("drops color picks from a v1 cache too, and prefers v3 over v2", () => {
+    window.localStorage.setItem(
+      LEGACY_STORAGE_KEY,
+      JSON.stringify({ colors: { text: "#334455" }, typography: { fontSize: 21 } }),
+    );
+    expect(loadStyleRailSettings().colors.text).toBeNull();
+    expect(loadStyleRailSettings().typography.fontSize).toBe(21);
+
+    window.localStorage.setItem(PREVIOUS_STORAGE_KEY, JSON.stringify({ typography: { fontSize: 22 } }));
+    expect(loadStyleRailSettings().typography.fontSize).toBe(22);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ typography: { fontSize: 23 } }));
+    expect(loadStyleRailSettings().typography.fontSize).toBe(23);
+  });
+
+  it("dropStoredColorPicks keeps a blob's shape for everything but the picks", () => {
+    expect(dropStoredColorPicks({ typography: { fontSize: 20 }, accent: "red" })).toEqual({
+      typography: { fontSize: 20 },
+    });
+    expect(dropStoredColorPicks(null)).toBeNull();
+    expect(dropStoredColorPicks([1])).toEqual([1]);
   });
 });

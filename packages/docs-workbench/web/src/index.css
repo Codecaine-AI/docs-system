@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
-/* Docs-system theme: Notion palette + semantic tokens (light/dark). */
+/* @codecaine-ai/design-system in its load order (guide/consume.md): fonts (the
+   text-measure faces, so docs-fonts.ts measures what paints), the tokens
+   (first in theme/index.css, before the Notion palette and semantic tokens),
+   the strict reset, the Tailwind theme and the shell layout. The app's own
+   @theme (theme/read-surface.css) comes later, so the docs knobs still win. */
+@import "@codecaine-ai/design-system/fonts.css";
 @import "./theme/index.css";
+@import "@codecaine-ai/design-system/tailwind-strict.css";
+@import "@codecaine-ai/design-system/tailwind.css";
+@import "@codecaine-ai/design-system/layout.css";
 
 /* Style rail (right-docked live theme-tuning panel) styling. */
 @import "./theme/style-rail.css";

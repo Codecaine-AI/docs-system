@@ -27,7 +27,8 @@ type FakeHost = {
 };
 
 const PROJECT_PREFIX = "docs-project:p1:";
-const SHARED_SETTINGS_KEY = "docs-global:docs-style-rail-settings.v2";
+// v3: the cache key since the rail's color controls were hidden (StyleRail.tsx).
+const SHARED_SETTINGS_KEY = "docs-global:docs-style-rail-settings.v3";
 
 let calls: Call[] = [];
 let realFetch: typeof fetch;
@@ -331,7 +332,7 @@ describe("shared global theme", () => {
     );
     expect(themeWrites()[0]!.body!.id).toBe("product-theme");
     expect(
-      JSON.parse(localStorage.getItem(`${PROJECT_PREFIX}docs-style-rail-settings.v2`) ?? "{}")
+      JSON.parse(localStorage.getItem(`${PROJECT_PREFIX}docs-style-rail-settings.v3`) ?? "{}")
         .annotate.actionPaneWidth,
     ).toBe(644);
     expect(localStorage.getItem(SHARED_SETTINGS_KEY)).toBeNull();

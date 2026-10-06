@@ -5,20 +5,27 @@
  *
  * The diagram colours are handed to the sequence package's own --seq-* vars
  * here, on the two surfaces that host the SVG (inline preview, full-screen
- * dialog). The fallbacks are the package's built-in defaults, and a colour set
- * in a diagram's own style section is written on the <svg> itself, so it still
- * wins. Actor border follows the line colour and note fill follows the actor
- * fill, mirroring the package's fallback chain.
+ * dialog). The diagram stays light in both page modes, so every colour is the
+ * package's light default as a pinned light token (sequence theme.ts
+ * SEQUENCE_THEME_TOKENS: page, body text, orange and blue solids, panel, gray
+ * solid and the default border); the PDF export, which renders the package's
+ * own defaults, paints the same colours. A colour set in a diagram's own style
+ * section is written on the <svg> itself, so it still wins. Actor border
+ * follows the line colour and note fill follows the actor fill, mirroring the
+ * package's fallback chain. The activation bars are pinned too: unset, the
+ * package would follow the page theme (dark bars on the light diagram).
  */
 .docs-sequence-preview,
 .docs-sequence-dialog {
-  --seq-bg: var(--docs-sequence-diagram-bg, #ffffff);
-  --seq-text: var(--docs-sequence-diagram-text, #252525);
-  --seq-accent: var(--docs-sequence-line, #c77d2e);
-  --seq-participant-fill: var(--docs-sequence-actor-fill, #fff8f0);
-  --seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, #c77d2e));
-  --seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, #fff8f0));
-  --seq-fragment-accent: var(--docs-sequence-fragment, #5b7fbd);
+  --seq-bg: var(--docs-sequence-diagram-bg, var(--ds-light-color-surface-page));
+  --seq-text: var(--docs-sequence-diagram-text, var(--ds-light-color-text-body));
+  --seq-accent: var(--docs-sequence-line, var(--ds-light-color-orange-solid));
+  --seq-participant-fill: var(--docs-sequence-actor-fill, var(--ds-light-color-surface-panel));
+  --seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, var(--ds-light-color-orange-solid)));
+  --seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, var(--ds-light-color-surface-panel)));
+  --seq-fragment-accent: var(--docs-sequence-fragment, var(--ds-light-color-blue-solid));
+  --seq-activation-fill: var(--ds-light-color-gray-solid);
+  --seq-activation-stroke: var(--ds-light-color-border-default);
 }
 
 .docs-sequence-preview {
@@ -94,7 +101,7 @@
 
 .docs-sequence-viewport:focus-visible {
   outline: var(--ds-border-width-focus) solid var(--ring);
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--ds-border-width-focus));
 }
 
 /* Sized to the diagram's natural px by the component; scale comes from the transform. */

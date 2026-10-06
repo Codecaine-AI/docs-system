@@ -135,7 +135,7 @@
   --palette-rule: var(--ds-light-color-border-default);
   --palette-rule-soft: var(--ds-light-color-border-subtle);
   --palette-chip: var(--ds-light-color-fill-chip);
-  --palette-nav: #ebeced;
+  --palette-nav: var(--ds-light-color-fill-active);
   --palette-link: var(--ds-light-color-link);
   --palette-accent: var(--ds-light-color-accent);
   --palette-glyph: var(--ds-light-color-text-on-solid);
@@ -170,7 +170,7 @@
   --palette-rule: var(--ds-dark-color-border-default);
   --palette-rule-soft: var(--ds-dark-color-border-subtle);
   --palette-chip: var(--ds-dark-color-fill-chip);
-  --palette-nav: #212830;
+  --palette-nav: var(--ds-dark-color-fill-active);
   --palette-link: var(--ds-dark-color-link);
   --palette-accent: var(--ds-dark-color-accent);
   --palette-glyph: var(--ds-dark-color-text-on-solid);
@@ -213,7 +213,9 @@
   --palette-page: var(--docs-code-block-bg);
   --palette-panel: var(--docs-code-block-bg);
   /* Hairlines are measured from the panel itself, so they read on any code
-     theme's background (Primer's rules vanish on Dark+ #1e1e1e). */
-  --palette-rule: color-mix(in srgb, var(--docs-code-block-bg) 74%, #ffffff);
-  --palette-rule-soft: color-mix(in srgb, var(--docs-code-block-bg) 86%, #ffffff);
+     theme's background (Primer's rules vanish on Dark+ #1e1e1e): the panel
+     mixed toward the dark ink, the way the design system derives its fills
+     (fill.hover, surface.sunken: ink over the panel). */
+  --palette-rule: color-mix(in srgb, var(--docs-code-block-bg) 74%, var(--ds-dark-color-text-ink));
+  --palette-rule-soft: color-mix(in srgb, var(--docs-code-block-bg) 86%, var(--ds-dark-color-text-ink));
 }

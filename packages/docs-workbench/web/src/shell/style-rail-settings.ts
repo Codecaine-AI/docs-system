@@ -1,6 +1,9 @@
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import { dsNumber } from "../theme/design-tokens";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
+import { STYLE_RAIL_COLOR_LEAVES, styleRailColorControls } from "./style-rail-color-controls";
+
+export * from "./style-rail-color-controls";
 
 /**
  * Style rail settings, pure half: the settings shape, stock defaults, the
@@ -328,9 +331,10 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     // rail every block hangs off — generous by default rather than the tight
     // gutter a centered column wanted.
     contentMargin: 88,
-    topPadding: 24,
+    // space.6: "page top and bottom padding".
+    topPadding: dsNumber("space.6", "px"),
     titlePadding: dsNumber("space.5", "px"),
-    bottomPadding: 24,
+    bottomPadding: dsNumber("space.6", "px"),
     radius: dsNumber("radius.base", "px"),
     borderStrength: 1,
     backgroundTint: 0,
@@ -373,9 +377,15 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     circleSize: dsNumber("space.1-5", "px"),
     circleThickness: dsNumber("border.width.ring", "px"),
     squareSize: 5,
-    indent: 24,
+    indent: dsNumber("space.6", "px"),
   },
-  grip: { gap: 12, offsetY: 6, size: 18, color: null, fadeMs: dsNumber("motion.duration.fast", "ms") },
+  grip: {
+    gap: dsNumber("space.3", "px"),
+    offsetY: dsNumber("space.1-5", "px"),
+    size: 18,
+    color: null,
+    fadeMs: dsNumber("motion.duration.fast", "ms"),
+  },
   scrollbar: { width: 10, color: null, opacity: 1, padding: dsNumber("space.0", "px") },
   transition: { type: "fade", fadeOutMs: 80, fadeInMs: 120 },
   peek: {
@@ -861,6 +871,45 @@ export function normalizeSettings(
 }
 
 /**
+ * The settings as they paint while the color controls are hidden
+ * (style-rail-color-controls.ts): every color leaf back at stock and only the
+ * non-color component tokens kept. Everything else is untouched. The stored
+ * settings are not changed; this copy only feeds the CSS translation.
+ */
+export function withoutStoredColors(settings: StyleRailSettings): StyleRailSettings {
+  const d = DEFAULT_STYLE_RAIL_SETTINGS;
+  const painted: StyleRailSettings = {
+    ...settings,
+    colors: { ...d.colors },
+    sidebar: { ...settings.sidebar },
+    highlight: { ...settings.highlight },
+    dragSelect: { ...settings.dragSelect },
+    grip: { ...settings.grip },
+    scrollbar: { ...settings.scrollbar },
+    peek: { ...settings.peek },
+    reference: { ...settings.reference },
+    annotate: { ...settings.annotate },
+  };
+  for (const path of STYLE_RAIL_COLOR_LEAVES) {
+    const [group, key] = path.split(".") as [keyof StyleRailSettings, string | undefined];
+    if (key === undefined) {
+      (painted as Record<string, unknown>)[group] = d[group];
+    } else {
+      (painted[group] as Record<string, unknown>)[key] = (d[group] as Record<string, unknown>)[key];
+    }
+  }
+  const components: StyleRailSettings["components"] = {};
+  for (const [file, tokens] of Object.entries(settings.components)) {
+    const kept = Object.fromEntries(
+      Object.entries(tokens).filter(([key]) => THEME_TOKEN_REGISTRY[file]?.[key]?.kind !== "color"),
+    );
+    if (Object.keys(kept).length > 0) components[file] = kept;
+  }
+  painted.components = components;
+  return painted;
+}
+
+/**
  * Settings → CSS custom properties. `null` = at STOCK, remove the override.
  * Color values stay var()/color-mix expressions over the palette vars so
  * they re-resolve when the light/dark class flips on <html>.
@@ -871,9 +920,15 @@ export function normalizeSettings(
  * repo baseline that differs from stock must therefore still EMIT, and
  * that emission is precisely how the repo's tuning reaches a --theme-locked
  * serve, a static export, or a browser with no localStorage of its own.
+ *
+ * While the color controls are hidden, every color leaf and color component
+ * token translates as stock (withoutStoredColors): the design-system tokens
+ * answer, whatever color the cache or a theme file stores.
  */
-export function styleRailVars(settings: StyleRailSettings): Record<string, string | null> {
+export function styleRailVars(stored: StyleRailSettings): Record<string, string | null> {
   const d = DEFAULT_STYLE_RAIL_SETTINGS;
+  // Hidden color controls: stored colors do not paint (style-rail-color-controls.ts).
+  const settings = styleRailColorControls() ? stored : withoutStoredColors(stored);
   const { accent, colors, typography, layout, sidebar: sidebarSettings, grain, highlight, dragSelect, list, grip, scrollbar, peek, reference, annotate, components } = settings;
   const { softening } = grain;
 

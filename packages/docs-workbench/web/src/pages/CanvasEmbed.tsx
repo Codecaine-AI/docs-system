@@ -144,7 +144,7 @@ export function StandaloneCanvasEmbed({
   if (canvasId && canvasId !== "synthetic" && !src) {
     return (
       <section
-        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm"
+        className="not-prose my-4 rounded border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-ui-lg"
         data-docs-block-type="canvas"
         data-source-id={id}
         data-canvas-id={canvasId}
@@ -159,7 +159,7 @@ export function StandaloneCanvasEmbed({
             href={studioUrl.toString()}
             target="_blank"
             rel="noreferrer"
-            className="mt-3 inline-flex h-8 items-center gap-2 rounded-md border px-2.5 text-sm font-medium text-foreground hover:bg-muted"
+            className="mt-3 inline-flex h-8 items-center gap-2 rounded border px-2.5 text-ui-lg font-medium text-foreground hover:bg-muted"
           >
             <ExternalLinkIcon className="h-4 w-4" />
             Open Canvas Studio
@@ -172,7 +172,7 @@ export function StandaloneCanvasEmbed({
   if (error) {
     return (
       <section
-        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm"
+        className="not-prose my-4 rounded border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-ui-lg"
         data-docs-block-type="canvas"
         data-source-id={id}
       >
@@ -192,7 +192,7 @@ export function StandaloneCanvasEmbed({
         : "Canvas block is missing a src or canvasId.";
     return (
       <section
-        className="not-prose my-4 rounded-md border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-sm text-muted-foreground"
+        className="not-prose my-4 rounded border border-[color:var(--docs-canvas-border,var(--border))] bg-background p-4 text-ui-lg text-muted-foreground"
         data-docs-block-type="canvas"
         data-source-id={id}
       >
@@ -241,10 +241,10 @@ export function StandaloneCanvasEmbed({
           >
             <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background px-4">
               <div className="min-w-0">
-                <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="text-ui-2xs font-medium uppercase tracking-micro text-muted-foreground">
                   Canvas viewer
                 </div>
-                <div className="truncate text-sm font-medium">{viewerTitle}</div>
+                <div className="truncate text-ui-lg font-medium">{viewerTitle}</div>
               </div>
               <div className="flex items-center gap-2">
                 {showEditAction ? (
@@ -254,7 +254,7 @@ export function StandaloneCanvasEmbed({
                     rel="noreferrer"
                     aria-label="Edit in Canvas"
                     title="Edit in Canvas (opens in a new window)"
-                    className="inline-flex h-9 items-center gap-2 rounded-md border px-3 text-sm font-medium text-foreground hover:bg-muted"
+                    className="inline-flex h-9 items-center gap-2 rounded border px-3 text-ui-lg font-medium text-foreground hover:bg-muted"
                   >
                     <PencilIcon className="h-4 w-4" />
                     Edit in Canvas
@@ -265,7 +265,7 @@ export function StandaloneCanvasEmbed({
                   aria-label="Close canvas viewer"
                   title="Close"
                   onClick={closeViewer}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md border text-foreground hover:bg-muted"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded border text-foreground hover:bg-muted"
                 >
                   <XIcon className="h-4 w-4" />
                 </button>
@@ -307,11 +307,11 @@ export function StandaloneCanvasEmbed({
               aria-label={`Open ${viewerTitle} in full-screen viewer`}
               title="Open full-screen viewer"
               onClick={event => openViewer(event.currentTarget)}
-              className="absolute inset-0 z-10 cursor-zoom-in rounded-[var(--docs-canvas-radius,var(--radius,2px))] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="absolute inset-0 z-10 cursor-zoom-in rounded-[var(--docs-canvas-radius,var(--radius,2px))] outline-none focus-visible:ring-[length:var(--ds-border-width-focus)] focus-visible:ring-ring focus-visible:ring-offset-[length:var(--ds-focus-ring-offset)]"
             />
           </>
         )}
-        <div className="absolute right-2 top-6 z-20 flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+        <div className="absolute right-2 top-6 z-raised flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           {showEditAction ? (
             <a
               href={studioEditUrl.toString()}
@@ -319,7 +319,7 @@ export function StandaloneCanvasEmbed({
               rel="noreferrer"
               aria-label="Edit in Canvas"
               title="Edit in Canvas (opens in a new window)"
-              className="inline-flex h-8 items-center gap-2 rounded-md border bg-background/90 px-2.5 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:bg-muted"
+              className="inline-flex h-8 items-center gap-2 rounded border bg-background/90 px-2.5 text-ui-lg font-medium text-foreground backdrop-blur-glass hover:bg-muted"
             >
               <PencilIcon className="h-4 w-4" />
               Edit in Canvas
@@ -330,7 +330,7 @@ export function StandaloneCanvasEmbed({
             aria-label="Open canvas viewer"
             title="Open full-screen viewer"
             onClick={event => openViewer(event.currentTarget)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md border bg-background/90 text-foreground shadow-sm backdrop-blur hover:bg-muted"
+            className="inline-flex h-8 w-8 items-center justify-center rounded border bg-background/90 text-foreground backdrop-blur-glass hover:bg-muted"
           >
             <Maximize2Icon className="h-4 w-4" />
           </button>

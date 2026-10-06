@@ -659,7 +659,7 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
       <div className="docs-style-shell flex h-screen w-full overflow-hidden bg-background text-foreground">
         <aside className="flex w-72 shrink-0 flex-col border-r bg-sidebar">
           <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b px-3">
-            <div className="truncate font-display text-sm font-medium uppercase tracking-wider">
+            <div className="truncate font-display text-ui-lg font-medium uppercase tracking-micro">
               {siteConfig.title ? (
                 <span data-docs-site-title="">{siteConfig.title}</span>
               ) : centralProjectId() ? (
@@ -675,21 +675,21 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
                 rel="noopener noreferrer"
                 data-docs-repo-link=""
                 title={`Source repository: ${siteConfig.repoUrl}`}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded border px-2 py-1 text-xs hover:bg-muted"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded border px-2 py-1 text-ui-xs hover:bg-muted"
               >
                 <GitBranchIcon className="h-3.5 w-3.5" aria-hidden="true" />
                 {repoLinkLabel(siteConfig.repoUrl)}
               </a>
             )}
-            {!isStatic && <button type="button" className="rounded border px-2 py-1 text-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
+            {!isStatic && <button type="button" className="rounded border px-2 py-1 text-ui-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
           </div>
           <div className="min-h-0 flex-1">
             {treeError ? (
-              <div className="p-3 text-sm text-destructive">{treeError}</div>
+              <div className="p-3 text-ui-lg text-destructive">{treeError}</div>
             ) : tree ? (
               <Sidebar tree={tree} selectedPath={path} />
             ) : (
-              <div className="p-3 text-sm text-muted-foreground">Loading tree...</div>
+              <div className="p-3 text-ui-lg text-muted-foreground">Loading tree...</div>
             )}
           </div>
         </aside>
@@ -709,7 +709,7 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
               }}
             />
           ) : (
-            <div className="flex h-full items-center justify-center p-8 text-sm text-muted-foreground">
+            <div className="flex h-full items-center justify-center p-8 text-ui-lg text-muted-foreground">
               Select a doc from the tree
             </div>
           )}

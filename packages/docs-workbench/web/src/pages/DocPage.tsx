@@ -1100,14 +1100,14 @@ export function DocPage({
         {lab.requestErrors[proposal.alias] ? (
           <p
             data-docs-staged-error={proposal.alias}
-            className="text-xs text-destructive"
+            className="text-ui-xs text-destructive"
           >
             {lab.requestErrors[proposal.alias]}
           </p>
         ) : null}
         <div
           data-docs-staged-before={proposal.alias}
-          className="rounded-sm border-l-2 px-3 py-1"
+          className="rounded border-l-2 px-3 py-1"
           style={{
             color: "var(--docs-annotation-del)",
             background: "var(--docs-annotation-del-bg)",
@@ -1118,7 +1118,7 @@ export function DocPage({
         </div>
         <div
           data-docs-staged-after={proposal.alias}
-          className="rounded-sm border-l-2 px-3 py-1"
+          className="rounded border-l-2 px-3 py-1"
           style={{
             color: "var(--docs-annotation-add)",
             background: "var(--docs-annotation-add-bg)",
@@ -1233,11 +1233,11 @@ export function DocPage({
 
   const renderPage = () => {
   if (isLoading) {
-    return <div className="p-8 text-sm text-muted-foreground">Loading {path}...</div>;
+    return <div className="p-8 text-ui-lg text-muted-foreground">Loading {path}...</div>;
   }
   if (error) {
     return (
-      <div className="p-8 text-sm">
+      <div className="p-8 text-ui-lg">
         <div className="font-medium text-destructive">Failed to load doc bundle</div>
         <div className="mt-1 text-muted-foreground">
           {path}: {error}
@@ -1250,14 +1250,14 @@ export function DocPage({
   return (
     <div className="flex h-full min-h-0 flex-col" data-docs-mode={mode}>
       <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3">
-        <div className="min-w-0 truncate font-mono text-xs text-[color:var(--docs-navigation-fg,var(--foreground))]" title={path}>
+        <div className="min-w-0 truncate font-mono text-ui-xs text-[color:var(--docs-navigation-fg,var(--foreground))]" title={path}>
           docs/{path}
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {!isStatic && mode === "edit" && (
             <span
               data-docs-save-state={saveState}
-              className="text-xs text-muted-foreground"
+              className="text-ui-xs text-muted-foreground"
               aria-live="polite"
             >
               {saveState === "saving"
@@ -1268,7 +1268,7 @@ export function DocPage({
             </span>
           )}
           {undoNotice && (
-            <span data-docs-undo-notice="" className="text-xs text-muted-foreground">
+            <span data-docs-undo-notice="" className="text-ui-xs text-muted-foreground">
               {undoNotice}
             </span>
           )}
@@ -1278,7 +1278,7 @@ export function DocPage({
               data-docs-undo=""
               disabled={isUndoing}
               onClick={() => void handleUndo()}
-              className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center gap-1 rounded border px-2 py-1 text-ui-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Undo2Icon className="h-3 w-3" />
               {isUndoing ? "Undoing..." : "Undo last save"}
@@ -1294,7 +1294,7 @@ export function DocPage({
               aria-pressed={labPanelVisible}
               disabled={sidePeekOpen}
               onClick={() => handleModeChange(labPanelHidden ? "annotate" : "edit")}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground aria-pressed:bg-muted aria-pressed:text-[color:var(--annotation-accent,#8b5cf6)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-40"
+              className="inline-flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground aria-pressed:bg-muted aria-pressed:text-[color:var(--annotation-accent,#8b5cf6)] focus-visible:outline focus-visible:outline-[length:var(--ds-border-width-focus)] focus-visible:outline-offset-focus disabled:opacity-40"
             >
               <Sparkles className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -1339,7 +1339,7 @@ export function DocPage({
                   ? {
                       paddingRight: `calc(var(--style-content-margin, 88px) + ${labPanelWidth + 36}px)`,
                       transition:
-                        "padding-right 260ms cubic-bezier(0.32, 0.72, 0, 1)",
+                        "padding-right var(--ds-motion-duration-slow) var(--ds-motion-easing-emphasized)",
                     }
                   : undefined
               }
@@ -1441,7 +1441,7 @@ export function DocPage({
                 {lab.staleProposals.length > 0 && (
                   <div
                     data-docs-stale-proposals=""
-                    className="mb-3 space-y-1 rounded-md border p-2"
+                    className="mb-3 space-y-1 rounded border p-2"
                   >
                     {lab.staleProposals.map((proposal) => {
                       const alias =
@@ -1454,14 +1454,14 @@ export function DocPage({
                         <div
                           key={proposal.id}
                           data-docs-stale-proposal={alias}
-                          className="flex items-center gap-2 text-xs"
+                          className="flex items-center gap-2 text-ui-xs"
                         >
                           <AliasChip alias={alias} />
                           <span className="min-w-0 flex-1 truncate">
                             {proposal.summary}
                           </span>
                           <span
-                            className="rounded border px-1 py-0.5 text-[10px]"
+                            className="rounded border px-1 py-0.5 text-micro"
                             style={{
                               color: "var(--docs-annotation-del)",
                               background: "var(--docs-annotation-del-bg)",
@@ -1491,7 +1491,7 @@ export function DocPage({
 
             {(isStatic || mode === "edit") && backlinks.length > 0 && (
               <footer className="mt-10 border-t pt-4">
-                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="text-ui-xs font-medium uppercase tracking-micro text-muted-foreground">
                   Referenced by
                 </div>
                 <ul className="mt-2 space-y-1">
@@ -1505,7 +1505,7 @@ export function DocPage({
                       <li key={sourcePath}>
                         <a
                           href={`#/${owningBundle}`}
-                          className="font-mono text-xs text-primary underline underline-offset-2"
+                          className="font-mono text-ui-xs text-primary underline underline-offset-2"
                         >
                           {sourcePath}
                         </a>

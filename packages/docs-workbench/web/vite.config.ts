@@ -7,18 +7,22 @@ import tailwindcss from "@tailwindcss/vite";
 
 const here = dirname(fileURLToPath(import.meta.url));
 /**
- * The bundled Inter / IBM Plex Mono woff2 files (@codecaine-ai/text-measure,
- * imported by main.tsx) live in the canvas checkout, outside this workspace,
- * so the dev server must be allowed to serve them.
+ * text-measure's own woff2 files (@codecaine-ai/text-measure) live in the canvas
+ * checkout, outside this workspace. The page declares the faces through
+ * @codecaine-ai/design-system's fonts.css (index.css); text-measure falls back
+ * to loading its own copies only when a declared face fails, so the dev server
+ * still allows them.
  */
 const textMeasureFonts = resolve(
   dirname(createRequire(import.meta.url).resolve("@codecaine-ai/text-measure/fonts.css")),
   "fonts",
 );
 /**
- * @codecaine-ai/design-system (the --ds-* tokens: theme/index.css imports its
- * tokens.css, and the style rail reads token values in JS) also lives outside
- * this workspace, beside it at /Users/Ford/workspace/design-system.
+ * @codecaine-ai/design-system (index.css imports its fonts.css, tokens.css,
+ * Tailwind theme and layout.css; the style rail reads token values in JS) also
+ * lives outside this workspace, beside it at /Users/Ford/workspace/design-system.
+ * fonts.css names its woff2 files inside the package, so the dev server must be
+ * allowed to serve the package folder (guide/consume.md, Vite server.fs.allow).
  */
 const designSystem = dirname(
   createRequire(import.meta.url).resolve("@codecaine-ai/design-system/package.json"),

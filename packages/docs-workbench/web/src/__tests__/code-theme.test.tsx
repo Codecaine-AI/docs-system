@@ -8,7 +8,13 @@ import {
   type CodeTheme,
 } from "@codecaine-ai/docs-model/code-theme";
 
-import { DEFAULT_STYLE_RAIL_SETTINGS, StyleRail, resetStyleRailBaseline, type StyleRailSettings } from "../shell/StyleRail";
+import {
+  DEFAULT_STYLE_RAIL_SETTINGS,
+  StyleRail,
+  resetStyleRailBaseline,
+  setStyleRailColorControls,
+  type StyleRailSettings,
+} from "../shell/StyleRail";
 import {
   CODE_THEME_STYLE_ELEMENT_ID,
   applyCodeThemeStyle,
@@ -57,12 +63,17 @@ describe("code theme style", () => {
     expect(darkPage).toContain("--docs-code-block-bg: var(--palette-inset);");
     expect(darkPage).toContain("--docs-code-block-border: var(--palette-rule);");
     expect(darkPage).not.toContain("--syntax-");
-    // An explicit rail code background still wins on the dark page.
-    const railBg = codeThemeStyleCss(
-      CURSOR_THEME,
-      withPanels("dark", { components: { code: { bg: "#123456" } } }),
-    );
-    expect(railBg).not.toContain("--docs-code-block-bg:");
+    // An explicit rail code background still wins on the dark page while the
+    // rail's color controls are on; hidden (the shipped state), the pick does
+    // not paint, so the dark-page surface stays.
+    const withRailBg = withPanels("dark", { components: { code: { bg: "#123456" } } });
+    setStyleRailColorControls(true);
+    try {
+      expect(codeThemeStyleCss(CURSOR_THEME, withRailBg)).not.toContain("--docs-code-block-bg:");
+    } finally {
+      setStyleRailColorControls(false);
+    }
+    expect(codeThemeStyleCss(CURSOR_THEME, withRailBg)).toContain("--docs-code-block-bg: var(--palette-inset);");
     // Panels that follow the page keep the theme's own surface.
     expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).not.toContain("--palette-inset");
   });
@@ -78,9 +89,17 @@ describe("code theme style", () => {
 
   it("leaves out every var an explicit rail override sets, so the rail keeps winning", () => {
     const settings = withPanels("dark", { components: { code: { keyword: "#ABCDEF" } } });
-    const css = codeThemeStyleCss(CURSOR_THEME, settings);
-    expect(css).not.toContain("--syntax-keyword:");
-    expect(css).toContain("--syntax-string: #CE9178;");
+    setStyleRailColorControls(true);
+    try {
+      const css = codeThemeStyleCss(CURSOR_THEME, settings);
+      expect(css).not.toContain("--syntax-keyword:");
+      expect(css).toContain("--syntax-string: #CE9178;");
+    } finally {
+      setStyleRailColorControls(false);
+    }
+    // Hidden color controls (the shipped state): a stored color pick does not
+    // paint, so the code theme keeps its own keyword color.
+    expect(codeThemeStyleCss(CURSOR_THEME, settings)).toContain("--syntax-keyword: #111111;");
   });
 
   it("emits font-style vars only for styled roles", () => {

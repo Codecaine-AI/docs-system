@@ -25,7 +25,7 @@ import DocBlockRenderer, {
   DOC_SURFACE_TYPOGRAPHY_CLASSES,
 } from "@codecaine-ai/docs-viewer/doc-block-renderer";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
-import "@codecaine-ai/text-measure/fonts.css";
+// index.css loads @codecaine-ai/design-system/fonts.css ahead of the tokens.
 import "../index.css";
 
 const DOCS = import.meta.glob<DocDocument>("../../../../../docs/**/doc.json", {
@@ -48,11 +48,22 @@ function Shell() {
     return `${location.pathname}?${q}`;
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", font: "13px system-ui", background: "#111" }}>
-      <div style={{ padding: "6px 12px", color: "#ccc" }}>
-        <b style={{ color: "#fff" }}>{type}</b> · {docPath}
+    // The harness's own bar stays dark whatever the frames show: pinned dark
+    // tokens (page behind the frames and the hairline gap, body and ink text).
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        fontFamily: "var(--ds-font-family-sans)",
+        fontSize: "var(--ds-font-size-ui-sm)",
+        background: "var(--ds-dark-color-surface-page)",
+      }}
+    >
+      <div style={{ padding: "var(--ds-space-1-5) var(--ds-space-3)", color: "var(--ds-dark-color-text-body)" }}>
+        <b style={{ color: "var(--ds-dark-color-text-ink)" }}>{type}</b> · {docPath}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, flex: 1 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--ds-border-width-hairline)", flex: 1 }}>
         <iframe title="light" src={frame("light")} style={{ border: 0, width: "100%", height: "100%" }} />
         <iframe title="dark" src={frame("dark")} style={{ border: 0, width: "100%", height: "100%" }} />
       </div>
@@ -85,13 +96,13 @@ async function frame(t: string) {
     ? () => fetch(`/@fs${srcPath}`).then((response) => response.json() as Promise<DocDocument>)
     : DOCS[`../../../../../docs/${docPath}/doc.json`];
   if (!load) {
-    root.render(<pre style={{ padding: 24 }}>No doc.json at docs/{docPath}</pre>);
+    root.render(<pre style={{ padding: "var(--ds-space-6)" }}>No doc.json at docs/{docPath}</pre>);
     return;
   }
   const doc = await load();
   root.render(
     <StrictMode>
-      <main style={{ padding: "24px 32px", maxWidth: frameMax }} className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
+      <main style={{ padding: "var(--ds-space-6) var(--ds-space-8)", maxWidth: frameMax }} className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>
         <DocBlockRenderer document={onlyType(doc)} documentPath={docPath} bundlePath={docPath} />
       </main>
     </StrictMode>,

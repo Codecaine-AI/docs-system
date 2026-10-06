@@ -76,7 +76,7 @@ export function DocLab({
 
 	return (
 		<GlassPanel hidden={hidden} tab="ai" onTabSelect={() => {}} onWidthChange={onPanelWidthChange}
-			header={<div className="flex items-center gap-2 px-3 py-2 text-xs font-medium"><Sparkles size={14} aria-hidden />AI</div>}
+			header={<div className="flex items-center gap-2 px-3 py-2 text-ui-xs font-medium"><Sparkles size={14} aria-hidden />AI</div>}
 		>
 			<div className="flex h-full min-h-0 flex-col">
 				{/* Chat shape (mirrors prompt-kit's AI tab): PanelQueue owns the
@@ -111,7 +111,7 @@ export function DocLab({
 					{lab.proposalsError ? (
 						<p
 							data-docs-lab-proposals-error=""
-							className="px-1.5 py-1 text-xs text-destructive"
+							className="px-1.5 py-1 text-ui-xs text-destructive"
 						>
 							{lab.proposalsError}
 						</p>
@@ -119,7 +119,7 @@ export function DocLab({
 					{annotationsError ? (
 						<p
 							data-docs-lab-annotations-error=""
-							className="px-1.5 py-1 text-xs text-destructive"
+							className="px-1.5 py-1 text-ui-xs text-destructive"
 						>
 							{annotationsError}
 						</p>
@@ -128,7 +128,7 @@ export function DocLab({
 						<p
 							key={alias}
 							data-docs-lab-request-error={alias}
-							className="px-1.5 py-1 text-xs text-destructive"
+							className="px-1.5 py-1 text-ui-xs text-destructive"
 						>
 							{alias}: {message}
 						</p>

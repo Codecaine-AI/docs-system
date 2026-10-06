@@ -1,4 +1,5 @@
 import type { StyleRailSettings } from "../shell/style-rail-settings";
+import { styleRailColorControls } from "../shell/style-rail-color-controls";
 import { dsNumber } from "./design-tokens";
 
 /**
@@ -204,7 +205,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       min: 300,
       max: 800,
       step: 100,
-      defaultValue: 400,
+      defaultValue: dsNumber("font.weight.regular", ""),
     },
   },
   "editor-controls": {
@@ -1281,7 +1282,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: 20,
+      defaultValue: dsNumber("space.5", "px"),
     },
     // The "Parameters" / "Returns" section labels.
     columnHeadTextSize: {
@@ -1672,7 +1673,7 @@ export const THEME_TOKEN_REGISTRY: Record<string, Record<string, ThemeTokenDefin
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: 24,
+      defaultValue: dsNumber("space.6", "px"),
     },
     textSize: {
       vars: ["--docs-process-outline-text-size"],
@@ -2230,14 +2231,21 @@ export function resolveThemeChain(
 /** Selector for a compiled theme's dark values: the dark page plus dark code panels. */
 const THEME_DARK_SELECTOR = '[data-theme="dark"], [data-code-panels="dark"] [data-code-surface]';
 
-/** Compiles a RESOLVED theme into the CSS injected as the theme layer. */
+/**
+ * Compiles a RESOLVED theme into the CSS injected as the theme layer. While
+ * the rail's color controls are hidden (shell/style-rail-color-controls.ts) a
+ * theme's color tokens are left out, so the design-system tokens answer; its
+ * lengths, numbers and font stacks still apply.
+ */
 export function compileThemeCss(theme: ThemeDefinition): string {
   const light: string[] = [];
   const dark: string[] = [];
+  const colors = styleRailColorControls();
   for (const [file, tokens] of Object.entries(theme.components)) {
     for (const [key, value] of Object.entries(tokens)) {
       const token = THEME_TOKEN_REGISTRY[file]?.[key];
       if (!token) continue;
+      if (token.kind === "color" && !colors) continue;
       const mode = readModeValue(value);
       if (!mode) continue;
       for (const cssVar of token.vars) {

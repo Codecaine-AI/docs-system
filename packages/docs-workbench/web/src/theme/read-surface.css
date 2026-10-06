@@ -33,14 +33,17 @@
  * Font stacks: the variables keep Spectre's token names (its Bank Gothic and
  * TX-02 faces are not vendored). The stock faces are the ones docs text is
  * measured with (docs-model DOCS_DEFAULT_FONTS): Inter for text and IBM Plex
- * Mono for code, shipped by @codecaine-ai/text-measure. Importers load its
- * fonts.css (the workbench entry does); without it the fallbacks paint.
+ * Mono for code (@codecaine-ai/design-system's fonts.css, byte-identical to
+ * @codecaine-ai/text-measure's faces). Importers load that fonts.css (the
+ * workbench entry stylesheet and docs-publish's styles.css do); without it the
+ * fallbacks paint. The condensed names have no vendored face and take the
+ * design-system sans.
  */
 :root {
   --font-display: var(--ds-font-family-sans);
   --font-tx02: var(--ds-font-family-sans);
-  --font-tx02-semicondensed: ui-sans-serif, system-ui, sans-serif;
-  --font-tx02-condensed: ui-sans-serif, system-ui, sans-serif;
+  --font-tx02-semicondensed: var(--ds-font-family-sans);
+  --font-tx02-condensed: var(--ds-font-family-sans);
   /* Canonical per-surface font tokens (style-rail "Code font" / "Number
      font" override these; --docs-font-numeric defaults to inherit at the
      use sites, so no :root entry). */
@@ -85,6 +88,11 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-sidebar: var(--sidebar);
+  /* @codecaine-ai/design-system's tailwind.css maps bg-sidebar through the
+     background-color namespace (--background-color-sidebar), which outranks
+     --color-sidebar; point it back at the runtime --sidebar so the theme and
+     the Style rail's sidebar tint keep reaching bg-sidebar. */
+  --background-color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent: var(--sidebar-accent);
