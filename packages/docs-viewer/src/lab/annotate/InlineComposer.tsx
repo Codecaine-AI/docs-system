@@ -34,7 +34,7 @@ function ComposerTip({ label, keys, children }: { label: string; keys: string; c
 	const [show, setShow] = useState(false);
 	return <span className="relative inline-flex shrink-0" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
 		{children}
-		{show && <span data-docs-lab-composer-tip="" className="pointer-events-none absolute bottom-full left-1/2 z-40 mb-1.5 flex -translate-x-1/2 items-baseline gap-1.5 whitespace-nowrap rounded-[var(--radius,2px)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-2 py-1 text-[length:var(--ds-font-size-ui-2xs)] text-[color:var(--annotation-text,#e4e4e7)] shadow-[var(--ds-shadow-glass)]">{label}<span className="text-[length:var(--ds-font-size-micro)] tracking-[var(--ds-letter-spacing-micro)] text-[color:var(--annotation-muted,#a1a1aa)]">{keys}</span></span>}
+		{show && <span data-docs-lab-composer-tip="" className="pointer-events-none absolute bottom-full left-1/2 z-[var(--ds-z-overlay)] mb-1.5 flex -translate-x-1/2 items-baseline gap-1.5 whitespace-nowrap rounded-[var(--radius,2px)] border border-[color:var(--annotation-border,rgba(173,157,208,.3))] bg-[color:var(--annotation-surface,#1c1c20)] px-2 py-1 text-[length:var(--ds-font-size-ui-2xs)] text-[color:var(--annotation-text,#e4e4e7)] shadow-[var(--ds-shadow-glass)]">{label}<span className="text-[length:var(--ds-font-size-micro)] tracking-[var(--ds-letter-spacing-micro)] text-[color:var(--annotation-muted,#a1a1aa)]">{keys}</span></span>}
 	</span>;
 }
 

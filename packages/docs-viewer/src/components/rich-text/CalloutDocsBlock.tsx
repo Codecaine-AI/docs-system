@@ -193,8 +193,8 @@ const CALLOUT_STYLES = `
   [data-callout-body] > :last-child { margin-bottom: 0; }
   [data-callout-body] p, [data-callout-body] ul, [data-callout-body] ol { margin-block: .5em; }
   [data-callout-body] ul, [data-callout-body] ol { padding-inline-start: 1.5em; }
-  [data-callout-body] strong { font-weight: 600; }
-  [data-callout-body] a { color: var(--docs-link, #245a81); font-weight: inherit; text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 2px; }
+  [data-callout-body] strong { font-weight: var(--ds-font-weight-semibold); }
+  [data-callout-body] a { color: var(--docs-link, #245a81); font-weight: inherit; text-decoration-line: underline; text-decoration-thickness: 1px; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: var(--ds-space-0-5); }
   [data-callout-body] a:hover { text-decoration-color: currentColor; }
   [data-callout-body] code { white-space: normal; }
 `;

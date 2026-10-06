@@ -103,8 +103,8 @@ export const DOC_TARGETING_CSS = `
     background: color-mix(in oklab, var(--primary) 3%, transparent);
   }
   .docs-target-selected {
-    outline: 2px solid var(--primary);
-    outline-offset: 4px;
+    outline: var(--ds-border-width-focus) solid var(--primary);
+    outline-offset: var(--ds-space-1);
     border-radius: var(--radius, 2px);
     background: color-mix(in oklab, var(--primary) 5%, transparent);
   }
@@ -115,19 +115,19 @@ export const DOC_TARGETING_CSS = `
   }
   .docs-annotation-change-request {
     background: color-mix(in oklab, var(--primary) 18%, transparent);
-    box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--primary) 55%, transparent);
+    box-shadow: inset 0 calc(-1 * var(--ds-border-width-focus)) 0 color-mix(in oklab, var(--primary) 55%, transparent);
   }
   .docs-annotation-delete {
     background: color-mix(in oklab, var(--destructive) 16%, transparent);
     color: var(--destructive);
     text-decoration-line: line-through;
-    text-decoration-thickness: 2px;
+    text-decoration-thickness: var(--ds-border-width-focus);
     text-decoration-color: color-mix(in oklab, var(--destructive) 70%, transparent);
   }
   .docs-annotation-mark:hover,
   .docs-annotation-focused {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
+    outline: var(--ds-border-width-focus) solid var(--primary);
+    outline-offset: var(--ds-focus-ring-offset);
   }
 `;
 
@@ -1273,7 +1273,7 @@ function DocsAnnotationToolbar({
   return (
     <div
       ref={toolbarRef}
-      className="fixed z-50 rounded-[var(--radius)] border bg-popover p-1 shadow-[var(--ds-shadow-glass)]"
+      className="fixed z-[var(--ds-z-popover)] rounded-[var(--radius)] border bg-popover p-1 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,
@@ -1402,7 +1402,7 @@ function DocsAnnotationPopover({
     <div
       ref={containerRef}
       role="dialog"
-      className="fixed z-50 flex flex-col gap-2 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
+      className="fixed z-[var(--ds-z-popover)] flex flex-col gap-2 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,
@@ -1517,7 +1517,7 @@ function DocsCanvasInsertPopover({
     <div
       ref={containerRef}
       role="dialog"
-      className="fixed z-50 flex flex-col gap-3 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
+      className="fixed z-[var(--ds-z-popover)] flex flex-col gap-3 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,

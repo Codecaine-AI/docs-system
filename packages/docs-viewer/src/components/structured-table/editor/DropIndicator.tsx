@@ -41,7 +41,7 @@ export function DragRegionOverlay({ rect }: { rect: Rect | null }) {
     <div
       contentEditable={false}
       data-table-drag-region=""
-      className="pointer-events-none absolute z-40 rounded-[var(--radius)]"
+      className="pointer-events-none absolute z-[var(--ds-z-overlay)] rounded-[var(--radius)]"
       style={paddedRectStyle(rect)}
     >
       <div className="absolute inset-0 bg-background/60" />

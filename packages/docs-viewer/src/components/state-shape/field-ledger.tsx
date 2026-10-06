@@ -188,15 +188,15 @@ export function FieldLedger({ rows, ...rest }: { rows: readonly FieldLedgerRow[]
  * linking engine's rail shadow instead.
  */
 export const FIELD_LEDGER_STYLE = DESCRIBED_NAME_STYLE + TREE_GUIDES_CSS + `
-[data-field-ledger]{min-width:0;--tr-x0:var(--fl-pad-x);--tr-indent:var(--fl-indent);--tr-guide-x:4px;--tr-row:calc(2*var(--fl-row-pad) + 1.5*var(--fl-name-size));--tr-guide:var(--fl-guide)}
+[data-field-ledger]{min-width:0;--tr-x0:var(--fl-pad-x);--tr-indent:var(--fl-indent);--tr-guide-x:var(--ds-space-1);--tr-row:calc(2*var(--fl-row-pad) + 1.5*var(--fl-name-size));--tr-guide:var(--fl-guide)}
 [data-field-ledger] .docs-tree__guides>i::before{border-left-width:var(--fl-guide-w)}
 [data-field-ledger] .docs-tree__guides>i::after{border-top-width:var(--fl-guide-w)}
 [data-field-row]:has([data-described]:hover),[data-field-row]:has([data-has-description]:focus-visible){z-index:3}
-[data-field-ledger]>[data-field-row]:nth-last-child(-n+2):not(:first-child) [data-description-tip]{top:auto;bottom:calc(100% + 6px)}
+[data-field-ledger]>[data-field-row]:nth-last-child(-n+2):not(:first-child) [data-description-tip]{top:auto;bottom:calc(100% + var(--ds-space-1-5))}
 [data-field-row]{position:relative;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:var(--ds-space-6);box-sizing:border-box;min-height:var(--fl-row-min-h);padding:var(--fl-row-pad) var(--fl-pad-x) var(--fl-row-pad) calc(var(--fl-pad-x) + var(--field-depth,0)*var(--fl-indent))}
 [data-field-row]:not([data-lit]){box-shadow:inset 0 var(--fl-rule-w) 0 0 var(--fl-rule)}
 [data-field-ledger]>[data-field-row]:first-child:not([data-lit]){box-shadow:none}
-[data-field-row]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:-2px}
+[data-field-row]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}
 [data-field-name-cell]{flex:0 0 calc(var(--fl-name-w) - var(--field-depth,0)*var(--fl-indent));min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--fl-name-size);line-height:1.5;overflow-wrap:break-word}
 [data-field-name-cell]>[data-described]{display:inline-flex;align-items:baseline}
 [data-field-name-cell] [data-has-description]{min-width:0}

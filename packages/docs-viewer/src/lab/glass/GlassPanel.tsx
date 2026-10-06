@@ -21,12 +21,13 @@ const PANEL_BOTTOM_GAP = 12;
 
 export const DOCK_DEFAULT_WIDTH: number = PANEL_GEOMETRY.edit.width;
 
-const TRANSITION_MS = 260;
-const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+/** The panel motion tokens: motion.duration.slow (260ms) and motion.easing.emphasized. */
+const TRANSITION = "var(--ds-motion-duration-slow)";
+const EASE = "var(--ds-motion-easing-emphasized)";
 const WIDE_TAB_FRACTION = 0.75;
 
 const fadeIn: CSSProperties = {
-	animation: `labFloatContentIn ${TRANSITION_MS}ms ${EASE}`,
+	animation: `labFloatContentIn ${TRANSITION} ${EASE}`,
 };
 
 const ANNOTATION_ACCENT = "var(--annotation-accent, #8b5cf6)";
@@ -139,7 +140,7 @@ export function GlassPanel({
 			{...(ai ? { "data-lab-annotate-panel": "" } : {})}
 			role="complementary"
 			aria-label={ai ? "AI workspace" : "Lab panel"}
-			className="absolute z-30 flex flex-col overflow-hidden rounded-[var(--radius)] border"
+			className="absolute z-[var(--ds-z-panel)] flex flex-col overflow-hidden rounded-[var(--radius)] border"
 			style={{
 				display: hidden ? "none" : undefined,
 				top: topInset,
@@ -150,7 +151,7 @@ export function GlassPanel({
 				transformOrigin: "top right",
 				transform: entered ? "scale(1)" : "scale(0.985)",
 				opacity: entered ? 1 : 0,
-				transition: `opacity ${TRANSITION_MS}ms ${EASE}, transform ${TRANSITION_MS}ms ${EASE}, width ${TRANSITION_MS}ms ${EASE}, height ${TRANSITION_MS}ms ${EASE}`,
+				transition: `opacity ${TRANSITION} ${EASE}, transform ${TRANSITION} ${EASE}, width ${TRANSITION} ${EASE}, height ${TRANSITION} ${EASE}`,
 				background: "var(--docs-lab-glass-bg, var(--background))",
 				backdropFilter: "blur(var(--docs-lab-glass-blur, 13px))",
 				WebkitBackdropFilter: "blur(var(--docs-lab-glass-blur, 13px))",
@@ -173,19 +174,19 @@ export function GlassPanel({
 						left: ai ? `${(1 - WIDE_TAB_FRACTION) * 100}%` : 0,
 						width: `${WIDE_TAB_FRACTION * 100}%`,
 						background: ai ? ANNOTATION_ACCENT : "var(--docs-lab-selection-accent, var(--annotation-accent, #8b5cf6))",
-						transition: `left ${TRANSITION_MS}ms ${EASE}, background ${TRANSITION_MS}ms ${EASE}`,
+						transition: `left ${TRANSITION} ${EASE}, background ${TRANSITION} ${EASE}`,
 					}}
 				/>
-				<button type="button" data-lab-panel-tab="edit" data-docs-mode="edit" aria-label="Edit" aria-pressed={!ai} title="Edit" onClick={() => onTabSelect("edit")} className="flex items-center justify-center gap-1.5 py-2 text-[length:var(--ds-font-size-micro)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] transition-all hover:text-foreground" style={{ width: ai ? `${(1 - WIDE_TAB_FRACTION) * 100}%` : `${WIDE_TAB_FRACTION * 100}%`, transition: `width ${TRANSITION_MS}ms ${EASE}, color 150ms ease`, ...tabStyle(!ai) }}>
+				<button type="button" data-lab-panel-tab="edit" data-docs-mode="edit" aria-label="Edit" aria-pressed={!ai} title="Edit" onClick={() => onTabSelect("edit")} className="flex items-center justify-center gap-1.5 py-2 text-[length:var(--ds-font-size-micro)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] transition-all hover:text-foreground" style={{ width: ai ? `${(1 - WIDE_TAB_FRACTION) * 100}%` : `${WIDE_TAB_FRACTION * 100}%`, transition: `width ${TRANSITION} ${EASE}, color var(--ds-motion-duration-base) var(--ds-motion-easing-standard)`, ...tabStyle(!ai) }}>
 					{ai ? <Pencil key="icon" size={12} aria-hidden style={fadeIn} /> : <span key="label" style={fadeIn}>Edit</span>}
 				</button>
-				<button type="button" data-lab-panel-tab="ai" data-docs-mode="ai" aria-label="AI" aria-pressed={ai} title={ai ? "AI workspace — esc to finish" : "AI workspace"} onClick={() => onTabSelect("ai")} className="flex items-center justify-center gap-1.5 border-l py-2 text-[length:var(--ds-font-size-micro)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] transition-all hover:text-foreground" style={{ width: ai ? `${WIDE_TAB_FRACTION * 100}%` : `${(1 - WIDE_TAB_FRACTION) * 100}%`, transition: `width ${TRANSITION_MS}ms ${EASE}, color 150ms ease`, borderColor: ai ? ANNOTATION_BORDER : PANEL_BORDER, ...tabStyle(ai) }}>
+				<button type="button" data-lab-panel-tab="ai" data-docs-mode="ai" aria-label="AI" aria-pressed={ai} title={ai ? "AI workspace — esc to finish" : "AI workspace"} onClick={() => onTabSelect("ai")} className="flex items-center justify-center gap-1.5 border-l py-2 text-[length:var(--ds-font-size-micro)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] transition-all hover:text-foreground" style={{ width: ai ? `${WIDE_TAB_FRACTION * 100}%` : `${(1 - WIDE_TAB_FRACTION) * 100}%`, transition: `width ${TRANSITION} ${EASE}, color var(--ds-motion-duration-base) var(--ds-motion-easing-standard)`, borderColor: ai ? ANNOTATION_BORDER : PANEL_BORDER, ...tabStyle(ai) }}>
 					{ai && <span data-lab-annotate-dot={busy ? "fast" : "slow"} aria-hidden className="h-[5px] w-[5px] rounded-full" style={{ background: ANNOTATION_ACCENT, animation: `docs-annotation-breathe ${busy ? "0.72s" : "2.6s"} var(--ds-motion-easing-standard) infinite` }} />}
 					{ai ? <span key="label" style={fadeIn}>Annotations</span> : <Sparkles key="icon" size={12} aria-hidden style={fadeIn} />}
 				</button>
 				</>}
 			</header>
-			<div key={tab} ref={scrollRef} data-lab-panel-scroller="" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 pt-2" style={{ animation: `labFloatContentIn ${TRANSITION_MS}ms ${EASE}`, scrollbarWidth: "none" }}>
+			<div key={tab} ref={scrollRef} data-lab-panel-scroller="" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-3 pt-2" style={{ animation: `labFloatContentIn ${TRANSITION} ${EASE}`, scrollbarWidth: "none" }}>
 				<div ref={innerRef} className={ai ? "h-full" : undefined}>{children}</div>
 			</div>
 			<style>{`@keyframes labFloatContentIn { from { opacity: 0 } to { opacity: 1 } } [data-lab-panel-scroller]::-webkit-scrollbar { display: none; }`}</style>

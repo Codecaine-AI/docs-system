@@ -5,10 +5,10 @@ import type { Rect } from "./geometry";
 import { ADD_DRAG_COLUMN_STEP_PX, ADD_DRAG_ROW_STEP_PX, type AddDragAxis } from "./use-add-drag";
 
 const GHOST_SLAB_CLASSES =
-  "pointer-events-none absolute z-40 rounded-[var(--radius)] border border-dashed border-[color:var(--docs-editor-accent,#2383e2)] bg-[var(--docs-editor-accent,#2383e2)]/5";
+  "pointer-events-none absolute z-[var(--ds-z-overlay)] rounded-[var(--radius)] border border-dashed border-[color:var(--docs-editor-accent,#2383e2)] bg-[var(--docs-editor-accent,#2383e2)]/5";
 
 const REMOVAL_REGION_CLASSES =
-  "pointer-events-none absolute z-40 rounded-[var(--radius)] border border-dashed border-destructive bg-[var(--destructive,#e03e3e)]/10";
+  "pointer-events-none absolute z-[var(--ds-z-overlay)] rounded-[var(--radius)] border border-dashed border-destructive bg-[var(--destructive,#e03e3e)]/10";
 
 /** The floating "+2 columns" / "−1 row" label text for a live add drag. */
 export function addDragLabel(axis: AddDragAxis, net: number): string {
@@ -83,7 +83,7 @@ export function AddDragPreview({
       <div
         data-table-add-drag-label=""
         className={cn(
-          "pointer-events-none absolute z-50 whitespace-nowrap rounded-[var(--radius)] px-2 py-1 text-[length:var(--ds-font-size-ui-xs)] shadow-[var(--ds-shadow-glass)]",
+          "pointer-events-none absolute z-[var(--ds-z-popover)] whitespace-nowrap rounded-[var(--radius)] px-2 py-1 text-[length:var(--ds-font-size-ui-xs)] shadow-[var(--ds-shadow-glass)]",
           "bg-[color:var(--ds-color-text-ink)] text-[color:var(--ds-color-surface-page)]",
         )}
         style={{ left: labelPosition.left, top: labelPosition.top }}

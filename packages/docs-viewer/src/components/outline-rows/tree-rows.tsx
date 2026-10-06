@@ -181,7 +181,7 @@ export const TREE_GUIDES_CSS = `/* guides: continuous 1px lines, drawn with bord
 export const TREE_ROWS_CSS = `
 .docs-tree {
   --tr-indent: var(--ds-space-5);
-  --tr-guide-x: 6px;
+  --tr-guide-x: var(--ds-space-1-5);
   --tr-gutter: var(--ds-space-4);
   --tr-mono: var(--docs-font-code, ui-monospace, SFMono-Regular, Menlo, monospace);
   --tr-sans: var(--docs-font-body, var(--font-sans, ui-sans-serif, system-ui, sans-serif));
@@ -212,7 +212,7 @@ export const TREE_ROWS_CSS = `
 .docs-tree__tile svg { display: block; width: 11px; height: 11px; stroke-width: 2.25; }
 .docs-tree__title {
   min-width: 0; overflow-wrap: anywhere;
-  font: var(--ds-font-weight-semibold) var(--ds-font-size-ui-md) / 1.3 var(--tr-sans);
+  font: var(--ds-font-weight-semibold) var(--ds-font-size-ui-md) / var(--ds-line-height-tight) var(--tr-sans);
   color: var(--docs-ink, #1f1f1f);
 }
 
@@ -351,7 +351,7 @@ ${TREE_GUIDES_CSS}
 .docs-tree__row[aria-expanded]:focus-visible,
 .docs-tree__more:focus-visible {
   outline: var(--ds-border-width-focus) solid var(--docs-focus-ring, #0078df);
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--ds-border-width-focus));
 }
 
 /* fold: one quiet row, its chevron in the depth-0 twisty column */

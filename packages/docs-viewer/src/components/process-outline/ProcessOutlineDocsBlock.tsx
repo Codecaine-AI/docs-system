@@ -62,7 +62,7 @@ const PROCESS_OUTLINE_CSS = `
   /* shrink to content, cap at the lane: steps wrap at a 60ch prose measure */
   width:fit-content; max-width:100%; min-width:0;
   font-family:var(--font-tx02, ui-sans-serif, system-ui, sans-serif);
-  font-size:max(12px,var(--docs-process-outline-text-size, 13.5px)); line-height:var(--po-line);
+  font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-text-size, 13.5px)); line-height:var(--po-line);
 }
 .docs-process-outline {
   --po-note-fg: var(--docs-process-outline-note-fg, #008000);
@@ -98,7 +98,7 @@ const PROCESS_OUTLINE_CSS = `
 .docs-process-outline__tile svg { display:block; width:11px; height:11px; }
 .docs-process-outline__head > .docs-process-outline__line {
   min-width:0; color:var(--po-title);
-  font-size:max(13px,var(--docs-process-outline-root-text-size, 13.5px));
+  font-size:max(var(--ds-font-size-ui-sm),var(--docs-process-outline-root-text-size, 13.5px));
   font-weight:var(--docs-process-outline-root-weight, 600); line-height:18px;
 }
 .docs-process-outline__line { position:relative; max-width:var(--ds-layout-lane-text); min-width:0; overflow-wrap:anywhere; line-height:var(--po-line); }
@@ -147,7 +147,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
 .docs-process-outline__trace {
   margin-left:var(--ds-space-2); vertical-align:1px; color:var(--docs-muted, #666562); white-space:nowrap;
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
-  font-size:max(12px,var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
+  font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
 }
 /* notes: italic comment-coloured asides at the step indent, a // comment marker where an elbow would be */
 .docs-process-outline__note-card {
@@ -157,7 +157,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   background:var(--docs-process-outline-note-bg, transparent);
   padding:var(--docs-process-outline-note-pad-y, 2px) var(--docs-process-outline-note-pad-x, 0px) var(--docs-process-outline-note-pad-y, 2px) calc(var(--po-note-rule-gap) + var(--docs-process-outline-note-pad-x, 0px));
   color:var(--po-note-fg); font-style:italic;
-  font-size:max(12px,var(--docs-process-outline-note-text-size, 13.5px)); font-weight:var(--ds-font-weight-regular); line-height:var(--po-line);
+  font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-note-text-size, 13.5px)); font-weight:var(--ds-font-weight-regular); line-height:var(--po-line);
 }
 .docs-process-outline__note-bullet { position:relative; overflow-wrap:anywhere; }
 .docs-process-outline__note-bullet::before {
@@ -174,7 +174,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   border-radius:var(--radius, 2px); background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg, transparent));
   box-shadow:0 0 0 var(--docs-process-outline-select-pad, 2px) color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg, transparent));
 }
-.docs-process-outline__empty { color:var(--docs-muted, #666562); font-size:max(12px,var(--docs-process-outline-empty-text-size, 12px)); }
+.docs-process-outline__empty { color:var(--docs-muted, #666562); font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-empty-text-size, 12px)); }
 @media(max-width:520px) {
   .docs-process-outline {
     --po-indent: min(var(--ds-space-5), var(--docs-process-outline-indent, 28px));

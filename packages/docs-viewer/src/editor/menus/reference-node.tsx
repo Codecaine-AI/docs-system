@@ -262,7 +262,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
           id={tooltipId}
           role="tooltip"
           style={floatingStyles}
-          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-[var(--radius)] bg-foreground px-2 py-1 font-mono text-[length:var(--ds-font-size-ui-xs)] leading-[var(--ds-line-height-tight)] text-background shadow-[var(--ds-shadow-glass)]"
+          className="pointer-events-none z-[var(--ds-z-popover)] max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-[var(--radius)] bg-foreground px-2 py-1 font-mono text-[length:var(--ds-font-size-ui-xs)] leading-[var(--ds-line-height-tight)] text-background shadow-[var(--ds-shadow-glass)]"
         >
           {attrs.ref.path}
         </span>
@@ -557,7 +557,7 @@ export function ReferenceMentionPopover({
       ref={refs.setFloating}
       style={floatingStyles}
       data-doc-reference-picker="true"
-      className="z-50 max-h-72 w-72 overflow-y-auto rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
+      className="z-[var(--ds-z-popover)] max-h-72 w-72 overflow-y-auto rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
     >
       <div ref={containerRef}>
         {filtered.length === 0 && !showCustomPath && (

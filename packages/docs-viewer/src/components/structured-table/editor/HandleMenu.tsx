@@ -198,7 +198,7 @@ export function HandleMenu({
       style={floatingStyles}
       contentEditable={false}
       data-table-handle-menu={kind}
-      className="z-50 w-44 rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
+      className="z-[var(--ds-z-popover)] w-44 rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
       onMouseDown={(event) => {
         event.preventDefault();
         event.stopPropagation();

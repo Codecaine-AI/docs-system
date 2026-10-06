@@ -31,7 +31,7 @@ export function DragPreview({
       contentEditable={false}
       data-table-drag-preview={axis}
       className={cn(
-        "pointer-events-none absolute z-50 flex overflow-hidden rounded-[var(--radius)] border bg-background opacity-80 shadow-[var(--ds-shadow-glass)]",
+        "pointer-events-none absolute z-[var(--ds-z-popover)] flex overflow-hidden rounded-[var(--radius)] border bg-background opacity-80 shadow-[var(--ds-shadow-glass)]",
         isColumn ? "flex-col" : "flex-row items-stretch",
       )}
       style={{

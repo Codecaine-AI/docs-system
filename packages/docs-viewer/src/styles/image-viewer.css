@@ -48,7 +48,7 @@
 /* Inside a media panel the image fills the body and the panel clips its
    overflow, so the ring is drawn just inside the image instead. */
 .docs-media-panel .docs-image-expand-trigger:focus-visible {
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--ds-border-width-focus));
 }
 
 .docs-image-dialog {
@@ -85,7 +85,7 @@
 
 .docs-image-viewport:focus-visible {
   outline: var(--ds-border-width-focus) solid var(--docs-focus-ring, var(--ds-light-color-focus-ring));
-  outline-offset: -2px;
+  outline-offset: calc(-1 * var(--ds-border-width-focus));
 }
 
 /* Sized to the image's natural px by the component; scale comes from the transform. */

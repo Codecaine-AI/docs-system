@@ -83,7 +83,10 @@ export function DocPeekPanel({
         // StyleRail (or any host) tunes them via the --docs-peek-* variables.
         "shrink-0 overflow-hidden bg-background transition-[width] ease-[var(--ds-motion-easing-emphasized)]",
         "duration-[var(--docs-peek-duration,300ms)]",
-        "[border-left-style:var(--docs-peek-divider-style,solid)] border-l-[length:var(--docs-peek-divider-width,1px)]",
+        // Style and width are arbitrary properties, as in divider.tsx: a
+        // `border-l-[length:…]` utility would also set border-left-style, and the
+        // style knob would then win only through Tailwind's utility order.
+        "[border-left-style:var(--docs-peek-divider-style,solid)] [border-left-width:var(--docs-peek-divider-width,1px)]",
         state.open
           ? cn(OPEN_WIDTH_CLASS, "border-l-[color:var(--docs-peek-divider-color,var(--border))]")
           : "w-0 border-l-transparent",

@@ -431,7 +431,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       '[data-operation-kind-badge="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
       "font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium)",
       // Focus ring and hover on the line.
-      "[data-disclosure]>summary:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df);outline-offset:-2px}",
+      "[data-disclosure]>summary:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}",
       "[data-disclosure]>summary:hover{background:var(--docs-hover,",
       // List beside code at the shared split.
       "grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)",

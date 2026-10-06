@@ -342,7 +342,7 @@ export function LinkEditorPopover({ editor }: { editor: Editor }) {
       }}
       style={floatingStyles}
       data-doc-link-editor="true"
-      className="z-50 flex w-80 items-center gap-1 rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
+      className="z-[var(--ds-z-popover)] flex w-80 items-center gap-1 rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
     >
       <input
         ref={inputRef}

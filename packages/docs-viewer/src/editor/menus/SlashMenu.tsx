@@ -649,11 +649,12 @@ function SlashSubMenuPopover({
         panelRef.current = el;
         refs.setFloating(el);
       }}
-      style={floatingStyles}
+      // One step above the parent menu (z.popover): the submenu opens over it.
+      style={{ ...floatingStyles, zIndex: "calc(var(--ds-z-popover) + 1)" }}
       data-doc-slash-submenu="true"
       // Keep the editor focused, matching the row-level handlers.
       onMouseDown={(event) => event.preventDefault()}
-      className={`z-[60] ${PANEL_CLASS}`}
+      className={PANEL_CLASS}
     >
       {items.map((item, index) => (
         <SlashMenuRow
@@ -762,7 +763,7 @@ export function SlashMenuPopover({ editor }: { editor: Editor }) {
         data-doc-slash-menu="true"
         // preventDefault so clicks on padding/headers never blur the editor.
         onMouseDown={(event) => event.preventDefault()}
-        className={`z-50 ${PANEL_CLASS}`}
+        className={`z-[var(--ds-z-popover)] ${PANEL_CLASS}`}
       >
         <div ref={listRef}>
           {visible.map((item, index) => {
