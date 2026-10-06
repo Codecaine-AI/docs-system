@@ -992,11 +992,14 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     new URL("../../../../docs-viewer/src/render/block-classes.ts", import.meta.url),
     "utf8",
   );
-  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
+  const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
 
   it("DocPage's left-margin fallback equals stock layout.contentMargin", () => {
     expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.contentMargin).toBe(88);
-    expect(layoutSource).toContain("px-[var(--style-content-margin,88px)]");
+    // The app shell's page margin wraps the knob (index.css: the knob above
+    // 800px, the shell's narrow padding at 800px and below).
+    expect(layoutSource).toContain("px-[var(--docs-page-margin,var(--style-content-margin,88px))]");
+    expect(indexCss).toContain("--docs-page-margin: var(--style-content-margin, 88px);");
   });
 
   it("the wide lane's fallback equals stock layout.wideWidth", () => {
@@ -1121,7 +1124,7 @@ describe("style rail code panels", () => {
     // renders: the two must name the same font.
     expect(DEFAULT_STYLE_RAIL_SETTINGS.typography.codeFont).toBe("plex-mono");
     expect(styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS)["--docs-font-code"]).toBeNull();
-    const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
+    const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
     expect(indexCss).toMatch(/--docs-font-code: "IBM Plex Mono", /);
     // A saved pick of the retired stock reads as its successor, whatever the baseline holds.
     const monoBaseline = normalizeSettings({ typography: { codeFont: "mono" } }, DEFAULT_STYLE_RAIL_SETTINGS);
@@ -2108,7 +2111,7 @@ describe("style rail structured-table tokens", () => {
       "utf8",
     );
   const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
+  const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const tableClasses = viewerSource("table-classes.ts");
   const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
 
@@ -4668,7 +4671,7 @@ describe("style rail rich-text block tokens", () => {
   const viewerSource = (path: string) =>
     readFileSync(new URL(`../../../../docs-viewer/src/${path}`, import.meta.url), "utf8");
   const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const indexCss = ["../index.css", "../theme/read-surface.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
+  const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const blockClasses = viewerSource("render/block-classes.ts");
   const calloutSource = viewerSource("components/rich-text/CalloutDocsBlock.tsx");
   /** Where each block's tokens are read. The list marker color is host CSS. */

@@ -100,7 +100,7 @@ function styleVar(name: string): string {
 
 async function waitForRail() {
   await waitFor(() => {
-    expect(screen.getByRole("button", { name: "Collapse style controls" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Close Style" })).toBeTruthy();
   });
 }
 

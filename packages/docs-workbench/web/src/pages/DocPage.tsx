@@ -9,6 +9,7 @@ import {
   type ComponentProps,
   type ReactNode,
 } from "react";
+import { createPortal } from "react-dom";
 import { Sparkles, Undo2Icon } from "lucide-react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
@@ -261,6 +262,12 @@ export interface DocPageProps {
    * sidebar tree.
    */
   onDocMoved?: (newPath: string) => void;
+  /**
+   * The shell topbar's action slot (App renders it). DocPage portals its page
+   * actions there: the save indicator, the undo notice and button, and the AI
+   * panel toggle. Null or absent renders no actions (tests, static exports).
+   */
+  topbarActionsTarget?: HTMLElement | null;
 }
 
 export function DocPage({
@@ -270,6 +277,7 @@ export function DocPage({
   isStatic = IS_STATIC,
   autoSaveDelayMs,
   onDocMoved,
+  topbarActionsTarget = null,
 }: DocPageProps) {
   const [bundle, setBundle] = useState<BundleState | null>(null);
   const [annotations, setAnnotations] = useState<AnnotationsDocument | null>(null);
@@ -799,6 +807,9 @@ export function DocPage({
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
+      // IME composition owns Escape, and the shell inspector (Style) closes
+      // itself on Escape: neither may also leave AI mode.
+      if (event.isComposing || (event.target instanceof Element && event.target.closest(".ds-inspector"))) return;
       if (event.key !== "Escape" || mode !== "annotate") return;
       // The targeting container owns Escape while a target is pinned. This
       // document-level path makes Escape exit AI mode when focus is elsewhere.
@@ -1143,7 +1154,7 @@ export function DocPage({
       <div
         key="inline-composer"
         data-docs-inline-composer-anchor=""
-        className="my-3 w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]"
+        className="my-3 w-full max-w-[var(--style-content-width,var(--ds-layout-lane-text))] text-[length:var(--style-font-size,var(--ds-font-size-reading))]"
       >
         <InlineComposer
           onSubmit={(body) => {
@@ -1249,58 +1260,6 @@ export function DocPage({
 
   return (
     <div className="flex h-full min-h-0 flex-col" data-docs-mode={mode}>
-      <header className="flex h-11 shrink-0 items-center justify-between gap-3 border-b px-3">
-        <div className="min-w-0 truncate font-mono text-ui-xs text-[color:var(--docs-navigation-fg,var(--foreground))]" title={path}>
-          docs/{path}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {!isStatic && mode === "edit" && (
-            <span
-              data-docs-save-state={saveState}
-              className="text-ui-xs text-muted-foreground"
-              aria-live="polite"
-            >
-              {saveState === "saving"
-                ? "Saving…"
-                : saveState === "saved"
-                  ? "Saved"
-                  : "Not saved"}
-            </span>
-          )}
-          {undoNotice && (
-            <span data-docs-undo-notice="" className="text-ui-xs text-muted-foreground">
-              {undoNotice}
-            </span>
-          )}
-          {!isStatic && lastPatch && (
-            <button
-              type="button"
-              data-docs-undo=""
-              disabled={isUndoing}
-              onClick={() => void handleUndo()}
-              className="inline-flex items-center gap-1 rounded border px-2 py-1 text-ui-xs text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Undo2Icon className="h-3 w-3" />
-              {isUndoing ? "Undoing..." : "Undo last save"}
-            </button>
-          )}
-          {!isStatic && (
-            <button
-              type="button"
-              data-docs-lab-toggle=""
-              aria-label={labPanelHidden ? "Show AI panel" : "Hide AI panel"}
-              title={sidePeekOpen ? "Close the document preview to use the AI panel" : labPanelHidden ? "Show AI panel" : "Hide AI panel"}
-              aria-expanded={labPanelVisible}
-              aria-pressed={labPanelVisible}
-              disabled={sidePeekOpen}
-              onClick={() => handleModeChange(labPanelHidden ? "annotate" : "edit")}
-              className="inline-flex h-7 w-7 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground aria-pressed:bg-muted aria-pressed:text-[color:var(--annotation-accent,#8b5cf6)] focus-visible:outline focus-visible:outline-[length:var(--ds-border-width-focus)] focus-visible:outline-offset-focus disabled:opacity-40"
-            >
-              <Sparkles className="h-4 w-4" aria-hidden="true" />
-            </button>
-          )}
-        </div>
-      </header>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <div className="relative min-h-0 min-w-0 flex-1">
@@ -1319,7 +1278,8 @@ export function DocPage({
                 `layout.contentMargin` (StyleRail.tsx). A knob sitting at stock
                 emits NO var — that is how "let the stylesheet answer" works —
                 so this literal is what actually renders by default, and a
-                mismatch here silently ignores the rail's stated default. */}
+                mismatch here silently ignores the rail's stated default.
+                `--docs-page-margin` is the shell's page margin (index.css): the content-margin knob above 800px, the shell's narrow padding at 800px and below. */}
             {/* Prompt-lab geometry: the content wrapper reserves the lab
                 panel's footprint as RIGHT PADDING (inline, animated in step
                 with the panel's width transition) while the scroller behind
@@ -1333,11 +1293,11 @@ export function DocPage({
               data-docs-content=""
               data-docs-lab-reserved={labPanelVisible ? "" : undefined}
               data-docs-annotation-wash={mode === "annotate" ? "" : undefined}
-              className="w-full px-[var(--style-content-margin,88px)] pt-[var(--style-content-top,1.5rem)] pb-[var(--style-content-bottom,1.5rem)]"
+              className="w-full px-[var(--docs-page-margin,var(--style-content-margin,88px))] pt-[var(--style-content-top,var(--ds-space-6))] pb-[var(--style-content-bottom,var(--ds-space-6))]"
               style={
                 labPanelVisible
                   ? {
-                      paddingRight: `calc(var(--style-content-margin, 88px) + ${labPanelWidth + 36}px)`,
+                      paddingRight: `calc(var(--docs-page-margin, var(--style-content-margin, 88px)) + ${labPanelWidth + 36}px)`,
                       transition:
                         "padding-right var(--ds-motion-duration-slow) var(--ds-motion-easing-emphasized)",
                     }
@@ -1361,7 +1321,7 @@ export function DocPage({
                 2.25rem h1 would make `60ch` ~1300px instead of the ~650px an
                 18px paragraph gets. The h1's own size is set in `rem`, so the
                 wrapper's font-size never reaches it. */}
-            <div className="w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]">
+            <div className="w-full max-w-[var(--style-content-width,var(--ds-layout-lane-text))] text-[length:var(--style-font-size,var(--ds-font-size-reading))]">
             <h1
               key={path}
               ref={titleRef}
@@ -1539,7 +1499,67 @@ export function DocPage({
     </div>
   );
   };
-  return <PageTransition pageKey={path} ready={!isLoading && loadedPath === path} className="flex h-full min-h-0 flex-col">
-    {renderPage()}
-  </PageTransition>;
+  // Page actions live in the shell topbar (App's action slot). They render
+  // outside PageTransition, so a page change keeps one set of buttons (and
+  // the focus on them) instead of fading a second set in.
+  const topbarActions =
+    !isStatic && topbarActionsTarget
+      ? createPortal(
+          <>
+            {mode === "edit" && (
+              <span
+                data-docs-save-state={saveState}
+                className="whitespace-nowrap text-ui-xs text-muted-foreground"
+                aria-live="polite"
+              >
+                {saveState === "saving"
+                  ? "Saving…"
+                  : saveState === "saved"
+                    ? "Saved"
+                    : "Not saved"}
+              </span>
+            )}
+            {undoNotice && (
+              <span data-docs-undo-notice="" className="whitespace-nowrap text-ui-xs text-muted-foreground">
+                {undoNotice}
+              </span>
+            )}
+            {lastPatch && (
+              <button
+                type="button"
+                data-docs-undo=""
+                disabled={isUndoing}
+                onClick={() => void handleUndo()}
+                className="ds-shell-button"
+              >
+                <Undo2Icon aria-hidden="true" />
+                {isUndoing ? "Undoing..." : "Undo last save"}
+              </button>
+            )}
+            <button
+              type="button"
+              data-docs-lab-toggle=""
+              aria-label={labPanelHidden ? "Show AI panel" : "Hide AI panel"}
+              title={sidePeekOpen ? "Close the document preview to use the AI panel" : labPanelHidden ? "Show AI panel" : "Hide AI panel"}
+              aria-expanded={labPanelVisible}
+              aria-pressed={labPanelVisible}
+              disabled={sidePeekOpen}
+              onClick={() => handleModeChange(labPanelHidden ? "annotate" : "edit")}
+              className="ds-shell-icon-button"
+            >
+              <Sparkles aria-hidden="true" />
+            </button>
+          </>,
+          topbarActionsTarget,
+        )
+      : null;
+
+  return (
+    <>
+      {topbarActions}
+      <PageTransition pageKey={path} ready={!isLoading && loadedPath === path} className="flex h-full min-h-0 flex-col">
+        {renderPage()}
+      </PageTransition>
+    </>
+  );
 }

@@ -6,8 +6,8 @@ import {
   isGlobalThemeActive,
   themeStorage,
 } from "../data/project-storage";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { GitBranchIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { GitBranchIcon, SlidersHorizontal } from "lucide-react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { DocPeekPanel } from "@codecaine-ai/docs-viewer/doc-peek-panel";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
@@ -28,11 +28,12 @@ import { createStandaloneDocsClient } from "../data/client";
 import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
 import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
 import { DocPage } from "../pages/DocPage";
-import { Sidebar } from "./Sidebar";
+import { RouterShell } from "../_components/RouterShell";
+import { docTitleFromPath } from "../lib/doc-title";
 import { ExportDialog } from "./ExportDialog";
 import {
-  StyleRail,
   StyleRailOverlay,
+  StyleRailPanel,
   applyBlockLayoutOverrideCss,
   applyStyleRailVars,
   STYLE_RAIL_STORAGE_KEY,
@@ -55,7 +56,9 @@ import { applyCodeThemeStyle } from "../theme/code-theme-style";
 import { useCodeTheme } from "../theme/use-code-theme";
 
 /**
- * Standalone docs workbench shell: left sidebar (docs tree + theme toggle)
+ * Standalone docs workbench shell: the design-system app shell
+ * (_components/RouterShell) with the docs tree in its collapsible sidebar,
+ * the page title and actions in its topbar, the Style rail in its inspector,
  * and the main surface — a doc workbench page (#/<bundle path>, see DocPage
  * for the edit/annotate modes). Hash-based navigation so both `docs-cli
  * serve` and the static export deep-link from any host/subpath; the
@@ -73,6 +76,21 @@ import { useCodeTheme } from "../theme/use-code-theme";
 const THEME_STORAGE_KEY = "docs-viewer-theme";
 const THEME_FOLDER_KEY = "docs-theme-folder-id";
 const STYLE_RAIL_COLLAPSE_KEY = "docs-style-rail-collapsed";
+
+/**
+ * Whether the Style inspector starts open. The stored choice keeps the old
+ * rail's key and values ("true" = collapsed). With none, it opens where the
+ * old rail used to show (1024px and up). At 800px and below the inspector
+ * covers the page (layout.md rule 13), so it never opens on load there.
+ */
+function initialStyleOpen(): boolean {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  if (window.matchMedia("(max-width: 800px)").matches) return false;
+  const stored = projectStorage.getItem(STYLE_RAIL_COLLAPSE_KEY);
+  if (stored === "true") return false;
+  if (stored === "false") return true;
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
 
 /**
  * Resolve a theme id to its flattened definition: built-ins from the
@@ -285,9 +303,10 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
   // The machine-wide active code theme (docs-server code-themes.ts): applied
   // to every code pane below; null until (or unless) the API answers.
   const { theme: codeTheme, controls: codeThemeControls } = useCodeTheme();
-  const [styleRailCollapsed, setStyleRailCollapsed] = useState<boolean>(
-    () => projectStorage.getItem(STYLE_RAIL_COLLAPSE_KEY) === "true",
-  );
+  const [styleOpen, setStyleOpen] = useState<boolean>(initialStyleOpen);
+  const styleButtonRef = useRef<HTMLButtonElement | null>(null);
+  // DocPage portals its page actions into this topbar slot.
+  const [topbarSlot, setTopbarSlot] = useState<HTMLSpanElement | null>(null);
   const [themeId, setThemeId] = useState<string>(() =>
     isGlobalThemeActive() ? GLOBAL_THEME_ID : projectStorage.getItem(THEME_FOLDER_KEY) ?? "default",
   );
@@ -601,10 +620,65 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
     applyCodeThemeStyle(codeTheme, styleSettings);
   }, [codeTheme, styleSettings]);
 
+  // The Style inspector exists only where the rail did: an unlocked live
+  // serve whose theme has loaded. Only an explicit open or close is stored,
+  // and only there, so static and locked hosts persist nothing.
+  const styleAvailable = !isStatic && themeReady && themeLocked === false;
+  const setStyleOpenByUser = useCallback(
+    (next: boolean) => {
+      setStyleOpen(next);
+      if (styleAvailable) projectStorage.setItem(STYLE_RAIL_COLLAPSE_KEY, String(!next));
+    },
+    [styleAvailable],
+  );
+  // Every close path (the topbar button, the close button, Escape) returns
+  // focus to the Style button, including when the inspector mounted open.
+  const closeStyle = useCallback(() => {
+    setStyleOpenByUser(false);
+    styleButtonRef.current?.focus({ preventScroll: true });
+  }, [setStyleOpenByUser]);
+  const handleStyleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Escape") return;
+    // IME composition owns Escape: keep the inspector open.
+    if (event.nativeEvent.isComposing || event.keyCode === 229) {
+      event.stopPropagation();
+      return;
+    }
+    // Handled here, so the shell's own Escape handler and DocPage's
+    // document-level one (AI mode) leave it alone.
+    event.preventDefault();
+    closeStyle();
+  };
+
+  // No shell transition while the theme boots: the inspector appears once the
+  // theme has loaded, and must not slide in on page load.
+  const [booting, setBooting] = useState(true);
   useEffect(() => {
-    if (!themeReady || themeLocked !== false) return;
-    projectStorage.setItem(STYLE_RAIL_COLLAPSE_KEY, String(styleRailCollapsed));
-  }, [styleRailCollapsed, themeLocked, themeReady]);
+    if (!booting) return;
+    let frame = 0;
+    const settle = () => {
+      frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => setBooting(false));
+      });
+    };
+    if (themeReady) {
+      settle();
+      return () => cancelAnimationFrame(frame);
+    }
+    // A serve that never answers still gets its transitions back.
+    const timer = setTimeout(settle, 3000);
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(frame);
+    };
+  }, [booting, themeReady]);
+
+  // Layout rule 10: the topbar h1 and the window title name the same page. A
+  // static export keeps its site title as the window title.
+  useEffect(() => {
+    if (isStatic) return;
+    document.title = path ? docTitleFromPath(path) : "Docs";
+  }, [isStatic, path]);
 
   useEffect(() => {
     // The initializer already gave state the collapsed path; canonicalize the
@@ -656,104 +730,160 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
       canvasEmbed={StandaloneCanvasEmbed}
       sequenceEmbed={StandaloneSequenceEmbed}
     >
-      <div className="docs-style-shell flex h-screen w-full overflow-hidden bg-background text-foreground">
-        <aside className="flex w-72 shrink-0 flex-col border-r bg-sidebar">
-          <div className="flex h-11 shrink-0 items-center justify-between gap-2 border-b px-3">
-            <div className="truncate font-display text-ui-lg font-medium uppercase tracking-micro">
-              {siteConfig.title ? (
-                <span data-docs-site-title="">{siteConfig.title}</span>
-              ) : centralProjectId() ? (
-                <a href="/" title="All documentation projects">Docs · Projects</a>
+      {/* The style engine's root (.docs-style-shell: the softening effects)
+          wraps the whole shell so its knobs reach the sidebar, topbar and
+          inspector too. */}
+      <div className="docs-style-shell docs-app" data-docs-booting={booting ? "" : undefined}>
+        <RouterShell
+          appName={
+            siteConfig.title ? (
+              <span data-docs-site-title="">{siteConfig.title}</span>
+            ) : centralProjectId() ? (
+              <a href="/" title="All documentation projects">Docs · Projects</a>
+            ) : (
+              "Docs"
+            )
+          }
+          title={
+            path ? (
+              <>
+                {/* The old DocPage header's breadcrumb, above the page title. */}
+                <span className="docs-topbar-crumb" title={path} aria-hidden="true">
+                  docs/{path}
+                </span>
+                <span className="docs-topbar-page">{docTitleFromPath(path)}</span>
+              </>
+            ) : (
+              siteConfig.title ?? "Docs"
+            )
+          }
+          actions={
+            <>
+              {/* DocPage's page actions (save state, undo, AI panel) portal in here. */}
+              <span key="page-actions" ref={setTopbarSlot} className="contents" />
+              {isStatic && siteConfig.repoUrl && (
+                <a
+                  key="repo"
+                  href={siteConfig.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-docs-repo-link=""
+                  title={`Source repository: ${siteConfig.repoUrl}`}
+                  className="ds-shell-button"
+                >
+                  <GitBranchIcon aria-hidden="true" />
+                  {repoLinkLabel(siteConfig.repoUrl)}
+                </a>
+              )}
+              {styleAvailable && (
+                <button
+                  key="style"
+                  ref={styleButtonRef}
+                  type="button"
+                  className="ds-shell-button"
+                  aria-expanded={styleOpen}
+                  aria-controls="ds-inspector"
+                  onClick={() => (styleOpen ? closeStyle() : setStyleOpenByUser(true))}
+                >
+                  <SlidersHorizontal aria-hidden="true" />
+                  Style
+                </button>
+              )}
+              {/* Last: when the bar runs out of room (Style open at laptop
+                  widths), the actions scroll and Export goes first. */}
+              {!isStatic && (
+                <button
+                  key="export"
+                  type="button"
+                  className="ds-shell-button"
+                  disabled={!tree}
+                  onClick={() => setExportOpen(true)}
+                >
+                  Export
+                </button>
+              )}
+            </>
+          }
+          tree={tree}
+          treeError={treeError}
+          selectedPath={path}
+          isStatic={isStatic}
+          persistSidebar={themeReady && themeLocked === false}
+          inspector={
+            // The Style rail is the one inspector: the chrome panel this
+            // host persists. Hidden entirely on a theme-locked serve or a
+            // static export (the rail IS the authoring surface). The doc
+            // preview (DocPeekPanel) and the AI dock stay page panels inside
+            // the doc column: they belong to the document, not the chrome.
+            styleAvailable
+              ? {
+                  title: "Style",
+                  open: styleOpen,
+                  onClose: closeStyle,
+                  content: (
+                    <div className="docs-style-inspector" onKeyDown={handleStyleKeyDown}>
+                      <StyleRailPanel
+                        settings={styleSettings}
+                        onSettingsChange={setStyleSettings}
+                        dark={dark}
+                        onDarkChange={setDark}
+                        themes={themePickerEntries}
+                        activeThemeId={themeId}
+                        onSelectTheme={handleSelectTheme}
+                        onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
+                        saveStyleLabel={globalTheme ? "Save global style" : undefined}
+                        codeTheme={codeThemeControls}
+                      />
+                    </div>
+                  ),
+                }
+              : undefined
+          }
+        >
+          <div className="docs-workspace flex min-h-0">
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+              {path ? (
+                <DocPage
+                  path={path}
+                  isStatic={isStatic}
+                  sidePeekOpen={sidePeekOpen}
+                  topbarActionsTarget={topbarSlot}
+                  onDocMoved={(newPath) => {
+                    // A title rename moved the bundle: follow it and let the
+                    // sidebar pick up the new name.
+                    window.location.hash = `#/${newPath}`;
+                    void getTree()
+                      .then(({ tree: nodes }) => setTree(nodes))
+                      .catch(() => {});
+                  }}
+                />
               ) : (
-                "Docs"
+                <div className="flex h-full items-center justify-center p-8 text-ui-lg text-muted-foreground">
+                  Select a doc from the tree
+                </div>
               )}
             </div>
-            {isStatic && siteConfig.repoUrl && (
-              <a
-                href={siteConfig.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-docs-repo-link=""
-                title={`Source repository: ${siteConfig.repoUrl}`}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded border px-2 py-1 text-ui-xs hover:bg-muted"
-              >
-                <GitBranchIcon className="h-3.5 w-3.5" aria-hidden="true" />
-                {repoLinkLabel(siteConfig.repoUrl)}
-              </a>
-            )}
-            {!isStatic && <button type="button" className="rounded border px-2 py-1 text-ui-xs hover:bg-muted" disabled={!tree} onClick={() => setExportOpen(true)}>Export</button>}
-          </div>
-          <div className="min-h-0 flex-1">
-            {treeError ? (
-              <div className="p-3 text-ui-lg text-destructive">{treeError}</div>
-            ) : tree ? (
-              <Sidebar tree={tree} selectedPath={path} />
-            ) : (
-              <div className="p-3 text-ui-lg text-muted-foreground">Loading tree...</div>
-            )}
-          </div>
-        </aside>
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
-          {path ? (
-            <DocPage
-              path={path}
-              isStatic={isStatic}
-              sidePeekOpen={sidePeekOpen}
-              onDocMoved={(newPath) => {
-                // A title rename moved the bundle: follow it and let the
-                // sidebar pick up the new name.
-                window.location.hash = `#/${newPath}`;
-                void getTree()
-                  .then(({ tree: nodes }) => setTree(nodes))
-                  .catch(() => {});
+            {/* Side-peek push drawer: a self-contained width-animated flex
+                sibling (collapsed to w-0 when closed) docked against the doc
+                content. It listens for spectre:doc-reference-navigate itself;
+                the host only supplies navigation + asset resolution. */}
+            <DocPeekPanel
+              projectId="local"
+              onOpenChange={setSidePeekOpen}
+              onNavigate={(ref: SpectreRef) => {
+                if (ref.kind === "doc") {
+                  window.location.hash = `#/${ref.path}`;
+                }
+                // "source" refs have no navigation target in the workbench yet.
               }}
+              // Same underlying helper DocPage's resolver closes over. Only the
+              // panel knows the peeked doc's bundle path, so bundle-relative
+              // (`./assets/...`) canonicalization has to happen viewer-side —
+              // the host can only map docs-root-relative srcs to fetchable URLs.
+              resolveAssetSrc={assetUrl}
             />
-          ) : (
-            <div className="flex h-full items-center justify-center p-8 text-ui-lg text-muted-foreground">
-              Select a doc from the tree
-            </div>
-          )}
-        </main>
-        {/* Side-peek push drawer: a self-contained width-animated flex
-            sibling (collapsed to w-0 when closed) docked against the doc
-            content. It listens for spectre:doc-reference-navigate itself;
-            the host only supplies navigation + asset resolution. */}
-        <DocPeekPanel
-          projectId="local"
-          onOpenChange={setSidePeekOpen}
-          onNavigate={(ref: SpectreRef) => {
-            if (ref.kind === "doc") {
-              window.location.hash = `#/${ref.path}`;
-            }
-            // "source" refs have no navigation target in the workbench yet.
-          }}
-          // Same underlying helper DocPage's resolver closes over. Only the
-          // panel knows the peeked doc's bundle path, so bundle-relative
-          // (`./assets/...`) canonicalization has to happen viewer-side —
-          // the host can only map docs-root-relative srcs to fetchable URLs.
-          resolveAssetSrc={assetUrl}
-        />
-
-        {/* Hidden entirely on a theme-locked serve (rail + its collapse
-            tab): the rail IS the authoring surface, and locked viewers only
-            consume. The grain overlay below is part of the theme's look,
-            not a tuning affordance, so it renders regardless. */}
-        {!isStatic && themeReady && themeLocked === false && (
-          <StyleRail
-            collapsed={styleRailCollapsed}
-            onCollapsedChange={setStyleRailCollapsed}
-            settings={styleSettings}
-            onSettingsChange={setStyleSettings}
-            dark={dark}
-            onDarkChange={setDark}
-            themes={themePickerEntries}
-            activeThemeId={themeId}
-            onSelectTheme={handleSelectTheme}
-            onSaveStyleToRepo={canAuthorTheme ? handleSaveStyleToRepo : undefined}
-            saveStyleLabel={globalTheme ? "Save global style" : undefined}
-            codeTheme={isStatic ? undefined : codeThemeControls}
-          />
-        )}
+          </div>
+        </RouterShell>
       </div>
       <StyleRailOverlay settings={styleSettings} dark={dark} />
       {!isStatic && exportOpen && tree && <ExportDialog tree={tree} currentPath={path} onClose={() => setExportOpen(false)} />}

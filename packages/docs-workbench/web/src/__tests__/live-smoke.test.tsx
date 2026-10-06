@@ -133,9 +133,12 @@ afterEach(() => {
 });
 
 function renderDocPage(options?: { onEditorReady?: (editor: Editor) => void }) {
+  // The shell topbar's action slot: DocPage portals its page actions into it.
+  const topbar = document.createElement("div");
+  document.body.appendChild(topbar);
   return render(
     <DocsClientProvider client={createStandaloneDocsClient()} canvasEmbed={StandaloneCanvasEmbed}>
-      <DocPage path={bundlePath} onEditorReady={options?.onEditorReady} />
+      <DocPage path={bundlePath} onEditorReady={options?.onEditorReady} topbarActionsTarget={topbar} />
     </DocsClientProvider>,
   );
 }

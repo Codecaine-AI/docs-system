@@ -288,23 +288,7 @@ export type ThemePickerEntry = { id: string; name: string; source: "builtin" | "
 
 const SELECTED_PANE_STORAGE_KEY = "docs-style-rail-selected";
 
-export function StyleRail({
-  collapsed,
-  onCollapsedChange,
-  settings,
-  onSettingsChange,
-  dark,
-  onDarkChange,
-  themes,
-  activeThemeId,
-  onSelectTheme,
-  onSaveTheme,
-  onSaveStyleToRepo,
-  saveStyleLabel = "Save style to repo",
-  codeTheme,
-}: {
-  collapsed: boolean;
-  onCollapsedChange: (collapsed: boolean) => void;
+export type StyleRailPanelProps = {
   settings: StyleRailSettings;
   onSettingsChange: (settings: StyleRailSettings) => void;
   dark: boolean;
@@ -326,7 +310,30 @@ export function StyleRail({
   saveStyleLabel?: string;
   /** Central code theme picker (Typography pane); absent when it cannot be changed. */
   codeTheme?: CodeThemeControls;
-}) {
+};
+
+type StyleRailProps = StyleRailPanelProps & {
+  collapsed: boolean;
+  onCollapsedChange: (collapsed: boolean) => void;
+};
+
+/**
+ * The rail's body (detail pane, section nav and the theme buttons) without the rail's frame or header.
+ * The app shell shows it in its inspector; StyleRail wraps it in the stand-alone rail.
+ */
+export function StyleRailPanel({
+  settings,
+  onSettingsChange,
+  dark,
+  onDarkChange,
+  themes,
+  activeThemeId,
+  onSelectTheme,
+  onSaveTheme,
+  onSaveStyleToRepo,
+  saveStyleLabel = "Save style to repo",
+  codeTheme,
+}: StyleRailPanelProps) {
   const [selectedPaneId, setSelectedPaneId] = useState<StyleRailPaneId>(() => {
     // docs-style-rail-section:* keys are retired; selection is the persisted pane UI state.
     try {
@@ -378,39 +385,6 @@ export function StyleRail({
   };
 
   return (
-    <aside
-      className={cn(
-        "relative z-raised hidden h-screen shrink-0 flex-col border-l bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-decelerate lg:flex",
-        collapsed ? "w-13" : "w-184",
-      )}
-    >
-      <div
-        className={cn(
-          "flex h-11 shrink-0 items-center border-b px-3",
-          collapsed ? "justify-center" : "justify-between gap-2",
-        )}
-      >
-        {!collapsed && (
-          <div className="truncate font-display text-ui-lg font-medium uppercase tracking-micro">
-            Style
-          </div>
-        )}
-        <button
-          aria-expanded={!collapsed}
-          aria-label={collapsed ? "Expand style controls" : "Collapse style controls"}
-          className="style-icon-button"
-          onClick={() => onCollapsedChange(!collapsed)}
-          type="button"
-        >
-          {collapsed ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />}
-        </button>
-      </div>
-
-      {collapsed ? (
-        <div className="flex flex-1 items-start justify-center pt-4">
-          <SlidersHorizontal className="h-4 w-4 text-foreground" />
-        </div>
-      ) : (
         <>
           <div className="style-rail-two-pane">
             <StyleRailPane
@@ -483,6 +457,45 @@ export function StyleRail({
             </button>
           </div>
         </>
+  );
+}
+
+export function StyleRail({ collapsed, onCollapsedChange, ...panelProps }: StyleRailProps) {
+  return (
+    <aside
+      className={cn(
+        "relative z-raised hidden h-screen shrink-0 flex-col border-l bg-sidebar text-sidebar-foreground transition-[width] duration-200 ease-decelerate lg:flex",
+        collapsed ? "w-13" : "w-184",
+      )}
+    >
+      <div
+        className={cn(
+          "flex h-11 shrink-0 items-center border-b px-3",
+          collapsed ? "justify-center" : "justify-between gap-2",
+        )}
+      >
+        {!collapsed && (
+          <div className="truncate font-display text-ui-lg font-medium uppercase tracking-micro">
+            Style
+          </div>
+        )}
+        <button
+          aria-expanded={!collapsed}
+          aria-label={collapsed ? "Expand style controls" : "Collapse style controls"}
+          className="style-icon-button"
+          onClick={() => onCollapsedChange(!collapsed)}
+          type="button"
+        >
+          {collapsed ? <PanelRightOpen className="h-4 w-4" /> : <PanelRightClose className="h-4 w-4" />}
+        </button>
+      </div>
+
+      {collapsed ? (
+        <div className="flex flex-1 items-start justify-center pt-4">
+          <SlidersHorizontal className="h-4 w-4 text-foreground" />
+        </div>
+      ) : (
+        <StyleRailPanel {...panelProps} />
       )}
     </aside>
   );

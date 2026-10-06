@@ -67,6 +67,8 @@ function TreeNode({
           onDoubleClick={focusHere}
           data-docs-tree-kind="dir"
           data-docs-tree-path={node.path}
+          // Shell rule 7: rows above the current page are active, not current.
+          data-active={containsPath(node, selectedPath) ? "true" : undefined}
           className="flex w-full select-none items-center gap-1 pr-2 text-left hover:bg-muted/50"
           aria-expanded={open}
         >
@@ -143,6 +145,8 @@ function TreeNode({
             href={`#/${node.path}`}
             data-docs-tree-kind="bundle"
             data-docs-tree-path={node.path}
+            aria-current={isSelected ? "page" : undefined}
+            data-active={!isSelected && containsPath(node, selectedPath) ? "true" : undefined}
             className="flex min-w-0 flex-1 items-center gap-1 text-left no-underline"
             title={node.path}
           >

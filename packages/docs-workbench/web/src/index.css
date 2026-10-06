@@ -10,6 +10,7 @@
 @import "@codecaine-ai/design-system/tailwind-strict.css";
 @import "@codecaine-ai/design-system/tailwind.css";
 @import "@codecaine-ai/design-system/layout.css";
+@import "./theme/app-shell.css";
 
 /* Style rail (right-docked live theme-tuning panel) styling. */
 @import "./theme/style-rail.css";
@@ -33,7 +34,9 @@
  * approach as Spectre apps/frontend/src/app/globals.css).
  */
 @source "../../../../packages/docs-viewer/src";
-@source "../../node_modules/@codecaine-ai/canvas/src";
+/* @codecaine-ai/canvas: Core's node_modules, else a standalone docs-system's. */
+@source "../../../../../node_modules/@codecaine-ai/canvas/src";
+@source "../../../../node_modules/@codecaine-ai/canvas/src";
 
 /*
  * `dark:` fires under a .dark page AND inside a dark code panel: a
@@ -45,8 +48,6 @@
  * theme/semantic.css, theme/notion-palette.css and the compiled theme layer.
  */
 @custom-variant dark (&:is(.dark *, :where([data-code-panels="dark"] [data-code-surface], [data-code-panels="dark"] [data-code-surface] *)));
-
-
 
 @layer base {
   * {

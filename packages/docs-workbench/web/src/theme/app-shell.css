@@ -1,0 +1,88 @@
+/*
+ * App shell (@codecaine-ai/design-system layout.css, guide/layout.md). Scoped
+ * overrides of --ds-layout-* on the shell (decision 32); the rest maps the
+ * Style rail's knobs onto the chrome they used to paint.
+ */
+/* The docs tree keeps its 288px column (layout.md "Existing shells") above
+   800px. Narrow screens keep the shell's own sidebar width: at 320px the
+   288px column would leave the topbar no room (decision 70). */
+@media (min-width: 801px) {
+  .docs-app .ds-shell {
+    --ds-layout-sidebar-width: 288px;
+  }
+}
+
+.docs-app .ds-shell {
+  /* The Style rail's two-pane width (the old rail's w-184), at most half the
+     window while it pushes the page. */
+  --ds-layout-inspector-width: min(46rem, 50vw);
+  /* The doc column is a tool view on the full lane with its own scroller
+     (rule 12): main adds no padding, and the doc page pads itself with the
+     Style rail's content-margin knob (DocPage reads --docs-page-margin). */
+  --ds-layout-content-padding-top: 0;
+  --ds-layout-content-padding-x: 0;
+  --ds-layout-content-padding-bottom: 0;
+  --docs-page-margin: var(--style-content-margin, 88px);
+  --docs-workspace-height: calc(100dvh - var(--ds-layout-topbar-height));
+  /* The rail's Background knob still paints the page (stock: surface.page). */
+  background: var(--background);
+}
+
+@media (max-width: 800px) {
+  .docs-app .ds-shell {
+    /* The inspector covers the page here, at min(width, 100%). */
+    --ds-layout-inspector-width: 46rem;
+    /* Rule 13: the page margin drops to the shell's narrow padding. */
+    --docs-page-margin: var(--ds-space-4);
+  }
+}
+
+/* The rail's Background and Sidebar tint knobs (stock: the shell's tokens). */
+.docs-app .ds-topbar {
+  background: var(--background);
+}
+
+.docs-app .ds-sidebar {
+  background: var(--sidebar);
+}
+
+/* No shell transition while the theme boots (App's `booting`): the Style
+   inspector appears once the theme has loaded and must not slide in. */
+.docs-app[data-docs-booting] .ds-shell,
+.docs-app[data-docs-booting] .ds-inspector {
+  transition: none;
+}
+
+/* The doc column and the side peek fill the window under the topbar. */
+.docs-workspace {
+  height: var(--docs-workspace-height);
+}
+
+/* Topbar title: the old DocPage header's breadcrumb above the page title. */
+.docs-topbar-crumb {
+  display: block;
+  overflow: hidden;
+  color: var(--docs-navigation-fg, var(--foreground));
+  font-family: var(--ds-font-family-mono);
+  font-size: var(--ds-font-size-ui-xs);
+  font-weight: var(--ds-font-weight-regular);
+  letter-spacing: normal;
+  text-overflow: ellipsis;
+}
+
+.docs-topbar-page {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The Style rail fills the inspector body edge to edge, as it filled the old
+   rail: the body's padding (layout.css, --ds-space-6) is cancelled, and the
+   rail's detail pane and section nav scroll on their own. */
+.docs-style-inspector {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: calc(100% + 2 * var(--ds-space-6));
+  margin: calc(-1 * var(--ds-space-6));
+}

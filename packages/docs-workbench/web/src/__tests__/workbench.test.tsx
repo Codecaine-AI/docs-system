@@ -135,9 +135,15 @@ function renderDocPage(
     onDocMoved?: (newPath: string) => void;
   },
 ) {
+  // The shell topbar's action slot: DocPage portals its save state, undo
+  // and AI toggle into it (App renders the real one).
+  const topbar = document.createElement("div");
+  topbar.setAttribute("data-test-topbar-actions", "");
+  document.body.appendChild(topbar);
   const ui = (currentPath: string) => (
     <DocsClientProvider client={createStandaloneDocsClient()} canvasEmbed={StandaloneCanvasEmbed}>
       <DocPage
+        topbarActionsTarget={topbar}
         path={currentPath}
         onEditorReady={options?.onEditorReady}
         isStatic={options?.isStatic}
@@ -204,6 +210,7 @@ afterAll(async () => {
 
 afterEach(() => {
   cleanup();
+  for (const slot of document.querySelectorAll("[data-test-topbar-actions]")) slot.remove();
   window.location.hash = "";
   localStorage.clear();
 });
@@ -291,10 +298,10 @@ describe("workbench shell", () => {
     render(<App />);
     // The config response must not expose editable controls before the
     // authoritative theme response has also settled.
-    expect(screen.queryByRole("button", { name: "Collapse style controls" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Close Style" })).toBeNull();
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Collapse style controls" })).toBeTruthy();
+      expect(screen.getByRole("button", { name: "Close Style" })).toBeTruthy();
       expect(document.documentElement.style.getPropertyValue("--docs-action-pane-width")).toBe(
         "611px",
       );
@@ -351,7 +358,7 @@ describe("workbench shell", () => {
         expect(document.documentElement.style.getPropertyValue("--docs-page-fade-out")).toBe("60ms");
         expect(document.documentElement.style.getPropertyValue("--docs-page-fade-in")).toBe("180ms");
       });
-      expect(screen.queryByRole("button", { name: "Collapse style controls" })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Close Style" })).toBeNull();
 
       // Longer than the unlocked debounce: neither the repo file nor cache
       // may be changed by this consumer host.
@@ -399,7 +406,7 @@ describe("static public-site shell", () => {
 
       // Let the theme boot settle: the rail must stay absent afterwards too.
       await new Promise((resolve) => setTimeout(resolve, 200));
-      expect(screen.queryByRole("button", { name: /style controls/ })).toBeNull();
+      expect(screen.queryByRole("button", { name: "Style" })).toBeNull();
       expect(screen.queryByRole("button", { name: "Export" })).toBeNull();
       expect(screen.queryByRole("button", { name: /AI panel/ })).toBeNull();
       expect(document.querySelector('[data-doc-editor="true"]')).toBeNull();
