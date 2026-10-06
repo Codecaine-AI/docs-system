@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from './registry';
 import { directoryHtml } from './home';
+import { DESIGN_SYSTEM_PREFIX, designSystemAssets } from './design-system-assets';
 import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
 import { loadCodecaineEnv } from '../codecaine-env';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
@@ -18,6 +19,8 @@ const stateDir = config.stateDirectory;
 const packageRoot = join(config.sourceRoot, 'packages/docs-mcp');
 const coreRoot = resolve(config.sourceRoot, '..');
 const webRoot = join(config.sourceRoot, 'packages/docs-workbench/web');
+// The home page links the design-system files here, from the package the docs-mcp source resolves.
+const designSystemAsset = designSystemAssets(packageRoot);
 const registryFile = join(stateDir, 'projects.json');
 const builds = join(stateDir, 'builds');
 await mkdir(builds, { recursive: true, mode: 0o700 });
@@ -211,6 +214,7 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
     return Response.json(deviceScan, { status: 202, headers: { 'cache-control': 'no-store' } });
   }
   if (url.pathname === '/') return new Response(directoryHtml(registry.projects, version), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
+  if (url.pathname.startsWith(DESIGN_SYSTEM_PREFIX)) return designSystemAsset(request);
   const project = projectRoute(url.pathname);
   if (project) {
     if (!registry.projects.some(p => p.id === project.id)) return new Response('Project is not registered.', { status: 404 });

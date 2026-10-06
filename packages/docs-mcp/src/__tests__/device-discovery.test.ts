@@ -64,7 +64,8 @@ test('home escapes project names and paths, provides labeled search and device d
 });
 
 test('home filters names and folder paths, shows no matches, and starts initial discovery once', async () => {
-  const window = new Window({ url: 'http://localhost:4820/' });
+  // The page links the design-system stylesheets; never fetch them here (no request leaves the test).
+  const window = new Window({ url: 'http://localhost:4820/', settings: { disableCSSFileLoading: true, handleDisabledFileLoadingAsSuccess: true } });
   const projects = [
     { id: 'canvas', name: 'Canvas', root: '/projects/drawing', docsRoot: '/projects/drawing/docs', products: ['docs'] },
     { id: 'budget', name: 'Budget', root: '/projects/household', docsRoot: '/projects/household/docs', products: ['docs'] },

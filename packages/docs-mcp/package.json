@@ -21,7 +21,8 @@
     "@sinclair/typebox": "^0.34",
     "@codecaine-ai/docs-index": "workspace:*",
     "@codecaine-ai/docs-workbench": "workspace:*",
-    "@codecaine-ai/text-measure": "workspace:*"
+    "@codecaine-ai/text-measure": "workspace:*",
+    "@codecaine-ai/design-system": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "latest",
