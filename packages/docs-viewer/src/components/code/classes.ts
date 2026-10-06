@@ -69,7 +69,7 @@ export const CODE_LAYOUT_CLASSES = "not-prose my-4 @container";
  * cells sit INSIDE the dark panel; the notes column draws its own hairline.
  */
 export const CODE_BODY_GRID_CLASSES =
-  "grid grid-cols-[minmax(0,1fr)] @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]";
+  "grid grid-cols-1 @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]";
 
 /** The panel frame inside a layout: the layout owns the margin. */
 export const CODE_FRAME_IN_LAYOUT_CLASSES = "my-0 min-w-0";
@@ -84,7 +84,7 @@ export const CODE_HEADER_CLASSES =
 
 /** The code family tile: a 16px solid tile in the code family hue, glyph in the tile-glyph color. */
 export const CODE_TILE_CLASSES =
-  "inline-flex h-4 w-4 flex-none items-center justify-center rounded-[2px] bg-[color:var(--docs-fam-code-solid,#0b6e99)] text-[color:var(--docs-tile-glyph,#ffffff)]";
+  "inline-flex h-4 w-4 flex-none items-center justify-center rounded-[var(--ds-radius-base)] bg-[color:var(--docs-fam-code-solid,#0b6e99)] text-[color:var(--docs-tile-glyph,#ffffff)]";
 
 /** The glyph inside the tile (lucide icon; stroke width is set at the usage site). */
 export const CODE_TILE_ICON_CLASSES = "h-[11px] w-[11px]";
@@ -98,7 +98,7 @@ export const CODE_TILE_ICON_CLASSES = "h-[11px] w-[11px]";
  * the edit picker only.
  */
 export const CODE_LANG_LABEL_CLASSES =
-  "font-mono text-[length:var(--docs-code-header-text-size,12px)] leading-none [font-weight:var(--docs-code-header-weight,400)] text-[color:var(--docs-code-header-fg,var(--muted-foreground))]";
+  "font-mono text-[length:var(--docs-code-header-text-size,12px)] leading-none font-[var(--docs-code-header-weight,400)] text-[color:var(--docs-code-header-fg,var(--muted-foreground))]";
 
 /**
  * Edit-surface language picker: same quiet look at rest (transparent, no
@@ -108,11 +108,11 @@ export const CODE_LANG_LABEL_CLASSES =
  * shared focus ring.
  */
 export const CODE_LANG_SELECT_CLASSES =
-  "cursor-pointer appearance-none rounded-sm bg-transparent pr-5 transition-colors group-hover/code:text-[color:var(--docs-code-lang-fg,var(--color-text-blue))] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
+  "cursor-pointer appearance-none rounded-[var(--radius)] bg-transparent pr-5 transition-colors group-hover/code:text-[color:var(--docs-code-lang-fg,var(--color-text-blue))] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 
 /** Copy button: always visible (no hover-only controls), 26px hit area, 2px focus ring. */
 export const CODE_COPY_BUTTON_CLASSES =
-  "ml-auto inline-flex h-[26px] min-w-[26px] cursor-pointer items-center justify-center gap-1 rounded-[var(--radius,2px)] px-[5px] font-sans text-[12px] leading-none text-[color:var(--docs-code-header-fg,var(--muted-foreground))] transition-colors hover:bg-[color:color-mix(in_srgb,currentColor_12%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
+  "ml-auto inline-flex h-6.5 min-w-6.5 cursor-pointer items-center justify-center gap-1 rounded-[var(--radius,2px)] px-[5px] font-sans text-[length:var(--ds-font-size-ui-xs)] leading-none text-[color:var(--docs-code-header-fg,var(--muted-foreground))] transition-colors hover:bg-current/12 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 
 /** The copy glyph inside the button. */
 export const CODE_COPY_ICON_CLASSES = "h-[15px] w-[15px]";
@@ -162,13 +162,13 @@ export const CODE_GUTTER_LINE_CLASSES =
  * annotations read as two marks.
  */
 export const CODE_GUTTER_LINE_ANNOTATED_CLASSES =
-  "after:pointer-events-none after:absolute after:top-0 after:bottom-0 after:right-[calc(var(--docs-code-gutter-pad-x,12px)/2-1px)] after:w-[2px] after:bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_65%,transparent)] after:content-['']";
+  "after:pointer-events-none after:absolute after:top-0 after:bottom-0 after:right-[calc(var(--docs-code-gutter-pad-x,12px)/2-1px)] after:w-0.5 after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
 
 /** First line of an annotated run: the mark starts 3px below the line top. */
-export const CODE_GUTTER_MARK_START_CLASSES = "after:top-[3px] after:rounded-t-[1px]";
+export const CODE_GUTTER_MARK_START_CLASSES = "after:top-[3px] after:rounded-t-[var(--ds-radius-base)]";
 
 /** Last line of an annotated run: the mark stops 3px above the line bottom. */
-export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:rounded-b-[1px]";
+export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:rounded-b-[var(--ds-radius-base)]";
 
 /**
  * Gutter line of the LIT (hovered, focused or pinned) pair: accent number,
@@ -176,7 +176,7 @@ export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:rounded-b-
  * sticky cell's opaque background-color stays under horizontal scroll.
  */
 export const CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES =
-  "font-semibold text-[color:var(--docs-code-annotation-accent,#0b6e99)] after:bg-[color:var(--docs-code-annotation-accent,#0b6e99)] bg-[image:linear-gradient(color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent),color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent))]";
+  "font-semibold text-[color:var(--docs-code-annotation-accent,#0b6e99)] after:bg-[color:var(--docs-code-annotation-accent,#0b6e99)] bg-linear-to-b from-[var(--docs-code-annotation-accent,#0b6e99)]/12 to-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
 /**
  * Zebra striping: ONE absolute layer behind the code column whose gradient
@@ -199,7 +199,7 @@ export const CODE_ANNOTATION_ROW_CLASSES =
 
 /** Overlay of the LIT pair: the accent at 12% (the lit numbers keep 4.5:1 on it). */
 export const CODE_ANNOTATION_ROW_LIT_CLASSES =
-  "bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent)]";
+  "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
 /** The code cell (second grid column) — a <pre> so whitespace stays literal with horizontal scroll (soft wrap OFF everywhere). */
 export const CODE_CELL_CLASSES = "relative m-0 bg-transparent p-0 px-[var(--docs-code-pad-x,12px)]";
@@ -210,7 +210,7 @@ export const CODE_CELL_CLASSES = "relative m-0 bg-transparent p-0 px-[var(--docs
  * the other two surfaces (CODE_CONTENT_WRAPPER_CLASSES / CODE_SCROLL_BODY_CLASSES).
  */
 export const CODE_ANNOTATED_PRE_CLASSES =
-  "m-0 max-h-[440px] overflow-auto p-0 pt-[var(--docs-code-pad-top,12px)] pb-[var(--docs-code-pad-bottom,12px)] font-mono text-[length:var(--docs-code-text-size,13px)] leading-[var(--docs-code-line-height,21px)]";
+  "m-0 max-h-110 overflow-auto p-0 pt-[var(--docs-code-pad-top,12px)] pb-[var(--docs-code-pad-bottom,12px)] font-mono text-[length:var(--docs-code-text-size,13px)] leading-[var(--docs-code-line-height,21px)]";
 
 /** Annotated READ surface: one per-line row (line click target). */
 export const CODE_LINE_ROW_CLASSES =
@@ -225,7 +225,7 @@ export const CODE_LINE_ROW_LINKABLE_CLASSES =
 
 /** Annotated READ surface: a LIT line's tint (replaces any zebra stripe via cn()). */
 export const CODE_LINE_ROW_LIT_CLASSES =
-  "bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent)]";
+  "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
 /** Annotated READ surface: the line's code text cell — same horizontal padding token as CODE_CELL_CLASSES. */
 export const CODE_LINE_TEXT_CELL_CLASSES = "hljs whitespace-pre px-[var(--docs-code-pad-x,12px)]";
@@ -262,7 +262,7 @@ export const CODE_NOTE_CLASSES =
 
 /** The LIT note: the line tint (accent at 12%) behind it, and its body steps up to the panel ink. */
 export const CODE_NOTE_LIT_CLASSES =
-  "bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_12%,transparent)] [&_[data-note-body]]:text-[color:var(--docs-ink,#d4d4d4)]";
+  "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12 [&_[data-note-body]]:text-[color:var(--docs-ink,#d4d4d4)]";
 
 /** A note's head row: the range chip and the title, on one code-line-high row. */
 export const CODE_NOTE_HEAD_CLASSES =
@@ -277,4 +277,4 @@ export const CODE_NOTE_LABEL_CLASSES =
 
 /** A note's body, on its own lines under the head: smaller sans in the panel's muted ink. */
 export const CODE_NOTE_BODY_CLASSES =
-  "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[1.5] text-[color:var(--docs-muted,#9d9d9d)] transition-colors";
+  "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-muted,#9d9d9d)] transition-colors";

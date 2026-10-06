@@ -421,7 +421,7 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
         className={docBlockLayoutClasses(WIDE_LEFT_BLOCK_LAYOUT)}
         contentEditable={false}
       >
-        <div className="rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
+        <div className="rounded-[var(--radius)] border border-dashed bg-muted/30 p-3 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">
           Invalid {STRUCTURED_TABLE_LABEL} block — see agent description for the expected
           shape.
         </div>

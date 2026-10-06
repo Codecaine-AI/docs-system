@@ -119,18 +119,18 @@ export const CODE_LINE_TEXT_CLASSES = "pr-4";
  * in the page muted color at rest (4.5:1+). Never smaller than 12px.
  */
 export const RANGE_CHIP_CLASSES =
-  "mr-1.5 inline-block whitespace-nowrap rounded-[3px] border border-solid border-[color:var(--docs-rule,#e6e5e3)] px-1 align-[1px] font-mono text-[12px] leading-[18px] text-[color:var(--docs-muted,#666562)] transition-colors";
+  "mr-1.5 inline-block whitespace-nowrap rounded-[var(--ds-radius-base)] border border-solid border-[color:var(--docs-rule,#e6e5e3)] px-1 align-[1px] font-mono text-[length:var(--ds-font-size-ui-xs)] leading-[18px] text-[color:var(--docs-muted,#666562)] transition-colors";
 
 /** The chip of a LIT pair: link-color text on a soft accent fill. */
 export const RANGE_CHIP_LIT_CLASSES =
-  "border-[color:color-mix(in_srgb,var(--docs-accent,#0078df)_35%,transparent)] bg-[color:color-mix(in_srgb,var(--docs-accent,#0078df)_10%,transparent)] text-[color:var(--docs-link,#245a81)]";
+  "border-[var(--docs-accent,#0078df)]/35 bg-[var(--docs-accent,#0078df)]/10 text-[color:var(--docs-link,#245a81)]";
 
 /** CardShell frame: rounded bordered card; overflow-hidden so panels clip to the radius. */
-export const CARD_SHELL_CLASSES = "overflow-hidden rounded-lg border bg-background";
+export const CARD_SHELL_CLASSES = "overflow-hidden rounded-[var(--radius)] border bg-background";
 
 /** CardShell header bar: 12px mono as authored (no 11px caps), left label + optional right legend, hairline bottom rule over a faint wash. */
 export const CARD_SHELL_BAR_CLASSES =
-  "flex items-center justify-between gap-3 border-b border-solid border-[color:var(--docs-code-rule,var(--border))] bg-[color:color-mix(in_srgb,var(--muted)_30%,transparent)] px-4 py-2 font-mono text-[12px] text-muted-foreground";
+  "flex items-center justify-between gap-3 border-b border-solid border-[color:var(--docs-code-rule,var(--border))] bg-[var(--muted)]/30 px-4 py-2 font-mono text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground";
 
 /** Prose note stacks (R4): hairline divider between rows — never zebra. */
 export const PROSE_ROWS_CLASSES =

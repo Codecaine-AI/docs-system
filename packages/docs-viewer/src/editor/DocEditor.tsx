@@ -700,7 +700,7 @@ export default function DocEditor({
         {/* autoSave hosts render their own indicator from onSaveStateChange — no manual Save row. */}
         {!autoSave && (
           <div className="mb-2 flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">
               {isDirty && (
                 <span
                   data-doc-editor-dirty="true"
@@ -714,7 +714,7 @@ export default function DocEditor({
               type="button"
               onClick={() => void handleSave()}
               disabled={isSaving || !isDirty || !!lockConflict}
-              className="rounded-md border border-primary bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-[var(--radius)] border border-primary bg-primary/10 px-2 py-1 text-[length:var(--ds-font-size-ui-xs)] font-medium text-primary hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSaving ? "Saving..." : "Save"}
             </button>
@@ -723,7 +723,7 @@ export default function DocEditor({
         {lockConflict && (
           <div
             data-doc-editor-lock-conflict="true"
-            className="mb-2 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive"
+            className="mb-2 rounded-[var(--radius)] border border-destructive/30 bg-destructive/5 p-2 text-[length:var(--ds-font-size-ui-xs)] text-destructive"
           >
             Another session is editing this document (lock expires at{" "}
             {new Date(lockConflict.expiresAt).toLocaleTimeString()}). Saving is disabled until it
@@ -731,14 +731,14 @@ export default function DocEditor({
           </div>
         )}
         {saveError && (
-          <div className="mb-2 rounded-md border border-destructive/30 bg-destructive/5 p-2 text-xs text-destructive">
+          <div className="mb-2 rounded-[var(--radius)] border border-destructive/30 bg-destructive/5 p-2 text-[length:var(--ds-font-size-ui-xs)] text-destructive">
             {saveError.stale ? (
               <div className="flex flex-wrap items-center gap-2">
                 <span>Doc changed elsewhere — reload to continue. Your edits are kept.</span>
                 {onReloadDoc && (
                   <button
                     type="button"
-                    className="rounded-sm border border-destructive/40 px-1.5 py-0.5 font-medium hover:bg-destructive/10"
+                    className="rounded-[var(--radius)] border border-destructive/40 px-1.5 py-0.5 font-medium hover:bg-destructive/10"
                     onClick={onReloadDoc}
                   >
                     Reload doc

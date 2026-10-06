@@ -66,7 +66,7 @@ export function getCellEditor(element: HTMLElement): Editor | undefined {
 /** The classes the plaintext island carried, now on the mini editor's ProseMirror element (the focus ring lives on the enclosing th/td via :focus-within). */
 const CELL_TEXT_CLASSES = cn(
   TABLE_CELL_MIN_HEIGHT_CLASS,
-  "whitespace-pre-wrap break-words rounded-sm outline-none cursor-text",
+  "whitespace-pre-wrap break-words rounded-[var(--radius)] outline-none cursor-text",
 );
 
 /** Single-paragraph document: a cell is one flow of rich text; in-cell newlines are hard breaks, never extra paragraphs. */
@@ -197,7 +197,7 @@ function StaticCell({ value, ariaLabel, registerElement }: EditableCellProps) {
       aria-label={ariaLabel}
       className={cn(
         TABLE_CELL_MIN_HEIGHT_CLASS,
-        "whitespace-pre-wrap break-words rounded-sm outline-none",
+        "whitespace-pre-wrap break-words rounded-[var(--radius)] outline-none",
       )}
     >
       {renderTableCell(value)}

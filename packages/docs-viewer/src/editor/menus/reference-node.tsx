@@ -250,7 +250,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
           <>
             <FileTextIcon
               aria-hidden
-              className="self-center shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] [height:var(--docs-ref-icon-size,12px)] [width:var(--docs-ref-icon-size,12px)]"
+              className="self-center shrink-0 text-[color:var(--docs-ref-icon-color,currentColor)] h-[var(--docs-ref-icon-size,12px)] w-[var(--docs-ref-icon-size,12px)]"
             />
             <span className={DOC_REFERENCE_LABEL_CLASSES}>{label}</span>
           </>
@@ -262,7 +262,7 @@ function ReferenceChipView({ node }: ReactNodeViewProps) {
           id={tooltipId}
           role="tooltip"
           style={floatingStyles}
-          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-sm bg-foreground px-2 py-1 font-mono text-[12px] leading-tight text-background shadow-sm"
+          className="pointer-events-none z-50 max-w-[min(32rem,calc(100vw-1rem))] break-all rounded-[var(--radius)] bg-foreground px-2 py-1 font-mono text-[length:var(--ds-font-size-ui-xs)] leading-[var(--ds-line-height-tight)] text-background shadow-[var(--ds-shadow-glass)]"
         >
           {attrs.ref.path}
         </span>
@@ -557,11 +557,11 @@ export function ReferenceMentionPopover({
       ref={refs.setFloating}
       style={floatingStyles}
       data-doc-reference-picker="true"
-      className="z-50 max-h-72 w-72 overflow-y-auto rounded-md border bg-popover p-1 text-sm text-popover-foreground shadow-lg"
+      className="z-50 max-h-72 w-72 overflow-y-auto rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
     >
       <div ref={containerRef}>
         {filtered.length === 0 && !showCustomPath && (
-          <div className="px-2 py-1.5 text-xs text-muted-foreground">Type to search docs…</div>
+          <div className="px-2 py-1.5 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">Type to search docs…</div>
         )}
         {filtered.map((entry, index) => (
           <button
@@ -572,10 +572,10 @@ export function ReferenceMentionPopover({
               event.preventDefault();
               chooseDoc(entry);
             }}
-            className="flex w-full flex-col items-start rounded-sm px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
+            className="flex w-full flex-col items-start rounded-[var(--radius)] px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
           >
             <span className="font-medium">{entry.label}</span>
-            <span className="text-xs text-muted-foreground">{entry.path}</span>
+            <span className="text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">{entry.path}</span>
           </button>
         ))}
         {showCustomPath && (
@@ -586,10 +586,10 @@ export function ReferenceMentionPopover({
               event.preventDefault();
               chooseCustomPath();
             }}
-            className="flex w-full flex-col items-start rounded-sm border-t px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
+            className="flex w-full flex-col items-start rounded-[var(--radius)] border-t px-2 py-1.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
           >
             <span className="font-medium">Reference source path "{query}"</span>
-            <span className="text-xs text-muted-foreground">Insert as a source reference</span>
+            <span className="text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">Insert as a source reference</span>
           </button>
         )}
       </div>

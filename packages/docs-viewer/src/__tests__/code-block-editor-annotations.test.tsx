@@ -37,7 +37,7 @@ function hasClasses(element: Element, classes: string): boolean {
 }
 
 /** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bar. */
-const RESTING_MARK = "after:bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_65%,transparent)]";
+const RESTING_MARK = "after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
 
 describe("parseCodeAnnotations", () => {
   it("accepts well-formed entries and preserves optional labels", () => {
@@ -332,7 +332,7 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(cls("[data-code-header]")).toContain("bg-[color:var(--docs-code-header-bg,");
     const select = cls("select");
     expect(select).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
-    expect(select).toContain("[font-weight:var(--docs-code-header-weight,400)]");
+    expect(select).toContain("font-[var(--docs-code-header-weight,400)]");
     expect(select).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
 
     expect(cls('[data-annotation-note="0"] [data-note-body]')).toContain(
@@ -373,7 +373,7 @@ describe("CodeBlockNodeView shell geometry", () => {
     const gutterLine2 = container.querySelector('[data-code-gutter-line="2"]')!;
     expect(gutterLine2.classList.contains("relative")).toBe(true);
     expect(gutterLine2.classList.contains(RESTING_MARK)).toBe(true);
-    expect(gutterLine2.className).not.toContain("bg-[image:");
+    expect(gutterLine2.className).not.toContain("bg-linear-to-b");
     expect(gutterLine2.className).not.toContain("font-semibold");
     expect(
       container.querySelector('[data-code-gutter-line="2"]')?.hasAttribute("data-annotated"),

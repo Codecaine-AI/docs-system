@@ -49,7 +49,7 @@ export function PageTransition({ pageKey, ready = true, children, className }: {
     let cancelled = false;
     const duration = pageTransitionTiming(node).out;
     const animation = duration && node.animate
-      ? node.animate([{ opacity: getComputedStyle(node).opacity || 1 }, { opacity: 0 }], { duration, easing: "ease-out", fill: "forwards" })
+      ? node.animate([{ opacity: getComputedStyle(node).opacity || 1 }, { opacity: 0 }], { duration, easing: getComputedStyle(node).getPropertyValue("--ds-motion-easing-decelerate").trim() || undefined, fill: "forwards" })
       : null;
     const finish = () => { if (!cancelled) setPhase("wait"); };
     if (animation) void animation.finished.then(finish, finish);
@@ -70,7 +70,7 @@ export function PageTransition({ pageKey, ready = true, children, className }: {
     let cancelled = false;
     const duration = pageTransitionTiming(node).in;
     const animation = duration && node.animate
-      ? node.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: "ease-in", fill: "both" })
+      ? node.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing: getComputedStyle(node).getPropertyValue("--ds-motion-easing-standard").trim() || undefined, fill: "both" })
       : null;
     const finish = () => { if (!cancelled) setPhase("idle"); };
     if (animation) void animation.finished.then(finish, finish);

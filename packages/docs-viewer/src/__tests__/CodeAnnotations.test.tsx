@@ -42,7 +42,7 @@ function hasClasses(element: Element, classes: string): boolean {
 }
 
 /** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bar. */
-const RESTING_MARK = "after:bg-[color:color-mix(in_srgb,var(--docs-code-annotation-accent,#0b6e99)_65%,transparent)]";
+const RESTING_MARK = "after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
 
 describe("AnnotatedCodeBlock", () => {
   it("renders code with line numbers and note rows that open with their L#–# range chip", () => {
@@ -192,7 +192,7 @@ describe("AnnotatedCodeBlock", () => {
     expect(gutterCell.className).toContain("text-[color:var(--docs-code-gutter-fg,");
     expect(gutterCell.className).not.toContain("font-semibold");
     expect(gutterCell.className).not.toContain("--docs-link-pin");
-    expect(gutterCell.className).not.toContain("bg-[image:");
+    expect(gutterCell.className).not.toContain("bg-linear-to-b");
     // Plain rows carry no mark.
     expect(row(1).querySelector("span")!.className).not.toContain("after:");
     // Line metrics + gutter column from the code tokens.
@@ -354,7 +354,7 @@ describe("AnnotatedCodeBlock", () => {
     expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,32px)]");
     expect(cls("[data-code-header]")).toContain("bg-[color:var(--docs-code-header-bg,");
     expect(cls("[data-code-lang]")).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
-    expect(cls("[data-code-lang]")).toContain("[font-weight:var(--docs-code-header-weight,400)]");
+    expect(cls("[data-code-lang]")).toContain("font-[var(--docs-code-header-weight,400)]");
     expect(cls("[data-code-body]")).toContain("var(--docs-code-notes-width,280px)");
     expect(cls('[data-annotation-note="0"] [data-note-body]')).toContain(
       "text-[length:var(--docs-code-note-text-size,13px)]",
@@ -371,7 +371,7 @@ describe("AnnotatedCodeBlock", () => {
     const gutterCell = container.querySelector('[data-code-line="1"] > span')!;
     // Lit: accent semibold number, full-accent mark, accent 12% tint image.
     expect(hasClasses(gutterCell, CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES)).toBe(true);
-    expect(gutterCell.className).toContain("bg-[image:linear-gradient(");
+    expect(gutterCell.className).toContain("bg-linear-to-b");
     // The opaque gutter background survives under horizontal scroll, and the
     // size token stays intact next to the accent color.
     expect(gutterCell.className).toContain("bg-[color:var(--docs-code-gutter-bg,");

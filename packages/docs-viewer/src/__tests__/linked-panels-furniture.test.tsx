@@ -37,7 +37,7 @@ describe("RangeChip", () => {
     const chip = container.querySelector("[data-range-chip]") as HTMLElement;
     expect(chip.textContent).toBe("L2–7");
     expect(chip.className).toContain("font-mono");
-    expect(chip.className).toContain("text-[12px]");
+    expect(chip.className).toContain("text-[length:var(--ds-font-size-ui-xs)]");
     expect(chip.className).toContain("whitespace-nowrap");
     expect(chip.className).toContain("text-[color:var(--docs-muted,");
     // Not the old bold annotation-accent chip.
@@ -67,12 +67,12 @@ describe("CardShell", () => {
       </CardShell>,
     );
     const card = container.querySelector("[data-card-shell]") as HTMLElement;
-    expect(card.className).toContain("rounded-lg");
+    expect(card.className).toContain("rounded-[var(--radius)]");
     expect(card.className).toContain("border");
     expect(card.className).toContain("overflow-hidden");
     const bar = container.querySelector("[data-card-shell-bar]") as HTMLElement;
     expect(bar.className).toContain("font-mono");
-    expect(bar.className).toContain("text-[12px]");
+    expect(bar.className).toContain("text-[length:var(--ds-font-size-ui-xs)]");
     expect(bar.className).not.toContain("uppercase");
     expect(bar.className).toContain("justify-between");
     expect(bar.className).toContain("border-b");

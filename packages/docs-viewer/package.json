@@ -46,6 +46,7 @@
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@codecaine-ai/design-system": "workspace:*",
     "@happy-dom/global-registrator": "^20.9.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.2",

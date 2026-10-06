@@ -18,7 +18,7 @@ export function ImageGridEditorNodeView({ node, updateAttributes, editor }: Reac
   };
   return <NodeViewWrapper contentEditable={false} data-doc-node="docImageGrid" data-doc-block-type="image-grid" data-doc-lane="wide" className="w-full">
     <ImageGrid images={images} columns={props.columns} resolveAssetSrc={resolveAssetSrc} />
-    {editor.isEditable && <details className="rounded-md border p-3 text-sm">
+    {editor.isEditable && <details className="rounded-[var(--radius)] border p-3 text-[length:var(--ds-font-size-ui-lg)]">
       <summary className="cursor-pointer">Edit image grid</summary>
       <label className="mt-3 block">Columns <select aria-label="Grid columns" value={props.columns ?? "auto"} onChange={e => set({ columns: e.target.value === "auto" ? "auto" : Number(e.target.value) })}>
         <option value="auto">Auto</option>{[1, 2, 3, 4].map(n => <option key={n} value={n}>{n}</option>)}
@@ -36,7 +36,7 @@ export function ImageGridEditorNodeView({ node, updateAttributes, editor }: Reac
       </fieldset>)}
       <label className="mt-3 block">New image path<input className="block w-full rounded border bg-background p-1" placeholder="./assets/images/example.png" value={newSrc} onChange={e => setNewSrc(e.target.value)} /></label>
       <button className="mt-2" type="button" disabled={!newSrc.trim()} onClick={() => { set({ images: [...images, { src: newSrc.trim(), alt: "" }] }); setNewSrc(""); }}>Add image</button>
-      <p className="mt-2 text-xs text-muted-foreground">Use an uploaded image's bundle path. Headings appear above images; captions appear below. Columns reduce automatically in narrow panes.</p>
+      <p className="mt-2 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">Use an uploaded image's bundle path. Headings appear above images; captions appear below. Columns reduce automatically in narrow panes.</p>
     </details>}
   </NodeViewWrapper>;
 }

@@ -41,8 +41,8 @@ export function OutlineList({
                 data-block-id={section.blockId}
                 onClick={() => scrollToSection(section.blockId)}
                 className={[
-                  "flex w-full min-w-0 items-center border-l py-px pr-2 text-left text-[11px] leading-[1.9] transition-colors",
-                  "[padding-inline-start:calc(0.75rem+var(--docs-outline-depth)*0.75rem)]",
+                  "flex w-full min-w-0 items-center border-l py-px pr-2 text-left text-[length:var(--ds-font-size-ui-2xs)] leading-[1.9] transition-colors",
+                  "ps-[calc(var(--ds-space-3)+var(--docs-outline-depth)*var(--ds-space-3))]",
                   "focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--docs-outline-focus,var(--annotation-accent,currentColor))] focus-visible:ring-inset",
                   active
                     ? "text-[color:var(--docs-outline-active-fg,var(--foreground,currentColor))]"

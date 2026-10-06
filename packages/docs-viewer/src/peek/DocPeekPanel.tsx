@@ -81,11 +81,11 @@ export function DocPeekPanel({
       className={cn(
         // Divider + open/close transition are theme-driven: the workbench
         // StyleRail (or any host) tunes them via the --docs-peek-* variables.
-        "shrink-0 overflow-hidden bg-background transition-[width] ease-in-out",
+        "shrink-0 overflow-hidden bg-background transition-[width] ease-[var(--ds-motion-easing-emphasized)]",
         "duration-[var(--docs-peek-duration,300ms)]",
-        "[border-left-style:var(--docs-peek-divider-style,solid)] [border-left-width:var(--docs-peek-divider-width,1px)]",
+        "[border-left-style:var(--docs-peek-divider-style,solid)] border-l-[length:var(--docs-peek-divider-width,1px)]",
         state.open
-          ? cn(OPEN_WIDTH_CLASS, "[border-left-color:var(--docs-peek-divider-color,var(--border))]")
+          ? cn(OPEN_WIDTH_CLASS, "border-l-[color:var(--docs-peek-divider-color,var(--border))]")
           : "w-0 border-l-transparent",
       )}
     >
@@ -104,7 +104,7 @@ export function DocPeekPanel({
               onClick={close}
               aria-label="Close preview"
               title="Close preview"
-              className="shrink-0 rounded-sm p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="shrink-0 rounded-[var(--radius)] p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <XIcon aria-hidden className="h-4 w-4" />
             </button>
@@ -113,7 +113,7 @@ export function DocPeekPanel({
               onClick={openInFull}
               aria-label="Open in full"
               title="Open in full"
-              className="shrink-0 rounded-sm p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="shrink-0 rounded-[var(--radius)] p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ExternalLinkIcon aria-hidden className="h-4 w-4" />
             </button>
@@ -150,10 +150,10 @@ export function DocPeekPanel({
                 <h1 className="docs-page-title">{docTitleFromPath(state.ref.path)}</h1>
               </div>
               {state.load.status === "loading" && (
-                <div className="text-sm text-muted-foreground">Loading preview…</div>
+                <div className="text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground">Loading preview…</div>
               )}
               {state.load.status === "error" && (
-                <div className="text-sm text-muted-foreground">{state.load.message}</div>
+                <div className="text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground">{state.load.message}</div>
               )}
               {state.load.status === "loaded" && (
                 <div className={DOC_SURFACE_TYPOGRAPHY_CLASSES}>

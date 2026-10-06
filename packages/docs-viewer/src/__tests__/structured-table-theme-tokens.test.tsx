@@ -80,7 +80,7 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
     "thead th",
     "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
   ],
-  ["thead th", "[font-weight:var(--docs-table-header-weight,500)]"],
+  ["thead th", "font-[var(--docs-table-header-weight,500)]"],
   // Rows: the soft rule
   ["tbody tr", "border-b-[length:var(--docs-table-row-rule-width,1px)]"],
   ["tbody tr", "var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))"],
@@ -104,7 +104,7 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
   ["thead th", "py-[length:var(--docs-table-cell-pad-y,4px)]"],
   ["thead th", "px-[length:var(--docs-table-cell-pad-x,12px)]"],
   ["tbody td", "text-[length:var(--docs-table-font-size,13.5px)]"],
-  ["tbody td", "[font-weight:var(--docs-table-body-weight,400)]"],
+  ["tbody td", "font-[var(--docs-table-body-weight,400)]"],
   ["tbody td", "text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]"],
   // Identifier cells: the key column's mono cell takes the key token
   [
@@ -230,7 +230,7 @@ describe("structured-table column sizing and the pinned first column", () => {
       const [key, notes, unit] = Array.from(container.querySelectorAll("tbody tr:first-child td"));
       for (const cell of [key, unit]) {
         expect(cell!.className.split(" ")).toContain("whitespace-nowrap");
-        expect(cell!.querySelector(`.${CSS.escape("max-w-[60ch]")}`)).toBeNull();
+        expect(cell!.querySelector(`.${CSS.escape("max-w-[var(--ds-layout-lane-text)]")}`)).toBeNull();
       }
       expect(notes!.className.split(" ")).not.toContain("whitespace-nowrap");
       const measure = notes!.querySelector("div")!;

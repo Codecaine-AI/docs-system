@@ -34,7 +34,7 @@ export function SelectionOverlay({ rect }: { rect: Rect | null }) {
     <div
       contentEditable={false}
       data-table-selection-overlay=""
-      className="pointer-events-none absolute z-[1] rounded-sm border-2 border-[color:var(--docs-editor-accent,#2383e2)]"
+      className="pointer-events-none absolute z-1 rounded-[var(--radius)] border-2 border-[color:var(--docs-editor-accent,#2383e2)]"
       style={paddedRectStyle(rect)}
     />
   );

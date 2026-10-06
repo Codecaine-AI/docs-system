@@ -22,12 +22,12 @@ export const TABLE_CONTROL_FOCUS_CLASS =
   "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 
 const HANDLE_BASE_CLASSES =
-  "absolute z-[2] flex cursor-grab items-center justify-center rounded-[var(--docs-table-handle-radius,var(--radius,2px))] transition-opacity duration-200 ease-out active:cursor-grabbing";
+  "absolute z-2 flex cursor-grab items-center justify-center rounded-[var(--docs-table-handle-radius,var(--radius,2px))] transition-opacity duration-200 ease-[var(--ds-motion-easing-decelerate)] active:cursor-grabbing";
 
 function handleSkin(active: boolean): string {
   return active
-    ? cn(HANDLE_ACCENT_BG_CLASS, "border border-transparent text-white shadow-sm")
-    : "border bg-background text-muted-foreground shadow-sm";
+    ? cn(HANDLE_ACCENT_BG_CLASS, "border border-transparent text-[color:var(--ds-color-text-on-solid)]")
+    : "border bg-background text-muted-foreground";
 }
 
 /**
@@ -38,7 +38,7 @@ function Dots({ vertical = false }: { vertical?: boolean }) {
   return (
     <span
       aria-hidden
-      className={cn("grid gap-[2px]", vertical ? "grid-cols-2" : "grid-cols-3")}
+      className={cn("grid gap-0.5", vertical ? "grid-cols-2" : "grid-cols-3")}
     >
       {Array.from({ length: 6 }, (_, index) => (
         <span key={index} className="h-[2.5px] w-[2.5px] rounded-full bg-current" />

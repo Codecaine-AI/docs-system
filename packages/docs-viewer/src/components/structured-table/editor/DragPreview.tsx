@@ -31,7 +31,7 @@ export function DragPreview({
       contentEditable={false}
       data-table-drag-preview={axis}
       className={cn(
-        "pointer-events-none absolute z-50 flex overflow-hidden rounded-md border bg-background opacity-80 shadow-lg",
+        "pointer-events-none absolute z-50 flex overflow-hidden rounded-[var(--radius)] border bg-background opacity-80 shadow-[var(--ds-shadow-glass)]",
         isColumn ? "flex-col" : "flex-row items-stretch",
       )}
       style={{
@@ -44,7 +44,7 @@ export function DragPreview({
         <div
           key={index}
           className={cn(
-            "truncate px-2 py-1 text-sm text-foreground",
+            "truncate px-2 py-1 text-[length:var(--ds-font-size-ui-lg)] text-foreground",
             isColumn
               ? index === 0 && "border-b font-medium"
               : "flex max-w-40 items-center border-r last:border-r-0",

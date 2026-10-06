@@ -41,7 +41,7 @@ const IMAGE_CLASSES = "block h-auto max-w-full";
 const IMAGE_BODY_SVG_CLASSES = "max-w-full p-3";
 const IMAGE_BODY_RASTER_CLASSES = "max-w-full";
 const IMAGE_MISSING_CLASSES =
-  "not-prose my-[var(--docs-image-margin,24px)] rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[13.5px] text-[color:var(--docs-muted,#666562)]";
+  "not-prose my-[var(--docs-image-margin,24px)] rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,#666562)]";
 
 const isVectorSrc = (src: string) => /\.svg(?:[?#]|$)/i.test(src);
 

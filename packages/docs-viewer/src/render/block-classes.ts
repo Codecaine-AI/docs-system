@@ -58,7 +58,7 @@ export const DOC_SURFACE_TYPOGRAPHY_CLASSES =
  * publish) renders the same page.
  */
 export const PARAGRAPH_CLASSES =
-  "mt-[calc(var(--docs-paragraph-spacing,1)*1em)] mb-[calc(var(--docs-paragraph-spacing,1)*1em)] text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-paragraph-fg,#2a2a2a)] [text-wrap:pretty]";
+  "mt-[calc(var(--docs-paragraph-spacing,1)*1em)] mb-[calc(var(--docs-paragraph-spacing,1)*1em)] text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-paragraph-fg,#2a2a2a)] text-pretty";
 
 /**
  * `heading` — what every level shares: weight and ink follow the heading
@@ -67,7 +67,7 @@ export const PARAGRAPH_CLASSES =
  * render through HEADING_LEVEL_CLASSES.
  */
 export const HEADING_CLASSES =
-  "font-display [font-weight:var(--docs-heading-weight,600)] text-[color:var(--docs-heading-fg,#1f1f1f)] [text-wrap:balance] scroll-mt-8";
+  "font-display font-[var(--docs-heading-weight,600)] text-[color:var(--docs-heading-fg,#1f1f1f)] text-balance scroll-mt-8";
 
 /*
  * Heading rhythm: generous space above (a heading closes the previous
@@ -86,12 +86,12 @@ const HEADING_MINOR_SPACING =
  * 16px reading size). h4-h6 render at the reading size and have no size knob.
  */
 export const HEADING_LEVEL_CLASSES: Record<1 | 2 | 3 | 4 | 5 | 6, string> = {
-  1: `${HEADING_CLASSES} ${HEADING_MAJOR_SPACING} text-[length:calc(var(--docs-heading-h1-size,1.875)*1em)] leading-[1.2] tracking-[-0.015em]`,
-  2: `${HEADING_CLASSES} ${HEADING_MAJOR_SPACING} text-[length:calc(var(--docs-heading-h2-size,1.25)*1em)] leading-[1.3] tracking-[-0.011em]`,
-  3: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} text-[length:calc(var(--docs-heading-h3-size,1)*1em)] leading-[1.4] tracking-[-0.006em]`,
-  4: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[1.4]`,
-  5: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[1.4]`,
-  6: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[1.4]`,
+  1: `${HEADING_CLASSES} ${HEADING_MAJOR_SPACING} text-[length:calc(var(--docs-heading-h1-size,1.875)*1em)] leading-[var(--ds-line-height-tight)] tracking-[var(--ds-letter-spacing-title)]`,
+  2: `${HEADING_CLASSES} ${HEADING_MAJOR_SPACING} text-[length:calc(var(--docs-heading-h2-size,1.25)*1em)] leading-[var(--ds-line-height-tight)] tracking-[var(--ds-letter-spacing-title)]`,
+  3: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} text-[length:calc(var(--docs-heading-h3-size,1)*1em)] leading-[var(--ds-line-height-reading)] tracking-[var(--ds-letter-spacing-normal)]`,
+  4: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[var(--ds-line-height-reading)]`,
+  5: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[var(--ds-line-height-reading)]`,
+  6: `${HEADING_CLASSES} ${HEADING_MINOR_SPACING} leading-[var(--ds-line-height-reading)]`,
 };
 
 /** `list-item` — the flex row container (registry `div[role=listitem]`, editor `<li>`; `flex` also suppresses the `<li>`'s native marker). The item gap and text color follow the list-item tokens. An item that holds child items reads as a label for them (600, ink) — derived in styles/list-markers.css, so authors never bold it by hand. */
@@ -136,7 +136,7 @@ export const LIST_ITEM_CHILDREN_CLASSES = "";
  * keeps the chip whole on each line.
  */
 export const INLINE_CODE_CLASSES =
-  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] [font-weight:var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] [overflow-wrap:normal] [word-break:normal] [box-decoration-break:clone] [-webkit-box-decoration-break:clone]";
+  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] font-[var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] break-normal box-decoration-clone";
 
 /**
  * Typed inline code — per-kind text color for the chip, keyed by
@@ -173,7 +173,7 @@ export const INLINE_CODE_KIND_TEXT_CLASSES = "text-[color:var(--docs-chip-kind-f
  * so a link is told apart from text by shape as well as color.
  */
 export const LINK_CLASSES =
-  "text-[color:var(--docs-link,#245a81)] [font-weight:inherit] underline decoration-1 decoration-[color:color-mix(in_srgb,currentColor_35%,transparent)] underline-offset-2 hover:decoration-[color:currentColor]";
+  "text-[color:var(--docs-link,#245a81)] [font-weight:inherit] underline decoration-1 decoration-current/35 underline-offset-2 hover:decoration-current";
 
 /**
  * Doc reference (`reference` with kind "doc"): a sans link in the reference
@@ -184,7 +184,7 @@ export const LINK_CLASSES =
 export const DOC_REFERENCE_CLASSES =
   "cursor-pointer text-[color:var(--docs-ref-color,#245a81)]";
 export const DOC_REFERENCE_LABEL_CLASSES =
-  "underline decoration-dotted decoration-1 decoration-[color:color-mix(in_srgb,currentColor_60%,transparent)] underline-offset-[3px] group-hover:decoration-solid group-hover:decoration-[color:var(--docs-ref-underline-color,currentColor)] hover:decoration-solid hover:decoration-[color:var(--docs-ref-underline-color,currentColor)]";
+  "underline decoration-dotted decoration-1 decoration-current/60 underline-offset-3 group-hover:decoration-solid group-hover:decoration-[color:var(--docs-ref-underline-color,currentColor)] hover:decoration-solid hover:decoration-[color:var(--docs-ref-underline-color,currentColor)]";
 
 /**
  * Source reference (`reference` with kind "source"): a MONO link in the
@@ -193,7 +193,7 @@ export const DOC_REFERENCE_LABEL_CLASSES =
  * paths may wrap inside prose.
  */
 export const SOURCE_REFERENCE_CLASSES =
-  "cursor-pointer font-mono [font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)] text-[0.85em] text-[color:var(--docs-ref-color,#245a81)] no-underline border-b border-solid border-[color:color-mix(in_srgb,currentColor_35%,transparent)] hover:border-[color:var(--docs-ref-underline-color,currentColor)] [overflow-wrap:anywhere]";
+  "cursor-pointer font-mono font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)] text-[0.85em] text-[color:var(--docs-ref-color,#245a81)] no-underline border-b border-solid border-current/35 hover:border-[color:var(--docs-ref-underline-color,currentColor)] wrap-anywhere";
 
 /** `code` — the outer FRAME element on every surface (header band + scroll body live inside it — see components/code/CodeShell.tsx; padding and scrolling moved in there too). Border color/width, radius, background and the code typography follow the per-block-type tokens; the radius falls back to the global `--radius` and the other fallbacks equal the old `border` + `bg-muted/30` + `text-xs leading-[20px]` utilities so unthemed hosts render unchanged; the typography fallbacks are the 13px / 21px stock. */
 export const CODE_BLOCK_CLASSES =
@@ -201,7 +201,7 @@ export const CODE_BLOCK_CLASSES =
 
 /** Card container styling for the callout block type's clipboard / no-node-view HTML (the live editor and the read surface render CalloutDocsBlock instead): the one rail note, no box and no fill. */
 export const CARD_BASE_CLASSES =
-  "not-prose my-4 border-0 border-l-[3px] border-solid py-0.5 pl-[11px]";
+  "not-prose my-4 border-0 border-l-[length:var(--ds-border-width-rail)] border-solid py-0.5 pl-[11px]";
 
 /** Default note tone: the info rail (every tone shares the note; only the rail, glyph and label carry the tone in CalloutDocsBlock). */
 export const CARD_TONE_PRIMARY_CLASSES =

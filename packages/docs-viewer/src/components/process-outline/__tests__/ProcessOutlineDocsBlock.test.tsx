@@ -130,16 +130,16 @@ describe("ProcessOutlineDocsBlock", () => {
     // Keyword and note fallbacks are the Light+ values (semantic.css sets Dark+ in dark mode).
     expect(css).toContain("var(--docs-process-outline-keyword-fg, #af00db)");
     expect(css).toContain("var(--docs-process-outline-note-fg, #008000)");
-    // Chips pick Light+ or Dark+ from the page's color-scheme; type and number
-    // are Light+ darkened to keep 4.5:1 on the light chip fill.
+    // Chips pick Light+ (the light typed-chip token: type and number darkened
+    // to keep 4.5:1 on the light chip fill) or Dark+ from the page's color-scheme.
     expect(css).toContain(
-      '.docs-process-outline__code[data-chip-kind="call"] { color:light-dark(#795e26,var(--syntax-function,#dcdcaa)); }',
+      '.docs-process-outline__code[data-chip-kind="call"] { color:light-dark(var(--ds-light-color-code-chip-call),var(--syntax-function,#dcdcaa)); }',
     );
     expect(css).toContain(
-      '.docs-process-outline__code[data-chip-kind="type"] { color:light-dark(#22728a,var(--syntax-type,#4ec9b0)); }',
+      '.docs-process-outline__code[data-chip-kind="type"] { color:light-dark(var(--ds-light-color-code-chip-type),var(--syntax-type,#4ec9b0)); }',
     );
     expect(css).toContain(
-      '.docs-process-outline__code[data-chip-kind="literal"] { color:light-dark(#08794f,var(--syntax-number,#b5cea8)); }',
+      '.docs-process-outline__code[data-chip-kind="literal"] { color:light-dark(var(--ds-light-color-code-chip-literal),var(--syntax-number,#b5cea8)); }',
     );
   });
 

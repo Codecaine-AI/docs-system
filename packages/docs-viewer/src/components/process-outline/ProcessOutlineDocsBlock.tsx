@@ -87,13 +87,13 @@ const PROCESS_OUTLINE_CSS = `
   border-radius:var(--radius, 2px); background:var(--docs-process-outline-bg, #f8f8f7);
 }
 .docs-process-outline__head {
-  display:flex; align-items:flex-start; gap:8px; min-height:32px; padding:7px var(--po-pad-x);
+  display:flex; align-items:flex-start; gap:var(--ds-space-2); min-height:var(--ds-space-8); padding:7px var(--po-pad-x);
   background:var(--docs-process-outline-header-bg, #f8f8f7);
 }
-.docs-process-outline__node--root:has(> .docs-process-outline__children) > .docs-process-outline__head { border-bottom:1px solid var(--docs-rule-soft, #efeeec); }
+.docs-process-outline__node--root:has(> .docs-process-outline__children) > .docs-process-outline__head { border-bottom:var(--ds-border-width-hairline) solid var(--docs-rule-soft, #efeeec); }
 .docs-process-outline__tile {
-  display:inline-flex; flex:none; align-items:center; justify-content:center; width:16px; height:16px; margin-top:1px;
-  border-radius:2px; background:var(--docs-fam-flow-solid, #287c55); color:var(--docs-tile-glyph, #ffffff);
+  display:inline-flex; flex:none; align-items:center; justify-content:center; width:var(--ds-space-4); height:var(--ds-space-4); margin-top:1px;
+  border-radius:var(--ds-radius-base); background:var(--docs-fam-flow-solid, #287c55); color:var(--docs-tile-glyph, #ffffff);
 }
 .docs-process-outline__tile svg { display:block; width:11px; height:11px; }
 .docs-process-outline__head > .docs-process-outline__line {
@@ -101,7 +101,7 @@ const PROCESS_OUTLINE_CSS = `
   font-size:max(13px,var(--docs-process-outline-root-text-size, 13.5px));
   font-weight:var(--docs-process-outline-root-weight, 600); line-height:18px;
 }
-.docs-process-outline__line { position:relative; max-width:60ch; min-width:0; overflow-wrap:anywhere; line-height:var(--po-line); }
+.docs-process-outline__line { position:relative; max-width:var(--ds-layout-lane-text); min-width:0; overflow-wrap:anywhere; line-height:var(--po-line); }
 .docs-process-outline__node>.docs-process-outline__line { font-weight:var(--docs-process-outline-step-weight, 400); }
 /* a phase (first level, with substeps) reads in ink at the branch weight, so each phase group starts strong;
    depth below that reads from indent only */
@@ -114,7 +114,7 @@ const PROCESS_OUTLINE_CSS = `
 }
 /* the root's children are the panel body; phases breathe, but only when they have substeps */
 .docs-process-outline__node--root>.docs-process-outline__children {
-  margin-left:0; padding:var(--po-pad-y) var(--po-pad-x) calc(var(--po-pad-y) + 4px) calc(var(--po-pad-x) + var(--po-indent));
+  margin-left:0; padding:var(--po-pad-y) var(--po-pad-x) calc(var(--po-pad-y) + var(--ds-space-1)) calc(var(--po-pad-x) + var(--po-indent));
 }
 .docs-process-outline__node--root>.docs-process-outline__children:has(> .docs-process-outline__node > .docs-process-outline__children) { --po-gap: var(--po-branch-gap); }
 .docs-process-outline__children>.docs-process-outline__node { position:relative; }
@@ -133,43 +133,43 @@ const PROCESS_OUTLINE_CSS = `
 /* the first phase hangs from the head rule */
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::before { top:calc(-1 * var(--po-pad-y)); height:calc(var(--po-pad-y) + var(--po-line)/2 + var(--po-stroke)/2); }
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::after { top:calc(-1 * var(--po-pad-y)); }
-/* loop keywords: control flow (Light+ #AF00DB / Dark+ #C586C0) at a medium weight (coloured OR bold, not both) */
+/* loop keywords: control flow (the syntax control color, VS Code Light+ / Dark+) at a medium weight (coloured OR bold, not both) */
 .docs-process-outline__keyword { color:var(--docs-process-outline-keyword-fg, #af00db); font-weight:var(--docs-process-outline-keyword-weight, 500); }
 /* typed chips: one soft neutral chip, the text colour says what the code is */
 .docs-process-outline__code {
-  border-radius:3px; background:var(--docs-process-outline-code-bg, #ebebe9); padding:.1em .3em;
-  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:12px; font-weight:400;
+  border-radius:var(--ds-radius-base); background:var(--docs-process-outline-code-bg, #ebebe9); padding:.1em .3em;
+  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:var(--ds-font-size-ui-xs); font-weight:var(--ds-font-weight-regular);
   box-decoration-break:clone; -webkit-box-decoration-break:clone;
 }
 /* chips colour like code in VS Code: Light+ on the light page, Dark+ on the dark page */
 ${typedChipVsCodeColorCss(".docs-process-outline__code")}
 /* trace: a quiet mono tag after the text */
 .docs-process-outline__trace {
-  margin-left:8px; vertical-align:1px; color:var(--docs-muted, #666562); white-space:nowrap;
+  margin-left:var(--ds-space-2); vertical-align:1px; color:var(--docs-muted, #666562); white-space:nowrap;
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
-  font-size:max(12px,var(--docs-process-outline-trace-text-size, 12px)); font-weight:400; line-height:1;
+  font-size:max(12px,var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
 }
 /* notes: italic comment-coloured asides at the step indent, a // comment marker where an elbow would be */
 .docs-process-outline__note-card {
-  --po-line:var(--po-note-line); display:block; max-width:60ch; margin-left:var(--po-note-inset);
+  --po-line:var(--po-note-line); display:block; max-width:var(--ds-layout-lane-text); margin-left:var(--po-note-inset);
   border:var(--docs-process-outline-note-border-width, 0px) solid var(--docs-process-outline-note-border, #e6e5e3);
   border-left:var(--docs-process-outline-note-rule-width, 0px) solid color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-rule));
   background:var(--docs-process-outline-note-bg, transparent);
   padding:var(--docs-process-outline-note-pad-y, 2px) var(--docs-process-outline-note-pad-x, 0px) var(--docs-process-outline-note-pad-y, 2px) calc(var(--po-note-rule-gap) + var(--docs-process-outline-note-pad-x, 0px));
   color:var(--po-note-fg); font-style:italic;
-  font-size:max(12px,var(--docs-process-outline-note-text-size, 13.5px)); font-weight:400; line-height:var(--po-line);
+  font-size:max(12px,var(--docs-process-outline-note-text-size, 13.5px)); font-weight:var(--ds-font-weight-regular); line-height:var(--po-line);
 }
 .docs-process-outline__note-bullet { position:relative; overflow-wrap:anywhere; }
 .docs-process-outline__note-bullet::before {
   position:absolute; top:0; right:calc(100% + 3px); content:"//";
   color:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-bullet));
-  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:12px; font-style:normal; letter-spacing:-0.15em;
+  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:var(--ds-font-size-ui-xs); font-style:normal; letter-spacing:-0.15em;
   line-height:var(--po-line); white-space:nowrap; user-select:none;
 }
-.docs-process-outline__flow>.docs-process-outline__node--note { padding-left:12px; }
+.docs-process-outline__flow>.docs-process-outline__node--note { padding-left:var(--ds-space-3); }
 .docs-process-outline__children>.docs-process-outline__node--note::before,
 .docs-process-outline__children>.docs-process-outline__node--note>.docs-process-outline__line::before { display:none; }
-.docs-process-outline [data-process-outline-step-editing="true"] { border-radius:var(--radius, 2px); outline:var(--docs-process-outline-focus-ring, 1px) solid var(--docs-focus-ring, #0078df); outline-offset:2px; }
+.docs-process-outline [data-process-outline-step-editing="true"] { border-radius:var(--radius, 2px); outline:var(--docs-process-outline-focus-ring, 1px) solid var(--docs-focus-ring, #0078df); outline-offset:var(--ds-focus-ring-offset); }
 .docs-process-outline [data-process-outline-step-selected="true"] {
   border-radius:var(--radius, 2px); background:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg, transparent));
   box-shadow:0 0 0 var(--docs-process-outline-select-pad, 2px) color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-select-tint, 15) * 1%),var(--docs-process-outline-select-bg, transparent));
@@ -177,14 +177,14 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
 .docs-process-outline__empty { color:var(--docs-muted, #666562); font-size:max(12px,var(--docs-process-outline-empty-text-size, 12px)); }
 @media(max-width:520px) {
   .docs-process-outline {
-    --po-indent: min(20px, var(--docs-process-outline-indent, 28px));
-    --po-row-gap: min(4px, var(--docs-process-outline-row-gap, 4px));
-    --po-branch-gap: min(8px, var(--docs-process-outline-branch-gap, 16px));
-    --po-root-gap: min(12px, var(--docs-process-outline-root-gap, 12px));
+    --po-indent: min(var(--ds-space-5), var(--docs-process-outline-indent, 28px));
+    --po-row-gap: min(var(--ds-space-1), var(--docs-process-outline-row-gap, 4px));
+    --po-branch-gap: min(var(--ds-space-2), var(--docs-process-outline-branch-gap, 16px));
+    --po-root-gap: min(var(--ds-space-3), var(--docs-process-outline-root-gap, 12px));
     --po-pad-y: min(10px, var(--docs-process-outline-pad-y, 12px));
-    --po-pad-x: min(8px, var(--docs-process-outline-pad-x, 12px));
-    --po-note-inset: min(2px, var(--docs-process-outline-note-inset, 0px));
-    --po-note-rule-gap: min(6px, var(--docs-process-outline-note-rule-gap, 0px));
+    --po-pad-x: min(var(--ds-space-2), var(--docs-process-outline-pad-x, 12px));
+    --po-note-inset: min(var(--ds-space-0-5), var(--docs-process-outline-note-inset, 0px));
+    --po-note-rule-gap: min(var(--ds-space-1-5), var(--docs-process-outline-note-rule-gap, 0px));
   }
   .docs-process-outline__line { max-width:100%; }
 }

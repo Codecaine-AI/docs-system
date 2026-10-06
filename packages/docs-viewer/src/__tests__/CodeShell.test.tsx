@@ -164,7 +164,7 @@ describe("CodeShell (plain read surface)", () => {
     expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,32px)]");
     const label = cls("[data-code-lang]");
     expect(label).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
-    expect(label).toContain("[font-weight:var(--docs-code-header-weight,400)]");
+    expect(label).toContain("font-[var(--docs-code-header-weight,400)]");
     expect(label).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
 
     // None of the literals the tokens replaced survive beside them.

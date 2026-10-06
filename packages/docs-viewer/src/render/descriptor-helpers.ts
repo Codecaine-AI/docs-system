@@ -56,7 +56,7 @@ export function invalidBlockPlaceholder(
       "div",
       {
         className:
-          "rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground",
+          "rounded-[var(--radius)] border border-dashed bg-muted/30 p-3 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground",
       },
       `Invalid ${label} block — see agent description for the expected shape.`,
     ),

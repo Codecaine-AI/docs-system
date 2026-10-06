@@ -118,7 +118,7 @@ export function calloutLabel(kind: string | undefined, tone: string): string {
 const CALLOUT_FRAME_CLASSES =
   "not-prose my-[var(--docs-callout-margin,20px)] min-w-0 w-full box-border";
 const CALLOUT_HEAD_CLASSES =
-  "flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[length:var(--docs-callout-title-text-size,18px)] leading-[1.4]";
+  "flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[length:var(--docs-callout-title-text-size,18px)] leading-[var(--ds-line-height-reading)]";
 const CALLOUT_ICON_WRAP_CLASSES =
   "inline-flex shrink-0 items-center text-[color:var(--docs-callout-accent)]";
 const CALLOUT_ICON_CLASSES =
@@ -126,9 +126,9 @@ const CALLOUT_ICON_CLASSES =
 const CALLOUT_LABEL_CLASSES =
   "font-sans font-semibold text-[color:var(--docs-callout-accent)]";
 const CALLOUT_TITLE_CLASSES =
-  "min-w-0 break-words font-sans [font-weight:var(--docs-callout-title-weight,600)] text-[color:var(--docs-callout-title-ink)]";
+  "min-w-0 break-words font-sans font-[var(--docs-callout-title-weight,600)] text-[color:var(--docs-callout-title-ink)]";
 const CALLOUT_BODY_CLASSES =
-  "docs-markdown prose prose-sm dark:prose-invert max-w-none min-w-0 font-sans text-[length:calc(1rem*var(--docs-callout-body-text-scale,1))] leading-[1.6] text-[color:var(--docs-callout-text)]";
+  "docs-markdown prose prose-sm dark:prose-invert max-w-none min-w-0 font-sans text-[length:calc(1rem*var(--docs-callout-body-text-scale,1))] leading-[var(--ds-line-height-reading)] text-[color:var(--docs-callout-text)]";
 
 const CALLOUT_STYLES = `
   [data-docs-block-type="callout"] {
@@ -169,11 +169,11 @@ const CALLOUT_STYLES = `
     border-left: var(--docs-callout-rail-width,3px) solid var(--docs-callout-accent);
     border-radius: var(--docs-callout-radius,var(--radius,2px));
   }
-  [data-callout-head] { margin-bottom: 2px; }
+  [data-callout-head] { margin-bottom: var(--ds-space-0-5); }
   [data-callout-titled="true"] [data-callout-title]::before {
     content: "·";
-    margin-right: 8px;
-    font-weight: 400;
+    margin-right: var(--ds-space-2);
+    font-weight: var(--ds-font-weight-regular);
     color: var(--docs-muted, #666562);
   }
 

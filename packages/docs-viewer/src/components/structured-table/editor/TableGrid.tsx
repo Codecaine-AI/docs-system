@@ -62,7 +62,7 @@ function cellKey(row: number, col: number): string {
  * in table-classes.ts) so the read renderer never carries it.
  */
 export const EDITOR_CELL_FOCUS_CLASS =
-  "focus-within:shadow-[inset_0_0_0_2px_var(--docs-focus-ring,#0078df)]";
+  "focus-within:inset-ring-[length:var(--ds-border-width-focus)] focus-within:inset-ring-[color:var(--docs-focus-ring,#0078df)]";
 
 /** Focus a cell island with the caret ready at the end of its text — shared with the node view's post-add focus routing. */
 export function focusCellElement(element: HTMLElement) {

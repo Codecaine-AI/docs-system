@@ -22,14 +22,14 @@ export const MEDIA_HEAD_CLASSES =
 
 /** Default head title typography: sans 600 13.5px ink. */
 export const MEDIA_HEAD_TEXT =
-  "gap-x-2 text-[13.5px] font-semibold leading-[1.3] text-[color:var(--docs-ink,#1f1f1f)]";
+  "gap-x-2 text-[length:var(--ds-font-size-ui-md)] font-semibold leading-[var(--ds-line-height-tight)] text-[color:var(--docs-ink,#1f1f1f)]";
 
-const MEDIA_TITLE_CLASSES = "min-w-0 [overflow-wrap:anywhere]";
-const MEDIA_TITLE_MONO_CLASSES = "min-w-0 [overflow-wrap:anywhere] font-mono text-[13px] font-medium";
+const MEDIA_TITLE_CLASSES = "min-w-0 wrap-anywhere";
+const MEDIA_TITLE_MONO_CLASSES = "min-w-0 wrap-anywhere font-mono text-[length:var(--ds-font-size-code)] font-medium";
 const MEDIA_META_CLASSES =
-  "ml-auto flex-none whitespace-nowrap font-mono text-[12px] font-normal leading-none text-[color:var(--docs-muted,#666562)]";
+  "ml-auto flex-none whitespace-nowrap font-mono text-[length:var(--ds-font-size-ui-xs)] font-[var(--ds-font-weight-regular)] leading-none text-[color:var(--docs-muted,#666562)]";
 const MEDIA_TILE_CLASSES =
-  "inline-flex size-4 flex-none items-center justify-center rounded-[2px] bg-[var(--docs-fam-text-solid,#9b9a97)] text-[color:var(--docs-tile-glyph,#ffffff)]";
+  "inline-flex size-4 flex-none items-center justify-center rounded-[var(--ds-radius-base)] bg-[var(--docs-fam-text-solid,#9b9a97)] text-[color:var(--docs-tile-glyph,#ffffff)]";
 
 /** Focus ring shared by every media control: 2px accent ring, 2px out. */
 export const MEDIA_FOCUS_RING =
@@ -37,7 +37,7 @@ export const MEDIA_FOCUS_RING =
 
 /** Ghost button (Watch, Expand, the HTML viewer's zoom controls): 22px, hairline, page fill. */
 export const MEDIA_GHOST_BUTTON =
-  "inline-flex h-[22px] flex-none cursor-pointer items-center gap-1 rounded-[var(--radius,2px)] border border-[color:var(--docs-rule,#e6e5e3)] bg-[var(--docs-page,#fdfdfd)] px-2 font-sans text-[12px] font-medium leading-none text-[color:var(--docs-text,#2a2a2a)] hover:bg-[var(--docs-hover,#ebebea)] hover:text-[color:var(--docs-ink,#1f1f1f)] disabled:cursor-default disabled:opacity-50";
+  "inline-flex h-5.5 flex-none cursor-pointer items-center gap-1 rounded-[var(--radius,2px)] border border-[color:var(--docs-rule,#e6e5e3)] bg-[var(--docs-page,#fdfdfd)] px-2 font-sans text-[length:var(--ds-font-size-ui-xs)] font-medium leading-none text-[color:var(--docs-text,#2a2a2a)] hover:bg-[var(--docs-hover,#ebebea)] hover:text-[color:var(--docs-ink,#1f1f1f)] disabled:cursor-default disabled:opacity-50";
 
 type Glyph = ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: boolean }>;
 

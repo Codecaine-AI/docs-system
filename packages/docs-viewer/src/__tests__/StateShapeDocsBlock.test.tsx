@@ -315,7 +315,7 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(region.getAttribute("aria-label")).toBe("StateShapeState example");
     const css = sheet();
     expect(css).toContain("[data-ref-code] [data-line-number],[data-ref-code] [data-code-lines-filler]{display:none}");
-    expect(css).toContain("[data-ref-code] [data-code-lines]:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df)");
+    expect(css).toContain("[data-ref-code] [data-code-lines]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df)");
     // Side by side at 44/56 from a 560px container (the list keeps at least 360px,
     // the code pane at least 260px). Stacking is the narrow-screen last resort.
     expect(css).toContain("@container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
@@ -357,10 +357,10 @@ describe("StateShapeBlock — plain reference panel", () => {
       "[data-field-def]{flex:1 1 0;min-width:0}",
       // One unwrapping row: the type never drops under its name; it wraps
       // inside its own column, 24px past the name column.
-      "[data-field-row]{position:relative;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:24px;",
+      "[data-field-row]{position:relative;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:var(--ds-space-6);",
       "--fl-row-pad:var(--docs-shape-row-pad,5px)",
       "overflow-wrap:anywhere;word-break:normal",
-      "[data-field-row]:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df)",
+      "[data-field-row]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df)",
       // Nested fields: the file tree's elbow connectors, ink at 75%.
       "--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent))",
       ".docs-tree__guides > i[data-g=\"end\"]::before",

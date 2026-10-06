@@ -60,7 +60,7 @@ export const TABLE_COLUMN_FIT_CLASSES = {
  * a prose cell only ever breaks between words (the column's minimum width is
  * its longest word, so `break-words` on the editor island never fires).
  */
-export const TABLE_PROSE_MEASURE_CLASS = "max-w-[60ch] min-w-min";
+export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min-w-min";
 
 /**
  * The pinned first column (th and td): sticky at the frame's left edge,
@@ -70,9 +70,9 @@ export const TABLE_PROSE_MEASURE_CLASS = "max-w-[60ch] min-w-min";
  * marks its right edge. Without overflow, `sticky` changes nothing.
  */
 const TABLE_STICKY_BASE_CLASSES =
-  "sticky left-0 z-[1] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-[length:var(--docs-table-border-width,1px)] after:bg-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] after:opacity-0 [[data-table-overflow]_&]:after:opacity-100";
+  "sticky left-0 z-1 after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-[length:var(--docs-table-border-width,1px)] after:bg-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] after:opacity-0 [[data-table-overflow]_&]:after:opacity-100";
 
-export const TABLE_STICKY_HEADER_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} [background:linear-gradient(var(--docs-table-header-bg,transparent),var(--docs-table-header-bg,transparent)),var(--docs-table-bg,var(--docs-panel,#f8f8f7))]`;
+export const TABLE_STICKY_HEADER_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[image:linear-gradient(var(--docs-table-header-bg,transparent),var(--docs-table-header-bg,transparent))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]`;
 
 export const TABLE_STICKY_BODY_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))] [tr:hover>&]:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]`;
 
@@ -89,7 +89,7 @@ export const TABLE_HEAD_CLASSES =
  * its own token is set.
  */
 export const TABLE_HEADER_CELL_TEXT_CLASSES =
-  "min-w-[60px] align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] [font-weight:var(--docs-table-header-weight,500)]";
+  "min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
 
 export const TABLE_ROW_HOVER_CLASSES =
   "transition-colors hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]";
@@ -118,8 +118,8 @@ export const TABLE_ROW_RULE_CLASSES =
  * identifiers alone overflow it).
  */
 export const TABLE_BODY_CELL_TEXT_CLASSES = [
-  "align-top text-[length:var(--docs-table-font-size,13.5px)] [font-weight:var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
-  "data-[cell-kind]:[font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
+  "align-top text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
+  "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
   "data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)] data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
   "data-[cell-kind]:[--docs-inline-code-bg:transparent] data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor] data-[cell-kind]:[--docs-inline-code-pad-x:0] data-[cell-kind]:[--docs-inline-code-pad-y:0] data-[cell-kind]:[--docs-inline-code-text-size:1] data-[cell-kind]:[--docs-inline-code-border-width:0px]",
 ].join(" ");

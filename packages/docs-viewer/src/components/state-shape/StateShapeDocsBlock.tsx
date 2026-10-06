@@ -31,17 +31,17 @@ export type StateShapeSourceProps = { path: string; symbol?: string };
  * ledger (./field-ledger) reads the `--fl-*` locals mapped here.
  */
 export const STATE_SHAPE_STYLE = `
-[data-docs-block-type="state-shape"]{container-type:inline-size;margin:16px 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:var(--docs-shape-name-width,24ch);--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
-[data-shape-header]{display:flex;align-items:center;gap:8px;min-height:32px;padding:var(--docs-shape-header-pad-y,6px) var(--docs-shape-pad-x,16px);background:var(--docs-shape-header-bg,var(--docs-panel,#f8f8f7));border-bottom:var(--docs-shape-header-rule-width,1px) solid var(--docs-shape-header-rule,var(--docs-rule-soft,#efeeec))}
+[data-docs-block-type="state-shape"]{container-type:inline-size;margin:var(--ds-space-4) 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:var(--docs-shape-name-width,24ch);--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
+[data-shape-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--docs-shape-header-pad-y,6px) var(--docs-shape-pad-x,16px);background:var(--docs-shape-header-bg,var(--docs-panel,#f8f8f7));border-bottom:var(--docs-shape-header-rule-width,1px) solid var(--docs-shape-header-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-name]{margin:0;min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-shape-header-text-size,13px);font-weight:var(--docs-shape-header-weight,600);line-height:1.3;color:var(--docs-shape-header-fg,var(--docs-ink,#1f1f1f));overflow-wrap:normal}
 [data-shape-header]>[data-described]{margin-left:auto;min-width:0}
-[data-shape-source-ref]{display:inline-block;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:12px;line-height:1.4;color:var(--docs-muted,#666562);overflow-wrap:normal}
-[data-shape-header] [data-description-tip]{left:auto;right:-8px;max-width:min(60ch,calc(100cqi - 24px));font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:12px;color:var(--docs-text,#2a2a2a);overflow-wrap:anywhere}
+[data-shape-source-ref]{display:inline-block;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);line-height:1.4;color:var(--docs-muted,#666562);overflow-wrap:normal}
+[data-shape-header] [data-description-tip]{left:auto;right:-8px;max-width:min(60ch,calc(100cqi - 24px));font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);color:var(--docs-text,#2a2a2a);overflow-wrap:anywhere}
 @media print{[data-shape-header] [data-description-tip]{display:none}}
-[data-shape-description]{margin:0;padding:8px var(--docs-shape-pad-x,16px);max-width:calc(60ch + 2*var(--docs-shape-pad-x,16px));font-size:13.5px;line-height:1.5;color:var(--docs-text,#2a2a2a);border-bottom:var(--docs-shape-rule-width,1px) solid var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
+[data-shape-description]{margin:0;padding:var(--ds-space-2) var(--docs-shape-pad-x,16px);max-width:calc(var(--ds-layout-lane-text) + 2*var(--docs-shape-pad-x,16px));font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui);color:var(--docs-text,#2a2a2a);border-bottom:var(--docs-shape-rule-width,1px) solid var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-grid]{display:grid;grid-template-columns:minmax(0,1fr)}
-[data-shape-tree]{min-width:0;padding:4px 0}
-[data-shape-empty]{margin:0;padding:6px var(--docs-shape-pad-x,16px);font-size:13.5px;color:var(--docs-shape-desc-fg,var(--docs-muted,#666562))}
+[data-shape-tree]{min-width:0;padding:var(--ds-space-1) 0}
+[data-shape-empty]{margin:0;padding:var(--ds-space-1-5) var(--docs-shape-pad-x,16px);font-size:var(--ds-font-size-ui-md);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562))}
 [data-shape-example-pane]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}
 @container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-shape-grid][data-has-example] [data-shape-example-pane]{border-top:0;border-left:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}}
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
@@ -53,7 +53,7 @@ export const STATE_SHAPE_STYLE = `
  * Shape and Interaction Surface are the reference family (violet).
  */
 export const REF_TILE_STYLE = `
-[data-ref-tile]{display:inline-flex;flex:none;align-items:center;justify-content:center;width:16px;height:16px;border-radius:2px;background:var(--docs-fam-ref-solid,#6940a5);color:var(--docs-tile-glyph,#ffffff)}
+[data-ref-tile]{display:inline-flex;flex:none;align-items:center;justify-content:center;width:var(--ds-space-4);height:var(--ds-space-4);border-radius:var(--ds-radius-base);background:var(--docs-fam-ref-solid,#6940a5);color:var(--docs-tile-glyph,#ffffff)}
 [data-ref-tile]>svg{display:block;width:11px;height:11px;stroke-width:2.25}
 `;
 
@@ -73,13 +73,13 @@ export const REF_TILE_STYLE = `
 export const REF_CODE_PANE_STYLE = `
 [data-ref-code] [data-line-number],[data-ref-code] [data-code-lines-filler]{display:none}
 [data-ref-code] [data-code-line]:not([data-lit]){background:none}
-[data-ref-code] [data-code-lines]{padding:8px 0}
+[data-ref-code] [data-code-lines]{padding:var(--ds-space-2) 0}
 [data-ref-code] [data-code-lines]>:first-child{width:auto}
 [data-ref-code] [data-code-line]{height:auto;white-space:pre-wrap;tab-size:2}
 [data-ref-code] [data-line-text]{flex:1 1 auto;min-width:0;padding:0 var(--fl-pad-x,16px);overflow-wrap:break-word}
 [data-ref-code] [data-hang]{display:block;padding-left:calc(var(--hang,0ch) + 2ch);text-indent:calc(-1*(var(--hang,0ch) + 2ch))}
 [data-ref-code] :is([data-json-token="string"],[data-sig-token="string"]){overflow-wrap:anywhere}
-[data-ref-code] [data-code-lines]:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df);outline-offset:-2px}
+[data-ref-code] [data-code-lines]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:-2px}
 `;
 
 /**
@@ -106,12 +106,12 @@ export function leadingColumns(line: string): number {
 // role font-style / weight that styles/code.css reads. Punctuation is the
 // plain code foreground, as in Dark+.
 const JSON_TOKEN_CLASS = {
-  key: "text-[color:var(--syntax-key,#0e7490)] dark:text-[color:var(--syntax-key,#67e8f9)] [font-style:var(--syntax-key-font-style,normal)] [font-weight:var(--syntax-key-font-weight,inherit)]",
-  string: "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)] [font-style:var(--syntax-string-font-style,normal)] [font-weight:var(--syntax-string-font-weight,inherit)]",
-  number: "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)] [font-style:var(--syntax-number-font-style,normal)] [font-weight:var(--syntax-number-font-weight,inherit)]",
-  boolean: "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)] [font-style:var(--syntax-boolean-font-style,normal)] [font-weight:var(--syntax-boolean-font-weight,inherit)]",
-  null: "text-[color:var(--syntax-null,#b91c1c)] dark:text-[color:var(--syntax-null,#fca5a5)] [font-style:var(--syntax-null-font-style,normal)] [font-weight:var(--syntax-null-font-weight,inherit)]",
-  punct: "text-[color:var(--syntax-punctuation,var(--docs-code-fg,var(--muted-foreground)))] [font-style:var(--syntax-punctuation-font-style,normal)] [font-weight:var(--syntax-punctuation-font-weight,inherit)]",
+  key: "text-[color:var(--syntax-key,#0e7490)] dark:text-[color:var(--syntax-key,#67e8f9)] [font-style:var(--syntax-key-font-style,normal)] font-[var(--syntax-key-font-weight,inherit)]",
+  string: "text-[color:var(--syntax-string,#15803d)] dark:text-[color:var(--syntax-string,#86efac)] [font-style:var(--syntax-string-font-style,normal)] font-[var(--syntax-string-font-weight,inherit)]",
+  number: "text-[color:var(--syntax-number,#1d4ed8)] dark:text-[color:var(--syntax-number,#93c5fd)] [font-style:var(--syntax-number-font-style,normal)] font-[var(--syntax-number-font-weight,inherit)]",
+  boolean: "text-[color:var(--syntax-boolean,#b45309)] dark:text-[color:var(--syntax-boolean,#fcd34d)] [font-style:var(--syntax-boolean-font-style,normal)] font-[var(--syntax-boolean-font-weight,inherit)]",
+  null: "text-[color:var(--syntax-null,#b91c1c)] dark:text-[color:var(--syntax-null,#fca5a5)] [font-style:var(--syntax-null-font-style,normal)] font-[var(--syntax-null-font-weight,inherit)]",
+  punct: "text-[color:var(--syntax-punctuation,var(--docs-code-fg,var(--muted-foreground)))] [font-style:var(--syntax-punctuation-font-style,normal)] font-[var(--syntax-punctuation-font-weight,inherit)]",
 } as const;
 type JsonTokenKind = keyof typeof JSON_TOKEN_CLASS;
 const JSON_LEXEME_PATTERN = /"(?:[^"\\]|\\.)*"|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?|true|false|null|[{}[\],:]/g;

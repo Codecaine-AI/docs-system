@@ -87,7 +87,7 @@ export function BirthFlash({
           contentEditable={false}
           data-table-birth-flash=""
           className={cn(
-            "pointer-events-none absolute z-[3] rounded-sm",
+            "pointer-events-none absolute z-3 rounded-[var(--radius)]",
             HANDLE_ACCENT_BG_CLASS,
           )}
           style={{
@@ -98,7 +98,7 @@ export function BirthFlash({
             // `forwards` holds the faded-out end state, so even a delayed
             // unmount shows nothing.
             opacity: 0,
-            animation: `docs-table-birth-flash ${BIRTH_FLASH_DURATION_MS}ms ease-out forwards`,
+            animation: `docs-table-birth-flash ${BIRTH_FLASH_DURATION_MS}ms var(--ds-motion-easing-decelerate) forwards`,
           }}
           onAnimationEnd={() => onDoneRef.current()}
         />

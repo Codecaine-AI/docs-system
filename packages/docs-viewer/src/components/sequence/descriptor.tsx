@@ -29,7 +29,7 @@ export const descriptors: DocBlockDescriptor[] = [
               "div",
               {
                 className:
-                  "rounded-md border border-dashed border-[color:var(--docs-sequence-border,var(--border))] bg-muted/30 p-3 text-xs text-muted-foreground",
+                  "rounded-[var(--radius)] border border-dashed border-[color:var(--docs-sequence-border,var(--border))] bg-muted/30 p-3 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground",
               },
               sequenceId || src
                 ? `Sequence embed: ${sequenceId ?? src}`

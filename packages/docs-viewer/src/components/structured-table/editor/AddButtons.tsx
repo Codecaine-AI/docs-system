@@ -6,7 +6,7 @@ import { cn } from "../../../ui/cn";
 import { TABLE_CONTROL_FOCUS_CLASS } from "./Handles";
 
 const BAR_BASE_CLASSES =
-  "absolute z-[2] flex items-center justify-center rounded-sm bg-muted/50 text-muted-foreground transition-opacity duration-200 ease-out hover:bg-muted";
+  "absolute z-2 flex items-center justify-center rounded-[var(--radius)] bg-muted/50 text-muted-foreground transition-opacity duration-200 ease-[var(--ds-motion-easing-decelerate)] hover:bg-muted";
 
 /** Hover dwell before an add bar shows its tooltip (matches Notion's feel). */
 export const ADD_BAR_TOOLTIP_DELAY_MS = 400;
@@ -14,7 +14,7 @@ export const ADD_BAR_TOOLTIP_DELAY_MS = 400;
 const TOOLTIP_CLASSES =
   // w-max: the bars are only 16px wide, so an absolutely positioned tooltip
   // would otherwise shrink-to-fit against that containing block.
-  "pointer-events-none absolute z-50 w-max whitespace-nowrap rounded-sm px-2 py-1 text-xs shadow-md bg-neutral-800 text-neutral-100 dark:bg-neutral-200 dark:text-neutral-900";
+  "pointer-events-none absolute z-50 w-max whitespace-nowrap rounded-[var(--radius)] px-2 py-1 text-[length:var(--ds-font-size-ui-xs)] shadow-[var(--ds-shadow-glass)] bg-[color:var(--ds-color-text-ink)] text-[color:var(--ds-color-surface-page)]";
 
 function barVisibility(forced: boolean): string {
   return forced ? "opacity-100" : "opacity-0 hover:opacity-100";
@@ -118,7 +118,7 @@ export function AddButtons({
           BAR_BASE_CLASSES,
           TABLE_CONTROL_FOCUS_CLASS,
           "cursor-col-resize",
-          "-right-[18px] top-0 h-full w-4",
+          "-right-4.5 top-0 h-full w-4",
           barVisibility(lastColumnHovered),
         )}
         onMouseDown={(event) => {
@@ -148,7 +148,7 @@ export function AddButtons({
           BAR_BASE_CLASSES,
           TABLE_CONTROL_FOCUS_CLASS,
           "cursor-row-resize",
-          "-bottom-[18px] left-0 h-4 w-full",
+          "-bottom-4.5 left-0 h-4 w-full",
           barVisibility(lastRowHovered),
         )}
         onMouseDown={(event) => {
@@ -178,7 +178,7 @@ export function AddButtons({
           BAR_BASE_CLASSES,
           TABLE_CONTROL_FOCUS_CLASS,
           "cursor-nwse-resize",
-          "-bottom-[18px] -right-[18px] h-4 w-4",
+          "-bottom-4.5 -right-4.5 h-4 w-4",
           barVisibility(false),
         )}
         onMouseDown={(event) => {

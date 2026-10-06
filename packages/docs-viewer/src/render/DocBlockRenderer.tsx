@@ -117,11 +117,11 @@ export { renderDeltaSpans };
 function UnknownBlockTypeBlock({ block }: { block: DocBlock }) {
   return (
     <section
-      className="not-prose my-4 rounded-md border border-dashed bg-muted/30 p-3"
+      className="not-prose my-4 rounded-[var(--radius)] border border-dashed bg-muted/30 p-3"
       data-doc-block="unknown"
       data-block-id={block.id}
     >
-      <div className="font-display text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <div className="font-display text-[length:var(--ds-font-size-ui-2xs)] font-medium uppercase tracking-[var(--ds-letter-spacing-micro)] text-muted-foreground">
         Unknown block type: {block.type}
       </div>
     </section>

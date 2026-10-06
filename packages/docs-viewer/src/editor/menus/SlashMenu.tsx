@@ -551,7 +551,7 @@ const ZERO_RECT = {
  * the overlay-panel background.
  */
 const PANEL_CLASS =
-  "max-h-[390px] w-[280px] overflow-y-auto rounded-lg border bg-popover py-2 pl-2 pr-1 text-popover-foreground shadow-lg";
+  "max-h-97.5 w-70 overflow-y-auto rounded-[var(--radius)] border bg-popover py-2 pl-2 pr-1 text-popover-foreground shadow-[var(--ds-shadow-glass)]";
 
 /**
  * One 44px menu row: 28px bordered icon box, name + single-line truncated
@@ -582,19 +582,19 @@ function SlashMenuRow({
       data-selected={selected}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
-      className="flex h-11 w-full cursor-pointer items-center justify-start gap-2.5 rounded-md px-2 py-[2px] text-left hover:bg-muted data-[selected=true]:bg-muted"
+      className="flex h-11 w-full cursor-pointer items-center justify-start gap-2.5 rounded-[var(--radius)] px-2 py-0.5 text-left hover:bg-muted data-[selected=true]:bg-muted"
     >
       <span
         data-doc-slash-menu-icon="true"
         aria-hidden="true"
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border bg-popover"
+        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius)] border bg-popover"
       >
-        {Icon ? <Icon className="h-[18px] w-[18px]" /> : null}
+        {Icon ? <Icon className="h-4.5 w-4.5" /> : null}
       </span>
       <span className="flex min-w-0 flex-1 flex-col items-start overflow-hidden">
-        <span className="text-sm text-foreground">{item.name}</span>
+        <span className="text-[length:var(--ds-font-size-ui-lg)] text-foreground">{item.name}</span>
         {item.description ? (
-          <span className="w-full truncate text-xs text-muted-foreground">{item.description}</span>
+          <span className="w-full truncate text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">{item.description}</span>
         ) : null}
       </span>
       {isSubMenuCommand(item) ? (
@@ -777,7 +777,7 @@ export function SlashMenuPopover({ editor }: { editor: Editor }) {
                 {showHeader && (
                   <div
                     data-doc-slash-menu-group={group}
-                    className="px-2 py-[2px] text-xs font-medium text-muted-foreground"
+                    className="px-2 py-0.5 text-[length:var(--ds-font-size-ui-xs)] font-medium text-muted-foreground"
                   >
                     {group}
                   </div>

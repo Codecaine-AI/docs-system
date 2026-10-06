@@ -1273,7 +1273,7 @@ function DocsAnnotationToolbar({
   return (
     <div
       ref={toolbarRef}
-      className="fixed z-50 rounded-md border bg-popover p-1 shadow-lg"
+      className="fixed z-50 rounded-[var(--radius)] border bg-popover p-1 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,
@@ -1402,7 +1402,7 @@ function DocsAnnotationPopover({
     <div
       ref={containerRef}
       role="dialog"
-      className="fixed z-50 flex flex-col gap-2 rounded-md border bg-popover p-3 shadow-lg"
+      className="fixed z-50 flex flex-col gap-2 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,
@@ -1427,7 +1427,7 @@ function DocsAnnotationPopover({
         }}
         rows={4}
         placeholder="Add an annotation..."
-        className="min-h-24 resize-none text-sm"
+        className="min-h-24 resize-none text-[length:var(--ds-font-size-ui-lg)]"
       />
       <div className="flex justify-end gap-2">
         <Button type="button" variant="ghost" size="sm" onClick={onClose}>
@@ -1517,7 +1517,7 @@ function DocsCanvasInsertPopover({
     <div
       ref={containerRef}
       role="dialog"
-      className="fixed z-50 flex flex-col gap-3 rounded-md border bg-popover p-3 shadow-lg"
+      className="fixed z-50 flex flex-col gap-3 rounded-[var(--radius)] border bg-popover p-3 shadow-[var(--ds-shadow-glass)]"
       style={{
         top: position.top,
         left: position.left,
@@ -1526,7 +1526,7 @@ function DocsCanvasInsertPopover({
       }}
       onMouseDown={(event) => event.stopPropagation()}
     >
-      <label className="grid gap-1 text-xs">
+      <label className="grid gap-1 text-[length:var(--ds-font-size-ui-xs)]">
         <span className="text-muted-foreground">Diagram title</span>
         <Input
           ref={inputRef}
@@ -1622,7 +1622,7 @@ function DocsTargetOverlay({
         data-docs-target-ui
         data-docs-target-overlay={variant}
         className={cn(
-          "pointer-events-none rounded-sm border-2",
+          "pointer-events-none rounded-[var(--radius)] border-2",
           isSelected
             ? "border-primary bg-primary/10 ring-4 ring-primary/10"
             : "border-dashed border-primary/50 bg-primary/5",
@@ -1633,8 +1633,8 @@ function DocsTargetOverlay({
           left: position.left - 3,
           width: position.width + 6,
           height: position.height + 6,
-          zIndex: 20,
-          transition: "all 100ms ease-out",
+          zIndex: "var(--ds-z-raised)",
+          transition: "all var(--ds-motion-duration-fast) var(--ds-motion-easing-decelerate)",
         }}
       />
       <div
@@ -1645,14 +1645,14 @@ function DocsTargetOverlay({
           position: "absolute",
           top: Math.max(0, position.top - 24),
           left: position.left - 3,
-          zIndex: 21,
-          transition: "all 100ms ease-out",
+          zIndex: "calc(var(--ds-z-raised) + 1)",
+          transition: "all var(--ds-motion-duration-fast) var(--ds-motion-easing-decelerate)",
         }}
       >
         <span
           className={cn(
-            "inline-block overflow-hidden text-ellipsis whitespace-nowrap rounded-sm px-1.5 font-mono text-[10px] leading-4 text-primary-foreground",
-            isSelected ? "bg-primary" : "max-w-[260px] bg-primary",
+            "inline-block overflow-hidden text-ellipsis whitespace-nowrap rounded-[var(--radius)] px-1.5 font-mono text-[length:var(--ds-font-size-micro)] leading-[var(--ds-space-4)] text-primary-foreground",
+            isSelected ? "bg-primary" : "max-w-65 bg-primary",
           )}
         >
           {isSelected ? targetKindLabel(target, doc) : target.label}

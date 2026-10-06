@@ -57,25 +57,25 @@ export function chipKind(raw: string): ChipKind {
 /**
  * VS Code colors for chips on a page panel (not a code surface): Light+ on a
  * light page, Dark+ on a dark one, picked by the inherited `color-scheme`
- * through `light-dark()`, so no mode selector is needed. Two Light+ hues are
- * darkened 10% to keep 4.5:1 on the light chip fill (#ebebe9): type #267F99
- * -> #22728A and number #098658 -> #08794F. The dark side reads the code
- * theme's --syntax-* roles with the Dark+ value as the literal. An
- * unclassified chip is the editor's default code ink (#1F1F1F / Dark+
- * #D4D4D4), never a muted grey. Without semantic.css (no color-scheme) the
- * light values apply. The page chips (render/block-classes.ts
+ * through `light-dark()`, so no mode selector is needed. The light side is the
+ * design-system typed-chip token pinned to the light theme
+ * (--ds-light-color-code-chip-*: Light+, with type and number darkened 10% to
+ * keep 4.5:1 on the light chip fill). The dark side reads the code theme's
+ * --syntax-* roles with the Dark+ value as the literal. An unclassified chip
+ * is the code chip ink (Light+ / Dark+), never a muted grey. Without
+ * semantic.css (no color-scheme) the light values apply. The page chips (render/block-classes.ts
  * INLINE_CODE_KIND_CLASSES + the semantic.css --docs-inline-code-*-fg
  * knobs) carry the same values.
  */
 const CHIP_KIND_VSCODE_COLOR: Record<ChipKind, string> = {
-  path: "light-dark(#a31515,var(--syntax-string,#ce9178))",
-  string: "light-dark(#a31515,var(--syntax-string,#ce9178))",
-  type: "light-dark(#22728a,var(--syntax-type,#4ec9b0))",
-  call: "light-dark(#795e26,var(--syntax-function,#dcdcaa))",
-  literal: "light-dark(#08794f,var(--syntax-number,#b5cea8))",
-  keyword: "light-dark(#0000ff,var(--syntax-keyword,#569cd6))",
-  prop: "light-dark(#001080,var(--syntax-key,#9cdcfe))",
-  other: "light-dark(#1f1f1f,#d4d4d4)",
+  path: "light-dark(var(--ds-light-color-code-chip-string),var(--syntax-string,#ce9178))",
+  string: "light-dark(var(--ds-light-color-code-chip-string),var(--syntax-string,#ce9178))",
+  type: "light-dark(var(--ds-light-color-code-chip-type),var(--syntax-type,#4ec9b0))",
+  call: "light-dark(var(--ds-light-color-code-chip-call),var(--syntax-function,#dcdcaa))",
+  literal: "light-dark(var(--ds-light-color-code-chip-literal),var(--syntax-number,#b5cea8))",
+  keyword: "light-dark(var(--ds-light-color-code-chip-keyword),var(--syntax-keyword,#569cd6))",
+  prop: "light-dark(var(--ds-light-color-code-chip-prop),var(--syntax-key,#9cdcfe))",
+  other: "light-dark(var(--ds-light-color-code-chip-ink),var(--ds-dark-color-code-chip-ink))",
 };
 
 /** One color rule per kind for chips matched by `selector` (which carry `data-chip-kind`), in the VS Code palettes (Light+ / Dark+ by page mode). */

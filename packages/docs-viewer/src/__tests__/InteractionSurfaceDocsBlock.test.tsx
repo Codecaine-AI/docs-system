@@ -274,12 +274,12 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     const css = sheet();
     // Full panel width (no side inset), so the ledger columns line up with a
     // State Shape's; 12px apart and 12px above the next operation.
-    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:12px;padding:0 0 12px}");
+    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-3);padding:0 0 var(--ds-space-3)}");
     // Raised a step toward ink, ruled top and bottom only (the panel frames the sides).
     expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,");
     expect(css).toContain("border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}");
     // The head bar is a sans heading in ink.
-    expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:600;line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
+    expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
     // List beside code at the shared 44/56 split once the CARD (the size
     // container) is 560px; the code pane keeps at least 260px. Stacking is
     // the narrow-screen last resort only.
@@ -429,7 +429,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)))",
       // The kind badge reads the role tokens: text, line, and soft fill.
       '[data-operation-kind-badge="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
-      "font-size:12px;font-weight:500",
+      "font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium)",
       // Focus ring and hover on the line.
       "[data-disclosure]>summary:focus-visible{outline:2px solid var(--docs-focus-ring,#0078df);outline-offset:-2px}",
       "[data-disclosure]>summary:hover{background:var(--docs-hover,",

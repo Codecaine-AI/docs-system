@@ -131,18 +131,18 @@ const VIDEO_FIGURE_CLASSES =
   "not-prose my-[var(--docs-video-margin,24px)] max-w-[var(--style-content-width,60ch)]";
 const VIDEO_PANEL_CLASSES = `${MEDIA_PANEL_CLASS} ${MEDIA_PANEL_FILL} rounded-[var(--docs-video-radius,var(--radius,2px))] border-[length:var(--docs-video-border-width,1px)] border-[color:var(--docs-video-border,#e6e5e3)]`;
 const VIDEO_CAPTION_CLASSES =
-  "mt-[var(--docs-video-caption-gap,8px)] text-[length:var(--docs-video-caption-text-size,13.5px)] leading-normal text-[color:var(--docs-video-caption-fg,#666562)] [text-wrap:pretty]";
+  "mt-[var(--docs-video-caption-gap,8px)] text-[length:var(--docs-video-caption-text-size,13.5px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-video-caption-fg,#666562)] text-pretty";
 /* Link card: caption over the mono URL, Watch on the right. It fills the
  * panel body, which clips overflow, so its focus ring is drawn inside. */
 const VIDEO_CARD_CLASSES =
   "group flex items-center gap-4 p-3 text-inherit no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-solid focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 const VIDEO_CARD_CAPTION_CLASSES =
-  "text-[length:var(--docs-video-caption-text-size,13.5px)] leading-normal text-[color:var(--docs-text,#2a2a2a)] [text-wrap:pretty]";
+  "text-[length:var(--docs-video-caption-text-size,13.5px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-text,#2a2a2a)] text-pretty";
 const VIDEO_CARD_URL_CLASSES =
-  "truncate font-mono text-[12px] leading-[1.4] text-[color:var(--docs-link,#245a81)] underline-offset-2 group-hover:underline";
+  "truncate font-mono text-[length:var(--ds-font-size-ui-xs)] leading-[var(--ds-line-height-reading)] text-[color:var(--docs-link,#245a81)] underline-offset-2 group-hover:underline";
 const VIDEO_WATCH_CLASSES = `${MEDIA_GHOST_BUTTON} group-hover:bg-[var(--docs-hover,#ebebea)] group-hover:text-[color:var(--docs-ink,#1f1f1f)]`;
 const VIDEO_MISSING_CLASSES =
-  "rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[13.5px] text-[color:var(--docs-muted,#666562)]";
+  "rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,#666562)]";
 
 /**
  * Video block: one media panel. `url` (external) wins over `src` (bundle

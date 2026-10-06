@@ -189,11 +189,11 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
             transformOrigin: "top left", color: "inherit",
             background: expanded ? "var(--docs-page, #fdfdfd)" : "transparent", overflow: "hidden" }}>
           {expanded && <div className={`${MEDIA_HEAD_CLASSES} ${MEDIA_HEAD_TEXT} shrink-0 flex-wrap gap-y-2 py-2`}>
-            <span className="mr-auto min-w-0 [overflow-wrap:anywhere]">{label}</span>
+            <span className="mr-auto min-w-0 wrap-anywhere">{label}</span>
             <button type="button" className={HTML_BUTTON_CLASSES} onClick={() => setZoom(null)}>Fit</button>
             <button type="button" className={HTML_BUTTON_CLASSES} onClick={() => setZoom(1)}>100%</button>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Zoom out" onClick={() => setZoom(Math.max(0.05, scale / 1.25))}>−</button>
-            <output aria-label="Zoom level" className="min-w-12 text-center font-mono text-[12px] font-normal text-[color:var(--docs-muted,#666562)]">{Math.round(scale * 100)}%</output>
+            <output aria-label="Zoom level" className="min-w-12 text-center font-mono text-[length:var(--ds-font-size-ui-xs)] font-[var(--ds-font-weight-regular)] text-[color:var(--docs-muted,#666562)]">{Math.round(scale * 100)}%</output>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Zoom in" onClick={() => setZoom(Math.min(4, scale * 1.25))}>+</button>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Close HTML viewer" onClick={closeViewer}><XIcon size={12} strokeWidth={2} aria-hidden />Close</button>
           </div>}

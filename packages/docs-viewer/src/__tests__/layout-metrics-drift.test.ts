@@ -71,13 +71,16 @@ import { StackBlock } from "../components/stack/StackDocsBlock";
 import { TREE_ROWS_CSS } from "../components/outline-rows/tree-rows";
 import { FILE_TREE_VARS } from "../components/file-tree/FileTreeDocsBlock";
 import { OutlineRows } from "../components/outline-rows/OutlineRows";
+import { resolveDsVars } from "./ds-tokens";
 
 /**
  * docs-model's layout metrics (src/layout/metrics.ts) copy the numbers this
  * package renders with, because Tailwind can only see literal class tokens.
  * Layout lints read the copy, so each value here must equal the class
  * string, inline stylesheet or display rule it was copied from. When one of
- * these fails, change both sides together.
+ * these fails, change both sides together. Declarations that read a
+ * design-system token (var(--ds-*)) are compared by the value the token
+ * resolves to (./ds-tokens).
  */
 
 afterEach(cleanup);
@@ -133,7 +136,8 @@ describe("code panel", () => {
     expect(CODE_LINE_HEIGHT_PX).toBe(m.lineHeightPx);
     expect(CODE_LINE_ROW_CLASSES).toContain(`grid-cols-[var(--docs-code-gutter-width,${m.gutterPx}px)_1fr]`);
     expect(CODE_ANNOTATED_PRE_CLASSES).toContain(`text-[length:var(--docs-code-text-size,${m.fontSizePx}px)]`);
-    expect(CODE_ANNOTATED_PRE_CLASSES).toContain(`max-h-[${m.annotatedMaxHeightPx}px]`);
+    // max-h-110 is 110 spacing steps of 4px.
+    expect(CODE_ANNOTATED_PRE_CLASSES.split(" ")).toContain(`max-h-${m.annotatedMaxHeightPx / 4}`);
     for (const cell of [CODE_CELL_CLASSES, CODE_LINE_TEXT_CELL_CLASSES]) {
       expect(cell).toContain(`px-[var(--docs-code-pad-x,${m.padXPx}px)]`);
     }
@@ -187,22 +191,25 @@ describe("structured table", () => {
 
   test("cell type, padding, frame and column sizing equal TABLE_METRICS", () => {
     expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(`text-[length:var(--docs-table-font-size,${m.fontSizePx}px)]`);
-    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(`[font-weight:var(--docs-table-body-weight,${m.bodyWeight})]`);
+    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(`font-[var(--docs-table-body-weight,${m.bodyWeight})]`);
     expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(
       `text-[length:calc(var(--docs-table-font-size,${m.fontSizePx}px)-${m.fontSizePx - m.identifierFontSizePx}px)]`,
     );
     expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain(
       `text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,${m.headerFontSizePx}px))]`,
     );
-    expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain(`[font-weight:var(--docs-table-header-weight,${m.headerWeight})]`);
-    expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain(`min-w-[${m.minColumnPx}px]`);
+    expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain(`font-[var(--docs-table-header-weight,${m.headerWeight})]`);
+    // min-w-15 is 15 spacing steps of 4px.
+    expect(TABLE_HEADER_CELL_TEXT_CLASSES.split(" ")).toContain(`min-w-${m.minColumnPx / 4}`);
     expect(TABLE_ELEMENT_CLASSES).toContain(`leading-[var(--docs-table-line-height,${m.lineHeight})]`);
     expect(TABLE_CELL_SPACING_CLASS).toContain(`py-[length:var(--docs-table-cell-pad-y,${m.cellPadYPx}px)]`);
     expect(TABLE_CELL_SPACING_CLASS).toContain(`px-[length:var(--docs-table-cell-pad-x,${m.cellPadXPx}px)]`);
     expect(TABLE_WRAPPER_CLASSES).toContain(`border-[length:var(--docs-table-border-width,${m.borderPx}px)]`);
     expect(TABLE_COLUMN_RULE_CLASSES).toContain(`var(--docs-table-column-rule-width,${m.columnRulePx}px)`);
     expect(TABLE_ROW_MIN_HEIGHT_CLASS).toContain(`var(--docs-table-row-min-height,${m.rowMinHeightPx}px)`);
-    expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain(`max-w-[${m.proseMeasureCh}ch]`);
+    // The prose measure is the text lane (layout.lane.text).
+    expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("max-w-[var(--ds-layout-lane-text)]");
+    expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("whitespace-nowrap");
@@ -220,8 +227,8 @@ describe("structured table", () => {
     expect(INLINE_CODE_CLASSES).toContain(`px-[calc(var(--docs-inline-code-pad-x,${i.codePadXEm})*1em)]`);
     expect(INLINE_CODE_CLASSES).toContain(`border-[length:var(--docs-inline-code-border-width,${i.codeBorderPx}px)]`);
     // The padding repeats on every line a chip spans, and the chip itself never breaks mid-word.
-    expect(INLINE_CODE_CLASSES).toContain("[box-decoration-break:clone]");
-    expect(INLINE_CODE_CLASSES).toContain("[overflow-wrap:normal]");
+    expect(INLINE_CODE_CLASSES.split(" ")).toContain("box-decoration-clone");
+    expect(INLINE_CODE_CLASSES.split(" ")).toContain("break-normal");
   });
 });
 
@@ -313,7 +320,7 @@ describe("stack", () => {
       nodes: [{ name: "Leaf", detail: "one · two  ·  three", badge: "role" }],
       boundaries: [],
     }));
-    const css = container.querySelector("style")!.textContent ?? "";
+    const css = resolveDsVars(container.querySelector("style")!.textContent ?? "");
     expect(declarations(css, "[data-stack-detail]")).toMatchObject({
       "max-width": `${m.detailMaxCh}ch`,
       "font-size": `${m.detailFontSizePx}px`,
@@ -379,18 +386,19 @@ describe("tree rows", () => {
   const m = TREE_METRICS;
 
   test("rows, notes and sources equal TREE_METRICS", () => {
-    expect(declarations(TREE_ROWS_CSS, ".docs-tree__note")).toMatchObject({
+    const treeCss = resolveDsVars(TREE_ROWS_CSS);
+    expect(declarations(treeCss, ".docs-tree__note")).toMatchObject({
       "max-width": `${m.noteMaxCh}ch`,
       padding: `0 0 4px ${m.notePadLeftPx}px`,
       font: `400 var(--tr-note-size, ${m.noteFontSizePx}px) / ${m.noteLineHeight} var(--tr-sans)`,
     });
-    expect(declarations(TREE_ROWS_CSS, ".docs-tree")).toMatchObject({
+    expect(declarations(treeCss, ".docs-tree")).toMatchObject({
       "--tr-indent": `${m.indentPx}px`,
       "--tr-gutter": `${m.diffGutterPx}px`,
     });
-    expect(declarations(TREE_ROWS_CSS, ".docs-tree__rows")["grid-template-columns"]).toContain(`[note] minmax(${m.noteMinColumnPx}px, 1fr)`);
-    expect(declarations(TREE_ROWS_CSS, ".docs-tree__row")["white-space"]).toBe("nowrap");
-    expect(declarations(TREE_ROWS_CSS, ".docs-tree__src")).toMatchObject({
+    expect(declarations(treeCss, ".docs-tree__rows")["grid-template-columns"]).toContain(`[note] minmax(${m.noteMinColumnPx}px, 1fr)`);
+    expect(declarations(treeCss, ".docs-tree__row")["white-space"]).toBe("nowrap");
+    expect(declarations(treeCss, ".docs-tree__src")).toMatchObject({
       "margin-left": `${m.sourceGapPx}px`,
       font: expect.stringContaining(`var(--tr-source-size, ${m.sourceFontSizePx}px)`),
     });

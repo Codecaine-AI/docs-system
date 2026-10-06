@@ -19,9 +19,9 @@ export function DropIndicator({ axis, position }: { axis: ReorderAxis; position:
       contentEditable={false}
       data-table-drop-indicator={axis}
       className={cn(
-        "pointer-events-none absolute z-[3] rounded-full",
+        "pointer-events-none absolute z-3 rounded-full",
         HANDLE_ACCENT_BG_CLASS,
-        isColumn ? "-bottom-1 -top-1 w-[3px]" : "-left-1 -right-1 h-[3px]",
+        isColumn ? "-bottom-1 -top-1 w-[var(--ds-border-width-rail)]" : "-left-1 -right-1 h-[var(--ds-border-width-rail)]",
       )}
       style={isColumn ? { left: position - 1.5 } : { top: position - 1.5 }}
     />
@@ -41,11 +41,11 @@ export function DragRegionOverlay({ rect }: { rect: Rect | null }) {
     <div
       contentEditable={false}
       data-table-drag-region=""
-      className="pointer-events-none absolute z-40 rounded-sm"
+      className="pointer-events-none absolute z-40 rounded-[var(--radius)]"
       style={paddedRectStyle(rect)}
     >
       <div className="absolute inset-0 bg-background/60" />
-      <div className={cn("absolute inset-0 rounded-sm opacity-10", HANDLE_ACCENT_BG_CLASS)} />
+      <div className={cn("absolute inset-0 rounded-[var(--radius)] opacity-10", HANDLE_ACCENT_BG_CLASS)} />
     </div>
   );
 }

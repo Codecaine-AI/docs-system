@@ -139,10 +139,10 @@ export function CanvasEmbedUnavailable({ title, src }: { title?: string; src?: s
   return (
     <div
       data-canvas-embed-unavailable="true"
-      className="rounded-md border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground"
+      className="rounded-[var(--radius)] border border-dashed bg-muted/30 p-4 text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground"
     >
       <div className="font-medium">Canvas embed unavailable</div>
-      <div className="mt-0.5 text-xs">
+      <div className="mt-0.5 text-[length:var(--ds-font-size-ui-xs)]">
         {title ?? "Interactive canvas"}
         {src ? ` (${src})` : ""} — no canvas renderer is wired into this viewer.
       </div>
@@ -176,10 +176,10 @@ export function SequenceEmbedUnavailable({ title, src }: { title?: string; src?:
   return (
     <div
       data-sequence-embed-unavailable="true"
-      className="rounded-md border border-dashed bg-muted/30 p-4 text-sm text-muted-foreground"
+      className="rounded-[var(--radius)] border border-dashed bg-muted/30 p-4 text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground"
     >
       <div className="font-medium">Sequence embed unavailable</div>
-      <div className="mt-0.5 text-xs">
+      <div className="mt-0.5 text-[length:var(--ds-font-size-ui-xs)]">
         {title ?? "Sequence diagram"}
         {src ? ` (${src})` : ""} — no sequence renderer is wired into this viewer.
       </div>

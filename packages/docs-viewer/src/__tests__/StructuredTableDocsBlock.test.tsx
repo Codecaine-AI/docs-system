@@ -101,7 +101,7 @@ describe("StructuredTableBlock", () => {
       "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
     );
     expect(headerCells[0]?.className).toContain(
-      "[font-weight:var(--docs-table-header-weight,500)]",
+      "font-[var(--docs-table-header-weight,500)]",
     );
     expect(headerCells[0]?.className).not.toContain("uppercase");
     expect(bodyCells[0]?.className).toContain(

@@ -54,7 +54,7 @@ function AtomBlockView({ node }: ReactNodeViewProps) {
   if (!descriptor || !blockType) {
     return (
       <NodeViewWrapper as="div" data-doc-node={node.type.name}>
-        <div className="rounded-md border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
+        <div className="rounded-[var(--radius)] border border-dashed bg-muted/30 p-3 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">
           Unknown block type: {node.type.name}
         </div>
       </NodeViewWrapper>

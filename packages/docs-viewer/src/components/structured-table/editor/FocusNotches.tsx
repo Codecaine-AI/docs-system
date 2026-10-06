@@ -24,7 +24,7 @@ export function FocusNotches({
         <div
           contentEditable={false}
           data-table-focus-notch="column"
-          className="pointer-events-none absolute z-[2] h-[2px] w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/50"
+          className="pointer-events-none absolute z-2 h-[var(--ds-border-width-focus)] w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/50"
           style={{ left: columnTick.left, top: columnTick.top }}
         />
       )}
@@ -32,7 +32,7 @@ export function FocusNotches({
         <div
           contentEditable={false}
           data-table-focus-notch="row"
-          className="pointer-events-none absolute z-[2] h-4 w-[2px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/50"
+          className="pointer-events-none absolute z-2 h-4 w-[var(--ds-border-width-focus)] -translate-x-1/2 -translate-y-1/2 rounded-full bg-muted-foreground/50"
           style={{ left: rowTick.left, top: rowTick.top }}
         />
       )}

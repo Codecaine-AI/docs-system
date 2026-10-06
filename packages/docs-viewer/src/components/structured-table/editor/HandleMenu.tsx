@@ -198,7 +198,7 @@ export function HandleMenu({
       style={floatingStyles}
       contentEditable={false}
       data-table-handle-menu={kind}
-      className="z-50 w-44 rounded-md border bg-popover p-1 text-sm text-popover-foreground shadow-lg"
+      className="z-50 w-44 rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
       onMouseDown={(event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -211,7 +211,7 @@ export function HandleMenu({
           disabled={item.disabled}
           onClick={() => onApply(item)}
           className={cn(
-            "flex w-full items-center rounded-sm px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent",
+            "flex w-full items-center rounded-[var(--radius)] px-2 py-1.5 text-left hover:bg-muted disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent",
             TABLE_CONTROL_FOCUS_CLASS,
           )}
         >

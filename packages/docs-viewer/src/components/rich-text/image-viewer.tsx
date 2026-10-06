@@ -112,7 +112,7 @@ export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }:
         <div className="min-w-0 flex-1 truncate font-medium">{title}</div>
         <div className="flex items-center gap-2">
           <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom out" disabled={!panZoom.canZoomOut} onClick={panZoom.zoomOut}>−</button>
-          <output className="w-12 text-center text-sm" aria-label="Zoom level">{panZoom.zoomPercent}%</output>
+          <output className="w-12 text-center text-[length:var(--ds-font-size-ui-lg)]" aria-label="Zoom level">{panZoom.zoomPercent}%</output>
           <button type="button" className="rounded border px-3 py-1 disabled:opacity-40" aria-label="Zoom in" disabled={!panZoom.canZoomIn} onClick={panZoom.zoomIn}>+</button>
           <button type="button" className="rounded border px-3 py-1" onClick={panZoom.fit}>Fit</button>
           <button type="button" className="rounded border p-2" aria-label="Close image viewer" onClick={closeViewer}><XIcon size={18} /></button>
