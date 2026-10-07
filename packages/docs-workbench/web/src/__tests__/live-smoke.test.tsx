@@ -9,9 +9,9 @@ import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
 
 import { applyDocOps, getBundle, undoPatch } from "../data/api";
 import { createStandaloneDocsClient } from "../data/client";
-import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
-import { App } from "../shell/App";
-import { DocPage } from "../pages/DocPage";
+import { StandaloneCanvasEmbed } from "../shared/_components/CanvasEmbed";
+import { App } from "../App";
+import { DocPage } from "../_components/DocPage";
 
 /**
  * LIVE smoke: boots a REAL listening docs server over a temp COPY of a real

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { grainMaskDeclarations, intersectRect } from "../theme/grain-code-mask";
+import { grainMaskDeclarations, intersectRect } from "../_lib/grain-code-mask";
 
 describe("grain code-pane mask", () => {
   it("drops the mask when no code pane is visible", () => {

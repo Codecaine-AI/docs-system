@@ -1,9 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import { App } from "./shell/App";
-import { loadDocsFonts } from "./lib/docs-fonts";
-import { installGrainCodeMask } from "./theme/grain-code-mask";
+import { App } from "./App";
+import { loadDocsFonts } from "./shared/docs-fonts";
+import { installGrainCodeMask } from "./_lib/grain-code-mask";
 // index.css loads @codecaine-ai/design-system/fonts.css (the Inter and IBM Plex
 // Mono faces) ahead of the tokens.
 import "./index.css";

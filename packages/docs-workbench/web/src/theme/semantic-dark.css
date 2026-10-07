@@ -1,0 +1,324 @@
+
+/* Dark values. The last selector is the "dark code panel" island: a
+   [data-code-surface] element (a code block, or the code pane of a state
+   shape / interaction surface) under [data-code-panels="dark"] (the style
+   rail's Code panels knob) re-declares every token at its dark value, so it
+   renders dark on a light page. */
+[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {
+  color-scheme: dark;
+
+  /* Neutrals ride the role tokens (ROLE TOKENS at the end of this file):
+     app neutrals in light, Primer neutrals in dark. */
+  --background: var(--docs-page);
+  --foreground: var(--docs-text);
+  --card: var(--docs-page);
+  --card-foreground: var(--docs-text);
+  --popover: var(--docs-page);
+  --popover-foreground: var(--docs-text);
+  --primary: var(--docs-ink);
+  --primary-foreground: var(--docs-page);
+  --secondary: var(--docs-c-gray-soft);
+  --secondary-foreground: var(--docs-text);
+  --muted: var(--docs-c-gray-soft);
+  --muted-foreground: var(--docs-muted);
+  --accent: var(--docs-c-blue-soft);
+  --accent-foreground: var(--docs-c-blue);
+  --destructive: var(--docs-c-red);
+  --border: var(--docs-rule);
+  --input: var(--docs-rule);
+  --ring: var(--docs-focus-ring);
+
+  --sidebar: var(--palette-sidebar);
+  --sidebar-foreground: var(--docs-text);
+  --sidebar-border: var(--docs-rule);
+  --sidebar-accent: var(--palette-nav);
+  --sidebar-accent-foreground: var(--docs-ink);
+
+  --radius: var(--ds-radius-base);
+
+  --status-info: var(--docs-c-blue);
+  --status-info-foreground: var(--docs-c-blue);
+  --status-info-fill: var(--docs-c-blue-soft);
+  --status-info-border: var(--docs-c-blue-line);
+  --status-success: var(--docs-c-green);
+  --status-success-foreground: var(--docs-c-green);
+  --status-success-fill: var(--docs-c-green-soft);
+  --status-success-border: var(--docs-c-green-line);
+  --status-warning: var(--docs-c-orange);
+  --status-warning-foreground: var(--docs-c-orange);
+  --status-warning-fill: var(--docs-c-orange-soft);
+  --status-warning-border: var(--docs-c-orange-line);
+  --status-danger: var(--docs-c-red);
+  --status-danger-foreground: var(--docs-c-red);
+  --status-danger-fill: var(--docs-c-red-soft);
+  --status-danger-border: var(--docs-c-red-line);
+  --status-error: var(--docs-c-red);
+  --status-error-foreground: var(--docs-c-red);
+  --status-error-fill: var(--docs-c-red-soft);
+  --status-error-border: var(--docs-c-red-line);
+  --status-neutral: var(--docs-c-gray);
+  --status-neutral-foreground: var(--docs-c-gray);
+  --status-neutral-fill: var(--docs-c-gray-soft);
+  --status-neutral-border: var(--docs-c-gray-line);
+
+  /* Syntax roles, VS Code Dark+ values — same contract as the light block. */
+  --syntax-punctuation: var(--ds-dark-color-syntax-punctuation);
+  --syntax-keyword: var(--ds-dark-color-syntax-keyword);
+  --syntax-control: var(--ds-dark-color-syntax-control);
+  --syntax-function: var(--ds-dark-color-syntax-function);
+  --syntax-type: var(--ds-dark-color-syntax-type);
+  --syntax-key: var(--ds-dark-color-syntax-key);
+  --syntax-string: var(--ds-dark-color-syntax-string);
+  --syntax-number: var(--ds-dark-color-syntax-number);
+  --syntax-boolean: var(--ds-dark-color-syntax-boolean);
+  --syntax-null: var(--ds-dark-color-syntax-null);
+  --syntax-comment: var(--ds-dark-color-syntax-comment);
+  --syntax-regex: var(--ds-dark-color-syntax-regex);
+  --syntax-tag: var(--ds-dark-color-syntax-tag);
+  --syntax-constant: var(--ds-dark-color-syntax-constant);
+  --syntax-selector: var(--ds-dark-color-syntax-selector);
+
+  --docs-viewer-callout-border: var(--color-pill-orange);
+  /* Per-block-type component tokens (one file per vocabulary type in a
+     theme folder — see docs/20-implementation/40-theming/20-component-themes).
+     Defaults map to each component's previous effective values. */
+  --docs-paragraph-fg: var(--docs-text);
+  /* Spacing, heading sizes and text scales on the rich-text blocks are
+     UNITLESS multipliers (the class multiplies by 1em / the reading size):
+     the values they replaced were Tailwind Typography's em-relative
+     prose-sm metrics, and they must keep scaling with the reading size. */
+  --docs-paragraph-spacing: 1;
+  --docs-heading-fg: var(--docs-ink);
+  --docs-heading-weight: var(--ds-font-weight-semibold);
+  --docs-heading-margin-top: var(--ds-space-10);
+  --docs-heading-margin-bottom: var(--ds-space-3);
+  --docs-heading-h1-size: 1.875;
+  --docs-heading-h2-size: 1.25;
+  --docs-heading-h3-size: 1;
+  --docs-list-marker-fg: var(--docs-muted);
+  --docs-list-item-fg: var(--docs-text);
+  --docs-list-item-gap: var(--ds-space-1);
+  /* Dark code panel = the VS Code Dark+ editor surface (#1E1E1E), so the
+     Dark+ token colors sit on the background they were designed for. */
+  --docs-code-block-bg: var(--ds-dark-color-code-bg);
+  --docs-code-block-border: var(--ds-dark-color-code-border);
+  /* Frame metrics. The radius follows the global --radius (2px at stock). */
+  --docs-code-border-width: var(--ds-border-width-hairline);
+  --docs-code-radius: var(--radius);
+  /* Code typography + body padding. ONE line-height token drives the row
+     height, the zebra period and the annotation overlays, on all three
+     surfaces (plain read, annotated read, edit). 13px / 21px keeps code at
+     the >= 13px, >= 1.5 line-height floor; equal top and bottom padding. */
+  --docs-code-text-size: var(--ds-font-size-code);
+  --docs-code-line-height: var(--ds-line-height-code);
+  --docs-code-pad-x: var(--ds-space-3);
+  --docs-code-pad-top: var(--ds-space-3);
+  --docs-code-pad-bottom: var(--ds-space-3);
+  /* Header strip: family tile, 12px lowercase mono language label, copy
+     button. The strip is the panel's own ink at 4% over the panel, so it
+     lifts off any code theme's background. --docs-code-lang-fg is only the
+     edit-surface language picker's hover / chevron color. */
+  --docs-code-header-height: var(--ds-space-8);
+  --docs-code-header-bg: color-mix(in srgb, currentColor 4%, transparent);
+  --docs-code-header-fg: var(--ds-dark-color-code-header-fg);
+  --docs-code-header-text-size: var(--ds-font-size-ui-xs);
+  --docs-code-header-weight: var(--ds-font-weight-regular);
+  --docs-code-lang-fg: var(--color-text-blue);
+  --docs-code-annotation-accent: var(--docs-c-blue);
+  --docs-code-gutter-fg: var(--ds-dark-color-code-gutter-fg);
+  /* Opaque on purpose: the gutter is sticky above horizontally-scrolled
+     code. Equal to the (opaque) dark block bg, so no gutter band is visible
+     at rest. */
+  --docs-code-gutter-bg: var(--ds-dark-color-code-gutter-bg);
+  --docs-code-gutter-width: var(--ds-space-10);
+  --docs-code-gutter-pad-x: var(--ds-space-3);
+  --docs-code-gutter-text-size: var(--ds-font-size-ui-xs);
+  /* Follows the shared linked-panels stripe until the code block's own
+     zebra knob is set — so one knob restripes every code panel, and this
+     one overrides it for code blocks only (all three surfaces). */
+  --docs-code-zebra: transparent; /* code never stripes */
+  --docs-code-zebra-opacity: 1;
+  /* Internal rules: header separator, code/notes column divider, dividers
+     between notes. */
+  --docs-code-rule: var(--border);
+  --docs-code-rule-width: var(--ds-border-width-hairline);
+  --docs-code-rule-opacity: 0.5;
+  /* Notes column inside annotated code panels: the note body size (titles
+     are 1px larger) and the column width. */
+  --docs-code-note-text-size: var(--ds-font-size-ui-sm);
+  --docs-code-notes-width: 280px;
+  /* Selected text in a code panel: the UA's Highlight (an imported code
+     theme may set its own). --docs-code-notes-bg (the notes column surface)
+     is deliberately UNDECLARED: its fallback mixes the panel's own bg 6%
+     toward white where the panel is, which a root declaration would freeze
+     to the root's code bg under a page-mode code theme. */
+  --docs-code-selection: Highlight;
+  /* Callout — same contract as the light block; the roles resolve to the
+     dark palette here. */
+  --docs-callout-fg: var(--docs-text);
+  --docs-callout-border: var(--docs-rule);
+  --docs-callout-info-accent: var(--docs-tone-info);
+  --docs-callout-info-tint: transparent;
+  --docs-callout-info-title-fg: var(--docs-ink);
+  --docs-callout-decision-accent: var(--docs-tone-decision);
+  --docs-callout-decision-tint: transparent;
+  --docs-callout-decision-title-fg: var(--docs-ink);
+  --docs-callout-warning-accent: var(--docs-tone-warning);
+  --docs-callout-warning-tint: transparent;
+  --docs-callout-warning-title-fg: var(--docs-ink);
+  --docs-callout-risk-accent: var(--docs-tone-risk);
+  --docs-callout-risk-tint: transparent;
+  --docs-callout-risk-title-fg: var(--docs-ink);
+  --docs-callout-success-accent: var(--docs-tone-success);
+  --docs-callout-success-tint: transparent;
+  --docs-callout-success-title-fg: var(--docs-ink);
+  --docs-callout-rail-width: var(--ds-border-width-rail);
+  --docs-callout-hairline-width: var(--ds-border-width-none);
+  --docs-callout-pad-x: 14px;
+  --docs-callout-pad-y: var(--ds-space-0-5);
+  --docs-callout-title-text-size: var(--style-font-size, var(--ds-font-size-reading));
+  --docs-callout-title-weight: var(--ds-font-weight-semibold);
+  --docs-callout-icon-size: var(--ds-space-4);
+  --docs-callout-body-text-scale: 1;
+  --docs-callout-margin: var(--ds-space-5);
+  --docs-callout-radius: var(--radius);
+  --docs-divider-color: var(--docs-rule);
+  --docs-divider-thickness: var(--ds-border-width-hairline);
+  --docs-divider-spacing: 2;
+  --docs-image-border: var(--docs-rule);
+  --docs-image-border-width: var(--ds-border-width-hairline);
+  --docs-image-radius: var(--radius);
+  --docs-image-margin: var(--ds-space-6);
+  --docs-video-border: var(--docs-rule);
+  --docs-video-caption-fg: var(--docs-muted);
+  --docs-video-border-width: var(--ds-border-width-hairline);
+  --docs-video-radius: var(--radius);
+  --docs-video-caption-text-size: var(--ds-font-size-ui-md);
+  --docs-video-caption-gap: var(--ds-space-2);
+  --docs-video-margin: var(--ds-space-6);
+  /* File Tree block: same contract and values as the light block (role
+     tokens resolve per theme). */
+  --docs-file-tree-bg: var(--docs-panel);
+  --docs-file-tree-border: var(--docs-rule);
+  --docs-file-tree-border-width: var(--ds-border-width-hairline);
+  --docs-file-tree-radius: var(--radius);
+  --docs-file-tree-pad-y: var(--ds-space-2);
+  --docs-file-tree-pad-x: var(--ds-space-3);
+  --docs-file-tree-text-size: var(--ds-font-size-code);
+  --docs-file-tree-line-height: var(--ds-line-height-row);
+  --docs-file-tree-folder-fg: var(--docs-ink);
+  --docs-file-tree-folder-weight: var(--ds-font-weight-regular);
+  --docs-file-tree-file-fg: var(--docs-ink);
+  --docs-file-tree-file-weight: var(--ds-font-weight-regular);
+  --docs-file-tree-note-fg: var(--docs-muted);
+  --docs-file-tree-note-text-size: var(--ds-font-size-ui-md);
+  --docs-file-tree-guide-fg: var(--docs-guide);
+  --docs-file-tree-muted-fg: var(--docs-muted);
+  --docs-file-tree-added-fg: var(--docs-diff-add);
+  --docs-file-tree-added-marker: var(--docs-diff-add);
+  --docs-file-tree-added-tint: var(--docs-c-green-solid);
+  --docs-file-tree-removed-fg: var(--docs-diff-del);
+  --docs-file-tree-removed-marker: var(--docs-diff-del);
+  --docs-file-tree-removed-tint: var(--docs-c-red-solid);
+  --docs-file-tree-modified-fg: var(--docs-diff-mod);
+  --docs-file-tree-modified-marker: var(--docs-diff-mod);
+  --docs-file-tree-modified-tint: var(--docs-c-yellow-solid);
+  --docs-file-tree-renamed-fg: var(--docs-diff-mod);
+  --docs-file-tree-renamed-marker: var(--docs-diff-mod);
+  --docs-file-tree-renamed-tint: var(--docs-c-yellow-solid);
+  --docs-file-tree-change-tint: 8;
+  /* Call stack + component tree (outline-rows): the file tree's row metrics;
+     the syntax colors follow the code theme's --syntax-* roles (the rows are
+     a code surface). Every value equals the component's var() fallback. */
+  --docs-outline-rows-bg: var(--docs-panel);
+  --docs-outline-rows-border: var(--docs-rule);
+  --docs-outline-rows-border-width: var(--ds-border-width-hairline);
+  --docs-outline-rows-radius: var(--radius);
+  --docs-outline-rows-pad-y: var(--ds-space-2);
+  --docs-outline-rows-pad-x: var(--ds-space-3);
+  --docs-outline-rows-text-size: var(--ds-font-size-code);
+  --docs-outline-rows-line-height: var(--ds-line-height-row);
+  --docs-outline-rows-ink: var(--docs-ink);
+  --docs-outline-rows-comment-fg: var(--docs-muted);
+  --docs-outline-rows-comment-text-size: var(--ds-font-size-ui-md);
+  --docs-outline-rows-source-text-size: var(--ds-font-size-ui-xs);
+  --docs-outline-rows-guide: color-mix(in srgb, var(--docs-ink) 75%, transparent);
+  --docs-outline-rows-muted-fg: var(--docs-muted);
+  --docs-outline-rows-added: var(--docs-diff-add);
+  --docs-outline-rows-added-bg: var(--docs-diff-add-bg);
+  --docs-outline-rows-removed: var(--docs-diff-del);
+  --docs-outline-rows-removed-bg: var(--docs-diff-del-bg);
+  --docs-outline-rows-modified: var(--docs-diff-mod);
+  --docs-outline-rows-modified-bg: var(--docs-diff-mod-bg);
+  --docs-outline-rows-var-fg: var(--syntax-key);
+  --docs-outline-rows-fn-fg: var(--syntax-function);
+  --docs-outline-rows-type-fg: var(--syntax-type);
+  --docs-outline-rows-tag-fg: var(--syntax-tag);
+  --docs-outline-rows-keyword-fg: var(--syntax-keyword);
+  --docs-outline-rows-control-fg: var(--syntax-control);
+  --docs-outline-rows-constant-fg: var(--syntax-boolean);
+  --docs-outline-rows-string-fg: var(--syntax-string);
+  --docs-outline-rows-number-fg: var(--syntax-number);
+  --docs-outline-rows-punct-fg: var(--syntax-punctuation);
+  --docs-outline-rows-bracket-fg: color-mix(in srgb, var(--syntax-punctuation) 60%, transparent);
+  /* Stack: neutrals follow the role tokens, node colors the category
+     roster; on the dark page the card is the ink at 7% over the panel. */
+  --docs-stack-ink: var(--docs-ink);
+  --docs-stack-muted: var(--docs-muted);
+  --docs-stack-detail: var(--docs-text);
+  --docs-stack-card-bg: color-mix(in srgb, var(--docs-stack-ink) 7%, var(--docs-panel));
+  --docs-stack-arrow: var(--docs-muted);
+  --docs-stack-boundary: var(--docs-muted);
+  --docs-stack-gap: var(--ds-space-3);
+  --docs-stack-radius: var(--radius);
+  --docs-stack-blue: var(--docs-cat-1);
+  --docs-stack-green: var(--docs-cat-3);
+  --docs-stack-yellow: var(--docs-cat-4);
+  --docs-stack-orange: var(--docs-cat-4);
+  --docs-stack-purple: var(--docs-cat-5);
+  --docs-stack-red: var(--docs-cat-6);
+  --docs-stack-pink: var(--docs-cat-6);
+  --docs-stack-gray: var(--docs-stack-muted);
+  /* Structured table: a panel on the role neutrals (frame --docs-rule, fill
+     --docs-panel), muted header over one rule, soft row rules. */
+  --docs-table-border: var(--docs-rule);
+  --docs-table-header-bg: transparent;
+  --docs-table-header-fg: var(--docs-muted);
+  --docs-table-header-rule: var(--docs-rule);
+  --docs-table-header-rule-width: var(--ds-border-width-hairline);
+  --docs-table-header-rule-opacity: 1;
+  --docs-table-row-rule: var(--docs-rule-soft);
+  --docs-table-row-rule-width: var(--ds-border-width-hairline);
+  --docs-table-row-rule-opacity: 1;
+  --docs-table-cell-pad-y: var(--ds-space-1);
+  --docs-table-cell-pad-x: var(--ds-space-3);
+  --docs-table-font-size: var(--ds-font-size-ui-md);
+  --docs-table-line-height: var(--ds-line-height-reading);
+  --docs-table-body-weight: var(--ds-font-weight-regular);
+  --docs-table-fg: var(--docs-text);
+  /* Identifier cells in the first (key) column; other identifiers stay ink. */
+  --docs-table-key-fg: var(--docs-syn-prop);
+  --docs-table-bg: var(--docs-panel);
+  --docs-table-border-width: var(--ds-border-width-hairline);
+  /* The radius follows the global --radius (2px at stock). */
+  --docs-table-radius: var(--radius);
+  /* The header follows the body size until it is set on its own. */
+  --docs-table-header-text-size: var(--docs-table-font-size);
+  --docs-table-header-weight: var(--ds-font-weight-medium);
+  /* No column rules at stock; their color and opacity follow the row rules. */
+  --docs-table-column-rule: var(--docs-table-row-rule);
+  --docs-table-column-rule-width: var(--ds-border-width-none);
+  --docs-table-column-rule-opacity: var(--docs-table-row-rule-opacity);
+  --docs-table-row-hover-bg: var(--docs-hover);
+  --docs-table-row-min-height: var(--ds-space-7);
+  /* Component corner radii follow the global --radius token exactly. */
+  --docs-table-handle-radius: var(--radius);
+  --docs-highlight-radius: var(--radius);
+  --docs-dropcursor-radius: var(--radius);
+  --docs-table-handle-offset: var(--ds-space-3);
+  --docs-table-selection-pad: 3px;
+  /* Editor interaction accent (selection outlines, drop indicators, focus
+     rings, drag furniture) — full-strength blue; the bg/pill tiers are
+     background washes and must never be used for editor outlines. */
+  --docs-editor-accent: var(--docs-accent);
+}

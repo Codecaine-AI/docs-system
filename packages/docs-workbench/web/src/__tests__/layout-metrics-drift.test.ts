@@ -16,7 +16,7 @@ import {
   TABLE_METRICS,
   TREE_METRICS,
 } from "@codecaine-ai/docs-model/layout";
-import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shell/StyleRail";
+import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shared/style-rail-settings";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 
 /**
@@ -190,7 +190,7 @@ describe("PDF export", () => {
     expect(Math.round((PDF_PAGE.pageWidthMm - left - right) * PX_PER_MM)).toBe(PDF_PAGE.printableWidthPx);
     expect(Math.round((PDF_PAGE.pageHeightMm - top - bottom) * PX_PER_MM)).toBe(PDF_PAGE.printableHeightPx);
 
-    const printCss = read(join(webSrc, "lib/pdf-document.tsx"));
+    const printCss = read(join(webSrc, "_components/ExportDialog/pdf-document.ts"));
     expect(printCss).toContain(`body{font:${PDF_PAGE.bodyFontSizePt}pt/${PDF_PAGE.bodyLineHeight} `);
     const code = /pre,code\{([^}]*)\}/.exec(printCss)?.[1] ?? "";
     expect(code).toContain(`font-size:${PDF_PAGE.codeFontSizePt}pt!important`);
@@ -200,7 +200,7 @@ describe("PDF export", () => {
   });
 
   test("tables print at full width with fixed layout, cells wrapping anywhere", () => {
-    const printCss = read(join(webSrc, "lib/pdf-document.tsx"));
+    const printCss = read(join(webSrc, "_components/ExportDialog/pdf-document.ts"));
     const table = /(?:^|\s|\})table\{([^}]*)\}/.exec(printCss)?.[1] ?? "";
     expect(table).toContain("width:100%!important");
     expect(table).toContain(`table-layout:${PDF_PAGE.tableLayout}`);

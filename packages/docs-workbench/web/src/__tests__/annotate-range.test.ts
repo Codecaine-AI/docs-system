@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import {
   blockTextRangeFromDomRange,
   textOffsetInRoot,
-} from "../lib/annotate-range";
+} from "../_components/DocPage/annotate-range";
 
 /**
  * Locks the text-range offset convention: offsets index the block element's

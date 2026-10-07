@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 
-import { Sidebar } from "../shell/Sidebar";
+import { Sidebar } from "../_components/RouterShell/_components/Sidebar";
 
 /**
  * Sidebar expansion: a fresh load collapses every branch except the

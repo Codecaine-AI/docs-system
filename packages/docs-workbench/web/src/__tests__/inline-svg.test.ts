@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { scopeSvgIds } from "../lib/inline-svg";
+import { scopeSvgIds } from "../_components/ExportDialog/inline-svg";
 
 const parse = (svg: string) => new DOMParser().parseFromString(svg, "image/svg+xml").documentElement;
 

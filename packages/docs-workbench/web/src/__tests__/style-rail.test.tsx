@@ -1,6 +1,7 @@
 import { readFileSync as readFileSyncRaw } from "node:fs";
 import { flat } from "@codecaine-ai/design-system";
 import { resolveDsVars } from "./ds-tokens";
+import { readDocPageSource, readSemanticCss } from "./sources";
 
 /**
  * Every source this suite reads, with var(--ds-*) resolved to the design-system
@@ -19,33 +20,39 @@ import {
   BLOCK_LAYOUT_CUSTOM_WIDTH_MAX,
   BLOCK_LAYOUT_CUSTOM_WIDTH_MIN,
   DEFAULT_STYLE_RAIL_SETTINGS,
-  StyleRail,
   CODE_PANEL_STYLE_ELEMENT_ID,
   PAGE_COLOR_STYLE_ELEMENT_ID,
   pageColorOverrideCss,
-  applyBlockLayoutOverrideCss,
-  applyStyleRailVars,
   blockLayoutOverrideCss,
   codePanelOverrideCss,
   getStyleRailBaseline,
-  loadStyleRailSettings,
   normalizeSettings,
   resetStyleRailBaseline,
-  saveStyleRailSettings,
   SHOW_STYLE_RAIL_COLOR_CONTROLS,
-  dropStoredColorPicks,
   setStyleRailBaseline,
   setStyleRailColorControls,
   styleRailVars,
   type StyleRailSettings,
-} from "../shell/StyleRail";
+} from "../shared/style-rail-settings";
+import {
+  loadStyleRailSettings,
+  saveStyleRailSettings,
+  dropStoredColorPicks,
+} from "../_lib/style-rail-storage";
+import {
+  applyBlockLayoutOverrideCss,
+  applyStyleRailVars,
+} from "../_lib/style-rail-apply";
+import {
+  StyleRailPanel,
+} from "../_components/StyleRailPanel";
 import {
   componentLeaf,
   isLeafOverridden,
   paneOverrideCount,
   settingLeaf,
-} from "../shell/style-rail-overrides";
-import { STYLE_RAIL_GROUPS } from "../shell/style-rail-nav";
+} from "../_components/StyleRailPanel/overrides";
+import { STYLE_RAIL_GROUPS } from "../_components/StyleRailPanel/nav";
 import {
   THEME_TOKEN_REGISTRY,
   compileThemeCss,
@@ -194,18 +201,18 @@ function RailHarness({
   const [dark, setDark] = useState(false);
   return (
     <>
-      <StyleRail
-        activeThemeId="default"
-        collapsed={false}
-        dark={dark}
-        onCollapsedChange={() => {}}
-        onDarkChange={setDark}
-        onSaveStyleToRepo={onSaveStyleToRepo}
-        onSelectTheme={() => {}}
-        onSettingsChange={setSettings}
-        settings={settings}
-        themes={[{ id: "default", name: "Default", source: "builtin" }]}
-      />
+      <aside>
+        <StyleRailPanel
+          activeThemeId="default"
+          dark={dark}
+          onDarkChange={setDark}
+          onSaveStyleToRepo={onSaveStyleToRepo}
+          onSelectTheme={() => {}}
+          onSettingsChange={setSettings}
+          settings={settings}
+          themes={[{ id: "default", name: "Default", source: "builtin" }]}
+        />
+      </aside>
       <output data-testid="list-settings">{JSON.stringify(settings.list)}</output>
       <output data-testid="reference-settings">{JSON.stringify(settings.reference)}</output>
       <output data-testid="component-settings">{JSON.stringify(settings.components)}</output>
@@ -649,7 +656,7 @@ describe("state-shape text rides the code theme's syntax roles in both themes", 
    * descriptions at the audited --docs-muted role. Pin the mapping, identical
    * in both blocks, so a literal cannot slip back in unaudited.
    */
-  const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const css = readSemanticCss((url) => readFileSync(url, "utf8"));
   const blockAfter = (marker: string) => {
     const start = css.indexOf(marker);
     if (start < 0) throw new Error(`missing theme block: ${marker}`);
@@ -980,10 +987,7 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
    * apart, the rail advertises one default and the page renders another —
    * silently. These pin the pairs together.
    */
-  const layoutSource = readFileSync(
-    new URL("../pages/DocPage.tsx", import.meta.url),
-    "utf8",
-  );
+  const layoutSource = readDocPageSource((url) => readFileSync(url, "utf8"));
   const laneSource = readFileSync(
     new URL("../../../../docs-viewer/src/render/block-layout.ts", import.meta.url),
     "utf8",
@@ -1010,7 +1014,7 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
   it("the code lane's fallback equals stock layout.codeWidth and semantic.css", () => {
     expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.codeWidth).toBe(88);
     expect(laneSource).toContain("max-w-[var(--style-code-width,88ch)]");
-    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
     expect(semanticCss).toContain("  --style-code-width: 88ch;");
   });
 
@@ -2110,7 +2114,7 @@ describe("style rail structured-table tokens", () => {
       new URL(`../../../../docs-viewer/src/components/structured-table/${path}`, import.meta.url),
       "utf8",
     );
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const tableClasses = viewerSource("table-classes.ts");
   const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
@@ -2740,7 +2744,7 @@ describe("style rail file-tree tokens", () => {
       "--docs-file-tree-renamed-tint",
     ],
   } as const;
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const componentSource = readFileSync(
     new URL(
       "../../../../docs-viewer/src/components/file-tree/FileTreeDocsBlock.tsx",
@@ -3104,7 +3108,7 @@ describe("style rail inline-code tokens", () => {
   });
 
   it("registers one text-color knob per typed-chip kind at the VS Code color in each theme block, with the Light+ value as the consumer fallback", () => {
-    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
     const blockClasses = readFileSync(
       new URL("../../../../docs-viewer/src/render/block-classes.ts", import.meta.url),
       "utf8",
@@ -3184,7 +3188,7 @@ describe("style rail inline-code tokens", () => {
  */
 describe("style rail code-family tokens are wired to their consumers", () => {
   const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
-  const semanticCss = read("../theme/semantic.css");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const viewer = "../../../../docs-viewer/src/";
   const consumerSource = [
     read(`${viewer}components/code/classes.ts`),
@@ -3356,7 +3360,7 @@ describe("style rail interaction-surface tokens", () => {
     ),
     "utf8",
   );
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const themeBlock = (marker: string) => {
     const start = semanticCss.indexOf(marker);
     if (start < 0) throw new Error(`missing theme block: ${marker}`);
@@ -3729,7 +3733,7 @@ describe("style rail state-shape tokens", () => {
   });
 
   it("declares every state-shape var in both semantic.css blocks, light equal to the registry default", () => {
-    const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const css = readSemanticCss((url) => readFileSync(url, "utf8"));
     const darkStart = css.indexOf('[data-theme="dark"], .dark, [data-code-panels="dark"] [data-code-surface] {');
     expect(darkStart).toBeGreaterThan(0);
     const light = css.slice(0, darkStart);
@@ -3965,7 +3969,7 @@ describe("style rail process-outline tokens", () => {
   });
 
   it("colors the outline in VS Code Light+ on the light page and Dark+ on the dark page", () => {
-    const css = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const css = readSemanticCss((url) => readFileSync(url, "utf8"));
     // [light block, dark block]. Keywords and notes take the VS Code palette of
     // the page mode; depth markers walk the category roster; text, chips' fill
     // and the frame follow the neutral roles; the rail is secondary in both.
@@ -4064,7 +4068,7 @@ describe("style rail process-outline tokens", () => {
   // never reads (or reads behind an !important / a re-declaration), or whose
   // fallback / semantic.css value disagrees with the registry default.
   it("wires every process-outline token through the component with its default as the fallback", () => {
-    const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+    const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
     const componentSource = readFileSync(
       new URL(
         "../../../../docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx",
@@ -4184,8 +4188,8 @@ describe("style rail sequence tokens", () => {
       defaultValue: 12,
     },
   };
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const embedCss = readFileSync(new URL("../pages/sequence-embed.css", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
+  const embedCss = readFileSync(new URL("../shared/_components/SequenceEmbed/styles.css", import.meta.url), "utf8");
 
   it("registers the sequence frame and diagram vars", () => {
     const entry = THEME_TOKEN_REGISTRY.sequence;
@@ -4333,8 +4337,8 @@ describe("style rail canvas tokens", () => {
     radius: { cssVar: "--docs-canvas-radius", min: 0, max: 24, step: 1, defaultValue: 2 },
     padding: { cssVar: "--docs-canvas-padding", min: 0, max: 40, step: 1, defaultValue: 0 },
   };
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
-  const embedSource = readFileSync(new URL("../pages/CanvasEmbed.tsx", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
+  const embedSource = readFileSync(new URL("../shared/_components/CanvasEmbed/index.tsx", import.meta.url), "utf8");
 
   it("registers the canvas frame vars", () => {
     const entry = THEME_TOKEN_REGISTRY.canvas;
@@ -4670,7 +4674,7 @@ describe("style rail rich-text block tokens", () => {
 
   const viewerSource = (path: string) =>
     readFileSync(new URL(`../../../../docs-viewer/src/${path}`, import.meta.url), "utf8");
-  const semanticCss = readFileSync(new URL("../theme/semantic.css", import.meta.url), "utf8");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const blockClasses = viewerSource("render/block-classes.ts");
   const calloutSource = viewerSource("components/rich-text/CalloutDocsBlock.tsx");
@@ -5172,7 +5176,7 @@ describe("page transition styles", () => {
 describe("style rail outline-rows, stack and code-notes tokens", () => {
   const read = (path: string) => readFileSync(new URL(path, import.meta.url), "utf8");
   const viewer = "../../../../docs-viewer/src/components/";
-  const semanticCss = read("../theme/semantic.css");
+  const semanticCss = readSemanticCss((url) => readFileSync(url, "utf8"));
   const themeBlock = (marker: string) => {
     const start = semanticCss.indexOf(marker);
     if (start < 0) throw new Error(`missing theme block: ${marker}`);

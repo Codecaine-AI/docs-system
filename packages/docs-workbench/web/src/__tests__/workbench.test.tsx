@@ -10,10 +10,10 @@ import { createDocsServeApp } from "../../../src/server";
 import { applyDocOps, getBundle, stageProposal, undoPatch, ApiError } from "../data/api";
 import { getSessionId } from "../data/session";
 import { createStandaloneDocsClient } from "../data/client";
-import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
-import { App, themeWritePayload } from "../shell/App";
-import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shell/StyleRail";
-import { DocPage } from "../pages/DocPage";
+import { StandaloneCanvasEmbed } from "../shared/_components/CanvasEmbed";
+import { App, themeWritePayload } from "../App";
+import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shared/style-rail-settings";
+import { DocPage } from "../_components/DocPage";
 
 /**
  * Workbench integration tests: the REAL serve app (docs-server routes over a

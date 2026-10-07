@@ -1,11 +1,13 @@
 import { describe, expect, it } from "bun:test";
 import {
-  applyBlockLayoutOverrideCss,
-  applyStyleRailVars,
   normalizeSettings,
   DEFAULT_STYLE_RAIL_SETTINGS,
-} from "../shell/StyleRail";
-import { styleRailStaticHead } from "../shell/style-rail-settings";
+} from "../shared/style-rail-settings";
+import {
+  applyBlockLayoutOverrideCss,
+  applyStyleRailVars,
+} from "../_lib/style-rail-apply";
+import { styleRailStaticHead } from "../shared/style-rail-settings";
 
 describe("styleRailStaticHead", () => {
   it("carries exactly what applyStyleRailVars and applyBlockLayoutOverrideCss write", () => {

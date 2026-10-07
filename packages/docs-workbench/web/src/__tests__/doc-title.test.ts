@@ -1,5 +1,5 @@
 import { describe, expect, it } from "bun:test";
-import { docSegmentFromTitle, docTitleFromPath } from "../lib/doc-title";
+import { docSegmentFromTitle, docTitleFromPath } from "../shared/doc-title";
 
 describe("docTitleFromPath", () => {
   it("prettifies the sidebar segment into Title Case", () => {

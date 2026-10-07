@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { buildPdfHtml, createPrintContext } from "../lib/pdf-document";
-import { exportPages, pdfEntryPath } from "../lib/pdf-selection";
-import { ExportDialog } from "../shell/ExportDialog";
+import { buildPdfHtml, createPrintContext } from "../_components/ExportDialog/pdf-document";
+import { exportPages, pdfEntryPath } from "../_components/ExportDialog/pdf-selection";
+import { ExportDialog } from "../_components/ExportDialog";
 import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 
 const tree: DocsTreeNode[] = [{ name: "Guide", kind: "bundle", path: "10-guide", children: [

@@ -2,9 +2,9 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { act, cleanup, fireEvent, render, within } from "@testing-library/react";
 import { activeBackend, useTableBackend } from "@codecaine-ai/text-measure";
 import { useHarfBuzz } from "@codecaine-ai/text-measure/headless";
-import { syntheticInteractiveCanvas } from "../synthetic-canvas";
+import { syntheticInteractiveCanvas } from "../shared/_components/CanvasEmbed/synthetic-canvas";
 
-import { StandaloneCanvasEmbed } from "../pages/CanvasEmbed";
+import { StandaloneCanvasEmbed } from "../shared/_components/CanvasEmbed";
 
 afterEach(() => {
   document.body.style.overflow = "";

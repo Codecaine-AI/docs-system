@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { AppShell, type AppShellProps } from "../AppShell";
-import { Sidebar } from "../../shell/Sidebar";
+import { Sidebar } from "./_components/Sidebar";
 import { SectionRail } from "./_components/SectionRail";
 
 /** localStorage key for the sidebar state (layout.md rule 4; the registry's verify.sidebar key). */

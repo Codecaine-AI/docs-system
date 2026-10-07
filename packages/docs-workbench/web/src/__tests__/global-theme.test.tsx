@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { resetGlobalThemeActive } from "../data/project-storage";
-import { App } from "../shell/App";
-import { DEFAULT_STYLE_RAIL_SETTINGS, resetStyleRailBaseline } from "../shell/StyleRail";
+import { App } from "../App";
+import { DEFAULT_STYLE_RAIL_SETTINGS, resetStyleRailBaseline } from "../shared/style-rail-settings";
 
 /**
  * The shared GLOBAL theme, against a fake host that implements the contract:

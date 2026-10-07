@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { createDocsServeApp } from "../../../src/server";
-import { App } from "../shell/App";
+import { App } from "../App";
 
 /**
  * Doc-peek wiring tests: the workbench mounts docs-viewer's DocPeekPanel as

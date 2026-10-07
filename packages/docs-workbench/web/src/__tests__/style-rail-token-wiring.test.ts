@@ -33,11 +33,15 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-const REGISTRY_FILE = join(WEB_SRC, "theme", "theme-folders.ts");
+// The token registry (theme/theme-folders/, one file before pass 3) is not a reader.
+const REGISTRY_DIR = join(WEB_SRC, "theme", "theme-folders");
 const sources = [...sourceFiles(WEB_SRC), ...sourceFiles(VIEWER_SRC)]
-  .filter((path) => path !== REGISTRY_FILE)
+  .filter((path) => !path.startsWith(`${REGISTRY_DIR}/`))
   .map((path) => readFileSync(path, "utf8"));
-const labelSource = readFileSync(join(WEB_SRC, "shell", "style-rail-panes.tsx"), "utf8");
+// The Style rail panes (one file, style-rail-panes.tsx, before pass 3).
+const labelSource = sourceFiles(join(WEB_SRC, "_components", "StyleRailPanel", "_components", "StyleRailPane"))
+  .map((path) => readFileSync(path, "utf8"))
+  .join("\n");
 
 /** Sections drawn by the generic component pane, which labels keys from TOKEN_KEY_LABELS. */
 const DEDICATED_PANE_SECTIONS = new Set(["shell", "editor-controls", "annotate"]);

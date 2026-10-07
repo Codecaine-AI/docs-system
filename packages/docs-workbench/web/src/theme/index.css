@@ -9,3 +9,7 @@
 @import "./tokens.css";
 @import "./notion-palette.css";
 @import "./semantic.css";
+@import "./semantic-light-blocks.css";
+@import "./semantic-dark.css";
+@import "./semantic-dark-blocks.css";
+@import "./semantic-roles.css";

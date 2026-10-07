@@ -1,0 +1,119 @@
+
+/* ===================================================================
+ * ROLE TOKENS (theme lab, 2026-10-01) — the shared layer every component
+ * reads, on top of its own --docs-<component>-* knobs. Light = lab palette
+ * `app`, dark = lab palette `primer` (raw values: notion-palette.css
+ * --palette-*). Declared once for every theme scope: each var() resolves
+ * against the --palette-* values of the element it lands on, so the same
+ * block yields app values on a light page, primer values on a dark page,
+ * and primer values inside a dark code panel (the island). Port from the
+ * lab by prefixing: lab --muted -> --docs-muted, --c-blue -> --docs-c-blue,
+ * --syn-type -> --docs-syn-type, --fam-code -> --docs-fam-code.
+ *
+ * Neutrals  --docs-page, -panel, -sunken, -hover (surfaces);
+ *           --docs-ink (headings, strong), -text (body), -muted (secondary
+ *           text, >= 4.5:1), -faint (guides, gutters ONLY — not text);
+ *           --docs-rule, -rule-soft, -guide (lines); --docs-link,
+ *           --docs-accent, --docs-focus-ring (>= 3:1), --docs-selection.
+ * Roster    --docs-c-<hue> (+ -solid -soft -line), hue = gray blue teal
+ *           green yellow orange red violet pink. <hue> is text-safe on
+ *           page, panel and its own -soft.
+ * Roles     --docs-fam-{text,code,tree,ref,flow}, --docs-kind-{action,
+ *           query,event}, --docs-tone-{info,decision,warning,risk,success}
+ *           (each + -solid -soft -line); --docs-cat-1..6 (+ -soft);
+ *           --docs-diff-{add,del,mod} (+ -bg); --docs-chip-{bg,fg};
+ *           --docs-tile-glyph (glyph on a -solid tile).
+ * Syntax    --docs-syn-{keyword,control,string,number,fn,call,type,prop,
+ *           var,tag,comment,punct}: colored text OUTSIDE code panels (field
+ *           names, types, typed inline chips, call names). Inside a code
+ *           panel use the code theme's --syntax-* instead.
+ * =================================================================== */
+:root, .dark, [data-theme="dark"], [data-theme="light"], [data-code-panels="dark"] [data-code-surface] {
+  --docs-page: var(--palette-page);
+  --docs-panel: var(--palette-panel);
+  --docs-sunken: color-mix(in srgb, var(--palette-ink) 5%, var(--palette-panel));
+  --docs-hover: color-mix(in srgb, var(--palette-ink) 6%, var(--palette-panel));
+  --docs-ink: var(--palette-ink);
+  --docs-text: var(--palette-text);
+  --docs-muted: var(--palette-muted);
+  --docs-faint: var(--palette-faint);
+  --docs-rule: var(--palette-rule);
+  --docs-rule-soft: var(--palette-rule-soft);
+  --docs-guide: color-mix(in srgb, var(--palette-faint) 45%, var(--palette-rule));
+  --docs-link: var(--palette-link);
+  --docs-accent: var(--palette-accent);
+  --docs-focus-ring: var(--palette-accent);
+  --docs-selection: color-mix(in srgb, var(--palette-accent) var(--palette-selection-t), transparent);
+  --docs-tile-glyph: var(--palette-glyph);
+  --docs-chip-bg: var(--palette-chip);
+  --docs-chip-fg: var(--palette-ink);
+
+  --docs-c-gray: var(--palette-gray); --docs-c-gray-solid: var(--palette-gray-solid); --docs-c-gray-soft: var(--palette-gray-soft); --docs-c-gray-line: color-mix(in srgb, var(--palette-gray-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-blue: var(--palette-blue); --docs-c-blue-solid: var(--palette-blue-solid); --docs-c-blue-soft: var(--palette-blue-soft); --docs-c-blue-line: color-mix(in srgb, var(--palette-blue-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-teal: var(--palette-teal); --docs-c-teal-solid: var(--palette-teal-solid); --docs-c-teal-soft: var(--palette-teal-soft); --docs-c-teal-line: color-mix(in srgb, var(--palette-teal-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-green: var(--palette-green); --docs-c-green-solid: var(--palette-green-solid); --docs-c-green-soft: var(--palette-green-soft); --docs-c-green-line: color-mix(in srgb, var(--palette-green-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-yellow: var(--palette-yellow); --docs-c-yellow-solid: var(--palette-yellow-solid); --docs-c-yellow-soft: var(--palette-yellow-soft); --docs-c-yellow-line: color-mix(in srgb, var(--palette-yellow-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-orange: var(--palette-orange); --docs-c-orange-solid: var(--palette-orange-solid); --docs-c-orange-soft: var(--palette-orange-soft); --docs-c-orange-line: color-mix(in srgb, var(--palette-orange-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-red: var(--palette-red); --docs-c-red-solid: var(--palette-red-solid); --docs-c-red-soft: var(--palette-red-soft); --docs-c-red-line: color-mix(in srgb, var(--palette-red-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-violet: var(--palette-violet); --docs-c-violet-solid: var(--palette-violet-solid); --docs-c-violet-soft: var(--palette-violet-soft); --docs-c-violet-line: color-mix(in srgb, var(--palette-violet-solid) var(--palette-line-t), var(--palette-panel));
+  --docs-c-pink: var(--palette-pink); --docs-c-pink-solid: var(--palette-pink-solid); --docs-c-pink-soft: var(--palette-pink-soft); --docs-c-pink-line: color-mix(in srgb, var(--palette-pink-solid) var(--palette-line-t), var(--palette-panel));
+
+  --docs-fam-text: var(--docs-c-gray); --docs-fam-text-solid: var(--docs-c-gray-solid); --docs-fam-text-soft: var(--docs-c-gray-soft); --docs-fam-text-line: var(--docs-c-gray-line);
+  --docs-fam-code: var(--docs-c-blue); --docs-fam-code-solid: var(--docs-c-blue-solid); --docs-fam-code-soft: var(--docs-c-blue-soft); --docs-fam-code-line: var(--docs-c-blue-line);
+  --docs-fam-tree: var(--docs-c-teal); --docs-fam-tree-solid: var(--docs-c-teal-solid); --docs-fam-tree-soft: var(--docs-c-teal-soft); --docs-fam-tree-line: var(--docs-c-teal-line);
+  --docs-fam-ref: var(--docs-c-violet); --docs-fam-ref-solid: var(--docs-c-violet-solid); --docs-fam-ref-soft: var(--docs-c-violet-soft); --docs-fam-ref-line: var(--docs-c-violet-line);
+  --docs-fam-flow: var(--docs-c-green); --docs-fam-flow-solid: var(--docs-c-green-solid); --docs-fam-flow-soft: var(--docs-c-green-soft); --docs-fam-flow-line: var(--docs-c-green-line);
+
+  --docs-kind-action: var(--docs-c-orange); --docs-kind-action-solid: var(--docs-c-orange-solid); --docs-kind-action-soft: var(--docs-c-orange-soft); --docs-kind-action-line: var(--docs-c-orange-line);
+  --docs-kind-query: var(--docs-c-blue); --docs-kind-query-solid: var(--docs-c-blue-solid); --docs-kind-query-soft: var(--docs-c-blue-soft); --docs-kind-query-line: var(--docs-c-blue-line);
+  --docs-kind-event: var(--docs-c-violet); --docs-kind-event-solid: var(--docs-c-violet-solid); --docs-kind-event-soft: var(--docs-c-violet-soft); --docs-kind-event-line: var(--docs-c-violet-line);
+
+  --docs-tone-info: var(--docs-c-blue); --docs-tone-info-solid: var(--docs-c-blue-solid); --docs-tone-info-soft: var(--docs-c-blue-soft); --docs-tone-info-line: var(--docs-c-blue-line);
+  --docs-tone-decision: var(--docs-c-violet); --docs-tone-decision-solid: var(--docs-c-violet-solid); --docs-tone-decision-soft: var(--docs-c-violet-soft); --docs-tone-decision-line: var(--docs-c-violet-line);
+  --docs-c-amber: var(--palette-amber);
+  --docs-tone-warning: var(--docs-c-amber); --docs-tone-warning-solid: var(--docs-c-yellow-solid); --docs-tone-warning-soft: var(--docs-c-yellow-soft); --docs-tone-warning-line: var(--docs-c-yellow-line);
+  --docs-tone-risk: var(--docs-c-red); --docs-tone-risk-solid: var(--docs-c-red-solid); --docs-tone-risk-soft: var(--docs-c-red-soft); --docs-tone-risk-line: var(--docs-c-red-line);
+  --docs-tone-success: var(--docs-c-green); --docs-tone-success-solid: var(--docs-c-green-solid); --docs-tone-success-soft: var(--docs-c-green-soft); --docs-tone-success-line: var(--docs-c-green-line);
+
+  --docs-cat-1: var(--docs-c-blue); --docs-cat-1-soft: var(--docs-c-blue-soft);
+  --docs-cat-2: var(--docs-c-teal); --docs-cat-2-soft: var(--docs-c-teal-soft);
+  --docs-cat-3: var(--docs-c-green); --docs-cat-3-soft: var(--docs-c-green-soft);
+  --docs-cat-4: var(--docs-c-yellow); --docs-cat-4-soft: var(--docs-c-yellow-soft);
+  --docs-cat-5: var(--docs-c-violet); --docs-cat-5-soft: var(--docs-c-violet-soft);
+  --docs-cat-6: var(--docs-c-pink); --docs-cat-6-soft: var(--docs-c-pink-soft);
+
+  /* Diff: the glyph/name color plus an opaque row tint soft enough that
+     --docs-muted and every --docs-syn-* keep 4.5:1 on it. */
+  --docs-diff-add: var(--docs-c-green); --docs-diff-add-bg: color-mix(in srgb, var(--palette-green-solid) 8%, var(--palette-panel));
+  --docs-diff-del: var(--docs-c-red); --docs-diff-del-bg: color-mix(in srgb, var(--palette-red-solid) 8%, var(--palette-panel));
+  --docs-diff-mod: var(--docs-c-yellow); --docs-diff-mod-bg: color-mix(in srgb, var(--palette-yellow-solid) var(--palette-diff-mod-t), var(--palette-panel));
+
+  /* Page-level syntax roles (balanced: every role colored). Strings orange
+     and numbers green in both modes, matching the Dark+ code panels, so a
+     string reads the same inside and outside a panel. */
+  --docs-syn-keyword: var(--docs-c-violet);
+  --docs-syn-control: var(--docs-c-violet);
+  --docs-syn-string: var(--docs-c-orange);
+  --docs-syn-number: var(--docs-c-green);
+  --docs-syn-fn: var(--docs-c-blue);
+  --docs-syn-call: var(--docs-c-blue);
+  --docs-syn-type: var(--docs-c-yellow);
+  --docs-syn-prop: var(--docs-c-teal);
+  --docs-syn-var: var(--docs-ink);
+  --docs-syn-tag: color-mix(in srgb, var(--palette-pink) 88%, var(--palette-ink));
+  --docs-syn-comment: var(--docs-muted);
+  --docs-syn-punct: var(--docs-muted);
+}
+
+/* Dark code panels on the DARK page sit below it (Primer canvas-inset with
+   a Primer rule), so a code panel still reads as a distinct dark panel on
+   the dark page; on the light page they keep the code theme's own
+   background. Syntax colors stay the code theme's either way. (0,3,0): over
+   the (0,2,0) island, tied with the rail's restated panel overrides, which
+   come later and win. The live app re-asserts this over the code theme in
+   theme/code-theme-style.ts (darkPageCodePanelCss). */
+:where(:root:is(.dark, [data-theme="dark"])[data-code-panels="dark"]) [data-code-surface][data-code-surface][data-code-surface] {
+  --docs-code-block-bg: var(--palette-inset);
+  --docs-code-gutter-bg: var(--palette-inset);
+  --docs-code-block-border: var(--palette-rule);
+}

@@ -4,7 +4,7 @@ import { layoutSequence } from "@codecaine-ai/sequence";
 import { activeBackend, useTableBackend } from "@codecaine-ai/text-measure";
 import { useHarfBuzz } from "@codecaine-ai/text-measure/headless";
 
-import { StandaloneSequenceEmbed } from "../pages/SequenceEmbed";
+import { StandaloneSequenceEmbed } from "../shared/_components/SequenceEmbed";
 
 afterEach(() => cleanup());
 

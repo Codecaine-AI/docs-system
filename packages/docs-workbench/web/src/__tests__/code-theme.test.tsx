@@ -10,17 +10,19 @@ import {
 
 import {
   DEFAULT_STYLE_RAIL_SETTINGS,
-  StyleRail,
   resetStyleRailBaseline,
   setStyleRailColorControls,
   type StyleRailSettings,
-} from "../shell/StyleRail";
+} from "../shared/style-rail-settings";
+import {
+  StyleRailPanel,
+} from "../_components/StyleRailPanel";
 import {
   CODE_THEME_STYLE_ELEMENT_ID,
   applyCodeThemeStyle,
   codeThemeStyleCss,
-} from "../theme/code-theme-style";
-import { codeThemeOptionLabel, useCodeTheme, type CodeThemeControls } from "../theme/use-code-theme";
+} from "../_lib/code-theme-style";
+import { codeThemeOptionLabel, useCodeTheme, type CodeThemeControls } from "../shared/useCodeTheme";
 
 /**
  * The central code theme in the workbench: the scoped <style> that applies
@@ -129,18 +131,18 @@ describe("code theme picker", () => {
   function Harness({ controls }: { controls: CodeThemeControls }) {
     const [settings, setSettings] = useState(DEFAULT_STYLE_RAIL_SETTINGS);
     return (
-      <StyleRail
-        activeThemeId="default"
-        codeTheme={controls}
-        collapsed={false}
-        dark={false}
-        onCollapsedChange={() => {}}
-        onDarkChange={() => {}}
-        onSelectTheme={() => {}}
-        onSettingsChange={setSettings}
-        settings={settings}
-        themes={[{ id: "default", name: "Default", source: "builtin" }]}
-      />
+      <aside>
+        <StyleRailPanel
+          activeThemeId="default"
+          codeTheme={controls}
+          dark={false}
+          onDarkChange={() => {}}
+          onSelectTheme={() => {}}
+          onSettingsChange={setSettings}
+          settings={settings}
+          themes={[{ id: "default", name: "Default", source: "builtin" }]}
+        />
+      </aside>
     );
   }
 
@@ -181,17 +183,17 @@ describe("code theme picker", () => {
 
   it("is absent without controls (static export / theme-locked)", () => {
     render(
-      <StyleRail
-        activeThemeId="default"
-        collapsed={false}
-        dark={false}
-        onCollapsedChange={() => {}}
-        onDarkChange={() => {}}
-        onSelectTheme={() => {}}
-        onSettingsChange={() => {}}
-        settings={DEFAULT_STYLE_RAIL_SETTINGS}
-        themes={[{ id: "default", name: "Default", source: "builtin" }]}
-      />,
+      <aside>
+        <StyleRailPanel
+          activeThemeId="default"
+          dark={false}
+          onDarkChange={() => {}}
+          onSelectTheme={() => {}}
+          onSettingsChange={() => {}}
+          settings={DEFAULT_STYLE_RAIL_SETTINGS}
+          themes={[{ id: "default", name: "Default", source: "builtin" }]}
+        />
+      </aside>,
     );
     openTypography();
     expect(screen.queryByLabelText("Code theme")).toBeNull();
