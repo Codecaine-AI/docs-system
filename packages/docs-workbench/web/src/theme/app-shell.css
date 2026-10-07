@@ -46,6 +46,11 @@
   background: var(--sidebar);
 }
 
+/* No page panel (the side peek) can slide under the inspector. */
+.docs-app .ds-main {
+  overflow-x: clip;
+}
+
 /* No shell transition while the theme boots (App's `booting`): the Style
    inspector appears once the theme has loaded and must not slide in. */
 .docs-app[data-docs-booting] .ds-shell,

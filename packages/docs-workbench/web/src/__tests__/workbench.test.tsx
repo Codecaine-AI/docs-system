@@ -406,7 +406,7 @@ describe("static public-site shell", () => {
 
       // Let the theme boot settle: the rail must stay absent afterwards too.
       await new Promise((resolve) => setTimeout(resolve, 200));
-      expect(screen.queryByRole("button", { name: "Style" })).toBeNull();
+      expect(screen.queryByRole("button", { name: /Style/ })).toBeNull();
       expect(screen.queryByRole("button", { name: "Export" })).toBeNull();
       expect(screen.queryByRole("button", { name: /AI panel/ })).toBeNull();
       expect(document.querySelector('[data-doc-editor="true"]')).toBeNull();

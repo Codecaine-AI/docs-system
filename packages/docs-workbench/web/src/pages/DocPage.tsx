@@ -1279,7 +1279,7 @@ export function DocPage({
                 emits NO var — that is how "let the stylesheet answer" works —
                 so this literal is what actually renders by default, and a
                 mismatch here silently ignores the rail's stated default.
-                `--docs-page-margin` is the shell's page margin (index.css): the content-margin knob above 800px, the shell's narrow padding at 800px and below. */}
+                `--docs-page-margin` is the shell's page margin (theme/app-shell.css): the content-margin knob above 800px, the shell's narrow padding at 800px and below. */}
             {/* Prompt-lab geometry: the content wrapper reserves the lab
                 panel's footprint as RIGHT PADDING (inline, animated in step
                 with the panel's width transition) while the scroller behind
