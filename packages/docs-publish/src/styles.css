@@ -18,15 +18,15 @@
    `.docs-markdown`; token declarations on :root are the only page-wide part. */
 @import "../../docs-workbench/web/src/theme/index.css";
 @import "./scoped-preflight.css";
-@import "../../docs-workbench/web/src/pages/sequence-embed.css";
+@import "../../docs-workbench/web/src/shared/_components/SequenceEmbed/styles.css";
 @import "../../docs-viewer/src/styles/list-markers.css";
 @import "../../docs-viewer/src/styles/code.css";
 @import "../../docs-viewer/src/styles/image-grid.css";
 @import "../../docs-viewer/src/styles/image-viewer.css";
 @import "../../docs-workbench/web/src/theme/read-surface.css";
 
-@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
-@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
+@source "../../docs-workbench/web/src/shared/_components/CanvasEmbed/index.tsx";
+@source "../../docs-workbench/web/src/shared/_components/SequenceEmbed/index.tsx";
 @source "../../docs-viewer/src";
 @source "../../../external/canvas/packages/canvas/src";
 @source "../../../external/sequence/packages/sequence/src";

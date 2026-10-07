@@ -6,8 +6,8 @@ import type { DocBlockSaveResult } from '../../docs-viewer/src/render/DocBlockRe
 import { resolveBundleAssetSrc, resolveBundleCanvasSrc, resolveBundleSequenceSrc } from '../../docs-viewer/src/render/bundle-src';
 import type { DocDocument } from '../../docs-model/src/doc-schema';
 import type { DocOp } from '../../docs-model/src/doc-ops';
-import { StandaloneCanvasEmbed } from '../../docs-workbench/web/src/pages/CanvasEmbed';
-import { StandaloneSequenceEmbed } from '../../docs-workbench/web/src/pages/SequenceEmbed';
+import { StandaloneCanvasEmbed } from '../../docs-workbench/web/src/shared/_components/CanvasEmbed';
+import { StandaloneSequenceEmbed } from '../../docs-workbench/web/src/shared/_components/SequenceEmbed';
 import { validateInteractiveCanvasDocument, type InteractiveCanvasDocument } from '../../../external/canvas/packages/canvas/src/state/schema';
 import { validateSequenceDocument, type SequenceDocument } from '../../../external/sequence/packages/sequence/src/schema';
 import { loadPublishedFonts } from './browser-fonts';

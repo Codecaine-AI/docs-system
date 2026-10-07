@@ -16,10 +16,10 @@
 @import "@codecaine-ai/design-system/tailwind.css";
 @import "./tailwind-bridge.css";
 @import "../../docs-workbench/node_modules/tailwindcss/utilities.css" layer(utilities) source(none);
-@import "../../docs-workbench/web/src/pages/sequence-embed.css";
+@import "../../docs-workbench/web/src/shared/_components/SequenceEmbed/styles.css";
 @source "./editor.tsx";
-@source "../../docs-workbench/web/src/pages/CanvasEmbed.tsx";
-@source "../../docs-workbench/web/src/pages/SequenceEmbed.tsx";
+@source "../../docs-workbench/web/src/shared/_components/CanvasEmbed/index.tsx";
+@source "../../docs-workbench/web/src/shared/_components/SequenceEmbed/index.tsx";
 @source "../../docs-viewer/src";
 @source "../../../external/canvas/packages/canvas/src";
 @source "../../../external/sequence/packages/sequence/src";

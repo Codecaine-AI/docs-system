@@ -1,7 +1,7 @@
 import React from 'react';
 import {createRoot} from 'react-dom/client';
-import {StandaloneCanvasEmbed} from '../../docs-workbench/web/src/pages/CanvasEmbed';
-import {StandaloneSequenceEmbed} from '../../docs-workbench/web/src/pages/SequenceEmbed';
+import {StandaloneCanvasEmbed} from '../../docs-workbench/web/src/shared/_components/CanvasEmbed';
+import {StandaloneSequenceEmbed} from '../../docs-workbench/web/src/shared/_components/SequenceEmbed';
 import {ImageViewerDialog} from '../../docs-viewer/src/components/rich-text/image-viewer';
 export function openDiagram(document: any, kind: string, title?: string, view?: string, onClose?: () => void, expansionSource?: HTMLElement) {
   const holder = window.document.createElement('div');

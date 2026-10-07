@@ -1,6 +1,6 @@
 import { readRepoThemeChain } from './theme-source' with { type: 'macro' };
 import { compileThemeCss, readThemeDefinition, resolveThemeChain, type ThemeDefinition } from '../../docs-workbench/web/src/theme/theme-folders';
-import { DEFAULT_STYLE_RAIL_SETTINGS, normalizeSettings, styleRailStaticHead } from '../../docs-workbench/web/src/shell/style-rail-settings';
+import { DEFAULT_STYLE_RAIL_SETTINGS, normalizeSettings, styleRailStaticHead } from '../../docs-workbench/web/src/shared/style-rail-settings';
 
 export type DocsThemeHead = {
   /** Attributes for the host page's <html> element, e.g. `data-code-panels="dark"`. */
