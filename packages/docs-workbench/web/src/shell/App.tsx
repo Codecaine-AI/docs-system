@@ -816,6 +816,11 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
                   className="ds-shell-button"
                   aria-expanded={styleOpen}
                   aria-controls="ds-inspector"
+                  // The side peek owns the right edge while it is open (it
+                  // closed Style and reopens it on close), as for the AI
+                  // toggle: Style beside it would leave the doc no room.
+                  disabled={sidePeekOpen}
+                  title={sidePeekOpen ? "Close the document preview to use Style" : undefined}
                   onClick={() => (styleOpen ? closeStyle() : setStyleOpenByUser(true))}
                 >
                   <SlidersHorizontal aria-hidden="true" />
