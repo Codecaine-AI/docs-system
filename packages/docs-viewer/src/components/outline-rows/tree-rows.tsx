@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { DOCS_COLORS, type DocsColor } from "@codecaine-ai/docs-model";
 
 /*
  * The trees-and-paths row system, shared by file-tree, file-explorer,
@@ -10,7 +11,8 @@ import type { CSSProperties, ReactNode } from "react";
  * of truncating, and one source column.
  *
  * The stylesheet reads only `--tr-*` variables plus the shared role tokens
- * (--docs-fam-tree-solid, --docs-ink, --docs-hover, --docs-focus-ring...).
+ * (--docs-fam-tree-solid, --docs-c-<color>*, --docs-ink, --docs-hover,
+ * --docs-focus-ring...).
  * Each block maps its own `--docs-<component>-*` knobs onto the `--tr-*`
  * variables on its root (see `treeVars`), so every block stays tunable on
  * its own. Every var() carries a literal fallback equal to its light (app
@@ -178,6 +180,28 @@ export const TREE_GUIDES_CSS = `/* guides: continuous 1px lines, drawn with bord
 }
 `;
 
+/**
+ * Light fallbacks for the roster's `--docs-c-<color>` tokens (ink, soft wash,
+ * solid), so a group band renders where the theme is absent (static export).
+ */
+const GROUP_COLOR_FALLBACKS: Record<DocsColor, { ink: string; soft: string; solid: string }> = {
+  gray: { ink: "#666562", soft: "#ebeced", solid: "#9b9a97" },
+  red: { ink: "#c62121", soft: "#fbe4e4", solid: "#e03e3e" },
+  orange: { ink: "#9d530d", soft: "#faebdd", solid: "#d9730d" },
+  yellow: { ink: "#805f01", soft: "#fbf3db", solid: "#dfab01" },
+  green: { ink: "#26744f", soft: "#e2efe6", solid: "#287c55" },
+  teal: { ink: "#0d7164", soft: "#ddedea", solid: "#0f7b6c" },
+  blue: { ink: "#0b6e99", soft: "#ddebf1", solid: "#0b6e99" },
+  violet: { ink: "#6940a5", soft: "#eae4f2", solid: "#6940a5" },
+  pink: { ink: "#ad1a72", soft: "#f4dfeb", solid: "#ad1a72" },
+};
+
+/** One rule per roster color: the band's ink, soft wash and line color as `--tr-grp*`. */
+const TREE_GROUP_COLORS_CSS = DOCS_COLORS.map((color) => {
+  const { ink, soft, solid } = GROUP_COLOR_FALLBACKS[color];
+  return `.docs-tree__row[data-color="${color}"] { --tr-grp: var(--docs-c-${color}, ${ink}); --tr-grp-soft: var(--docs-c-${color}-soft, ${soft}); --tr-grp-line: var(--docs-c-${color}-line, color-mix(in srgb, ${solid} 45%, #f8f8f7)); }`;
+}).join("\n");
+
 export const TREE_ROWS_CSS = `
 .docs-tree {
   --tr-indent: var(--ds-space-5);
@@ -196,6 +220,12 @@ export const TREE_ROWS_CSS = `
   border: var(--tr-border-width, 1px) solid var(--tr-border, #e6e5e3);
   border-radius: var(--tr-radius, 2px);
   color: var(--tr-ink, #1f1f1f);
+}
+/* File trees and file explorers fill their whole code lane, notes or not, so
+   every path tree on a page shares one right edge. */
+.docs-tree[data-tree-kind="file-tree"],
+.docs-tree[data-tree-kind="file-explorer"] {
+  width: 100%;
 }
 .docs-tree__head {
   display: flex; align-items: center; gap: var(--ds-space-2);
@@ -267,6 +297,19 @@ ${TREE_GUIDES_CSS}
 .docs-tree__sep { color: var(--tr-muted, #666562); font-weight: var(--ds-font-weight-regular); }
 .docs-tree__from { color: var(--tr-muted, #666562); text-decoration: line-through; text-decoration-thickness: var(--ds-border-width-hairline); }
 .docs-tree__arrow { margin: 0 0.5ch; color: var(--tr-muted, #666562); }
+
+/* group color: an entry's roster color. The head row's name takes the hue's
+   ink and every row of its subtree takes line-colored guides. Rows carry no
+   resting wash: only the group under the pointer (data-color-active, set by
+   onColorGroupHover) takes the hue's soft wash. A change wash wins on its row
+   (the diff rules below come later at equal specificity). */
+${TREE_GROUP_COLORS_CSS}
+.docs-tree__row[data-color] { --tr-guide: var(--tr-grp-line); }
+.docs-tree__row[data-color-active]:not([data-change]) { background: var(--tr-grp-soft); }
+.docs-tree__row[data-color-head] .docs-tree__name { color: var(--tr-grp); }
+.docs-tree__row[data-color-head] .docs-tree__name[data-dir] { font-weight: var(--tr-group-weight, 600); }
+/* explorer hover inside the active group stays in the group's hue */
+.docs-tree__row[data-color-active]:is([aria-expanded], [data-kind]):not([data-change]):hover { background: color-mix(in srgb, var(--tr-grp) 10%, var(--tr-grp-soft)); }
 
 /* diff: glyph + soft tint; a changed file name takes its diff color */
 .docs-tree__row[data-change="added"] { --tr-chg: var(--tr-added-fg, #26744f); --tr-chg-name: var(--tr-added-name, var(--tr-chg)); background: var(--tr-added-bg, color-mix(in srgb, #287c55 8%, #f8f8f7)); }
@@ -375,3 +418,26 @@ ${TREE_GUIDES_CSS}
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 `;
+
+/**
+ * Pointer handler for a tree's rows container: marks every row of the color
+ * group under the pointer with `data-color-active` (the innermost group the
+ * row belongs to) and clears it when the pointer leaves the group or the
+ * tree. Works on the DOM directly so hovering never re-renders the tree.
+ */
+export function onColorGroupHover(event: { currentTarget: HTMLElement; target: EventTarget | null; type: string }): void {
+  const container = event.currentTarget;
+  const row = event.type === "mouseleave" || !(event.target instanceof Element)
+    ? null
+    : event.target.closest<HTMLElement>(".docs-tree__row");
+  const source = row?.dataset.colorSource ?? null;
+  if (container.dataset.activeColorSource === (source ?? "")) return;
+  container.dataset.activeColorSource = source ?? "";
+  for (const active of container.querySelectorAll<HTMLElement>(".docs-tree__row[data-color-active]")) {
+    delete active.dataset.colorActive;
+  }
+  if (!source) return;
+  for (const member of container.querySelectorAll<HTMLElement>(".docs-tree__row[data-color-source]")) {
+    if (member.dataset.colorSource === source) member.dataset.colorActive = "";
+  }
+}

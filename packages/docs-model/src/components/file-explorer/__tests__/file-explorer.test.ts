@@ -14,6 +14,14 @@ describe("file-explorer", () => {
     expect(issues.length === 0).toBe(valid);
   });
 
+  it.each([
+    ["a roster color", "blue", true],
+    ["a color outside the roster", "magenta", false],
+  ])("validates an entry with %s", (_label, color, valid) => {
+    const issues = checkStateProps("file-explorer", { entries: [{ path: "src/", color }] });
+    expect(issues.length === 0).toBe(valid);
+  });
+
   it("projects the tree listing, led by the title when one is set", () => {
     const block: DocBlock = {
       id: "fe",

@@ -57,6 +57,8 @@ export type { StateShapeSource } from "./state-shape";
 export { FieldSchema, cloneField, fieldLines, readFields } from "./shared/field";
 export type { Field } from "./shared/field";
 export { printJsonLines } from "./shared/json-lines";
+export { DOCS_COLORS, DOCS_COLOR_LIST, docsColorSchema, isDocsColor } from "./shared/colors";
+export type { DocsColor } from "./shared/colors";
 export type { JsonLineRange, JsonLinesResult } from "./shared/json-lines";
 export { canvasComponent } from "./canvas";
 export { sequenceComponent } from "./sequence";

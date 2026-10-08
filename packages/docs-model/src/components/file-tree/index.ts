@@ -27,4 +27,4 @@ export {
   fileTreeState,
   readFileTreeEntries,
 } from "./state";
-export type { FileTreeChange, FileTreeEntry } from "./state";
+export type { FileTreeChange, FileTreeColor, FileTreeEntry } from "./state";

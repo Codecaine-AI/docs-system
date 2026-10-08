@@ -102,6 +102,15 @@ describe("file-tree.addEntry", () => {
     );
   });
 
+  it("adds an entry with a roster color", () => {
+    const props = mustOk(run(addEntry, fileTreeBlock(), { path: "packages/", color: "teal" }));
+    expect((props.entries as unknown[]).at(-1)).toEqual({ path: "packages/", color: "teal" });
+  });
+
+  it("rejects a color outside the roster through checkParams", () => {
+    mustFail(run(addEntry, fileTreeBlock(), { path: "packages/", color: "magenta" }), "$.params.color");
+  });
+
   it("rejects a missing path and an unknown change marker through checkParams", () => {
     mustFail(run(addEntry, fileTreeBlock(), {}), "$.params.path");
     mustFail(
@@ -157,6 +166,28 @@ describe("file-tree.updateEntry", () => {
       run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }),
     );
     expect((props.entries as unknown[])[0]).toEqual({ path: "src/a.ts" });
+  });
+
+  it("sets, replaces, and clears a color", () => {
+    const set = mustOk(run(updateEntry, fileTreeBlock(), { path: "docs/", color: "blue" }));
+    expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "blue" });
+
+    const block = fileTreeBlock();
+    block.props.entries = set.entries;
+    const replaced = mustOk(run(updateEntry, block, { path: "docs/", color: "pink" }));
+    expect((replaced.entries as unknown[])[2]).toEqual({ path: "docs/", color: "pink" });
+
+    block.props.entries = replaced.entries;
+    const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }));
+    expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
+  });
+
+  it("keeps the color when other fields change, and rejects an unknown color", () => {
+    const block = fileTreeBlock();
+    block.props.entries = [{ path: "docs/", color: "green" }];
+    const props = mustOk(run(updateEntry, block, { path: "docs/", note: "guides" }));
+    expect(props.entries).toEqual([{ path: "docs/", note: "guides", color: "green" }]);
+    mustFail(run(updateEntry, block, { path: "docs/", color: "magenta" }), "$.params.color");
   });
 
   it("renames in place via newPath", () => {

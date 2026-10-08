@@ -34,6 +34,7 @@ entries: FileTreeEntry[]  # Flat list of path entries. The rendered tree derives
   note?: string  # Short annotation rendered after the path.
   change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
   from?: string  # Previous path, used with change: "renamed".
+  color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color from the docs color roster. It gives each top-level folder its own color so readers can tell groups apart. Any other value fails validation.
 ```
 
 ```json
@@ -66,7 +67,7 @@ Every fact lives in `entries`, an array of path entries validated by the closed 
 
 - Tolerant read
 
-  - `readFileTreeEntries` skips an entry whose `path` is missing or empty and drops wrong-typed `note`/`change`/`from` values, and nothing is repaired.
+  - `readFileTreeEntries` skips an entry whose `path` is missing or empty. It drops a wrong-typed `note`, `change`, `from`, or `color` value, and nothing is repaired.
 
   - Actions match the `path` string literally, so keep paths exact.
 
@@ -78,11 +79,11 @@ Three actions are the type's whole custom write surface.
 
   - Appends to the end of `entries`. A duplicate path is an error.
 
-  - Params are `path` plus optional `note` and `change`. `from` enters only through `updateEntry`.
+  - Params are `path` plus optional `note`, `change`, and `color`. `from` enters only through `updateEntry`.
 
 - `updateEntry`
 
-  - The action patches `note`/`change`/`from` in place. `null` clears a field.
+  - The action patches `note`, `change`, `from`, or `color` in place. `null` clears a field.
 
   - `newPath` renames without moving, and the entry keeps its array position. A `newPath` that collides with another entry is an error.
 
@@ -93,13 +94,14 @@ Three actions are the type's whole custom write surface.
 **file-tree entry actions**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: string) -> FileTreePatch  # Append a path entry (optional note and change marker) to the file tree.
+file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> FileTreePatch  # Append a path entry (optional note, change marker, and color) to the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
       note?: string  # Short annotation rendered after the path.
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
+      color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
 file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
@@ -107,13 +109,15 @@ file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with th
       note?: string  # Short annotation rendered after the path.
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
-file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from, or rename it via newPath (in place).
+      color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
+file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from/color, or rename it via newPath (in place).
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
       note?: string  # Short annotation rendered after the path.
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
+      color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
 ```
 
 Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and the patch revalidates against `FileTreeState` before anything persists.
@@ -133,6 +137,18 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
   - A change tints the row and puts its marker in the gutter: `+` added (emerald), `-` removed (rose, name struck through), `~` modified (amber), `>` renamed (sky).
 
   - A renamed row draws the old `from` path struck through, then `→`, then the new name.
+
+- Group colors
+
+  - A directory entry's `color` covers that row and every row beneath it. A descendant's own `color` overrides the inherited one for its subtree.
+
+  - A file entry's `color` covers only that row.
+
+  - The colored folder's name takes the color's ink at a heavier weight.
+
+  - Every row in the group gets colored guide lines, and no row has a background tint at rest.
+
+  - When the pointer is over a row, every row in that row's innermost group gets the color's soft wash. On a row with a change marker, the change tint wins over the group wash.
 
 - Notes
 
@@ -169,6 +185,8 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 - Notes append as `  # note`. Directory names keep the trailing "/".
 
 - Change markers prefix the line: `+` added, `-` removed, `~` modified, `>` renamed.
+
+- The projection omits `color`, which is visual only.
 
 - The render is pure and pinned byte-for-byte by goldens. The obligations are Agent renderer.
 

@@ -30,6 +30,7 @@
         "fx-doc-3",
         "fx-doc-4",
         "fx-doc-5",
+        "fx-doc-color",
         "fx-h-agent",
         "fx-agent"
       ]
@@ -210,6 +211,12 @@
                 "type": "string",
                 "required": false,
                 "description": "Previous path when renamed."
+              },
+              {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                "required": false,
+                "description": "Group color from the docs color roster. It gives each top-level folder its own color. Any other value fails validation."
               }
             ]
           },
@@ -299,7 +306,7 @@
       "props": {},
       "text": [
         {
-          "insert": "It appends an entry with an optional note and change marker."
+          "insert": "It appends an entry with an optional note, change marker, and color."
         }
       ],
       "children": []
@@ -356,10 +363,19 @@
           }
         },
         {
-          "insert": ", or "
+          "insert": ", "
         },
         {
           "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "color",
           "attributes": {
             "code": true
           }
@@ -430,8 +446,7 @@
         "operations": [
           {
             "name": "file-explorer.addEntry",
-            "kind": "action",
-            "description": "Append a path entry (optional note and change marker) to the file explorer.",
+            "description": "Append a path entry (optional note, change marker, and color) to the file explorer.",
             "params": [
               {
                 "name": "path",
@@ -450,14 +465,20 @@
                 "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
                 "required": false,
                 "description": "Change marker for the entry."
+              },
+              {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                "required": false,
+                "description": "Group color. A directory's color carries to its whole subtree."
               }
             ],
-            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+            "returns": "Props patch { entries }, revalidated against FileExplorerState",
+            "kind": "action"
           },
           {
             "name": "file-explorer.updateEntry",
-            "kind": "action",
-            "description": "Patch an entry's note, change, or from, or rename it in place with newPath.",
+            "description": "Patch an entry's note, change, from, or color, or rename it in place with newPath.",
             "params": [
               {
                 "name": "path",
@@ -484,17 +505,23 @@
                 "description": "Previous path for a renamed entry. Pass null to clear."
               },
               {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\" | null",
+                "required": false,
+                "description": "New group color. Pass null to clear."
+              },
+              {
                 "name": "newPath",
                 "type": "string",
                 "required": false,
                 "description": "Rename the entry to this path, kept in place."
               }
             ],
-            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+            "returns": "Props patch { entries }, revalidated against FileExplorerState",
+            "kind": "action"
           },
           {
             "name": "file-explorer.removeEntry",
-            "kind": "action",
             "description": "Remove the entry with the given path from the file explorer.",
             "params": [
               {
@@ -504,7 +531,8 @@
                 "description": "Exact path of the entry to remove."
               }
             ],
-            "returns": "Props patch { entries }, revalidated against FileExplorerState"
+            "returns": "Props patch { entries }, revalidated against FileExplorerState",
+            "kind": "action"
           }
         ]
       },
@@ -709,6 +737,44 @@
       ],
       "children": []
     },
+    "fx-doc-color": {
+      "id": "fx-doc-color",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A directory entry's "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " covers that row and every row beneath it. A descendant's own "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " overrides the inherited one for its subtree. A file entry's "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " covers only that row."
+        }
+      ],
+      "children": []
+    },
     "fx-h-agent": {
       "id": "fx-h-agent",
       "type": "heading",
@@ -761,7 +827,16 @@
           }
         },
         {
-          "insert": " is set, the title leads the drawing in bold."
+          "insert": " is set, the title leads the drawing in bold. The drawing omits "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which is visual only."
         }
       ],
       "children": []

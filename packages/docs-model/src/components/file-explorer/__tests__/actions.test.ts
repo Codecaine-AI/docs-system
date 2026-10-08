@@ -80,6 +80,12 @@ describe("file-explorer.addEntry", () => {
   it("rejects an unknown change marker through checkParams", () => {
     mustFail(run(addEntry, explorerBlock(), { path: "src/c.ts", change: "edited" }), "$.params.change");
   });
+
+  it("adds an entry with a roster color and rejects any other color", () => {
+    const props = mustOk(run(addEntry, explorerBlock(), { path: "packages/", color: "violet" }));
+    expect((props.entries as unknown[]).at(-1)).toEqual({ path: "packages/", color: "violet" });
+    mustFail(run(addEntry, explorerBlock(), { path: "packages/", color: "magenta" }), "$.params.color");
+  });
 });
 
 describe("file-explorer.removeEntry", () => {
@@ -115,6 +121,15 @@ describe("file-explorer.updateEntry", () => {
     block.props.entries = [{ path: "src/a.ts", note: "alpha", change: "renamed", from: "src/old-a.ts" }];
     const props = mustOk(run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }), block);
     expect(props.entries).toEqual([{ path: "src/a.ts" }]);
+  });
+
+  it("sets and clears a color", () => {
+    const set = mustOk(run(updateEntry, explorerBlock(), { path: "docs/", color: "orange" }));
+    expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "orange" });
+    const block = explorerBlock();
+    block.props.entries = set.entries;
+    const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }), block);
+    expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
   });
 
   it("rejects a newPath collision and a malformed newPath", () => {

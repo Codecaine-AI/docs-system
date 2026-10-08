@@ -56,7 +56,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every block sits in one of three lanes that start on the page's left rail. A block type declares its lane on its registry descriptor, and the lane caps how wide the block may grow. Inside its lane a block shrinks to its content, so a short file tree stays narrow while a dense state shape spends the room it needs."
+          "insert": "Every block sits in one of three lanes that start on the page's left rail. A block type declares its lane on its registry descriptor, and the lane caps how wide the block may grow. Inside its lane most blocks shrink to their content, so a short call stack stays narrow while a dense state shape spends the room it needs."
         }
       ],
       "children": []
@@ -184,7 +184,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The file tree, file explorer, call stack, component tree, process outline, stack, and structured table shrink to their content."
+          "insert": "The call stack, component tree, process outline, stack, and structured table shrink to their content."
         }
       ],
       "children": []
@@ -206,7 +206,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The file explorer never shrinks below the widest width it has reached, so folding a folder does not make it jump."
+          "insert": "The file tree and file explorer fill the code lane even when no row has a note. Every path tree on a page then shares one right edge, and folding a folder never changes the panel width."
         }
       ],
       "children": []

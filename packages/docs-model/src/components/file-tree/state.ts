@@ -3,6 +3,7 @@
 import { Type } from "@sinclair/typebox";
 import type { DocBlock } from "../../doc-schema";
 import type { BlockStateDefinition } from "../types";
+import { DOCS_COLOR_LIST, docsColorSchema, isDocsColor, type DocsColor } from "../shared/colors";
 
 export const FileTreeEntrySchema = Type.Object(
   {
@@ -17,6 +18,11 @@ export const FileTreeEntrySchema = Type.Object(
       ]),
     ),
     from: Type.Optional(Type.String({ description: "Previous path when renamed." })),
+    color: Type.Optional(
+      docsColorSchema({
+        description: `Group color: ${DOCS_COLOR_LIST}. On a directory it colors that row and its whole subtree (a descendant's own color overrides); on a file, just that row.`,
+      }),
+    ),
   },
   { additionalProperties: false },
 );
@@ -39,12 +45,17 @@ export const FILE_TREE_CHANGES = ["added", "removed", "modified", "renamed"] as 
 
 export type FileTreeChange = (typeof FILE_TREE_CHANGES)[number];
 
+/** Entry colors: the docs color roster. */
+export type FileTreeColor = DocsColor;
+
 export type FileTreeEntry = {
   path: string;
   note?: string;
   change?: FileTreeChange;
   /** Previous path — used with change: "renamed". */
   from?: string;
+  /** Group color; a directory's color carries to its whole subtree. */
+  color?: FileTreeColor;
 };
 
 function isFileTreeChange(value: unknown): value is FileTreeChange {
@@ -62,6 +73,7 @@ export function readFileTreeEntries(block: DocBlock): FileTreeEntry[] {
     if (typeof item.note === "string" && item.note.length > 0) entry.note = item.note;
     if (isFileTreeChange(item.change)) entry.change = item.change;
     if (typeof item.from === "string" && item.from.length > 0) entry.from = item.from;
+    if (isDocsColor(item.color)) entry.color = item.color;
     entries.push(entry);
   }
   return entries;

@@ -1,3 +1,4 @@
+import { isDocsColor } from "@codecaine-ai/docs-model";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import { CODE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import type { DocBlockDescriptor } from "../../render/block-registry";
@@ -21,6 +22,7 @@ function fileTreeEntries(block: DocBlock): Array<Record<string, unknown>> {
         ? { change: entry.change }
         : {}),
       ...(typeof entry.from === "string" && entry.from.trim() ? { from: entry.from } : {}),
+      ...(isDocsColor(entry.color) ? { color: entry.color } : {}),
     }));
 }
 

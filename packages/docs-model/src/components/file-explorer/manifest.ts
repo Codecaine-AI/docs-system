@@ -6,7 +6,7 @@ export const manifest: ComponentManifest = {
   name: "file-explorer",
   ownedTypes: ["file-explorer"],
   description:
-    "File explorer: IDE-style rows built from flat paths, with collapsible folders, compacted single-child folder chains, change badges and one-line notes, folded past maxRows.",
+    "File explorer: IDE-style rows built from flat paths, with collapsible folders, compacted single-child folder chains, change badges, one-line notes and group colors, folded past maxRows.",
   authoring: {
     whenToUse:
       "Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.",

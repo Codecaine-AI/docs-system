@@ -48,11 +48,11 @@
  * - `full` — no cap at all; the block spans the full padded page width.
  *
  * Every lane is a MAXIMUM, never a target: a block whose content is narrower
- * than its lane (a short file tree, a three-frame call stack) sizes its own
+ * than its lane (a three-frame call stack, a two-column table) sizes its own
  * panel to its content (`width: fit-content; max-width: 100%`) inside the
  * lane rather than stretching to fill it. Only blocks whose panes need the
  * room (state shape, interaction surface, canvas, sequence, tables, code
- * panels) fill their lane.
+ * panels) and path trees (file tree, file explorer) fill their lane.
  */
 export type DocBlockLaneWidth = "text" | "code" | "wide" | "full";
 

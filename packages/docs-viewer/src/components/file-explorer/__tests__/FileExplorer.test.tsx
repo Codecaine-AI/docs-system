@@ -110,4 +110,44 @@ describe("file explorer", () => {
     renderBlock({ entries: many });
     expect(rowNames()).toHaveLength(8);
   });
+
+  /** Each rendered row as "name color head seam", e.g. "app/src blue head". */
+  const colorRows = () =>
+    Array.from(document.querySelectorAll('[role="treeitem"]')).map((row) =>
+      [
+        row.querySelector("[data-docs-file-tree-name]")?.textContent,
+        row.getAttribute("data-color"),
+        row.hasAttribute("data-color-head") && "head",
+        row.hasAttribute("data-color-seam") && "seam",
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+
+  it("colors a folder's subtree and starts a new row at a folder with its own color", () => {
+    renderBlock({
+      entries: [
+        { path: "app/", color: "blue" },
+        { path: "app/src/main.ts" },
+        { path: "pkg/core/", color: "teal" },
+        { path: "pkg/core/a.ts" },
+      ],
+    });
+    // app/src compacts (its head is the chain's first node); pkg/core does
+    // not, because core sets its own color.
+    expect(colorRows()).toEqual(["app/src blue head", "main.ts blue", "pkg", "core teal head", "a.ts teal"]);
+  });
+
+  it("draws seams over the rows as rendered, so collapsing a folder can drop one", () => {
+    renderBlock({
+      entries: [
+        { path: "p/", color: "blue" },
+        { path: "p/f/d.ts", color: "pink" },
+        { path: "p/r.ts" },
+      ],
+    });
+    expect(colorRows()).toEqual(["p blue head", "f blue", "d.ts pink head seam", "r.ts blue seam"]);
+    fireEvent.click(folderRow("f"));
+    expect(colorRows()).toEqual(["p blue head", "f blue", "r.ts blue"]);
+  });
 });

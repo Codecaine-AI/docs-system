@@ -3,6 +3,7 @@
 import { Type } from "@sinclair/typebox";
 import type { DocValidationIssue } from "../../../doc-schema";
 import { defineComponentAction } from "../../define";
+import { DOCS_COLOR_LIST, DOCS_COLORS } from "../../shared/colors";
 import { validateTreePath } from "../lib";
 import { readFileTreeEntries } from "../state";
 import type { FileTreeEntry } from "../state";
@@ -10,7 +11,7 @@ import type { FileTreeEntry } from "../state";
 export const updateEntry = defineComponentAction({
   action: "file-tree.updateEntry",
   blockType: "file-tree",
-  description: "Patch an entry's note/change/from, or rename it via newPath (in place).",
+  description: "Patch an entry's note/change/from/color, or rename it via newPath (in place).",
   params: Type.Object({
     path: Type.String({ minLength: 1, description: "Exact path of the entry to patch." }),
     note: Type.Optional(
@@ -33,13 +34,18 @@ export const updateEntry = defineComponentAction({
         description: "Previous path (for renamed); pass null to clear.",
       }),
     ),
+    color: Type.Optional(
+      Type.Union([...DOCS_COLORS.map((name) => Type.Literal(name)), Type.Null()], {
+        description: `New group color (${DOCS_COLOR_LIST}); pass null to clear.`,
+      }),
+    ),
     newPath: Type.Optional(
       Type.String({ description: "Rename the entry to this path (kept in place)." }),
     ),
   }),
   apply(block, params) {
     const issues: DocValidationIssue[] = [];
-    const { path, note, change, from, newPath } = params;
+    const { path, note, change, from, color, newPath } = params;
     if (newPath !== undefined) validateTreePath(newPath, "newPath", issues);
     if (issues.length > 0) return { ok: false, issues };
 
@@ -75,6 +81,10 @@ export const updateEntry = defineComponentAction({
     if (from !== undefined) {
       if (from === null) delete updated.from;
       else updated.from = from;
+    }
+    if (color !== undefined) {
+      if (color === null) delete updated.color;
+      else updated.color = color;
     }
     const next = [...entries];
     next[index] = updated;

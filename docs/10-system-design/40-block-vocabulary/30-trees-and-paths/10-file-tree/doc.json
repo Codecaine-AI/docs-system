@@ -33,6 +33,7 @@
         "b-ftfam-docr-lead",
         "b-ftfam-docr-order",
         "b-ftfam-docr-changes",
+        "b-ftfam-docr-colors",
         "b-ftfam-docr-notes",
         "b-ftfam-docr-editor",
         "b-21-file-tree-agent-h-14",
@@ -41,6 +42,7 @@
         "b-ftfam-agentr-1",
         "b-ftfam-agentr-2",
         "b-ftfam-agentr-3",
+        "b-ftfam-agentr-5",
         "b-ftfam-agentr-4",
         "b-21-file-tree-theming-heading",
         "b-21-file-tree-theming-para",
@@ -224,6 +226,12 @@
                 "type": "string",
                 "required": false,
                 "description": "Previous path, used with change: \"renamed\"."
+              },
+              {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                "required": false,
+                "description": "Group color from the docs color roster. It gives each top-level folder its own color so readers can tell groups apart. Any other value fails validation."
               }
             ]
           }
@@ -420,7 +428,7 @@
           }
         },
         {
-          "insert": " is missing or empty and drops wrong-typed "
+          "insert": " is missing or empty. It drops a wrong-typed "
         },
         {
           "insert": "note",
@@ -429,7 +437,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "change",
@@ -438,7 +446,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "from",
@@ -447,7 +455,16 @@
           }
         },
         {
-          "insert": " values, and nothing is repaired."
+          "insert": ", or "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " value, and nothing is repaired."
         }
       ],
       "children": []
@@ -557,10 +574,19 @@
           }
         },
         {
-          "insert": " and "
+          "insert": ", "
         },
         {
           "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "color",
           "attributes": {
             "code": true
           }
@@ -621,7 +647,7 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "change",
@@ -630,10 +656,19 @@
           }
         },
         {
-          "insert": "/"
+          "insert": ", "
         },
         {
           "insert": "from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "color",
           "attributes": {
             "code": true
           }
@@ -713,7 +748,7 @@
         "operations": [
           {
             "name": "file-tree.addEntry",
-            "description": "Append a path entry (optional note and change marker) to the file tree.",
+            "description": "Append a path entry (optional note, change marker, and color) to the file tree.",
             "params": [
               {
                 "name": "path",
@@ -729,10 +764,14 @@
                 "name": "change",
                 "type": "string",
                 "required": false
+              },
+              {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                "required": false
               }
             ],
             "returns": "FileTreePatch",
-            "kind": "action",
             "returnShape": {
               "fields": [
                 {
@@ -762,11 +801,18 @@
                       "type": "string",
                       "required": false,
                       "description": "Previous path, used with change: \"renamed\"."
+                    },
+                    {
+                      "name": "color",
+                      "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                      "required": false,
+                      "description": "Group color for the entry."
                     }
                   ]
                 }
               ]
-            }
+            },
+            "kind": "action"
           },
           {
             "name": "file-tree.removeEntry",
@@ -779,7 +825,6 @@
               }
             ],
             "returns": "FileTreePatch",
-            "kind": "action",
             "returnShape": {
               "fields": [
                 {
@@ -809,15 +854,22 @@
                       "type": "string",
                       "required": false,
                       "description": "Previous path, used with change: \"renamed\"."
+                    },
+                    {
+                      "name": "color",
+                      "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                      "required": false,
+                      "description": "Group color for the entry."
                     }
                   ]
                 }
               ]
-            }
+            },
+            "kind": "action"
           },
           {
             "name": "file-tree.updateEntry",
-            "description": "Patch an entry's note/change/from, or rename it via newPath (in place).",
+            "description": "Patch an entry's note/change/from/color, or rename it via newPath (in place).",
             "params": [
               {
                 "name": "path",
@@ -840,13 +892,17 @@
                 "required": false
               },
               {
+                "name": "color",
+                "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\" | null",
+                "required": false
+              },
+              {
                 "name": "newPath",
                 "type": "string",
                 "required": false
               }
             ],
             "returns": "FileTreePatch",
-            "kind": "action",
             "returnShape": {
               "fields": [
                 {
@@ -876,11 +932,18 @@
                       "type": "string",
                       "required": false,
                       "description": "Previous path, used with change: \"renamed\"."
+                    },
+                    {
+                      "name": "color",
+                      "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
+                      "required": false,
+                      "description": "Group color for the entry."
                     }
                   ]
                 }
               ]
-            }
+            },
+            "kind": "action"
           }
         ],
         "title": "file-tree entry actions"
@@ -1156,6 +1219,105 @@
       ],
       "children": []
     },
+    "b-ftfam-docr-colors": {
+      "id": "b-ftfam-docr-colors",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Group colors"
+        }
+      ],
+      "children": [
+        "b-ftfam-docr-colors-1",
+        "b-ftfam-docr-colors-file",
+        "b-ftfam-docr-colors-2",
+        "b-ftfam-docr-colors-guides",
+        "b-ftfam-docr-colors-3"
+      ]
+    },
+    "b-ftfam-docr-colors-1": {
+      "id": "b-ftfam-docr-colors-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A directory entry's "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " covers that row and every row beneath it. A descendant's own "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " overrides the inherited one for its subtree."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-colors-file": {
+      "id": "b-ftfam-docr-colors-file",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A file entry's "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " covers only that row."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-colors-2": {
+      "id": "b-ftfam-docr-colors-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The colored folder's name takes the color's ink at a heavier weight."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-colors-guides": {
+      "id": "b-ftfam-docr-colors-guides",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every row in the group gets colored guide lines, and no row has a background tint at rest."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-colors-3": {
+      "id": "b-ftfam-docr-colors-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the pointer is over a row, every row in that row's innermost group gets the color's soft wash. On a row with a change marker, the change tint wins over the group wash."
+        }
+      ],
+      "children": []
+    },
     "b-ftfam-docr-notes": {
       "id": "b-ftfam-docr-notes",
       "type": "list-item",
@@ -1384,6 +1546,26 @@
         },
         {
           "insert": " renamed."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-agentr-5": {
+      "id": "b-ftfam-agentr-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The projection omits "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which is visual only."
         }
       ],
       "children": []

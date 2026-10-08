@@ -84,7 +84,7 @@ export function listComponentActions(blockType?: DocBlockType): ComponentActionD
 }
 
 export { FILE_TREE_CHANGES, readFileTreeEntries } from "./file-tree/state";
-export type { FileTreeChange, FileTreeEntry } from "./file-tree/state";
+export type { FileTreeChange, FileTreeColor, FileTreeEntry } from "./file-tree/state";
 export {
   INTERACTION_SURFACE_KINDS,
   readInteractionSurfaceOperations,

@@ -6,6 +6,8 @@
  * dirs-first then codepoint-ascending.
  */
 
+import { isDocsColor, type DocsColor } from "@codecaine-ai/docs-model";
+
 export type FileTreeChange = "added" | "removed" | "modified" | "renamed";
 
 export type FileTreeEntry = {
@@ -17,6 +19,8 @@ export type FileTreeEntry = {
   change?: FileTreeChange;
   /** Old path, rendered struck (relative to the new folder) before the new name when change is "renamed". */
   from?: string;
+  /** Group color: on a directory it covers the row and its whole subtree; on a file, just the row. */
+  color?: DocsColor;
 };
 
 export const FILE_TREE_CHANGES: readonly FileTreeChange[] = [
@@ -46,6 +50,8 @@ export type FileTreeNode = {
   note?: string;
   change?: FileTreeChange;
   from?: string;
+  /** The node's own group color (inherited colors are resolved per row, see `colorScope`). */
+  color?: DocsColor;
   children: Map<string, FileTreeNode>;
 };
 
@@ -63,8 +69,8 @@ function normalizePath(raw: string): { segments: string[]; isDir: boolean } {
 
 /**
  * Builds the nested tree from flat entries. Intermediate directories are
- * created on demand; an explicit entry attaches its note/change/from to its
- * own node. A node authored as a file is promoted to a directory if a later
+ * created on demand; an explicit entry attaches its note/change/from/color to
+ * its own node. A node authored as a file is promoted to a directory if a later
  * entry nests beneath it.
  */
 export function buildFileTree(entries: FileTreeEntry[]): {
@@ -100,6 +106,7 @@ export function buildFileTree(entries: FileTreeEntry[]): {
         if (typeof entry.from === "string" && entry.from.trim()) {
           node.from = entry.from.trim().replace(/^\.\//, "");
         }
+        if (isDocsColor(entry.color)) node.color = entry.color;
       }
       // Keep dir paths trailing-"/"-suffixed once known to be a directory.
       if (node.isDir && node.entryPath && !node.entryPath.endsWith("/")) {
@@ -141,4 +148,44 @@ export function sortFileTreeNodes(nodes: Iterable<FileTreeNode>): FileTreeNode[]
     if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
     return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
   });
+}
+
+/**
+ * A row's resolved group color and the path of the node that set it (its
+ * nearest colored ancestor-or-self). Undefined outside every colored subtree.
+ */
+export type TreeColorScope = { color: DocsColor; source: string } | undefined;
+
+/** A node's own color opens a new scope; otherwise the inherited scope carries on. */
+export function colorScope(node: FileTreeNode, inherited: TreeColorScope): TreeColorScope {
+  return node.color ? { color: node.color, source: node.path } : inherited;
+}
+
+/**
+ * Seams over the rows as rendered, top to bottom: a colored row directly
+ * below a colored row of a different source, so adjacent bands read apart.
+ */
+export function colorSeams(scopes: readonly TreeColorScope[]): boolean[] {
+  return scopes.map((scope, index) => {
+    const above = index > 0 ? scopes[index - 1] : undefined;
+    return !!scope && !!above && above.source !== scope.source;
+  });
+}
+
+export type TreeColorAttrs = {
+  "data-color"?: DocsColor;
+  "data-color-head"?: "";
+  "data-color-seam"?: "";
+  "data-color-source"?: string;
+};
+
+/** The row's color data attributes: the band color, its head row, and a seam above it. */
+export function colorAttrs(scope: TreeColorScope, head: boolean, seam: boolean): TreeColorAttrs {
+  if (!scope) return {};
+  return {
+    "data-color": scope.color,
+    "data-color-source": scope.source,
+    ...(head ? { "data-color-head": "" as const } : {}),
+    ...(seam ? { "data-color-seam": "" as const } : {}),
+  };
 }
