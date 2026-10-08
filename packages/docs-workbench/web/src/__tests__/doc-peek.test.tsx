@@ -5,6 +5,10 @@ import { join } from "node:path";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { createDocsServeApp } from "../../../src/server";
+import { DocsClientProvider } from "@codecaine-ai/docs-viewer/client";
+import { createStandaloneDocsClient } from "../data/client";
+import { StandaloneCanvasEmbed } from "../shared/_components/CanvasEmbed";
+import { DocPage } from "../_components/DocPage";
 import { App } from "../App";
 
 /**
@@ -181,5 +185,54 @@ describe("doc peek wiring", () => {
     await waitFor(() => {
       expect(screen.getByText("Hello from PeekTarget")).toBeTruthy();
     });
+  });
+});
+
+describe("centered page alignment", () => {
+  afterEach(() => {
+    for (const slot of document.querySelectorAll("[data-test-topbar-actions]")) slot.remove();
+  });
+
+  function renderDocPage(props: { alignment: "left" | "centered"; sidePeekOpen?: boolean }) {
+    // The shell topbar's action slot: DocPage portals its AI toggle into it.
+    const topbar = document.createElement("div");
+    topbar.setAttribute("data-test-topbar-actions", "");
+    document.body.appendChild(topbar);
+    const ui = (next: typeof props) => (
+      <DocsClientProvider client={createStandaloneDocsClient()} canvasEmbed={StandaloneCanvasEmbed}>
+        <DocPage
+          path="10-source"
+          alignment={next.alignment}
+          sidePeekOpen={next.sidePeekOpen}
+          topbarActionsTarget={topbar}
+        />
+      </DocsClientProvider>
+    );
+    const view = render(ui(props));
+    return { rerender: (next: typeof props) => view.rerender(ui(next)) };
+  }
+  const alignment = () =>
+    document.querySelector("[data-docs-content]")!.getAttribute("data-docs-alignment");
+
+  it("centers only while no right-side panel is open", async () => {
+    const view = renderDocPage({ alignment: "centered" });
+    await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
+    expect(alignment()).toBe("centered");
+
+    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
+    expect(alignment()).toBe("left");
+    expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("button", { name: "Hide AI panel" }));
+    expect(alignment()).toBe("centered");
+
+    view.rerender({ alignment: "centered", sidePeekOpen: true });
+    expect(alignment()).toBe("left");
+  });
+
+  it("stays left-anchored when alignment is left", async () => {
+    renderDocPage({ alignment: "left" });
+    await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
+    expect(alignment()).toBe("left");
   });
 });

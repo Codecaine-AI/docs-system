@@ -66,6 +66,12 @@ export type DocPageProps = {
   /** Hides the floating lab dock while a side preview uses the adjacent column. */
   sidePeekOpen?: boolean;
   /**
+   * The style rail's layout.alignment. "centered" centers the page column
+   * only while no right-side panel (lab panel, side peek) is open; otherwise
+   * the page renders left-anchored exactly as "left" does.
+   */
+  alignment?: "left" | "centered";
+  /**
    * Test seam, forwarded to DocEditor's `onEditorReady`: happy-dom's DOM
    * mutation pipeline is unreliable for driving TipTap typing, so tests make
    * the editor dirty through `editor.commands` instead.
@@ -101,6 +107,7 @@ export type DocPageProps = {
 export function DocPage({
   path,
   sidePeekOpen = false,
+  alignment = "left",
   onEditorReady,
   isStatic = IS_STATIC,
   autoSaveDelayMs,
@@ -126,6 +133,9 @@ export function DocPage({
   });
   const mode: WorkbenchMode = labPanelHidden ? "edit" : "annotate";
   const labPanelVisible = !isStatic && !sidePeekOpen && !labPanelHidden;
+  // Centered only while the right side is free: an open lab panel or side
+  // peek needs the left-anchored layout (and its paddingRight reserve).
+  const centered = alignment === "centered" && !labPanelVisible && !sidePeekOpen;
   const [labPanelWidth, setLabPanelWidth] = useState<number>(DOCK_DEFAULT_WIDTH);
   const [saveState, setSaveState] = useState<DocEditorSaveState>("saved");
   const [selection, setSelection] = useState<PlannotatorSelection | null>(null);
@@ -291,7 +301,7 @@ export function DocPage({
     <>
       {topbarActions}
       <PageTransition pageKey={path} ready={!isLoading && loadedPath === path} className="flex h-full min-h-0 flex-col">
-        <DocPageContent {...{ isLoading, path, error, doc, mode, canvasEpoch, contentRef, labPanelVisible, labPanelWidth, titleRef, isStatic, revertTitleRef, commitTitleEdit, resolveAssetSrc, renderEditorCanvas, renderEditorSequence, handleUploadAsset, handleApplyOps, handleReloadDoc, onEditorReady, autoSaveDelayMs, setSaveState, highlightedIds, annotateContainerRef, targeting, selectionRef, setSelection, lab, backlinks, sidePeekOpen }} labPanel={<DocLab hidden={labPanelHidden} doc={doc!} openDocPath={path} lab={lab} onPanelWidthChange={setLabPanelWidth} annotationsError={paneError} onFocusTarget={handleFocusDocEditTarget} />} aiDocumentFlow={<AiDocumentFlow {...{ doc, path, stagedRegions, composerTopLevelId, selection, waitingRequests, lab, resolveAssetSrc, handleCanvasObjectSelect, handleComposerSubmit, setPaneError, setSelection }} />} />
+        <DocPageContent {...{ isLoading, path, error, doc, mode, canvasEpoch, contentRef, labPanelVisible, labPanelWidth, titleRef, isStatic, revertTitleRef, commitTitleEdit, resolveAssetSrc, renderEditorCanvas, renderEditorSequence, handleUploadAsset, handleApplyOps, handleReloadDoc, onEditorReady, autoSaveDelayMs, setSaveState, highlightedIds, annotateContainerRef, targeting, selectionRef, setSelection, lab, backlinks, sidePeekOpen, centered }} labPanel={<DocLab hidden={labPanelHidden} doc={doc!} openDocPath={path} lab={lab} onPanelWidthChange={setLabPanelWidth} annotationsError={paneError} onFocusTarget={handleFocusDocEditTarget} />} aiDocumentFlow={<AiDocumentFlow {...{ doc, path, stagedRegions, composerTopLevelId, selection, waitingRequests, lab, resolveAssetSrc, handleCanvasObjectSelect, handleComposerSubmit, setPaneError, setSelection }} />} />
       </PageTransition>
     </>
   );

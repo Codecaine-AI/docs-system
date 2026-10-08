@@ -25,6 +25,10 @@ export const DEFAULT_STYLE_RAIL_SETTINGS: StyleRailSettings = {
     // rail every block hangs off — generous by default rather than the tight
     // gutter a centered column wanted.
     contentMargin: 88,
+    alignment: "left",
+    centeredWidth: dsNumber("layout.lane.wide", "px"),
+    // space.12: the centered column's minimum side margin.
+    centeredMargin: dsNumber("space.12", "px"),
     // space.6: "page top and bottom padding".
     topPadding: dsNumber("space.6", "px"),
     titlePadding: dsNumber("space.5", "px"),

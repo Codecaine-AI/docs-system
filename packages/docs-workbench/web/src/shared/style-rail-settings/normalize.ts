@@ -3,7 +3,7 @@ import { STYLE_RAIL_COLOR_LEAVES } from "./color-controls";
 import { DEFAULT_STYLE_RAIL_SETTINGS, getStyleRailBaseline } from "./defaults";
 import { normalizeBlockLayout } from "./block-layout-normalize";
 import { clampNumber } from "./utils";
-import type { AccentFamily, FontChoice, NumberFontChoice, CodeFontChoice, CodePanelMode, PeekDividerStyle, ReferenceIconPosition, GrainBlendMode, StyleRailSettings } from "./types";
+import type { AccentFamily, FontChoice, NumberFontChoice, CodeFontChoice, CodePanelMode, PageAlignment, PeekDividerStyle, ReferenceIconPosition, GrainBlendMode, StyleRailSettings } from "./types";
 
 const ACCENT_OPTIONS: Array<{ id: AccentFamily; label: string }> = [
   { id: "blue", label: "Blue" },
@@ -39,6 +39,11 @@ const RETIRED_CODE_FONTS: Readonly<Record<string, CodeFontChoice>> = { "fira-cod
 const CODE_PANEL_OPTIONS: Array<{ id: CodePanelMode; label: string }> = [
   { id: "dark", label: "Always dark" },
   { id: "page", label: "Follow page" },
+];
+
+const PAGE_ALIGNMENT_OPTIONS: Array<{ id: PageAlignment; label: string }> = [
+  { id: "left", label: "Left" },
+  { id: "centered", label: "Centered" },
 ];
 
 const PEEK_DIVIDER_STYLE_OPTIONS: Array<{ id: PeekDividerStyle; label: string }> = [
@@ -175,6 +180,9 @@ export function normalizeSettings(
       codeWidth: clampNumber(layout.codeWidth, 60, 160, d.layout.codeWidth),
       wideWidth: clampNumber(layout.wideWidth, 900, 2400, d.layout.wideWidth),
       contentMargin: clampNumber(layout.contentMargin, 0, 240, d.layout.contentMargin),
+      alignment: pickOption(layout.alignment, PAGE_ALIGNMENT_OPTIONS, d.layout.alignment),
+      centeredWidth: clampNumber(layout.centeredWidth, 480, 2400, d.layout.centeredWidth),
+      centeredMargin: clampNumber(layout.centeredMargin, 0, 240, d.layout.centeredMargin),
       topPadding: clampNumber(layout.topPadding, 0, 240, d.layout.topPadding),
       titlePadding: clampNumber(layout.titlePadding, 0, 240, d.layout.titlePadding),
       bottomPadding: clampNumber(layout.bottomPadding, 0, 600, d.layout.bottomPadding),

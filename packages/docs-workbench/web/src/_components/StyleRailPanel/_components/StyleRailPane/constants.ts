@@ -1,4 +1,4 @@
-import type { AccentFamily, FontChoice, NumberFontChoice, CodeFontChoice, CodePanelMode, PeekDividerStyle, ReferenceIconPosition, GrainBlendMode } from "../../../../shared/style-rail-settings";
+import type { AccentFamily, FontChoice, NumberFontChoice, CodeFontChoice, CodePanelMode, PageAlignment, PeekDividerStyle, ReferenceIconPosition, GrainBlendMode } from "../../../../shared/style-rail-settings";
 
 const ACCENT_OPTIONS: Array<{ id: AccentFamily; label: string }> = [
   { id: "blue", label: "Blue" },
@@ -31,6 +31,11 @@ const CODE_FONT_OPTIONS: Array<{ id: CodeFontChoice; label: string }> = [
 const CODE_PANEL_OPTIONS: Array<{ id: CodePanelMode; label: string }> = [
   { id: "dark", label: "Always dark" },
   { id: "page", label: "Follow page" },
+];
+
+const PAGE_ALIGNMENT_OPTIONS: Array<{ id: PageAlignment; label: string }> = [
+  { id: "left", label: "Left" },
+  { id: "centered", label: "Centered" },
 ];
 
 const PEEK_DIVIDER_STYLE_OPTIONS: Array<{ id: PeekDividerStyle; label: string }> = [
@@ -293,4 +298,4 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   gray: "Gray layer",
 };
 
-export { ACCENT_OPTIONS, FONT_OPTIONS, NUMBER_FONT_OPTIONS, CODE_FONT_OPTIONS, CODE_PANEL_OPTIONS, PEEK_DIVIDER_STYLE_OPTIONS, REFERENCE_ICON_POSITION_OPTIONS, BLEND_OPTIONS, TOKEN_KEY_LABELS };
+export { ACCENT_OPTIONS, FONT_OPTIONS, NUMBER_FONT_OPTIONS, CODE_FONT_OPTIONS, CODE_PANEL_OPTIONS, PAGE_ALIGNMENT_OPTIONS, PEEK_DIVIDER_STYLE_OPTIONS, REFERENCE_ICON_POSITION_OPTIONS, BLEND_OPTIONS, TOKEN_KEY_LABELS };

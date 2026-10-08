@@ -1142,6 +1142,38 @@ describe("style rail code panels", () => {
   });
 });
 
+describe("style rail page alignment", () => {
+  it("loads settings without the alignment keys as stock left alignment", () => {
+    const layout = normalizeSettings({ layout: { contentMargin: 40 } }, DEFAULT_STYLE_RAIL_SETTINGS).layout;
+    expect(layout.alignment).toBe("left");
+    expect(layout.centeredWidth).toBe(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth);
+    expect(layout.centeredMargin).toBe(48);
+  });
+
+  it("validates the alignment and clamps the centered column", () => {
+    const read = (layout: Record<string, unknown>) =>
+      normalizeSettings({ layout }, DEFAULT_STYLE_RAIL_SETTINGS).layout;
+    expect(read({ alignment: "centered" }).alignment).toBe("centered");
+    expect(read({ alignment: "right" }).alignment).toBe("left");
+    expect(read({ centeredWidth: 100 }).centeredWidth).toBe(480);
+    expect(read({ centeredWidth: 9000 }).centeredWidth).toBe(2400);
+    expect(read({ centeredMargin: -5 }).centeredMargin).toBe(0);
+    expect(read({ centeredMargin: 999 }).centeredMargin).toBe(240);
+  });
+
+  it("emits the centered-column vars only away from stock", () => {
+    const stock = styleRailVars(DEFAULT_STYLE_RAIL_SETTINGS);
+    expect(stock["--style-centered-width"]).toBeNull();
+    expect(stock["--style-centered-margin"]).toBeNull();
+    const tuned = styleRailVars({
+      ...DEFAULT_STYLE_RAIL_SETTINGS,
+      layout: { ...DEFAULT_STYLE_RAIL_SETTINGS.layout, centeredWidth: 960, centeredMargin: 64 },
+    });
+    expect(tuned["--style-centered-width"]).toBe("960px");
+    expect(tuned["--style-centered-margin"]).toBe("64px");
+  });
+});
+
 describe("style rail wide lane", () => {
   it("defaults, clamps, and migrates the wide-lane width", () => {
     expect(DEFAULT_STYLE_RAIL_SETTINGS.layout.wideWidth).toBe(1100);

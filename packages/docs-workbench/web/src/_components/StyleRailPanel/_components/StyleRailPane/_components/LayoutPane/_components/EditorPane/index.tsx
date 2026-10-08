@@ -3,6 +3,8 @@ import { settingLeaf } from "../../../../../../overrides";
 import { Subgroup } from "../../../Subgroup";
 import { SliderRow } from "../../../SliderRow";
 import { ColorRow } from "../../../ColorRow";
+import { SelectRow } from "../../../SelectRow";
+import { PAGE_ALIGNMENT_OPTIONS } from "../../../../constants";
 
 export type EditorPaneProps = PaneBodyProps;
 
@@ -69,6 +71,43 @@ export function EditorPane(props: EditorPaneProps) {
           value={layout.contentMargin}
           valueLabel={`${layout.contentMargin}px`}
         />
+        {/*
+          Alignment: Centered puts the page in one centered column
+          (blocks stay left-justified inside it) whenever no right-side
+          panel is open; with the lab panel or side peek open the page
+          falls back to the left layout above.
+        */}
+        <SelectRow
+          label="Alignment"
+          leaf={settingLeaf("layout.alignment")}
+          onChange={(value) => patchLayout({ alignment: value })}
+          options={PAGE_ALIGNMENT_OPTIONS}
+          value={layout.alignment}
+        />
+        {layout.alignment === "centered" && (
+          <>
+            <SliderRow
+              label="Centered width"
+              leaf={settingLeaf("layout.centeredWidth")}
+              max={2400}
+              min={480}
+              onChange={(value) => patchLayout({ centeredWidth: value })}
+              step={20}
+              value={layout.centeredWidth}
+              valueLabel={`${layout.centeredWidth}px`}
+            />
+            <SliderRow
+              label="Centered margin"
+              leaf={settingLeaf("layout.centeredMargin")}
+              max={240}
+              min={0}
+              onChange={(value) => patchLayout({ centeredMargin: value })}
+              step={4}
+              value={layout.centeredMargin}
+              valueLabel={`${layout.centeredMargin}px`}
+            />
+          </>
+        )}
         <SliderRow
           label="Top padding"
           leaf={settingLeaf("layout.topPadding")}

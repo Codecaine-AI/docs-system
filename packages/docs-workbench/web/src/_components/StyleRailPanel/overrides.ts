@@ -30,6 +30,9 @@ export type StyleRailSettingLeafPath =
   | "layout.codeWidth"
   | "layout.wideWidth"
   | "layout.contentMargin"
+  | "layout.alignment"
+  | "layout.centeredWidth"
+  | "layout.centeredMargin"
   | "layout.topPadding"
   | "layout.titlePadding"
   | "layout.bottomPadding"
@@ -197,6 +200,9 @@ const PANE_SETTING_LEAVES: Partial<
     "layout.codeWidth",
     "layout.wideWidth",
     "layout.contentMargin",
+    "layout.alignment",
+    "layout.centeredWidth",
+    "layout.centeredMargin",
     "layout.topPadding",
     "layout.titlePadding",
     "layout.bottomPadding",

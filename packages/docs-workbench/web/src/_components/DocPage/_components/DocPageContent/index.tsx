@@ -46,6 +46,8 @@ export type DocPageContentProps = {
   labPanel: ReactNode;
   backlinks: BacklinkRow[];
   sidePeekOpen: boolean;
+  /** Centered page column (layout.alignment = "centered" with no right-side panel open). */
+  centered: boolean;
 };
 
 export function DocPageContent({
@@ -81,6 +83,7 @@ export function DocPageContent({
   labPanel,
   backlinks,
   sidePeekOpen,
+  centered,
 }: DocPageContentProps) {
   if (isLoading) {
     return <div className="p-8 text-ui-lg text-muted-foreground">Loading {path}...</div>;
@@ -132,9 +135,21 @@ export function DocPageContent({
               data-docs-content=""
               data-docs-lab-reserved={labPanelVisible ? "" : undefined}
               data-docs-annotation-wash={mode === "annotate" ? "" : undefined}
+              data-docs-alignment={centered ? "centered" : "left"}
               className="w-full px-[var(--docs-page-margin,var(--style-content-margin,88px))] pt-[var(--style-content-top,var(--ds-space-6))] pb-[var(--style-content-bottom,var(--ds-space-6))]"
               style={
-                labPanelVisible
+                centered
+                  ? {
+                      // Centered column: max-width is width + both margins
+                      // (border-box), so the content box is exactly
+                      // --style-centered-width; blocks stay left-justified
+                      // inside it on one shared left edge.
+                      maxWidth:
+                        "calc(var(--style-centered-width, var(--ds-layout-lane-wide)) + 2 * var(--style-centered-margin, var(--ds-space-12)))",
+                      marginInline: "auto",
+                      paddingInline: "var(--style-centered-margin, var(--ds-space-12))",
+                    }
+                  : labPanelVisible
                   ? {
                       paddingRight: `calc(var(--docs-page-margin, var(--style-content-margin, 88px)) + ${labPanelWidth + 36}px)`,
                       transition:

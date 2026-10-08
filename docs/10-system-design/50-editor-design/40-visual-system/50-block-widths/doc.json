@@ -19,6 +19,11 @@
         "bw-rule-5",
         "bw-lanes-lead",
         "bw-lanes",
+        "bw-h-align",
+        "bw-align-lead",
+        "bw-align-left",
+        "bw-align-center",
+        "bw-align-free",
         "bw-h-px",
         "bw-px-lead",
         "bw-px-lanes",
@@ -442,6 +447,237 @@
           ]
         ]
       },
+      "children": []
+    },
+    "bw-h-align": {
+      "id": "bw-h-align",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Page Alignment"
+        }
+      ],
+      "children": []
+    },
+    "bw-align-lead": {
+      "id": "bw-align-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The page has two alignments. You pick one with the "
+        },
+        {
+          "insert": "Alignment",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " control in the Style rail under Layout, Editor. Left is the stock alignment, and centered moves the left rail into a centered column."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-left": {
+      "id": "bw-align-left",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Left",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-align-left-a"
+      ]
+    },
+    "bw-align-left-a": {
+      "id": "bw-align-left-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The left rail sits "
+        },
+        {
+          "insert": "--style-content-margin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the page edge. The "
+        },
+        {
+          "insert": "Left margin",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " knob sets it, and the stock value is 88px."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-center": {
+      "id": "bw-align-center",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Centered",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-align-center-a",
+        "bw-align-center-b",
+        "bw-align-center-c"
+      ]
+    },
+    "bw-align-center-a": {
+      "id": "bw-align-center-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The content area is one column of "
+        },
+        {
+          "insert": "--style-centered-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", stock 1100px. Each side has "
+        },
+        {
+          "insert": "--style-centered-margin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of padding, stock 48px."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-center-b": {
+      "id": "bw-align-center-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Centered width",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "Centered margin",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " knobs set these values. They appear only when you pick Centered."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-center-c": {
+      "id": "bw-align-center-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Blocks stay left-justified inside the column, so every lane still starts on one left rail."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-free": {
+      "id": "bw-align-free",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Centered applies only while the right side is free",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "bw-align-free-a",
+        "bw-align-free-b"
+      ]
+    },
+    "bw-align-free-a": {
+      "id": "bw-align-free-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An open lab panel or side peek switches the page back to left alignment. The docs sidebar on the left has no effect."
+        }
+      ],
+      "children": []
+    },
+    "bw-align-free-b": {
+      "id": "bw-align-free-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The content wrapper carries "
+        },
+        {
+          "insert": "data-docs-alignment",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with the value "
+        },
+        {
+          "insert": "left",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "centered",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so themes and tests can target it."
+        }
+      ],
       "children": []
     },
     "bw-h-px": {
@@ -930,7 +1166,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every lane starts at the page's left edge, so you read straight down one column of block starts."
+          "insert": "Every lane starts on the page's left rail, so you read straight down one column of block starts. Centered alignment moves that rail but does not split it."
         }
       ],
       "children": []

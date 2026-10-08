@@ -38,11 +38,17 @@
  * --style-content-margin is its left rail, while each block caps itself at
  * the text, code or wide measure and defaults to left justification. Style-rail
  * settings may override these on <html>; an unset rail still renders the
- * primary lane presentation rather than falling back to a centered column. */
+ * primary lane presentation rather than falling back to a centered column.
+ * Centered alignment is opt-in (DocPage's data-docs-alignment="centered"). */
 :root {
   --style-code-width: var(--ds-layout-lane-code);
   --style-wide-width: var(--ds-layout-lane-wide);
   --style-content-margin: 88px;
+  /* Centered alignment (layout.alignment = "centered"): the column's content
+   * width and its minimum side margin. The column's max-width is
+   * width + 2 * margin, so the content box stays at the stated width. */
+  --style-centered-width: var(--ds-layout-lane-wide);
+  --style-centered-margin: var(--ds-space-12);
 }
 
 :root, [data-theme="light"] {

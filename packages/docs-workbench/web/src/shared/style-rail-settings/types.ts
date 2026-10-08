@@ -31,6 +31,8 @@ export type CodeFontChoice = FontChoice | "plex-mono";
  * The blocks around those panes always follow the page.
  */
 export type CodePanelMode = "dark" | "page";
+/** Page alignment: left-anchored (stock) or one centered column. */
+export type PageAlignment = "left" | "centered";
 /** "body" = follow the body font (no independent override). */
 export type NumberFontChoice = FontChoice | "body";
 /** Border style for the side-peek divider — --docs-peek-divider-style. */
@@ -107,8 +109,19 @@ export type StyleRailSettings = {
      * Sized in px, not ch, because those blocks are grids, not prose.
      */
     wideWidth: number;
-    /** Content column horizontal padding in px. */
+    /** Content column horizontal padding in px (the left rail in left alignment). */
     contentMargin: number;
+    /**
+     * Page alignment. "left" anchors the page at contentMargin (stock).
+     * "centered" centers one column of centeredWidth whenever no right-side
+     * panel (lab panel, side peek) is open; blocks stay left-justified inside
+     * it, so they share one left edge.
+     */
+    alignment: PageAlignment;
+    /** Centered column content width in px (the column adds centeredMargin on each side). */
+    centeredWidth: number;
+    /** Minimum side margin in px around the centered column. */
+    centeredMargin: number;
     /** Space above the doc's first block in px. */
     topPadding: number;
     /** Space between the fixed page title and the first block, in px. */

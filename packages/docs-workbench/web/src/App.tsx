@@ -164,6 +164,7 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
                   path={path}
                   isStatic={isStatic}
                   sidePeekOpen={sidePeekOpen}
+                  alignment={styleSettings.layout.alignment}
                   topbarActionsTarget={topbarSlot}
                   onDocMoved={(newPath) => {
                     // A title rename moved the bundle: follow it and let the

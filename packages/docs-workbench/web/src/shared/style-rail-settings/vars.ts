@@ -133,6 +133,13 @@ export function styleRailVars(stored: StyleRailSettings): Record<string, string 
       layout.wideWidth === d.layout.wideWidth ? null : `${layout.wideWidth}px`,
     "--style-content-margin":
       layout.contentMargin === d.layout.contentMargin ? null : `${layout.contentMargin}px`,
+    // Centered-alignment column. semantic.css carries the stock values, so the
+    // default emits nothing. Alignment itself is not a var: the host passes
+    // layout.alignment to DocPage, which stamps data-docs-alignment.
+    "--style-centered-width":
+      layout.centeredWidth === d.layout.centeredWidth ? null : `${layout.centeredWidth}px`,
+    "--style-centered-margin":
+      layout.centeredMargin === d.layout.centeredMargin ? null : `${layout.centeredMargin}px`,
     "--style-content-top":
       layout.topPadding === d.layout.topPadding ? null : `${layout.topPadding}px`,
     "--style-content-bottom":
