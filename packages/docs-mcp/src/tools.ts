@@ -391,6 +391,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const converted = args.markdown === undefined ? undefined : inlineToDelta(args.markdown);
       const props = { ...emptyStateFor(args.type), ...args.props };
       if (["canvas", "sequence", "image", "video"].includes(args.type) && typeof props.src === "string") props.src = canonicalBundleSrc(props.src);
+      if (args.type === "app-embed" && typeof props.poster === "string") props.poster = canonicalBundleSrc(props.poster);
       const result = await apply(store, args, [{ type: "insertBlock", blockId, parentId: args.parentId, index: args.index, blockType: args.type, props, ...(converted ? { text: converted.spans } : {}) }], ctx);
       return result.ok ? { ok: true, blockId, ...result, warnings: converted?.warnings ?? [] } : result;
     }),

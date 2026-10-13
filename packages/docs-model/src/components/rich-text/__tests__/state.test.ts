@@ -7,6 +7,7 @@ import sampleFixture from "../../../__fixtures__/sample.doc.json";
 import type { DocBlock } from "../../../doc-schema";
 import { richTextAgentView } from "../agent-view";
 import {
+  AppEmbedState,
   CalloutState,
   DividerState,
   HeadingState,
@@ -66,6 +67,25 @@ describe("rich-text component state", () => {
     expect(Value.Check(CalloutState, { tone: "blue" })).toBe(false);
   });
 
+  it("accepts an app embed reference and rejects bad heights, a missing app, and stray props", () => {
+    expect(Value.Check(AppEmbedState, { app: "kb-viewer" })).toBe(true);
+    expect(Value.Check(AppEmbedState, {
+      codebase: "ent_codebase", app: "kb-viewer", view: "graph", params: "q=1",
+      title: "Graph", height: 240, poster: "./assets/images/graph.png",
+    })).toBe(true);
+    expect(Value.Check(AppEmbedState, { app: "kb-viewer", height: 2000 })).toBe(true);
+    for (const invalid of [
+      {},
+      { app: "kb-viewer", height: 239 },
+      { app: "kb-viewer", height: 2001 },
+      { app: "kb-viewer", height: 480.5 },
+      { app: "kb-viewer", src: "http://127.0.0.1:5173" },
+      { app: 7 },
+    ]) {
+      expect(Value.Check(AppEmbedState, invalid)).toBe(false);
+    }
+  });
+
   it("accepts the four callout variants and rejects any other", () => {
     for (const variant of ["eyebrow", "hairline", "rail", "tab"]) {
       expect(Value.Check(CalloutState, { tone: "info", variant })).toBe(true);
@@ -95,6 +115,14 @@ describe("rich-text component agent view", () => {
     expect(richTextAgentView(fixtureBlock("p-invariant"), context)).toBe(
       "Stable ids are a system invariant.",
     );
+  });
+
+  it("projects an app embed as its reference", () => {
+    const block = (props: Record<string, unknown>): DocBlock => ({ id: "app", type: "app-embed", props, children: [] });
+    expect(richTextAgentView(block({ app: "kb-viewer", view: "graph", params: "q=1", title: "Graph" }), context)).toBe(
+      "> **App: Graph** — kb-viewer/graph?q=1",
+    );
+    expect(richTextAgentView(block({ codebase: "ent_x", app: "kb-viewer" }), context)).toBe("> **App** — ent_x/kb-viewer");
   });
 
   it("defaults a heading without level to level two", () => {

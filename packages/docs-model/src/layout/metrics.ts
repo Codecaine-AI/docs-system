@@ -145,6 +145,7 @@ export const BLOCK_LANE: Readonly<Record<DocBlockType, LaneName>> = {
   "image-grid": "wide",
   video: "wide",
   html: "wide",
+  "app-embed": "wide",
   "process-outline": "wide",
   stack: "wide",
   "call-stack": "wide",

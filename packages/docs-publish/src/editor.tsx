@@ -3,6 +3,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import DocEditor, { type DocEditorSaveState } from '../../docs-viewer/src/editor/DocEditor';
 import { DocsClientProvider, type AcquireDraftLockResult, type CanvasEmbedProps, type DocsClient, type SequenceEmbedProps, type DocsTreeNode, type DraftLockKind } from '../../docs-viewer/src/client';
 import type { DocBlockSaveResult } from '../../docs-viewer/src/render/DocBlockRenderer';
+import type { AppEmbedHost, AppEmbedRef } from '../../docs-viewer/src/components/rich-text/app-embed-host';
 import { resolveBundleAssetSrc, resolveBundleCanvasSrc, resolveBundleSequenceSrc } from '../../docs-viewer/src/render/bundle-src';
 import type { DocDocument } from '../../docs-model/src/doc-schema';
 import type { DocOp } from '../../docs-model/src/doc-ops';
@@ -18,6 +19,7 @@ import { loadPublishedFonts } from './browser-fonts';
  * `/api`. Deployed pages never load this entry; they stay static HTML.
  */
 export type DraftEditorStatus = 'saved' | 'dirty' | 'saving' | 'error' | 'conflict' | 'locked';
+export type { AppEmbedHost, AppEmbedRef };
 export type DraftEditorOptions = {
   /** Same-origin base URL proxying the project's Docs `/api` (no trailing slash needed). */
   api: string;
@@ -25,6 +27,8 @@ export type DraftEditorOptions = {
   path: string;
   projectId?: string;
   onStatus?: (state: DraftEditorStatus, detail?: string) => void;
+  /** Resolves `app-embed` blocks to URLs. Omit it, or return null, and the block shows "App not available here". */
+  appEmbeds?: AppEmbedHost;
 };
 export type DraftEditorHandle = { reload(): Promise<void>; destroy(): void };
 
@@ -139,9 +143,10 @@ type HostProps = {
   onApplyOps: (ops: DocOp[]) => Promise<DocBlockSaveResult>;
   onReloadDoc: () => void;
   onSaveStateChange: (state: DocEditorSaveState) => void;
+  appEmbeds?: AppEmbedHost;
 };
 
-function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onReloadDoc, onSaveStateChange }: HostProps) {
+function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onReloadDoc, onSaveStateChange, appEmbeds }: HostProps) {
   const resolveAssetSrc = useCallback((src: string) => isAbsoluteUrl(src) ? src : api.url(`asset?path=${encodeURIComponent(resolveBundleAssetSrc(path, src))}`), [api, path]);
   const renderCanvas = useCallback((input: { id: string; canvasId?: string; src?: string; view?: string; title?: string }) =>
     <ProxyCanvas api={api} input={{ ...input, src: input.src ? resolveBundleCanvasSrc(path, input.src) : undefined }} />, [api, path]);
@@ -163,6 +168,7 @@ function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onRelo
           renderCanvas={renderCanvas}
           renderSequence={renderSequence}
           resolveAssetSrc={resolveAssetSrc}
+          appEmbeds={appEmbeds}
           uploadAsset={uploadAsset}
           onApplyOps={onApplyOps}
           onReloadDoc={onReloadDoc}
@@ -179,7 +185,7 @@ function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onRelo
  * (leaving the container untouched) when the initial bundle cannot load.
  */
 export async function mountDraftEditor(container: HTMLElement, options: DraftEditorOptions): Promise<DraftEditorHandle> {
-  const { path, onStatus } = options;
+  const { path, onStatus, appEmbeds } = options;
   // Embedded diagrams measure text: load the measured fonts (they re-lay out when they arrive).
   void loadPublishedFonts();
   const projectId = options.projectId ?? 'local';
@@ -278,7 +284,7 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
   const root: Root = createRoot(container);
   function render() {
     if (destroyed) return;
-    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} />);
+    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} appEmbeds={appEmbeds} />);
   }
   render();
 

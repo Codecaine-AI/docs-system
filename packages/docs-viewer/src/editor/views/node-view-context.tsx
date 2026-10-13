@@ -16,6 +16,7 @@ export type DocEditorNodeViewContextValue = {
   renderCanvas?: DocBlockRenderContext["renderCanvas"];
   renderSequence?: DocBlockRenderContext["renderSequence"];
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
+  appEmbeds?: DocBlockRenderContext["appEmbeds"];
 };
 
 const DocEditorNodeViewContext = createContext<DocEditorNodeViewContextValue>({});

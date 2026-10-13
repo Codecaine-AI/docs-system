@@ -145,6 +145,7 @@ describe("projectToMarkdown — the sample fixture", () => {
     const absentFromFixture: readonly string[] = [
       "process-outline",
       "html",
+      "app-embed",
       "image-grid",
       "stack",
       "call-stack",

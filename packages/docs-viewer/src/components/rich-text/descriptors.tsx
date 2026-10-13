@@ -7,6 +7,7 @@ import { imageDescriptor } from "./image";
 import { listItemDescriptor } from "./list-item";
 import { paragraphDescriptor } from "./paragraph";
 import { htmlDescriptor } from "./html";
+import { appEmbedDescriptor } from "./app-embed";
 import { videoDescriptor } from "./video";
 
 /**
@@ -24,5 +25,6 @@ export const descriptors: DocBlockDescriptor[] = [
   imageGridDescriptor,
   videoDescriptor,
   htmlDescriptor,
+  appEmbedDescriptor,
   calloutDescriptor,
 ];

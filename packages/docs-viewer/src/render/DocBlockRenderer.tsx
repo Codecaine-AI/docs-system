@@ -53,6 +53,8 @@ export interface DocBlockRendererProps {
    * provides. Omit to keep existing callers' raw-`src` behavior unchanged.
    */
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
+  /** Resolves `app-embed` references to URLs (`ctx.appEmbeds`). Omit it and app embeds render their unavailable state. */
+  appEmbeds?: DocBlockRenderContext["appEmbeds"];
   /**
    * Canvas-object selection for Plannotator targeting (M2 Checkpoint 5,
    * TG5.3): wired into the injected-embed rendering. Called with the
@@ -134,6 +136,7 @@ export default function DocBlockRenderer({
   documentPath,
   bundlePath,
   resolveAssetSrc,
+  appEmbeds,
   onCanvasObjectSelect,
 }: DocBlockRendererProps) {
   // Canvas embedding is the host-injected `CanvasEmbedComponent` slot
@@ -212,6 +215,7 @@ export default function DocBlockRenderer({
       renderCanvas: renderCanvasEmbed,
       renderSequence: renderSequenceEmbed,
       resolveAssetSrc,
+      appEmbeds,
     };
     function renderBlock(blockId: string): ReactNode {
       const block = document.blocks[blockId];
@@ -245,7 +249,7 @@ export default function DocBlockRenderer({
       );
     }
     return renderTopLevelBlock;
-  }, [document, renderCanvasEmbed, renderSequenceEmbed, resolveAssetSrc]);
+  }, [document, renderCanvasEmbed, renderSequenceEmbed, resolveAssetSrc, appEmbeds]);
 
   const root = document.blocks[document.root];
   if (!root) return null;

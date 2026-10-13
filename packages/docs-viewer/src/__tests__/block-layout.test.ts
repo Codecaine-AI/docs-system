@@ -32,6 +32,7 @@ const WIDE_TYPES: DocBlockType[] = [
   "image-grid",
   "video",
   "html",
+  "app-embed",
   "canvas",
   "sequence",
 ];

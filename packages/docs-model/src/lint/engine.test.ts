@@ -101,6 +101,13 @@ describe("authoring lint engine", () => {
       ).toHaveLength(1);
     },
   );
+  test("a bare app-embed poster blocks completion; a bundle-relative one does not", () => {
+    const appEmbed = (poster: string): DocBlock => ({ id: "app-block", type: "app-embed", props: { app: "viewer", poster }, children: [] });
+    const findings = (poster: string) =>
+      lintDocument(document(appEmbed(poster)), { phase: "complete" }).findings.filter((item) => item.ruleId === "bundle-relative-src");
+    expect(findings("assets/images/poster.png").map((item) => item.field)).toEqual(["props.poster"]);
+    expect(findings("./assets/images/poster.png")).toEqual([]);
+  });
   test.each([
     "./assets/canvases/x.canvas.json",
     "10-s/page/assets/canvases/x.canvas.json",

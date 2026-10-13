@@ -88,6 +88,26 @@ export const HtmlState = Type.Object({
   allowScripts: Type.Optional(Type.Boolean()),
 }, { additionalProperties: false });
 
+/** Default and bounds of an app embed's frame height, in px. */
+export const APP_EMBED_DEFAULT_HEIGHT = 480;
+export const APP_EMBED_MIN_HEIGHT = 240;
+export const APP_EMBED_MAX_HEIGHT = 2000;
+
+/**
+ * A live app view that a codebase declares, run in a sandboxed iframe. The doc
+ * stores only the reference: the host resolves it to a URL at render time, so a
+ * doc carries no ports or hosts and renders a quiet unavailable state elsewhere.
+ */
+export const AppEmbedState = Type.Object({
+  codebase: Type.Optional(Type.String({ description: "Codebase ent_ id. Omit for the codebase whose docs project holds this doc." })),
+  app: Type.String({ description: "App id the codebase declares." }),
+  view: Type.Optional(Type.String({ description: "View id inside the app." })),
+  params: Type.Optional(Type.String({ description: "Extra query string for the view, without a leading '?'." })),
+  title: Type.Optional(Type.String()),
+  height: Type.Optional(Type.Integer({ minimum: APP_EMBED_MIN_HEIGHT, maximum: APP_EMBED_MAX_HEIGHT })),
+  poster: Type.Optional(Type.String({ description: "Bundle image asset (./assets/images/...) shown before Start." })),
+}, { additionalProperties: false });
+
 export const RICH_TEXT_STATES: Partial<Record<DocBlockType, BlockStateDefinition>> = {
   paragraph: { schema: ParagraphState, carriesText: true },
   heading: { schema: HeadingState, carriesText: true },
@@ -98,4 +118,5 @@ export const RICH_TEXT_STATES: Partial<Record<DocBlockType, BlockStateDefinition
   "image-grid": { schema: ImageGridState, carriesText: false },
   video: { schema: VideoState, carriesText: false },
   html: { schema: HtmlState, carriesText: false },
+  "app-embed": { schema: AppEmbedState, carriesText: false },
 };

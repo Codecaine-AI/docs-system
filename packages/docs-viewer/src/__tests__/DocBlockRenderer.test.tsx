@@ -53,6 +53,7 @@ describe("DocBlockRenderer", () => {
     const absentFromFixture = new Set<string>([
       "process-outline",
       "html",
+      "app-embed",
       "image-grid",
       "stack",
       "call-stack",

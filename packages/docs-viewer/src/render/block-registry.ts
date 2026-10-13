@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { DeltaSpan, DocBlock, DocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockLayout } from "./block-layout";
+import type { AppEmbedHost } from "../components/rich-text/app-embed-host";
 import { descriptors as canvasDescriptors } from "../components/canvas/descriptor";
 import { descriptors as codeDescriptors } from "../components/code/descriptor";
 import { descriptors as fileTreeDescriptors } from "../components/file-tree/descriptor";
@@ -43,7 +44,11 @@ export type DocBlockRenderContext = {
   }) => ReactNode;
   /** Resolves a bundle-relative image/video src to a fetchable URL. */
   resolveAssetSrc?: (src: string) => string;
+  /** Resolves `app-embed` references to URLs. Omit it and app embeds render their "App not available here" state. */
+  appEmbeds?: AppEmbedHost;
 };
+
+export type { AppEmbedHost, AppEmbedRef } from "../components/rich-text/app-embed-host";
 
 export type DocBlockDescriptor = {
   type: DocBlockType;
