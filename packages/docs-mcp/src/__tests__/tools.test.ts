@@ -237,6 +237,12 @@ test('normalizes a bare component src when inserting a block',async()=>{
  expect((await read()).doc.blocks[inserted.blockId].props.src).toBe('./assets/canvases/x.canvas.json');
 });
 
+test('inserts an app-embed block and normalizes a bare poster',async()=>{
+ const inserted=await call('docs_insert',{path:'page',type:'app-embed',props:{app:'graph',view:'map',poster:'assets/images/map.png'},parentId:'root',index:2,expected_hash:(await read()).hash});
+ expect(inserted.ok).toBe(true);
+ expect((await read()).doc.blocks[inserted.blockId].props).toEqual({app:'graph',view:'map',poster:'./assets/images/map.png'});
+});
+
 test('docs_check reports the blocking lint for a bare bundle-relative component src',async()=>{
  const doc=structuredClone(fixture);doc.blocks.canvas={id:'canvas',type:'canvas',props:{src:'assets/canvases/x.canvas.json'},children:[]};doc.blocks.root.children.push('canvas');
  await writeFile(join(roots.a,'page/doc.json'),serializeDocDocument(doc));await mkdir(join(roots.a,'page/assets/canvases'),{recursive:true});await writeFile(join(roots.a,'page/assets/canvases/x.canvas.json'),JSON.stringify(canvasDocument));

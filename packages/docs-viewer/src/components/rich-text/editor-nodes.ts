@@ -20,4 +20,5 @@ export { DocDivider } from "./divider";
 export { DocImageGrid } from "./image-grid";
 export { DocImage } from "./image";
 export { DocHtml } from "./html";
+export { DocAppEmbed } from "./app-embed";
 export { DocVideo } from "./video";

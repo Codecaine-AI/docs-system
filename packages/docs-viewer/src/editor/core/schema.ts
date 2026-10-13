@@ -12,6 +12,7 @@ import {
   DocParagraph,
   DocVideo,
   DocHtml,
+  DocAppEmbed,
 } from "../../components/rich-text/editor-nodes";
 import { DocCodeBlock } from "../../components/code/editor-nodes";
 import { DocFileTree } from "../../components/file-tree/editor-nodes";
@@ -45,6 +46,7 @@ export {
   DocStructuredTable,
   DocVideo,
   DocHtml,
+  DocAppEmbed,
   DocProcessOutline,
   DocStack,
   DocCallStack,
@@ -124,6 +126,7 @@ export const ATOM_BLOCK_TYPES = [
   "image-grid",
   "video",
   "html",
+  "app-embed",
   "canvas",
   "sequence",
   "file-tree",
@@ -150,6 +153,7 @@ export const NODE_TYPE_TO_BLOCK_TYPE: Record<string, DocBlockType> = {
   docImageGrid: "image-grid",
   docVideo: "video",
   docHtml: "html",
+  docAppEmbed: "app-embed",
   docCanvas: "canvas",
   docSequence: "sequence",
   docFileTree: "file-tree",
@@ -216,6 +220,7 @@ export const ATOM_BLOCK_NODES = [
   DocImageGrid,
   DocVideo,
   DocHtml,
+  DocAppEmbed,
   DocCanvas,
   DocSequence,
   DocFileTree,

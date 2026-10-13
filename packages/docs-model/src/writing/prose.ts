@@ -113,6 +113,9 @@ export function authoredProse(context: LintContext): ProseField[] {
         add(p.title, "props.title", b);
         add(p.caption, "props.caption", b);
         break;
+      case "app-embed":
+        add(p.title, "props.title", b);
+        break;
       case "structured-table":
         add(p.title, "props.title", b);
         if (Array.isArray(p.columns))

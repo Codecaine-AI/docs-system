@@ -50,6 +50,7 @@ export const DOC_BLOCK_TYPES = [
   "image-grid",
   "video",
   "html",
+  "app-embed",
   "process-outline",
   "stack",
   "call-stack",

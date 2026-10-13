@@ -18,6 +18,7 @@ import {
   DocStructuredTable,
   DocVideo,
   DocHtml,
+  DocAppEmbed,
   DocProcessOutline,
   DocStack,
   DocCallStack,
@@ -29,6 +30,7 @@ import {
 import { CodeBlockNodeView } from "../../components/code/editor-node-view";
 import { ImageGridEditorNodeView } from "../../components/rich-text/image-grid-editor-node-view";
 import { HtmlEditorNodeView } from "../../components/rich-text/html-editor-node-view";
+import { AppEmbedEditorNodeView } from "../../components/rich-text/app-embed-editor-node-view";
 import { ProcessOutlineNodeView } from "../../components/process-outline/editor-node-view";
 import { StructuredTableNodeView } from "../../components/structured-table/editor-node-view";
 import { useDocEditorNodeViewContext } from "./node-view-context";
@@ -48,7 +50,7 @@ import { useDocEditorNodeViewContext } from "./node-view-context";
  * stubs).
  */
 function AtomBlockView({ node }: ReactNodeViewProps) {
-  const { renderCanvas, renderSequence, resolveAssetSrc } = useDocEditorNodeViewContext();
+  const { renderCanvas, renderSequence, resolveAssetSrc, appEmbeds } = useDocEditorNodeViewContext();
   const blockType = NODE_TYPE_TO_BLOCK_TYPE[node.type.name];
   const descriptor = blockType ? getDocBlockDescriptor(blockType) : null;
   if (!descriptor || !blockType) {
@@ -78,6 +80,7 @@ function AtomBlockView({ node }: ReactNodeViewProps) {
     renderCanvas,
     renderSequence,
     resolveAssetSrc,
+    appEmbeds,
   };
   // Same page lane the read surface gives this block type (block-layout.ts):
   // the wrapper IS the lane element here, so a wide state-shape or canvas
@@ -116,6 +119,10 @@ export const DocImageGridWithView = DocImageGrid.extend({
 
 export const DocHtmlWithView = DocHtml.extend({
   addNodeView() { return ReactNodeViewRenderer(HtmlEditorNodeView); },
+});
+
+export const DocAppEmbedWithView = DocAppEmbed.extend({
+  addNodeView() { return ReactNodeViewRenderer(AppEmbedEditorNodeView); },
 });
 
 export const DocVideoWithView = DocVideo.extend({
@@ -210,6 +217,7 @@ export const ATOM_BLOCK_NODES_WITH_VIEWS = [
   DocImageGridWithView,
   DocVideoWithView,
   DocHtmlWithView,
+  DocAppEmbedWithView,
   DocCanvasWithView,
   DocSequenceWithView,
   DocFileTreeWithView,

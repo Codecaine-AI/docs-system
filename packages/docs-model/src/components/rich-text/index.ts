@@ -27,4 +27,8 @@ export {
   RICH_TEXT_STATES,
   VideoState,
   HtmlState,
+  AppEmbedState,
+  APP_EMBED_DEFAULT_HEIGHT,
+  APP_EMBED_MAX_HEIGHT,
+  APP_EMBED_MIN_HEIGHT,
 } from "./state";

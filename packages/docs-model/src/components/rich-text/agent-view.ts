@@ -49,6 +49,19 @@ function projectVideo(block: DocBlock): string {
   return blockquotePrefix(head);
 }
 
+/** `> **App: <title>** — <codebase>/<app>/<view>?<params>`: the reference, greppable by app id. */
+function projectAppEmbed(block: DocBlock): string {
+  const title = stringProp(block, "title");
+  const app = stringProp(block, "app") ?? "";
+  const ref = [stringProp(block, "codebase"), app, stringProp(block, "view")].filter(Boolean).join("/");
+  const params = stringProp(block, "params");
+  let head = "**App";
+  if (title) head += `: ${title}`;
+  head += "**";
+  if (ref) head += ` — ${ref}${params ? `?${params}` : ""}`;
+  return blockquotePrefix(head);
+}
+
 function projectListItem(block: DocBlock, depth: number, index: number): string {
   const indent = "  ".repeat(depth);
   const ordered = block.props.ordered === true;
@@ -83,6 +96,8 @@ export const richTextAgentView: ComponentBundle["agentView"] = (block, ctx) => {
     }
     case "video":
       return projectVideo(block);
+    case "app-embed":
+      return projectAppEmbed(block);
     case "list-item":
       return projectListItem(block, ctx.listDepth, ctx.listIndex);
     default:

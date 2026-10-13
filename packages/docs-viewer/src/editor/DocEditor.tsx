@@ -67,6 +67,8 @@ export type DocEditorProps = {
   renderCanvas?: DocBlockRenderContext["renderCanvas"];
   renderSequence?: DocBlockRenderContext["renderSequence"];
   resolveAssetSrc?: DocBlockRenderContext["resolveAssetSrc"];
+  /** Resolves `app-embed` references to URLs, as `DocBlockRenderer` does. Omit it and app embeds render their unavailable state. */
+  appEmbeds?: DocBlockRenderContext["appEmbeds"];
   /**
    * Host-injected asset uploader (same host-capability slot family as
    * `renderCanvas`/`resolveAssetSrc`): uploads a video file dropped onto the
@@ -132,6 +134,7 @@ export default function DocEditor({
   renderCanvas,
   renderSequence,
   resolveAssetSrc,
+  appEmbeds,
   uploadAsset,
   onApplyOps,
   onReloadDoc,
@@ -688,8 +691,8 @@ export default function DocEditor({
   }, [isDirty, projectId, documentPath, sessionId, client]);
 
   const nodeViewContextValue = useMemo(
-    () => ({ renderCanvas, renderSequence, resolveAssetSrc }),
-    [renderCanvas, renderSequence, resolveAssetSrc],
+    () => ({ renderCanvas, renderSequence, resolveAssetSrc, appEmbeds }),
+    [renderCanvas, renderSequence, resolveAssetSrc, appEmbeds],
   );
 
   if (!editor) return null;

@@ -32,6 +32,7 @@ export * from "./compat";
 export * from "./validate";
 
 export { richTextComponent } from "./rich-text";
+export { APP_EMBED_DEFAULT_HEIGHT, APP_EMBED_MAX_HEIGHT, APP_EMBED_MIN_HEIGHT } from "./rich-text";
 export { codeComponent } from "./code";
 export { fileTreeComponent } from "./file-tree";
 export { structuredTableComponent } from "./structured-table";
