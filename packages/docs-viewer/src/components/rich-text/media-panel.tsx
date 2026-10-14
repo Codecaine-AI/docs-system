@@ -39,6 +39,15 @@ export const MEDIA_FOCUS_RING =
 export const MEDIA_GHOST_BUTTON =
   "inline-flex h-5.5 flex-none cursor-pointer items-center gap-1 rounded-[var(--radius,2px)] border border-[color:var(--docs-rule,#e6e5e3)] bg-[var(--docs-page,#fdfdfd)] px-2 font-sans text-[length:var(--ds-font-size-ui-xs)] font-medium leading-none text-[color:var(--docs-text,#2a2a2a)] hover:bg-[var(--docs-hover,#ebebea)] hover:text-[color:var(--docs-ink,#1f1f1f)] disabled:cursor-default disabled:opacity-50";
 
+/**
+ * Primary button (the app embed's Start): a 28px control filled with the blue
+ * solid and its on-solid glyph (>= 4.5:1 in both themes; the accent is under
+ * AA with white). The --ds-* fallbacks keep it themed where no --docs-* role
+ * layer is loaded.
+ */
+export const MEDIA_PRIMARY_BUTTON =
+  "inline-flex h-7 flex-none cursor-pointer items-center gap-1.5 rounded-[var(--radius,var(--ds-radius-base))] border border-transparent bg-[var(--docs-c-blue-solid,var(--ds-color-blue-solid))] px-3 font-sans text-[length:var(--ds-font-size-ui-md)] font-semibold leading-none text-[color:var(--docs-tile-glyph,var(--ds-color-blue-on-solid))] hover:bg-[var(--docs-c-blue-solid,var(--ds-color-blue-solid))]/90 disabled:cursor-default disabled:opacity-50";
+
 type Glyph = ComponentType<{ size?: number; strokeWidth?: number; "aria-hidden"?: boolean }>;
 
 /** 16px text-family tile with an 11px glyph. Decorative: the title names the block. */

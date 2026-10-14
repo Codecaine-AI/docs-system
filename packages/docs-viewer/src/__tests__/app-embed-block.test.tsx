@@ -49,6 +49,12 @@ function fakeHost(options: { available?: (ref: AppEmbedRef) => boolean } = {}) {
 const embed = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-docs-block-type="app-embed"][data-source-id="${id}"]`) as HTMLElement;
 
+/** The block's controls in tab order (document order; none sets a tabindex). */
+const tabStops = (block: HTMLElement) =>
+  [...block.querySelectorAll<HTMLElement>("a[href], button, iframe")].map(
+    (element) => element.getAttribute("aria-label") ?? element.getAttribute("title") ?? element.textContent?.trim(),
+  );
+
 describe("app-embed state", () => {
   it("validates closed typed props and the 240 to 2000 height range", () => {
     expect(checkStateProps("app-embed", { app: "graph" })).toEqual([]);
@@ -105,15 +111,21 @@ describe("AppEmbedBlock", () => {
     expect(embed(container, "app").textContent).toContain("App not available here");
   });
 
-  it("shows the poster and Start, then mounts the sandboxed iframe with Stop and Open in new window", () => {
+  it("shows the poster with one Start over it, then mounts the sandboxed iframe with Stop and Open in new window", () => {
     const { host } = fakeHost();
     const { container } = render(
       <AppEmbedBlock id="a" app="graph" view="map" params="q=1" title="Map" height={300} poster="/assets/map.png" host={host} />,
     );
-    expect(container.querySelector("img")!.getAttribute("src")).toBe("/assets/map.png");
+    const poster = container.querySelector("img")!;
+    expect(poster.getAttribute("src")).toBe("/assets/map.png");
     expect(container.querySelector("iframe")).toBeNull();
+    // Start is the panel's only control before it runs, layered over the poster.
+    expect(tabStops(embed(container, "a"))).toEqual(["Start Map"]);
+    expect(screen.getByRole("button", { name: "Start Map" }).parentElement!.previousElementSibling).toBe(poster);
 
     fireEvent.click(screen.getByRole("button", { name: "Start Map" }));
+    // Live: the head's Open and Stop come before the app's frame.
+    expect(tabStops(embed(container, "a"))).toEqual(["Open in new window", "Stop", "Map"]);
     const frame = container.querySelector("iframe")!;
     expect(frame.getAttribute("src")).toBe("https://apps.test/graph/map?q=1");
     expect(frame.getAttribute("sandbox")).toBe("allow-scripts allow-pointer-lock allow-downloads");
@@ -130,14 +142,17 @@ describe("AppEmbedBlock", () => {
     expect(container.querySelector("img")).not.toBeNull();
   });
 
-  it("shows a placeholder with the title and view when there is no poster, and clamps the height", () => {
+  it("shows a placeholder with the title, the view, and Start directly under them when there is no poster, and clamps the height", () => {
     const { host } = fakeHost();
     const { container } = render(<AppEmbedBlock id="a" app="graph" view="map" title="Map" height={5000} host={host} />);
     expect(container.querySelector("img")).toBeNull();
     const body = embed(container, "a").lastElementChild as HTMLElement;
-    expect(body.textContent).toContain("Map");
-    expect(body.textContent).toContain("map");
     expect(body.style.height).toBe("2000px");
+    // The centered stack reads title, view, Start: Start sits in it, not at the foot of the body.
+    const placeholder = body.firstElementChild as HTMLElement;
+    expect([...placeholder.children].map((child) => child.textContent)).toEqual(["Map", "map", "Start"]);
+    expect(placeholder.contains(screen.getByRole("button", { name: "Start Map" }))).toBe(true);
+    expect(tabStops(embed(container, "a"))).toEqual(["Start Map"]);
   });
 
   it("keeps one live embed per window: starting one stops the other", () => {

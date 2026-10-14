@@ -15,13 +15,14 @@ import {
   MEDIA_HEAD_TEXT,
   MEDIA_PANEL_CLASS,
   MEDIA_PANEL_FILL,
+  MEDIA_PRIMARY_BUTTON,
   MediaHeadContent,
 } from "./media-panel";
 
 export const APP_EMBED_LABEL = "App";
 
 export const APP_EMBED_AGENT_DESCRIPTION =
-  "A live view of an app a codebase declares, rendered from typed props: { codebase?: string; app: string; view?: string; params?: string; title?: string; height?: number; poster?: string }. `app` is the app id the codebase declares, `view` a view id inside it, `params` an extra query string without a leading '?'. `codebase` is a Codebase ent_ id; omit it for the codebase whose docs project holds this doc. The doc stores no URL: the host resolves the reference when the page renders. Before the reader presses Start the panel shows `poster` (a bundle image asset such as \"./assets/images/app.png\") or a plain placeholder with the title and view. Start loads the app in a sandboxed iframe (scripts, pointer lock, and downloads; no same-origin access), `height` px tall (240 to 2000, default 480), with Stop and Open in new window controls. One app runs per window: starting one stops the other. A host that cannot run the app shows a quiet \"App not available here\" note with the title, app, and view.";
+  "A live view of an app a codebase declares, rendered from typed props: { codebase?: string; app: string; view?: string; params?: string; title?: string; height?: number; poster?: string }. `app` is the app id the codebase declares, `view` a view id inside it, `params` an extra query string without a leading '?'. `codebase` is a Codebase ent_ id; omit it for the codebase whose docs project holds this doc. The doc stores no URL: the host resolves the reference when the page renders. Before the reader presses Start the panel shows `poster` (a bundle image asset such as \"./assets/images/app.png\") or a plain placeholder with the title and view, with one Start button in the middle (under the title and view, or centered on the poster). Start loads the app in a sandboxed iframe (scripts, pointer lock, and downloads; no same-origin access), `height` px tall (240 to 2000, default 480), with Stop and Open in new window controls. One app runs per window: starting one stops the other. A host that cannot run the app shows a quiet \"App not available here\" note with the title, app, and view.";
 
 /**
  * The app-embed panel reuses the media panel (media-panel.tsx): tile, title and
@@ -38,9 +39,14 @@ const APP_EMBED_PLACEHOLDER_CLASSES =
   "flex h-full w-full flex-col items-center justify-center gap-1 p-3 text-center text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,#666562)]";
 const APP_EMBED_PLACEHOLDER_TITLE_CLASSES = "font-semibold text-[color:var(--docs-ink,#1f1f1f)] wrap-anywhere";
 const APP_EMBED_PLACEHOLDER_VIEW_CLASSES = "font-mono text-[length:var(--ds-font-size-ui-xs)] wrap-anywhere";
-/* Start sits over the poster or placeholder, centered at the foot of the body; the ghost button's page fill keeps it legible on any image. */
-const APP_EMBED_START_LAYER_CLASSES = "absolute inset-0 flex items-end justify-center p-3";
-const APP_EMBED_START_CLASSES = `${MEDIA_GHOST_BUTTON} ${MEDIA_FOCUS_RING}`;
+/*
+ * Start is the panel's one primary control, in the middle of the body: under
+ * the placeholder's title and view, or centered over the poster (the solid
+ * fill keeps it legible on any image). The head carries no Start.
+ */
+const APP_EMBED_POSTER_START_LAYER_CLASSES = "absolute inset-0 flex items-center justify-center p-3";
+const APP_EMBED_PLACEHOLDER_START_CLASSES = "mt-2";
+const APP_EMBED_START_CLASSES = `${MEDIA_PRIMARY_BUTTON} ${MEDIA_FOCUS_RING}`;
 const APP_EMBED_FRAME_CLASSES = "block h-full w-full border-0 bg-[var(--docs-page,#fdfdfd)]";
 const APP_EMBED_UNAVAILABLE_CLASSES =
   "not-prose my-6 flex flex-wrap items-baseline gap-x-2 gap-y-1 rounded-[var(--radius,2px)] border border-dashed border-[color:var(--docs-rule,#e6e5e3)] p-3 text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,#666562)]";
@@ -132,6 +138,23 @@ export function AppEmbedBlock({ id, codebase, app, view, params, title, height, 
     );
   }
 
+  const startButton = (
+    <button
+      type="button"
+      className={APP_EMBED_START_CLASSES}
+      aria-label={`Start ${label}`}
+      onMouseDown={(event) => event.stopPropagation()}
+      onClick={() => {
+        // Resolve again: the app may have moved since this panel rendered.
+        const start = host?.resolve(ref);
+        if (start) setSession({ initialSrc: start.src, src: start.src });
+      }}
+    >
+      <PlayIcon size={14} strokeWidth={2} aria-hidden />
+      Start
+    </button>
+  );
+
   return (
     <figure className={APP_EMBED_FIGURE_CLASSES} data-docs-block-type="app-embed" data-source-id={id} data-app-embed-state={live ? "live" : "idle"}>
       <div className={`${MEDIA_HEAD_CLASSES} ${MEDIA_HEAD_TEXT}`}>
@@ -168,33 +191,17 @@ export function AppEmbedBlock({ id, codebase, app, view, params, title, height, 
             className={APP_EMBED_FRAME_CLASSES}
             data-app-embed-frame=""
           />
-        ) : (
+        ) : poster ? (
           <>
-            {poster ? (
-              <img src={poster} alt="" className={APP_EMBED_POSTER_CLASSES} loading="lazy" decoding="async" />
-            ) : (
-              <div className={APP_EMBED_PLACEHOLDER_CLASSES}>
-                <span className={APP_EMBED_PLACEHOLDER_TITLE_CLASSES}>{label}</span>
-                {view && <span className={APP_EMBED_PLACEHOLDER_VIEW_CLASSES}>{view}</span>}
-              </div>
-            )}
-            <div className={APP_EMBED_START_LAYER_CLASSES}>
-              <button
-                type="button"
-                className={APP_EMBED_START_CLASSES}
-                aria-label={`Start ${label}`}
-                onMouseDown={(event) => event.stopPropagation()}
-                onClick={() => {
-                  // Resolve again: the app may have moved since this panel rendered.
-                  const start = host?.resolve(ref);
-                  if (start) setSession({ initialSrc: start.src, src: start.src });
-                }}
-              >
-                <PlayIcon size={12} strokeWidth={2} aria-hidden />
-                Start
-              </button>
-            </div>
+            <img src={poster} alt="" className={APP_EMBED_POSTER_CLASSES} loading="lazy" decoding="async" />
+            <div className={APP_EMBED_POSTER_START_LAYER_CLASSES}>{startButton}</div>
           </>
+        ) : (
+          <div className={APP_EMBED_PLACEHOLDER_CLASSES}>
+            <span className={APP_EMBED_PLACEHOLDER_TITLE_CLASSES}>{label}</span>
+            {view && <span className={APP_EMBED_PLACEHOLDER_VIEW_CLASSES}>{view}</span>}
+            <div className={APP_EMBED_PLACEHOLDER_START_CLASSES}>{startButton}</div>
+          </div>
         )}
       </div>
     </figure>
