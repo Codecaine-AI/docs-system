@@ -1,6 +1,6 @@
 {
   "name": "@codecaine-ai/docs-publish",
-  "version": "0.1.0-proof.22",
+  "version": "0.1.0-proof.23",
   "private": true,
   "type": "module",
   "exports": {
