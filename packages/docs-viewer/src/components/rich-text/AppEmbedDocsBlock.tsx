@@ -22,7 +22,7 @@ import {
 export const APP_EMBED_LABEL = "App";
 
 export const APP_EMBED_AGENT_DESCRIPTION =
-  "A live view of an app a codebase declares, rendered from typed props: { codebase?: string; app: string; view?: string; params?: string; title?: string; height?: number; poster?: string }. `app` is the app id the codebase declares, `view` a view id inside it, `params` an extra query string without a leading '?'. `codebase` is a Codebase ent_ id; omit it for the codebase whose docs project holds this doc. The doc stores no URL: the host resolves the reference when the page renders. Before the reader presses Start the panel shows `poster` (a bundle image asset such as \"./assets/images/app.png\") or a plain placeholder with the title and view, with one Start button in the middle (under the title and view, or centered on the poster). Start loads the app in a sandboxed iframe (scripts, pointer lock, and downloads; no same-origin access), `height` px tall (240 to 2000, default 480), with Stop and Open in new window controls. One app runs per window: starting one stops the other. A host that cannot run the app shows a quiet \"App not available here\" note with the title, app, and view.";
+  "A live view of an app a codebase declares, rendered from typed props: { codebase?: string; app: string; view?: string; params?: string; title?: string; height?: number; poster?: string }. `app` is the app id the codebase declares, `view` a view id inside it, `params` an extra query string without a leading '?'. `codebase` is a Codebase ent_ id; omit it for the codebase whose docs project holds this doc. The doc stores no URL: the host resolves the reference when the page renders. Before the reader presses Start the panel shows `poster` (a bundle image asset such as \"./assets/images/app.png\") or a plain placeholder, with the title, the view, and one Start button stacked near the top of the panel (on a readable card over the poster). Start loads the app in a sandboxed iframe (scripts, pointer lock, and downloads; no same-origin access), `height` px tall (240 to 2000, default 480), with Stop and Open in new window controls. One app runs per window: starting one stops the other. A host that cannot run the app shows a quiet \"App not available here\" note with the title, app, and view.";
 
 /**
  * The app-embed panel reuses the media panel (media-panel.tsx): tile, title and
@@ -35,17 +35,26 @@ const APP_EMBED_FIGURE_CLASSES = `not-prose my-6 min-w-0 rounded-[var(--radius,2
 const APP_EMBED_BUTTON_CLASSES = `${MEDIA_GHOST_BUTTON} ${MEDIA_FOCUS_RING} no-underline`;
 const APP_EMBED_BODY_CLASSES = "relative w-full overflow-hidden bg-[var(--docs-page,#fdfdfd)]";
 const APP_EMBED_POSTER_CLASSES = "block h-full w-full object-cover";
-const APP_EMBED_PLACEHOLDER_CLASSES =
-  "flex h-full w-full flex-col items-center justify-center gap-1 p-3 text-center text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,#666562)]";
-const APP_EMBED_PLACEHOLDER_TITLE_CLASSES = "font-semibold text-[color:var(--docs-ink,#1f1f1f)] wrap-anywhere";
-const APP_EMBED_PLACEHOLDER_VIEW_CLASSES = "font-mono text-[length:var(--ds-font-size-ui-xs)] wrap-anywhere";
 /*
- * Start is the panel's one primary control, in the middle of the body: under
- * the placeholder's title and view, or centered over the poster (the solid
- * fill keeps it legible on any image). The head carries no Start.
+ * Before Start the body keeps the frame's full height (starting moves nothing
+ * on the page), but the title, view and Start sit near its top: the layer
+ * places the group one large section gap (--ds-space-12) below the head,
+ * centred across. A tall embed whose foot is below the fold still shows its
+ * Start. Start is the panel's one primary control; the head carries no Start.
+ *
+ * Over a poster the same group sits at the same place on a page-fill card, so
+ * the text stays readable on any image. Without a poster the group keeps the
+ * card's padding and a transparent border, so Start lands at the same offset.
  */
-const APP_EMBED_POSTER_START_LAYER_CLASSES = "absolute inset-0 flex items-center justify-center p-3";
-const APP_EMBED_PLACEHOLDER_START_CLASSES = "mt-2";
+const APP_EMBED_START_LAYER_CLASSES =
+  "absolute inset-0 flex flex-col items-center justify-start px-[var(--ds-space-3)] pt-[var(--ds-space-12)]";
+const APP_EMBED_START_GROUP_CLASSES =
+  "flex max-w-full flex-col items-center gap-[var(--ds-space-1)] rounded-[var(--radius,var(--ds-radius-base))] border px-[var(--ds-space-4)] py-[var(--ds-space-3)] text-center text-[length:var(--ds-font-size-ui-md)] text-[color:var(--docs-muted,var(--ds-color-text-muted))]";
+const APP_EMBED_START_GROUP_PLAIN_CLASSES = `${APP_EMBED_START_GROUP_CLASSES} border-transparent`;
+const APP_EMBED_START_GROUP_CARD_CLASSES = `${APP_EMBED_START_GROUP_CLASSES} border-[color:var(--docs-rule,var(--ds-color-border-default))] bg-[var(--docs-page,var(--ds-color-surface-page))]`;
+const APP_EMBED_START_TITLE_CLASSES = "font-semibold text-[color:var(--docs-ink,var(--ds-color-text-ink))] wrap-anywhere";
+const APP_EMBED_START_VIEW_CLASSES = "font-mono text-[length:var(--ds-font-size-ui-xs)] wrap-anywhere";
+const APP_EMBED_START_BUTTON_ROW_CLASSES = "mt-[var(--ds-space-2)]";
 const APP_EMBED_START_CLASSES = `${MEDIA_PRIMARY_BUTTON} ${MEDIA_FOCUS_RING}`;
 const APP_EMBED_FRAME_CLASSES = "block h-full w-full border-0 bg-[var(--docs-page,#fdfdfd)]";
 const APP_EMBED_UNAVAILABLE_CLASSES =
@@ -191,17 +200,17 @@ export function AppEmbedBlock({ id, codebase, app, view, params, title, height, 
             className={APP_EMBED_FRAME_CLASSES}
             data-app-embed-frame=""
           />
-        ) : poster ? (
-          <>
-            <img src={poster} alt="" className={APP_EMBED_POSTER_CLASSES} loading="lazy" decoding="async" />
-            <div className={APP_EMBED_POSTER_START_LAYER_CLASSES}>{startButton}</div>
-          </>
         ) : (
-          <div className={APP_EMBED_PLACEHOLDER_CLASSES}>
-            <span className={APP_EMBED_PLACEHOLDER_TITLE_CLASSES}>{label}</span>
-            {view && <span className={APP_EMBED_PLACEHOLDER_VIEW_CLASSES}>{view}</span>}
-            <div className={APP_EMBED_PLACEHOLDER_START_CLASSES}>{startButton}</div>
-          </div>
+          <>
+            {poster && <img src={poster} alt="" className={APP_EMBED_POSTER_CLASSES} loading="lazy" decoding="async" />}
+            <div className={APP_EMBED_START_LAYER_CLASSES}>
+              <div className={poster ? APP_EMBED_START_GROUP_CARD_CLASSES : APP_EMBED_START_GROUP_PLAIN_CLASSES}>
+                <span className={APP_EMBED_START_TITLE_CLASSES}>{label}</span>
+                {view && <span className={APP_EMBED_START_VIEW_CLASSES}>{view}</span>}
+                <div className={APP_EMBED_START_BUTTON_ROW_CLASSES}>{startButton}</div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </figure>

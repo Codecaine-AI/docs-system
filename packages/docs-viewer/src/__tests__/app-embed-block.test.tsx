@@ -49,6 +49,25 @@ function fakeHost(options: { available?: (ref: AppEmbedRef) => boolean } = {}) {
 const embed = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-docs-block-type="app-embed"][data-source-id="${id}"]`) as HTMLElement;
 
+/**
+ * Before Start: the layer over the body that holds the title, view, Start group.
+ * happy-dom has no layout, so placement is read from the layer's utilities: a
+ * column anchored at the body's top (not centred), one large section gap down,
+ * centred across. Returns the group.
+ */
+function startGroupNearTop(block: HTMLElement): HTMLElement {
+  const body = block.lastElementChild as HTMLElement;
+  const layer = body.lastElementChild as HTMLElement;
+  const classes = [...layer.classList];
+  expect(classes).toEqual(expect.arrayContaining(["absolute", "inset-0", "flex-col", "justify-start", "items-center", "pt-[var(--ds-space-12)]"]));
+  expect(classes).not.toContain("justify-center");
+  const group = layer.firstElementChild as HTMLElement;
+  expect([...group.children].map((child) => child.textContent)).toEqual(["Map", "map", "Start"]);
+  return group;
+}
+
+const hasBacking = (element: HTMLElement) => [...element.classList].some((name) => name.startsWith("bg-"));
+
 /** The block's controls in tab order (document order; none sets a tabindex). */
 const tabStops = (block: HTMLElement) =>
   [...block.querySelectorAll<HTMLElement>("a[href], button, iframe")].map(
@@ -111,7 +130,7 @@ describe("AppEmbedBlock", () => {
     expect(embed(container, "app").textContent).toContain("App not available here");
   });
 
-  it("shows the poster with one Start over it, then mounts the sandboxed iframe with Stop and Open in new window", () => {
+  it("shows the poster with the title, view, and one Start near its top, then mounts the sandboxed iframe with Stop and Open in new window", () => {
     const { host } = fakeHost();
     const { container } = render(
       <AppEmbedBlock id="a" app="graph" view="map" params="q=1" title="Map" height={300} poster="/assets/map.png" host={host} />,
@@ -119,9 +138,11 @@ describe("AppEmbedBlock", () => {
     const poster = container.querySelector("img")!;
     expect(poster.getAttribute("src")).toBe("/assets/map.png");
     expect(container.querySelector("iframe")).toBeNull();
-    // Start is the panel's only control before it runs, layered over the poster.
+    // Start is the panel's only control before it runs, in a group layered over the poster on a readable card.
     expect(tabStops(embed(container, "a"))).toEqual(["Start Map"]);
-    expect(screen.getByRole("button", { name: "Start Map" }).parentElement!.previousElementSibling).toBe(poster);
+    const group = startGroupNearTop(embed(container, "a"));
+    expect(group.parentElement!.previousElementSibling).toBe(poster);
+    expect(hasBacking(group)).toBe(true);
 
     fireEvent.click(screen.getByRole("button", { name: "Start Map" }));
     // Live: the head's Open and Stop come before the app's frame.
@@ -142,16 +163,16 @@ describe("AppEmbedBlock", () => {
     expect(container.querySelector("img")).not.toBeNull();
   });
 
-  it("shows a placeholder with the title, the view, and Start directly under them when there is no poster, and clamps the height", () => {
+  it("keeps the full height without a poster but puts the title, the view, and Start near the top, and clamps the height", () => {
     const { host } = fakeHost();
     const { container } = render(<AppEmbedBlock id="a" app="graph" view="map" title="Map" height={5000} host={host} />);
     expect(container.querySelector("img")).toBeNull();
     const body = embed(container, "a").lastElementChild as HTMLElement;
     expect(body.style.height).toBe("2000px");
-    // The centered stack reads title, view, Start: Start sits in it, not at the foot of the body.
-    const placeholder = body.firstElementChild as HTMLElement;
-    expect([...placeholder.children].map((child) => child.textContent)).toEqual(["Map", "map", "Start"]);
-    expect(placeholder.contains(screen.getByRole("button", { name: "Start Map" }))).toBe(true);
+    // The stack reads title, view, Start from the top of the body, not its middle or foot.
+    const group = startGroupNearTop(embed(container, "a"));
+    expect(group.contains(screen.getByRole("button", { name: "Start Map" }))).toBe(true);
+    expect(hasBacking(group)).toBe(false);
     expect(tabStops(embed(container, "a"))).toEqual(["Start Map"]);
   });
 
