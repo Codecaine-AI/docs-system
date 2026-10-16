@@ -223,11 +223,22 @@ const DIVIDER_RE = /^(---|\*\*\*|___)\s*$/;
 const UNORDERED_LIST_RE = /^(\s*)[-*+]\s+(.*)$/;
 const ORDERED_LIST_RE = /^(\s*)(\d+)[.)]\s+(.*)$/;
 
+// GFM task-list marker after the bullet: `[ ] `, `[x] ` or `[X] `.
+const TASK_MARKER_RE = /^\[([ xX])\](?:\s+|$)/;
+
 type ListItemNode = {
   indent: number;
   text: string;
   ordered: boolean;
+  /** Present only when the line carried a task marker. */
+  checked?: boolean;
 };
+
+function listItemNode(indent: number, rawText: string, ordered: boolean): ListItemNode {
+  const marker = rawText.match(TASK_MARKER_RE);
+  if (!marker) return { indent, text: rawText, ordered };
+  return { indent, text: rawText.slice(marker[0].length), ordered, checked: marker[1] !== " " };
+}
 
 /**
  * Parses a markdown prose segment into an ordered list of top-level block
@@ -273,7 +284,10 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
       addBlock(ctx, {
         id,
         type: "list-item",
-        props: { ordered: item.ordered },
+        props:
+          item.checked === undefined
+            ? { ordered: item.ordered }
+            : { ordered: item.ordered, checked: item.checked },
         text: textInsert(item.text, ctx),
         children: [],
       });
@@ -391,10 +405,10 @@ function buildProseBlocks(markdown: string, ctx: BuildCtx): string[] {
         const uMatch = lines[i].match(UNORDERED_LIST_RE);
         const oMatch = lines[i].match(ORDERED_LIST_RE);
         if (uMatch) {
-          items.push({ indent: uMatch[1].length, text: uMatch[2], ordered: false });
+          items.push(listItemNode(uMatch[1].length, uMatch[2], false));
           i += 1;
         } else if (oMatch) {
-          items.push({ indent: oMatch[1].length, text: oMatch[3], ordered: true });
+          items.push(listItemNode(oMatch[1].length, oMatch[3], true));
           i += 1;
         } else if (lines[i].trim().length === 0) {
           // Blank line: peek ahead — a single blank line inside a list is

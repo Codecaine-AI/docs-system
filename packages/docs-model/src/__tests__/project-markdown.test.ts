@@ -356,6 +356,50 @@ describe("projectToMarkdown — ordered lists", () => {
   });
 });
 
+describe("projectToMarkdown — task lists", () => {
+  it("emits [ ] for an open task and [x] for a done task", () => {
+    const doc = docWith(
+      {
+        a: block("a", { type: "list-item", props: { checked: false }, text: [{ insert: "Install Bun." }] }),
+        b: block("b", { type: "list-item", props: { checked: true }, text: [{ insert: "Retire the key." }] }),
+      },
+      ["a", "b"],
+    );
+    const md = projectToMarkdown(doc);
+    expect(md).toContain("- [ ] Install Bun.");
+    expect(md).toContain("- [x] Retire the key.");
+  });
+
+  it("puts the box after the number on ordered task items", () => {
+    const doc = docWith(
+      {
+        a: block("a", { type: "list-item", props: { ordered: true, checked: false }, text: [{ insert: "first" }] }),
+        b: block("b", { type: "list-item", props: { ordered: true, checked: true }, text: [{ insert: "second" }] }),
+      },
+      ["a", "b"],
+    );
+    const md = projectToMarkdown(doc);
+    expect(md).toContain("1. [ ] first");
+    expect(md).toContain("2. [x] second");
+  });
+
+  it("indents nested task items and leaves plain siblings box-free", () => {
+    const doc = docWith(
+      {
+        a: block("a", { type: "list-item", props: { checked: false }, text: [{ insert: "parent" }], children: ["c"] }),
+        c: block("c", { type: "list-item", props: { checked: true }, text: [{ insert: "child" }] }),
+        d: block("d", { type: "list-item", text: [{ insert: "plain" }] }),
+      },
+      ["a", "d"],
+    );
+    const md = projectToMarkdown(doc);
+    expect(md).toContain("- [ ] parent");
+    expect(md).toContain("  - [x] child");
+    expect(md).toContain("- plain");
+    expect(md).not.toContain("- [ ] plain");
+  });
+});
+
 describe("projectToMarkdown — structural edge cases", () => {
   it("returns an empty string for a document whose root is missing", () => {
     const doc: DocDocument = { schemaVersion: 1, id: "x", root: "root", blocks: {} };

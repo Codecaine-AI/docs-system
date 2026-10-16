@@ -66,7 +66,9 @@ function projectListItem(block: DocBlock, depth: number, index: number): string 
   const indent = "  ".repeat(depth);
   const ordered = block.props.ordered === true;
   const bullet = ordered ? `${index + 1}.` : "-";
-  return `${indent}${bullet} ${deltaToMarkdownInline(block.text)}`;
+  // Task items (checked present) carry a GFM box after the bullet.
+  const box = typeof block.props.checked === "boolean" ? (block.props.checked ? "[x] " : "[ ] ") : "";
+  return `${indent}${bullet} ${box}${deltaToMarkdownInline(block.text)}`;
 }
 
 export const richTextAgentView: ComponentBundle["agentView"] = (block, ctx) => {

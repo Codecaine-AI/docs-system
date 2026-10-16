@@ -16,6 +16,9 @@ export const HeadingState = Type.Object(
 export const ListItemState = Type.Object(
   {
     ordered: Type.Optional(Type.Boolean()),
+    // Task-list state: absent is an ordinary bullet, false an open task,
+    // true a done task. Projects to `- [ ]` / `- [x]`.
+    checked: Type.Optional(Type.Boolean()),
   },
   { additionalProperties: false },
 );

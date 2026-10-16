@@ -647,6 +647,7 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     "interaction-surface.addOperation",
     "interaction-surface.removeOperation",
     "interaction-surface.updateOperation",
+    "list-item.setChecked",
     "process-outline.insertStep",
     "process-outline.moveStep",
     "process-outline.removeStep",

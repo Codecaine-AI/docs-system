@@ -26,7 +26,9 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  * - `list-item` -> `-` bullet, or `1.` if `props.ordered === true`, indented
  *   2 spaces per nesting depth. Depth is the list-item's own nesting depth
  *   under other list-items (siblings share a depth; a list-item nested
- *   inside another list-item is depth+1).
+ *   inside another list-item is depth+1). A task item (boolean
+ *   `props.checked`) adds a GFM box after the bullet: `- [ ] open`,
+ *   `- [x] done`, `1. [ ] ordered task`. Absent `checked` emits no box.
  * - `code` -> a fenced code block, ```` ```<language> ```` using
  *   `props.language` when present. When `props.annotations` is present
  *   (`Array<{ lines, label?, note }>`), the fence is followed by one line

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentBundle } from "../types";
+import { setChecked } from "./actions/set-checked";
 import { richTextAgentView } from "./agent-view";
 import { manifest } from "./manifest";
 import { RICH_TEXT_STATES } from "./state";
@@ -8,8 +9,12 @@ import { RICH_TEXT_STATES } from "./state";
 export const richTextComponent: ComponentBundle = {
   manifest,
   states: RICH_TEXT_STATES,
-  // D7: scalar props edit via schema-validated updateBlock, so this bundle has no named actions.
-  actions: [],
+  // D7: scalar props edit via schema-validated updateBlock, so this bundle has
+  // no named actions — with one exception. Task state (`list-item.checked`) is
+  // also a typed verb, so agents can discover "tick this box" as a tool instead
+  // of guessing the updateBlock prop. It is a thin props patch; updateBlock with
+  // `props: { checked }` stays equivalent.
+  actions: [setChecked],
   agentView: richTextAgentView,
 };
 

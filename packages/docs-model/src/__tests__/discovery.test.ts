@@ -63,6 +63,7 @@ const ACTION_KEYS = [
   "interaction-surface.addOperation",
   "interaction-surface.removeOperation",
   "interaction-surface.updateOperation",
+  "list-item.setChecked",
   "process-outline.insertStep",
   "process-outline.moveStep",
   "process-outline.removeStep",
@@ -192,13 +193,15 @@ describe("buildBlocksDiscovery", () => {
     ]);
   });
 
-  it("reports the rich-text bundle's ten types and no actions", () => {
+  it("reports the rich-text bundle's ten types and its one task-state action", () => {
     const richText = buildBlocksDiscovery().components.find(
       (component) => component.name === "rich-text",
     );
 
     expect(richText).toBeDefined();
     expect(richText!.types).toHaveLength(10);
-    expect(richText!.actions).toHaveLength(0);
+    expect(richText!.actions.map((entry) => entry.action)).toEqual([
+      "list-item.setChecked",
+    ]);
   });
 });

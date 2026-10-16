@@ -194,6 +194,7 @@ const FAMILY_TOOL_PREFIX: Readonly<Record<string, string>> = {
   "file-explorer": "explorer",
   pseudocode: "pseudo",
   stack: "stack",
+  "list-item": "list_item",
 };
 
 /** Block types whose scalar props are edited directly via set_props. */
