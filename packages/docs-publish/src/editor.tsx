@@ -76,7 +76,7 @@ function createApi(base: string) {
   return {
     url: (route: string) => `${root}/${route}`,
     bundle: (path: string) => request<Bundle>(`bundle?path=${encodeURIComponent(path)}`),
-    tree: () => request<{ tree: DocsTreeNode[] }>('tree'),
+    tree: (signal?: AbortSignal) => request<{ tree: DocsTreeNode[] }>('tree', { signal }),
     canvas: (src: string) => request<{ canvas: unknown }>(`canvas?src=${encodeURIComponent(src)}`),
     sequence: (src: string) => request<{ sequence: unknown }>(`sequence?src=${encodeURIComponent(src)}`),
     ops: (path: string, ops: DocOp[], expectedHash: string) =>
@@ -226,7 +226,7 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
   };
 
   const client: DocsClient = {
-    getDocsTree: () => api.tree(),
+    getDocsTree: (_projectId, options) => api.tree(options?.signal),
     getDocBundle: async (_projectId, bundlePath) => {
       try {
         const payload = await api.bundle(bundlePath);
