@@ -32,3 +32,34 @@ function readEnvFile(): Record<string, string> {
   }
   return values;
 }
+
+/** The Token Burner gateway's OpenAI-compatible base: the fleet's model endpoint (it replaced codex-lb). */
+export const TOKEN_BURNER_DEFAULT_URL = "http://100.104.171.122:8793/v1";
+/** Key files under the home directory, first existing wins: the MacBook's, then services-01's. */
+const TOKEN_BURNER_KEY_FILES = [".config/token-burner/mini-macbook-key", ".config/token-burner/mini-key"];
+
+/** The gateway's /v1 base: TOKEN_BURNER_BASE_URL when set (a bare origin gets /v1), else the default. */
+export function tokenBurnerUrl(): string {
+  const configured = codecaineEnv("TOKEN_BURNER_BASE_URL")?.trim().replace(/\/+$/, "");
+  if (!configured) return TOKEN_BURNER_DEFAULT_URL;
+  try {
+    return new URL(configured).pathname === "/" ? `${configured}/v1` : configured;
+  } catch {
+    return configured;
+  }
+}
+
+/** The gateway key: TOKEN_BURNER_API_KEY, else the first existing key file under the home directory, trimmed. */
+export function tokenBurnerKey(): string | undefined {
+  const fromEnv = codecaineEnv("TOKEN_BURNER_API_KEY")?.trim();
+  if (fromEnv) return fromEnv;
+  for (const file of TOKEN_BURNER_KEY_FILES) {
+    try {
+      const key = readFileSync(join(homedir(), file), "utf8").trim();
+      if (key) return key;
+    } catch {
+      // Missing or unreadable: try the next file.
+    }
+  }
+  return undefined;
+}

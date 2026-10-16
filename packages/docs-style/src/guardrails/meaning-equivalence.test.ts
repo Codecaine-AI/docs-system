@@ -58,7 +58,7 @@ describe("meaning-equivalence", () => {
 
   test.each([
     ["there is no verifier", undefined, "meaning check unavailable: no verifier"],
-    ["the verifier throws", recordingVerifier(new Error("codex-lb returned HTTP 502")), "meaning check unavailable: codex-lb returned HTTP 502"],
+    ["the verifier throws", recordingVerifier(new Error("token-burner returned HTTP 502")), "meaning check unavailable: token-burner returned HTTP 502"],
     ["the verifier says same but names a difference", { compare: async () => ({ same: true, differences: [{ kind: "emphasis", before: "only", after: "", why: "" }], model: "m", ms: 1 }) }, 'differs: emphasis drops "only"'],
     ["the verifier says not same but names nothing", { compare: async () => ({ same: false, differences: [], model: "m", ms: 1 }) }, "differs: the verifier named no difference"],
     ["the verifier gives no verdict", { compare: async () => ({}) as never }, "meaning check unavailable: the verifier gave no verdict"],

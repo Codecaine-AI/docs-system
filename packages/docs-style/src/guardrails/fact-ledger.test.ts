@@ -80,8 +80,8 @@ describe("fact-ledger accepts a rewrite that keeps every fact", () => {
   test.each([
     [
       "a split into a lead and bullets",
-      "Decision: `render` and `grep` never write; backlink commands replace only derived SQLite state at 127.0.0.1:2455/v1.",
-      ["Decision: The commands limit their writes.", "`render` and `grep` never write.", "Backlink commands replace only derived SQLite state at 127.0.0.1:2455/v1."],
+      "Decision: `render` and `grep` never write; backlink commands replace only derived SQLite state at 100.104.171.122:8793/v1.",
+      ["Decision: The commands limit their writes.", "`render` and `grep` never write.", "Backlink commands replace only derived SQLite state at 100.104.171.122:8793/v1."],
     ],
     ["a new first word", "Each block keeps its id in the Global store.", "Every block keeps its id in the Global store."],
     ["a glossary term made plural", "A reviewer accepts the change set.", "Reviewers accept change sets."],

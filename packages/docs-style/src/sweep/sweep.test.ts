@@ -465,11 +465,11 @@ describe("sweep", () => {
 
   test("keeps an autofix out when the verifier cannot answer", async () => {
     const verifier = createFakeVerifier(() => {
-      throw new Error("codex-lb is down");
+      throw new Error("token-burner is down");
     });
     const result = await sweep({ pages: [page("guide", paragraph("wordy", "Run the check in order to find broken links."))], deepPages: new Set(), verifier });
 
-    expect(result.pages[0]!.changes).toMatchObject([{ status: "error", reason: "meaning check failed: codex-lb is down", ops: [] }]);
+    expect(result.pages[0]!.changes).toMatchObject([{ status: "error", reason: "meaning check failed: token-burner is down", ops: [] }]);
     expect(textOf(result, 0, "wordy")).toBe("Run the check in order to find broken links.");
   });
 });

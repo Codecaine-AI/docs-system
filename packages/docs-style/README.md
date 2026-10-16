@@ -76,7 +76,7 @@ Each rule has a layer.
 The pipeline takes two adapters as arguments, so tests run with fakes and real runs use services.
 
 - **Judge** answers yes/no questions. The real adapter calls Jev (TypeSafe System One, `TYPESAFE_API_KEY`).
-- **Rewriter** rewrites one block. The real adapter calls GPT-6 Luna through codex-lb (`127.0.0.1:2455`) and retries on GPT-6.1 Sol.
+- **Rewriter** rewrites one block. The real adapter calls GPT-6 Luna through the Token Burner gateway (`100.104.171.122:8793/v1`, key in `TOKEN_BURNER_API_KEY` or `~/.config/token-burner/mini-macbook-key`) and retries on GPT-6.1 Sol. OpenRouter is the fallback when the gateway does not answer.
 
 ## Commands
 
