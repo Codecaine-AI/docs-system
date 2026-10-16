@@ -1,6 +1,6 @@
 # canvas
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 
@@ -110,6 +110,8 @@ The workbench wires `StandaloneCanvasEmbed` into the slot as a read-only embed:
   - `canvasId: "synthetic"` renders the canvas package's bundled fixture.
 
   - Any other `canvasId` renders an honest unavailable card with an Open Canvas Studio link, because central boards are not stored in the docs repo.
+
+Canvas paints its text in Inter and IBM Plex Mono, which the workbench loads at startup. When those fonts finish loading, the embed lays the board out again, so labels measured before the fonts arrived take their final widths. The canvas docs cover how canvas measures and wraps its labels, starting from Workspace themes.
 
 In the editor, the slash menu entry is **Canvas** (aliases: diagram, drawing). The block is a non-editable atom leaf. Its node view rebuilds the `DocBlock` and calls the same descriptor render the read surface uses, so the block looks identical in view and edit mode. Edit mode's embed adds the Edit in Canvas action.
 

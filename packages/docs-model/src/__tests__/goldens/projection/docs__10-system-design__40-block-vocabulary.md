@@ -12,7 +12,7 @@ A state-shape block carries the shape of state and an example instance side by s
 | --- | --- | --- |
 | paragraph | rich-text | Rich text prose (delta spans). The default block. |
 | heading | rich-text | Section heading. props.level picks h1-h6 (default 2). |
-| list-item | rich-text | Bullet (or ordered) item. Nesting via child list-item blocks. |
+| list-item | rich-text | Bullet, ordered, or checklist item. props.checked marks a task. Nesting via child list-item blocks. |
 | callout | rich-text | Highlighted note. props.tone colors it, props.variant picks the style (eyebrow by default, or hairline, rail, tab), and free-form props.kind names the type. |
 | divider | rich-text | A horizontal rule separating sections. |
 | image | rich-text | Image from the bundle's assets/images/. Props: src, alt, caption. |

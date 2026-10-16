@@ -80,6 +80,8 @@ Text Measurement defines the bundled faces, the measuring backends, and the cond
 
   - Named actions exist only for mutations with positional or keyed collection semantics. Scalar props and block text change through `updateBlock`.
 
+    - The one exception is `list-item.setChecked`, a named verb for checklist state that agents can find. It returns the same props patch as `updateBlock`.
+
 - **Why**
 
   - Actions as data on one registry let any surface list and invoke them, and they make inverses and undo free.

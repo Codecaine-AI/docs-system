@@ -46,6 +46,7 @@
         "b-20-rich-text-carriers-table-13",
         "b-rtfam-actions-h-32",
         "b-rtfam-actions-note-33",
+        "b-rtfam-actions-surface-34",
         "b-rtfam-agentrender-h-40",
         "b-20-rich-text-bridges-out-15",
         "b-20-rich-text-bridges-in-16",
@@ -164,7 +165,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Bullets and numbered lists, nesting via children."
+          "insert": "Bullets, numbered lists, and checklist tasks, nesting via children."
         }
       ],
       "children": []
@@ -958,18 +959,80 @@
       "props": {},
       "text": [
         {
-          "insert": "The rich-text types expose no typed actions, they edit through the generic op kernel (block ops plus delta text edits), not "
+          "insert": "The rich-text types have one typed action, "
         },
         {
-          "insert": "componentAction",
+          "insert": "list-item.setChecked",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " verbs."
+          "insert": ", which sets a list item's task state. Task state is the exception to the rule that scalar props change through "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", because agents look for a named verb to tick a box. The action returns a props patch, so "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "props.checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has the same result. Every other rich-text edit uses the generic block ops and delta text edits."
         }
       ],
+      "children": []
+    },
+    "b-rtfam-actions-surface-34": {
+      "id": "b-rtfam-actions-surface-34",
+      "type": "interaction-surface",
+      "props": {
+        "operations": [
+          {
+            "name": "list-item.setChecked",
+            "kind": "action",
+            "description": "Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.",
+            "params": [
+              {
+                "name": "checked",
+                "type": "boolean",
+                "required": true,
+                "description": "A true value marks the task done (- [x]), and false marks it open (- [ ])."
+              }
+            ],
+            "returns": "ListItemCheckedPatch",
+            "returnShape": {
+              "fields": [
+                {
+                  "name": "checked",
+                  "type": "boolean",
+                  "required": true,
+                  "description": "The new task state. It merges into the block's props, and ordered stays as it was."
+                }
+              ],
+              "example": "{\n  \"checked\": true\n}"
+            },
+            "exampleCall": "list-item.setChecked({\n  checked: true,\n})"
+          }
+        ]
+      },
       "children": []
     },
     "b-rtfam-agentrender-h-40": {

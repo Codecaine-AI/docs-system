@@ -95,6 +95,11 @@
           ],
           [
             "Enter",
+            "Non-empty task item",
+            "Splits into a sibling task item that starts open."
+          ],
+          [
+            "Enter",
             "Empty list item",
             "Outdents one level when nested; converts the top-level item to a paragraph."
           ],
@@ -163,6 +168,10 @@
           [
             "Number plus . plus space",
             "Ordered list item."
+          ],
+          [
+            "[ ] or [x] plus space",
+            "Open or done task item."
           ],
           [
             "---",

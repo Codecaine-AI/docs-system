@@ -135,7 +135,7 @@
           [
             "list-item",
             "rich-text",
-            "Bullet (or ordered) item. Nesting via child list-item blocks."
+            "Bullet, ordered, or checklist item. props.checked marks a task. Nesting via child list-item blocks."
           ],
           [
             "callout",

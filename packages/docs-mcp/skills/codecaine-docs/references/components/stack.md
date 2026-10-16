@@ -1,6 +1,6 @@
 # stack
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
 
@@ -130,6 +130,8 @@ stack.removeBoundary(after: string) -> Props patch with the changed nodes, bound
   - A boundary draws a short dash, the rule sentence in bold ink, and a dash to the right edge. Next to a crossing arrow, the line starts just right of the arrow, so the two never overlap.
 
 - `columns: 2` lays a container's children in a two-column grid. Arrows and boundaries inside it span both columns.
+
+The `layout.stack-detail-fit` warning flags a leaf detail that needs a second line at stock theme settings. A prose detail wraps at 60ch of 13.5px Inter, 506.25px, and each path segment wraps at 60ch of 12px IBM Plex Mono, 432px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in Authoring Lints, the warning never blocks a save.
 
 ## Agent Renderer
 

@@ -1,6 +1,6 @@
 # component-tree
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 Use Component Tree to show which component renders which, and the hooks each one calls. Write each node as JSX or a hook call. Use Call Stack for plain function calls.
 

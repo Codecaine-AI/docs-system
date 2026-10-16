@@ -1,6 +1,6 @@
 # file-explorer
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.
 
@@ -42,6 +42,7 @@ entries: FileTreeEntry[]  # Flat path entries. Folders derive from path prefixes
   note?: string  # One muted line after the name.
   change?: "added" | "removed" | "modified" | "renamed"  # Colors the name and adds an A, D, M, or R badge.
   from?: string  # Previous path when renamed.
+  color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color from the docs color roster. It gives each top-level folder its own color. Any other value fails validation.
 title?: string  # Header title. No header renders without it.
 maxRows?: integer (>= 1)  # Rows shown before folding (default 8).
 ```
@@ -52,13 +53,13 @@ Three actions edit `entries`, keyed by exact path as in File Tree. Each action i
 
 - **addEntry**
 
-  - It appends an entry with an optional note and change marker.
+  - It appends an entry with an optional note, change marker, and color.
 
   - A path that already exists is an error.
 
 - **updateEntry**
 
-  - It patches `note`, `change`, or `from` in place, and `null` clears a field.
+  - It patches `note`, `change`, `from`, or `color` in place, and `null` clears a field.
 
   - `newPath` renames the entry and keeps its position.
 
@@ -67,15 +68,17 @@ Three actions edit `entries`, keyed by exact path as in File Tree. Each action i
   - It deletes by exact path. A missing path is an error.
 
 ```
-file-explorer.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed") -> Props patch { entries }, revalidated against FileExplorerState  # Append a path entry (optional note and change marker) to the file explorer.
+file-explorer.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed", color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> Props patch { entries }, revalidated against FileExplorerState  # Append a path entry (optional note, change marker, and color) to the file explorer.
   path: string  # /-separated path, no leading "./". A trailing "/" marks an explicit directory.
   note?: string  # Short annotation rendered after the path.
   change?: "added" | "removed" | "modified" | "renamed"  # Change marker for the entry.
-file-explorer.updateEntry(path: string, note?: string | null, change?: "added" | "removed" | "modified" | "renamed" | null, from?: string | null, newPath?: string) -> Props patch { entries }, revalidated against FileExplorerState  # Patch an entry's note, change, or from, or rename it in place with newPath.
+  color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color. A directory's color carries to its whole subtree.
+file-explorer.updateEntry(path: string, note?: string | null, change?: "added" | "removed" | "modified" | "renamed" | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> Props patch { entries }, revalidated against FileExplorerState  # Patch an entry's note, change, from, or color, or rename it in place with newPath.
   path: string  # Exact path of the entry to patch.
   note?: string | null  # New note. Pass null to clear.
   change?: "added" | "removed" | "modified" | "renamed" | null  # New change marker. Pass null to clear.
   from?: string | null  # Previous path for a renamed entry. Pass null to clear.
+  color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null  # New group color. Pass null to clear.
   newPath?: string  # Rename the entry to this path, kept in place.
 file-explorer.removeEntry(path: string) -> Props patch { entries }, revalidated against FileExplorerState  # Remove the entry with the given path from the file explorer.
   path: string  # Exact path of the entry to remove.
@@ -97,7 +100,9 @@ Each action returns the props patch `{ entries }`, revalidated against `FileExpl
 
 - Colors read the file tree's `--docs-file-tree-*` tokens, each with a literal fallback.
 
+A directory entry's `color` covers that row and every row beneath it. A descendant's own `color` overrides the inherited one for its subtree. A file entry's `color` covers only that row.
+
 ## Agent Renderer
 
-`fileExplorerAgentView` returns the same fenced `tree` drawing that `projectFileTree` produces for a file tree. When `title` is set, the title leads the drawing in bold.
+`fileExplorerAgentView` returns the same fenced `tree` drawing that `projectFileTree` produces for a file tree. When `title` is set, the title leads the drawing in bold. The drawing omits `color`, which is visual only.
 

@@ -72,6 +72,8 @@ The write authority serializes the whole read–check–apply–write sequence p
 
 The structured bundles (tables, file trees, interaction surfaces, code, and the diagram types) expose named actions for their collections. A `componentAction` carries an action name plus params. The folded registry validates the params schema, applies, and returns the same inverse-op contract as every generic op. Discovery lists the current roster.
 
+Rich text has one action for a scalar prop, `list-item.setChecked`. It gives agents a named verb for the checklist toggle.
+
 **componentAction examples**
 
 ```

@@ -1,12 +1,12 @@
 # Component Selection
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 ### rich-text
 
-Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html
+Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html, app-embed
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -26,7 +26,7 @@ Details: [code](components/code.md). Canonical document: `10-system-design/40-bl
 
 Block types: file-tree
 
-Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject.
+Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Give a top-level folder a color to set its group apart.
 
 Example: Show the service entry point, skills directory, and generated references with a note for each.
 

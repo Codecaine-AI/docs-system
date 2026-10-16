@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf",
+  "snapshotId": "sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -39,7 +39,7 @@
     },
     {
       "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
-      "sha256": "cf3103193fd72d6ea0981a2062bfdfbb04dfa238c5b2ac10d4d2ac64eb79d2e2",
+      "sha256": "0f2d7dbc24a721c0b52e4af21c203803c9c8b43109f707dbbd3f886912aa91e7",
       "kind": "standard"
     },
     {
@@ -59,22 +59,22 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/doc.json",
-      "sha256": "2e25c60962801576ca22be34d773d999a7502b748877d596213ec01cf1645221",
+      "sha256": "f013bc9b1b6c33c235dd9bd0481e1891157625825aece7afe5e883ba2e1bab92",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/10-code-block/doc.json",
-      "sha256": "4bc71fbd7fcbb610b742cc6543f3856698ac34806532614cb400e8047fa6289c",
+      "sha256": "8b21f0d75d11b6e7d59db70d876ed2d397ca1cd11f250e5f7b1b2cc3f18acdd2",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree/doc.json",
-      "sha256": "e1c94fc2cc26c3230253cc6f09c0e3bb1e1f54002912ab2d6c3b05951f779671",
+      "sha256": "22b9a77f235ffa411dfe06f58d44fe9f6341229ef9bc5f5da85db65b18180280",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table/doc.json",
-      "sha256": "8ee5ef97c5b49c32c177133c92bb2085fdfbff82ec9d9e8f3e74f7f0fc1e5406",
+      "sha256": "39109a3806ed5e0962224ac2727042e2708659670ddc111fd4fc3e541b06e2da",
       "kind": "component-doc"
     },
     {
@@ -89,12 +89,12 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/50-canvas/doc.json",
-      "sha256": "216c30fd09bc6434897ebfb8051be1a768a66cec2b1a1e329f282948b32b7016",
+      "sha256": "4b35a905e66ec6527519b1fdf576ce8abb72b80a28fdc53f92440bc6d1c13f29",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/40-sequence/doc.json",
-      "sha256": "ae81d20e427bf1912c919f9f30a29ed6eaf0e0acaa200a72d426a19314d47a96",
+      "sha256": "7fda9c3f4195a5192fc41c3d4385c92654b68efbe04921ecd1d914e5b1cb39f5",
       "kind": "component-doc"
     },
     {
@@ -104,7 +104,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack/doc.json",
-      "sha256": "c30decf3e92973d3e3479cc92acbc36ca55f75b4ff96672ddc85e31f558c0f1d",
+      "sha256": "5f1ef32de44c9429661a301baa68b8b856769229c1cf360fe88ed135ad9e1237",
       "kind": "component-doc"
     },
     {
@@ -124,7 +124,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer/doc.json",
-      "sha256": "d9f5ad16e906ac48e738d07db1386920140d3d65faa3bbd36b86708e9c625de9",
+      "sha256": "44b4e10b986ecc26df1b97c19428a8cf37b3b8f1675961abfc12bc7d3533d388",
       "kind": "component-doc"
     },
     {
@@ -139,12 +139,12 @@
     },
     {
       "path": "packages/docs-model/src/project-markdown.ts",
-      "sha256": "6d64b95b5ca45de88693a51775db9938c132d9865049bf00883bf19be1780045",
+      "sha256": "627066517b8d1d30cfb011de8bd94d9858beeb84cd24c6f6fcc251f228a9ce10",
       "kind": "renderer"
     },
     {
       "path": "packages/docs-model/src/components/rich-text/manifest.ts",
-      "sha256": "830b68468f26e90f888538fbdaeb8497ac239368994ec30a1f494d0aefe39cb9",
+      "sha256": "588b0dadf8a5a99a989c23747cd7e687f75af2ede62c688751f0b21e4ea6c1d4",
       "kind": "component-manifest"
     },
     {
@@ -154,7 +154,7 @@
     },
     {
       "path": "packages/docs-model/src/components/file-tree/manifest.ts",
-      "sha256": "4f0fd1ee444d4aa8d3f521e7f6a77f069f83eaaf8085acabd31054d02866865a",
+      "sha256": "b7b33e0536eb4cdb14445e87afb17ac0141d5353fbc72a3d6a5b7962ad936c0b",
       "kind": "component-manifest"
     },
     {
@@ -209,7 +209,7 @@
     },
     {
       "path": "packages/docs-model/src/components/file-explorer/manifest.ts",
-      "sha256": "556f2a59e3fc2aaaac39e9200efd81693b33ffb1a3ad367e8ca6079d0497cb5f",
+      "sha256": "bac1611d170b818c0d9b8afc75ed07d13e14f192631ab614c530ddccf402fadf",
       "kind": "component-manifest"
     },
     {

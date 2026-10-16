@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -16,9 +16,9 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
 <docs_component_catalog source="docs-model component manifests">
   ### rich-text
 
-  Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html
+  Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html, app-embed
 
-  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
   Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -38,7 +38,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
 
   Block types: file-tree
 
-  Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject.
+  Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Give a top-level folder a color to set its group apart.
 
   Example: Show the service entry point, skills directory, and generated references with a note for each.
 
@@ -155,7 +155,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
   Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer
 </docs_component_catalog>
 <docs_structure_standards source="docs-system corpus · 10-system-design/10-doc-standards">
-  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
+  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
     Within every layer, the docs keep the same substructure.
 
     A tree of bundle folders descending L1–L6
@@ -259,7 +259,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
         - An agent searches along the same explicit structure instead of guessing.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
+  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
     Every doc and folder carries a two-digit prefix, and every listing sorts by it identically, whether in the sidebar, the terminal, or a render.
 
     This page states the scheme, the reserved ranges, and what running out of gap space actually means.
@@ -322,7 +322,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
+  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
     Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose.
 
     This page states the reference object, which directions links run, and the restraint rules against overlinking.
@@ -414,7 +414,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - Every link points at the concept's one home.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
+  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
     Docs point at code with typed source references. Code never points back.
 
     This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
@@ -489,7 +489,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - The reader arrives at the path with the question already framed.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
+  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
     Documentation does not stop at the doc tree. 
 
     Below the doc tree it continues into the source in three units
@@ -561,7 +561,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - Code is read last, and only where the task lives.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
+  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
     The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates.
 
     This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
@@ -672,7 +672,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
+  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
     Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.
 
     ## Structure
@@ -740,8 +740,8 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
     The Diataxis distinction comes from [Diataxis](https://diataxis.fr). The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
-    Authoring lints report writing and page structure problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
+  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
+    Authoring lints report writing, page structure, and layout problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
 
     ## Structure
 
@@ -750,6 +750,8 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
     - **Shared Engine**
 
       - lint/index.ts exports lintDocument and lintRules. lint/engine.ts collects findings, compares a baseline, and formats reports.
+
+      - A rule that throws is skipped and leaves one non-blocking warning that names the error. One broken check never fails a save, an audit, or `docs_check`, and never hides the other rules' findings.
 
     - **Writing Rules**
 
@@ -762,6 +764,14 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
       - page-structure/rules.ts registers rule folders with checks and tests derived from Structure.
 
       - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers.
+
+    - **Layout Rules**
+
+      - layout/rules.ts registers the layout rules. layout/metrics.ts holds the stock widths the viewer lays blocks out with, and drift tests in docs-viewer and docs-workbench keep both copies equal.
+
+      - The rules measure text with the bundled Inter and IBM Plex Mono faces through `@codecaine-ai/text-measure`, against the lanes and sizes of the stock theme. A theme or style-rail pick that changes them makes the findings describe stock settings, and each message says so.
+
+      - The docs MCP service, docs-cli, and docs-server load the exact HarfBuzz backend of text-measure at startup. Without it the rules still run and call their widths approximate, as Text Measurement explains.
 
     - **Other Owners**
 
@@ -859,7 +869,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
 
         - Nested supporting details remain valid. Review whether a branch needs its own section.
 
-      - structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes do not count, and the item count is part of the evidence.
+      - structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes and runs made only of task items do not count, and the item count is part of the evidence.
 
       - structure.list-item-sentences flags a list item whose own text has three or more sentences. Nested items are checked separately.
 
@@ -885,15 +895,29 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
 
       - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
+    - **Layout Warnings**
+
+      - `layout.code-line-width` flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column.
+
+        - The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns.
+
+      - layout.table-fit flags a structured table whose columns cannot shrink to the width it has on screen, so it scrolls sideways. It also flags text that cannot wrap inside its column in PDF export, where every column gets an equal share of the page.
+
+      - layout.stack-detail-fit flags a stack leaf detail that needs a second line at its 60ch cap, or at its card's width inside two-column containers.
+
+      - A finding within 1px of the edge says the content may overflow. Characters the bundled fonts lack never count as an overflow, and a finding that rests on them calls its widths approximate.
+
+      - The layout rules are warnings with no enforcement phase and stay out of `STYLE_RULE_POLICY`, so they never block a save or `docs_check`.
+
     ## Judgment Rules
 
     Judgment rules are style checks that a model answers. Jev, the TypeSafe System One model, returns a calibrated probability for each typed question about a block.
 
     - **Rule IDs**
 
-      - `judgment.packed-bullet` asks whether a bullet without sub-bullets holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix.
+      - `judgment.packed-bullet` asks whether a bullet without sub-bullets or a task box holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix.
 
-      - `judgment.flat-hierarchy` asks whether a run of three or more flat top-level bullets is a wall of text that needs bold-label parents. It judges the run once, on its first item.
+      - `judgment.flat-hierarchy` asks whether a run of three or more flat top-level bullets, none of them task items, is a wall of text that needs bold-label parents. It judges the run once, on its first item.
 
       - `judgment.join-test` asks whether a paragraph and the list right after it fail to read as prose.
 
@@ -926,7 +950,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
   </doc>
 </docs_structure_standards>
 <docs_style_guide source="docs-system corpus · 99-appendix/10-style-guide">
-  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
+  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
     Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The STE Profile adds stricter word and sentence limits to these rules.
 
     - Lead with the fact.
@@ -1182,7 +1206,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
     5. Replace inflated language with facts, verify paths and claims, and repair required lint findings.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
+  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
     Page structure carries meaning through bullets, lists, headings, titles, and openings. The join test keeps bullet groups complete enough to read as prose.
 
     - **Bullets Carry Prose Meaning**
@@ -1240,7 +1264,7 @@ Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443
     - Give every image nonempty alt text that describes the information it contributes.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/workspace/codecaine/core/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
+  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/.t3/worktrees/docs-system/feat-checklist-list-items/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
     The STE profile is our software version of ASD-STE100, the Simplified Technical English standard. It sets the word, sentence, and punctuation rules for every page in this corpus. The goal is text that a reader understands on the first read, at a 6th to 7th grade reading level.
 
     > **Proposed: Not enforced yet** — No lint enforces this profile yet. The Open Decisions section at the end needs an owner ruling, and each row shows its proposed default.

@@ -980,6 +980,37 @@
           "insert": "."
         }
       ],
+      "children": [
+        "b-dm-actions-d-4-checklist"
+      ]
+    },
+    "b-dm-actions-d-4-checklist": {
+      "id": "b-dm-actions-d-4-checklist",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The one exception is "
+        },
+        {
+          "insert": "list-item.setChecked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a named verb for checklist state that agents can find. It returns the same props patch as "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
       "children": []
     },
     "b-dm-actions-w": {

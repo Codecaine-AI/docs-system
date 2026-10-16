@@ -46,6 +46,13 @@ test("guidance topics split the snapshot into whole pages without losing text", 
   expect([...lines].filter(line => !split.includes(line))).toEqual([]);
 });
 
+test("components topic tells agents when to use a checklist and how to tick it", async () => {
+  const components = guidanceTopics(await loadGuidance()).find(topic => topic.topic === "components")?.text ?? "";
+  expect(components).toContain("checklist");
+  expect(components).toContain("checked");
+  expect(components).toContain("docs_list_item_set_checked");
+});
+
 test("registered components cannot silently omit selection guidance", () => {
   expect(() => componentGuidance([{ name: "custom", ownedTypes: ["code"], description: "Custom" }])).toThrow("has no authoring guidance");
 });

@@ -93,7 +93,7 @@
                 }
               }
             ],
-            "Bullets and numbered lists, nested through children.",
+            "Bullets, numbered lists, and checklists, nested through children.",
             [
               {
                 "insert": "List item",

@@ -1,8 +1,8 @@
 # rich-text
 
-Generated from Codecaine Docs sources. Snapshot: `sha256:df3a4be4499081f6aeab443ed890b96811fe78b263b4e16687f66296bf815cbf`. Refresh the installation to regenerate these files.
+Generated from Codecaine Docs sources. Snapshot: `sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12`. Refresh the installation to regenerate these files.
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -22,7 +22,7 @@ When creating or revising a worked component example, show the relevant state sh
 
 - list-item
 
-  - Bullets and numbered lists, nesting via children.
+  - Bullets, numbered lists, and checklist tasks, nesting via children.
 
 - callout
 
@@ -36,7 +36,7 @@ The media types embed bundle assets, provider videos, and sandboxed HTML.
 
 - image
 
-  - Bundle-asset image with caption.
+  - Bundle-asset image in a framed panel with a full-screen viewer.
 
 - video
 
@@ -166,7 +166,22 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 
 ## Typed Actions
 
-The rich-text types expose no typed actions, they edit through the generic op kernel (block ops plus delta text edits), not `componentAction` verbs.
+The rich-text types have one typed action, `list-item.setChecked`, which sets a list item's task state. Task state is the exception to the rule that scalar props change through `updateBlock`, because agents look for a named verb to tick a box. The action returns a props patch, so `updateBlock` with `props.checked` has the same result. Every other rich-text edit uses the generic block ops and delta text edits.
+
+```
+list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
+  checked: boolean  # A true value marks the task done (- [x]), and false marks it open (- [ ]).
+  Example call:
+    list-item.setChecked({
+      checked: true,
+    })
+  Returns ListItemCheckedPatch:
+    checked: boolean  # The new task state. It merges into the block's props, and ordered stays as it was.
+  Example:
+    {
+      "checked": true
+    }
+```
 
 ## Agent Renderer
 

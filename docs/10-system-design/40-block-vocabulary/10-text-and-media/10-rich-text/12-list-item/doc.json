@@ -14,16 +14,29 @@
         "b-12-list-item-example-bullet-21",
         "b-12-list-item-example-ordered-23",
         "b-12-list-item-example-ordered2-24",
+        "b-12-list-item-example-tasks-lead-26",
+        "b-12-list-item-example-task-open-27",
+        "b-12-list-item-example-task-done-28",
         "b-12-list-item-state-h-3",
         "b-12-list-item-state-shape-25",
         "b-12-list-item-state-note-5",
         "b-12-list-item-editor-h-8",
         "b-12-list-item-editor-9",
+        "b-12-list-item-editor-tasks-13",
+        "b-12-list-item-editor-task-click-14",
+        "b-12-list-item-editor-task-slash-15",
+        "b-12-list-item-editor-task-input-16",
+        "b-12-list-item-editor-task-enter-17",
+        "b-12-list-item-editor-task-readonly-18",
         "b-12-list-item-proj-h-6",
         "b-12-list-item-proj-7",
+        "b-12-list-item-proj-tasks-19",
         "b-12-list-item-agent-h-10",
         "b-12-list-item-agent-1-11",
         "b-12-list-item-agent-2-12",
+        "b-12-list-item-agent-tasks-use-20",
+        "b-12-list-item-agent-tasks-toggle-21",
+        "b-12-list-item-agent-tasks-lint-22",
         "b-12-list-item-theming-heading",
         "b-12-list-item-theming-para",
         "b-12-list-item-theming-table"
@@ -66,6 +79,18 @@
         },
         {
           "insert": " blocks, not by markup."
+        },
+        {
+          "insert": " An item with "
+        },
+        {
+          "insert": "checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " set is a checklist task with a box."
         }
       ],
       "children": []
@@ -142,6 +167,70 @@
       ],
       "children": []
     },
+    "b-12-list-item-example-tasks-lead-26": {
+      "id": "b-12-list-item-example-tasks-lead-26",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A checklist is a run of items with "
+        },
+        {
+          "insert": "checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " set."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-example-task-open-27": {
+      "id": "b-12-list-item-example-task-open-27",
+      "type": "list-item",
+      "props": {
+        "checked": false
+      },
+      "text": [
+        {
+          "insert": "An open task ("
+        },
+        {
+          "insert": "checked: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-example-task-done-28": {
+      "id": "b-12-list-item-example-task-done-28",
+      "type": "list-item",
+      "props": {
+        "checked": true
+      },
+      "text": [
+        {
+          "insert": "A done task ("
+        },
+        {
+          "insert": "checked: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ")."
+        }
+      ],
+      "children": []
+    },
     "b-12-list-item-state-h-3": {
       "id": "b-12-list-item-state-h-3",
       "type": "heading",
@@ -159,14 +248,20 @@
       "id": "b-12-list-item-state-shape-25",
       "type": "state-shape",
       "props": {
-        "description": "Closed schema with ordered as the only prop.",
-        "example": "{\n  \"ordered\": true\n}",
+        "description": "Closed schema with two optional props, ordered and checked.",
+        "example": "{\n  \"ordered\": true,\n  \"checked\": false\n}",
         "fields": [
           {
             "name": "ordered",
             "type": "boolean",
             "required": false,
             "description": "true renders a numbered item; absent or false renders a bullet."
+          },
+          {
+            "name": "checked",
+            "type": "boolean",
+            "required": false,
+            "description": "Task state. Absent renders an ordinary item, false an open task, and true a done task. It works with ordered."
           }
         ],
         "name": "ListItemState",
@@ -284,6 +379,99 @@
       ],
       "children": []
     },
+    "b-12-list-item-editor-tasks-13": {
+      "id": "b-12-list-item-editor-tasks-13",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A task item draws a box before its text. A done task shows a ticked box and muted text."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-editor-task-click-14": {
+      "id": "b-12-list-item-editor-task-click-14",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Click the box in the editor to toggle the task."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-editor-task-slash-15": {
+      "id": "b-12-list-item-editor-task-slash-15",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The slash menu lists "
+        },
+        {
+          "insert": "To-do list",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", which starts an open task."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-editor-task-input-16": {
+      "id": "b-12-list-item-editor-task-input-16",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "At the start of a line, "
+        },
+        {
+          "insert": "[ ]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "[x]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus a space starts an open or a done task."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-editor-task-enter-17": {
+      "id": "b-12-list-item-editor-task-enter-17",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enter on a task item starts a new open task."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-editor-task-readonly-18": {
+      "id": "b-12-list-item-editor-task-readonly-18",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The viewer and published pages show the box, but a click does not toggle it. These read-only surfaces have no op channel."
+        }
+      ],
+      "children": []
+    },
     "b-12-list-item-proj-h-6": {
       "id": "b-12-list-item-proj-h-6",
       "type": "heading",
@@ -331,6 +519,53 @@
         },
         {
           "insert": ", indented two spaces per nesting depth. Numbering is computed per consecutive run of list-item siblings. A non-list sibling resets the run, so an ordered list always restarts at 1 after an interruption. A list-item's children render as nested list lines (depth + 1) instead of flowing back to depth zero."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-proj-tasks-19": {
+      "id": "b-12-list-item-proj-tasks-19",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A task item adds a box after its marker: "
+        },
+        {
+          "insert": "- [ ]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for an open task and "
+        },
+        {
+          "insert": "- [x]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for a done task. An ordered task renders as "
+        },
+        {
+          "insert": "1. [ ]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Migration reads GitHub task-list syntax back into "
+        },
+        {
+          "insert": "checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -384,6 +619,84 @@
       "text": [
         {
           "insert": "Ordered numbering is derived at render time from sibling position. There is no stored number to keep in sync."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-agent-tasks-use-20": {
+      "id": "b-12-list-item-agent-tasks-use-20",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use a checklist to track open and done work, such as an install checklist or a release checklist. Use plain bullets for facts and for steps nobody ticks off."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-agent-tasks-toggle-21": {
+      "id": "b-12-list-item-agent-tasks-toggle-21",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tick a task with "
+        },
+        {
+          "insert": "docs_list_item_set_checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "{ checked: true }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". An "
+        },
+        {
+          "insert": "updateBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " patch of "
+        },
+        {
+          "insert": "props.checked",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "docs_apply_ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " has the same result."
+        }
+      ],
+      "children": []
+    },
+    "b-12-list-item-agent-tasks-lint-22": {
+      "id": "b-12-list-item-agent-tasks-lint-22",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The flat-hierarchy, packed-bullet, and list-length lint rules skip task items. A checklist can be long, and short imperative items are fine."
         }
       ],
       "children": []

@@ -12,7 +12,7 @@ When creating or revising a worked component example, show the relevant state sh
 
 - list-item
 
-  - Bullets and numbered lists, nesting via children.
+  - Bullets, numbered lists, and checklist tasks, nesting via children.
 
 - callout
 
@@ -156,7 +156,22 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 
 ## Typed Actions
 
-The rich-text types expose no typed actions, they edit through the generic op kernel (block ops plus delta text edits), not `componentAction` verbs.
+The rich-text types have one typed action, `list-item.setChecked`, which sets a list item's task state. Task state is the exception to the rule that scalar props change through `updateBlock`, because agents look for a named verb to tick a box. The action returns a props patch, so `updateBlock` with `props.checked` has the same result. Every other rich-text edit uses the generic block ops and delta text edits.
+
+```
+list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
+  checked: boolean  # A true value marks the task done (- [x]), and false marks it open (- [ ]).
+  Example call:
+    list-item.setChecked({
+      checked: true,
+    })
+  Returns ListItemCheckedPatch:
+    checked: boolean  # The new task state. It merges into the block's props, and ordered stays as it was.
+  Example:
+    {
+      "checked": true
+    }
+```
 
 ## Agent Renderer
 
