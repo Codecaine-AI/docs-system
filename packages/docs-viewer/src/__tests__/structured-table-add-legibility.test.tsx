@@ -8,7 +8,7 @@ import {
   columnsFlashRange,
   rowsFlashRange,
 } from "../components/structured-table/editor/BirthFlash";
-import { EditableCell, getCellEditor } from "../components/structured-table/editor/EditableCell";
+import { EditableCell, ensureCellEditor } from "../components/structured-table/editor/EditableCell";
 import {
   buildColumnMenuItems,
   buildRowMenuItems,
@@ -361,7 +361,7 @@ describe("header ghost placeholder", () => {
     const cell = container.querySelector<HTMLElement>('[role="textbox"]')!;
     expect(container.querySelector("[data-cell-placeholder]")?.textContent).toBe("Column 1");
 
-    const editor = getCellEditor(cell)!;
+    const editor = ensureCellEditor(cell)!;
     act(() => {
       editor.commands.insertContentAt(1, "Name");
     });
