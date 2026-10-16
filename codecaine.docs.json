@@ -1,0 +1,9 @@
+{
+  "id": "ent_01M4F6XQR30BTS26S5HR6TBPDZ",
+  "name": "Docs System",
+  "kind": "core",
+  "docsRoot": "docs",
+  "products": [
+    "docs"
+  ]
+}
