@@ -106,6 +106,12 @@ export type DocEditorProps = {
    * observer treats them as drift and strips them (see changed-flash.ts).
    */
   changedBlockIds?: ReadonlySet<string>;
+  /**
+   * Filled with a function that saves pending edits now: it waits for a save
+   * already in flight, then saves what is still dirty (paused saves stay
+   * paused) and resolves when that save settles. Cleared on unmount.
+   */
+  flushRef?: { current: (() => Promise<void>) | null };
 };
 
 // D22: draft locks are dumb TTL (2-5 min), heartbeat-refreshed. Renewing
@@ -143,6 +149,7 @@ export default function DocEditor({
   autoSaveDelayMs,
   onSaveStateChange,
   changedBlockIds,
+  flushRef,
 }: DocEditorProps) {
   // The doc this editing session's diff is computed against. Advances to the
   // freshly-saved doc after a successful save; left untouched on failure
@@ -175,6 +182,8 @@ export default function DocEditor({
   isDirtyRef.current = isDirty;
   const isSavingRef = useRef(isSaving);
   isSavingRef.current = isSaving;
+  // Settles when the save in flight (if any) finishes; flushRef waits on it.
+  const inFlightSaveRef = useRef<Promise<void> | null>(null);
   const saveErrorRef = useRef(saveError);
   saveErrorRef.current = saveError;
   const lockConflictRef = useRef(lockConflict);
@@ -489,7 +498,9 @@ export default function DocEditor({
   }, [sessionId]);
 
   const handleSave = useCallback(async () => {
-    if (!editor || isSaving) return;
+    // The ref, not the render-captured state: a flush awaiting the previous
+    // save calls in before the re-render that clears isSaving.
+    if (!editor || isSavingRef.current) return;
     // This save subsumes any pending debounce; edits arriving while it is in
     // flight start a fresh window (via the seq-counter reschedule below).
     cancelPendingAutoSave();
@@ -503,6 +514,7 @@ export default function DocEditor({
       // release it and clear the conflict exactly as a successful save does,
       // or the lock sits held until its TTL lapses and blocks other sessions.
       setIsDirty(false);
+      isDirtyRef.current = false;
       const release = client?.releaseDraftLock?.bind(client);
       if (projectId && documentPath && release) {
         void Promise.resolve(acquireInFlightRef.current)
@@ -518,6 +530,10 @@ export default function DocEditor({
     // scheduling decisions below run inside this same async function, before
     // any re-render has refreshed the mirror.
     isSavingRef.current = true;
+    let settleInFlight: () => void = () => {};
+    inFlightSaveRef.current = new Promise<void>((resolve) => {
+      settleInFlight = resolve;
+    });
     setSaveError(null);
     // Deferred past the `finally` so the fresh debounce window is armed
     // AFTER isSavingRef is false again (scheduleAutoSave skips while saving).
@@ -569,6 +585,7 @@ export default function DocEditor({
           rescheduleAfter = true;
         } else {
           setIsDirty(false);
+          isDirtyRef.current = false;
           if (projectId && documentPath) {
             void client?.releaseDraftLock?.(projectId, documentPath, "doc", sessionId).catch(
               () => {},
@@ -587,6 +604,8 @@ export default function DocEditor({
     } finally {
       setIsSaving(false);
       isSavingRef.current = false;
+      inFlightSaveRef.current = null;
+      settleInFlight();
     }
     if (rescheduleAfter) scheduleAutoSaveRef.current();
   }, [
@@ -600,6 +619,20 @@ export default function DocEditor({
     cancelPendingAutoSave,
   ]);
   handleSaveRef.current = handleSave;
+
+  // Host-driven flush: finish the save in flight, then save what is still
+  // pending. A paused save (409 / lock conflict) is not retried.
+  useEffect(() => {
+    if (!flushRef) return;
+    flushRef.current = async () => {
+      if (inFlightSaveRef.current) await inFlightSaveRef.current;
+      if (!isDirtyRef.current || saveErrorRef.current?.stale || lockConflictRef.current) return;
+      await handleSaveRef.current();
+    };
+    return () => {
+      flushRef.current = null;
+    };
+  }, [flushRef]);
 
   // Cmd/Ctrl+S saves instead of triggering the browser's Save dialog.
   useEffect(() => {

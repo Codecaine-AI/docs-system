@@ -30,7 +30,14 @@ export type DraftEditorOptions = {
   /** Resolves `app-embed` blocks to URLs. Omit it, or return null, and the block shows "App not available here". */
   appEmbeds?: AppEmbedHost;
 };
-export type DraftEditorHandle = { reload(): Promise<void>; destroy(): void };
+/**
+ * `flush()` saves pending edits now and resolves once every save and lock
+ * release it started has settled. `destroy()` unmounts at once (the editor's
+ * unmount flush starts the final save) and resolves once that save and the
+ * draft-lock release have settled. Neither ever rejects: a failure is logged
+ * with its reason, and callers may ignore the promise.
+ */
+export type DraftEditorHandle = { reload(): Promise<void>; flush(): Promise<void>; destroy(): Promise<void> };
 
 type Bundle = { doc: DocDocument; doc_hash: string; document_path?: string };
 class HttpError extends Error {
@@ -140,13 +147,14 @@ function ProxySequence({ api, input }: { api: Api; input: { id: string; sequence
 
 type HostProps = {
   api: Api; path: string; projectId: string; doc: DocDocument; client: DocsClient;
+  flushRef: { current: (() => Promise<void>) | null };
   onApplyOps: (ops: DocOp[]) => Promise<DocBlockSaveResult>;
   onReloadDoc: () => void;
   onSaveStateChange: (state: DocEditorSaveState) => void;
   appEmbeds?: AppEmbedHost;
 };
 
-function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onReloadDoc, onSaveStateChange, appEmbeds }: HostProps) {
+function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyOps, onReloadDoc, onSaveStateChange, appEmbeds }: HostProps) {
   const resolveAssetSrc = useCallback((src: string) => isAbsoluteUrl(src) ? src : api.url(`asset?path=${encodeURIComponent(resolveBundleAssetSrc(path, src))}`), [api, path]);
   const renderCanvas = useCallback((input: { id: string; canvasId?: string; src?: string; view?: string; title?: string }) =>
     <ProxyCanvas api={api} input={{ ...input, src: input.src ? resolveBundleCanvasSrc(path, input.src) : undefined }} />, [api, path]);
@@ -173,6 +181,7 @@ function DraftEditorHost({ api, path, projectId, doc, client, onApplyOps, onRelo
           onApplyOps={onApplyOps}
           onReloadDoc={onReloadDoc}
           onSaveStateChange={onSaveStateChange}
+          flushRef={flushRef}
           autoSave
         />
       </div>
@@ -220,6 +229,32 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
     lastReported = key;
     onStatus?.(status, detail);
   };
+  // Every save and lock release in flight, so flush() and destroy() can
+  // resolve only after the last one settles. Failures after destroy() have
+  // no status UI left, so they are logged with their reason instead.
+  const pending = new Set<Promise<unknown>>();
+  const track = <T,>(promise: Promise<T>, what: string, failed?: (value: T) => string | null): Promise<T> => {
+    pending.add(promise);
+    promise.then(
+      value => {
+        pending.delete(promise);
+        const reason = failed?.(value);
+        if (reason && destroyed) console.warn(`[docs-publish] ${what} for ${path} failed: ${reason}`);
+      },
+      error => {
+        pending.delete(promise);
+        if (destroyed) console.warn(`[docs-publish] ${what} for ${path} failed: ${error instanceof Error ? error.message : String(error)}`);
+      },
+    );
+    return promise;
+  };
+  // A settled save can start a lock release in its continuation, so drain
+  // until nothing new appears.
+  const settle = async () => {
+    while (pending.size > 0) await Promise.allSettled([...pending]);
+  };
+  const flushRef: { current: (() => Promise<void>) | null } = { current: null };
+
   const trackLock = (result: AcquireDraftLockResult) => {
     lockHeldBy = result.ok ? null : result.heldBy.expiresAt;
     return result;
@@ -238,10 +273,10 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
     // DocEditor mints a per-mount lock id; substitute the tab id so locks and ops agree.
     acquireDraftLock: (_projectId, lockPath, kind) => api.acquire(lockPath, kind).then(trackLock),
     heartbeatDraftLock: (_projectId, lockPath, kind) => api.heartbeat(lockPath, kind).then(trackLock),
-    releaseDraftLock: (_projectId, lockPath, kind) => api.release(lockPath, kind),
+    releaseDraftLock: (_projectId, lockPath, kind) => track(api.release(lockPath, kind), 'draft-lock release'),
   };
 
-  const onApplyOps = async (ops: DocOp[]): Promise<DocBlockSaveResult> => {
+  const applyOps = async (ops: DocOp[]): Promise<DocBlockSaveResult> => {
     try {
       const response = await api.ops(path, ops, hash);
       hash = response.hash;
@@ -266,6 +301,8 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
     }
   };
 
+  const onApplyOps = (ops: DocOp[]) => track(applyOps(ops), 'save', result => result.ok ? null : result.message);
+
   const loadAndSeed = async (force: boolean) => {
     const next = await api.bundle(path);
     if (destroyed) return;
@@ -284,21 +321,33 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
   const root: Root = createRoot(container);
   function render() {
     if (destroyed) return;
-    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} appEmbeds={appEmbeds} />);
+    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} flushRef={flushRef} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} appEmbeds={appEmbeds} />);
   }
   render();
 
+  let destroying: Promise<void> | null = null;
   return {
     async reload() {
       if (destroyed || editorState !== 'saved') return;
       await loadAndSeed(false);
     },
+    async flush() {
+      try {
+        await flushRef.current?.();
+      } catch (error) {
+        console.warn(`[docs-publish] flush for ${path} failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      await settle();
+    },
     destroy() {
-      if (destroyed) return;
-      // Unmount first: DocEditor's unmount flush still saves pending edits.
+      if (destroying) return destroying;
+      // Unmount first: DocEditor's unmount flush still saves pending edits
+      // (synchronously starting the request, which `track` picks up).
       root.unmount();
       destroyed = true;
       container.classList.remove('docs-draft-editor');
+      destroying = settle();
+      return destroying;
     },
   };
 }
