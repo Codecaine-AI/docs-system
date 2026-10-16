@@ -41,7 +41,8 @@ import { referenceMentionPluginKey } from "../menus/reference-node";
  *   Notion walks back up the levels; a non-empty list item splits into a
  *   sibling list item carrying the same `ordered` attr.
  * - Enter inside `docCodeBlock` inserts a newline; Mod-Enter exits to a new
- *   paragraph sibling after the code block.
+ *   paragraph sibling after the code block. In a task list item Mod-Enter
+ *   toggles its checkbox, and Enter's split tail is a new OPEN task.
  * - Enter on a RANGED text selection deletes the range first, then applies
  *   the cursor rules above at the collapse point, all in ONE transaction
  *   (select-then-Enter replaces the selection with a block boundary, never
@@ -189,11 +190,14 @@ function applyEnterAtCursor(tr: Transaction, schema: Schema): boolean {
       return true;
     }
     // Non-empty: split into a new sibling list item with the same `ordered`
-    // block type; fresh identity (id minted on save).
+    // block type; fresh identity (id minted on save). A task item's tail is
+    // a new OPEN task (Notion/GitHub: the next to-do starts unchecked); a
+    // plain item's tail stays plain (`checked` null = absent).
     return splitIntoSibling(tr, schema, block.type, {
       blockId: null,
       blockProps: {},
       ordered: block.attrs.ordered ?? null,
+      checked: typeof block.attrs.checked === "boolean" ? false : null,
     });
   }
 
@@ -244,13 +248,30 @@ function handleEnter(editor: Editor): boolean {
   return true;
 }
 
-/** Mod-Enter: exit a code block into a fresh paragraph sibling after it. */
+/**
+ * Mod-Enter: exit a code block into a fresh paragraph sibling after it; in a
+ * task list item's own text, toggle its checkbox (the keyboard path to the
+ * box — the marker itself is contenteditable=false and takes no focus).
+ * Converting the paragraph/heading/list item to and from a task item is the
+ * `[ ] ` input rule and the slash menu's job, so Mod-Enter only toggles.
+ */
 function handleModEnter(editor: Editor): boolean {
   const { state, view } = editor;
   const { selection } = state;
   if (!selection.empty || !(selection instanceof TextSelection)) return false;
   const { $from } = selection;
-  if ($from.parent.type.name !== "docCodeBlock") return false;
+  if ($from.parent.type.name !== "docCodeBlock") {
+    const cursor = resolveWrapperCursor(selection);
+    if (!cursor || cursor.block.type.name !== "docListItem") return false;
+    if (typeof cursor.block.attrs.checked !== "boolean") return false;
+    view.dispatch(
+      state.tr.setNodeMarkup($from.before(cursor.blockDepth), undefined, {
+        ...cursor.block.attrs,
+        checked: !cursor.block.attrs.checked,
+      }),
+    );
+    return true;
+  }
   const tr = state.tr;
   if (!insertEmptyParagraph(tr, state.schema, $from.after($from.depth), true)) return false;
   view.dispatch(tr.scrollIntoView());

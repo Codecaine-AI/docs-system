@@ -4534,7 +4534,14 @@ describe("style rail rich-text block tokens", () => {
     },
     "list-item": {
       pane: "List item",
-      colors: { marker: "--docs-list-marker-fg", fg: "--docs-list-item-fg" },
+      colors: {
+        marker: "--docs-list-marker-fg",
+        fg: "--docs-list-item-fg",
+        taskBorder: "--docs-list-task-border",
+        taskFill: "--docs-list-task-fill",
+        taskCheck: "--docs-list-task-check",
+        taskDoneFg: "--docs-list-task-done-fg",
+      },
       lengths: {
         itemGap: { cssVar: "--docs-list-item-gap", min: 0, max: 24, step: 0.5, defaultValue: 4 },
       },
@@ -4671,6 +4678,10 @@ describe("style rail rich-text block tokens", () => {
     h2Size: "H2 size (em)",
     h3Size: "H3 size (em)",
     itemGap: "Item gap",
+    taskBorder: "Task box",
+    taskFill: "Task box done",
+    taskCheck: "Task check",
+    taskDoneFg: "Done text",
     borderWidth: "Border width",
     indent: "Indent",
     padY: "Padding Y",

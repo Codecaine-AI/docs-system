@@ -98,6 +98,12 @@
   --docs-list-marker-fg: var(--docs-muted);
   --docs-list-item-fg: var(--docs-text);
   --docs-list-item-gap: var(--ds-space-1);
+  /* Task-item checkbox: the open box outline follows the marker ink (3:1),
+     the done box is the accent with the on-solid tick, done text is muted. */
+  --docs-list-task-border: var(--docs-list-marker-fg);
+  --docs-list-task-fill: var(--docs-accent);
+  --docs-list-task-check: var(--docs-tile-glyph);
+  --docs-list-task-done-fg: var(--docs-muted);
   /* Dark code panel = the VS Code Dark+ editor surface (#1E1E1E), so the
      Dark+ token colors sit on the background they were designed for. */
   --docs-code-block-bg: var(--ds-dark-color-code-bg);

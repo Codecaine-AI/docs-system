@@ -33,7 +33,7 @@ const TEST_NODES = [
   DocDivider,
 ];
 
-function createEditor(text = "", attrs: Record<string, unknown> = {}) {
+function createEditor(text = "", attrs: Record<string, unknown> = {}, type = "docParagraph") {
   const editor = new Editor({
     extensions: [
       StarterKit.configure({
@@ -65,7 +65,7 @@ function createEditor(text = "", attrs: Record<string, unknown> = {}) {
       type: "doc",
       content: [
         {
-          type: "docParagraph",
+          type,
           attrs,
           content: [
             {
@@ -110,8 +110,13 @@ function typeChar(editor: Editor, triggerChar: string) {
   }
 }
 
-function trigger(textBefore: string, triggerChar: string, attrs: Record<string, unknown> = {}) {
-  const editor = createEditor(textBefore, attrs);
+function trigger(
+  textBefore: string,
+  triggerChar: string,
+  attrs: Record<string, unknown> = {},
+  type = "docParagraph",
+) {
+  const editor = createEditor(textBefore, attrs, type);
   typeChar(editor, triggerChar);
   const json = editor.getJSON();
   const selectionParent = editor.state.selection.$from.node(-1)?.type.name ?? null;
@@ -228,6 +233,42 @@ describe("buildDocInputRules", () => {
       type: "docListItem",
       attrs: { blockId: null, blockProps: {}, ordered: null },
     });
+  });
+
+  it("converts [ ] to an open task item and [x] to a done one", () => {
+    for (const [typed, checked] of [["[ ]", false], ["[]", false], ["[x]", true], ["[X]", true]] as const) {
+      const { json } = trigger(typed, " ", { blockId: "b-task" });
+      expect(firstBlock(json)).toMatchObject({
+        type: "docListItem",
+        attrs: { blockId: "b-task", blockProps: {}, ordered: null, checked },
+      });
+      // The trigger text is consumed.
+      expect(blockText(json)?.content).toBeUndefined();
+    }
+  });
+
+  it("turns a plain bullet or numbered item into a task item, keeping its id and ordered flag", () => {
+    const bullet = trigger("[ ]", " ", { blockId: "li-1", ordered: null }, "docListItem");
+    expect(firstBlock(bullet.json)).toMatchObject({
+      type: "docListItem",
+      attrs: { blockId: "li-1", ordered: null, checked: false },
+    });
+    const numbered = trigger("[x]", " ", { blockId: "li-2", ordered: true }, "docListItem");
+    expect(firstBlock(numbered.json)).toMatchObject({
+      type: "docListItem",
+      attrs: { blockId: "li-2", ordered: true, checked: true },
+    });
+  });
+
+  it("leaves [x] typed at the start of an existing task item as text", () => {
+    const { json } = trigger("[x]", " ", { blockId: "li-3", checked: false }, "docListItem");
+    expect(firstBlock(json)?.attrs?.checked).toBe(false);
+    expect(firstText(json)).toMatchObject({ type: "text", text: "[x] " });
+  });
+
+  it("does not convert [ ] typed mid-paragraph", () => {
+    const { json } = trigger("todo [ ]", " ");
+    expect(firstBlock(json)?.type).toBe("docParagraph");
   });
 
   it("converts ordered trigger to an ordered docListItem", () => {

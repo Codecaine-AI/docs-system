@@ -126,6 +126,22 @@ describe("page lanes", () => {
   });
 });
 
+describe("task list items", () => {
+  test("the checkbox sits inside the marker column and leaves the row metrics alone", () => {
+    const markers = readFileSync(new URL("../styles/list-markers.css", import.meta.url), "utf8");
+    const markerBox = declarations(markers, ".docs-markdown [data-doc-checked] > [data-doc-list-marker]");
+    // The task marker only gains a positioning context: no width, padding or
+    // margin of its own, so the column stays the nested inset.
+    expect(Object.keys(markerBox)).toEqual(["position"]);
+    const box = declarations(markers, ".docs-markdown [data-doc-checked] > [data-doc-list-marker]::before");
+    // 16px, capped at the (rail-adjustable) column width so it never overflows.
+    expect(box.width).toBe("min(var(--ds-space-4), var(--docs-list-indent, 1.5rem))");
+    expect(box.height).toBe(box.width);
+    expect(16).toBeLessThanOrEqual(NESTED_INSET_PX["list-item"]!);
+    for (const property of Object.keys(box)) expect(property).not.toMatch(/^(?:margin|padding)/);
+  });
+});
+
 describe("code panel", () => {
   const m = CODE_METRICS;
 

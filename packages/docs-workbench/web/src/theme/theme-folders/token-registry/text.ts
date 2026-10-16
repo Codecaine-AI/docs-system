@@ -86,6 +86,12 @@ export const text: Record<string, Record<string, ThemeTokenDefinition>> = {
   "list-item": {
     marker: color("--docs-list-marker-fg"),
     fg: color("--docs-list-item-fg"),
+    // Task-item checkbox (props.checked) — read in docs-viewer
+    // styles/list-markers.css on both surfaces.
+    taskBorder: color("--docs-list-task-border"),
+    taskFill: color("--docs-list-task-fill"),
+    taskCheck: color("--docs-list-task-check"),
+    taskDoneFg: color("--docs-list-task-done-fg"),
     itemGap: {
       vars: ["--docs-list-item-gap"],
       kind: "length",

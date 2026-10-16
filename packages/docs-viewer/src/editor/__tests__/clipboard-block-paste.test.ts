@@ -260,4 +260,40 @@ describe("editor→editor block paste (R2-D16)", () => {
     expect(bullets.view.pasteHTML("<ul><li>one</li><li>two</li></ul>")).toBe(true);
     expect(bullets.state.doc.child(0).attrs.ordered).toBe(null);
   });
+
+  it("editor-to-editor paste keeps task items' checked state", () => {
+    const source = createEditor([
+      {
+        type: "docListItem",
+        attrs: { blockId: "t-open", blockProps: {}, checked: false },
+        content: [wrapper("Open task")],
+      },
+      {
+        type: "docListItem",
+        attrs: { blockId: "t-done", blockProps: {}, checked: true },
+        content: [wrapper("Done task")],
+      },
+    ]);
+    const html = copyBand(source);
+    expect(html).toContain('data-doc-checked="true"');
+    const target = createTarget();
+    expect(target.view.pasteHTML(html)).toBe(true);
+    expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
+    expect(target.state.doc.child(0).attrs.checked).toBe(false);
+    expect(target.state.doc.child(1).attrs.checked).toBe(true);
+    expect(target.state.doc.child(1).textContent).toBe("Done task");
+  });
+
+  it("external GitHub task-list HTML pastes as task items without the checkbox input", () => {
+    const target = createTarget();
+    expect(
+      target.view.pasteHTML(
+        '<ul><li><input type="checkbox" checked disabled> shipped</li><li><input type="checkbox" disabled> next</li></ul>',
+      ),
+    ).toBe(true);
+    expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
+    expect(target.state.doc.child(0).attrs.checked).toBe(true);
+    expect(target.state.doc.child(1).attrs.checked).toBe(false);
+    expect(target.state.doc.child(1).textContent.trim()).toBe("next");
+  });
 });

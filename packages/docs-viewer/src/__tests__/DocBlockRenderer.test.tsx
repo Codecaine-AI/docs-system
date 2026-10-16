@@ -238,6 +238,58 @@ describe("DocBlockRenderer", () => {
     expect(screen.getByText("Alone")).toBeTruthy();
   });
 
+  it("renders task items as static, accessible checkboxes in the marker box", () => {
+    const doc = loadFixture();
+    const item = (id: string, props: Record<string, unknown>, text: string) => ({
+      id,
+      type: "list-item" as const,
+      props,
+      text: [{ insert: text }],
+      children: [],
+    });
+    const tasks = {
+      ...doc,
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph" as const, props: {}, children: ["open", "done", "plain", "numbered"] },
+        open: item("open", { checked: false }, "Open task"),
+        done: item("done", { checked: true }, "Done task"),
+        plain: item("plain", {}, "Plain bullet"),
+        numbered: item("numbered", { ordered: true, checked: false }, "Numbered task"),
+      },
+    };
+    const { container } = render(<DocBlockRenderer document={tasks} />);
+    const itemOf = (id: string) => container.querySelector(`[data-block-id="${id}"][role="listitem"]`)!;
+    const boxOf = (id: string) => itemOf(id).querySelector(":scope > [data-doc-list-marker]")!;
+
+    expect(itemOf("open").getAttribute("data-doc-checked")).toBe("false");
+    expect(itemOf("done").getAttribute("data-doc-checked")).toBe("true");
+    // A task item carries the checked attribute INSTEAD of the bullet/ordered
+    // kind, so no bullet glyph or counter rule reaches its marker.
+    for (const id of ["open", "done", "numbered"]) {
+      expect(itemOf(id).hasAttribute("data-doc-bullet")).toBe(false);
+      expect(itemOf(id).hasAttribute("data-doc-ordered")).toBe(false);
+    }
+    expect(itemOf("numbered").getAttribute("data-doc-task-ordered")).toBe("true");
+    // The marker span IS the checkbox: read-only, so aria-disabled, and never
+    // aria-hidden (it carries state a reader needs).
+    for (const [id, checked] of [["open", "false"], ["done", "true"], ["numbered", "false"]] as const) {
+      const box = boxOf(id);
+      expect(box.tagName).toBe("SPAN");
+      expect(box.getAttribute("role")).toBe("checkbox");
+      expect(box.getAttribute("aria-checked")).toBe(checked);
+      expect(box.getAttribute("aria-disabled")).toBe("true");
+      expect(box.hasAttribute("aria-hidden")).toBe(false);
+      expect(box.textContent).toBe("");
+    }
+    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+    // A plain item keeps the decorative bullet marker.
+    expect(itemOf("plain").getAttribute("data-doc-bullet")).toBe("true");
+    expect(itemOf("plain").hasAttribute("data-doc-checked")).toBe(false);
+    expect(boxOf("plain").getAttribute("aria-hidden")).toBe("true");
+    expect(boxOf("plain").hasAttribute("role")).toBe(false);
+  });
+
   it("threads onCanvasObjectSelect into the injected embed, bundling the block's src", () => {
     const doc = loadFixture();
     const selections: Array<{ canvasSrc: string; objectId: string }> = [];

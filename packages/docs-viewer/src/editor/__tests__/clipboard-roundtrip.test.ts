@@ -98,6 +98,52 @@ describe("clipboard HTML: list markers", () => {
   });
 });
 
+describe("clipboard HTML: task list items", () => {
+  const task = (blockId: string, attrs: Record<string, unknown>, text: string): JSONContent => ({
+    type: "docListItem",
+    attrs: { blockId, blockProps: {}, ordered: null, ...attrs },
+    content: [wrapper([{ type: "text", text }])],
+  });
+
+  it("encodes checked on data-doc-checked, never a raw checked attr, and parses it back", () => {
+    const html = serialize([
+      task("open", { checked: false }, "Open"),
+      task("done", { checked: true }, "Done"),
+      task("numbered", { checked: false, ordered: true }, "Numbered"),
+      task("plain", { checked: null }, "Plain"),
+    ]);
+    expect(html).toContain('data-doc-checked="false"');
+    expect(html).toContain('data-doc-checked="true"');
+    expect(html).not.toMatch(/\schecked="/);
+    expect(html).not.toMatch(/\sordered="/);
+    expect(html).toContain('role="checkbox"');
+    const items = findNodes(generateJSON(html, EXTENSIONS), "docListItem");
+    expect(items.map((item) => [item.attrs?.checked, item.attrs?.ordered, collectText(item)])).toEqual([
+      [false, null, "Open"],
+      [true, null, "Done"],
+      [false, true, "Numbered"],
+      [null, null, "Plain"],
+    ]);
+  });
+
+  it("parses a GitHub-style task <li> and drops its checkbox input from the text", () => {
+    const parsed = generateJSON(
+      '<ul class="contains-task-list">' +
+        '<li class="task-list-item"><input type="checkbox" disabled> Open task</li>' +
+        '<li class="task-list-item"><input type="checkbox" checked disabled> Done task</li>' +
+        "<li>Plain</li>" +
+        "</ul>",
+      EXTENSIONS,
+    );
+    const items = findNodes(parsed, "docListItem");
+    expect(items.map((item) => [item.attrs?.checked, collectText(item).trim()])).toEqual([
+      [false, "Open task"],
+      [true, "Done task"],
+      [null, "Plain"],
+    ]);
+  });
+});
+
 describe("clipboard round-trip: reference chip", () => {
   it("preserves kind/path/label (and symbol/line) through copy HTML", () => {
     const docRef = { kind: "doc", path: "docs/00-foundation/00-manifesto", label: "Manifesto" };

@@ -243,6 +243,44 @@ describe("diffToOps", () => {
     ]);
   });
 
+  it("toggling a task item's checkbox is one props-only updateBlock that keeps the block id", () => {
+    const doc = loadFixture();
+    doc.blocks["li-b"] = { ...doc.blocks["li-b"], props: { checked: false } };
+    const pm = docToPM(doc);
+    const findItem = (nodes: PMNode[]): PMNode | undefined => {
+      for (const node of nodes) {
+        if (node.attrs?.blockId === "li-b") return node;
+        const nested = findItem((node.content as PMNode[] | undefined) ?? []);
+        if (nested) return nested;
+      }
+      return undefined;
+    };
+    const item = findItem(pm.content as PMNode[])!;
+    // `checked` is promoted to its own PM attr (like `ordered`), never left in blockProps.
+    expect(item.attrs?.checked).toBe(false);
+    expect(item.attrs?.blockProps).toEqual({});
+
+    // Unchanged round trip: lossless, zero ops.
+    expect(pmToDoc(pm, doc, makeIdFactory("fresh")).blocks["li-b"]?.props).toEqual({ checked: false });
+    expect(diffToOps(doc, pmToDoc(pm, doc, makeIdFactory("fresh")))).toEqual([]);
+
+    item.attrs = { ...item.attrs, checked: true };
+    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+    expect(edited.blocks["li-b"]?.props).toEqual({ checked: true });
+    expect(diffToOps(doc, edited)).toEqual([
+      { type: "updateBlock", blockId: "li-b", props: { checked: true } },
+    ]);
+  });
+
+  it("a plain list item round-trips without growing a checked prop", () => {
+    const doc = loadFixture();
+    const pm = docToPM(doc);
+    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+    for (const id of ["li-a", "li-a-1", "li-b"]) {
+      expect(Object.hasOwn(back.blocks[id]!.props, "checked")).toBe(false);
+    }
+  });
+
   it("Enter-split duplicating a blockId attr: head keeps the id, tail mints fresh, exactly one insertBlock", () => {
     const doc = loadFixture();
     const pm = docToPM(doc);

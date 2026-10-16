@@ -141,7 +141,7 @@ function deltaToPMInline(spans: DeltaSpan[] | undefined, flowNewlines: boolean):
 
 /**
  * Splits a block type's raw `props` into the PM node's own promoted attrs
- * (level/ordered/language) + the rest (`blockProps`). Promotion is only
+ * (level/ordered/checked/language) + the rest (`blockProps`). Promotion is only
  * applied when the source `props` actually HAD that key — the promoted PM
  * attrs default to `null` (never a "real" value like `2` or `false`)
  * precisely so `joinPropsFromNode` can tell "absent in source" apart from
@@ -156,6 +156,8 @@ function splitPropsForNode(blockType: DocBlockType, props: Record<string, unknow
   } else if (blockType === "list-item") {
     promoted.ordered = typeof rest.ordered === "boolean" ? rest.ordered : null;
     delete rest.ordered;
+    promoted.checked = typeof rest.checked === "boolean" ? rest.checked : null;
+    delete rest.checked;
   } else if (blockType === "code") {
     promoted.language = typeof rest.language === "string" ? rest.language : null;
     delete rest.language;
@@ -367,7 +369,7 @@ export function pmInlineToCellDelta(nodes: PMNode[]): DeltaSpan[] {
 }
 
 /**
- * Rejoins a node's promoted PM attrs (level/ordered/language) back into a
+ * Rejoins a node's promoted PM attrs (level/ordered/checked/language) back into a
  * flat `props` object alongside `blockProps`. `null` is the "not present in
  * source props" sentinel (see `splitPropsForNode`) — only a non-null
  * promoted attr is written back, so a block that never had e.g. `level` in
@@ -382,6 +384,7 @@ function joinPropsFromNode(blockType: DocBlockType, attrs: Record<string, unknow
   const props: Record<string, unknown> = { ...blockProps };
   if (blockType === "heading" && typeof attrs.level === "number") props.level = attrs.level;
   if (blockType === "list-item" && typeof attrs.ordered === "boolean") props.ordered = attrs.ordered;
+  if (blockType === "list-item" && typeof attrs.checked === "boolean") props.checked = attrs.checked;
   if (blockType === "code" && typeof attrs.language === "string" && attrs.language) {
     props.language = attrs.language;
   }

@@ -148,6 +148,12 @@
   --docs-list-marker-fg: var(--docs-muted);
   --docs-list-item-fg: var(--docs-text);
   --docs-list-item-gap: var(--ds-space-1);
+  /* Task-item checkbox: the open box outline follows the marker ink (3:1),
+     the done box is the accent with the on-solid tick, done text is muted. */
+  --docs-list-task-border: var(--docs-list-marker-fg);
+  --docs-list-task-fill: var(--docs-accent);
+  --docs-list-task-check: var(--docs-tile-glyph);
+  --docs-list-task-done-fg: var(--docs-muted);
   --docs-code-block-bg: color-mix(in srgb, var(--muted) 30%, transparent);
   --docs-code-block-border: var(--border);
   /* Frame metrics. The radius follows the global --radius (2px at stock). */

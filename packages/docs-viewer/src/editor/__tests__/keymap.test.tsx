@@ -325,6 +325,75 @@ describe("DocKeymap Enter", () => {
   });
 });
 
+describe("DocKeymap task list items", () => {
+  it("Enter at the end of a task splits into a new OPEN task, the head keeping its state", () => {
+    const editor = createEditor([listItem("Ship it", { blockId: "t1", checked: true })]);
+    setCursorInWrapper(editor, 0, "Ship it".length);
+
+    expect(pressKey(editor, "Enter")).toBe(true);
+
+    const [head, tail] = docJSON(editor).content!;
+    expect(head.attrs).toMatchObject({ blockId: "t1", checked: true });
+    expect(tail.type).toBe("docListItem");
+    expect(tail.attrs).toMatchObject({ blockId: null, blockProps: {}, checked: false });
+  });
+
+  it("Enter in a plain item keeps the new item plain (checked stays absent)", () => {
+    const editor = createEditor([listItem("Plain", { blockId: "li1" })]);
+    setCursorInWrapper(editor, 0, "Plain".length);
+
+    expect(pressKey(editor, "Enter")).toBe(true);
+
+    expect(docJSON(editor).content![1].attrs).toMatchObject({ blockId: null, checked: null });
+  });
+
+  it("Enter in an EMPTY task exits to a paragraph that carries no checked attr", () => {
+    const editor = createEditor([
+      listItem("Task", { blockId: "t1", checked: false }),
+      listItem(undefined, { blockId: "t2", checked: false }),
+    ]);
+    setCursorInWrapper(editor, 1, 0);
+
+    expect(pressKey(editor, "Enter")).toBe(true);
+
+    const exited = docJSON(editor).content![1];
+    expect(exited.type).toBe("docParagraph");
+    expect(exited.attrs).toEqual({ blockId: "t2", blockProps: {} });
+  });
+
+  it("Backspace at the start of a task converts it to a paragraph without checked", () => {
+    const editor = createEditor([listItem("Task", { blockId: "t1", checked: true })]);
+    setCursorInWrapper(editor, 0, 0);
+
+    expect(pressKey(editor, "Backspace")).toBe(true);
+
+    const converted = docJSON(editor).content![0];
+    expect(converted.type).toBe("docParagraph");
+    expect(converted.attrs).toEqual({ blockId: "t1", blockProps: {} });
+  });
+
+  it("Mod-Enter toggles the task the cursor is in, and leaves plain items to the defaults (hard break)", () => {
+    const editor = createEditor([
+      listItem("Task", { blockId: "t1", checked: false }),
+      listItem("Plain", { blockId: "li1" }),
+    ]);
+    setCursorInWrapper(editor, 0, 2);
+
+    expect(pressKey(editor, "Enter", { mod: true })).toBe(true);
+    expect(docJSON(editor).content![0].attrs).toMatchObject({ blockId: "t1", checked: true });
+    expect(pressKey(editor, "Enter", { mod: true })).toBe(true);
+    expect(docJSON(editor).content![0].attrs).toMatchObject({ blockId: "t1", checked: false });
+    expect(wrapperText(docJSON(editor).content![0])).toBe("Task");
+
+    // A plain item never becomes a task: Mod-Enter falls through to the
+    // defaults there (StarterKit's hard break).
+    setCursorInWrapper(editor, 1, 2);
+    pressKey(editor, "Enter", { mod: true });
+    expect(docJSON(editor).content).toHaveLength(2);
+    expect(docJSON(editor).content![1].attrs).toMatchObject({ blockId: "li1", checked: null });
+  });
+});
+
 describe("DocKeymap Enter on ranged selections", () => {
   it("mid-paragraph range: deletes the range, then splits into two sibling paragraphs", () => {
     const editor = createEditor([paragraph("Hello world", { blockId: "p1" })]);

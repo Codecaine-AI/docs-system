@@ -197,3 +197,66 @@
 .docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]) > div {
   font-weight: var(--ds-font-weight-regular);
 }
+
+/*
+ * Task items (`props.checked` boolean): the marker box draws a checkbox in
+ * place of the bullet or number. A task item carries `data-doc-checked`
+ * INSTEAD of `data-doc-bullet` / `data-doc-ordered`, so none of the
+ * depth-cycled rules above reach its marker. Style-rail knobs:
+ * --docs-list-task-border (open box outline; the marker ink, so it clears
+ * 3:1), --docs-list-task-fill (done box fill + outline, the accent),
+ * --docs-list-task-check (the tick, the on-solid glyph) and
+ * --docs-list-task-done-fg (done text, muted — no strikethrough). Fallbacks
+ * pin the light theme for hosts without the workbench theme layer.
+ */
+.docs-markdown [data-doc-checked] > [data-doc-list-marker] {
+  position: relative;
+}
+
+/* The box is 16px, capped at the marker column so the narrowest rail indent
+   still holds it. */
+.docs-markdown [data-doc-checked] > [data-doc-list-marker]::before {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  width: min(var(--ds-space-4), var(--docs-list-indent, 1.5rem));
+  height: min(var(--ds-space-4), var(--docs-list-indent, 1.5rem));
+  box-sizing: border-box;
+  border: var(--ds-border-width-ring) solid var(--docs-list-task-border, var(--ds-light-color-text-muted));
+  border-radius: var(--ds-radius-base);
+  background: transparent;
+}
+
+.docs-markdown [data-doc-checked="true"] > [data-doc-list-marker]::before {
+  border-color: var(--docs-list-task-fill, var(--ds-light-color-accent));
+  background: var(--docs-list-task-fill, var(--ds-light-color-accent));
+}
+
+/* The tick: a rotated L (right + bottom strokes) centered on the box. */
+.docs-markdown [data-doc-checked="true"] > [data-doc-list-marker]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(min(var(--ds-space-4), var(--docs-list-indent, 1.5rem)) * 0.3);
+  height: calc(min(var(--ds-space-4), var(--docs-list-indent, 1.5rem)) * 0.55);
+  box-sizing: border-box;
+  border-right: var(--ds-border-width-focus) solid var(--docs-list-task-check, var(--ds-light-color-text-on-solid));
+  border-bottom: var(--ds-border-width-focus) solid var(--docs-list-task-check, var(--ds-light-color-text-on-solid));
+  transform: translate(-50%, -60%) rotate(45deg);
+}
+
+/* Editor only: the box is clickable there (DocTaskToggle). The read surface's
+   box is aria-disabled and keeps the default cursor. */
+.docs-markdown li[data-doc-checked] > [data-doc-list-marker] {
+  cursor: pointer;
+}
+
+/* Done text reads muted. Nested child items and blocks keep their own ink
+   (each sets its own color class). Listed after the label-parent rules and
+   matched with their specificity so a done label parent mutes too. */
+.docs-markdown [data-doc-checked="true"] > div:not([data-doc-list-marker]),
+.docs-markdown [role="listitem"][data-doc-checked="true"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]),
+.docs-markdown li[data-doc-checked="true"]:has(> [data-doc-list-content] > li) > [data-doc-list-content] > [data-doc-node="docBlockText"] {
+  color: var(--docs-list-task-done-fg, var(--ds-light-color-text-muted));
+}

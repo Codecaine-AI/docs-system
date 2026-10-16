@@ -82,6 +82,40 @@ export function textBlockConvertRule(config: {
 }
 
 /**
+ * Task-item shortcut (`[ ] ` / `[x] `): turns the paragraph being typed in,
+ * OR a plain (non-task) list item, into a task list item whose `checked`
+ * comes from the match. Same setNodeMarkup retype as textBlockConvertRule —
+ * text, children and blockId stay, so diffToOps sees a type change (from a
+ * paragraph) or a props-only update (from a list item, `ordered` kept). A
+ * list item that is ALREADY a task is left alone: typing `[x] ` at the start
+ * of a task's text is just text.
+ */
+export function taskItemConvertRule(config: {
+  find: RegExp;
+  getChecked: (match: RegExpMatchArray) => boolean;
+}): InputRule {
+  return new InputRule({
+    find: config.find,
+    handler: ({ state, range, match }) => {
+      const $start = state.doc.resolve(range.from);
+      if ($start.parent.type.name !== "docBlockText") return null;
+      if (range.from !== $start.start() || $start.depth < 1) return null;
+      const container = $start.node(-1);
+      const type = state.schema.nodes.docListItem;
+      if (!type) return null;
+      const fromParagraph = container.type.name === "docParagraph";
+      const fromPlainItem =
+        container.type === type && typeof container.attrs.checked !== "boolean";
+      if (!fromParagraph && !fromPlainItem) return null;
+      state.tr.delete(range.from, range.to).setNodeMarkup($start.before(-1), type, {
+        ...container.attrs,
+        checked: config.getChecked(match),
+      });
+    },
+  });
+}
+
+/**
  * Paragraph -> docCodeBlock conversion ("```lang" + space/newline). The code
  * block's content is flat `text*` (no docBlockText wrapper), so this is a
  * node REPLACEMENT carrying over any text that followed the fence. Only

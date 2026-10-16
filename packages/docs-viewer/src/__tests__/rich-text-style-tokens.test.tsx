@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
+import { readFileSync } from "node:fs";
 import { cleanup, render, waitFor } from "@testing-library/react";
 import { Editor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -41,6 +42,7 @@ const BLOCKS = [
   { id: "h3", type: "heading", props: { level: 3 }, text: text("Heading 3") },
   { id: "h4", type: "heading", props: { level: 4 }, text: text("Heading 4") },
   { id: "li", type: "list-item", props: {}, text: text("Item") },
+  { id: "task", type: "list-item", props: { checked: true }, text: text("Done task") },
   { id: "callout", type: "callout", props: { tone: "warning", title: "Careful" }, text: text("Body") },
   { id: "divider", type: "divider", props: {} },
   { id: "image", type: "image", props: { src: "a.png", alt: "A", caption: "Image caption" } },
@@ -95,7 +97,7 @@ async function renderEdit(): Promise<HTMLElement> {
     content: {
       type: "doc",
       content: BLOCKS.map((block) => {
-        const { level, ordered, ...blockProps } = block.props as Record<string, unknown>;
+        const { level, ordered, checked, ...blockProps } = block.props as Record<string, unknown>;
         const isText = "text" in block;
         return {
           type: NODE_NAME[block.type],
@@ -104,6 +106,7 @@ async function renderEdit(): Promise<HTMLElement> {
             blockProps,
             ...(level === undefined ? {} : { level }),
             ...(ordered === undefined ? {} : { ordered }),
+            ...(checked === undefined ? {} : { checked }),
           },
           ...(isText
             ? {
@@ -175,6 +178,12 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     label: "list item",
     read: '[data-block-id="li"][role="listitem"]',
     edit: 'li[data-block-id="li"]',
+    tokens: ["var(--docs-list-item-fg,#2a2a2a)", "var(--docs-list-item-gap,4px)"],
+  },
+  {
+    label: "task item",
+    read: '[data-block-id="task"][role="listitem"]',
+    edit: 'li[data-block-id="task"]',
     tokens: ["var(--docs-list-item-fg,#2a2a2a)", "var(--docs-list-item-gap,4px)"],
   },
   // The callout's card geometry (rule and hairline widths, padding, radius)
@@ -299,6 +308,43 @@ describe("rich-text style tokens", () => {
       ELEMENTS.map((element) => [element.label, classOf(edit, element.edit)]),
     );
     expect(editClasses).toEqual(readClasses);
+  });
+
+  it("marks a task item and its checkbox the same way on both surfaces", async () => {
+    const pick = (container: HTMLElement, item: string) => {
+      const element = container.querySelector(item)!;
+      const marker = element.querySelector(":scope > [data-doc-list-marker]")!;
+      return {
+        checked: element.getAttribute("data-doc-checked"),
+        bullet: element.getAttribute("data-doc-bullet"),
+        role: marker.getAttribute("role"),
+        ariaChecked: marker.getAttribute("aria-checked"),
+        ariaHidden: marker.getAttribute("aria-hidden"),
+      };
+    };
+    const read = pick(renderRead(), '[data-block-id="task"][role="listitem"]');
+    cleanup();
+    const edit = pick(await renderEdit(), 'li[data-block-id="task"]');
+    expect(read).toEqual({ checked: "true", bullet: null, role: "checkbox", ariaChecked: "true", ariaHidden: null });
+    expect(edit).toEqual(read);
+  });
+
+  it("styles the checkbox and done text only with tokens and docs knobs", () => {
+    const css = readFileSync(new URL("../styles/list-markers.css", import.meta.url), "utf8");
+    const task = css.slice(css.indexOf("[data-doc-checked] > [data-doc-list-marker] {"));
+    for (const knob of [
+      "var(--docs-list-task-border, var(--ds-light-color-text-muted))",
+      "var(--docs-list-task-fill, var(--ds-light-color-accent))",
+      "var(--docs-list-task-check, var(--ds-light-color-text-on-solid))",
+      "var(--docs-list-task-done-fg, var(--ds-light-color-text-muted))",
+      "var(--ds-radius-base)",
+      "var(--ds-border-width-ring)",
+    ]) {
+      expect(task).toContain(knob);
+    }
+    // Done reads muted, never struck through; no literal colors or px.
+    expect(task).not.toContain("line-through");
+    expect(task.replace(/\/\*[\s\S]*?\*\//g, "")).not.toMatch(/#[0-9a-f]{3,8}\b|\d+px|rgb\(/i);
   });
 
   it("gives h1-h3 a size token and leaves h4-h6 at the reading size", () => {

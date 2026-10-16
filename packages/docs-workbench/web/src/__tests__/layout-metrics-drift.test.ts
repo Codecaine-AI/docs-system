@@ -88,6 +88,20 @@ describe("style-rail stock", () => {
     expect(list.indent).toBe(NESTED_INSET_PX["list-item"]!);
   });
 
+  test("the task checkbox fits the list indent and paints from the design tokens", () => {
+    // The box caps at the rail's indent knob, so the narrowest indent still holds it.
+    const markers = read(join(viewerSrc, "styles/list-markers.css"));
+    expect(markers).toContain("width: min(var(--ds-space-4), var(--docs-list-indent, 1.5rem));");
+    const css = stylesheets();
+    const painted = (name: string) => [...new Set(resolvedValues(`var(${name})`, css))].sort();
+    const themed = (role: string) =>
+      [...new Set([`--ds-light-color-${role}`, `--ds-dark-color-${role}`].flatMap((name) => resolvedValues(`var(${name})`, css)))].sort();
+    expect(painted("--docs-list-task-fill")).toEqual(themed("accent"));
+    expect(painted("--docs-list-task-check")).toEqual(themed("text-on-solid"));
+    expect(painted("--docs-list-task-done-fg")).toEqual(themed("text-muted"));
+    expect(painted("--docs-list-task-border")).toEqual(painted("--docs-list-marker-fg"));
+  });
+
   test("the default theme paints body and code text in the faces the metrics measure", () => {
     // The theme manifest applies its fonts over the stylesheets' :root stock (theme-folders.ts compileThemeCss).
     const theme = JSON.parse(read(join(webSrc, "../../../../themes/default/theme.json"))) as { fonts?: Record<string, string> };

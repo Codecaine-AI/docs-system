@@ -214,6 +214,35 @@ describe("SlashMenuPopover rendering", () => {
   });
 });
 
+describe("To-do list command", () => {
+  it("is found by its todo/checkbox aliases and turns the line into an open task item", async () => {
+    const editor = createEditor();
+    render(<SlashMenuPopover editor={editor} />);
+    await openMenu(editor, "todo");
+
+    const row = rowByName("To-do list", root()!);
+    expect(row).toBeTruthy();
+    expect(row!.textContent).toContain("Track tasks with a checkbox.");
+    await fire(() => {
+      fireEvent.mouseDown(row!);
+    });
+    const item = findNode(editor.getJSON(), "docListItem");
+    expect(item).toBeTruthy();
+    expect(item!.attrs).toMatchObject({ checked: false, ordered: null });
+    expect(menuState(editor).open).toBe(false);
+  });
+
+  it("sits in Basic right after Numbered list", async () => {
+    const editor = createEditor();
+    render(<SlashMenuPopover editor={editor} />);
+    await openMenu(editor);
+    const names = Array.from(document.querySelectorAll<HTMLElement>("[data-doc-slash-menu-row]")).map(
+      (row) => row.dataset.docSlashMenuRow,
+    );
+    expect(names.indexOf("To-do list")).toBe(names.indexOf("Numbered list") + 1);
+  });
+});
+
 describe("keyboard model", () => {
   it("ArrowDown/ArrowUp move with circular wrap and keep DOM selection in sync", async () => {
     const editor = createEditor();
