@@ -112,11 +112,13 @@ export function ruleTargets(rule: JudgmentRule, doc: DocDocument, touched: Itera
 }
 
 const textOf = (doc: DocDocument, id: string | undefined) => blockMarkdown(id ? doc.blocks[id] : undefined);
-/** List items that are not sub-bullets and not numbered steps. */
+/** A checklist item (`- [ ]` / `- [x]`): short imperative tasks, not prose bullets. */
+const isTaskItem = (doc: DocDocument, id: string) => typeof doc.blocks[id]?.props?.checked === "boolean";
+/** List items that are not sub-bullets, numbered steps, or task items. */
 const topLevelBullet = (doc: DocDocument, id: string) => {
   const block = doc.blocks[id];
   const parent = parentOf(doc, id);
-  return block?.type === "list-item" && block.props?.ordered !== true && (parent === undefined || doc.blocks[parent]?.type !== "list-item");
+  return block?.type === "list-item" && block.props?.ordered !== true && !isTaskItem(doc, id) && (parent === undefined || doc.blocks[parent]?.type !== "list-item");
 };
 /** The first item of a run of three or more top-level bullets that have no sub-bullets. */
 const flatRunStart = (doc: DocDocument, id: string) => {
@@ -145,8 +147,9 @@ export const judgmentRules: readonly JudgmentRule[] = [
     gateThreshold: 0.85,
     gate: true,
     problem: "Bullet packs more than one idea.",
-    // A parent with sub-bullets is a label by design, so only leaf bullets are judged.
-    select: (doc, id) => !doc.blocks[id]?.children?.length,
+    // A parent with sub-bullets is a label by design, so only leaf bullets are judged. Task items
+    // are terse imperatives ("Install Bun."), so the fragment diagnosis must not fire on them.
+    select: (doc, id) => !doc.blocks[id]?.children?.length && !isTaskItem(doc, id),
     state: (doc, id) => {
       const parent = parentOf(doc, id);
       return {

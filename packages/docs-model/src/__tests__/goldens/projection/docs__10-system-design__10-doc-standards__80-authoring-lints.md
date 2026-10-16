@@ -126,7 +126,7 @@ The executable catalog is the source for exact applicability and exclusions. The
 
     - Nested supporting details remain valid. Review whether a branch needs its own section.
 
-  - structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes do not count, and the item count is part of the evidence.
+  - structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes and runs made only of task items do not count, and the item count is part of the evidence.
 
   - structure.list-item-sentences flags a list item whose own text has three or more sentences. Nested items are checked separately.
 
@@ -172,9 +172,9 @@ Judgment rules are style checks that a model answers. Jev, the TypeSafe System O
 
 - **Rule IDs**
 
-  - `judgment.packed-bullet` asks whether a bullet without sub-bullets holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix.
+  - `judgment.packed-bullet` asks whether a bullet without sub-bullets or a task box holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix.
 
-  - `judgment.flat-hierarchy` asks whether a run of three or more flat top-level bullets is a wall of text that needs bold-label parents. It judges the run once, on its first item.
+  - `judgment.flat-hierarchy` asks whether a run of three or more flat top-level bullets, none of them task items, is a wall of text that needs bold-label parents. It judges the run once, on its first item.
 
   - `judgment.join-test` asks whether a paragraph and the list right after it fail to read as prose.
 

@@ -26,3 +26,14 @@ test("gives Jev each sentence of a step, and a numbered step whole", () => {
   expect(oneInstructionRule.judge!.state(doc, "numbered")).toEqual({ heading: "Install", step: ["Click Export. Keep the dialog open."] });
   expect(Object.keys(state)).toEqual(expect.arrayContaining(fieldsNamed(oneInstructionRule.judge!.question)));
 });
+
+test("treats a task item as one step, judged whole", async () => {
+  const doc = page(
+    heading("h", "Release"),
+    item("open", "The token rotates. Then restart the server.", { checked: false }),
+    item("done", "Install Bun.", { checked: true }),
+    item("plain", "The token rotates nightly."),
+  );
+  expect(await judgedBlocks(oneInstructionRule, doc)).toEqual(["open", "done"]);
+  expect(oneInstructionRule.judge!.state(doc, "open")).toEqual({ heading: "Release", step: ["The token rotates. Then restart the server."] });
+});

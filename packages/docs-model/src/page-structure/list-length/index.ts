@@ -5,6 +5,8 @@ const docsPath = "99-appendix/10-style-guide/20-structure";
 const limit = 6;
 const text = (b: { text?: { insert: string }[] }) =>
   b.text?.map((s) => s.insert).join("") ?? "";
+/** A task item (`- [ ]` / `- [x]`) carries a boolean checked prop. */
+const isTask = (b: DocBlock) => typeof b.props.checked === "boolean";
 export const listLengthRule: LintRule = {
   id: "structure.list-length",
   docsPath,
@@ -14,6 +16,7 @@ export const listLengthRule: LintRule = {
     "Runs of sibling list items, and sibling Process Outline steps, over six items",
   exclusions: [
     "Process Outline clarification notes, which are not steps",
+    "Runs made only of task items (checklists), which are legitimately long",
   ],
   suggestion:
     "Split the list into groups or rank it. Lists cap at about five items.",
@@ -31,7 +34,7 @@ export const listLengthRule: LintRule = {
           run.push(child);
           continue;
         }
-        if (run.length > limit)
+        if (run.length > limit && !run.every(isTask))
           matches.push({
             blockId: run[0]!.id,
             field: "list",

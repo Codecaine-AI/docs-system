@@ -53,6 +53,14 @@ test("a numbered step that opens with a verb is an instruction, even where prose
   expect(detect(block("s", "list-item", text, { ordered: true }))).toHaveLength(1);
 });
 
+test("a task item reads as a step, like a numbered item", () => {
+  const text = sentence("Run doctor, preview reinstall, restart client or reload", between);
+  expect(detect(block("t", "list-item", text, { checked: false }))).toHaveLength(1);
+  expect(detect(block("d", "list-item", text, { checked: true }))).toHaveLength(1);
+  // Short checklist items pass.
+  expect(detect(block("a", "list-item", "Install Bun.", { checked: false }), block("b", "list-item", "Retire the dev-01 key (due 2026-10-21).", { checked: true }))).toEqual([]);
+});
+
 test("titles and labels are not sentences", () => {
   const long = sentence("The check runs on", descriptiveSentenceWords + 1);
   const label: DocBlock = { id: "b", type: "list-item", props: {}, text: [{ insert: long, attributes: { bold: true } }], children: [] };

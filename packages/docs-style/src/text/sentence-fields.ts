@@ -13,8 +13,8 @@ import { authoredProse, type ProseField } from "@codecaine-ai/docs-model/writing
 export interface SentenceField extends ProseField {
   block?: DocBlock;
   /**
-   * True for a step: a numbered list item, or a process-outline action that is not a note. A
-   * step that opens with a verb is an instruction.
+   * True for a step: a numbered list item, a task item (`- [ ]` / `- [x]`), or a process-outline
+   * action that is not a note. A step that opens with a verb is an instruction.
    */
   step: boolean;
 }
@@ -27,11 +27,16 @@ export function sentenceFields(context: LintContext): SentenceField[] {
     if (LABEL_FIELDS.test(field.field) || block?.type === "heading") return [];
     if (field.field === "text" && block && isBoldLabel(block)) return [];
     if (block?.type !== "process-outline")
-      return [{ ...field, block, step: block?.type === "list-item" && block.props.ordered === true }];
+      return [{ ...field, block, step: isListStep(block) }];
     const step = outlineStep(block, field.field);
     if (!step || step.title) return [];
     return [{ ...field, block, step: !step.note }];
   });
+}
+
+/** A numbered list item or a task item: both read as one step the reader does. */
+function isListStep(block: DocBlock | undefined): boolean {
+  return block?.type === "list-item" && (block.props.ordered === true || typeof block.props.checked === "boolean");
 }
 
 /** A block whose whole text is bold is a label, as in the house style's parent bullets. */

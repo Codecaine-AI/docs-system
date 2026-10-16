@@ -24,6 +24,13 @@ test("list-length detects its condition and accepts the corrected form", () => {
   }).findings.find((f) => f.ruleId === "structure.list-length");
   expect(grown?.introduced).toBe(true);
 });
+test("a run made only of task items is a checklist and is not counted", () => {
+  const tasks = (n: number, prefix = "t"): DocBlock[] =>
+    list(n, prefix).map((b, i) => ({ ...b, props: { checked: i % 2 === 0 } }));
+  expect(check(document(...tasks(9)))).toEqual([]);
+  // One plain bullet in the run makes it an ordinary list again.
+  expect(check(document(...tasks(6), ...list(1, "p")))).toHaveLength(1);
+});
 test("Process Outline levels count steps, not notes", () => {
   const outline = (steps: number, notes: number): DocBlock => ({
     id: "outline",

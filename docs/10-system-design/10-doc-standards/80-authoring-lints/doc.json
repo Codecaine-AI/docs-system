@@ -1232,7 +1232,7 @@
       },
       "text": [
         {
-          "insert": "structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes do not count, and the item count is part of the evidence."
+          "insert": "structure.list-length flags more than six consecutive sibling list items, or more than six sibling Process Outline steps. Notes and runs made only of task items do not count, and the item count is part of the evidence."
         }
       ],
       "children": []
@@ -1564,7 +1564,7 @@
           }
         },
         {
-          "insert": " asks whether a bullet without sub-bullets holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix."
+          "insert": " asks whether a bullet without sub-bullets or a task box holds one point, unrelated points, a dense paragraph, or a bare label. Each diagnosis carries its own fix."
         }
       ],
       "children": []
@@ -1581,7 +1581,7 @@
           }
         },
         {
-          "insert": " asks whether a run of three or more flat top-level bullets is a wall of text that needs bold-label parents. It judges the run once, on its first item."
+          "insert": " asks whether a run of three or more flat top-level bullets, none of them task items, is a wall of text that needs bold-label parents. It judges the run once, on its first item."
         }
       ],
       "children": []

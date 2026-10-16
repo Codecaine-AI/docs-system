@@ -69,7 +69,8 @@ export function outline(doc: DocDocument, ids: readonly string[], depth = 0): st
   return ids.flatMap((id) => {
     const block = doc.blocks[id];
     if (!block) return [];
-    const line = `${"  ".repeat(depth)}${block.type === "list-item" ? "- " : ""}${blockMarkdown(block)}`;
+    const box = typeof block.props.checked === "boolean" ? (block.props.checked ? "[x] " : "[ ] ") : "";
+    const line = `${"  ".repeat(depth)}${block.type === "list-item" ? `- ${box}` : ""}${blockMarkdown(block)}`;
     return [line, ...outline(doc, block.children ?? [], depth + 1)];
   });
 }

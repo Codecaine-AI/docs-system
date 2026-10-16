@@ -1,7 +1,7 @@
 /**
  * STE 5.2: one instruction in each sentence and each numbered step. Judge-only: Jev reads
  * blocks that read as instructions, either because they open with a command or because they
- * are numbered steps.
+ * are steps: numbered items or task items.
  */
 import type { DocBlock } from "@codecaine-ai/docs-model";
 import { markdownSentences, nearestHeading } from "../../text/context";
@@ -9,7 +9,9 @@ import { opensWithCommand } from "../../text/imperative";
 import { blockMarkdown, proseText, sentences } from "../../text";
 import type { StyleRule } from "../../types";
 
-const numbered = (block: DocBlock | undefined) => block?.type === "list-item" && block.props.ordered === true;
+/** A numbered step or a task item (`- [ ]` / `- [x]`): one unit the reader does. */
+const numbered = (block: DocBlock | undefined) =>
+  block?.type === "list-item" && (block.props.ordered === true || typeof block.props.checked === "boolean");
 /** A block whose text is all bold is a label for the bullets under it, not an instruction. */
 const label = (block: DocBlock | undefined) => !!block?.text?.length && block.text.every((span) => span.attributes?.bold || !span.insert.trim());
 
