@@ -142,7 +142,7 @@ test('an asset swapped for an out-of-root symlink after the walk is refused, not
   await rm(join(root, target)); await symlink(join(outside, 'secret.png'), join(root, target));
  });
  expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Symbolic links are unsupported for corpus management: ${target}`);
+ expect(result.detail).toContain(`Path leads outside the docs directory on disk: ${target}`);
 }, { timeout: 60_000 });
 
 test('an asset replaced by a different regular file after the walk is refused', async () => {
@@ -166,5 +166,5 @@ test('an ancestor folder swapped for a symlink out of the root is refused even t
   await rename(folder, join(outside, 'images')); await symlink(join(outside, 'images'), folder);
  });
  expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Symbolic links are unsupported for corpus management: ${target}`);
+ expect(result.detail).toContain(`Path leads outside the docs directory on disk: ${target}`);
 }, { timeout: 60_000 });
