@@ -139,3 +139,21 @@ export function getStoredPatch(patchId: string, docsRoot?: string): StoredPatch 
 export function deleteStoredPatch(patchId: string, docsRoot: string): void {
   if (getStoredPatch(patchId, docsRoot)) patchesById.delete(patchId);
 }
+
+export type LedgerStats = {
+  entries: number;
+  byKind: Record<StoredPatch["kind"], number>;
+  /** ISO time of the oldest stored patch, or null when the ledger is empty. */
+  oldestAt: string | null;
+};
+
+/** Ledger counts for health reporting: entries per kind and the oldest entry time. Counts only, no byte walk. */
+export function ledgerStats(): LedgerStats {
+  const byKind: LedgerStats["byKind"] = { doc: 0, canvas: 0, sequence: 0, tree: 0, sidecars: 0, compound: 0 };
+  let oldestAt: string | null = null;
+  for (const patch of patchesById.values()) {
+    byKind[patch.kind]++;
+    if (oldestAt === null || patch.createdAt < oldestAt) oldestAt = patch.createdAt;
+  }
+  return { entries: patchesById.size, byKind, oldestAt };
+}

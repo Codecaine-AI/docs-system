@@ -8,6 +8,8 @@ import { directoryHtml } from './home';
 import { DESIGN_SYSTEM_PREFIX, designSystemAssets } from './design-system-assets';
 import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
 import { loadCodecaineEnv } from '../codecaine-env';
+import { createActivator } from './activation';
+import { canActivate, createBackoff, createStateLog, rotateLog } from './activation-policy';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
 loadCodecaineEnv();
 
@@ -16,6 +18,15 @@ type Runtime = { process: ReturnType<typeof Bun.spawn>; url: string; hash: strin
 const configFile = process.env.CODECAINE_DOCS_BACKGROUND_CONFIG ?? join(homedir(), '.local/state/codecaine-docs/background.json');
 const config = JSON.parse(await readFile(configFile, 'utf8')) as Config;
 const stateDir = config.stateDirectory;
+// launchd appends stdout and stderr here (install-background.py StandardOutPath); nothing else rotates it.
+const logFile = join(stateDir, 'background.log');
+const LOG_MAX_BYTES = 5 * 1024 * 1024;
+const LOG_ROTATE_MS = 10 * 60 * 1000;
+async function rotateBackgroundLog() {
+  try { if (await rotateLog(logFile, LOG_MAX_BYTES)) console.error(`[docs] Rotated ${logFile} to ${logFile}.1`); }
+  catch (e) { console.error(`[docs] Could not rotate ${logFile}: ${e}`); }
+}
+await rotateBackgroundLog();
 const packageRoot = join(config.sourceRoot, 'packages/docs-mcp');
 const coreRoot = resolve(config.sourceRoot, '..');
 const webRoot = join(config.sourceRoot, 'packages/docs-workbench/web');
@@ -40,7 +51,6 @@ let buildState = 'starting';
 let viewer: ReturnType<typeof Bun.spawn> | undefined;
 let viteUrl = '';
 let closing = false;
-let activating = false;
 let registryRevision = 0;
 let previousBuild: { hash: string; file: string } | undefined;
 process.on('exit', () => { active?.process.kill(); candidate?.process.kill(); viewer?.kill(); });
@@ -91,31 +101,46 @@ async function startRuntime(build: { hash: string; file: string }): Promise<Runt
     return runtime;
   } catch (e) { clearTimeout(timeout!); child.kill(); throw e; }
 }
+// Refused activation and supervisor-update attempts back off 1 s → 60 s instead of retrying every tick.
+const activationBackoff = createBackoff();
+const updateBackoff = createBackoff();
+const waitLog = createStateLog();
+const activator = createActivator<Runtime>({
+  fetchRuntime: async (runtime, path, body) => (await runtimeFetch(runtime, path, body)).json(),
+  workspaces: () => registry.workspaces,
+  swap: async next => {
+    const previous = active;
+    active = next; candidate = undefined;
+    if (previous) previousBuild = { hash: previous.hash, file: previous.file };
+    buildState = 'ready'; error = null;
+    await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: next.hash, file: next.file }), { mode: 0o600 });
+    if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
+    console.error(`[docs] Activated ${next.hash.slice(0, 12)}`);
+  },
+});
+const activationGuards = {
+  candidate: () => candidate,
+  active: () => active,
+  activeRequests: () => activeRequests,
+  requestRevision: () => requestRevision,
+  registryRevision: () => registryRevision,
+  closing: () => closing,
+};
+/** A new candidate starts a fresh backoff and a fresh waiting log. */
+function setCandidate(next: Runtime) {
+  candidate?.process.kill(); candidate = next;
+  activationBackoff.reset(); waitLog.reset();
+}
 async function activate() {
-  if (!candidate || activeRequests || closing || activating) return;
-  activating = true;
-  const next = candidate;
-  try {
-  const revision = registryRevision;
-  for (const workspace of registry.workspaces) {
-    if (!existsSync(workspace)) { console.error(`[docs] Registered workspace unavailable: ${workspace}`); continue; }
-    const result = await (await runtimeFetch(next, '/rpc', { workspace, name: 'docs_discover', arguments: {} })).json() as any;
-    if (result.isError) throw new Error('Replacement could not rediscover registered workspace');
-  }
-  const requests = requestRevision;
-  if (active) {
-    const health = await (await runtimeFetch(active, '/health')).json() as any;
-    if (health.tasks > 0 || health.drafts > 0) { buildState = 'waiting-for-authoring-tasks'; return; }
-  }
-  if (activeRequests || requests !== requestRevision || revision !== registryRevision || candidate !== next || closing) return;
-  const previous = active;
-  active = candidate; candidate = undefined;
-  if (previous) previousBuild = { hash: previous.hash, file: previous.file };
-  buildState = 'ready'; error = null;
-  await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: active.hash, file: active.file }), { mode: 0o600 });
-  if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
-  console.error(`[docs] Activated ${active.hash.slice(0, 12)}`);
-  } finally { activating = false; }
+  let outcome;
+  try { outcome = await activator.activate(activationGuards); }
+  catch (e) { activationBackoff.refuse(); throw e; }
+  if (outcome.status === 'waiting') {
+    buildState = 'waiting-for-authoring-tasks';
+    waitLog.report(`[docs] Replacement runtime waiting for ${outcome.tasks} authoring tasks, ${outcome.drafts} drafts`);
+    activationBackoff.refuse();
+  } else if (outcome.status === 'aborted') activationBackoff.refuse();
+  else if (outcome.status === 'activated') activationBackoff.reset();
 }
 async function rebuild() {
   if (busy) { queued = true; return; }
@@ -124,7 +149,7 @@ async function rebuild() {
     const build = await buildRuntime();
     if (build.hash === active?.hash) { buildState = 'ready'; error = null; return; }
     const next = await startRuntime(build);
-    candidate?.process.kill(); candidate = next;
+    setCandidate(next);
     await activate();
   } catch (e) { error = String(e); buildState = active ? 'build-failed-serving-previous' : 'failed'; console.error(`[docs] ${error}`); }
   finally { busy = false; if (queued) { queued = false; void rebuild(); } }
@@ -197,7 +222,7 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
     if (!authenticated) return new Response('Unauthorized', { status: 401 });
     if (url.pathname === '/health') {
       const runtimeHealth = active ? await (await runtimeFetch(active, '/health')).json() as any : {};
-      return Response.json({ ...status(), tasks: runtimeHealth.tasks ?? 0, drafts: runtimeHealth.drafts ?? 0 });
+      return Response.json({ ...status(), tasks: runtimeHealth.tasks ?? 0, drafts: runtimeHealth.drafts ?? 0, newestTaskUseMs: runtimeHealth.newestTaskUseMs ?? null, patches: runtimeHealth.patches ?? null, activeRequests });
     }
     if (url.pathname === '/shutdown') return Response.json({ stopped: false, reason: 'Managed by the background service; use the background stop command.' }, { status: 409 });
     return proxyRuntime(request, url.pathname);
@@ -300,21 +325,21 @@ let selfPending = false;
 async function updateSupervisor() {
   if (selfQueued) return; selfQueued = true;
   try {
-    if (activeRequests || busy || activating) return;
+    if (activeRequests || busy || activator.activating) return;
     if (active) {
       const health = await (await runtimeFetch(active, '/health')).json() as any;
-      if (health.tasks > 0 || health.drafts > 0) { buildState = 'waiting-for-authoring-tasks'; return; }
+      if (!canActivate(health)) { buildState = 'waiting-for-authoring-tasks'; updateBackoff.refuse(); return; }
     }
     const result = await Bun.build({ entrypoints: [join(packageRoot, 'src/background/supervisor.ts')], target: 'bun', format: 'esm' });
     if (!result.success) throw new Error(result.logs.map(String).join('\n'));
     // Requests may have started while building. Retry once the authority is idle.
-    if (activeRequests) return;
+    if (activeRequests) { updateBackoff.refuse(); return; }
     const requests = requestRevision;
     if (active) {
       const health = await (await runtimeFetch(active, '/health')).json() as any;
-      if (health.tasks > 0 || health.drafts > 0) return;
+      if (!canActivate(health)) { updateBackoff.refuse(); return; }
     }
-    if (activeRequests || requests !== requestRevision) return;
+    if (activeRequests || requests !== requestRevision) { updateBackoff.refuse(); return; }
     closing = true;
     const current = join(stateDir, 'background-current.mjs');
     const temporary = current + '.tmp';
@@ -332,7 +357,7 @@ for (const root of runtimeRoots) if (existsSync(root)) {
     const file = String(filename ?? '');
     if (!/\.(ts|tsx|json|mjs)$/.test(file) || /(^|\/)(__tests__|__fixtures__)\//.test(file) || /\.test\./.test(file)) return;
     clearTimeout(debounce);
-    if (root.endsWith('docs-mcp/src') && file.startsWith('background/')) selfPending = true;
+    if (root.endsWith('docs-mcp/src') && file.startsWith('background/')) { selfPending = true; updateBackoff.reset(); }
     debounce = setTimeout(() => { if (selfPending) void updateSupervisor(); else void rebuild(); }, 1000);
   }); watcher.on('error', e => console.error(e)); watchers.push(watcher);
 }
@@ -342,21 +367,22 @@ for (const product of ['canvas', 'sequence', 'annotations']) {
   for await (const file of new Bun.Glob('{package.json,packages/*/package.json}').scan(join(coreRoot, product))) configFiles.push(join(coreRoot, product, file));
 }
 for (const file of configFiles.filter(existsSync)) {
-  const watcher = watch(file, () => { selfPending = true; clearTimeout(debounce); debounce = setTimeout(() => void updateSupervisor(), 1000); }); watchers.push(watcher);
+  const watcher = watch(file, () => { selfPending = true; updateBackoff.reset(); clearTimeout(debounce); debounce = setTimeout(() => void updateSupervisor(), 1000); }); watchers.push(watcher);
 }
 const maintenance = setInterval(() => {
   if (viewer?.exitCode !== null && viewer?.exitCode !== undefined && viteUrl) { viteUrl = ''; void startViewer().catch(e => { error = String(e); }); }
-  if (selfPending) void updateSupervisor();
-  if (candidate) void activate().catch(e => { error = String(e); });
+  if (selfPending && updateBackoff.due()) void updateSupervisor();
+  if (candidate && activationBackoff.due()) void activate().catch(e => { error = String(e); });
   if (active?.process.exitCode !== null && active?.process.exitCode !== undefined && !busy) {
     const crashed = active;
     active = undefined; busy = true;
     void startRuntime(previousBuild ?? crashed).then(runtime => { active = runtime; buildState = 'recovered-after-runtime-exit'; }).catch(e => { error = String(e); }).finally(() => { busy = false; if (!active) void rebuild(); });
   }
 }, 1000);
+const logRotation = setInterval(() => void rotateBackgroundLog(), LOG_ROTATE_MS);
 async function shutdown(code = 0) {
   if (closing) return; closing = true;
-  clearInterval(maintenance); clearTimeout(debounce);
+  clearInterval(maintenance); clearInterval(logRotation); clearTimeout(debounce);
   for (const watcher of watchers) watcher.close();
   scanAbort.abort();
   // Let requests that already entered the write authority finish.
