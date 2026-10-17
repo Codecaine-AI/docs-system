@@ -1,14 +1,16 @@
-import { realpath } from "node:fs/promises";
 import { extname, join, normalize, resolve, sep, dirname } from "node:path";
 
-import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
+import { isExcludedOnDiskUnderDocsRoot, isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
+import { checkDocsPath } from "@codecaine-ai/docs-index/safe-path";
 
 /**
- * Path-confinement helpers for the docs server. Most predicates and read
- * resolvers are lexical; write resolvers additionally canonicalize existing
- * filesystem ancestors so symlinks cannot redirect a mutation outside the
- * served docs root. Originally ported from the host data-backend's canonical
- * implementation; this package is now the single source of truth.
+ * Path-confinement helpers for the docs server. Path-shape predicates are
+ * lexical; every resolver that knows its docs root then asks the docs-root
+ * chokepoint (@codecaine-ai/docs-index/safe-path): the target, resolved on
+ * disk, must stay inside the served root and outside every governing
+ * project's `exclude` paths. A refused document, sidecar or asset resolves to
+ * null, exactly like a path outside the docs root. The chokepoint's guarded
+ * operations check again at every system call.
  */
 
 export const MAX_DOC_FILE_BYTES = 5 * 1024 * 1024;
@@ -47,9 +49,10 @@ export function isAllowedCanvasSidecarPath(src: string): boolean {
  * Resolves a canvas sidecar `src` RELATIVE TO a referencing doc's own
  * directory (the legacy `.mdx` `<Canvas src="...">` embed form). Returns the
  * docs-root-relative sidecar path or null when the src is malformed or
- * escapes the docs root.
+ * escapes the docs root. With `docsRoot`, null too when the doc or the
+ * sidecar is excluded from that docs project (every server caller passes it).
  */
-export function resolveCanvasSidecarRelativePath(docPath: string, src: string): string | null {
+export function resolveCanvasSidecarRelativePath(docPath: string, src: string, docsRoot?: string): string | null {
   if (!isSafeRelativePath(docPath) || !isAllowedDocsFilePath(docPath)) return null;
   if (!isAllowedCanvasSidecarPath(src)) return null;
   const docDir = dirname(docPath) === "." ? "" : dirname(docPath);
@@ -58,6 +61,9 @@ export function resolveCanvasSidecarRelativePath(docPath: string, src: string): 
   if (!isSafeRelativePath(canvasRelPath)) return null;
   if (!canvasRelPath.toLowerCase().endsWith(".canvas.json")) return null;
   if (!canvasRelPath.includes("assets/canvases/")) return null;
+  if (docsRoot !== undefined && (isExcludedOnDiskUnderDocsRoot(docsRoot, docPath) || isExcludedOnDiskUnderDocsRoot(docsRoot, canvasRelPath))) {
+    return null;
+  }
   return canvasRelPath;
 }
 
@@ -83,29 +89,25 @@ export function resolveCanvasSidecarRootRelativePath(
   if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
     return null;
   }
+  if (isExcludedOnDiskUnderDocsRoot(docsRoot, canvasRelPath)) return null;
   return canvasRelPath;
 }
 
-async function realpathDeepestExistingAncestor(absPath: string): Promise<string | null> {
-  let candidate = absPath;
-  while (true) {
-    try {
-      return await realpath(candidate);
-    } catch (error) {
-      const code = (error as NodeJS.ErrnoException).code;
-      if (code !== "ENOENT" && code !== "ENOTDIR") return null;
-      const parent = dirname(candidate);
-      if (parent === candidate) return null;
-      candidate = parent;
-    }
-  }
+/**
+ * True when the docs-root chokepoint refuses to write the docs-root-relative
+ * target: excluded lexically or at its canonical location, a canonical escape
+ * from the served root, a final symbolic link, or unresolvable.
+ */
+export async function isCanonicalTargetExcluded(docsRoot: string, relPath: string): Promise<boolean> {
+  return !checkDocsPath(docsRoot, relPath, "write").ok;
 }
 
 /**
- * Write-safe canvas resolver. After the usual lexical checks, canonicalizes
- * the target's deepest existing ancestor and requires that canonical path to
- * remain under the canonical docs root. This rejects an existing or missing
- * sidecar reached through a symlink that leaves `docsRoot`.
+ * Write-safe canvas resolver: the lexical checks, then the chokepoint's write
+ * check (canonical target inside the served root, outside every governing
+ * excluded path, not a final symbolic link). This rejects an existing or
+ * missing sidecar reached through a symlink that leaves `docsRoot` or enters
+ * an excluded folder.
  */
 export async function resolveCanvasSidecarRootRelativeWritePath(
   docsRoot: string,
@@ -113,22 +115,7 @@ export async function resolveCanvasSidecarRootRelativeWritePath(
 ): Promise<string | null> {
   const canvasRelPath = resolveCanvasSidecarRootRelativePath(docsRoot, src);
   if (!canvasRelPath) return null;
-
-  let docsRootReal: string;
-  try {
-    docsRootReal = await realpath(docsRoot);
-  } catch {
-    return null;
-  }
-
-  const ancestorReal = await realpathDeepestExistingAncestor(
-    resolve(join(docsRoot, canvasRelPath)),
-  );
-  if (!ancestorReal) return null;
-  if (ancestorReal !== docsRootReal && !ancestorReal.startsWith(docsRootReal + sep)) {
-    return null;
-  }
-  return canvasRelPath;
+  return checkDocsPath(docsRoot, canvasRelPath, "write").ok ? canvasRelPath : null;
 }
 
 /** Sequence sidecar path predicate: `.sequence.json` under an `assets/sequences/` segment. */
@@ -145,7 +132,7 @@ export function isAllowedSequenceSidecarPath(src: string): boolean {
  * the docs-root-relative sidecar path or null when the src is malformed or
  * escapes the docs root.
  */
-export function resolveSequenceSidecarRelativePath(docPath: string, src: string): string | null {
+export function resolveSequenceSidecarRelativePath(docPath: string, src: string, docsRoot?: string): string | null {
   if (!isSafeRelativePath(docPath) || !isAllowedDocsFilePath(docPath)) return null;
   if (!isAllowedSequenceSidecarPath(src)) return null;
   const docDir = dirname(docPath) === "." ? "" : dirname(docPath);
@@ -154,6 +141,9 @@ export function resolveSequenceSidecarRelativePath(docPath: string, src: string)
   if (!isSafeRelativePath(sequenceRelPath)) return null;
   if (!sequenceRelPath.toLowerCase().endsWith(".sequence.json")) return null;
   if (!sequenceRelPath.includes("assets/sequences/")) return null;
+  if (docsRoot !== undefined && (isExcludedOnDiskUnderDocsRoot(docsRoot, docPath) || isExcludedOnDiskUnderDocsRoot(docsRoot, sequenceRelPath))) {
+    return null;
+  }
   return sequenceRelPath;
 }
 
@@ -179,6 +169,7 @@ export function resolveSequenceSidecarRootRelativePath(
   if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
     return null;
   }
+  if (isExcludedOnDiskUnderDocsRoot(docsRoot, sequenceRelPath)) return null;
   return sequenceRelPath;
 }
 
@@ -194,22 +185,7 @@ export async function resolveSequenceSidecarRootRelativeWritePath(
 ): Promise<string | null> {
   const sequenceRelPath = resolveSequenceSidecarRootRelativePath(docsRoot, src);
   if (!sequenceRelPath) return null;
-
-  let docsRootReal: string;
-  try {
-    docsRootReal = await realpath(docsRoot);
-  } catch {
-    return null;
-  }
-
-  const ancestorReal = await realpathDeepestExistingAncestor(
-    resolve(join(docsRoot, sequenceRelPath)),
-  );
-  if (!ancestorReal) return null;
-  if (ancestorReal !== docsRootReal && !ancestorReal.startsWith(docsRootReal + sep)) {
-    return null;
-  }
-  return sequenceRelPath;
+  return checkDocsPath(docsRoot, sequenceRelPath, "write").ok ? sequenceRelPath : null;
 }
 
 /** Docs-asset path predicate: under `assets/images/`, `assets/videos/`, or `assets/attachments/`. */
@@ -242,6 +218,7 @@ export function resolveAssetRootRelativePath(docsRoot: string, path: string): st
   if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
     return null;
   }
+  if (isExcludedOnDiskUnderDocsRoot(docsRoot, assetRelPath)) return null;
   return resolved;
 }
 

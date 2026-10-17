@@ -1,6 +1,4 @@
-import { readFile, rename } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import type { Database } from "bun:sqlite";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
@@ -15,6 +13,8 @@ import {
 } from "./backlinks";
 import { normalizeDocRefPath, rewriteDocRefPath, sameDocRef } from "./ref-match";
 import { isSafeRelativePath, resolveDocBundleJsonPath } from "./paths";
+import { checkDocsPath, docsFs, isDocsPathRefusal } from "./safe-path";
+import { guardWholeFolderOperation } from "./subtree-guard";
 
 /**
  * Move-doc (D27, CP7 TG7.2): moves a doc bundle folder and rewrites every
@@ -169,18 +169,36 @@ export async function moveDocBundle(
   }
   const fromAbs = dirname(fromJsonAbs);
   const toAbs = dirname(toJsonAbs);
-  if (!existsSync(fromJsonAbs)) {
+  // Every filesystem access goes through the docs-root chokepoint (safe-path.ts).
+  const fs = docsFs(docsRoot);
+  if (!(await fs.exists(fromJsonAbs))) {
     return { ok: false, status: 404, detail: `No doc bundle found at ${fromPath}` };
   }
-  if (existsSync(toAbs)) {
+  if (await fs.lexists(toAbs)) {
     return { ok: false, status: 409, detail: `A path already exists at ${toPath}` };
   }
+  // The rename and the folder it lands in, at their canonical locations, before any change.
+  const preflight = fs.preflight([
+    { path: fromAbs, intent: "rename-from" },
+    { path: toAbs, intent: "rename-to" },
+    { path: dirname(toAbs), intent: "mkdir" },
+  ]);
+  if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
+  // The rename carries the whole physical folder: refuse before it when the
+  // folder holds a knowledge-base record file or an excluded path, or when
+  // part of it would land on an excluded path.
+  const rootAbs = resolve(docsRoot);
+  const guard = await guardWholeFolderOperation(docsRoot, relative(rootAbs, fromAbs).split(sep).join("/"), {
+    operation: "move",
+    destination: relative(rootAbs, toAbs).split(sep).join("/"),
+  });
+  if (!guard.ok) return { ok: false, status: guard.status, detail: guard.detail };
 
-  // 1. Move the bundle folder.
-  await mkdirParent(toAbs);
-  await rename(fromAbs, toAbs);
-
-  // 2. Discover every inbound reference under any accepted on-disk alias.
+  // Discover every inbound reference under any accepted on-disk alias, and
+  // preflight every source a rewrite would write BEFORE the move: a stale
+  // index row may name a source that is excluded now, or that a symbolic link
+  // carries into an excluded folder or out of the docs root. Such a source is
+  // never read or written; it is reported as a failure.
   const inbound = queryInboundTolerant(deps.backlinksDb, canonicalFrom);
 
   const rewrittenSources: string[] = [];
@@ -193,19 +211,47 @@ export async function moveDocBundle(
     list.push(row);
     bySource.set(row.sourcePath, list);
   }
-
+  // Sources that lived INSIDE the moved bundle (the bundle's own doc.json,
+  // nested bundles, its canvas sidecars) are physically renamed along with
+  // the folder — rewriting them at their OLD path would 404. Rewrite them at
+  // their NEW location instead, and re-home their index rows under the new
+  // source path so no stale rows linger.
+  const plannedSources: Array<{ sourcePath: string; effectiveSourcePath: string; movedWithBundle: boolean }> = [];
   for (const sourcePath of bySource.keys()) {
-    // Sources that lived INSIDE the moved bundle (the bundle's own doc.json,
-    // nested bundles, its canvas sidecars) were physically renamed along
-    // with the folder in step 1 — rewriting them at their OLD path would
-    // 404. Rewrite them at their NEW location instead, and re-home their
-    // index rows under the new source path so no stale rows linger.
     const movedWithBundle = sourcePath.startsWith(`${canonicalFrom}/`);
     const effectiveSourcePath = movedWithBundle
       ? `${canonicalTo}${sourcePath.slice(canonicalFrom.length)}`
       : sourcePath;
+    const writeTarget = isCanvasSourcePath(effectiveSourcePath)
+      ? effectiveSourcePath
+      : `${bundlePathFromDocSource(effectiveSourcePath)}/doc.json`;
+    const checked = checkDocsPath(docsRoot, writeTarget, "write");
+    if (!checked.ok) {
+      failures.push({ sourcePath: effectiveSourcePath, reason: checked.detail });
+      continue;
+    }
+    plannedSources.push({ sourcePath, effectiveSourcePath, movedWithBundle });
+  }
 
+  // 1. Move the bundle folder (the chokepoint re-checks both ends, and every
+  //    descendant against the exclusion policy, at the system call).
+  try {
+    await fs.mkdir(dirname(toAbs), { recursive: true });
+    await fs.rename(fromAbs, toAbs);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
+    throw error;
+  }
+
+  // 2. Rewrite every inbound reference.
+  for (const { sourcePath, effectiveSourcePath, movedWithBundle } of plannedSources) {
     if (isCanvasSourcePath(effectiveSourcePath)) {
+      // Re-checked right before the read and the write (the adapters go through the chokepoint too).
+      const recheck = checkDocsPath(docsRoot, effectiveSourcePath, "write");
+      if (!recheck.ok) {
+        failures.push({ sourcePath: effectiveSourcePath, reason: recheck.detail });
+        continue;
+      }
       const loaded = await deps.loadCanvas(docsRoot, effectiveSourcePath);
       if (!loaded.ok) {
         failures.push({ sourcePath: effectiveSourcePath, reason: loaded.reason });
@@ -228,6 +274,11 @@ export async function moveDocBundle(
     // path (e.g. "10-system-design/00-overview/doc.json"); applyDocOps takes
     // a bundle path, so strip the trailing /doc.json.
     const bundlePath = bundlePathFromDocSource(effectiveSourcePath);
+    const recheck = checkDocsPath(docsRoot, `${bundlePath}/doc.json`, "write");
+    if (!recheck.ok) {
+      failures.push({ sourcePath: effectiveSourcePath, reason: recheck.detail });
+      continue;
+    }
     // Fresh read + fresh hash every time (no expectedHash) — accepted
     // non-atomicity: a concurrent editor could race this, see module doc.
     const current = await deps.applyDocOps(docsRoot, bundlePath, [], undefined, deps.projectId);
@@ -250,7 +301,7 @@ export async function moveDocBundle(
   // 3. Re-index the moved doc itself under its new path.
   removeForSource(deps.backlinksDb, `${canonicalFrom}/doc.json`);
   try {
-    const movedRaw = await readFile(join(toAbs, "doc.json"), "utf8");
+    const movedRaw = await fs.readFile(join(toAbs, "doc.json"), "utf8");
     const movedDoc = JSON.parse(movedRaw) as DocDocument;
     upsertForSource(deps.backlinksDb, `${canonicalTo}/doc.json`, extractDocRefs(movedDoc));
   } catch {
@@ -263,9 +314,4 @@ export async function moveDocBundle(
     rewrittenSources,
     failures,
   };
-}
-
-async function mkdirParent(absPath: string): Promise<void> {
-  const { mkdir } = await import("node:fs/promises");
-  await mkdir(dirname(absPath), { recursive: true });
 }

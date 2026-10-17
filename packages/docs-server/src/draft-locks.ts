@@ -1,9 +1,8 @@
-import { realpathSync } from "node:fs";
-import { resolve } from "node:path";
+import { realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
 
-/** Resolve symlink aliases so every host identifies the same corpus. */
+/** Resolve symlink aliases so every host identifies the same corpus (via the docs-root chokepoint module). */
 export function canonicalDocsRoot(docsRoot: string): string {
-  try { return realpathSync(docsRoot); } catch { return resolve(docsRoot); }
+  return realDocsRootPath(docsRoot);
 }
 
 export type DraftLockKey = { kind: "doc" | "canvas" | "sequence"; path: string };

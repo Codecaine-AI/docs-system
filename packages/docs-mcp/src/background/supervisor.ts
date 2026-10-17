@@ -162,6 +162,8 @@ async function registerDevice() {
   if (deviceScan.phase === 'scanning' || closing || !active) return;
   const runtime = active;
   const initialRoots = new Set(registry.projects.map(p => p.docsRoot));
+  // Registered whole-folder projects (docsRoot "."): nothing at or below them registers as its own project.
+  const corpusRoots = registry.projects.filter(p => p.root === p.docsRoot).map(p => p.docsRoot);
   const scan: DeviceScan = { ...emptyDeviceScan(), phase: 'scanning', roots: deviceSearchRoots(registry.workspaces), startedAt: new Date().toISOString() };
   deviceScan = scan;
   // Keep the same write authority throughout the scan and its registration requests.
@@ -178,7 +180,7 @@ async function registerDevice() {
       // Do not retain every Markdown-only directory as a registered workspace.
       if (discovery.projects.length) await remember(discovery);
       scan.added = registry.projects.filter(p => !initialRoots.has(p.docsRoot)).length;
-    }, scanAbort.signal);
+    }, scanAbort.signal, corpusRoots);
     scan.phase = 'complete';
   } catch (e) { scan.phase = scanAbort.signal.aborted ? 'interrupted' : 'failed'; scanWarning(scan, String(e)); }
   finally {

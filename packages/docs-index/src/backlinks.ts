@@ -1,9 +1,9 @@
 import { Database } from "bun:sqlite";
-import { mkdir, readdir } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type { DeltaSpan, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { CanvasDocumentWithLinks } from "./canvas-links";
 import { candidateStoredForms, normalizeDocRefPath } from "./ref-match";
+import { docsFs } from "./safe-path";
 
 /**
  * Backlinks index (TG7.1): a standalone `bun:sqlite` module that tracks,
@@ -71,8 +71,10 @@ export async function openBacklinksDb(dbPathOrDocsRoot: string): Promise<Databas
     return db;
   }
   const dbPath = backlinksDbPath(dbPathOrDocsRoot);
-  await mkdir(dirname(dbPath), { recursive: true });
-  const db = new Database(dbPath, { create: true });
+  // The index lives inside the docs root: its folder and file go through the chokepoint.
+  const fs = docsFs(dbPathOrDocsRoot);
+  await fs.mkdir(dirname(dbPath), { recursive: true });
+  const db = new Database(fs.guard(dbPath, "write").canonical, { create: true });
   db.exec(SCHEMA_SQL);
   return db;
 }
@@ -269,42 +271,45 @@ export function extractCanvasRefs(canvas: CanvasDocumentWithLinks): BacklinkRef[
   return refs;
 }
 
-type WalkFile = { absPath: string; relPath: string };
+type WalkFile = { relPath: string };
 
 async function walkDocsRoot(docsRoot: string): Promise<WalkFile[]> {
   const results: WalkFile[] = [];
+  // Listings go through the docs-root chokepoint: excluded entries (lexically or
+  // at their canonical location) are never listed, links are entries, never folders.
+  const fs = docsFs(docsRoot);
 
-  async function walk(dirAbs: string, dirRel: string): Promise<void> {
+  async function walk(dirRel: string): Promise<void> {
     let entries;
     try {
-      entries = await readdir(dirAbs, { withFileTypes: true });
+      entries = await fs.readdirEntries(dirRel);
     } catch {
       return;
     }
     for (const entry of entries) {
       if (entry.name === "node_modules") continue;
-      const entryAbs = join(dirAbs, entry.name);
       const entryRel = dirRel ? `${dirRel}/${entry.name}` : entry.name;
       if (entry.isDirectory()) {
         if (entry.name.startsWith(".")) continue;
-        await walk(entryAbs, entryRel);
+        await walk(entryRel);
         continue;
       }
       if (!entry.isFile()) continue;
       if (entry.name === "doc.json" || entry.name.endsWith(".canvas.json")) {
-        results.push({ absPath: entryAbs, relPath: entryRel });
+        results.push({ relPath: entryRel });
       }
     }
   }
 
-  await walk(docsRoot, "");
+  await walk("");
   return results;
 }
 
 /**
  * Rebuilds the ENTIRE backlinks table from scratch by walking `docsRoot` for
  * every `doc.json` and `*.canvas.json` file (skipping dot-directories such
- * as `.index`/`.drafts`, and `node_modules`), extracting refs from each, and
+ * as `.index`/`.drafts`, `node_modules`, and paths the project's `exclude`
+ * globs match), extracting refs from each, and
  * replacing the table's full contents. Self-healing: works even when the db
  * file/`.index` directory does not exist yet.
  *
@@ -319,6 +324,7 @@ export async function rescanAll(
   const database = db ?? (await openBacklinksDb(docsRoot));
 
   const files = await walkDocsRoot(docsRoot);
+  const fs = docsFs(docsRoot);
 
   let sourcesScanned = 0;
   let refsIndexed = 0;
@@ -328,7 +334,7 @@ export async function rescanAll(
   for (const file of files) {
     let raw: string;
     try {
-      raw = await Bun.file(file.absPath).text();
+      raw = await fs.readFile(file.relPath, "utf8");
     } catch {
       continue;
     }
@@ -340,7 +346,7 @@ export async function rescanAll(
     }
 
     let refs: BacklinkRef[];
-    if (file.absPath.endsWith(".canvas.json")) {
+    if (file.relPath.endsWith(".canvas.json")) {
       refs = extractCanvasRefs(parsed as CanvasDocumentWithLinks);
     } else {
       refs = extractDocRefs(parsed as DocDocument);

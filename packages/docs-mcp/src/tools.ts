@@ -1,6 +1,5 @@
 import { mutateTree } from "./tree-tools";
 import { createHash, randomUUID } from "node:crypto";
-import { readFile, realpath } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
 import { Type, type TObject, type TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
@@ -14,7 +13,8 @@ import { judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine } f
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
-import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { checkDocsPath, docsFs, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
 import { normalizeBundlePath } from "@codecaine-ai/docs-server/bundle";
 import { createDocsStore, type DocsStore } from "@codecaine-ai/docs-server/store";
 import {
@@ -120,25 +120,14 @@ function jsonSchema(schema: TObject): Record<string, unknown> {
   return copy;
 }
 
-/** Reject lexical escapes and symlink escapes, including existing ancestors of new destinations. */
+/**
+ * Reject lexical escapes, symlink escapes (existing ancestors of new
+ * destinations included) and excluded targets: the docs-root chokepoint's
+ * verdict for the path as it is reached on disk.
+ */
 async function confined(root: string, absolutePath: string): Promise<void> {
-  const canonicalRoot = await realpath(root);
-  let candidate = resolve(absolutePath);
-  const lexical = relative(resolve(root), candidate);
-  if (lexical === ".." || lexical.startsWith(`..${sep}`) || lexical.startsWith(sep)) throw new Error("Path escapes the docs root.");
-  for (;;) {
-    try {
-      const canonical = await realpath(candidate);
-      const rel = relative(canonicalRoot, canonical);
-      if (rel === ".." || rel.startsWith(`..${sep}`) || rel.startsWith(sep)) throw new Error("Symlink escapes the docs root.");
-      return;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-      const parent = dirname(candidate);
-      if (parent === candidate) throw error;
-      candidate = parent;
-    }
-  }
+  const checked = checkDocsPath(root, absolutePath, "read");
+  if (!checked.ok) throw new Error(checked.detail);
 }
 
 /** Direct adapter over the same store used by the UI. No kernel, model, or staged agent session. */
@@ -149,9 +138,13 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
   const patches = new Map<string, { root: string; path: string; files: string[] }>();
   async function storeFor(args: Record<string, any>): Promise<DocsStore> {
     const project = await context.resolveProject(args.project);
-    const root = await realpath(project.docsRoot);
+    const root = realDocsRootPath(project.docsRoot);
     let store = stores.get(root);
     if (!store) { store = createDocsStore(root); stores.set(root, store); }
+    // The project's codecaine.docs.json exclude globs: no tool reads or writes there.
+    for (const value of [args.path, args.to]) {
+      if (typeof value === "string" && isExcludedOnDiskUnderDocsRoot(root, value)) throw new Error(`Path is excluded from this docs project: ${value}`);
+    }
     if (typeof args.path === "string" && args.path.includes("/assets/")) {
       await confined(root, resolve(root, args.path));
       return store;
@@ -282,8 +275,10 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const accepted = await store.changesetAccept(staged.changeset.id);
       if (!accepted.ok) return accepted;
       const doc = await store.docGet(args.path);
-      // Tree inverses can delete later additions and do not carry revision
-      // guards. Do not expose those through the guarded content-undo tool.
+      // docs_undo undoes this connection's content patches only. A creation is
+      // undone with the change-set undo endpoint (POST api/changesets/<creation_id>/undo),
+      // which refuses before any change once the folder holds anything the create
+      // did not make; its inverse lives in the service process only.
       // A successful create proves the page was absent, so its baseline is null.
       return applied(store, args.path, { ...doc, creation_id: staged.changeset.id, undo_available: false }, { ctx, project: args.project, before: null });
     }),
@@ -318,7 +313,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     tool("docs_asset_read", "Read a docs-root-relative asset hash and size. Set include_content:true for base64 bytes up to 1 MiB. Use this hash before moving or deleting an asset.",
       obj({ ...target, include_content: Type.Optional(Type.Boolean()) }), async(args,store)=>{
         if(!args.path.includes("/assets/"))return failure("Expected a bundle asset path.");
-        const bytes=await readFile(resolve(store.docsRoot,args.path));
+        const bytes=await docsFs(store.docsRoot).readFile(args.path);
         if(args.include_content && bytes.length>1048576)return failure("Asset is larger than the 1 MiB inline read limit.",413);
         return {ok:true,path:args.path,hash:createHash("sha256").update(bytes).digest("hex"),size:bytes.length,...(args.include_content?{base64:bytes.toString("base64")}: {})};
       }),
@@ -334,7 +329,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       obj({...writeTarget,component:Type.Union([Type.Literal("canvas"),Type.Literal("sequence")]),src:str,document:record}),async(args,store)=>{
         const src=canonicalBundleSrc(args.src);
         const docPath=`${normalizeBundlePath(args.path)}/doc.json`;
-        const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,src):resolveSequenceSidecarRelativePath(docPath,src);
+        const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,src,store.docsRoot):resolveSequenceSidecarRelativePath(docPath,src,store.docsRoot);
         if(!rel)return failure("Invalid sidecar path.");await confined(store.docsRoot,resolve(store.docsRoot,rel));
         const result=args.component==="canvas"?await store.createCanvasSidecar({docPath,src,canvas:args.document,originalHash:args.expected_hash,insertMdx:false}):await store.createSequenceSidecar({docPath,src,sequence:args.document,originalHash:args.expected_hash});
         return {...result,src};

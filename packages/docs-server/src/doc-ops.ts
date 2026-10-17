@@ -17,9 +17,9 @@ import {
   validateAnnotationsDocument,
 } from "@codecaine-ai/docs-model/annotations-schema";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
 import { withPathLock } from "./path-mutex";
-import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import {
@@ -157,7 +157,8 @@ export async function applyDocOpsToBundle(
     }
 
     const serialized = serializeDocDocument(validated.document);
-    await atomicWriteFile(loaded.jsonAbs, serialized);
+    // Through the docs-root chokepoint: re-checked inside the path lock, at the write.
+    await docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized);
     const hash = createContentHash(serialized);
     const patchId = randomUUID();
     recordDocPatch(patchId, loaded.bundlePath, inverse, hash, docsRoot);
@@ -193,7 +194,7 @@ export async function getBundleAnnotations(
     return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   }
   const annotationsAbs = annotationsSidecarAbs(jsonAbs);
-  const result = await readAnnotationsSidecar(annotationsAbs);
+  const result = await readAnnotationsSidecar(docsRoot, annotationsAbs);
   if ("error" in result) {
     return { ok: false, status: result.error.status, detail: result.error.detail };
   }
@@ -241,7 +242,7 @@ export async function addBundleAnnotation(
   const bundlePath = normalizeBundlePath(path);
 
   return withPathLock(annotationsAbs, async (): Promise<AddBundleAnnotationResult> => {
-    const existing = await readAnnotationsSidecar(annotationsAbs);
+    const existing = await readAnnotationsSidecar(docsRoot, annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -292,7 +293,7 @@ export async function addBundleAnnotation(
           .join("; ")}`,
       };
     }
-    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
     return { ok: true, annotation, annotations: validated.document, hash: written.hash };
   });
 }
@@ -330,7 +331,7 @@ export async function addBundleAnnotationReply(
   const bundlePath = normalizeBundlePath(path);
 
   return withPathLock(annotationsAbs, async (): Promise<AddBundleAnnotationReplyResult> => {
-    const existing = await readAnnotationsSidecar(annotationsAbs);
+    const existing = await readAnnotationsSidecar(docsRoot, annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -382,7 +383,7 @@ export async function addBundleAnnotationReply(
           .join("; ")}`,
       };
     }
-    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
     return { ok: true, reply, annotations: validated.document, hash: written.hash };
   });
 }
@@ -419,7 +420,7 @@ export async function resolveBundleAnnotation(
   const bundlePath = normalizeBundlePath(path);
 
   return withPathLock(annotationsAbs, async (): Promise<ResolveBundleAnnotationResult> => {
-    const existing = await readAnnotationsSidecar(annotationsAbs);
+    const existing = await readAnnotationsSidecar(docsRoot, annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -469,7 +470,7 @@ export async function resolveBundleAnnotation(
           .join("; ")}`,
       };
     }
-    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
     return { ok: true, annotations: validated.document, hash: written.hash };
   });
 }
@@ -509,7 +510,7 @@ export async function attachAgentRunToAnnotation(
   const annotationsAbs = annotationsSidecarAbs(jsonAbs);
 
   return withPathLock(annotationsAbs, async (): Promise<AttachAgentRunResult> => {
-    const existing = await readAnnotationsSidecar(annotationsAbs);
+    const existing = await readAnnotationsSidecar(docsRoot, annotationsAbs);
     if ("error" in existing) {
       return { ok: false, status: existing.error.status, detail: existing.error.detail };
     }
@@ -546,7 +547,7 @@ export async function attachAgentRunToAnnotation(
           .join("; ")}`,
       };
     }
-    const written = await writeAnnotationsSidecar(annotationsAbs, validated.document);
+    const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
     if (!updatedAnnotation) {
       return { ok: false, status: 500, detail: "Failed to attach agent run to annotation" };
     }

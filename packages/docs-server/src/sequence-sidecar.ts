@@ -1,15 +1,16 @@
-import { readFile, stat, unlink } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
+
+import { docsFs, isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
 import { validateSequenceDocument } from "@codecaine-ai/sequence/schema";
 
 import {
   MAX_SEQUENCE_FILE_BYTES,
+  isCanonicalTargetExcluded,
   resolveSequenceSidecarRelativePath,
 } from "./confine";
 import { loadDocsSourceFile } from "./canvas-sidecar";
 import { withPathLock } from "./path-mutex";
-import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 
@@ -74,7 +75,7 @@ export async function loadSequenceSidecarByDocPath(
 ): Promise<SequenceSidecarByDocPathLoadResult | SequenceSidecarByDocPathError> {
   const loaded = await loadDocsSourceFile(docsRoot, docPath);
   if ("error" in loaded) return loaded;
-  const sequenceRelPath = resolveSequenceSidecarRelativePath(docPath, src);
+  const sequenceRelPath = resolveSequenceSidecarRelativePath(docPath, src, docsRoot);
   if (!sequenceRelPath) {
     return {
       error: {
@@ -91,10 +92,12 @@ export async function loadSequenceSidecarByDocPath(
       error: { status: 400, detail: `Sequence path escapes docs directory: ${src}` },
     };
   }
+  const fs = docsFs(docsRoot);
   let st;
   try {
-    st = await stat(sequenceAbs);
-  } catch {
+    st = await fs.stat(sequenceAbs);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { error: { status: error.status, detail: error.message } };
     return { error: { status: 404, detail: `Sequence sidecar not found: ${src}` } };
   }
   if (!st.isFile()) {
@@ -103,7 +106,7 @@ export async function loadSequenceSidecarByDocPath(
   if (st.size > MAX_SEQUENCE_FILE_BYTES) {
     return { error: { status: 413, detail: `Sequence sidecar exceeds size cap: ${src}` } };
   }
-  const sequenceContent = await readFile(sequenceAbs, "utf8");
+  const sequenceContent = await fs.readFile(sequenceAbs, "utf8");
   let sequence: unknown;
   try {
     sequence = JSON.parse(sequenceContent);
@@ -142,13 +145,19 @@ export function sequenceSidecarResponse(loaded: SequenceSidecarByDocPathLoadResu
 }
 
 async function writeSequenceSidecarFile(
+  docsRoot: string,
+  sequenceRelPath: string,
   sequenceAbs: string,
   sequence: unknown,
-): Promise<{ ok: true; content: string; content_hash: string } | { ok: false; detail: string }> {
+): Promise<{ ok: true; content: string; content_hash: string } | { ok: false; status: number; detail: string }> {
+  // The canonical target, too: a symlink must not lead a write into an excluded folder.
+  if (await isCanonicalTargetExcluded(docsRoot, sequenceRelPath)) {
+    return { ok: false, status: 403, detail: `Path is excluded from this docs project: ${sequenceRelPath}` };
+  }
   const payloadValidation = validateSequencePayload(sequence);
-  if (!payloadValidation.ok) return { ok: false, detail: payloadValidation.detail };
+  if (!payloadValidation.ok) return { ok: false, status: 400, detail: payloadValidation.detail };
   const content = `${JSON.stringify(sequence, null, 2)}\n`;
-  await atomicWriteFile(sequenceAbs, content);
+  await docsFs(docsRoot).atomicWrite(sequenceAbs, content);
   return { ok: true, content, content_hash: createContentHash(content) };
 }
 
@@ -228,9 +237,9 @@ export async function saveSequenceSidecar(
         held_by: lockCheck.heldBy,
       };
     }
-    const written = await writeSequenceSidecarFile(loaded.sequenceAbs, input.sequence);
+    const written = await writeSequenceSidecarFile(docsRoot, loaded.sequenceRelPath, loaded.sequenceAbs, input.sequence);
     if (!written.ok) {
-      return { ok: false, status: 400, detail: written.detail };
+      return { ok: false, status: written.status, detail: written.detail };
     }
     return {
       ok: true,
@@ -289,7 +298,7 @@ export async function createSequenceSidecar(
       original_hash: input.originalHash,
     };
   }
-  const sequenceRelPath = resolveSequenceSidecarRelativePath(input.docPath, input.src);
+  const sequenceRelPath = resolveSequenceSidecarRelativePath(input.docPath, input.src, docsRoot);
   if (!sequenceRelPath) {
     return {
       ok: false,
@@ -309,9 +318,13 @@ export async function createSequenceSidecar(
   }
 
   return withPathLock(sequenceAbs, async (): Promise<CreateSequenceSidecarResult> => {
+    const fs = docsFs(docsRoot);
+    // The target, inside the lock and before the first write.
+    const preflight = fs.preflight([{ path: sequenceAbs, intent: "write" }]);
+    if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
     let exists = false;
     try {
-      exists = (await stat(sequenceAbs)).isFile();
+      exists = (await fs.stat(sequenceAbs)).isFile();
     } catch {
       exists = false;
     }
@@ -334,9 +347,9 @@ export async function createSequenceSidecar(
         held_by: lockCheck.heldBy,
       };
     }
-    const written = await writeSequenceSidecarFile(sequenceAbs, input.sequence);
+    const written = await writeSequenceSidecarFile(docsRoot, sequenceRelPath, sequenceAbs, input.sequence);
     if (!written.ok) {
-      return { ok: false, status: 400, detail: written.detail };
+      return { ok: false, status: written.status, detail: written.detail };
     }
     return {
       ok: true,
@@ -377,7 +390,10 @@ export async function deleteSequenceSidecar(
   if ("error" in loaded) {
     return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
   }
-  await unlink(loaded.sequenceAbs);
+  const fs = docsFs(docsRoot);
+  const preflight = fs.preflight([{ path: loaded.sequenceAbs, intent: "remove" }]);
+  if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
+  await fs.unlink(loaded.sequenceAbs);
   return {
     ok: true,
     response: {

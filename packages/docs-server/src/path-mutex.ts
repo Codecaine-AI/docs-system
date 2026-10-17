@@ -1,20 +1,10 @@
-import { realpathSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { canonicalPathKey } from "@codecaine-ai/docs-index/safe-path";
 
 // Existing files and newly created files must share their parent's real path
 // identity. In particular macOS /var and /private/var name the same tree.
-function canonicalMutationPath(absPath: string): string {
-  let ancestor = resolve(absPath);
-  const missing: string[] = [];
-  while (true) {
-    try { return join(realpathSync(ancestor), ...missing); } catch {
-      const parent = dirname(ancestor);
-      if (parent === ancestor) return resolve(absPath);
-      missing.unshift(basename(ancestor));
-      ancestor = parent;
-    }
-  }
-}
+// The key comes from the docs-root chokepoint module, which owns every
+// filesystem call (this one reads nothing: it only names the lock).
+const canonicalMutationPath = canonicalPathKey;
 
 /**
  * In-process async mutex keyed by absolute file path. Bun runs as a single

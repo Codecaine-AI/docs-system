@@ -322,3 +322,75 @@ test('Process Outline remains draft-editable but completion rejects disconnected
   expect(repaired.ok).toBe(true);
   expect((await call('docs_check',{path:'page'})).ok).toBe(true);
 });
+
+describe("codecaine.docs.json exclude", () => {
+  test("no tool reads or writes an excluded path, a page or an asset", async () => {
+    const { realpath } = await import("node:fs/promises");
+    const { setDocsRootExclude } = await import("@codecaine-ai/docs-index/paths");
+    const root = await realpath(roots.a!);
+    const frozen = "sessions/s1/outputs/inputs/p1";
+    await mkdir(join(root, frozen, "assets/images"), { recursive: true });
+    await writeFile(join(root, frozen, "doc.json"), serializeDocDocument(fixture));
+    await writeFile(join(root, frozen, "assets/images/a.png"), "png");
+    setDocsRootExclude(root, ["sessions/*/outputs/inputs/**"]);
+    try {
+      expect((await read("a", "page")).ok).toBe(true);
+      const refusals = [
+        await call("docs_read", { path: frozen }),
+        await call("docs_asset_read", { path: `${frozen}/assets/images/a.png` }),
+        await call("docs_tree", {}),
+      ];
+      expect(refusals[0]).toMatchObject({ ok: false });
+      expect(String(refusals[0]!.detail)).toContain("excluded");
+      expect(refusals[1]).toMatchObject({ ok: false });
+      expect(JSON.stringify(refusals[2]!.tree)).not.toContain("outputs/inputs");
+    } finally {
+      setDocsRootExclude(root, undefined);
+    }
+  });
+});
+
+describe("codecaine.docs.json exclude, read from disk", () => {
+  test("no tool writes into excluded inputs, through the excluded page or an allowed ancestor", async () => {
+    const { createHash } = await import("node:crypto");
+    const { readdir, realpath } = await import("node:fs/promises");
+    const root = await realpath(roots.a!);
+    const frozen = "sessions/s1/outputs/inputs/p1";
+    // The policy comes only from codecaine.docs.json: no registration call.
+    await writeFile(join(root, "codecaine.docs.json"), JSON.stringify({ name: "kb", docsRoot: ".", exclude: ["sessions/*/outputs/inputs/**"] }));
+    await mkdir(join(root, frozen, "assets/images"), { recursive: true });
+    await writeFile(join(root, frozen, "doc.json"), serializeDocDocument(fixture));
+    await writeFile(join(root, frozen, "assets/images/a.png"), "png");
+    await mkdir(join(root, "sessions/s1"), { recursive: true });
+    await writeFile(join(root, "sessions/s1/doc.json"), serializeDocDocument(fixture));
+    const bytes = async () => {
+      const out: Record<string, string> = {};
+      const walk = async (dir: string) => {
+        for (const entry of await readdir(join(root, dir), { withFileTypes: true })) {
+          const path = `${dir}/${entry.name}`;
+          if (entry.isDirectory()) { out[`${path}/`] = "dir"; await walk(path); }
+          else out[path] = createHash("sha256").update(await readFile(join(root, path))).digest("hex");
+        }
+      };
+      await walk("sessions/s1/outputs");
+      return out;
+    };
+    const before = await bytes();
+    const ancestor = await read("a", "sessions/s1");
+    const canvas = { schemaVersion: 1, id: "c", mode: "diagram", objects: [], connections: [] };
+    const attempts = [
+      await call("docs_component_create", { path: "sessions/s1", expected_hash: ancestor.hash, component: "canvas", src: "./outputs/inputs/p1/assets/canvases/new.canvas.json", document: canvas }),
+      await call("docs_component_create", { path: frozen, expected_hash: "x", component: "canvas", src: "./assets/canvases/new.canvas.json", document: canvas }),
+      await call("docs_create", { path: `${frozen}/child`, title: "Child", expected_absent: true }),
+      await call("docs_asset_upload", { path: frozen, filename: "b.png", content_type: "image/png", base64: "cG5n" }),
+      await call("docs_move", { path: "sessions/s1", to: "notes/s1", expected_hash: createHash("sha256").update(await readFile(join(root, "sessions/s1/doc.json"))).digest("hex"), preview: true }),
+      await call("docs_delete", { path: "sessions/s1", expected_hash: createHash("sha256").update(await readFile(join(root, "sessions/s1/doc.json"))).digest("hex"), recursive: true, preview: true }),
+    ];
+    for (const attempt of attempts) expect(attempt).toMatchObject({ ok: false });
+    expect(await bytes()).toEqual(before);
+    // Positive control: the same component create on an allowed page succeeds.
+    const page = await read("a", "page");
+    expect(await call("docs_component_create", { path: "page", expected_hash: page.hash, component: "canvas", src: "./assets/canvases/new.canvas.json", document: canvas }))
+      .toMatchObject({ ok: true });
+  });
+});

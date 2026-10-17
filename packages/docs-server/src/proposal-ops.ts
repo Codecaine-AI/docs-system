@@ -1,14 +1,13 @@
 import { lintDocument, type LintReport } from "@codecaine-ai/docs-model/lint";
 import { textMeasureReady } from "./text-measure";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps, type DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { docsFs, isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
-import { atomicWriteFile } from "./atomic-write";
 import { loadDocBundle, normalizeBundlePath } from "./bundle";
 import { createContentHash } from "./content-hash";
 import {
@@ -97,11 +96,13 @@ function validateProposal(value: unknown): value is DocProposal {
   return true;
 }
 
-async function readProposalsSidecar(abs: string): Promise<SidecarRead> {
+async function readProposalsSidecar(docsRoot: string, abs: string): Promise<SidecarRead> {
   let raw: string;
   try {
-    raw = await readFile(abs, "utf8");
-  } catch {
+    raw = await docsFs(docsRoot).readFile(abs, "utf8");
+  } catch (error) {
+    // A refused path is never read; it is not an empty sidecar either.
+    if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
     return { ok: true, proposals: EMPTY_PROPOSALS, hash: null };
   }
   let parsed: unknown;
@@ -117,9 +118,9 @@ async function readProposalsSidecar(abs: string): Promise<SidecarRead> {
   return { ok: true, proposals: parsed as ProposalsDocument, hash: createContentHash(raw) };
 }
 
-async function writeProposalsSidecar(abs: string, document: ProposalsDocument) {
+async function writeProposalsSidecar(docsRoot: string, abs: string, document: ProposalsDocument) {
   const content = `${JSON.stringify(document, null, 2)}\n`;
-  await atomicWriteFile(abs, content);
+  await docsFs(docsRoot).atomicWrite(abs, content);
   return { content, hash: createContentHash(content) };
 }
 
@@ -155,7 +156,7 @@ export async function getBundleProposals(
   if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   const loaded = await loadDocBundle(docsRoot, path);
   if ("error" in loaded) return { ok: false, ...loaded.error };
-  const existing = await readProposalsSidecar(proposalSidecarAbs(jsonAbs));
+  const existing = await readProposalsSidecar(docsRoot, proposalSidecarAbs(jsonAbs));
   if (!existing.ok) return existing;
   return {
     ok: true,
@@ -208,7 +209,7 @@ export async function stageBundleProposal(
     if (!dryRun.ok) return { ok: false as const, status: 400, detail: "Doc ops failed to apply", issues: dryRun.issues };
     await textMeasureReady();
     const lint = lintDocument(dryRun.doc, { phase: "draft", baseline: loaded.document });
-    const existing = await readProposalsSidecar(sidecarAbs);
+    const existing = await readProposalsSidecar(docsRoot, sidecarAbs);
     if (!existing.ok) return existing;
     const proposal: DocProposal = {
       lint,
@@ -220,7 +221,7 @@ export async function stageBundleProposal(
       status: "staged", createdAt: new Date().toISOString(),
     };
     const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
-    const written = await writeProposalsSidecar(sidecarAbs, proposals);
+    const written = await writeProposalsSidecar(docsRoot, sidecarAbs, proposals);
     return { ok: true as const, proposal, proposals, hash: written.hash, lint };
   });
 }
@@ -259,7 +260,7 @@ export async function stageBundleProposalAgainstDocument(
       sessionId ?? input.sessionId,
     );
     if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
-    const existing = await readProposalsSidecar(sidecarAbs);
+    const existing = await readProposalsSidecar(docsRoot, sidecarAbs);
     if (!existing.ok) return existing;
     const proposal: DocProposal = {
       lint,
@@ -275,7 +276,7 @@ export async function stageBundleProposalAgainstDocument(
       createdAt: new Date().toISOString(),
     };
     const proposals = { schemaVersion: 1 as const, proposals: [...existing.proposals.proposals, proposal] };
-    const written = await writeProposalsSidecar(sidecarAbs, proposals);
+    const written = await writeProposalsSidecar(docsRoot, sidecarAbs, proposals);
     return { ok: true as const, proposal, proposals, hash: written.hash, lint };
   });
 }
@@ -296,7 +297,7 @@ export async function acceptBundleProposal(
   if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   const sidecarAbs = proposalSidecarAbs(jsonAbs);
   return withPathLock(sidecarAbs, async () => {
-    const existing = await readProposalsSidecar(sidecarAbs);
+    const existing = await readProposalsSidecar(docsRoot, sidecarAbs);
     if (!existing.ok) return existing;
     if (input.expectedHash && input.expectedHash !== existing.hash) return { ok: false as const, status: 409, detail: "Proposals sidecar is stale; reload before accepting.", current_hash: existing.hash ?? undefined, expected_hash: input.expectedHash };
     const index = existing.proposals.proposals.findIndex((item) => item.id === proposalId);
@@ -313,7 +314,7 @@ export async function acceptBundleProposal(
     }
     const accepted: DocProposal = { ...proposal, status: "accepted", resolvedAt: new Date().toISOString() };
     const proposals: ProposalsDocument = { schemaVersion: 1, proposals: existing.proposals.proposals.map((item, itemIndex) => itemIndex === index ? accepted : item) };
-    const written = await writeProposalsSidecar(sidecarAbs, proposals);
+    const written = await writeProposalsSidecar(docsRoot, sidecarAbs, proposals);
     if (accepted.annotationId) {
       const attached = await attachAgentRunToAnnotation(docsRoot, path, {
         annotationId: accepted.annotationId,
@@ -343,7 +344,7 @@ export async function rejectBundleProposal(
   if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
   const sidecarAbs = proposalSidecarAbs(jsonAbs);
   return withPathLock(sidecarAbs, async () => {
-    const existing = await readProposalsSidecar(sidecarAbs);
+    const existing = await readProposalsSidecar(docsRoot, sidecarAbs);
     if (!existing.ok) return existing;
     if (input.expectedHash && input.expectedHash !== existing.hash) return { ok: false as const, status: 409, detail: "Proposals sidecar is stale; reload before rejecting.", current_hash: existing.hash ?? undefined, expected_hash: input.expectedHash };
     const index = existing.proposals.proposals.findIndex((item) => item.id === proposalId);
@@ -354,7 +355,7 @@ export async function rejectBundleProposal(
     if (lock.blocked) return { ok: false as const, status: 423, detail: "Draft in progress — another session is editing this file.", held_by: lock.heldBy };
     const rejected: DocProposal = { ...proposal, status: "rejected", resolvedAt: new Date().toISOString() };
     const proposals: ProposalsDocument = { schemaVersion: 1, proposals: existing.proposals.proposals.map((item, itemIndex) => itemIndex === index ? rejected : item) };
-    const written = await writeProposalsSidecar(sidecarAbs, proposals);
+    const written = await writeProposalsSidecar(docsRoot, sidecarAbs, proposals);
     return { ok: true as const, proposal: rejected, proposals, hash: written.hash };
   });
 }

@@ -1,14 +1,14 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
 import { normalizeDocRefPath } from '@codecaine-ai/docs-index/ref-match';
 import { rescanAll } from '@codecaine-ai/docs-index/backlinks';
+import { guardWholeFolderOperation } from '@codecaine-ai/docs-index/subtree-guard';
+import { checkDocsPath, docsFs, type DocsPreflightTarget } from '@codecaine-ai/docs-index/safe-path';
 import { getBacklinksDb } from './backlinks-cache';
 import { withPathLock } from './path-mutex';
 import { draftLockStore } from './draft-locks';
-import { atomicWriteFile } from './atomic-write';
 
 export type ManageFilesInput = {
   kind: 'page' | 'asset' | 'title'; path: string; to?: string; title?: string;
@@ -19,17 +19,23 @@ const isDoc = (p:string) => p.endsWith('/doc.json') && !p.includes('/assets/');
 const under = (file:string, dir:string) => file === dir || file.startsWith(dir+'/');
 const safe = (p:string) => p.length>0 && !p.includes('\\') && !p.includes('\0') && !p.startsWith('/') && p.split('/').every(x=>x!=='.'&&x!=='..'&&x.length>0&&!x.startsWith('.'));
 const failure = (detail:string,status=409) => ({ok:false,status,detail});
+/** A 403 refusal from the docs-root chokepoint (excluded lexically or on disk, or carried out of the root). */
+const refused403 = (root:string,p:string) => {const c=checkDocsPath(root,p,'read');return !c.ok&&c.status===403?c:null;};
+/** Every target of a management mutation, before its first change. */
+const preflight = (root:string,targets:DocsPreflightTarget[]) => {const r=docsFs(root).preflight(targets);return r.ok?null:{...failure(r.detail,r.status),refused:r.refused.map(x=>x.path)};};
 
-/** Snapshot the corpus, excluding service-owned metadata. Reject symlinks before any read. */
+/** Snapshot the corpus, excluding service-owned metadata and the project's `exclude` paths. Reject symlinks before any read.
+ * Every listing and read goes through the docs-root chokepoint, which also omits entries excluded at their canonical location. */
 async function capture(root:string) {
-  const files=new Map<string,Buffer>();
+  const files=new Map<string,Buffer>(), fs=docsFs(root);
   async function walk(dir:string) {
-    for(const entry of await readdir(join(root,dir),{withFileTypes:true})) {
+    for(const entry of await fs.readdirEntries(dir)) {
       if(!dir && ['.index','.changesets','.git'].includes(entry.name))continue;
       const p=dir?`${dir}/${entry.name}`:entry.name;
+      // Excluded paths are not corpus: never read, fingerprinted, rewritten or restored.
       if(entry.isSymbolicLink())throw Error(`Symbolic links are unsupported for corpus management: ${p}`);
       if(entry.isDirectory())await walk(p);
-      else if(entry.isFile())files.set(p,await readFile(join(root,p)));
+      else if(entry.isFile())files.set(p,await fs.readFile(p));
       else throw Error(`Unsupported filesystem entry: ${p}`);
     }
   }
@@ -39,10 +45,10 @@ async function capture(root:string) {
   return {files,hash:h.digest('hex')};
 }
 async function confined(root:string,path:string) {
-  let current=root;
+  const fs=docsFs(root);let current='';
   for(const segment of path.split('/')){
-    current=join(current,segment);
-    try { if((await lstat(current)).isSymbolicLink())throw Error(`Symbolic link: ${path}`); }
+    current=current?`${current}/${segment}`:segment;
+    try { if((await fs.lstat(current)).isSymbolicLink())throw Error(`Symbolic link: ${path}`); }
     catch(e:any){if(e.code==='ENOENT')return;throw e;}
   }
 }
@@ -55,16 +61,25 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
  return withPathLock(join(root,'.changesets','.management-lock'),async()=>{
   try {
     if(!safe(input.path) || (input.to!==undefined&&!safe(input.to)))return failure('Use canonical docs-root-relative paths.',400);
+    for(const p of [input.path,input.to]){const r=p===undefined?null:refused403(root,p);if(r)return failure(r.detail,403);}
     const isPage=input.kind==='page', sourceFile=input.kind==='asset'?input.path:input.path+'/doc.json';
     if(input.kind==='asset' && !input.path.includes('/assets/'))return failure('Asset paths must be inside a bundle assets directory.',400);
     if(input.kind==='asset' && input.to && !input.to.includes('/assets/'))return failure('Asset destination must be inside a bundle assets directory.',400);
     if(input.to && (under(input.to,input.path)||under(input.path,input.to)))return failure('Source and destination must not overlap.',400);
     await confined(root,input.path);if(input.to)await confined(root,input.to);
     await confined(root,'.changesets');await confined(root,'.index');
+    // A page move, rename or delete carries the whole physical folder. Refuse before any read
+    // when it holds a knowledge-base record file or an excluded path (the capture below skips
+    // excluded paths, so neither the preview nor the journal would account for them), or when
+    // part of it would land on an excluded path.
+    if(isPage){
+      const guard=await guardWholeFolderOperation(root,input.path,{operation:input.to?'move':'delete',destination:input.to});
+      if(!guard.ok)return {...failure(guard.detail,guard.status),records:guard.findings.records,excluded:guard.findings.excluded,excluded_at_destination:guard.findings.excludedAtDestination};
+    }
     const before=await capture(root), source=before.files.get(sourceFile);
     if(!source)return failure('Source not found.',404);
     if(hash(source)!==input.expected_hash)return {...failure('Source changed. Read again.'),current_hash:hash(source)};
-    if(input.to){try {await lstat(join(root,input.to));return failure('Destination already exists.');}catch(e:any){if(e.code!=='ENOENT')throw e;}}
+    if(input.to){try {await docsFs(root).lstat(input.to);return failure('Destination already exists.');}catch(e:any){if(e.code!=='ENOENT')throw e;}}
     if(input.kind==='asset' && input.to && (extname(input.path)!==extname(input.to) || ['canvas','sequence'].some(kind=>input.path.endsWith(`.${kind}.json`) && (!input.to!.endsWith(`.${kind}.json`) || !input.to!.includes(`/assets/${kind==='canvas'?'canvases':'sequences'}/`)))))return failure('Asset relocation must preserve its file type and component asset directory.',400);
     if(input.kind==='asset' && input.to){const owner=input.to.split('/assets/')[0];if(!before.files.has(owner+'/doc.json'))return failure('Destination must belong to an existing page.');}
     const moving=[...before.files.keys()].filter(p=>isPage?under(p,input.path):p===sourceFile);
@@ -140,27 +155,37 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
         const kind=isDoc(file)?'doc':file.endsWith('.canvas.json')?'canvas':file.endsWith('.sequence.json')?'sequence':null;
         if(kind){const locked=draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file});if(locked.blocked)return {...failure(`Draft in progress: ${file}`,423),held_by:locked.heldBy};}
       }
-      const id=randomUUID(), journal=join(root,'.changesets','file-management',id);
-      await mkdir(join(journal,'backup'),{recursive:true});
-      for(const file of affected){await mkdir(dirname(join(journal,'backup',file)),{recursive:true});await writeFile(join(journal,'backup',file),before.files.get(file)!);}
+      const id=randomUUID(), journal=join(root,'.changesets','file-management',id), fs=docsFs(root);
+      // Every journal file, the relocation and every rewritten output, inside the locks and before the first change.
+      const blocked=preflight(root,[
+        {path:join(journal,'backup'),intent:'mkdir'},
+        {path:join(journal,'manifest.json'),intent:'write'},
+        ...[...affected].map(file=>({path:join(journal,'backup',file),intent:'write' as const})),
+        ...(input.to?[{path:input.path,intent:'rename-from' as const},{path:input.to,intent:'rename-to' as const},{path:dirname(input.to),intent:'mkdir' as const}]
+          :input.kind!=='title'?[{path:input.path,intent:'rename-from' as const},{path:join(journal,'deleted'),intent:'rename-to' as const}]:[]),
+        ...[...outputs.keys()].filter(file=>!(!input.to&&input.kind!=='title'&&moving.includes(file))).map(file=>({path:map(file),intent:'write' as const})),
+      ]);
+      if(blocked)return blocked;
+      await fs.mkdir(join(journal,'backup'),{recursive:true});
+      for(const file of affected){await fs.mkdir(dirname(join(journal,'backup',file)),{recursive:true});await fs.writeFile(join(journal,'backup',file),before.files.get(file)!);}
       const manifest={id,input,files:[...affected],status:'prepared'};
-      await writeFile(join(journal,'manifest.json'),JSON.stringify(manifest,null,2));
+      await fs.writeFile(join(journal,'manifest.json'),JSON.stringify(manifest,null,2));
       let relocated=false;
       try{
-        if(input.to){await mkdir(dirname(join(root,input.to)),{recursive:true});await rename(join(root,input.path),join(root,input.to));relocated=true;}
-        else if(input.kind!=='title'){await rename(join(root,input.path),join(journal,'deleted'));relocated=true;}
-        for(const [file,bytes] of outputs){if(!input.to&&input.kind!=='title'&&moving.includes(file))continue;await atomicWriteFile(join(root,map(file)),bytes.toString());}
+        if(input.to){await fs.mkdir(dirname(join(root,input.to)),{recursive:true});await fs.rename(join(root,input.path),join(root,input.to));relocated=true;}
+        else if(input.kind!=='title'){await fs.rename(join(root,input.path),join(journal,'deleted'));relocated=true;}
+        for(const [file,bytes] of outputs){if(!input.to&&input.kind!=='title'&&moving.includes(file))continue;await fs.atomicWrite(join(root,map(file)),bytes.toString());}
         await rescanAll(root,await getBacklinksDb(root));
         const after=await capture(root);
         const after_hashes=Object.fromEntries([...new Set([...affected,...[...affected].map(map)])].map(p=>[p,after.files.has(p)?hash(after.files.get(p)!):null]));
-        await writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'applied',after_hashes},null,2));
+        await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'applied',after_hashes},null,2));
         return {ok:true,applied:true,path:input.to??input.path,previous_path:input.path,rewritten_sources:[...outputs.keys()].map(map),files:moving,tree_change_id:id,recovery_journal:relative(root,journal),undo_available:true,undo_tool:'docs_management_restore'};
       }catch(error){
         try{
-          if(relocated){if(input.to)await rename(join(root,input.to),join(root,input.path));else await rename(join(journal,'deleted'),join(root,input.path));}
-          for(const file of affected){await mkdir(dirname(join(root,file)),{recursive:true});await writeFile(join(root,file),before.files.get(file)!);}
+          if(relocated){if(input.to)await fs.rename(join(root,input.to),join(root,input.path));else await fs.rename(join(journal,'deleted'),join(root,input.path));}
+          for(const file of affected){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),before.files.get(file)!);}
           await rescanAll(root,await getBacklinksDb(root));
-          await writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
+          await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
           return {...failure(String(error),500),rolled_back:true,recovery_journal:relative(root,journal)};
         }catch(rollback){return {...failure(String(error),500),rolled_back:false,rollback_error:String(rollback),recovery_journal:relative(root,journal)};}
       }
@@ -177,7 +202,8 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
    if(!/^[0-9a-f-]{36}$/.test(id))return failure('Invalid management ID.',400);
    const rel=`.changesets/file-management/${id}`,journal=join(root,rel);
    await confined(root,rel);
-   const manifest=JSON.parse(await readFile(join(journal,'manifest.json'),'utf8'));
+   const fs=docsFs(root);
+   const manifest=JSON.parse(await fs.readFile(join(journal,'manifest.json'),'utf8'));
    if(manifest.status!=='applied'||!manifest.after_hashes)return failure('Journal is not an applied, restorable change.');
    const before=await capture(root);
    for(const [file,expected] of Object.entries(manifest.after_hashes)){
@@ -186,7 +212,16 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
    }
    const input=manifest.input as ManageFilesInput;
    if(!safe(input.path)||(input.to&&!safe(input.to)))return failure('Invalid journal paths.',422);
-   if(input.kind!=='title'){try{await lstat(join(root,input.path));return failure('Original path is occupied.');}catch(error:any){if(error.code!=='ENOENT')throw error;}}
+   for(const p of [input.path,input.to]){const r=p===undefined?null:refused403(root,p);if(r)return failure(r.detail,403);}
+   // Restoring a page move renames the whole folder back: the same whole-folder guard applies.
+   // Restoring a deletion puts the journaled folder back; only its landing paths are checked.
+   if(input.kind==='page'){
+    const guard=input.to
+      ?await guardWholeFolderOperation(root,input.to,{operation:'restore',destination:input.path})
+      :await guardWholeFolderOperation(root,`${rel}/deleted`,{operation:'restore',destination:input.path});
+    if(!guard.ok&&(input.to||guard.status===403))return {...failure(guard.detail,guard.status),records:guard.findings.records,excluded:guard.findings.excluded,excluded_at_destination:guard.findings.excludedAtDestination};
+   }
+   if(input.kind!=='title'){try{await fs.lstat(input.path);return failure('Original path is occupied.');}catch(error:any){if(error.code!=='ENOENT')throw error;}}
    for(const file of before.files.keys())if((under(file,input.path)||(input.to&&under(file,input.to)))&&!(file in manifest.after_hashes))return failure(`Cannot restore after files were added: ${file}`);
    if(preview)return {ok:true,preview:true,tree_hash:before.hash,files:manifest.files,restores:input.path};
    if(expectedTreeHash!==before.hash)return failure('Corpus changed or restore preview missing. Preview again.');
@@ -199,12 +234,20 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
     }
     // Load every recovery byte before changing anything.
     const backups=new Map<string,Buffer>();
-    for(const file of manifest.files){if(!(file in manifest.after_hashes))return failure('Invalid backup entry.',422);await confined(root,`${rel}/backup/${file}`);backups.set(file,await readFile(join(journal,'backup',file)));}
-    if(input.to){await mkdir(dirname(join(root,input.path)),{recursive:true});await rename(join(root,input.to),join(root,input.path));}
-    else if(input.kind!=='title'){await mkdir(dirname(join(root,input.path)),{recursive:true});await rename(join(journal,'deleted'),join(root,input.path));}
-    for(const [file,bytes] of backups){await mkdir(dirname(join(root,file)),{recursive:true});await writeFile(join(root,file),bytes);}
+    for(const file of manifest.files){if(!(file in manifest.after_hashes))return failure('Invalid backup entry.',422);await confined(root,`${rel}/backup/${file}`);backups.set(file,await fs.readFile(join(journal,'backup',file)));}
+    // Every target the restore changes, inside the locks and before the first change.
+    const blocked=preflight(root,[
+     ...(input.to?[{path:input.to,intent:'rename-from' as const},{path:input.path,intent:'rename-to' as const},{path:dirname(input.path),intent:'mkdir' as const}]
+       :input.kind!=='title'?[{path:join(journal,'deleted'),intent:'rename-from' as const},{path:input.path,intent:'rename-to' as const},{path:dirname(input.path),intent:'mkdir' as const}]:[]),
+     ...[...backups.keys()].map(file=>({path:file,intent:'write' as const})),
+     {path:join(journal,'manifest.json'),intent:'write'},
+    ]);
+    if(blocked)return blocked;
+    if(input.to){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(root,input.to),join(root,input.path));}
+    else if(input.kind!=='title'){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(journal,'deleted'),join(root,input.path));}
+    for(const [file,bytes] of backups){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),bytes);}
     await rescanAll(root,await getBacklinksDb(root));
-    await writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'restored'},null,2));
+    await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'restored'},null,2));
     return {ok:true,restored:true,path:input.path,recovery_journal:rel};
    }
    return await acquire(0);

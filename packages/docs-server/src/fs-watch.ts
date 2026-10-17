@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
-import { existsSync, watch, type FSWatcher } from "node:fs";
-import { readdir, stat } from "node:fs/promises";
-import { join } from "node:path";
+import type { FSWatcher } from "node:fs";
+
+import { isExcludedUnderDocsRoot } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
 import type { DocsChangeEvent } from "./docs-events";
 
@@ -25,6 +26,9 @@ import type { DocsChangeEvent } from "./docs-events";
  *    after every store-published event. That duplicate is deliberate and
  *    benign: clients react by re-FETCHING the bundle (a read), never by
  *    writing, so there is no feedback edge to loop through.
+ *
+ * The watch registration, the polling scan and every existence probe go
+ * through the docs-root chokepoint (@codecaine-ai/docs-index/safe-path).
  */
 
 /** Actor stamped on watcher-published events; never a client session id. */
@@ -54,6 +58,7 @@ const DEFAULT_POLL_INTERVAL_MS = 1000;
  * should be reported as, or `null` when the change must be ignored.
  *
  *  - dotfile / dot-directory / node_modules segments -> null (`.index/`!)
+ *  - paths the project's `exclude` globs match -> null
  *  - atomic-write temp files -> null
  *  - `*.canvas.json` -> the canvas rel path itself (what canvas events use)
  *  - `doc.json` / `annotations.json` -> the containing bundle folder
@@ -62,6 +67,19 @@ const DEFAULT_POLL_INTERVAL_MS = 1000;
  *
  * Exported for direct unit testing of the filter/mapping rules.
  */
+/**
+ * Watcher callbacks must never throw: a codecaine.docs.json caught mid-write
+ * (malformed for a moment) makes the policy unreadable, and the watcher then
+ * fails closed by dropping the event instead of crashing its host.
+ */
+function excludedOrUnreadablePolicy(docsRoot: string, relPath: string): boolean {
+  try {
+    return isExcludedUnderDocsRoot(docsRoot, relPath);
+  } catch {
+    return true;
+  }
+}
+
 export function changeTargetForRelPath(docsRoot: string, relPath: string): string | null {
   const normalized = relPath.replaceAll("\\", "/").replace(/^\/+|\/+$/g, "");
   if (!normalized) return null;
@@ -70,6 +88,7 @@ export function changeTargetForRelPath(docsRoot: string, relPath: string): strin
   for (const segment of segments) {
     if (segment.startsWith(".") || segment === "node_modules") return null;
   }
+  if (excludedOrUnreadablePolicy(docsRoot, normalized)) return null;
 
   const base = segments[segments.length - 1] ?? "";
   if (ATOMIC_TEMP_RE.test(base)) return null;
@@ -80,13 +99,14 @@ export function changeTargetForRelPath(docsRoot: string, relPath: string): strin
   if (base === "doc.json" || base === "annotations.json") return parent;
 
   // A directory event on a bundle folder itself.
-  if (existsSync(join(docsRoot, normalized, "doc.json"))) return normalized;
+  const fs = docsFs(docsRoot);
+  if (fs.existsSync(`${normalized}/doc.json`)) return normalized;
 
   // Other files (assets, loose markdown, …): attribute to the nearest
   // enclosing bundle so an open tab on that bundle refreshes.
   for (let index = segments.length - 1; index > 0; index -= 1) {
     const ancestor = segments.slice(0, index).join("/");
-    if (existsSync(join(docsRoot, ancestor, "doc.json"))) return ancestor;
+    if (fs.existsSync(`${ancestor}/doc.json`)) return ancestor;
   }
   return normalized;
 }
@@ -133,8 +153,8 @@ export function watchDocsRoot(
   let stopPolling: (() => void) | null = null;
   let mode: "fs-watch" | "poll";
   try {
-    watcher = watch(docsRoot, { recursive: true }, (_eventType, filename) => {
-      onFsChange(typeof filename === "string" ? filename : null);
+    watcher = docsFs(docsRoot).watch((_eventType, relPath) => {
+      onFsChange(relPath);
     });
     // Late errors (e.g. the root disappearing) must not crash the host.
     watcher.on("error", () => {});
@@ -168,20 +188,22 @@ type Snapshot = Map<string, string>;
 /** Recursive mtime+size scan, skipping dot/node_modules dirs (same ignore set
  * as the mapping — the mapping still runs on every reported path). */
 async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map()): Promise<Snapshot> {
+  const fs = docsFs(docsRoot);
   let entries;
   try {
-    entries = await readdir(join(docsRoot, relDir), { withFileTypes: true });
+    entries = await fs.readdirEntries(relDir);
   } catch {
     return into;
   }
   for (const entry of entries) {
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
     const rel = relDir ? `${relDir}/${entry.name}` : entry.name;
+    if (excludedOrUnreadablePolicy(docsRoot, rel)) continue;
     if (entry.isDirectory()) {
       await scanTree(docsRoot, rel, into);
     } else if (entry.isFile()) {
       try {
-        const st = await stat(join(docsRoot, rel));
+        const st = await fs.stat(rel);
         into.set(rel, `${st.mtimeMs}:${st.size}`);
       } catch {
         // Raced with a delete; the next scan settles it.

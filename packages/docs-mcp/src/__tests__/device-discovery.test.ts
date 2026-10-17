@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { mkdir, mkdtemp, rm, realpath, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, rm, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { emptyDeviceScan, scanDevice } from '../background/device-discovery';
@@ -39,8 +39,159 @@ test('device discovery registers native and custom corpora, deduplicates aliases
   } finally { await rm(temp, { recursive: true, force: true }); }
 });
 
+/** A knowledge base (docsRoot "."), a Place with its own docs/ inside it, a symlink view and an ordinary repo. */
+async function knowledgeBaseFixture() {
+  const home = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-kb-')));
+  const kb = join(home, 'kb');
+  const write = async (path: string, value: unknown) => { await mkdir(join(home, path, '..'), { recursive: true }); await writeFile(join(home, path), typeof value === 'string' ? value : JSON.stringify(value)); };
+  await write('kb/codecaine.docs.json', { name: 'knowledge-base', docsRoot: '.', exclude: ['sessions/*/outputs/inputs/**'] });
+  await write('kb/notes/seed/doc.json', document);
+  await write('kb/notes/note-a/note.json', { id: 'note-a' });
+  await write('kb/places/area-a/entity.json', { id: 'area-a' });
+  await write('kb/places/area-a/docs/overview/doc.json', document);
+  await write('kb/sessions/s1/outputs/inputs/spec-pages/p1/doc.json', document);
+  await write('repo-x/docs/intro/doc.json', document);
+  await write('view/.codecaine-docs-ignore', '');
+  await symlink(join(kb, 'places/area-a'), join(home, 'view/area-a'));
+  await symlink(join(home, 'repo-x'), join(home, 'view/repo-x'));
+  await symlink(join(kb, 'places/area-a'), join(home, 'link-to-area'));
+  return { home, kb };
+}
+
+async function scanFixture(roots: string[], corpusRoots: string[] = []) {
+  const scan = { ...emptyDeviceScan(), roots };
+  const attempted: string[] = [];
+  let registry = await readRegistry(join(roots[roots.length - 1]!, 'no-registry.json'), roots[0]!);
+  await scanDevice(scan, async root => {
+    attempted.push(root);
+    const found = await discoverProjects(root);
+    if (found.projects.length) registry = mergeDiscovery(registry, found.workspace, found.projects);
+  }, undefined, corpusRoots);
+  return { scan, attempted: attempted.sort(), registry };
+}
+
+test('a docsRoot "." project registers alone: no nested Place, symlink into it, or ignored view registers', async () => {
+  const { home, kb } = await knowledgeBaseFixture();
+  try {
+    const { attempted, registry } = await scanFixture([home]);
+    expect(attempted).toEqual([kb, join(home, 'repo-x')]);
+    const projects = [...registry.projects].sort((a, b) => a.name.localeCompare(b.name));
+    expect(projects.map(p => [p.name, p.root, p.docsRoot])).toEqual([
+      ['knowledge-base', kb, kb],
+      ['repo-x', join(home, 'repo-x'), join(home, 'repo-x/docs')],
+    ]);
+    expect(projects[0]!.exclude).toEqual(['sessions/*/outputs/inputs/**']);
+    expect(projects[1]!.exclude).toBeUndefined();
+    // The registry file keeps exclude (schemaVersion 1).
+    const file = join(home, 'projects.json');
+    await writeRegistry(file, registry);
+    const restored = await readRegistry(file, home);
+    expect(restored.schemaVersion).toBe(1);
+    expect(restored.projects).toEqual(registry.projects);
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
+test('a symlink into the knowledge base is skipped even when it is scanned before the knowledge base', async () => {
+  const { home, kb } = await knowledgeBaseFixture();
+  try {
+    const { attempted } = await scanFixture([join(home, 'link-to-area'), join(home, 'view/area-a'), home]);
+    expect(attempted).toEqual([kb, join(home, 'repo-x')]);
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
+test('registered whole-folder projects hide their subtree, even a registered workspace inside them', async () => {
+  const { home, kb } = await knowledgeBaseFixture();
+  try {
+    // The configuration file is gone, but the registry still says kb is a docsRoot "." project.
+    await rm(join(kb, 'codecaine.docs.json'));
+    const { attempted } = await scanFixture([join(kb, 'places/area-a'), home], [kb]);
+    expect(attempted).toEqual([join(home, 'repo-x')]);
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
+test('the ignore marker hides its folder and subtree, including a symlink that lands inside it', async () => {
+  const { home } = await knowledgeBaseFixture();
+  try {
+    await mkdir(join(home, 'view/own/docs/page'), { recursive: true });
+    await writeFile(join(home, 'view/own/docs/page/doc.json'), JSON.stringify(document));
+    await symlink(join(home, 'view/own'), join(home, 'into-view'));
+    const { attempted } = await scanFixture([join(home, 'into-view'), home]);
+    expect(attempted).not.toContain(join(home, 'view/own'));
+    expect(attempted).not.toContain(join(home, 'view'));
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
+test('a symbolic link met while walking is never followed: a link to an ordinary repo does not register, a real directory does', async () => {
+  const home = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-nofollow-')));
+  const outside = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-outside-')));
+  try {
+    await mkdir(join(outside, 'repo/docs/intro'), { recursive: true });
+    await writeFile(join(outside, 'repo/docs/intro/doc.json'), JSON.stringify(document));
+    await mkdir(join(home, 'start/real-repo/docs/intro'), { recursive: true });
+    await writeFile(join(home, 'start/real-repo/docs/intro/doc.json'), JSON.stringify(document));
+    await symlink(join(outside, 'repo'), join(home, 'start/link-repo'));
+    // A repo the walk cannot list its way to (its parent is traversable but not readable):
+    // only a followed link could reach it.
+    await mkdir(join(home, 'start/vault/repo/docs/intro'), { recursive: true });
+    await writeFile(join(home, 'start/vault/repo/docs/intro/doc.json'), JSON.stringify(document));
+    await symlink(join(home, 'start/vault/repo'), join(home, 'start/link-vault'));
+    await chmod(join(home, 'start/vault'), 0o311);
+    const { scan, attempted } = await scanFixture([join(home, 'start')]);
+    // Positive control: the real directory registers. No link target is read or registered.
+    expect(attempted).toEqual([join(home, 'start/real-repo')]);
+    expect(attempted.some(path => path.startsWith(outside))).toBe(false);
+    expect(scan.warnings.join('\n')).not.toContain(outside);
+    expect(scan.warnings.join("\n")).toContain(join(home, "start/vault"));
+  } finally {
+    await chmod(join(home, 'start/vault'), 0o755).catch(() => {});
+    await rm(home, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test('an explicit root inside the marked view never registers: a link to an ordinary external repo or a real folder below the marker', async () => {
+  const { home } = await knowledgeBaseFixture();
+  const outside = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-view-ext-')));
+  try {
+    await mkdir(join(outside, 'repo-y/docs/intro'), { recursive: true });
+    await writeFile(join(outside, 'repo-y/docs/intro/doc.json'), JSON.stringify(document));
+    // ~/kb-view/repo-y -> an ordinary repo outside the knowledge base.
+    await symlink(join(outside, 'repo-y'), join(home, 'view/repo-y'));
+    // A real folder below the marker, with docs of its own.
+    await mkdir(join(home, 'view/real/docs/intro'), { recursive: true });
+    await writeFile(join(home, 'view/real/docs/intro/doc.json'), JSON.stringify(document));
+    const viewLink = await scanFixture([join(home, 'view/repo-y')]);
+    expect(viewLink.attempted).toEqual([]);
+    expect(viewLink.registry.projects).toEqual([]);
+    expect(viewLink.scan.warnings.join('\n')).toContain('never reached through a symbolic link');
+    const viewReal = await scanFixture([join(home, 'view/real')]);
+    expect(viewReal.attempted).toEqual([]);
+    // Positive control: the same ordinary repo, given as a real root, registers.
+    const direct = await scanFixture([join(outside, 'repo-y')]);
+    expect(direct.attempted).toEqual([join(outside, 'repo-y')]);
+    expect(direct.registry.projects.map(p => p.root)).toEqual([join(outside, 'repo-y')]);
+  } finally {
+    await rm(home, { recursive: true, force: true });
+    await rm(outside, { recursive: true, force: true });
+  }
+});
+
+test('an explicit root reached through any symbolic-link component is refused before it is canonicalized', async () => {
+  const home = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-rootlink-')));
+  try {
+    await mkdir(join(home, 'repos/repo-z/docs/intro'), { recursive: true });
+    await writeFile(join(home, 'repos/repo-z/docs/intro/doc.json'), JSON.stringify(document));
+    await symlink(join(home, 'repos'), join(home, 'alias'));
+    const viaLink = await scanFixture([join(home, 'alias/repo-z')]);
+    expect(viaLink.attempted).toEqual([]);
+    const real = await scanFixture([join(home, 'repos/repo-z')]);
+    expect(real.attempted).toEqual([join(home, 'repos/repo-z')]);
+  } finally { await rm(home, { recursive: true, force: true }); }
+});
+
 test('one malformed project does not stop device discovery and cancellation is honored', async () => {
-  const temp = await mkdtemp(join(tmpdir(), 'docs-device-fail-'));
+  // Canonical: scan roots are never reached through a symbolic link (macOS tmpdir is below /var -> private/var).
+  const temp = await realpath(await mkdtemp(join(tmpdir(), 'docs-device-fail-')));
   try {
     for (const name of ['a', 'b']) await mkdir(join(temp, name, 'docs'), { recursive: true });
     const scan = { ...emptyDeviceScan(), roots: [temp] };

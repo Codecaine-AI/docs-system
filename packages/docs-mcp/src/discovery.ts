@@ -1,21 +1,35 @@
 import { createHash } from 'node:crypto';
 import { validateDocDocument } from '@codecaine-ai/docs-model/doc-schema';
+import { isExcludedDocPath } from '@codecaine-ai/docs-index/paths';
+import { readDocsProjectConfig, type DocsProjectConfig } from '@codecaine-ai/docs-index/project-policy';
+import { docsFs, realDocsRootPath } from '@codecaine-ai/docs-index/safe-path';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
-export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[] }
+/** exclude: docsRoot-relative globs from codecaine.docs.json whose matches are not part of the project. */
+export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[]; exclude?: string[] }
 export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[] }
 const inside = (root: string, target: string) => target === root || (!relative(root, target).startsWith(`..${sep}`) && relative(root, target) !== '..' && !isAbsolute(relative(root, target)));
 async function json(file: string): Promise<any | undefined> {
   try { return JSON.parse(await readFile(file, 'utf8')); } catch (e: any) { if (e.code === 'ENOENT') return undefined; throw new Error(`Cannot read ${file}: ${e.message}`); }
 }
 async function directory(path: string) { try { return (await stat(path)).isDirectory(); } catch { return false; } }
+/** codecaine.docs.json with docsRoot "." makes its whole folder one docs project. */
+const wholeFolderProject = (config: DocsProjectConfig | undefined) => config?.docsRoot === '.' || config?.docsRoot === './';
+/**
+ * Every codecaine.docs.json is read through the structural validator every
+ * host's policy loader uses (docs-index/project-policy): unparsable JSON, a
+ * non-object, invalid products, a present non-string docsRoot, a docsRoot
+ * outside its folder or an invalid exclude all refuse, here and in every host.
+ */
+const projectConfig = (folder: string) => readDocsProjectConfig(join(folder, 'codecaine.docs.json'));
 export async function discoverProjects(input: string): Promise<Discovery> {
   const workspace = await realpath(resolve(input));
   if (!await directory(workspace)) throw new Error('Workspace must be a directory');
   const warnings: string[] = [];
   const candidates = new Set<string>([workspace]);
-  const manifest = await json(join(workspace, 'codecaine.docs.json'));
+  const manifestConfig = await projectConfig(workspace);
+  const manifest: any = manifestConfig?.record;
   const members = await json(join(workspace, 'members.json'));
   const pkg = await json(join(workspace, 'package.json'));
   const declared: string[] = [
@@ -47,22 +61,42 @@ export async function discoverProjects(input: string): Promise<Discovery> {
   }
   const projects: DocsProject[] = [];
   const roots = new Set<string>();
+  // A folder inside a whole-folder project (docsRoot ".") is part of that project, never its own.
+  const ancestorConfigs = new Map<string, boolean>();
+  const wholeFolderAncestor = async (root: string) => {
+    for (let folder = dirname(root); ; folder = dirname(folder)) {
+      let whole = ancestorConfigs.get(folder);
+      if (whole === undefined) {
+        // Fail closed: a malformed enclosing config refuses discovery, as it refuses every host below it.
+        whole = wholeFolderProject(await projectConfig(folder));
+        ancestorConfigs.set(folder, whole);
+      }
+      if (whole) return folder;
+      if (folder === dirname(folder)) return undefined;
+    }
+  };
   for (const root of [...candidates].sort()) {
-    const config = root === workspace ? manifest : await json(join(root, 'codecaine.docs.json'));
-    if (config?.products !== undefined && (!Array.isArray(config.products) || config.products.some((x: unknown) => typeof x !== 'string'))) throw new Error(`Invalid products in ${root}/codecaine.docs.json`);
-    const products: string[] = config?.products ?? ['docs'];
+    const ancestor = await wholeFolderAncestor(root);
+    if (ancestor !== undefined) { warnings.push(`Inside docs project ${ancestor}: ${root}`); continue; }
+    const validated = root === workspace ? manifestConfig : await projectConfig(root);
+    const config: any = validated?.record;
+    const products: string[] = validated?.products ?? ['docs'];
     if (!products.includes('docs')) continue;
-    if (config?.docsRoot !== undefined && typeof config.docsRoot !== 'string') throw new Error(`Invalid docsRoot in ${root}/codecaine.docs.json`);
-    const docs = resolve(root, config?.docsRoot ?? 'docs');
+    const exclude = validated?.exclude ?? [];
+    const docs = validated?.docsRootPath ?? resolve(root, 'docs');
     if (!inside(root, docs)) throw new Error(`docsRoot must be inside project: ${root}`);
     if (!await directory(docs)) continue;
-    const docsRoot = await realpath(docs);
+    // The docs root's canonical identity comes from the chokepoint module.
+    const docsRoot = realDocsRootPath(docs);
     if (!inside(root, docsRoot)) throw new Error(`docsRoot symlink escapes project: ${root}`);
     // Recognize the normalized model; never treat arbitrary Markdown directories as migrated corpora.
     let found = false;
     for await (const file of new Bun.Glob('**/doc.json').scan({ cwd: docsRoot, onlyFiles: true, followSymlinks: false })) {
       if (file.split('/').some(x => x.startsWith('.') || x === 'node_modules')) continue;
-      let doc; try { doc = await json(join(docsRoot, file)); } catch { warnings.push(`Malformed document skipped during discovery: ${join(docsRoot,file)}`); continue; }
+      // An excluded doc.json is not part of the corpus, so it cannot make one.
+      if (isExcludedDocPath(file, exclude)) continue;
+      // The document itself is read through the docs-root chokepoint (refused paths read as malformed).
+      let doc; try { doc = JSON.parse(await docsFs(docsRoot).readFile(file, 'utf8')); } catch { warnings.push(`Malformed document skipped during discovery: ${join(docsRoot,file)}`); continue; }
       if (validateDocDocument(doc).ok) { found = true; break; }
     }
     if (!found) { warnings.push(`No normalized doc.json corpus found: ${docs}`); continue; }
@@ -72,7 +106,7 @@ export async function discoverProjects(input: string): Promise<Discovery> {
     if (typeof name !== 'string') throw new Error(`Invalid project name: ${root}`);
     const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
     const id = `${slug}-${createHash('sha256').update(docsRoot).digest('hex').slice(0, 8)}`;
-    projects.push({ id, name, root, docsRoot, products });
+    projects.push({ id, name, root, docsRoot, products, ...(exclude.length ? { exclude } : {}) });
   }
   return { workspace, projects, warnings };
 }

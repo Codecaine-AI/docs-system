@@ -1,8 +1,15 @@
-import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+// Raw fs here only READS the prebuilt SPA dist (the package's own build). Every
+// corpus read goes through the docs-root chokepoint (docsFs) and every write of
+// the export OUTPUT folder goes through its output guard (docsOutputFs), both in
+// @codecaine-ai/docs-index/safe-path.
+import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { openBacklinksDb, queryInboundTolerant, rescanAll } from "@codecaine-ai/docs-index/backlinks";
+import { loadDocsRootExcludePolicy } from "@codecaine-ai/docs-index/paths";
+import { readDocsProjectConfig } from "@codecaine-ai/docs-index/project-policy";
+import { docsFs, docsOutputFs, type DocsOutputIntent } from "@codecaine-ai/docs-index/safe-path";
 
 import { bundleResponse, loadDocBundle } from "@codecaine-ai/docs-server";
 import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "@codecaine-ai/docs-server";
@@ -69,10 +76,14 @@ export interface ExportReport {
   failures: Array<{ path: string; detail: string }>;
 }
 
-/** Recursively lists files under docsRoot living inside an `assets/` dir. */
+/**
+ * Recursively lists files under docsRoot living inside an `assets/` dir.
+ * Paths the project's codecaine.docs.json `exclude` globs match are skipped
+ * with their subtree: excluded files are not part of the published corpus.
+ */
 async function collectAssetFiles(docsRoot: string, relPath = ""): Promise<string[]> {
-  const here = join(docsRoot, relPath);
-  const entries = await readdir(here, { withFileTypes: true });
+  // The chokepoint omits entries excluded lexically or at their canonical location.
+  const entries = await docsFs(docsRoot).readdirEntries(relPath);
   const out: string[] = [];
   for (const entry of entries) {
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
@@ -119,22 +130,56 @@ export function normalizeRepoUrl(value: string, source = "--repo-url"): string {
 export async function readProjectRepoUrl(docsRoot: string): Promise<string | null> {
   const projectRoot = dirname(resolve(docsRoot));
   const configPath = join(projectRoot, "codecaine.docs.json");
-  let config: unknown;
+  // Read through the shared structural validator every host uses.
+  let config;
   try {
-    config = JSON.parse(await readFile(configPath, "utf8"));
+    config = await readDocsProjectConfig(configPath);
   } catch {
     return null;
   }
-  if (!config || typeof config !== "object") return null;
-  const { docsRoot: declaredRoot, repository } = config as Record<string, unknown>;
-  const declared = resolve(projectRoot, typeof declaredRoot === "string" ? declaredRoot : "docs");
-  if (declared !== resolve(docsRoot)) return null;
+  if (!config) return null;
+  const { repository } = config.record;
+  if (config.docsRootPath !== resolve(docsRoot)) return null;
   if (repository === undefined) return null;
   if (typeof repository !== "string") {
     throw new Error(`Invalid repository in ${configPath}: expected a URL string.`);
   }
   return normalizeRepoUrl(repository, `repository in ${configPath}`);
 }
+
+/** Files and folders of the prebuilt SPA dist (dist-relative); links and other entries are skipped. */
+async function listSpaDist(dist: string, rel = ""): Promise<{ dirs: string[]; files: string[] }> {
+  const out = { dirs: [] as string[], files: [] as string[] };
+  for (const entry of await readdir(rel ? join(dist, rel) : dist, { withFileTypes: true })) {
+    const childRel = rel ? `${rel}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      out.dirs.push(childRel);
+      const below = await listSpaDist(dist, childRel);
+      out.dirs.push(...below.dirs);
+      out.files.push(...below.files);
+    } else if (entry.isFile()) {
+      out.files.push(childRel);
+    }
+  }
+  return out;
+}
+
+/**
+ * The fixed destinations of every export, checked before any build or write
+ * (B7-3-02); each write checks its own target again at its system call.
+ */
+const FIXED_OUTPUT_TARGETS: ReadonlyArray<{ path: string; intent: DocsOutputIntent }> = [
+  { path: "", intent: "mkdir" },
+  { path: "index.html", intent: "write" },
+  { path: "data", intent: "mkdir" },
+  { path: "data/site.json", intent: "write" },
+  { path: "data/tree.json", intent: "write" },
+  { path: "data/backlinks.json", intent: "write" },
+  { path: "data/theme.json", intent: "write" },
+  { path: "data/bundles", intent: "mkdir" },
+  { path: "data/markdown", intent: "mkdir" },
+  { path: "data/files", intent: "mkdir" },
+];
 
 function escapeHtml(value: string): string {
   return value
@@ -149,46 +194,66 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
   const log = options.log ?? (() => {});
 
   // 0. Validate public-site inputs BEFORE any build/copy work, so a bad
-  //    flag fails fast and leaves the out dir untouched.
+  //    flag fails fast and leaves the out dir untouched. The project policy
+  //    (codecaine.docs.json exclude) is validated here too; the tree walk,
+  //    bundle loads, asset walk and backlinks scan below all honor it.
+  loadDocsRootExcludePolicy(docsRoot);
+  // Every output write goes through the output guard: no symbolic link at or
+  // below the output folder (a linked data/, data/files or index.html is never
+  // written through), and no destination on a path the corpus forbids (the
+  // served root's chokepoint rule and every governing project's exclude). The
+  // fixed destinations are checked here, before any build or write.
+  const out = docsOutputFs(docsRoot, outDir);
+  const fixed = out.preflight(FIXED_OUTPUT_TARGETS);
+  if (!fixed.ok) throw new Error(`Export output refused: ${fixed.detail}`);
   const repoUrl =
     options.repoUrl !== undefined
       ? normalizeRepoUrl(options.repoUrl)
       : await readProjectRepoUrl(docsRoot);
   const siteTitle = options.siteTitle?.trim() || undefined;
 
-  // 1. Static-mode SPA build, copied wholesale into the out dir.
+  // 1. Static-mode SPA build, copied wholesale into the out dir. Every
+  //    destination is checked before the first copy, and again at its write.
   const dist = await ensureSpaBuilt({ mode: "static", force: options.forceBuild, log });
-  await mkdir(outDir, { recursive: true });
-  await cp(dist, outDir, { recursive: true });
-  {
+  const spa = await listSpaDist(dist);
+  const spaTargets = out.preflight([
+    ...spa.dirs.map((path) => ({ path, intent: "mkdir" as const })),
+    ...spa.files.map((path) => ({ path, intent: "write" as const })),
+  ]);
+  if (!spaTargets.ok) throw new Error(`Export output refused: ${spaTargets.detail}`);
+  await out.mkdir("", { recursive: true });
+  for (const dir of spa.dirs) await out.mkdir(dir, { recursive: true });
+  for (const file of spa.files) {
+    if (file !== "index.html") {
+      await out.writeFile(file, await readFile(join(dist, file)));
+      continue;
+    }
     // Per-export index.html tweaks (the shared SPA build stays untouched):
     // the pre-JS <title> (the SPA also reads it from data/site.json), and an
     // empty icon so browsers do not probe the HOST root's /favicon.ico — on
     // a subpath deploy that is outside the export and 404s.
-    const indexPath = join(outDir, "index.html");
-    let html = await readFile(indexPath, "utf8");
+    let html = await readFile(join(dist, file), "utf8");
     if (siteTitle) {
       html = html.replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHtml(siteTitle)}</title>`);
     }
     if (!/<link[^>]+rel=["']?(?:shortcut )?icon/i.test(html)) {
       html = html.replace(/<\/head>/i, '    <link rel="icon" href="data:," />\n  </head>');
     }
-    await writeFile(indexPath, html);
+    await out.writeFile(file, html);
   }
 
-  const dataDir = join(outDir, "data");
-  await mkdir(dataDir, { recursive: true });
+  await out.mkdir("data", { recursive: true });
 
   // 1b. Public-site chrome, read at runtime so one SPA build serves any corpus.
   const site: StaticSiteConfig = {
     ...(repoUrl ? { repoUrl } : {}),
     ...(siteTitle ? { title: siteTitle } : {}),
   };
-  await writeFile(join(dataDir, "site.json"), JSON.stringify(site, null, 2));
+  await out.writeFile("data/site.json", JSON.stringify(site, null, 2));
 
   // 2. Tree snapshot (same shape as GET /api/tree).
   const tree: DocsTreeNode[] = await walkDocsDir(docsRoot);
-  await writeFile(join(dataDir, "tree.json"), JSON.stringify({ tree }, null, 2));
+  await out.writeFile("data/tree.json", JSON.stringify({ tree }, null, 2));
 
   // 3. Per-bundle snapshots + markdown projections.
   const bundlePaths = collectBundlePaths(tree);
@@ -200,23 +265,24 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
       failures.push({ path: bundlePath, detail: loaded.error.detail });
       continue;
     }
-    const bundleJsonPath = join(dataDir, "bundles", `${bundlePath}.json`);
-    await mkdir(dirname(bundleJsonPath), { recursive: true });
-    await writeFile(bundleJsonPath, JSON.stringify(bundleResponse(loaded), null, 2));
+    const bundleJsonPath = `data/bundles/${bundlePath}.json`;
+    await out.mkdir(dirname(bundleJsonPath), { recursive: true });
+    await out.writeFile(bundleJsonPath, JSON.stringify(bundleResponse(loaded), null, 2));
 
-    const markdownPath = join(dataDir, "markdown", `${bundlePath}.md`);
-    await mkdir(dirname(markdownPath), { recursive: true });
-    await writeFile(markdownPath, projectToMarkdown(loaded.document));
+    const markdownPath = `data/markdown/${bundlePath}.md`;
+    await out.mkdir(dirname(markdownPath), { recursive: true });
+    await out.writeFile(markdownPath, projectToMarkdown(loaded.document));
     bundlesExported += 1;
   }
 
   // 4. Copy asset + canvas files (everything under an assets/ dir).
   const assetFiles = await collectAssetFiles(docsRoot);
   let filesCopied = 0;
+  const corpus = docsFs(docsRoot);
   for (const relPath of assetFiles) {
-    const target = join(dataDir, "files", relPath);
-    await mkdir(dirname(target), { recursive: true });
-    await cp(join(docsRoot, relPath), target);
+    const target = `data/files/${relPath}`;
+    await out.mkdir(dirname(target), { recursive: true });
+    await out.writeFile(target, await corpus.readFile(relPath));
     filesCopied += 1;
   }
 
@@ -229,7 +295,7 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
     const rows = queryInboundTolerant(db, bundlePath);
     if (rows.length > 0) backlinks[bundlePath] = rows;
   }
-  await writeFile(join(dataDir, "backlinks.json"), JSON.stringify(backlinks, null, 2));
+  await out.writeFile("data/backlinks.json", JSON.stringify(backlinks, null, 2));
 
   // 6. Active-theme snapshot, GET /api/themes/:id shaped. The exported site has no
   //    server, so this file is the ONLY way the style rail's repo baseline
@@ -249,7 +315,7 @@ export async function runExport(options: ExportOptions): Promise<ExportReport> {
     theme = await readTheme(themeId);
   }
   if (theme) {
-    await writeFile(join(dataDir, "theme.json"), JSON.stringify({ theme }, null, 2));
+    await out.writeFile("data/theme.json", JSON.stringify({ theme }, null, 2));
   }
 
   log(

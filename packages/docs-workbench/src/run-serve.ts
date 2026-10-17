@@ -1,6 +1,7 @@
 import { sharedDocsApiFromEnvironment, type SharedDocsApiOptions } from "./shared-api";
-import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { resolve } from "node:path";
+
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
 import { resolveCodeThemesRoot, resolveGlobalThemesRoot } from "@codecaine-ai/docs-server";
 
@@ -83,7 +84,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     options.codeThemesRoot === null ? undefined : (options.codeThemesRoot ?? resolveCodeThemesRoot());
   const displayHost = hostname === "0.0.0.0" ? "localhost" : hostname;
 
-  if (!existsSync(join(docsRoot, "."))) {
+  if (!docsFs(docsRoot).existsSync("")) {
     throw new Error(`Docs root does not exist: ${docsRoot}`);
   }
 

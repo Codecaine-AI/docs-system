@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
@@ -6,9 +5,9 @@ import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-mo
 import type { AnnotationsDocument, AnnotationTarget } from "@codecaine-ai/docs-model/annotations-schema";
 import { validateAnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
-import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { isSafeRelativePath, resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { checkDocsPath, docsFs } from "@codecaine-ai/docs-index/safe-path";
 
-import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 
 /**
@@ -16,7 +15,8 @@ import { createContentHash } from "./content-hash";
  * source of truth for the bundle wire shapes — both the standalone serve
  * app's `GET /api/bundle` and any host app's project-scoped bundle routes
  * delegate here, so responses stay shape-identical everywhere. The sidecar
- * file is `annotations.json`, full stop.
+ * file is `annotations.json`, full stop. Every read and write goes through
+ * the docs-root chokepoint (@codecaine-ai/docs-index/safe-path).
  */
 
 export { createContentHash };
@@ -68,12 +68,18 @@ export async function loadDocBundle(
 ): Promise<DocBundleLoadResult | DocBundleLoadError> {
   const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
   if (!jsonAbs) {
+    // A malformed project policy refuses every path; say so instead of "invalid path".
+    const checked = isSafeRelativePath(path) ? checkDocsPath(docsRoot, path, "read") : undefined;
+    if (checked && !checked.ok && checked.reason === "policy-invalid") {
+      return { error: { status: checked.status, detail: checked.detail } };
+    }
     return { error: { status: 400, detail: `Invalid docs path: ${path}` } };
   }
 
+  const fs = docsFs(docsRoot);
   let raw: string;
   try {
-    raw = await readFile(jsonAbs, "utf8");
+    raw = await fs.readFile(jsonAbs, "utf8");
   } catch {
     return { error: { status: 404, detail: `Doc bundle not found: ${path}` } };
   }
@@ -105,7 +111,7 @@ export async function loadDocBundle(
   let annotationsHash: string | null = null;
   let annotationsRaw: string | null = null;
   try {
-    annotationsRaw = await readFile(annotationsAbs, "utf8");
+    annotationsRaw = await fs.readFile(annotationsAbs, "utf8");
   } catch {
     annotationsRaw = null;
   }
@@ -183,6 +189,10 @@ export async function loadDocProjection(
 
 export const EMPTY_ANNOTATIONS_DOCUMENT: AnnotationsDocument = { schemaVersion: 1, annotations: [] };
 
+type AnnotationsSidecarReadResult =
+  | { ok: true; annotations: AnnotationsDocument; hash: string | null }
+  | { error: { status: number; detail: string } };
+
 /**
  * Reads + validates a bundle's `annotations.json` sidecar directly (the GET
  * annotations route uses this rather than `loadDocBundle`, since fetching
@@ -191,14 +201,26 @@ export const EMPTY_ANNOTATIONS_DOCUMENT: AnnotationsDocument = { schemaVersion: 
  */
 export async function readAnnotationsSidecar(
   annotationsAbs: string,
-): Promise<
-  | { ok: true; annotations: AnnotationsDocument; hash: string | null }
-  | { error: { status: number; detail: string } }
-> {
+): Promise<AnnotationsSidecarReadResult>;
+export async function readAnnotationsSidecar(
+  docsRoot: string,
+  annotationsAbs: string,
+): Promise<AnnotationsSidecarReadResult>;
+export async function readAnnotationsSidecar(
+  first: string,
+  second?: string,
+): Promise<AnnotationsSidecarReadResult> {
+  // Legacy one-argument form: confined to the sidecar's own bundle folder,
+  // still under every project policy that governs that folder.
+  const [docsRoot, annotationsAbs] = second === undefined ? [dirname(first), first] : [first, second];
   let raw: string;
   try {
-    raw = await readFile(annotationsAbs, "utf8");
-  } catch {
+    raw = await docsFs(docsRoot).readFile(annotationsAbs, "utf8");
+  } catch (error) {
+    // A refused path is never read; it is not an empty sidecar either.
+    if ((error as NodeJS.ErrnoException).code === "EDOCSREFUSED") {
+      return { error: { status: (error as { status: number }).status, detail: (error as Error).message } };
+    }
     return { ok: true, annotations: EMPTY_ANNOTATIONS_DOCUMENT, hash: null };
   }
   let parsed: unknown;
@@ -225,9 +247,22 @@ export async function readAnnotationsSidecar(
 export async function writeAnnotationsSidecar(
   annotationsAbs: string,
   document: AnnotationsDocument,
+): Promise<{ content: string; hash: string }>;
+export async function writeAnnotationsSidecar(
+  docsRoot: string,
+  annotationsAbs: string,
+  document: AnnotationsDocument,
+): Promise<{ content: string; hash: string }>;
+export async function writeAnnotationsSidecar(
+  first: string,
+  second: string | AnnotationsDocument,
+  third?: AnnotationsDocument,
 ): Promise<{ content: string; hash: string }> {
+  // Legacy two-argument form: confined to the sidecar's own bundle folder.
+  const [docsRoot, annotationsAbs, document] =
+    typeof second === "string" ? [first, second, third as AnnotationsDocument] : [dirname(first), first, second];
   const content = `${JSON.stringify(document, null, 2)}\n`;
-  await atomicWriteFile(annotationsAbs, content);
+  await docsFs(docsRoot).atomicWrite(annotationsAbs, content);
   return { content, hash: createContentHash(content) };
 }
 

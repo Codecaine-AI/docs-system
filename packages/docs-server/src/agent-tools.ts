@@ -3,7 +3,7 @@
  * Host UI routes AND agent runtimes converge on these exact functions, so
  * every caller gets the same preconditions (content-hash check + draft-lock
  * check), the same per-path serialization (`withPathLock`), the same atomic
- * writes (`atomicWriteFile`), and the same inverse-op bookkeeping (the
+ * writes (the docs-root chokepoint's `atomicWrite`), and the same inverse-op bookkeeping (the
  * shared patch ledger) — there is no separate, duplicated "agent mutation
  * path".
  *
@@ -14,11 +14,16 @@
  */
 import { randomUUID } from "node:crypto";
 import { join, resolve, sep } from "node:path";
-import { readFile, stat, unlink } from "node:fs/promises";
 
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
+import {
+  docsFs,
+  isDocsPathRefusal,
+  preflightDocsPaths,
+  type DocsPreflightTarget,
+} from "@codecaine-ai/docs-index/safe-path";
 import type { AnnotationsDocument, DocAnnotation } from "@codecaine-ai/docs-model/annotations-schema";
 import { sectionDescendantIds } from "@codecaine-ai/canvas/geometry";
 import {
@@ -34,7 +39,6 @@ import {
 import type { SequenceAgentPatchOperation } from "@codecaine-ai/sequence/agent-schema";
 
 import { withPathLock } from "./path-mutex";
-import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import { loadDocBundle } from "./bundle";
@@ -76,6 +80,7 @@ import {
   recordSidecarPatch,
   recordSequencePatch,
   recordTreePatch,
+  type StoredPatch,
 } from "./patch-ledger";
 
 // Re-export the ledger surface so tool consumers only need this module.
@@ -164,15 +169,17 @@ type CanvasSidecarLoad =
  * (404 missing / 422 bad JSON / 422 schema), and one content-hash
  * derivation. `canvasPath` is only used for error messages.
  */
-async function loadCanvasSidecar(canvasAbs: string, canvasPath: string): Promise<CanvasSidecarLoad> {
+async function loadCanvasSidecar(docsRoot: string, canvasAbs: string, canvasPath: string): Promise<CanvasSidecarLoad> {
   let raw: string;
   try {
-    const st = await stat(canvasAbs);
+    const fs = docsFs(docsRoot);
+    const st = await fs.stat(canvasAbs);
     if (!st.isFile()) {
       return { ok: false, status: 404, detail: `Canvas sidecar is not a file: ${canvasPath}` };
     }
-    raw = await readFile(canvasAbs, "utf8");
-  } catch {
+    raw = await fs.readFile(canvasAbs, "utf8");
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
     return { ok: false, status: 404, detail: `Canvas sidecar not found: ${canvasPath}` };
   }
   let parsed: unknown;
@@ -212,7 +219,7 @@ export async function canvas_get(
     return { ok: false, status: 400, detail: `Invalid canvas sidecar path: ${canvasPath}` };
   }
   const canvasAbs = join(docsRoot, canvasRelPath);
-  const loaded = await loadCanvasSidecar(canvasAbs, canvasPath);
+  const loaded = await loadCanvasSidecar(docsRoot, canvasAbs, canvasPath);
   if (!loaded.ok) {
     return loaded;
   }
@@ -438,7 +445,7 @@ export async function canvas_apply_patch(
   const canvasAbs = join(docsRoot, canvasRelPath);
 
   return withPathLock(canvasAbs, async (): Promise<CanvasApplyPatchResult> => {
-    const loaded = await loadCanvasSidecar(canvasAbs, canvasPath);
+    const loaded = await loadCanvasSidecar(docsRoot, canvasAbs, canvasPath);
     if (!loaded.ok) {
       return loaded;
     }
@@ -483,7 +490,7 @@ export async function canvas_apply_patch(
     }
 
     const content = `${JSON.stringify(revalidated.document, null, 2)}\n`;
-    await atomicWriteFile(canvasAbs, content);
+    await docsFs(docsRoot).atomicWrite(canvasAbs, content);
     const hash = createContentHash(content);
     const patchId = randomUUID();
     recordCanvasPatch(patchId, canvasRelPath, priorSnapshot, hash, docsRoot);
@@ -517,17 +524,20 @@ type SequenceSidecarLoad =
  * bad JSON / 422 schema).
  */
 async function loadSequenceSidecar(
+  docsRoot: string,
   sequenceAbs: string,
   sequencePath: string,
 ): Promise<SequenceSidecarLoad> {
   let raw: string;
   try {
-    const st = await stat(sequenceAbs);
+    const fs = docsFs(docsRoot);
+    const st = await fs.stat(sequenceAbs);
     if (!st.isFile()) {
       return { ok: false, status: 404, detail: `Sequence sidecar is not a file: ${sequencePath}` };
     }
-    raw = await readFile(sequenceAbs, "utf8");
-  } catch {
+    raw = await fs.readFile(sequenceAbs, "utf8");
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
     return { ok: false, status: 404, detail: `Sequence sidecar not found: ${sequencePath}` };
   }
   let parsed: unknown;
@@ -557,7 +567,7 @@ export async function sequence_get(
     return { ok: false, status: 400, detail: `Invalid sequence sidecar path: ${sequencePath}` };
   }
   const sequenceAbs = join(docsRoot, sequenceRelPath);
-  const loaded = await loadSequenceSidecar(sequenceAbs, sequencePath);
+  const loaded = await loadSequenceSidecar(docsRoot, sequenceAbs, sequencePath);
   if (!loaded.ok) {
     return loaded;
   }
@@ -623,7 +633,7 @@ export async function sequence_apply_patch(
   const sequenceAbs = join(docsRoot, sequenceRelPath);
 
   return withPathLock(sequenceAbs, async (): Promise<SequenceApplyPatchResult> => {
-    const loaded = await loadSequenceSidecar(sequenceAbs, sequencePath);
+    const loaded = await loadSequenceSidecar(docsRoot, sequenceAbs, sequencePath);
     if (!loaded.ok) {
       return loaded;
     }
@@ -673,7 +683,7 @@ export async function sequence_apply_patch(
     }
 
     const content = `${JSON.stringify(applied.document, null, 2)}\n`;
-    await atomicWriteFile(sequenceAbs, content);
+    await docsFs(docsRoot).atomicWrite(sequenceAbs, content);
     const hash = createContentHash(content);
     const patchId = randomUUID();
     recordSequencePatch(patchId, sequenceRelPath, priorSnapshot, hash, docsRoot);
@@ -729,10 +739,66 @@ export type UndoPatchResult =
  * On success, the patch is removed from the ledger (a patch can only be
  * undone once — undoing consumes it).
  */
+/**
+ * Every filesystem target an undo would change, compound members included:
+ * a doc's doc.json, a Canvas or Sequence sidecar, each sidecar file (unlink
+ * when its recorded prior state is absent), and the ends of a tree inverse.
+ */
+function undoTargets(docsRoot: string, stored: StoredPatch, seen = new Set<string>()): DocsPreflightTarget[] {
+  type SidecarFile = Extract<StoredPatch, { kind: "sidecars" }>["files"][number];
+  switch (stored.kind) {
+    case "doc":
+      return [{ path: `${stored.path}/doc.json`, intent: "write" }];
+    case "canvas":
+    case "sequence":
+      return [{ path: stored.path, intent: "write" }];
+    case "sidecars":
+      return stored.files.map((file: SidecarFile): DocsPreflightTarget => ({
+        path: file.path,
+        intent: file.beforeContent === null ? "remove" : "write",
+      }));
+    case "tree": {
+      const inverse = stored.inverse;
+      if (inverse.kind === "move-doc") {
+        return [
+          { path: inverse.from, intent: "rename-from" },
+          { path: inverse.to, intent: "rename-to" },
+        ];
+      }
+      if (inverse.kind === "restore-doc") return [{ path: inverse.docPath, intent: "rename-to" }];
+      return [
+        { path: `${inverse.docPath}/doc.json`, intent: "remove" },
+        { path: inverse.docPath, intent: "remove" },
+      ];
+    }
+    case "compound": {
+      const targets: DocsPreflightTarget[] = [];
+      for (const memberId of stored.patchIds) {
+        if (seen.has(memberId)) continue;
+        seen.add(memberId);
+        const member = getStoredPatch(memberId, docsRoot);
+        if (member) targets.push(...undoTargets(docsRoot, member, seen));
+      }
+      return targets;
+    }
+  }
+  return [];
+}
+
 export async function undo_patch(docsRoot: string, patchId: string): Promise<UndoPatchResult> {
   const stored = getStoredPatch(patchId, docsRoot);
   if (!stored) {
     return { ok: false, status: 404, detail: `No undoable patch found for id: ${patchId}` };
+  }
+
+  // Every target the undo would write, unlink or rename (compound members
+  // included) goes through the docs-root chokepoint before the first change:
+  // a target the project excludes now, or that a symbolic link now carries
+  // into an excluded folder or out of the docs root, is never touched, however
+  // well its recorded hash matches. The patch stays in the ledger.
+  const preflight = preflightDocsPaths(docsRoot, undoTargets(docsRoot, stored));
+  if (!preflight.ok) {
+    return { ok: false, status: preflight.status, detail: `Cannot undo: ${preflight.detail}` };
   }
 
   if (stored.kind === "compound") {
@@ -810,12 +876,21 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       if (index < locked.length) {
         return withPathLock(locked[index].abs, () => acquire(index + 1));
       }
+      const fs = docsFs(docsRoot);
+      // Re-checked inside the locks, before the first read or change.
+      const recheck = fs.preflight(
+        locked.map((file): DocsPreflightTarget => ({ path: file.abs, intent: file.beforeContent === null ? "remove" : "write" })),
+      );
+      if (!recheck.ok) {
+        return { ok: false, status: recheck.status, detail: `Cannot undo: ${recheck.detail}` };
+      }
 
       for (const file of locked) {
         let current: string | null;
         try {
-          current = await readFile(file.abs, "utf8");
+          current = await fs.readFile(file.abs, "utf8");
         } catch (error) {
+          if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: `Cannot undo: ${error.message}` };
           if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
             return { ok: false, status: 500, detail: `Cannot read sidecar: ${file.path}` };
           }
@@ -835,12 +910,12 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       for (const file of locked) {
         if (file.beforeContent === null) {
           try {
-            await unlink(file.abs);
+            await fs.unlink(file.abs);
           } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
           }
         } else {
-          await atomicWriteFile(file.abs, file.beforeContent);
+          await fs.atomicWrite(file.abs, file.beforeContent);
         }
       }
       deleteStoredPatch(patchId, docsRoot);
@@ -852,10 +927,15 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
   if (stored.kind === "sequence") {
     const sequenceAbs = join(docsRoot, stored.path);
     return withPathLock(sequenceAbs, async (): Promise<UndoPatchResult> => {
+      const fs = docsFs(docsRoot);
+      // Re-checked inside the lock, before the read and the write.
+      const recheck = fs.check(sequenceAbs, "write");
+      if (!recheck.ok) return { ok: false, status: recheck.status, detail: `Cannot undo: ${recheck.detail}` };
       let raw: string;
       try {
-        raw = await readFile(sequenceAbs, "utf8");
-      } catch {
+        raw = await fs.readFile(sequenceAbs, "utf8");
+      } catch (error) {
+        if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: `Cannot undo: ${error.message}` };
         return { ok: false, status: 404, detail: `Sequence sidecar not found: ${stored.path}` };
       }
       const currentHash = createContentHash(raw);
@@ -868,7 +948,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
         };
       }
       const content = `${JSON.stringify(stored.priorSnapshot, null, 2)}\n`;
-      await atomicWriteFile(sequenceAbs, content);
+      await fs.atomicWrite(sequenceAbs, content);
       const hash = createContentHash(content);
       deleteStoredPatch(patchId, docsRoot);
       return { ok: true, kind: "sequence", sequence: stored.priorSnapshot, hash };
@@ -877,10 +957,15 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
 
   const canvasAbs = join(docsRoot, stored.path);
   return withPathLock(canvasAbs, async (): Promise<UndoPatchResult> => {
+    const fs = docsFs(docsRoot);
+    // Re-checked inside the lock, before the read and the write.
+    const recheck = fs.check(canvasAbs, "write");
+    if (!recheck.ok) return { ok: false, status: recheck.status, detail: `Cannot undo: ${recheck.detail}` };
     let raw: string;
     try {
-      raw = await readFile(canvasAbs, "utf8");
-    } catch {
+      raw = await fs.readFile(canvasAbs, "utf8");
+    } catch (error) {
+      if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: `Cannot undo: ${error.message}` };
       return { ok: false, status: 404, detail: `Canvas sidecar not found: ${stored.path}` };
     }
     const currentHash = createContentHash(raw);
@@ -893,7 +978,7 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
       };
     }
     const content = `${JSON.stringify(stored.priorSnapshot, null, 2)}\n`;
-    await atomicWriteFile(canvasAbs, content);
+    await fs.atomicWrite(canvasAbs, content);
     const hash = createContentHash(content);
     deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "canvas", canvas: stored.priorSnapshot, hash };

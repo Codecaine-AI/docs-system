@@ -1,6 +1,7 @@
-import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { extname, join } from "node:path";
+import { extname } from "node:path";
+
+import { isExcludedDocPath } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
 /**
  * Docs tree walker, ported from Spectre apps/data-backend/src/index.ts's
@@ -18,7 +19,11 @@ import { extname, join } from "node:path";
  *  - the `index.md(x)` twin INSIDE a bundle folder is suppressed the same
  *    way.
  * Plain markdown files without a bundle keep listing as `kind: "file"`
- * (dot-directories like docs/.drafts stay skipped).
+ * (dot-directories like docs/.drafts stay skipped). Paths the project's
+ * codecaine.docs.json `exclude` globs match are skipped with their subtree.
+ * Listings and probes go through the docs-root chokepoint
+ * (@codecaine-ai/docs-index/safe-path), so an entry excluded at its canonical
+ * location, or a link that leaves the root, is never listed as a doc.
  */
 
 export type DocsTreeNode = {
@@ -30,12 +35,19 @@ export type DocsTreeNode = {
 
 const ALLOWED_DOC_EXT = new Set([".md", ".markdown", ".mdx"]);
 
-export async function walkDocsDir(absRoot: string, relPath = ""): Promise<DocsTreeNode[]> {
-  const here = join(absRoot, relPath);
-  const entries = await readdir(here, { withFileTypes: true });
+export async function walkDocsDir(
+  absRoot: string,
+  relPath = "",
+  exclude?: readonly string[],
+): Promise<DocsTreeNode[]> {
+  // The project policy always applies (the chokepoint omits excluded entries);
+  // explicit globs, when given, exclude more.
+  const isExcluded = (path: string) => (exclude ? isExcludedDocPath(path, exclude) : false);
+  const fs = docsFs(absRoot);
+  const entries = await fs.readdirEntries(relPath);
   const dirs: DocsTreeNode[] = [];
   const files: DocsTreeNode[] = [];
-  const hereIsBundle = existsSync(join(here, "doc.json"));
+  const hereIsBundle = fs.existsSync(relPath ? `${relPath}/doc.json` : "doc.json");
 
   const bundleDirNames = new Set<string>();
   for (const entry of entries) {
@@ -43,15 +55,18 @@ export async function walkDocsDir(absRoot: string, relPath = ""): Promise<DocsTr
     if (entry.name.startsWith(".") || entry.name === "node_modules" || entry.name === "assets") {
       continue;
     }
-    if (existsSync(join(here, entry.name, "doc.json"))) bundleDirNames.add(entry.name);
+    const childRel = relPath ? `${relPath}/${entry.name}` : entry.name;
+    if (isExcluded(childRel)) continue;
+    if (fs.existsSync(`${childRel}/doc.json`)) bundleDirNames.add(entry.name);
   }
 
   for (const entry of entries) {
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
     if (entry.isDirectory() && entry.name === "assets") continue;
     const childRel = relPath ? `${relPath}/${entry.name}` : entry.name;
+    if (isExcluded(childRel)) continue;
     if (entry.isDirectory()) {
-      const children = await walkDocsDir(absRoot, childRel);
+      const children = await walkDocsDir(absRoot, childRel, exclude);
       if (bundleDirNames.has(entry.name)) {
         dirs.push({
           name: entry.name,

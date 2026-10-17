@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { DocDocument } from '@codecaine-ai/docs-model';
 import { createDocsStore } from '@codecaine-ai/docs-server/store';
+import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type DocsProject } from './discovery';
 import { createDocsTools, type DocsToolResult } from './tools';
@@ -40,9 +41,11 @@ export function createInteractionService(options: { managed?: boolean; projectId
  async function discover(workspace:string){
   const discovery=await discoverProjects(workspace);
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
+  // Every store, watcher and resolver of a docs root honors its project's exclude globs.
+  for(const project of discovery.projects)setDocsRootExclude(project.docsRoot,project.exclude);
   for(const project of discovery.projects)projects.set(project.id,project);
   if(options.watchFs) for(const project of discovery.projects) if(!watchers.has(project.docsRoot)) {
-   const store=createDocsStore(project.docsRoot);
+   const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
    watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
@@ -114,7 +117,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  async function uiRequest(projectId:string,request:Request){
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
-  let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
+  let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot,{exclude:project.exclude??[]}),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));
  }

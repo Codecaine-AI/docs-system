@@ -1,8 +1,7 @@
-import { existsSync } from "node:fs";
-import { mkdir, stat, writeFile } from "node:fs/promises";
-import { basename, dirname, extname, join, resolve, sep } from "node:path";
+import { basename, dirname, extname, join } from "node:path";
 
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { docsFs, isDocsPathRefusal, type DocsFs } from "@codecaine-ai/docs-index/safe-path";
 
 import {
   ALLOWED_VIDEO_ASSET_EXT,
@@ -19,15 +18,39 @@ import { normalizeBundlePath } from "./bundle";
  * application/pdf) under `<bundle>/assets/attachments/` — with filename
  * sanitization, collision auto-uniquify, and byte-size caps enforced on the
  * ACTUAL bytes (caller-supplied size metadata is never trusted past the read).
+ * Every filesystem access goes through the docs-root chokepoint
+ * (@codecaine-ai/docs-index/safe-path): the target folder and the final file
+ * are preflighted at their canonical locations (inside the served root,
+ * outside every governing excluded path) before the first write, and checked
+ * again at the write.
  */
 
-async function pathExists(path: string): Promise<boolean> {
+/**
+ * Creates `targetDirAbs`, picks a free name and writes `buffer`, refusing
+ * before any change when the chokepoint refuses the folder or the file.
+ */
+async function writeUploadedAsset(
+  fs: DocsFs,
+  targetDirAbs: string,
+  sanitizedName: string,
+  buffer: Uint8Array,
+): Promise<{ ok: true; finalName: string } | { ok: false; status: number; detail: string }> {
+  const folder = fs.preflight([{ path: targetDirAbs, intent: "mkdir" }]);
+  if (!folder.ok) return { ok: false, status: folder.status, detail: folder.detail };
+  const finalName = uniquifyAssetFilename(sanitizedName, (candidate) =>
+    fs.existsSync(join(targetDirAbs, candidate)),
+  );
+  const targetAbs = join(targetDirAbs, finalName);
+  const file = fs.preflight([{ path: targetAbs, intent: "write" }]);
+  if (!file.ok) return { ok: false, status: file.status, detail: file.detail };
   try {
-    await stat(path);
-    return true;
-  } catch {
-    return false;
+    await fs.mkdir(targetDirAbs, { recursive: true });
+    await fs.writeFile(targetAbs, buffer);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
+    throw error;
   }
+  return { ok: true, finalName };
 }
 
 /**
@@ -100,7 +123,8 @@ export async function uploadDocAsset(
   if (!bundleJsonAbs) {
     return { ok: false, status: 400, detail: `Invalid bundle path: ${input.bundlePath}` };
   }
-  if (!(await pathExists(bundleJsonAbs))) {
+  const fs = docsFs(docsRoot);
+  if (!(await fs.exists(bundleJsonAbs))) {
     return { ok: false, status: 404, detail: `Doc bundle not found: ${input.bundlePath}` };
   }
   const { file } = input;
@@ -116,16 +140,6 @@ export async function uploadDocAsset(
   const bundleDirAbs = dirname(bundleJsonAbs);
   const targetDirAbs = join(bundleDirAbs, subfolder);
   const sanitizedName = sanitizeAssetFilename(file.name || "asset");
-  await mkdir(targetDirAbs, { recursive: true });
-  const finalName = uniquifyAssetFilename(sanitizedName, (candidate) =>
-    existsSync(join(targetDirAbs, candidate)),
-  );
-  const targetAbs = join(targetDirAbs, finalName);
-  const resolvedTarget = resolve(targetAbs);
-  const docsRootResolved = resolve(docsRoot);
-  if (!resolvedTarget.startsWith(docsRootResolved + sep)) {
-    return { ok: false, status: 400, detail: `Asset path escapes docs directory: ${finalName}` };
-  }
   const buffer = new Uint8Array(await file.arrayBuffer());
   // Re-check against the ACTUAL bytes: `file.size` is caller-supplied
   // metadata and may under-report; never trust it past the read.
@@ -136,7 +150,10 @@ export async function uploadDocAsset(
       detail: `Asset exceeds size cap of ${MAX_ASSET_BYTES} bytes: ${file.name}`,
     };
   }
-  await writeFile(targetAbs, buffer);
+  // Excluded folders, and folders a symbolic link carries out of the root, never receive an asset.
+  const written = await writeUploadedAsset(fs, targetDirAbs, sanitizedName, buffer);
+  if (!written.ok) return written;
+  const { finalName } = written;
   const bundlePath = normalizeBundlePath(input.bundlePath);
   const assetRelPath = bundlePath
     ? `${bundlePath}/${subfolder}/${finalName}`
@@ -183,7 +200,8 @@ export async function uploadDocVideoAsset(
   if (!bundleJsonAbs) {
     return { ok: false, status: 400, detail: `Invalid bundle path: ${input.bundlePath}` };
   }
-  if (!(await pathExists(bundleJsonAbs))) {
+  const fs = docsFs(docsRoot);
+  if (!(await fs.exists(bundleJsonAbs))) {
     return { ok: false, status: 404, detail: `Doc bundle not found: ${input.bundlePath}` };
   }
   const { file } = input;
@@ -215,16 +233,6 @@ export async function uploadDocVideoAsset(
   const bundleDirAbs = dirname(bundleJsonAbs);
   const targetDirAbs = join(bundleDirAbs, subfolder);
   const sanitizedName = sanitizeAssetFilename(rawName);
-  await mkdir(targetDirAbs, { recursive: true });
-  const finalName = uniquifyAssetFilename(sanitizedName, (candidate) =>
-    existsSync(join(targetDirAbs, candidate)),
-  );
-  const targetAbs = join(targetDirAbs, finalName);
-  const resolvedTarget = resolve(targetAbs);
-  const docsRootResolved = resolve(docsRoot);
-  if (!resolvedTarget.startsWith(docsRootResolved + sep)) {
-    return { ok: false, status: 400, detail: `Asset path escapes docs directory: ${finalName}` };
-  }
   const buffer = new Uint8Array(await file.arrayBuffer());
   // Re-check against the ACTUAL bytes — `file.size` is caller metadata.
   if (buffer.byteLength > MAX_VIDEO_ASSET_BYTES) {
@@ -234,7 +242,10 @@ export async function uploadDocVideoAsset(
       detail: `Video exceeds size cap of ${MAX_VIDEO_ASSET_BYTES} bytes: ${rawName}`,
     };
   }
-  await writeFile(targetAbs, buffer);
+  // Excluded folders, and folders a symbolic link carries out of the root, never receive an asset.
+  const written = await writeUploadedAsset(fs, targetDirAbs, sanitizedName, buffer);
+  if (!written.ok) return written;
+  const { finalName } = written;
   const bundlePath = normalizeBundlePath(input.bundlePath);
   const assetRelPath = bundlePath
     ? `${bundlePath}/${subfolder}/${finalName}`
@@ -269,7 +280,7 @@ export async function readDocAsset(docsRoot: string, path: string): Promise<Read
   }
   let st;
   try {
-    st = await stat(assetAbs);
+    st = await docsFs(docsRoot).stat(assetAbs);
   } catch {
     return { ok: false, status: 404, detail: `Asset not found: ${path}` };
   }

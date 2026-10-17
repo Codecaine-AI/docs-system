@@ -10,7 +10,10 @@
     "./backlinks": "./src/backlinks.ts",
     "./ref-match": "./src/ref-match.ts",
     "./move-doc": "./src/move-doc.ts",
-    "./paths": "./src/paths.ts"
+    "./paths": "./src/paths.ts",
+    "./project-policy": "./src/project-policy.ts",
+    "./subtree-guard": "./src/subtree-guard.ts",
+    "./safe-path": "./src/safe-path.ts"
   },
   "dependencies": {
     "@codecaine-ai/canvas": "workspace:*",

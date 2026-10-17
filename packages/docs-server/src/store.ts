@@ -1,6 +1,5 @@
 import { manageFiles, restoreManagedFiles, listManagedAssets, type ManageFilesInput } from "./manage-files";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { join, resolve } from "node:path";
 
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { ACTION_REGISTRY, checkParams } from "@codecaine-ai/docs-model";
@@ -8,7 +7,8 @@ import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 import { queryInboundTolerant, type BacklinkRow } from "@codecaine-ai/docs-index/backlinks";
 import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-ai/docs-index/move-doc";
-import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { loadDocsRootExcludePolicy, resolveDocBundleJsonPath, setDocsRootExclude } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
 import { walkDocsDir, type DocsTreeNode } from "./docs-tree";
 import {
@@ -375,12 +375,18 @@ async function forwardCanvasAction(
     // synthetic filename supplies only that directory context to the shared
     // resolver; it is never read from disk.
     const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
-    const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, source);
+    // The lexical shape first, then the chokepoint's on-disk verdict (excluded,
+    // or carried out of the root by a symbolic link): a refused sidecar answers
+    // with the message the canvas write resolver has always given it.
+    const lexicalCanvasRelPath = resolveCanvasSidecarRelativePath(docPath, source);
+    const canvasRelPath = lexicalCanvasRelPath && resolveCanvasSidecarRelativePath(docPath, source, docsRoot);
     if (!canvasRelPath) {
       return {
         ok: false,
         status: 400,
-        detail: `Invalid canvas sidecar path for ${path}: ${source}`,
+        detail: lexicalCanvasRelPath
+          ? `Invalid canvas sidecar path: ${lexicalCanvasRelPath}`
+          : `Invalid canvas sidecar path for ${path}: ${source}`,
       };
     }
 
@@ -522,12 +528,15 @@ async function forwardSequenceAction(
     // no markdown filename, so a synthetic `doc.mdx` supplies only the
     // directory context to the shared doc-relative resolver.
     const docPath = loaded.bundlePath ? `${loaded.bundlePath}/doc.mdx` : "doc.mdx";
-    const sequenceRelPath = resolveSequenceSidecarRelativePath(docPath, source);
+    const lexicalSequenceRelPath = resolveSequenceSidecarRelativePath(docPath, source);
+    const sequenceRelPath = lexicalSequenceRelPath && resolveSequenceSidecarRelativePath(docPath, source, docsRoot);
     if (!sequenceRelPath) {
       return {
         ok: false,
         status: 400,
-        detail: `Invalid sequence sidecar path for ${path}: ${source}`,
+        detail: lexicalSequenceRelPath
+          ? `Invalid sequence sidecar path: ${lexicalSequenceRelPath}`
+          : `Invalid sequence sidecar path for ${path}: ${source}`,
       };
     }
 
@@ -555,8 +564,19 @@ async function forwardSequenceAction(
   });
 }
 
-export function createDocsStore(docsRoot: string): DocsStore {
+/**
+ * Every store honors its project's policy: the codecaine.docs.json `exclude`
+ * globs of the project (or an enclosing `"docsRoot": "."` project) are read
+ * from disk in any host, so the tree, watcher, backlinks, canvas listing and
+ * every document, sidecar and asset resolver skip excluded paths. The policy
+ * is validated here, so a host with a malformed codecaine.docs.json fails at
+ * startup. `options.exclude` (the MCP service passes its discovered project's
+ * globs) replaces the project's own on-disk globs for this root.
+ */
+export function createDocsStore(docsRoot: string, options: { exclude?: readonly string[] } = {}): DocsStore {
   const root = canonicalDocsRoot(docsRoot);
+  if (options.exclude !== undefined) setDocsRootExclude(root, options.exclude);
+  loadDocsRootExcludePolicy(root);
   // Change events are channeled per resolved docs root, so every store (and
   // every host) bound to the same tree shares one event stream.
   const channel = root;
@@ -675,9 +695,12 @@ export function createDocsStore(docsRoot: string): DocsStore {
         // concept, so it is dropped here.
         applyDocOps: (docsRootArg, path, ops, expectedHash, _scope) =>
           applyDocOpsToBundle(docsRootArg, path, ops, expectedHash, undefined),
+        // Rewrites go through the docs-root chokepoint: a source that is excluded,
+        // or that a symbolic link carries into an excluded folder or out of the
+        // root, is refused at the read and at the write.
         loadCanvas: async (docsRootArg, canvasRelPath) => {
           try {
-            const raw = await readFile(join(docsRootArg, canvasRelPath), "utf8");
+            const raw = await docsFs(docsRootArg).readFile(canvasRelPath, "utf8");
             return { ok: true, canvas: JSON.parse(raw) as InteractiveCanvasDocument };
           } catch (error) {
             return { ok: false, reason: error instanceof Error ? error.message : String(error) };
@@ -685,9 +708,7 @@ export function createDocsStore(docsRoot: string): DocsStore {
         },
         saveCanvas: async (docsRootArg, canvasRelPath, canvas) => {
           try {
-            const abs = join(docsRootArg, canvasRelPath);
-            await mkdir(dirname(abs), { recursive: true });
-            await writeFile(abs, `${JSON.stringify(canvas, null, 2)}\n`, "utf8");
+            await docsFs(docsRootArg).atomicWrite(canvasRelPath, `${JSON.stringify(canvas, null, 2)}\n`);
             return { ok: true };
           } catch (error) {
             return { ok: false, reason: error instanceof Error ? error.message : String(error) };

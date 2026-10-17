@@ -1,13 +1,12 @@
 import type { LintReport } from "@codecaine-ai/docs-model/lint";
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 
 import { undo_patch } from "../agent-tools";
-import { atomicWriteFile } from "../atomic-write";
+import { checkDocsPath, docsFs } from "@codecaine-ai/docs-index/safe-path";
 import { attachAgentRunToAnnotation, resolveBundleAnnotation } from "../doc-ops";
 import type { DocsChangeEvent } from "../docs-events";
 import { draftLockStore } from "../draft-locks";
@@ -276,10 +275,34 @@ function touchesPath(changeset: DocChangeSet, path: string): boolean {
       normalizedPath(migration.toDocPath) === target) === true;
 }
 
+/** The first doc path the change-set names that the project's `exclude` globs match, if any. */
+function excludedChangeSetPath(docsRoot: string, input: CreateDocChangeSetInput): string | undefined {
+  // Shape validation stays with createChangeSetRecord; malformed input is skipped here.
+  const list = <T>(value: T[] | undefined): T[] => (Array.isArray(value) ? value : []);
+  const paths: unknown[] = [
+    ...list(input.entries).map((entry) => entry?.docPath),
+    ...list(input.treeOps).flatMap((op) => (op?.kind === "move-doc" ? [op.from, op.to] : [op?.docPath])),
+    ...list(input.annotationMigrations).flatMap((migration) => [migration?.fromDocPath, migration?.toDocPath]),
+  ];
+  // Judged by the docs-root chokepoint, lexically and at the canonical location on
+  // disk (a 403: excluded, or carried out of the root); malformed paths stay 400s below.
+  return paths.find((path): path is string => {
+    if (typeof path !== "string") return false;
+    const checked = checkDocsPath(docsRoot, path, "read");
+    return !checked.ok && checked.status === 403;
+  }) as
+    | string
+    | undefined;
+}
+
 export async function createChangeSet(
   docsRoot: string,
   input: CreateDocChangeSetInput,
 ): Promise<{ ok: true; changeset: DocChangeSetView } | ChangeSetFailure> {
+  const excluded = excludedChangeSetPath(docsRoot, input);
+  if (excluded !== undefined) {
+    return { ok: false, status: 403, detail: `Path is excluded from this docs project: ${excluded}` };
+  }
   const created = await createChangeSetRecord(docsRoot, input);
   if (!created.ok) return created;
   return enrichChangeSet(docsRoot, created.changeset);
@@ -362,7 +385,7 @@ async function reopenProposal(
   return withPathLock(sidecarAbs, async (): Promise<ProposalStatusMutationResult> => {
     let raw: string;
     try {
-      raw = await readFile(sidecarAbs, "utf8");
+      raw = await docsFs(docsRoot).readFile(sidecarAbs, "utf8");
     } catch {
       return { ok: false, status: 404, detail: `Proposals sidecar not found: ${docPath}` };
     }
@@ -396,7 +419,7 @@ async function reopenProposal(
       return { ok: false, status: 404, detail: `Proposal not found: ${proposalId}` };
     }
     const content = `${JSON.stringify({ ...(parsed as object), proposals }, null, 2)}\n`;
-    await atomicWriteFile(sidecarAbs, content);
+    await docsFs(docsRoot).atomicWrite(sidecarAbs, content);
     return { ok: true };
   });
 }
@@ -691,7 +714,7 @@ export async function acceptChangeSet(
     if (migrated.files.length > 0) {
       for (const file of migrated.files) {
         try {
-          const raw = await readFile(join(resolve(docsRoot), file.path), "utf8");
+          const raw = await docsFs(docsRoot).readFile(file.path, "utf8");
           file.hashAfterApply = createContentHash(raw);
         } catch (error) {
           file.hashAfterApply = (error as NodeJS.ErrnoException).code === "ENOENT" ? null : file.hashAfterApply;

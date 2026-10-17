@@ -1,4 +1,4 @@
-import { open, readFile, stat } from "node:fs/promises";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 import { join } from "node:path";
 
 import { Elysia, sse, t } from "elysia";
@@ -69,19 +69,22 @@ const CORS_HEADERS = {
  * an out-of-bounds range gets 416.
  */
 async function assetResponse(
+  docsRoot: string,
   assetAbs: string,
   contentType: string,
   rangeHeader: string | null,
 ): Promise<Response> {
+  // Every byte served comes through the docs-root chokepoint.
+  const fs = docsFs(docsRoot);
   const headers: Record<string, string> = {
     "Content-Type": contentType,
     "Cache-Control": "private, max-age=300",
     "Accept-Ranges": "bytes",
   };
-  const size = (await stat(assetAbs)).size;
+  const size = (await fs.stat(assetAbs)).size;
   const match = rangeHeader ? /^bytes=(\d*)-(\d*)$/.exec(rangeHeader) : null;
   if (!match || (match[1] === "" && match[2] === "")) {
-    return new Response(await readFile(assetAbs), { headers });
+    return new Response(await fs.readFile(assetAbs), { headers });
   }
   let start: number;
   let end: number;
@@ -97,13 +100,7 @@ async function assetResponse(
     return new Response(null, { status: 416, headers: { ...headers, "Content-Range": `bytes */${size}` } });
   }
   const length = end - start + 1;
-  const bytes = new Uint8Array(length);
-  const handle = await open(assetAbs, "r");
-  try {
-    await handle.read(bytes, 0, length, start);
-  } finally {
-    await handle.close();
-  }
+  const bytes = await fs.readRange(assetAbs, start, length);
   return new Response(bytes, { status: 206, headers: { ...headers, "Content-Range": `bytes ${start}-${end}/${size}` } });
 }
 
@@ -277,7 +274,7 @@ export function createDocsRoutes(
         const canvasAbs = join(store.docsRoot, canvasRelPath);
         let st;
         try {
-          st = await stat(canvasAbs);
+          st = await docsFs(store.docsRoot).stat(canvasAbs);
         } catch {
           set.status = 404;
           return { detail: `Canvas sidecar not found: ${src}` };
@@ -290,7 +287,7 @@ export function createDocsRoutes(
           set.status = 413;
           return { detail: `Canvas sidecar exceeds size cap: ${src}` };
         }
-        const canvasContent = await readFile(canvasAbs, "utf8");
+        const canvasContent = await docsFs(store.docsRoot).readFile(canvasAbs, "utf8");
         let canvas: unknown;
         try {
           canvas = JSON.parse(canvasContent);
@@ -361,7 +358,7 @@ export function createDocsRoutes(
         const sequenceAbs = join(store.docsRoot, sequenceRelPath);
         let st;
         try {
-          st = await stat(sequenceAbs);
+          st = await docsFs(store.docsRoot).stat(sequenceAbs);
         } catch {
           set.status = 404;
           return { detail: `Sequence sidecar not found: ${src}` };
@@ -374,7 +371,7 @@ export function createDocsRoutes(
           set.status = 413;
           return { detail: `Sequence sidecar exceeds size cap: ${src}` };
         }
-        const sequenceContent = await readFile(sequenceAbs, "utf8");
+        const sequenceContent = await docsFs(store.docsRoot).readFile(sequenceAbs, "utf8");
         let sequence: unknown;
         try {
           sequence = JSON.parse(sequenceContent);
@@ -428,7 +425,7 @@ export function createDocsRoutes(
           set.status = result.status;
           return { detail: result.detail };
         }
-        return assetResponse(result.assetAbs, result.contentType, request.headers.get("range"));
+        return assetResponse(store.docsRoot, result.assetAbs, result.contentType, request.headers.get("range"));
       },
       { query: t.Object({ path: t.String({ minLength: 1 }) }) },
     )

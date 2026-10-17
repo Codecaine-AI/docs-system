@@ -9,6 +9,7 @@ import {
   openBacklinksDb,
   upsertForSource,
 } from "@codecaine-ai/docs-index/backlinks";
+import { isExcludedOnDiskUnderDocsRoot } from "@codecaine-ai/docs-index/paths";
 
 /**
  * Backlinks index cache: one bun:sqlite connection per docs root
@@ -52,6 +53,9 @@ export async function indexDocSourceBestEffort(
   doc: DocDocument,
 ): Promise<void> {
   try {
+    // An excluded source (lexically or at its canonical location) is not part of
+    // the corpus and never enters the index.
+    if (isExcludedOnDiskUnderDocsRoot(docsRoot, sourcePath)) return;
     const database = await getBacklinksDb(docsRoot);
     upsertForSource(database, sourcePath, extractDocRefs(doc));
   } catch (error) {
@@ -66,6 +70,7 @@ export async function indexCanvasSourceBestEffort(
   canvas: unknown,
 ): Promise<void> {
   try {
+    if (isExcludedOnDiskUnderDocsRoot(docsRoot, sourcePath)) return;
     const database = await getBacklinksDb(docsRoot);
     upsertForSource(database, sourcePath, extractCanvasRefs(canvas as InteractiveCanvasDocument));
   } catch (error) {

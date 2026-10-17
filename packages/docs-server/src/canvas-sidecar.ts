@@ -1,20 +1,20 @@
-import { readFile, readdir, stat, unlink } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 
-import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
+import { isExcludedOnDiskUnderDocsRoot, isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
+import { docsFs, isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
 import {
   MAX_CANVAS_FILE_BYTES,
   MAX_DOC_FILE_BYTES,
   inferDocsFormat,
   isAllowedDocsFilePath,
+  isCanonicalTargetExcluded,
   isSafeCanvasMdxId,
   resolveCanvasSidecarRelativePath,
   resolveCanvasSidecarRootRelativePath,
   type DocsFormat,
 } from "./confine";
 import { withPathLock } from "./path-mutex";
-import { atomicWriteFile } from "./atomic-write";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import { indexCanvasSourceBestEffort } from "./backlinks-cache";
@@ -24,6 +24,10 @@ import { indexCanvasSourceBestEffort } from "./backlinks-cache";
  * src-rooted (docs-root-relative) save external canvas editors use — plus
  * the `<Canvas .../>` MDX reference helpers the create/delete flows use to
  * keep a legacy `.mdx` doc's embed references in sync with its sidecars.
+ * Every filesystem access goes through the docs-root chokepoint
+ * (@codecaine-ai/docs-index/safe-path); mutations preflight every target they
+ * change (the sidecar and, for MDX bookkeeping, the referencing doc) before
+ * the first write.
  */
 
 // ---------------------------------------------------------------------------
@@ -78,16 +82,18 @@ export type CanvasSidecarListEntry = {
  * repo's canvases through this). Only paths that
  * `resolveCanvasSidecarRootRelativePath` accepts are listed (i.e. sidecars a
  * `GET /api/canvas?src=` read can actually address); unparsable or oversized
- * sidecar JSON still lists, with null `id`/`title`. Dot-directories and
- * node_modules are skipped, matching the docs tree walker.
+ * sidecar JSON still lists, with null `id`/`title`. Dot-directories,
+ * node_modules and excluded paths are skipped, matching the docs tree walker.
  */
 export async function listCanvasSidecars(docsRoot: string): Promise<CanvasSidecarListEntry[]> {
   const entries: CanvasSidecarListEntry[] = [];
+  const fs = docsFs(docsRoot);
 
   async function walk(relPath: string): Promise<void> {
     let dirEntries;
     try {
-      dirEntries = await readdir(join(docsRoot, relPath), { withFileTypes: true });
+      // Excluded entries (lexically or at their canonical location) are never listed.
+      dirEntries = await fs.readdirEntries(relPath);
     } catch {
       return;
     }
@@ -103,7 +109,7 @@ export async function listCanvasSidecars(docsRoot: string): Promise<CanvasSideca
       if (!canvasRelPath) continue;
       let st;
       try {
-        st = await stat(join(docsRoot, canvasRelPath));
+        st = await fs.stat(canvasRelPath);
       } catch {
         continue;
       }
@@ -112,7 +118,7 @@ export async function listCanvasSidecars(docsRoot: string): Promise<CanvasSideca
       if (st.size <= MAX_CANVAS_FILE_BYTES) {
         try {
           const parsed = JSON.parse(
-            await readFile(join(docsRoot, canvasRelPath), "utf8"),
+            await fs.readFile(canvasRelPath, "utf8"),
           ) as Record<string, unknown>;
           if (typeof parsed.id === "string") id = parsed.id;
           if (typeof parsed.title === "string") title = parsed.title;
@@ -274,11 +280,17 @@ export async function loadDocsSourceFile(
   if (resolved !== docsRootResolved && !resolved.startsWith(docsRootResolved + sep)) {
     return { error: { status: 400, detail: `Path escapes docs directory: ${path}` } };
   }
+  // The project's excluded paths are not documents: never read, written or indexed.
+  if (isExcludedOnDiskUnderDocsRoot(docsRoot, path)) {
+    return { error: { status: 403, detail: `Path is excluded from this docs project: ${path}` } };
+  }
 
+  const fs = docsFs(docsRoot);
   let st;
   try {
-    st = await stat(fileAbs);
-  } catch {
+    st = await fs.stat(fileAbs);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { error: { status: error.status, detail: error.message } };
     return { error: { status: 404, detail: `Docs file not found: ${path}` } };
   }
   if (!st.isFile()) {
@@ -288,7 +300,7 @@ export async function loadDocsSourceFile(
     return { error: { status: 413, detail: `Docs file exceeds size cap: ${path}` } };
   }
 
-  const content = await readFile(fileAbs, "utf8");
+  const content = await fs.readFile(fileAbs, "utf8");
   return {
     docsRoot,
     fileAbs,
@@ -328,7 +340,7 @@ export async function loadCanvasSidecarByDocPath(
 ): Promise<CanvasSidecarByDocPathLoadResult | CanvasSidecarByDocPathError> {
   const loaded = await loadDocsSourceFile(docsRoot, docPath);
   if ("error" in loaded) return loaded;
-  const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, src);
+  const canvasRelPath = resolveCanvasSidecarRelativePath(docPath, src, docsRoot);
   if (!canvasRelPath) {
     return {
       error: {
@@ -345,10 +357,12 @@ export async function loadCanvasSidecarByDocPath(
       error: { status: 400, detail: `Canvas path escapes docs directory: ${src}` },
     };
   }
+  const fs = docsFs(docsRoot);
   let st;
   try {
-    st = await stat(canvasAbs);
-  } catch {
+    st = await fs.stat(canvasAbs);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { error: { status: error.status, detail: error.message } };
     return { error: { status: 404, detail: `Canvas sidecar not found: ${src}` } };
   }
   if (!st.isFile()) {
@@ -357,7 +371,7 @@ export async function loadCanvasSidecarByDocPath(
   if (st.size > MAX_CANVAS_FILE_BYTES) {
     return { error: { status: 413, detail: `Canvas sidecar exceeds size cap: ${src}` } };
   }
-  const canvasContent = await readFile(canvasAbs, "utf8");
+  const canvasContent = await fs.readFile(canvasAbs, "utf8");
   let canvas: unknown;
   try {
     canvas = JSON.parse(canvasContent);
@@ -410,10 +424,12 @@ export async function loadCanvasSidecarBySrc(
     return { error: { status: 400, detail: `Invalid canvas sidecar path: ${src}` } };
   }
   const canvasAbs = join(docsRoot, canvasRelPath);
+  const fs = docsFs(docsRoot);
   let st;
   try {
-    st = await stat(canvasAbs);
-  } catch {
+    st = await fs.stat(canvasAbs);
+  } catch (error) {
+    if (isDocsPathRefusal(error)) return { error: { status: error.status, detail: error.message } };
     return { error: { status: 404, detail: `Canvas sidecar not found: ${src}` } };
   }
   if (!st.isFile()) {
@@ -422,7 +438,7 @@ export async function loadCanvasSidecarBySrc(
   if (st.size > MAX_CANVAS_FILE_BYTES) {
     return { error: { status: 413, detail: `Canvas sidecar exceeds size cap: ${src}` } };
   }
-  const canvasContent = await readFile(canvasAbs, "utf8");
+  const canvasContent = await fs.readFile(canvasAbs, "utf8");
   let canvas: unknown;
   try {
     canvas = JSON.parse(canvasContent);
@@ -455,13 +471,19 @@ export function canvasSidecarResponse(loaded: CanvasSidecarByDocPathLoadResult) 
 }
 
 async function writeCanvasSidecarFile(
+  docsRoot: string,
+  canvasRelPath: string,
   canvasAbs: string,
   canvas: unknown,
-): Promise<{ ok: true; content: string; content_hash: string } | { ok: false; detail: string }> {
+): Promise<{ ok: true; content: string; content_hash: string } | { ok: false; status: number; detail: string }> {
+  // The canonical target, too: a symlink must not lead a write into an excluded folder.
+  if (await isCanonicalTargetExcluded(docsRoot, canvasRelPath)) {
+    return { ok: false, status: 403, detail: `Path is excluded from this docs project: ${canvasRelPath}` };
+  }
   const payloadValidation = validateCanvasPayload(canvas);
-  if (!payloadValidation.ok) return { ok: false, detail: payloadValidation.detail };
+  if (!payloadValidation.ok) return { ok: false, status: 400, detail: payloadValidation.detail };
   const content = `${JSON.stringify(canvas, null, 2)}\n`;
-  await atomicWriteFile(canvasAbs, content);
+  await docsFs(docsRoot).atomicWrite(canvasAbs, content);
   return { ok: true, content, content_hash: createContentHash(content) };
 }
 
@@ -544,9 +566,9 @@ export async function saveCanvasSidecar(
         held_by: lockCheck.heldBy,
       };
     }
-    const written = await writeCanvasSidecarFile(loaded.canvasAbs, input.canvas);
+    const written = await writeCanvasSidecarFile(docsRoot, loaded.canvasRelPath, loaded.canvasAbs, input.canvas);
     if (!written.ok) {
-      return { ok: false, status: 400, detail: written.detail };
+      return { ok: false, status: written.status, detail: written.detail };
     }
     void indexCanvasSourceBestEffort(docsRoot, loaded.canvasRelPath, input.canvas);
     return {
@@ -643,9 +665,9 @@ export async function saveCanvasSidecarBySrc(
         held_by: lockCheck.heldBy,
       };
     }
-    const written = await writeCanvasSidecarFile(loaded.canvasAbs, input.canvas);
+    const written = await writeCanvasSidecarFile(docsRoot, loaded.canvasRelPath, loaded.canvasAbs, input.canvas);
     if (!written.ok) {
-      return { ok: false, status: 400, detail: written.detail };
+      return { ok: false, status: written.status, detail: written.detail };
     }
     void indexCanvasSourceBestEffort(docsRoot, loaded.canvasRelPath, input.canvas);
     return {
@@ -711,7 +733,7 @@ export async function createCanvasSidecar(
   if (input.insertMdx && loadedDoc.format === "json") {
     return { ok: false, status: 400, detail: "Normalized documents use typed Canvas blocks, not MDX insertion." };
   }
-  const canvasRelPath = resolveCanvasSidecarRelativePath(input.docPath, input.src);
+  const canvasRelPath = resolveCanvasSidecarRelativePath(input.docPath, input.src, docsRoot);
   if (!canvasRelPath) {
     return {
       ok: false,
@@ -727,9 +749,16 @@ export async function createCanvasSidecar(
   }
 
   return withPathLock(canvasAbs, async (): Promise<CreateCanvasSidecarResult> => {
+    const fs = docsFs(docsRoot);
+    // Every target this create changes, inside the lock and before the first write.
+    const preflight = fs.preflight([
+      { path: canvasAbs, intent: "write" },
+      ...(input.insertMdx ? [{ path: loadedDoc.fileAbs, intent: "write" as const }] : []),
+    ]);
+    if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
     let exists = false;
     try {
-      exists = (await stat(canvasAbs)).isFile();
+      exists = (await fs.stat(canvasAbs)).isFile();
     } catch {
       exists = false;
     }
@@ -758,9 +787,9 @@ export async function createCanvasSidecar(
         return { ok: false, status: 400, detail: "Canvas MDX id is invalid" };
       }
     }
-    const written = await writeCanvasSidecarFile(canvasAbs, input.canvas);
+    const written = await writeCanvasSidecarFile(docsRoot, canvasRelPath, canvasAbs, input.canvas);
     if (!written.ok) {
-      return { ok: false, status: 400, detail: written.detail };
+      return { ok: false, status: written.status, detail: written.detail };
     }
     void indexCanvasSourceBestEffort(docsRoot, canvasRelPath, input.canvas);
     const response: CanvasSidecarWireResponse = {
@@ -778,7 +807,7 @@ export async function createCanvasSidecar(
         input.src,
         input.insertAfter,
       );
-      await atomicWriteFile(loadedDoc.fileAbs, nextContent);
+      await fs.atomicWrite(loadedDoc.fileAbs, nextContent);
       response.mdx_content = nextContent;
       response.mdx_content_hash = createContentHash(nextContent);
     }
@@ -824,6 +853,13 @@ export async function deleteCanvasSidecar(
   if ("error" in loaded) {
     return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
   }
+  const fs = docsFs(docsRoot);
+  // Every target this delete changes, before the first write.
+  const preflight = fs.preflight([
+    { path: loaded.canvasAbs, intent: "remove" },
+    ...(input.removeReference ? [{ path: loaded.docAbs, intent: "write" as const }] : []),
+  ]);
+  if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
   let mdxContentHash: string | undefined;
   if (input.removeReference) {
     if (input.originalHash && input.originalHash !== loaded.docContentHash) {
@@ -842,11 +878,11 @@ export async function deleteCanvasSidecar(
     }
     const nextContent = removeCanvasReferenceFromContent(loaded.docContent, canvasId, input.src);
     if (nextContent !== loaded.docContent) {
-      await atomicWriteFile(loaded.docAbs, nextContent);
+      await fs.atomicWrite(loaded.docAbs, nextContent);
     }
     mdxContentHash = createContentHash(nextContent);
   }
-  await unlink(loaded.canvasAbs);
+  await fs.unlink(loaded.canvasAbs);
   return {
     ok: true,
     response: {

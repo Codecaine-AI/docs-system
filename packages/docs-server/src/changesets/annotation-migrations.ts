@@ -1,12 +1,11 @@
-import { readFile, unlink } from "node:fs/promises";
 import { dirname, relative, resolve, sep } from "node:path";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 import {
   validateAnnotationsDocument,
   type AnnotationsDocument,
   type DocAnnotation,
 } from "@codecaine-ai/docs-model/annotations-schema";
-import { atomicWriteFile } from "../atomic-write";
 import {
   ANNOTATIONS_SIDECAR_FILENAME,
   readAnnotationsSidecar,
@@ -49,19 +48,20 @@ function remapAnnotation(
   return { ...annotation, target: { ...annotation.target, blockId: remap[blockId] } } as DocAnnotation;
 }
 
-async function readRaw(abs: string): Promise<string | null> {
+async function readRaw(docsRoot: string, abs: string): Promise<string | null> {
   try {
-    return await readFile(abs, "utf8");
+    return await docsFs(docsRoot).readFile(abs, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
     throw error;
   }
 }
 
-async function restoreRaw(abs: string, content: string | null): Promise<void> {
-  if (content !== null) return atomicWriteFile(abs, content);
+async function restoreRaw(docsRoot: string, abs: string, content: string | null): Promise<void> {
+  const fs = docsFs(docsRoot);
+  if (content !== null) return fs.atomicWrite(abs, content);
   try {
-    await unlink(abs);
+    await fs.unlink(abs);
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
   }
@@ -78,7 +78,7 @@ export async function prepareAnnotationMigrations(
     if (!abs) {
       return { ok: false, status: 400, detail: `Invalid docs path: ${migration.fromDocPath}` };
     }
-    const read = await withPathLock(abs, () => readAnnotationsSidecar(abs));
+    const read = await withPathLock(abs, () => readAnnotationsSidecar(docsRoot, abs));
     if ("error" in read) return { ok: false, status: read.error.status, detail: read.error.detail };
     prepared.push({ migration, sourceAnnotations: read.annotations });
   }
@@ -109,8 +109,8 @@ export async function applyAnnotationMigrations(
     const states = new Map<string, State>();
     try {
       for (const abs of lockPaths) {
-        const raw = await readRaw(abs);
-        const read = await readAnnotationsSidecar(abs);
+        const raw = await readRaw(docsRoot, abs);
+        const read = await readAnnotationsSidecar(docsRoot, abs);
         if ("error" in read) return { ok: false, status: read.error.status, detail: read.error.detail };
         states.set(abs, { raw, annotations: read.annotations, changed: false });
       }
@@ -170,11 +170,11 @@ export async function applyAnnotationMigrations(
       }
       try {
         for (const [abs, state] of changedStates) {
-          await writeAnnotationsSidecar(abs, state.annotations);
+          await writeAnnotationsSidecar(docsRoot, abs, state.annotations);
         }
       } catch (error) {
         for (const [abs, state] of [...changedStates].reverse()) {
-          await restoreRaw(abs, state.raw).catch(() => undefined);
+          await restoreRaw(docsRoot, abs, state.raw).catch(() => undefined);
         }
         return {
           ok: false,
@@ -186,7 +186,7 @@ export async function applyAnnotationMigrations(
       }
       const files: AnnotationSidecarInverseFile[] = [];
       for (const [abs, state] of changedStates) {
-        const after = await readRaw(abs);
+        const after = await readRaw(docsRoot, abs);
         files.push({
           path: relative(root, abs).split(sep).join("/"),
           beforeContent: state.raw,

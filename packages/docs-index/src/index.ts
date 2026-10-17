@@ -8,3 +8,6 @@ export * from "./backlinks";
 export * from "./ref-match";
 export * from "./move-doc";
 export * from "./paths";
+export * from "./project-policy";
+export * from "./subtree-guard";
+export * from "./safe-path";

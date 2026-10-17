@@ -1,10 +1,9 @@
 import { randomUUID } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 import { isSafeRelativePath } from "@codecaine-ai/docs-index/paths";
+import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
-import { atomicWriteFile } from "../atomic-write";
 import { withPathLock } from "../path-mutex";
 
 /** Corpus-level directory containing one JSON file per change-set. */
@@ -208,7 +207,7 @@ export async function readChangeSetRecord(
 
   let raw: string;
   try {
-    raw = await readFile(abs, "utf8");
+    raw = await docsFs(docsRoot).readFile(abs, "utf8");
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return { ok: false, status: 404, detail: `Change-set not found: ${id}` };
@@ -231,7 +230,7 @@ export async function listChangeSetRecords(
 ): Promise<ListChangeSetRecordsResult> {
   let filenames: string[];
   try {
-    const entries = await readdir(changeSetsDirectoryAbs(docsRoot), { withFileTypes: true });
+    const entries = await docsFs(docsRoot).readdirEntries(changeSetsDirectoryAbs(docsRoot));
     filenames = entries
       .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
       .map((entry) => entry.name)
@@ -272,7 +271,7 @@ export async function writeChangeSetRecord(
 
   return withPathLock(abs, async (): Promise<WriteChangeSetRecordResult> => {
     try {
-      await atomicWriteFile(abs, content);
+      await docsFs(docsRoot).atomicWrite(abs, content);
       return { ok: true, changeset };
     } catch {
       return {
