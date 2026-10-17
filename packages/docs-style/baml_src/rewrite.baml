@@ -8,7 +8,7 @@
 // system message, so a route with prefix caching can reuse it across every call in a sweep. All
 // per-block text comes last, in the user message.
 //
-// Run the tests: bunx baml-cli test --from baml_src (codex-lb must be up at 127.0.0.1:2455).
+// Run the tests: bun run baml:test (the Token Burner gateway must answer; see clients.baml).
 
 class RewriteFinding {
   rule_id string
@@ -66,7 +66,7 @@ function RewriteBlock(
   allow_list: bool
 ) -> RewriteResult {
   // Runtime calls replace this client through ClientRegistry. It serves `baml-cli test`.
-  client LunaLB
+  client LunaTB
   prompt #"
     {{ _.role("system") }}
     You are a copy editor for technical documentation. You get one block from a documentation page and the style findings it failed. You make the smallest sentence-level edit that fixes the findings, or you return the block unchanged. Your answer is always the whole block as one paragraph: no bullets and no line breaks.
@@ -198,7 +198,7 @@ function RewriteBlock(
     Answer with the whole block as one paragraph.
     Reply with the JSON object only.
   "#
-  // ^ "JSON" must appear in a user message: codex-lb turns system messages into Responses
+  // ^ "JSON" must appear in a user message: the gateway turns system messages into Responses
   //   `instructions`, and OpenAI rejects json_object mode when no input message says "json".
 }
 

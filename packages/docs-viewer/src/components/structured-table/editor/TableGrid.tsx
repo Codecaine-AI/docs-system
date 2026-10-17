@@ -20,7 +20,7 @@ import { columnCellClasses, hasProseMeasure, tableColumnFits } from "../column-l
 import { useTableOverflow } from "../use-table-overflow";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { placeCaretAtEnd } from "./caret";
-import { EditableCell, getCellEditor, type CellNavigation } from "./EditableCell";
+import { EditableCell, ensureCellEditor, type CellNavigation } from "./EditableCell";
 import type { TableData } from "./mutations";
 
 /** Row coordinate of the header row in hover/focus positions (body rows are 0-based). */
@@ -67,9 +67,10 @@ export const EDITOR_CELL_FOCUS_CLASS =
 /** Focus a cell island with the caret ready at the end of its text — shared with the node view's post-add focus routing. */
 export function focusCellElement(element: HTMLElement) {
   // Rich cells route through their mini editor so ProseMirror's own
-  // selection state moves with the DOM caret; the DOM-range path stays as
-  // the fallback for any plain registered element.
-  const editor = getCellEditor(element);
+  // selection state moves with the DOM caret (an idle cell mounts its editor
+  // first); the DOM-range path stays as the fallback for any plain
+  // registered element.
+  const editor = ensureCellEditor(element);
   if (editor && !editor.isDestroyed) {
     // focus("end") places the PM selection synchronously but defers the DOM
     // focus a frame (TipTap's rAF) — view.focus() makes it land NOW, so

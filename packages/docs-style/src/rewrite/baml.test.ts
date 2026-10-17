@@ -27,8 +27,8 @@ const request: RewriteRequest = {
   allowList: false,
 };
 
-test("rewrites through codex-lb with Luna for fast and Sol for strong, probing once", async () => {
-  const rewriter = createBamlRewriter({ codexLbUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
+test("rewrites through token-burner with Luna for fast and Sol for strong, probing once", async () => {
+  const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
 
   const fast = await rewriter.rewrite(request, "fast");
   const strong = await rewriter.rewrite(request, "strong");
@@ -45,17 +45,17 @@ test("rewrites through codex-lb with Luna for fast and Sol for strong, probing o
   expect(user).toContain("1. Run ⟦0⟧ first, and the page is then published by you.");
   expect(user).toContain("where: flagged sentence 1");
   expect(user).toContain("⟦0⟧ = code: docs check");
-  // codex-lb rejects json_object mode unless a user message says "json".
+  // The gateway rejects json_object mode unless a user message says "json".
   expect(user.trimEnd().endsWith("Reply with the JSON object only.")).toBe(true);
 });
 
 test("rejects a reply the model did not finish, or one shaped like an array, without retrying", async () => {
-  const rewriter = createBamlRewriter({ codexLbUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
+  const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
   const sent = server.requests.length;
   try {
     // A reply cut off at "length" parses leniently into partial text unless the client refuses it.
     server.answer = () => ({ content: JSON.stringify({ markdown: "Run ⟦0⟧ first. Then publish the" }), finishReason: "length" });
-    await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/Rewrite on gpt-6-luna through codex-lb failed/);
+    await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/Rewrite on gpt-6-luna through token-burner failed/);
     expect(server.requests.length).toBe(sent + 1);
 
     server.answer = () => ({ content: JSON.stringify({ markdown: ["Run ⟦0⟧ first.", "Then publish the page."] }) });
@@ -65,10 +65,18 @@ test("rejects a reply the model did not finish, or one shaped like an array, wit
   }
 });
 
-test("fails with the reason when codex-lb is down and no OpenRouter key exists", async () => {
-  const rewriter = createBamlRewriter({ codexLbUrl: `${server.baseUrl}/down/v1`, openRouterKey: "" });
+test("fails with the reason when the gateway is down and no OpenRouter key exists", async () => {
+  const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/down/v1`, openRouterKey: "" });
 
-  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: codex-lb does not answer/);
+  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: the Token Burner gateway does not answer/);
   // The probe reached the server and read its 503, so the route failed for the right reason.
   expect(server.probes).toContain("/down/v1/models");
+});
+
+test("skips the gateway without a key and names the missing key", async () => {
+  const rewriter = createBamlRewriter({ gatewayKey: "", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
+  const probed = server.probes.length;
+
+  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: no Token Burner key is set/);
+  expect(server.probes.length).toBe(probed);
 });

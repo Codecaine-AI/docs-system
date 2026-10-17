@@ -273,6 +273,9 @@ export {
   type UndoPatchResult,
 } from "./agent-tools";
 
+// Undo-ledger counts for /health (not re-exported by ./agent-tools)
+export { ledgerStats, type LedgerStats } from "./patch-ledger";
+
 // Backlinks cache
 export {
   getBacklinksDb,

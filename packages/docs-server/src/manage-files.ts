@@ -1,4 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { constants as fsConstants } from 'node:fs';
+import { lstat, open } from 'node:fs/promises';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
@@ -43,6 +45,41 @@ async function capture(root:string) {
   const h=createHash('sha256');
   for(const [p,b] of [...files].sort(([a],[b])=>a.localeCompare(b)))h.update(p).update('\0').update(b).update('\0');
   return {files,hash:h.digest('hex')};
+}
+/** Metadata-only twin of capture(): the same walk and refusals, but it records identity and size and reads no file bytes. */
+type InventoryEntry = { size:bigint; dev:bigint; ino:bigint };
+async function inventoryAssets(root:string) {
+  const entries=new Map<string,InventoryEntry>(), fs=docsFs(root);
+  async function walk(dir:string) {
+    for(const entry of await fs.readdirEntries(dir)) {
+      if(!dir && ['.index','.changesets','.git'].includes(entry.name))continue;
+      const p=dir?`${dir}/${entry.name}`:entry.name;
+      if(entry.isSymbolicLink())throw Error(`Symbolic links are unsupported for corpus management: ${p}`);
+      if(entry.isDirectory())await walk(p);
+      else if(entry.isFile()){const s=await lstat(fs.guard(p,'inspect').canonical,{bigint:true});entries.set(p,{size:s.size,dev:s.dev,ino:s.ino});}
+      else throw Error(`Unsupported filesystem entry: ${p}`);
+    }
+  }
+  await walk('');
+  return {entries};
+}
+/** Stream one inventoried file through sha256 without following anything swapped in since the walk.
+ * The docs-root chokepoint resolves and confines the path; the open refuses a final symlink and never blocks on a FIFO,
+ * and the opened file must be the same regular file the walk saw. One 1 MB buffer at a time.
+ */
+async function hashInventoried(fs:ReturnType<typeof docsFs>,p:string,seen:InventoryEntry) {
+  const file=fs.guard(p,'read').canonical;
+  let handle;
+  try{handle=await open(file,fsConstants.O_RDONLY|fsConstants.O_NOFOLLOW|fsConstants.O_NONBLOCK);}
+  catch(e:any){if(e.code==='ELOOP')throw Error(`Symbolic links are unsupported for corpus management: ${p}`);throw e;}
+  try{
+    const s=await handle.stat({bigint:true});
+    if(!s.isFile())throw Error(`Unsupported filesystem entry: ${p}`);
+    if(s.dev!==seen.dev||s.ino!==seen.ino)throw Error(`Corpus changed while listing assets: ${p}`);
+    const h=createHash('sha256'), buffer=Buffer.allocUnsafe(1<<20);
+    for(let n;(n=(await handle.read(buffer,0,buffer.length,null)).bytesRead)>0;)h.update(buffer.subarray(0,n));
+    return h.digest('hex');
+  }finally{await handle.close();}
 }
 async function confined(root:string,path:string) {
   const fs=docsFs(root);let current='';
@@ -257,7 +294,10 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
 
 /** Asset inventory for agents, including orphaned files that no document currently embeds. */
 export async function listManagedAssets(root:string,path?:string):Promise<Record<string,any>>{
- try{if(path!==undefined&&!safe(path))return failure('Invalid page path.',400);const snapshot=await capture(root);
- return {ok:true,assets:[...snapshot.files].filter(([p])=>p.includes('/assets/')&&(!path||under(p,path))).map(([p,bytes])=>({path:p,size:bytes.length,hash:hash(bytes)}))};
+ try{if(path!==undefined&&!safe(path))return failure('Invalid page path.',400);const fs=docsFs(root),snapshot=await inventoryAssets(root);
+ const picked=[...snapshot.entries].filter(([p])=>p.includes('/assets/')&&(!path||under(p,path)));
+ // Hash one file at a time: listing holds one read buffer, never the corpus.
+ const assets=[];for(const [p,e] of picked)assets.push({path:p,size:Number(e.size),hash:await hashInventoried(fs,p,e)});
+ return {ok:true,assets};
  }catch(error){return failure(String(error),400);}
 }

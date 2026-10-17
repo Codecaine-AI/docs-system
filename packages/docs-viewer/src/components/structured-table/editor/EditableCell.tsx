@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from "react";
-import { Extension, Node, type Editor } from "@tiptap/core";
-import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { Editor, Extension, Node, getSchema } from "@tiptap/core";
+import { DOMSerializer, type Schema } from "@tiptap/pm/model";
+import { Selection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { INLINE_CODE_CLASSES } from "../../../render/block-classes";
 import { cn } from "../../../ui/cn";
 import { DocItalic, DocStrike } from "../../rich-text/editor-marks";
 import type { PMNode } from "../../../editor/core/convert";
-import { pmDocToTableCell, tableCellEquals, tableCellToPMDoc } from "../cell-content";
+import { pmDocToTableCell, tableCellEquals, tableCellSpans, tableCellToPMDoc } from "../cell-content";
 import { renderTableCell } from "../cell-render";
 import { TABLE_CELL_MIN_HEIGHT_CLASS } from "../table-classes";
 
@@ -51,23 +52,124 @@ export type EditableCellProps = {
  * (window keymaps, slash menu) never fire while typing here. Commits are
  * debounced while typing so the editor's auto-save catches mid-typing
  * changes, and flushed on blur/Tab/Enter/Escape.
+ *
+ * The mini editor is LAZY: a big table would otherwise mount one ProseMirror
+ * per cell (a 1,400-cell doc froze the page ~1 s on mount and ~650 ms on
+ * teardown). An idle edit-mode cell is a focusable element holding the exact
+ * markup the editor would render (renderStaticCellInto); the editor mounts
+ * INTO that same element when the pointer rests on it for HOVER_DWELL_MS (a
+ * sweep across the table mounts nothing), on pointerdown, or when it takes
+ * focus (Tab, grid navigation, focusCellElement), and is
+ * released at idle once the cell is neither focused nor hovered. The element
+ * itself never changes, so the grid's registry, overlay measurements and
+ * focus checks hold the same node throughout.
  */
 export function EditableCell(props: EditableCellProps) {
   return props.editable ? <EditingCell {...props} /> : <StaticCell {...props} />;
 }
 
-/** Mini-editor lookup by its registered (ProseMirror) element — used by the grid's programmatic focus routing and by tests. */
+/** Mini-editor lookup by its registered cell element — used by the grid's programmatic focus routing and by tests. Undefined while the cell is idle (no editor mounted). */
 const CELL_EDITORS = new WeakMap<HTMLElement, Editor>();
+
+/** Per-cell "mount your editor now" hooks, keyed by the same registered element. */
+const CELL_ACTIVATORS = new WeakMap<HTMLElement, () => Editor | null>();
 
 export function getCellEditor(element: HTMLElement): Editor | undefined {
   return CELL_EDITORS.get(element);
 }
 
-/** The classes the plaintext island carried, now on the mini editor's ProseMirror element (the focus ring lives on the enclosing th/td via :focus-within). */
+/**
+ * The cell's live editor, mounting it first if the cell is idle. Returns
+ * undefined for elements that are not edit-mode cells.
+ */
+export function ensureCellEditor(element: HTMLElement): Editor | undefined {
+  const live = CELL_EDITORS.get(element);
+  if (live && !live.isDestroyed) return live;
+  return CELL_ACTIVATORS.get(element)?.() ?? undefined;
+}
+
+/**
+ * The classes the plaintext island carried, on the cell element in both of
+ * its states (the focus ring lives on the enclosing th/td via :focus-within).
+ * `relative` restates the `.ProseMirror` rule's position for the idle cell.
+ * `whitespace-pre-wrap` matches what a LIVE cell computes: TipTap's
+ * `.ProseMirror [contenteditable="false"] [contenteditable="true"]` rule
+ * (pre-wrap) outranks the `.ProseMirror` break-spaces rule for an editor
+ * nested in the node view, so idle and live cells wrap spaces the same way.
+ */
 const CELL_TEXT_CLASSES = cn(
   TABLE_CELL_MIN_HEIGHT_CLASS,
-  "whitespace-pre-wrap break-words rounded-[var(--radius)] outline-none cursor-text",
+  "relative whitespace-pre-wrap break-words rounded-[var(--radius)] outline-none cursor-text",
 );
+
+/** How long the pointer must rest on one idle cell before its editor mounts; leaving earlier cancels it. */
+export const HOVER_DWELL_MS = 120;
+
+/** How long after blur/leave an unused cell editor may wait for the browser to go idle before it is released anyway. */
+const RELEASE_IDLE_TIMEOUT_MS = 1000;
+/** Fallback delay where requestIdleCallback is missing (Safari). */
+const RELEASE_FALLBACK_MS = 200;
+
+/** Run `callback` when the main thread is idle; returns a cancel function. */
+function scheduleIdle(callback: () => void): () => void {
+  const requestIdle = globalThis.requestIdleCallback;
+  if (typeof requestIdle === "function") {
+    const handle = requestIdle(callback, { timeout: RELEASE_IDLE_TIMEOUT_MS });
+    return () => globalThis.cancelIdleCallback?.(handle);
+  }
+  const handle = setTimeout(callback, RELEASE_FALLBACK_MS);
+  return () => clearTimeout(handle);
+}
+
+function cellEditorAttributes(ariaLabel: string): Record<string, string> {
+  return {
+    class: CELL_TEXT_CLASSES,
+    role: "textbox",
+    "aria-multiline": "true",
+    "aria-label": ariaLabel,
+  };
+}
+
+let cellSchemaCache: { schema: Schema; serializer: DOMSerializer } | null = null;
+
+/** The mini editor's schema (built once from the same extension set) and its DOM serializer. */
+function cellSchema() {
+  if (!cellSchemaCache) {
+    const schema = getSchema(buildCellExtensions({ current: null }));
+    cellSchemaCache = { schema, serializer: DOMSerializer.fromSchema(schema) };
+  }
+  return cellSchemaCache;
+}
+
+/**
+ * Render a cell value into `element` as the mounted editor would: the same
+ * schema's toDOM output (a `<p>` with the same mark elements and classes),
+ * plus ProseMirror's trailing `<br>` hack for an empty paragraph or one that
+ * ends in a hard break, so swapping the editor in or out moves no pixels.
+ */
+export function renderStaticCellInto(element: HTMLElement, value: TableCell) {
+  const { schema, serializer } = cellSchema();
+  const document = element.ownerDocument;
+  const doc = schema.nodeFromJSON(tableCellToPMDoc(value));
+  const fragment = serializer.serializeFragment(doc.content, { document });
+  const paragraph = fragment.firstChild;
+  if (paragraph && (!paragraph.lastChild || paragraph.lastChild.nodeName === "BR")) {
+    const trailing = document.createElement("br");
+    trailing.className = "ProseMirror-trailingBreak";
+    paragraph.appendChild(trailing);
+  }
+  element.replaceChildren(fragment);
+}
+
+/** Put back the idle cell's attributes after ProseMirror (which leaves its own on a mounted element) is destroyed. */
+function restoreIdleAttributes(element: HTMLElement, ariaLabel: string) {
+  element.removeAttribute("contenteditable");
+  element.removeAttribute("translate");
+  element.className = CELL_TEXT_CLASSES;
+  element.setAttribute("role", "textbox");
+  element.setAttribute("aria-multiline", "true");
+  element.setAttribute("aria-label", ariaLabel);
+}
 
 /** Single-paragraph document: a cell is one flow of rich text; in-cell newlines are hard breaks, never extra paragraphs. */
 const CellDocument = Node.create({ name: "doc", topNode: true, content: "paragraph" });
@@ -205,6 +307,7 @@ function StaticCell({ value, ariaLabel, registerElement }: EditableCellProps) {
   );
 }
 
+
 function EditingCell({
   value,
   ariaLabel,
@@ -216,14 +319,21 @@ function EditingCell({
   onRedo,
   registerElement,
 }: EditableCellProps) {
+  const elementRef = useRef<HTMLDivElement | null>(null);
+  const editorRef = useRef<Editor | null>(null);
   const committedRef = useRef<TableCell>(value);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const editorInstanceRef = useRef<Editor | null>(null);
+  const hoveredRef = useRef(false);
+  const dwellTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelReleaseRef = useRef<(() => void) | null>(null);
+  // The live editor's emptiness (drives the placeholder); null while idle,
+  // when the committed value decides it.
+  const [liveEmpty, setLiveEmpty] = useState<boolean | null>(null);
 
   // Latest-render closures for callbacks referenced from stable contexts
   // (the editor's event handlers and the keymap extension).
-  const latestRef = useRef({ onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement });
-  latestRef.current = { onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement };
+  const latestRef = useRef({ onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement, ariaLabel });
+  latestRef.current = { onCommit, onNavigate, onFocusChange, onUndo, onRedo, registerElement, ariaLabel };
 
   const clearPending = () => {
     if (timerRef.current) {
@@ -234,7 +344,7 @@ function EditingCell({
 
   const commit = () => {
     clearPending();
-    const editor = editorInstanceRef.current;
+    const editor = editorRef.current;
     if (!editor || editor.isDestroyed) return;
     const next = pmDocToTableCell(editor.getJSON() as PMNode);
     if (tableCellEquals(next, committedRef.current)) return;
@@ -265,76 +375,135 @@ function EditingCell({
 
   const extensions = useMemo(() => buildCellExtensions(handlersRef), []);
 
-  const editor = useEditor(
-    {
+  const cancelDwell = () => {
+    if (dwellTimerRef.current) {
+      clearTimeout(dwellTimerRef.current);
+      dwellTimerRef.current = null;
+    }
+  };
+
+  const cancelRelease = () => {
+    cancelReleaseRef.current?.();
+    cancelReleaseRef.current = null;
+  };
+
+  // Tear the editor down and put the idle markup back. Commits first, so an
+  // edit made without focus (programmatic) is never dropped.
+  const release = () => {
+    cancelRelease();
+    const editor = editorRef.current;
+    const element = elementRef.current;
+    if (!editor) return;
+    commitRef.current();
+    clearPending();
+    editorRef.current = null;
+    if (element) CELL_EDITORS.delete(element);
+    editor.destroy();
+    if (element) {
+      restoreIdleAttributes(element, latestRef.current.ariaLabel);
+      renderStaticCellInto(element, committedRef.current);
+    }
+    setLiveEmpty(null);
+  };
+
+  // Release once the browser is idle, unless the cell is focused or hovered
+  // again by then (the next blur/leave schedules another try).
+  const scheduleRelease = () => {
+    cancelRelease();
+    cancelReleaseRef.current = scheduleIdle(() => {
+      cancelReleaseRef.current = null;
+      const element = elementRef.current;
+      if (!element || !editorRef.current) return;
+      if (hoveredRef.current || element.ownerDocument.activeElement === element) return;
+      release();
+    });
+  };
+
+  // Mount the mini editor into the cell element (idempotent). The element
+  // keeps its identity, so the grid registry and every measurement stay valid.
+  const activate = (): Editor | null => {
+    const existing = editorRef.current;
+    if (existing && !existing.isDestroyed) return existing;
+    const element = elementRef.current;
+    if (!element) return null;
+    cancelDwell();
+    cancelRelease();
+    element.replaceChildren();
+    const editor = new Editor({
+      element: { mount: element },
       extensions,
       content: tableCellToPMDoc(committedRef.current) as unknown as Record<string, unknown>,
-      editorProps: {
-        attributes: {
-          class: CELL_TEXT_CLASSES,
-          role: "textbox",
-          "aria-multiline": "true",
-          "aria-label": ariaLabel,
-        },
-      },
+      editorProps: { attributes: cellEditorAttributes(latestRef.current.ariaLabel) },
       onUpdate: () => scheduleCommitRef.current(),
-      onFocus: () => latestRef.current.onFocusChange?.(true),
+      onTransaction: ({ editor: current }) => setLiveEmpty(current.isEmpty),
+      onFocus: () => {
+        cancelRelease();
+        latestRef.current.onFocusChange?.(true);
+      },
       onBlur: () => {
         commitRef.current();
         latestRef.current.onFocusChange?.(false);
-      },
-    },
-    [],
-  );
-  editorInstanceRef.current = editor;
-
-  const isEmpty = useEditorState({
-    editor,
-    selector: (ctx) => ctx.editor?.isEmpty ?? true,
-  });
-
-  // Register the ProseMirror element as THE cell element: the grid focuses
-  // it (Tab/Enter navigation, post-add caret routing) and the node view
-  // measures it for the overlay furniture, exactly like the old island div.
-  // Layout effect, not passive: the birth flash measures freshly added cells
-  // in ITS layout effect within the same commit, and cells must already be
-  // in the registry by then (child/earlier-sibling layout effects run first).
-  useLayoutEffect(() => {
-    if (!editor) return;
-    const dom = editor.view.dom as HTMLDivElement;
-    CELL_EDITORS.set(dom, editor);
-    latestRef.current.registerElement(dom);
-    return () => {
-      CELL_EDITORS.delete(dom);
-      latestRef.current.registerElement(null);
-    };
-  }, [editor]);
-
-  // Keep the positional aria-label current (row moves renumber cells).
-  useEffect(() => {
-    if (!editor || editor.isDestroyed) return;
-    editor.setOptions({
-      editorProps: {
-        attributes: {
-          class: CELL_TEXT_CLASSES,
-          role: "textbox",
-          "aria-multiline": "true",
-          "aria-label": ariaLabel,
-        },
+        scheduleRelease();
       },
     });
-  }, [editor, ariaLabel]);
+    editorRef.current = editor;
+    CELL_EDITORS.set(element, editor);
+    setLiveEmpty(editor.isEmpty);
+    return editor;
+  };
+  const activateRef = useRef(activate);
+  activateRef.current = activate;
 
-  // External value changes never touch the content of a focused cell that
-  // holds a PENDING local edit — typing and reconciliation can't fight over
-  // the caret. A focused cell whose content still equals the previously
-  // committed value is CLEAN, though: structural moves and undo/redo may
-  // legitimately change its value out from under it, so sync the editor
-  // anyway and drop the caret at the end of the new text.
+  // Register the cell element as THE cell element: the grid focuses it
+  // (Tab/Enter navigation, post-add caret routing) and the node view measures
+  // it for the overlay furniture. Layout effect, not passive: the birth flash
+  // measures freshly added cells in ITS layout effect within the same commit,
+  // and cells must already be in the registry by then (child/earlier-sibling
+  // layout effects run first).
+  useLayoutEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+    CELL_ACTIVATORS.set(element, () => activateRef.current());
+    latestRef.current.registerElement(element);
+    return () => {
+      cancelReleaseRef.current?.();
+      cancelReleaseRef.current = null;
+      if (dwellTimerRef.current) clearTimeout(dwellTimerRef.current);
+      dwellTimerRef.current = null;
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = null;
+      const editor = editorRef.current;
+      editorRef.current = null;
+      CELL_ACTIVATORS.delete(element);
+      CELL_EDITORS.delete(element);
+      editor?.destroy();
+      latestRef.current.registerElement(null);
+    };
+  }, []);
+
+  // Keep the positional aria-label current (row moves renumber cells); the
+  // idle element takes it from its React props.
   useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor || editor.isDestroyed) return;
+    editor.setOptions({ editorProps: { attributes: cellEditorAttributes(ariaLabel) } });
+  }, [ariaLabel]);
+
+  // Idle cells redraw their markup from the value. A live cell never has its
+  // content touched while it holds a PENDING local edit — typing and
+  // reconciliation can't fight over the caret. A focused cell whose content
+  // still equals the previously committed value is CLEAN, though: structural
+  // moves and undo/redo may legitimately change its value out from under it,
+  // so sync the editor anyway and drop the caret at the end of the new text.
+  useLayoutEffect(() => {
     const previousCommitted = committedRef.current;
     committedRef.current = value;
-    if (!editor || editor.isDestroyed) return;
+    const element = elementRef.current;
+    const editor = editorRef.current;
+    if (!editor || editor.isDestroyed) {
+      if (element) renderStaticCellInto(element, value);
+      return;
+    }
     const current = pmDocToTableCell(editor.getJSON() as PMNode);
     if (tableCellEquals(current, value)) return;
     if (editor.view.hasFocus() && !tableCellEquals(current, previousCommitted)) return;
@@ -345,18 +514,14 @@ function EditingCell({
     });
     if (wasFocused) editor.commands.focus("end");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value, editor]);
+  }, [value]);
 
-  useEffect(
-    () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    },
-    [],
-  );
+  const isEmpty = liveEmpty ?? tableCellSpans(value).length === 0;
 
   return (
     <div
       className="relative cursor-text"
+      data-cell-live={liveEmpty === null ? undefined : ""}
       // stopPropagation keeps the keystroke/paste/mousedown from
       // editor-level listeners above the React root (window keymaps, menus);
       // the OUTER ProseMirror never sees events from this editable island
@@ -364,6 +529,42 @@ function EditingCell({
       onKeyDown={(event) => event.stopPropagation()}
       onPaste={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}
+      // A mouse resting HOVER_DWELL_MS on the cell mounts the editor BEFORE
+      // the click, so the click's caret placement, drag selection and
+      // double-click are the browser's own. Passing over never mounts.
+      onPointerEnter={(event) => {
+        if (event.pointerType === "touch") return;
+        hoveredRef.current = true;
+        if (editorRef.current) {
+          cancelRelease();
+          return;
+        }
+        cancelDwell();
+        dwellTimerRef.current = setTimeout(() => {
+          dwellTimerRef.current = null;
+          if (hoveredRef.current) activateRef.current();
+        }, HOVER_DWELL_MS);
+      }}
+      onPointerLeave={() => {
+        hoveredRef.current = false;
+        cancelDwell();
+        const element = elementRef.current;
+        if (editorRef.current && element?.ownerDocument.activeElement !== element) {
+          scheduleRelease();
+        }
+      }}
+      // No hover first (touch, pen, a table that appeared under a still
+      // pointer): mount on pointerdown and place the caret at the press.
+      onPointerDown={(event) => {
+        cancelDwell();
+        if (editorRef.current) return;
+        const editor = activate();
+        if (!editor) return;
+        const at = editor.view.posAtCoords({ left: event.clientX, top: event.clientY });
+        if (at) editor.commands.setTextSelection(at.pos);
+        else selectEnd(editor);
+        editor.view.focus();
+      }}
     >
       {placeholder != null && isEmpty && (
         <span
@@ -376,7 +577,40 @@ function EditingCell({
           {placeholder}
         </span>
       )}
-      <EditorContent editor={editor} />
+      <div
+        ref={elementRef}
+        role="textbox"
+        aria-multiline="true"
+        aria-label={ariaLabel}
+        tabIndex={0}
+        className={CELL_TEXT_CLASSES}
+        // Keyboard or programmatic focus on an idle cell: mount the editor in
+        // place and hand it the focus, caret at the end of the text.
+        onFocus={() => {
+          if (editorRef.current) return;
+          const editor = activate();
+          if (editor) focusEditorAtEnd(editor);
+        }}
+      />
     </div>
   );
+}
+
+/**
+ * Caret to the end and focus. The cell element may ALREADY be the active
+ * element (the focus that triggered the mount): ProseMirror missed that focus
+ * event, so replay it for ProseMirror's own focus state and the onFocus hook.
+ */
+function focusEditorAtEnd(editor: Editor) {
+  const dom = editor.view.dom as HTMLElement;
+  selectEnd(editor);
+  if (dom.ownerDocument.activeElement === dom) {
+    dom.dispatchEvent(new FocusEvent("focus"));
+  } else {
+    editor.view.focus();
+  }
+}
+
+function selectEnd(editor: Editor) {
+  editor.view.dispatch(editor.state.tr.setSelection(Selection.atEnd(editor.state.doc)));
 }

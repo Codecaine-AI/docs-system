@@ -1,5 +1,5 @@
 import { createInteractionService } from './service';
-import { textMeasureReady } from '@codecaine-ai/docs-server';
+import { ledgerStats, textMeasureReady } from '@codecaine-ai/docs-server';
 import { loadGuidance } from './guidance';
 import type { DocsProject } from './discovery';
 import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
@@ -27,7 +27,11 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
   if (request.headers.get('authorization') !== `Bearer ${token}`) return new Response('Unauthorized', { status: 401 });
   const url = new URL(request.url);
   try {
-    if (url.pathname === '/health') return Response.json({ service: 'codecaine-docs-runtime', build: process.env.CODECAINE_DOCS_BUILD, ...service.stats() });
+    if (url.pathname === '/health') {
+      // newestTaskUseMs: ms since the most recent authoring-task call (null without tasks). patches: undo-ledger counts.
+      const stats: ReturnType<typeof service.stats> & { newestTaskUseMs?: number | null } = service.stats();
+      return Response.json({ service: 'codecaine-docs-runtime', build: process.env.CODECAINE_DOCS_BUILD, ...stats, newestTaskUseMs: stats.newestTaskUseMs ?? null, patches: ledgerStats() });
+    }
     if (url.pathname === '/tools') return Response.json({ tools: service.listTools() });
     if (url.pathname === '/rpc' && request.method === 'POST') {
       const body = await request.json() as any;

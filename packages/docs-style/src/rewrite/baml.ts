@@ -1,6 +1,6 @@
 /**
  * The Tier 3 Rewriter on BAML (baml_src/rewrite.baml). Fast is GPT-6 Luna and strong is
- * GPT-6.1 Sol. Both run through codex-lb when it answers, else through OpenRouter when an
+ * GPT-6.1 Sol. Both run through the Token Burner gateway when it answers, else through OpenRouter when an
  * OpenRouter key exists (see runtime.ts).
  */
 import type { ClientRegistry } from "@boundaryml/baml";
@@ -71,20 +71,20 @@ export function createBamlRewriter(options: RouteOptions = {}): Rewriter {
 }
 
 /**
- * Luna for fast and Sol for strong. codex-lb strips temperature, so only the reasoning effort is
- * set there. OpenAI honours temperature only with effort "none" (the OpenRouter route is
+ * Luna for fast and Sol for strong. The gateway route sets only the reasoning effort, no
+ * temperature. OpenAI honours temperature only with effort "none" (the OpenRouter route is
  * unverified: no key existed on the build machine).
  */
 function rewriteRoute(endpoint: Endpoint): Route {
-  const lb = endpoint.name === "codex-lb";
+  const gw = endpoint.name === "token-burner";
   const client = (model: string, effort: string, requestTimeoutMs: number): Client => ({
-    model: lb ? model : `openai/${model}`,
+    model: gw ? model : `openai/${model}`,
     options: {
       base_url: endpoint.baseUrl,
       api_key: endpoint.apiKey,
-      model: lb ? model : `openai/${model}`,
-      ...(lb ? { reasoning_effort: effort } : { reasoning: { effort }, headers: OPENROUTER_HEADERS }),
-      ...(!lb && effort === "none" ? { temperature: 0.2 } : {}),
+      model: gw ? model : `openai/${model}`,
+      ...(gw ? { reasoning_effort: effort } : { reasoning: { effort }, headers: OPENROUTER_HEADERS }),
+      ...(!gw && effort === "none" ? { temperature: 0.2 } : {}),
       response_format: { type: "json_object" },
       http: { connect_timeout_ms: 3000, request_timeout_ms: requestTimeoutMs },
       ...FINISHED_ONLY,
@@ -92,6 +92,6 @@ function rewriteRoute(endpoint: Endpoint): Route {
   });
   return {
     name: endpoint.name,
-    clients: { fast: client("gpt-6-luna", lb ? "low" : "none", 30_000), strong: client("gpt-6.1-sol", "low", 60_000) },
+    clients: { fast: client("gpt-6-luna", gw ? "low" : "none", 30_000), strong: client("gpt-6.1-sol", "low", 60_000) },
   };
 }

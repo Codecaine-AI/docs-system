@@ -4,7 +4,7 @@ import type { Editor } from "@tiptap/core";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { StructuredTableNodeView } from "../components/structured-table/editor-node-view";
-import { getCellEditor } from "../components/structured-table/editor/EditableCell";
+import { ensureCellEditor, getCellEditor } from "../components/structured-table/editor/EditableCell";
 import {
   HEADER_ROW,
   TableGrid,
@@ -215,7 +215,7 @@ describe("TableGrid", () => {
     });
 
     const cell = gridCells(container)[2]!;
-    const editor = getCellEditor(cell)!;
+    const editor = ensureCellEditor(cell)!;
     cell.focus();
     act(() => {
       editor.chain().selectAll().toggleBold().run();
@@ -296,7 +296,7 @@ describe("TableGrid", () => {
   it("markdown input rules: **bold** and `code` auto-convert; *italic* stays literal (main-editor policy)", () => {
     const { container } = renderGrid();
     const cell = gridCells(container)[2]!;
-    const editor = getCellEditor(cell)!;
+    const editor = ensureCellEditor(cell)!;
 
     typeInto(cell, "**bold*");
     act(() => {
@@ -335,7 +335,7 @@ describe("TableGrid", () => {
       onCommitCell: (_row, _col, value) => commits.push(value),
     });
     const cell = gridCells(container)[2]!;
-    const editor = getCellEditor(cell)!;
+    const editor = ensureCellEditor(cell)!;
     act(() => {
       editor.commands.focus("end");
     });
@@ -475,7 +475,7 @@ describe("StructuredTableNodeView", () => {
     const { container } = render(<StructuredTableNodeView {...props} />);
 
     const cell = gridCells(container as HTMLElement)[2]!;
-    const editor = getCellEditor(cell)!;
+    const editor = ensureCellEditor(cell)!;
     cell.focus();
     act(() => {
       editor.chain().selectAll().toggleItalic().run();

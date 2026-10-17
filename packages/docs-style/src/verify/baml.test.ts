@@ -12,7 +12,7 @@ beforeAll(async () => {
 afterAll(() => server.close());
 
 const input = { before: "Every type answers both readers — the promise.", after: "Every type answers both readers. The promise holds.", blockType: "paragraph", heading: "Why" };
-const verifier = () => createBamlVerifier({ codexLbUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
+const verifier = () => createBamlVerifier({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
 
 test("asks Sol at medium effort for a strict meaning check, and reports each difference it finds", async () => {
   answers = [{ differences: [DROPPED_LINK], same: false }];
@@ -43,7 +43,7 @@ test("with two samples, one answer that finds a difference makes the verdict dif
   answers = [{ differences: [], same: true }, { differences: [DROPPED_LINK], same: false }];
   const sent = server.requests.length;
 
-  const verdict = await createBamlVerifier({ codexLbUrl: `${server.baseUrl}/v1`, openRouterKey: "", samples: 2 }).compare(input);
+  const verdict = await createBamlVerifier({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "", samples: 2 }).compare(input);
 
   expect(server.requests.length).toBe(sent + 2);
   expect(verdict).toMatchObject({ same: false, differences: [{ kind: "relation" }], inputTokens: 1624, outputTokens: 74 });
@@ -52,7 +52,7 @@ test("with two samples, one answer that finds a difference makes the verdict dif
 test("a reply the model did not finish is an error, never a verdict", async () => {
   server.answer = () => ({ content: '{"differences": [], "same": tr', finishReason: "length" });
   try {
-    await expect(verifier().compare(input)).rejects.toThrow(/Meaning check on gpt-6.1-sol through codex-lb failed/);
+    await expect(verifier().compare(input)).rejects.toThrow(/Meaning check on gpt-6.1-sol through token-burner failed/);
   } finally {
     server.answer = () => ({ content: JSON.stringify(answers.shift()) });
   }

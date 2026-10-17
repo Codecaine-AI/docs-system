@@ -1,8 +1,8 @@
 /**
  * The meaning Verifier on BAML (baml_src/verify.baml): GPT-6.1 Sol at reasoning "medium" decides
  * whether AFTER says exactly what BEFORE says, in both directions. The reply follows a strict JSON
- * schema, and only a finished reply counts. Runs through codex-lb, or OpenRouter when codex-lb does
- * not answer and a key exists.
+ * schema, and only a finished reply counts. Runs through the Token Burner gateway, or OpenRouter when the
+ * gateway does not answer and a key exists.
  */
 import type { ClientRegistry } from "@boundaryml/baml";
 import { chooseEndpoint, FINISHED_ONLY, loadBaml, OPENROUTER_HEADERS, RETRY_POLICY, type Endpoint, type RouteOptions } from "../rewrite/runtime";
@@ -102,12 +102,12 @@ export function createBamlVerifier(options: BamlVerifierOptions = {}): BamlVerif
 }
 
 function clientOptions(endpoint: Endpoint, effort: string): Record<string, unknown> {
-  const lb = endpoint.name === "codex-lb";
+  const gw = endpoint.name === "token-burner";
   return {
     base_url: endpoint.baseUrl,
     api_key: endpoint.apiKey,
-    model: lb ? MODEL : `openai/${MODEL}`,
-    ...(lb ? { reasoning_effort: effort } : { reasoning: { effort }, headers: OPENROUTER_HEADERS }),
+    model: gw ? MODEL : `openai/${MODEL}`,
+    ...(gw ? { reasoning_effort: effort } : { reasoning: { effort }, headers: OPENROUTER_HEADERS }),
     response_format: MEANING_SCHEMA,
     http: { connect_timeout_ms: 3000, request_timeout_ms: 180_000 },
     ...FINISHED_ONLY,

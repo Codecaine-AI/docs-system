@@ -306,7 +306,7 @@ function centralDocsService(): PageResult {
       ruleIds: ["ste.one-topic", "ste.sentence-length"],
       status: "error",
       attempts: [fast(2610, p14Fast, ["slop"]), { strength: "strong", model: "", ms: 30000, accepted: false, after: "", failed: [] }],
-      reason: "strong rewrite failed: codex-lb returned HTTP 502",
+      reason: "strong rewrite failed: token-burner returned HTTP 502",
       ops: [],
     },
   ];

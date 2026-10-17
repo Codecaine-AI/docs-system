@@ -297,8 +297,9 @@ function flattenDocsTree(nodes: DocsTreeNode[], out: ReferencePickerEntry[] = []
 export async function loadReferencePickerEntries(
   client: Pick<DocsClient, "getDocsTree">,
   projectId: string,
+  signal?: AbortSignal,
 ): Promise<ReferencePickerEntry[]> {
-  const { tree } = await client.getDocsTree(projectId);
+  const { tree } = await client.getDocsTree(projectId, { signal });
   return flattenDocsTree(tree);
 }
 
@@ -434,11 +435,22 @@ function insertReference(editor: Editor, from: number, to: number, ref: SpectreR
   editor.view.dispatch(editor.view.state.tr.setMeta(referenceMentionPluginKey, { forceClose: true }));
 }
 
+const hintRow = "px-2 py-1.5 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground";
+
+/** A picker that stays open keeps its entries; reopening after this long refetches them. */
+const TREE_MAX_AGE_MS = 30_000;
+const EMPTY_ENTRIES: ReferencePickerEntry[] = [];
+type PickerSource = { client: DocsClient; projectId: string };
+type LoadedEntries = PickerSource & { entries: ReferencePickerEntry[]; at: number };
+type PendingLoad = PickerSource & { status: "loading" | "error" };
+
 /**
  * Floating `@`-mention picker: lists matching doc-tree entries (fetched via
  * `loadReferencePickerEntries`) plus an always-present "insert as source
  * path" affordance for the plain-path v1 source-ref flow. Mounted
- * unconditionally by DocEditor; renders nothing when closed.
+ * unconditionally by DocEditor; renders nothing when closed. It fetches the
+ * tree when opened and refreshes it on reopen after 30 s; closing the picker
+ * or changing the client or project aborts a load and drops its result.
  */
 export function ReferenceMentionPopover({
   editor,
@@ -448,7 +460,10 @@ export function ReferenceMentionPopover({
   projectId: string;
 }) {
   const [state, setState] = useState<ReferenceMentionState>(CLOSED_MENTION_STATE);
-  const [entries, setEntries] = useState<ReferencePickerEntry[]>([]);
+  const [loaded, setLoaded] = useState<LoadedEntries | null>(null);
+  const [load, setLoad] = useState<PendingLoad | null>(null);
+  const loadedRef = useRef(loaded);
+  loadedRef.current = loaded;
   const [selectedIndex, setSelectedIndex] = useState(0);
   // No DocsClient -> the picker still opens but lists no doc entries (the
   // "custom path" source-ref affordance keeps working).
@@ -465,27 +480,41 @@ export function ReferenceMentionPopover({
     };
   }, [editor]);
 
+  // Lazy: nothing loads until the picker opens. Only the current effect run
+  // may write state, so a late result for an old client or project, or for a
+  // closed picker, is dropped even when the transport ignores the signal.
   useEffect(() => {
-    let cancelled = false;
-    if (!client) {
-      setEntries([]);
-      return;
-    }
-    loadReferencePickerEntries(client, projectId)
-      .then((loaded) => {
-        if (!cancelled) setEntries(loaded);
-      })
-      .catch(() => {
-        if (!cancelled) setEntries([]);
-      });
+    if (!state.open || !client) return;
+    const prior = loadedRef.current;
+    if (prior?.client === client && prior.projectId === projectId && Date.now() - prior.at < TREE_MAX_AGE_MS) return;
+    let live = true;
+    const controller = new AbortController();
+    setLoad({ client, projectId, status: "loading" });
+    loadReferencePickerEntries(client, projectId, controller.signal).then(
+      (entries) => {
+        if (!live) return;
+        setLoaded({ client, projectId, entries, at: Date.now() });
+        setLoad(null);
+      },
+      () => {
+        if (!live) return;
+        setLoad({ client, projectId, status: "error" });
+      },
+    );
     return () => {
-      cancelled = true;
+      live = false;
+      controller.abort();
     };
-  }, [client, projectId]);
+  }, [state.open, client, projectId]);
+
+  const isCurrent = (source: PickerSource | null): source is PickerSource =>
+    source !== null && source.client === client && source.projectId === projectId;
+  const entries = isCurrent(loaded) ? loaded.entries : EMPTY_ENTRIES;
+  const status = isCurrent(loaded) ? "ready" : isCurrent(load) ? load.status : "ready";
 
   useEffect(() => {
     setSelectedIndex(0);
-  }, [state.query]);
+  }, [state.query, entries]);
 
   const virtualReference = useMemo<ReferenceType | null>(() => {
     if (!state.open) return null;
@@ -542,7 +571,8 @@ export function ReferenceMentionPopover({
         setSelectedIndex((index) => Math.max(index - 1, 0));
       } else if (event.key === "Enter" || event.key === "Tab") {
         event.preventDefault();
-        if (selectedIndex < filtered.length) chooseDoc(filtered[selectedIndex]);
+        const index = Math.min(selectedIndex, rowCount - 1);
+        if (index < filtered.length) chooseDoc(filtered[index]);
         else if (showCustomPath) chooseCustomPath();
       }
     };
@@ -560,9 +590,9 @@ export function ReferenceMentionPopover({
       className="z-[var(--ds-z-popover)] max-h-72 w-72 overflow-y-auto rounded-[var(--radius)] border bg-popover p-1 text-[length:var(--ds-font-size-ui-lg)] text-popover-foreground shadow-[var(--ds-shadow-glass)]"
     >
       <div ref={containerRef}>
-        {filtered.length === 0 && !showCustomPath && (
-          <div className="px-2 py-1.5 text-[length:var(--ds-font-size-ui-xs)] text-muted-foreground">Type to search docs…</div>
-        )}
+        {status === "loading" && <div className={hintRow}>Loading docs…</div>}
+        {status === "error" && <div className={hintRow}>Couldn't load docs</div>}
+        {status === "ready" && filtered.length === 0 && !showCustomPath && <div className={hintRow}>Type to search docs…</div>}
         {filtered.map((entry, index) => (
           <button
             key={entry.path}

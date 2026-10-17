@@ -43,6 +43,7 @@ beforeEach(async () => {
 afterEach(async () => {
   // The existing store schedules best-effort backlink indexing after successful writes.
   await Bun.sleep(30);
+  service.close();
   await rm(workspace, { recursive: true, force: true });
 });
 
@@ -57,7 +58,8 @@ test("service requires a live task in the current workspace for every write", as
   const changed = await invoke("docs_write_text", { ...args, task_id: parentTask.task_id });
   expect(changed.ok).toBe(true);
   expect((await invoke("docs_end", { task_id: parentTask.task_id })).ended).toBe(true);
-  expect((await invoke("docs_write_text", { ...args, expected_hash: changed.hash, task_id: parentTask.task_id })).ok).toBe(false);
+  expect(await invoke("docs_write_text", { ...args, expected_hash: changed.hash, task_id: parentTask.task_id }))
+    .toEqual({ ok: false, detail: `Task ${parentTask.task_id} was ended with docs_end. Call docs_begin for new edits.` });
   expect((await invoke("docs_read", { project: ids.alpha, path: "page" })).markdown).toContain("Updated documentation.");
 });
 
@@ -67,8 +69,8 @@ test("a project learned in another workspace remains unavailable to this workspa
   expect(result.ok).toBe(false);
   expect(result.detail).toContain("not in this workspace");
   const task = await invoke("docs_begin", {}, beta);
-  expect((await invoke("docs_guidance", { task_id: task.task_id }, workspace)).ok).toBe(false);
-  expect((await invoke("docs_end", { task_id: task.task_id }, workspace)).ok).toBe(false);
+  expect(await invoke("docs_guidance", { task_id: task.task_id }, workspace)).toEqual({ ok: false, detail: "Unknown task for this workspace." });
+  expect(await invoke("docs_end", { task_id: task.task_id }, workspace)).toEqual({ ok: false, detail: "Unknown task for this workspace." });
   expect((await invoke("docs_guidance", { task_id: task.task_id }, beta)).snapshot_id).toBe(task.snapshot_id);
 });
 
@@ -198,9 +200,11 @@ test("docs_check takes an optional task_id and rejects a task this workspace doe
   expect((await invoke("docs_check", { ...target, task_id: task.task_id })).structurally_valid).toBe(true);
   const foreign = await invoke("docs_begin", {}, join(workspace, "beta"));
   await invoke("docs_end", { task_id: task.task_id });
-  for (const task_id of ["missing", task.task_id, foreign.task_id]) {
+  for (const task_id of ["missing", foreign.task_id]) {
     expect(await invoke("docs_check", { ...target, task_id })).toEqual({ ok: false, detail: "Unknown task for this workspace." });
   }
+  expect(await invoke("docs_check", { ...target, task_id: task.task_id }))
+    .toEqual({ ok: false, detail: `Task ${task.task_id} was ended with docs_end. Call docs_begin for new edits.` });
 });
 
 test("isolated daemon authenticates local requests and removes its state on shutdown", async () => {

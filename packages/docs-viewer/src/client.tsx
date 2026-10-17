@@ -60,11 +60,13 @@ export type AcquireDraftLockResult =
 
 export interface DocsClient {
   /**
-   * Loads the project docs tree (feeds the editor's `@`-mention / reference
-   * picker). Read-only — every client should provide it; the picker shows an
-   * empty list when it fails or when no client is provided at all.
+   * Loads the project docs tree for the editor's `@`-mention / reference
+   * picker. Called only while the picker is open. Honour `signal` if you can;
+   * the picker ignores late results either way. Read-only — every client
+   * should provide it; the picker shows an empty list when no client is
+   * provided at all.
    */
-  getDocsTree(projectId: string): Promise<{ tree: DocsTreeNode[] }>;
+  getDocsTree(projectId: string, options?: { signal?: AbortSignal }): Promise<{ tree: DocsTreeNode[] }>;
 
   /**
    * Loads the parsed doc.json payload for a docs-root-relative bundle path,

@@ -1,5 +1,5 @@
 /**
- * Test support: a stand-in for codex-lb (an OpenAI-compatible chat endpoint) on a local port, so the
+ * Test support: a stand-in for the Token Burner gateway (an OpenAI-compatible chat endpoint) on a local port, so the
  * BAML adapters run end to end without the network.
  *
  * It is a node:http server that writes raw replies, because the repo's test preload swaps the
@@ -41,6 +41,8 @@ export async function startFakeModelServer(answer: FakeModelServer["answer"]): P
   const server = createServer(async (request, response) => {
     const path = request.url ?? "";
     if (request.method === "OPTIONS") return reply(response, 204);
+    // Like the gateway, every other request needs a bearer key.
+    if (!/^Bearer \S/.test(request.headers.authorization ?? "")) return reply(response, 401, { error: "missing key" });
     if (path.endsWith("/models")) {
       state.probes.push(path);
       return path.startsWith("/down/") ? reply(response, 503, { error: "down" }) : reply(response, 200, { object: "list", data: [] });

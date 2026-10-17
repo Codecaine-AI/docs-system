@@ -10,7 +10,7 @@
  *
  * Adapters sit at two seams, so tests use fakes and runs use real services:
  *   Judge     answers yes/no questions (Jev over HTTP, or a fake).
- *   Rewriter  rewrites one block (BAML over codex-lb, or a fake).
+ *   Rewriter  rewrites one block (BAML over the Token Burner gateway, or a fake).
  */
 import type { DeltaSpan, DocBlock, DocBlockType, DocDocument, DocOp } from "@codecaine-ai/docs-model";
 import type { LintContext, RuleMatch } from "@codecaine-ai/docs-model/lint";
@@ -198,7 +198,7 @@ export interface RewriteResponse {
 
 /**
  * The Tier 3 seam. Rewrites one block.
- * Adapters: the BAML client (Luna fast, Sol strong, over codex-lb or OpenRouter), and a fake for tests.
+ * Adapters: the BAML client (Luna fast, Sol strong, over the Token Burner gateway or OpenRouter), and a fake for tests.
  */
 export interface Rewriter {
   rewrite(request: RewriteRequest, strength: RewriteStrength): Promise<RewriteResponse>;
@@ -225,7 +225,7 @@ export interface MeaningVerdict {
 
 /**
  * The meaning seam: a strong model compares a block before and after a change, in both directions.
- * Adapters: the BAML client (GPT-6.1 Sol over codex-lb), and a fake for tests.
+ * Adapters: the BAML client (GPT-6.1 Sol over the Token Burner gateway), and a fake for tests.
  * Texts are inline markdown that shows link and reference targets, and an AFTER with bullets is a
  * lead line plus "- " lines, so hierarchy is visible. Throws when the model cannot answer.
  */
