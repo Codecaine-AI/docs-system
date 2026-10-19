@@ -1,0 +1,1137 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-98adc8e0ebc3d183be89614c64368c3b",
+  "title": "Organization Profiles",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "opener",
+        "status",
+        "existing-h",
+        "existing-p1",
+        "existing-p2",
+        "existing-p3",
+        "existing-p4",
+        "network-h",
+        "network-p",
+        "network-p2",
+        "four-h",
+        "four-lead",
+        "four-1",
+        "four-2",
+        "four-3",
+        "four-4",
+        "three-h",
+        "three-p",
+        "f588843c-3110-49d2-9f76-b8fa613bc459",
+        "profiles-use-lead",
+        "profiles-use-g-repo",
+        "profiles-use-g-knowledge",
+        "shared-h",
+        "shared-p",
+        "49df023d-6048-45e2-b007-930a703d23d2",
+        "under-h",
+        "under-lead",
+        "under-g-software",
+        "under-g-runbook",
+        "under-g-knowledge",
+        "open-h",
+        "open-lead",
+        "open-1",
+        "open-2",
+        "open-3",
+        "open-4"
+      ]
+    },
+    "opener": {
+      "id": "opener",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A profile is a selectable convention that says how a corpus is laid out, which standards an author is shown, and which templates "
+        },
+        {
+          "insert": "docs_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " offers. The existing software convention becomes one profile. The "
+        },
+        {
+          "insert": "document model",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/lascari-ai/knowledge-system/docs/40-document-model"
+            }
+          }
+        },
+        {
+          "insert": " and the writing guidance stay shared across all profiles. Repo docs keep the "
+        },
+        {
+          "insert": "software",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " profile, and knowledge Docs in Places and Topics use the "
+        },
+        {
+          "insert": "knowledge",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " profile."
+        }
+      ],
+      "children": []
+    },
+    "status": {
+      "id": "status",
+      "type": "callout",
+      "props": {
+        "kind": "note"
+      },
+      "text": [
+        {
+          "insert": "This draft spec was consolidated on 2026-10-02 from the Second Brain drafts of 2026-09-19. Its knowledge profile follows draft 5 of the knowledge system, and nothing here is implemented."
+        }
+      ],
+      "children": []
+    },
+    "existing-h": {
+      "id": "existing-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Existing Behavior"
+        }
+      ],
+      "children": []
+    },
+    "existing-p1": {
+      "id": "existing-p1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The software convention has four normative layers: "
+        },
+        {
+          "insert": "00-foundation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "10-system-design",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "20-agents",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "30-implementation",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Extension tiers from "
+        },
+        {
+          "insert": "40-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through "
+        },
+        {
+          "insert": "98-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hold non-normative procedure, while "
+        },
+        {
+          "insert": "99-appendix",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds appendix and meta material. Every folder uses a two-digit prefix, normally with gaps of ten, so filesystem order is reading order. The docs-system corpus is itself a software-profile corpus, and its "
+        },
+        {
+          "insert": "Specs",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "90-specs"
+            }
+          }
+        },
+        {
+          "insert": " tier holds drafts such as this spec."
+        }
+      ],
+      "children": []
+    },
+    "existing-p2": {
+      "id": "existing-p2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The implementation layer mirrors the source tree and links design constraints to the code that realizes them. Code linking connects claims to source locations, while in-code docs carry file contracts and function contracts below the three documentation levels. Standards and design pages commonly use the page shape Structure, The Rule, and Why."
+        }
+      ],
+      "children": []
+    },
+    "existing-p3": {
+      "id": "existing-p3",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Enforcement currently couples every corpus to this convention. "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " loads standards only from the docs-system corpus and has no per-project override. The codecaine-docs skill states the reading order as Foundation, System Design, Agents, then Implementation. The "
+        },
+        {
+          "insert": "docs audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " CLI requires "
+        },
+        {
+          "insert": "NN-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder names, although "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " does not run that audit. "
+        },
+        {
+          "insert": "docs_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " yields a blank page, so templates and interview scripts exist only as prose in standards and the framework skill."
+        }
+      ],
+      "children": []
+    },
+    "existing-p4": {
+      "id": "existing-p4",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two parts already apply to any subject. The style guide defines matter-of-fact voice, the join test, Title Case headings, useful openings, and unslop. Document Purpose distinguishes tutorial, how-to, reference, and explanation without assuming software."
+        }
+      ],
+      "children": []
+    },
+    "network-h": {
+      "id": "network-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What Network Setup Showed"
+        }
+      ],
+      "children": []
+    },
+    "network-p": {
+      "id": "network-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "Network Setup",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs"
+            }
+          }
+        },
+        {
+          "insert": " migration on 2026-09-18 exposed the cost of treating one layout as universal. The corpus's real deliverable was the runbook, but the runbook sat in a "
+        },
+        {
+          "insert": "40-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " extension tier that the standards call non-normative. Agents and Implementation were filler: one named generic roles, and the other documented build scripts instead of the network. "
+        },
+        {
+          "insert": "99-appendix",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " became Sources and Archive, while the Foundation page hand-wrote a reading order because the corpus could not declare one."
+        }
+      ],
+      "children": []
+    },
+    "network-p2": {
+      "id": "network-p2",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "By 2026-09-30 Ford had removed Agents and Implementation and reorganized "
+        },
+        {
+          "insert": "Network Setup",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs"
+            }
+          }
+        },
+        {
+          "insert": " into setup guides such as "
+        },
+        {
+          "insert": "firewall setup",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs/20-firewall-setup"
+            }
+          }
+        },
+        {
+          "insert": ", a "
+        },
+        {
+          "insert": "device directory",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs/50-devices"
+            }
+          }
+        },
+        {
+          "insert": ", and dated "
+        },
+        {
+          "insert": "current-state pages",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs/99-appendix"
+            }
+          }
+        },
+        {
+          "insert": ". That reorganization is a runbook-profile layout built by hand inside the software profile, which supports making profiles selectable."
+        }
+      ],
+      "children": []
+    },
+    "four-h": {
+      "id": "four-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Proposal: A Profile Is Four Things"
+        }
+      ],
+      "children": []
+    },
+    "four-lead": {
+      "id": "four-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A profile selects four related authoring conventions:"
+        }
+      ],
+      "children": []
+    },
+    "four-1": {
+      "id": "four-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The standards bundles that "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders."
+        }
+      ],
+      "children": []
+    },
+    "four-2": {
+      "id": "four-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The templates that "
+        },
+        {
+          "insert": "docs_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " offers."
+        }
+      ],
+      "children": []
+    },
+    "four-3": {
+      "id": "four-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The ordering rule, either "
+        },
+        {
+          "insert": "NN-",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prefixes or entity metadata."
+        }
+      ],
+      "children": []
+    },
+    "four-4": {
+      "id": "four-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The required root pages and the reading order that the skill states."
+        }
+      ],
+      "children": []
+    },
+    "three-h": {
+      "id": "three-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Proposal: Three Profiles"
+        }
+      ],
+      "children": []
+    },
+    "three-p": {
+      "id": "three-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "software",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " profile remains the default, so existing corpora do not change. The other profiles make procedure and personal knowledge primary rather than forcing them into software-shaped slots."
+        }
+      ],
+      "children": []
+    },
+    "f588843c-3110-49d2-9f76-b8fa613bc459": {
+      "id": "f588843c-3110-49d2-9f76-b8fa613bc459",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Profile",
+          "Root Pages",
+          "Primary Content",
+          "Templates",
+          "Ordering"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "software",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Foundation, System Design, Agents, Implementation, extension tiers, Appendix",
+            "Software contracts and their implementation",
+            "Layer parent, concept doc, area page",
+            [
+              {
+                "insert": "NN-",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " order"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "runbook",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Foundation with Inventory, Evidence and Status, then Procedure and Sources",
+            "Procedure with stages, checkpoints, and Recovery",
+            "Stage page with checkpoint and recovery, evidence page",
+            [
+              {
+                "insert": "NN-",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " order"
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "knowledge",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "No fixed root pages",
+            "Docs that Areas, Infrastructure, and Library Topics keep true",
+            [
+              {
+                "insert": "Session templates "
+              },
+              {
+                "insert": "session",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "feature",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "experiment",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", and "
+              },
+              {
+                "insert": "research",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Record fields in views"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "profiles-use-lead": {
+      "id": "profiles-use-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The home of a doc decides its profile."
+        }
+      ],
+      "children": []
+    },
+    "profiles-use-g-repo": {
+      "id": "profiles-use-g-repo",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repo Docs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "profiles-use-repo-1"
+      ]
+    },
+    "profiles-use-repo-1": {
+      "id": "profiles-use-repo-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repo docs keep the "
+        },
+        {
+          "insert": "software",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " profile. A repo's "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder says how its code works, such as Pen Plotter's docs."
+        }
+      ],
+      "children": []
+    },
+    "profiles-use-g-knowledge": {
+      "id": "profiles-use-g-knowledge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Knowledge Docs",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "profiles-use-knowledge-1",
+        "profiles-use-knowledge-2",
+        "profiles-use-knowledge-3"
+      ]
+    },
+    "profiles-use-knowledge-1": {
+      "id": "profiles-use-knowledge-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Knowledge Docs use the "
+        },
+        {
+          "insert": "knowledge",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " profile. They sit in the "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder of an Area, a sub-Area, a Build, an Infrastructure Place, or a Library Topic, such as "
+        },
+        {
+          "insert": "areas/hobbies/areas/pen-plotting/docs/ink-behavior/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "profiles-use-knowledge-2": {
+      "id": "profiles-use-knowledge-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lesson about the code goes in the repo docs, and a lesson from Ford's own work goes in the "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of the Area, sub-Area, or Build it came from."
+        }
+      ],
+      "children": []
+    },
+    "profiles-use-knowledge-3": {
+      "id": "profiles-use-knowledge-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A Library Topic's Docs distill outside material only, such as a book that anyone could read."
+        }
+      ],
+      "children": []
+    },
+    "shared-h": {
+      "id": "shared-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Shared Versus Varies"
+        }
+      ],
+      "children": []
+    },
+    "shared-p": {
+      "id": "shared-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Profiles change navigation and authoring choices, not the stored document. Shared ownership keeps blocks, references, identity, lints, and writing rules consistent across corpora. A profile therefore configures what an author sees and where content belongs without forking the block model. A document can move between conventions without conversion, and tools can reason about its blocks before they know the corpus subject. Profile-owned interview scripts can ask subject-specific questions while producing the same document objects and reference spans."
+        }
+      ],
+      "children": []
+    },
+    "49df023d-6048-45e2-b007-930a703d23d2": {
+      "id": "49df023d-6048-45e2-b007-930a703d23d2",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Concern",
+          "Shared or Varies",
+          "Owner"
+        ],
+        "rows": [
+          [
+            "Block model and components",
+            "Shared",
+            "Document Model"
+          ],
+          [
+            "Writing style and Document Purpose",
+            "Shared",
+            "Style guide"
+          ],
+          [
+            "Lints",
+            "Shared",
+            "docs-model"
+          ],
+          [
+            "Identity and references",
+            "Shared",
+            "Document Model"
+          ],
+          [
+            "Layout and root pages",
+            "Varies",
+            "Profile"
+          ],
+          [
+            "Numbering and ordering",
+            "Varies",
+            "Profile"
+          ],
+          [
+            [
+              {
+                "insert": "Standards pages shown at "
+              },
+              {
+                "insert": "docs_begin",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Varies",
+            "Profile"
+          ],
+          [
+            "Templates",
+            "Varies",
+            "Profile"
+          ],
+          [
+            "Interview scripts",
+            "Varies",
+            "Profile"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "under-h": {
+      "id": "under-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Network Setup Under Each Profile"
+        }
+      ],
+      "children": []
+    },
+    "under-lead": {
+      "id": "under-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The same "
+        },
+        {
+          "insert": "Network Setup",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/knowledge/network-setup/docs"
+            }
+          }
+        },
+        {
+          "insert": " material takes a different shape under each profile:"
+        }
+      ],
+      "children": []
+    },
+    "under-g-software": {
+      "id": "under-g-software",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "software",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " profile",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "under-1"
+      ]
+    },
+    "under-1": {
+      "id": "under-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Network Setup as migrated on 2026-09-18 had four required layers, a procedural extension tier, and an appendix."
+        }
+      ],
+      "children": []
+    },
+    "under-g-runbook": {
+      "id": "under-g-runbook",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "runbook",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " profile",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "under-2"
+      ]
+    },
+    "under-2": {
+      "id": "under-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents and Implementation disappear, and the runbook becomes the primary tier with stages, checkpoints, and Recovery. The current corpus already approximates this layout with its setup guides, device directory, and current-state pages."
+        }
+      ],
+      "children": []
+    },
+    "under-g-knowledge": {
+      "id": "under-g-knowledge",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "knowledge",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": " profile",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "under-3"
+      ]
+    },
+    "under-3": {
+      "id": "under-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Network Setup becomes Home Network, an Infrastructure Place at "
+        },
+        {
+          "insert": "infrastructure/home-network/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Its runbook pages go in "
+        },
+        {
+          "insert": "docs/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and its configs and backups go in "
+        },
+        {
+          "insert": "files/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", as "
+        },
+        {
+          "insert": "Places",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "/Users/Ford/workspace/codebases/lascari-ai/knowledge-system/docs/35-data-model/10-places"
+            }
+          }
+        },
+        {
+          "insert": " describes."
+        }
+      ],
+      "children": []
+    },
+    "open-h": {
+      "id": "open-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Open Questions"
+        }
+      ],
+      "children": []
+    },
+    "open-lead": {
+      "id": "open-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Four decisions remain open:"
+        }
+      ],
+      "children": []
+    },
+    "open-1": {
+      "id": "open-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Is a profile selected per corpus or per subtree?"
+        }
+      ],
+      "children": []
+    },
+    "open-2": {
+      "id": "open-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do profile standards pages live in the docs-system corpus or in a profiles package?"
+        }
+      ],
+      "children": []
+    },
+    "open-3": {
+      "id": "open-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Does "
+        },
+        {
+          "insert": "docs audit",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " numbering become profile-scoped?"
+        }
+      ],
+      "children": []
+    },
+    "open-4": {
+      "id": "open-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Is the runbook profile a real profile or a set of knowledge-profile templates?"
+        }
+      ],
+      "children": []
+    }
+  }
+}
