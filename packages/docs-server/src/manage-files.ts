@@ -14,6 +14,8 @@ export type ManageFilesInput = {
   kind: 'page' | 'asset' | 'title'; path: string; to?: string; title?: string;
   expected_hash: string; preview?: boolean; expected_tree_hash?: string; recursive?: boolean;
 };
+/** Test seam: awaited right after a page/asset relocation, before rewrites. */
+export const __manageFilesTestHooks: { afterRelocate?: () => Promise<void> } = {};
 const hash = (b: Uint8Array|string) => createHash('sha256').update(b).digest('hex');
 const isDoc = (p:string) => p.endsWith('/doc.json') && !p.includes('/assets/');
 const under = (file:string, dir:string) => file === dir || file.startsWith(dir+'/');
@@ -149,6 +151,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       try{
         if(input.to){await mkdir(dirname(join(root,input.to)),{recursive:true});await rename(join(root,input.path),join(root,input.to));relocated=true;}
         else if(input.kind!=='title'){await rename(join(root,input.path),join(journal,'deleted'));relocated=true;}
+        if(__manageFilesTestHooks.afterRelocate)await __manageFilesTestHooks.afterRelocate();
         for(const [file,bytes] of outputs){if(!input.to&&input.kind!=='title'&&moving.includes(file))continue;await atomicWriteFile(join(root,map(file)),bytes.toString());}
         await rescanAll(root,await getBacklinksDb(root));
         const after=await capture(root);

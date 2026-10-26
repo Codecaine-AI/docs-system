@@ -283,5 +283,6 @@ export {
 
 // Store + routes
 export { createDocsStore, type DocsStore } from "./store";
+export { attachCorpusWatcher, invalidateDocsCorpus } from "./corpus-cache";
 export { createDocsRoutes } from "./routes";
 export { textMeasureBackend, textMeasureReady } from "./text-measure";

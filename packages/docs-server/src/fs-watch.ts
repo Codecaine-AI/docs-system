@@ -3,6 +3,7 @@ import { existsSync, watch, type FSWatcher } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 
+import { attachCorpusWatcher, invalidateDocsCorpus } from "./corpus-cache";
 import type { DocsChangeEvent } from "./docs-events";
 
 /**
@@ -109,7 +110,11 @@ export function watchDocsRoot(
   // -- per-target trailing debounce ------------------------------------------
   const pending = new Map<string, ReturnType<typeof setTimeout>>();
   const onFsChange = (relPath: string | null) => {
-    if (closed || relPath == null) return;
+    if (closed) return;
+    // Synchronous, before the debounce: the tree cache must not serve a hit
+    // after the change. Events without a filename (overflow) invalidate too.
+    invalidateDocsCorpus(docsRoot, relPath ?? "");
+    if (relPath == null) return;
     const target = changeTargetForRelPath(docsRoot, relPath);
     if (target === null) return;
     const existing = pending.get(target);
@@ -129,6 +134,9 @@ export function watchDocsRoot(
     );
   };
 
+  // The tree cache for this root is on while this watcher is attached.
+  const detachCorpus = attachCorpusWatcher(docsRoot);
+
   let watcher: FSWatcher | null = null;
   let stopPolling: (() => void) | null = null;
   let mode: "fs-watch" | "poll";
@@ -136,8 +144,12 @@ export function watchDocsRoot(
     watcher = watch(docsRoot, { recursive: true }, (_eventType, filename) => {
       onFsChange(typeof filename === "string" ? filename : null);
     });
-    // Late errors (e.g. the root disappearing) must not crash the host.
-    watcher.on("error", () => {});
+    // Late errors (e.g. the root disappearing) must not crash the host. Events
+    // may be lost from here on, so the tree cache turns off for this root.
+    watcher.on("error", () => {
+      invalidateDocsCorpus(docsRoot);
+      detachCorpus();
+    });
     mode = "fs-watch";
   } catch {
     stopPolling = startPollingScan(
@@ -157,6 +169,7 @@ export function watchDocsRoot(
       pending.clear();
       watcher?.close();
       stopPolling?.();
+      detachCorpus();
     },
   };
 }
@@ -166,8 +179,10 @@ export function watchDocsRoot(
 type Snapshot = Map<string, string>;
 
 /** Recursive mtime+size scan, skipping dot/node_modules dirs (same ignore set
- * as the mapping — the mapping still runs on every reported path). */
-async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map()): Promise<Snapshot> {
+ * as the mapping — the mapping still runs on every reported path). Folders are
+ * recorded too (`"d"`), so creating or removing an empty folder, which the
+ * docs tree lists, shows up as a change. Exported for direct unit testing. */
+export async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map()): Promise<Snapshot> {
   let entries;
   try {
     entries = await readdir(join(docsRoot, relDir), { withFileTypes: true });
@@ -178,6 +193,7 @@ async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map(
     if (entry.name.startsWith(".") || entry.name === "node_modules") continue;
     const rel = relDir ? `${relDir}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
+      into.set(rel, "d");
       await scanTree(docsRoot, rel, into);
     } else if (entry.isFile()) {
       try {
@@ -191,7 +207,8 @@ async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map(
   return into;
 }
 
-function startPollingScan(
+/** Exported for direct unit testing of the poll fallback. */
+export function startPollingScan(
   docsRoot: string,
   onFsChange: (relPath: string) => void,
   intervalMs: number,

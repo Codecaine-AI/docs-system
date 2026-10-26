@@ -113,6 +113,7 @@ import {
   resolveSequenceSidecarRelativePath,
 } from "./confine";
 import { withPathLock } from "./path-mutex";
+import { invalidateDocsCorpus, peekDocsTree, storeTreeLocked } from "./corpus-cache";
 import {
   publishDocsChangeEvent,
   subscribeToDocsChangeEvents,
@@ -555,6 +556,13 @@ async function forwardSequenceAction(
   });
 }
 
+/** Store operations that never change the corpus (no tree-cache invalidation). */
+const STORE_READ_OPS = new Set<keyof DocsStore>([
+  "tree", "bundle", "projection", "annotations", "proposals", "changesets", "changesetGet", "docGet",
+  "canvasGet", "canvasByDocPath", "sequenceGet", "sequenceByDocPath", "annotationList", "readAsset",
+  "backlinks", "assets",
+]);
+
 export function createDocsStore(docsRoot: string): DocsStore {
   const root = canonicalDocsRoot(docsRoot);
   // Change events are channeled per resolved docs root, so every store (and
@@ -704,10 +712,25 @@ export function createDocsStore(docsRoot: string): DocsStore {
   };
   // Store callers share one corpus authority during multi-file reorganizations.
   // Per-file locks still coordinate with lower-level internal editing primitives.
+  const lock = join(root, ".changesets", ".store-operation-lock");
   for (const key of Object.keys(store) as Array<keyof DocsStore>) {
     if (key === "publishChange" || key === "subscribeChanges" || typeof store[key] !== "function") continue;
     const operation = store[key] as (...args: any[]) => Promise<any>;
-    (store as any)[key] = (...args: any[]) => withPathLock(join(root, ".changesets", ".store-operation-lock"), () => operation(...args));
+    if (key === "tree") {
+      // A cache hit skips the lock; a miss walks (and fills) inside it.
+      store.tree = async () =>
+        peekDocsTree(root) ?? withPathLock(lock, () => storeTreeLocked(root, () => walkDocsDir(root)));
+    } else if (STORE_READ_OPS.has(key)) {
+      (store as any)[key] = (...args: any[]) => withPathLock(lock, () => operation(...args));
+    } else {
+      // Writes drop the cached tree before any disk change, so a client
+      // refetching on an event published mid-write never gets the old tree.
+      (store as any)[key] = (...args: any[]) =>
+        withPathLock(lock, async () => {
+          invalidateDocsCorpus(root);
+          return operation(...args);
+        });
+    }
   }
   return store;
 }

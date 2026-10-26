@@ -9,6 +9,7 @@ import { createDocsRoutes } from "../routes";
 import { uploadDocVideoAsset } from "../assets";
 import { MAX_VIDEO_ASSET_BYTES } from "../confine";
 import { draftLockStore } from "../draft-locks";
+import { attachCorpusWatcher, corpusCacheState } from "../corpus-cache";
 import type { DocsChangeEvent } from "../docs-events";
 
 /**
@@ -809,5 +810,58 @@ describe("GET /api/asset byte ranges (video seeking)", () => {
     const res = await getAsset("bytes=200-300");
     expect(res.status).toBe(416);
     expect(res.headers.get("content-range")).toBe("bytes */100");
+  });
+});
+
+describe("createDocsRoutes (tree cache, watcher attached)", () => {
+  let docsRoot: string;
+  let app: ReturnType<typeof createDocsRoutes>;
+  let detach: () => void;
+
+  beforeEach(async () => {
+    docsRoot = await mkdtemp(join(tmpdir(), "docs-server-routes-cache-"));
+    await mkdir(join(docsRoot, "guide"), { recursive: true });
+    await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
+    // Caching without fs.watch: only the store's own invalidations apply.
+    detach = attachCorpusWatcher(docsRoot);
+    app = createDocsRoutes(createDocsStore(docsRoot));
+  });
+
+  afterEach(async () => {
+    detach();
+    await rm(docsRoot, { recursive: true, force: true });
+  });
+
+  const get = (path: string) => app.handle(new Request(`http://localhost${path}`));
+  const postJson = (path: string, body: unknown) =>
+    app.handle(
+      new Request(`http://localhost${path}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      }),
+    );
+
+  test("GET /api/tree twice walks once", async () => {
+    const first = await (await get("/api/tree")).json();
+    const second = await (await get("/api/tree")).json();
+    expect(second).toEqual(first);
+    expect(corpusCacheState(docsRoot)?.walks).toBe(1);
+  });
+
+  test("a doc created through the API is in the next /api/tree", async () => {
+    await get("/api/tree");
+    const staged = await postJson("/api/changesets", {
+      summary: "create",
+      entries: [],
+      tree_ops: [{ kind: "create-doc", doc_path: "added", title: "Added", position: 0 }],
+    });
+    expect(staged.status).toBe(201);
+    const { changeset } = (await staged.json()) as any;
+    const accepted = await postJson(`/api/changesets/${changeset.id}/accept`, { session_id: "s" });
+    expect(accepted.status).toBe(200);
+    const tree = (await (await get("/api/tree")).json()) as any;
+    const nodes = Array.isArray(tree) ? tree : tree.tree;
+    expect(nodes.map((node: any) => node.path)).toContain("added");
   });
 });

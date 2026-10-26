@@ -1,10 +1,18 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, rm, rmdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { DocsChangeEvent } from "../docs-events";
-import { FS_WATCH_ACTOR, changeTargetForRelPath, watchDocsRoot } from "../fs-watch";
+import { corpusCacheState } from "../corpus-cache";
+import {
+  FS_WATCH_ACTOR,
+  changeTargetForRelPath,
+  scanTree,
+  startPollingScan,
+  watchDocsRoot,
+} from "../fs-watch";
+import { createDocsStore } from "../store";
 
 /**
  * Watcher unit tests: the pure filter/mapping rules (`changeTargetForRelPath`)
@@ -157,5 +165,69 @@ describe("fs-watch: watchDocsRoot integration (recursive fs.watch)", () => {
     await writeFile(join(docsRoot, "20-section", "30-topic", "doc.json"), `${DOC_JSON}\n`);
     await sleep(400);
     expect(events).toEqual([]);
+  }, 15000);
+});
+
+describe("fs-watch: polling fallback signatures", () => {
+  test("scanTree records folders, so empty folders are part of the snapshot", async () => {
+    await mkdir(join(docsRoot, "40-empty"), { recursive: true });
+    try {
+      const snapshot = await scanTree(docsRoot);
+      expect(snapshot.get("40-empty")).toBe("d");
+      expect(snapshot.get("10-guide")).toBe("d");
+      expect(snapshot.has(".index")).toBe(false);
+    } finally {
+      await rm(join(docsRoot, "40-empty"), { recursive: true, force: true });
+    }
+  });
+
+  test("the poll scan reports a new and a removed empty folder", async () => {
+    const changed: string[] = [];
+    const stop = startPollingScan(docsRoot, (rel) => changed.push(rel), 50);
+    try {
+      await sleep(150);
+      await mkdir(join(docsRoot, "50-new-empty"));
+      await waitFor(() => changed.includes("50-new-empty"), 2000);
+      expect(changed).toContain("50-new-empty");
+      changed.length = 0;
+      await rmdir(join(docsRoot, "50-new-empty"));
+      await waitFor(() => changed.includes("50-new-empty"), 2000);
+      expect(changed).toContain("50-new-empty");
+    } finally {
+      stop();
+      await rm(join(docsRoot, "50-new-empty"), { recursive: true, force: true });
+    }
+  });
+});
+
+describe("fs-watch: tree cache invalidation", () => {
+  test("dot-dir writes keep the cached tree; a temp file drops it but publishes nothing", async () => {
+    const events: DocsChangeEvent[] = [];
+    const watcher = watchDocsRoot(docsRoot, (event) => events.push(event), { debounceMs: 50 });
+    const temp = join(docsRoot, "20-section", "doc.json.tmp-01234567-89ab-cdef-0123-456789abcdef");
+    try {
+      await sleep(200);
+      const store = createDocsStore(docsRoot);
+      await store.tree();
+      const gen = corpusCacheState(docsRoot)!.gen;
+
+      await writeFile(join(docsRoot, ".index", "cache-probe.db"), "bytes");
+      await sleep(300);
+      expect(corpusCacheState(docsRoot)).toMatchObject({ gen, cached: true });
+
+      await writeFile(temp, DOC_JSON);
+      await waitFor(() => corpusCacheState(docsRoot)!.gen > gen, 2000);
+      expect(corpusCacheState(docsRoot)).toMatchObject({ cached: false });
+      await sleep(300);
+      expect(events.filter((event) => event.path.includes(".tmp-"))).toEqual([]);
+      expect(events.filter((event) => event.path.includes(".index"))).toEqual([]);
+
+      watcher.close();
+      expect(corpusCacheState(docsRoot)).toBeUndefined();
+    } finally {
+      watcher.close();
+      await rm(temp, { force: true });
+      await rm(join(docsRoot, ".index", "cache-probe.db"), { force: true });
+    }
   }, 15000);
 });
