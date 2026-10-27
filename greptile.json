@@ -1,0 +1,14 @@
+{
+  "strictness": 2,
+  "commentTypes": [
+    "logic",
+    "syntax"
+  ],
+  "triggerOnDrafts": false,
+  "autoReview": [
+    "open",
+    "push"
+  ],
+  "ignorePatterns": "**/dist/**\n**/dist-static/**\n**/build/**\n**/coverage/**\nbun.lock\n**/package-lock.json\n**/__snapshots__/**\n**/*.snap\n**/__fixtures__/**\n**/fixtures/**\n**/*.log\npackages/docs-style/baml_client/**\ndocs/**/*.json\nproposals/**/*.json\nobjectives/**/artifacts/**/*.json\nobjectives/**/artifacts/**/*.txt\n.agent-kernel/trace.db*",
+  "instructions": "Bun and TypeScript monorepo; packages live under packages/. Docs pages (docs/**/doc.json) and their sidecars are written by tools, not by hand. Focus on correctness, types, error handling and missing tests. Skip style nits."
+}
