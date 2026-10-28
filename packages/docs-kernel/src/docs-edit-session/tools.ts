@@ -14,7 +14,7 @@ import { formatLintReport } from "@codecaine-ai/docs-model/lint";
  * call, an unreadable bundle, or a session refusal must not tear down the
  * agent turn.
  */
-import type { CreateKernelConfig } from "@agent-kernel/kernel";
+import type { CreateKernelConfig } from "@codecaine-ai/agent-kernel";
 import type { DocBlockType, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { isDocBlockType } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";

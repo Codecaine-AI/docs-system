@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import type { AgentConfig } from "@agent-kernel/kernel";
+import type { AgentConfig } from "@codecaine-ai/agent-kernel";
 import type { DocChangeSetView } from "@codecaine-ai/docs-server";
 
 import {

@@ -10,11 +10,11 @@
 import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { updateContainerStatus } from "@agent-kernel/db";
+import { updateContainerStatus } from "@codecaine-ai/agent-kernel-db";
 import {
 	type CreateKernelConfig,
 	type KernelInstance,
-} from "@agent-kernel/kernel";
+} from "@codecaine-ai/agent-kernel";
 
 import {
 	createDocsEditSessionService,

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import type { CreateKernelConfig } from "@agent-kernel/kernel";
+import type { CreateKernelConfig } from "@codecaine-ai/agent-kernel";
 
 import {
 	DOCS_EDIT_TOOL_NAMES as REGISTERED_DOCS_EDIT_TOOL_NAMES,

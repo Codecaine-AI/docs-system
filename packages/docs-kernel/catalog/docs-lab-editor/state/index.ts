@@ -5,15 +5,15 @@
  * note through sessionData. Document content and the request queue stay live
  * behind session tools rather than being cached in kernel state.
  */
-import { defineState } from "@agent-kernel/kernel/agent-definition";
-import type { SpawnContext } from "@agent-kernel/kernel/context";
+import { defineState } from "@codecaine-ai/agent-kernel/agent-definition";
+import type { SpawnContext } from "@codecaine-ai/agent-kernel/context";
 import {
 	kernelStateMessage,
 	renderRollingWindow,
 	type RenderContext,
 	type RenderResult,
 	type SessionEvent,
-} from "@agent-kernel/kernel/state";
+} from "@codecaine-ai/agent-kernel/state";
 
 /** JSON-serializable state snapshotted by the kernel. */
 export interface DocsLabEditorState {
