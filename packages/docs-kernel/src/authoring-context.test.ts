@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import type { AgentContextResolver, LoadedMap, SpawnContext } from "@agent-kernel/kernel/context";
+import type { AgentContextResolver, LoadedMap, SpawnContext } from "@codecaine-ai/agent-kernel/context";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { lintDocument, lintRules } from "@codecaine-ai/docs-model/lint";
