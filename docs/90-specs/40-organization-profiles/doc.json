@@ -235,7 +235,7 @@
           }
         },
         {
-          "insert": " loads standards only from the docs-system corpus and has no per-project override. The codecaine-docs skill states the reading order as Foundation, System Design, Agents, then Implementation. The "
+          "insert": " loads standards only from the docs-system corpus and has no per-project override. The docs-system skill states the reading order as Foundation, System Design, Agents, then Implementation. The "
         },
         {
           "insert": "docs audit",

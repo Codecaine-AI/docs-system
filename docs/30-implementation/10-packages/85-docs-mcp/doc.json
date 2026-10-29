@@ -1075,7 +1075,7 @@
             "note": "MCP bridge, local service, client setup and typed tools"
           },
           {
-            "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+            "path": "packages/docs-mcp/skills/docs-system/SKILL.md",
             "note": "External authoring workflow"
           },
           {
@@ -1269,7 +1269,7 @@
             "note": "Development source and tool-contract fingerprinting"
           },
           {
-            "path": "packages/docs-mcp/skills/codecaine-docs/",
+            "path": "packages/docs-mcp/skills/docs-system/",
             "note": "Maintained SKILL.md plus generated references and snapshot"
           },
           {

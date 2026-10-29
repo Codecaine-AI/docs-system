@@ -29,7 +29,7 @@ export async function daemonHealthy(state: DaemonState|null): Promise<boolean> {
 }
 export async function ensureDaemon(): Promise<DaemonState> {
  let state=await readDaemonState(); if(await daemonHealthy(state)) {
-  if(state!.packageRoot!==PACKAGE_ROOT) throw new Error('Another Codecaine Docs checkout owns the service. Run its stop command before switching installations.');
+  if(state!.packageRoot!==PACKAGE_ROOT) throw new Error('Another Docs System checkout owns the service. Run its stop command before switching installations.');
   return state!;
  }
  if(process.platform === 'darwin' && await Bun.file(join(stateDirectory(), 'background.json')).exists()) {

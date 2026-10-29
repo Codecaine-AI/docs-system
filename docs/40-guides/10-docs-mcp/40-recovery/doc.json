@@ -461,7 +461,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Preview restore first. Restore verifies backup and installed-file hashes and refuses to overwrite post-install changes. Claude can update its configuration during normal use, so an exact restore may refuse. To remove only its MCP entry, use claude mcp remove codecaine-docs -s user and preserve the newer file. Skill copies and pi configuration require their own reviewed cleanup."
+          "insert": "Preview restore first. Restore verifies backup and installed-file hashes and refuses to overwrite post-install changes. Claude can update its configuration during normal use, so an exact restore may refuse. To remove only its MCP entry, use claude mcp remove docs-system -s user and preserve the newer file. Skill copies and pi configuration require their own reviewed cleanup."
         }
       ],
       "children": []

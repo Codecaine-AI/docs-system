@@ -1,4 +1,4 @@
-# Codecaine Docs MCP
+# Docs System MCP
 
 Direct documentation tools for Codex, Claude Code, and pi Agent, backed by the existing Docs store. No model process or Agent Kernel runtime starts. A user-level stdio connection auto-starts one authenticated loopback service; all clients use explicit workspace/project IDs.
 
@@ -10,7 +10,7 @@ bun packages/docs-mcp/src/cli.ts install --write
 bun packages/docs-mcp/src/cli.ts doctor
 ```
 
-Installation previews first, preserves unrelated client settings, and backs up changed files. Save the write command's JSON output for `restore REPORT` inspection. Codex and pi use `~/.agents/skills/codecaine-docs`; Claude uses `~/.claude/skills/codecaine-docs`. pi's extension forwards the MCP tools because pi has no native MCP client. Restart Codex/Claude; use `/reload` in pi.
+Installation previews first, preserves unrelated client settings, and backs up changed files. Save the write command's JSON output for `restore REPORT` inspection. Codex and pi use `~/.agents/skills/docs-system`; Claude uses `~/.claude/skills/docs-system`. pi's extension forwards the MCP tools because pi has no native MCP client. Restart Codex/Claude; use `/reload` in pi.
 
 ## Daily Use
 

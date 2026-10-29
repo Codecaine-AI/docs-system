@@ -1,13 +1,13 @@
 ---
-name: codecaine-docs
-description: Read and update Codecaine documentation through connected Docs tools. Use when a project has a Codecaine docs corpus or the user asks to document implementation changes, explain existing documentation, or edit documentation components.
+name: docs-system
+description: Read and update Docs System documentation through the connected Docs tools. Use when a project has a Docs System corpus or the user asks to document implementation changes, explain existing documentation, or edit documentation components.
 metadata:
   version: "0.1.0"
   product: docs
-compatibility: Requires the Codecaine Docs tool connection. Codex and Claude Code use MCP; pi Agent uses the installed bridge extension.
+compatibility: Requires the Docs System tool connection. Codex and Claude Code use MCP; pi Agent uses the installed bridge extension.
 ---
 
-# Codecaine Docs
+# Docs System
 
 Use the connected Docs tools for documentation reads and edits. They preserve typed document structure, component sidecars, revisions, and validation. Do not edit `doc.json` or Canvas/Sequence sidecars with filesystem writes.
 

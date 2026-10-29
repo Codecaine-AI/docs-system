@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:234d849e59a141e5b95dea065302f9d25e1fc8c22d725ba8e696fca335fbae12",
+  "snapshotId": "sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -213,8 +213,8 @@
       "kind": "component-manifest"
     },
     {
-      "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
-      "sha256": "0cc955d968b7832772ddb98e89f46cd63c8ba6a6afc03a4f4bedfd001651e4fb",
+      "path": "packages/docs-mcp/skills/docs-system/SKILL.md",
+      "sha256": "af77c5648f6c006b2d37f27b369dcd3b1ff03a51686875046a16c09304f3f3b5",
       "kind": "skill"
     }
   ]

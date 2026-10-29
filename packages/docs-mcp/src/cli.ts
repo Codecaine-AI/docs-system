@@ -52,7 +52,7 @@ try{
    const snapshot=await createDevelopmentSnapshot(createInteractionService().listTools());
    await mkdir(resolve(destination,'..'),{recursive:true});await writeFile(destination,JSON.stringify(snapshot,null,2)+'\n');out({path:destination,snapshot:snapshot.snapshotId});break;
   }
-  case 'guidance':{const snapshot=await loadGuidance();if(args.includes('--write'))await generateSkillReferences(join(PACKAGE_ROOT,'skills','codecaine-docs'),snapshot);out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
+  case 'guidance':{const snapshot=await loadGuidance();if(args.includes('--write'))await generateSkillReferences(join(PACKAGE_ROOT,'skills','docs-system'),snapshot);out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
   case 'ui':{
    const state=await ensureDaemon();const found=await (await daemonFetch(state,'/rpc',{workspace,name:'docs_discover',arguments:{}})).json() as any;
    if(found.isError)throw new Error(found.structuredContent.detail);
@@ -69,7 +69,7 @@ try{
    const {runServe}=await import('../../docs-workbench/src/run-serve');
    await runServe({docsRoot:project.docsRoot,port:Number(option('--port','4808')),hostname:'127.0.0.1',sharedApi:{url:state.url,projectId:project.id,token:state.token}});break;
   }
-  default:console.log(`Codecaine Docs\n\n  background install|start|stop|status      Manage the signed central service (default port 4820)\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
+  default:console.log(`Docs System\n\n  background install|start|stop|status      Manage the signed central service (default port 4820)\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
   doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  discover [--workspace PATH]               List project documentation\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance [--write]                        Inspect/regenerate skill references\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
  }
 }catch(error){console.error(error instanceof Error?error.message:String(error));process.exitCode=1;}

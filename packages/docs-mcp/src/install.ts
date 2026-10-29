@@ -22,7 +22,7 @@ export interface InstallOptions {
 export interface InstallChange {
   path: string;
   kind: "config" | "skill" | "extension";
-  action: "create" | "update" | "unchanged";
+  action: "create" | "update" | "unchanged" | "remove";
   sha256: string;
   written: boolean;
   backup?: string;
@@ -35,9 +35,15 @@ export interface InstallResult {
   command: { command: string; args: string[] };
   notes: string[];
 }
-type PlannedFile = { path: string; kind: InstallChange["kind"]; before: string | null; after: string };
-const START = "# BEGIN CODECAINE DOCS MCP (managed by docs-mcp install)";
-const END = "# END CODECAINE DOCS MCP";
+/** `after: null` removes a file an earlier install created under the legacy name. */
+type PlannedFile = { path: string; kind: InstallChange["kind"]; before: string | null; after: string | null };
+const SERVER = "docs-system";
+const START = "# BEGIN DOCS SYSTEM MCP (managed by docs-mcp install)";
+const END = "# END DOCS SYSTEM MCP";
+// Earlier installs used this name. Install removes only what those installs created.
+const LEGACY = "codecaine-docs";
+const LEGACY_START = "# BEGIN CODECAINE DOCS MCP (managed by docs-mcp install)";
+const LEGACY_END = "# END CODECAINE DOCS MCP";
 const DEFAULT_PACKAGE_ROOT = fileURLToPath(new URL("../", import.meta.url));
 const digest = (text: string) => createHash("sha256").update(text).digest("hex");
 
@@ -60,18 +66,26 @@ function object(value: unknown, label: string): Record<string, unknown> {
 
 /** Preserve all unrelated TOML, including comments. Reject unmanaged name collisions. */
 export function codexConfig(before: string, command: string, args: string[]): string {
+  const legacyStart = before.indexOf(LEGACY_START);
+  const legacyEnd = before.indexOf(LEGACY_END);
+  if ((legacyStart < 0) !== (legacyEnd < 0) || (legacyStart >= 0 && legacyEnd < legacyStart)) throw new Error("Incomplete legacy managed block in Codex config");
+  // The legacy block is installer-owned. Drop it, and put the renamed block in its place when there is none yet.
+  if (legacyStart >= 0) {
+    const rest = before.slice(legacyEnd + LEGACY_END.length);
+    before = before.slice(0, legacyStart) + (before.includes(START) ? rest.replace(/^\n/, "") : `${START}\n${END}${rest}`);
+  }
   const parsed = object(Bun.TOML.parse(before), "Codex config");
   const start = before.indexOf(START);
   const end = before.indexOf(END);
-  if ((start < 0) !== (end < 0) || (start >= 0 && end < start)) throw new Error("Incomplete Codecaine managed block in Codex config");
+  if ((start < 0) !== (end < 0) || (start >= 0 && end < start)) throw new Error("Incomplete Docs System managed block in Codex config");
   const servers = parsed.mcp_servers === undefined ? {} : object(parsed.mcp_servers, "mcp_servers");
-  if (start < 0 && servers["codecaine-docs"] !== undefined) {
-    throw new Error("Codex already has an unmanaged codecaine-docs server. Rename that entry or remove it before installing; other MCP servers are preserved.");
+  if (start < 0 && servers[SERVER] !== undefined) {
+    throw new Error(`Codex already has an unmanaged ${SERVER} server. Rename that entry or remove it before installing; other MCP servers are preserved.`);
   }
-  const block = `${START}\n[mcp_servers.codecaine-docs]\ncommand = ${JSON.stringify(command)}\nargs = ${JSON.stringify(args)}\nstartup_timeout_sec = 30\ntool_timeout_sec = 120\n${END}`;
-  if (start >= 0) {
+  const block = `${START}\n[mcp_servers.${SERVER}]\ncommand = ${JSON.stringify(command)}\nargs = ${JSON.stringify(args)}\nstartup_timeout_sec = 30\ntool_timeout_sec = 120\n${END}`;
+  if (start >= 0 && servers[SERVER] !== undefined) {
     // The block is installer-owned. Refuse custom fields rather than silently discard them.
-    const owned = object(servers["codecaine-docs"], "codecaine-docs");
+    const owned = object(servers[SERVER], SERVER);
     const supported = new Set(["command", "args", "startup_timeout_sec", "tool_timeout_sec"]);
     if (Object.keys(owned).some((key) => !supported.has(key))) throw new Error("The managed Codex server has custom fields. Move its configuration out of installer management before reinstalling.");
   }
@@ -93,7 +107,7 @@ async function collectFiles(root: string, relative = ""): Promise<Record<string,
 
 async function skillFiles(options: InstallOptions, root: string): Promise<Record<string, string>> {
   if (options.skillFiles) return options.skillFiles;
-  const template = await collectFiles(join(root, "skills/codecaine-docs"));
+  const template = await collectFiles(join(root, "skills", SERVER));
   const temp = await mkdtemp(join(tmpdir(), "codecaine-skills-"));
   try {
     const { generateSkillReferences } = await import("./guidance");
@@ -119,6 +133,11 @@ async function plan(options: InstallOptions) {
     const before = await existing(path);
     files.push({ path, kind, before, after: make(before) });
   };
+  /** Plan removal of a legacy file only when `owned` confirms an earlier install wrote it. */
+  const retire = async (path: string, kind: PlannedFile["kind"], owned: (before: string) => boolean) => {
+    const before = await existing(path);
+    if (before !== null && owned(before)) files.push({ path, kind, before, after: null });
+  };
   if (clients.includes("codex")) {
     const dir = options.codexDir ?? (useEnv ? process.env.CODEX_HOME : undefined) ?? join(home, ".codex");
     await add(join(dir, "config.toml"), "config", (before) => codexConfig(before ?? "", command.command, command.args));
@@ -128,22 +147,35 @@ async function plan(options: InstallOptions) {
     await add(options.claudeConfigFile ?? join(home, ".claude.json"), "config", (before) => {
       const config = before ? object(JSON.parse(before), "Claude config") : {};
       const servers = config.mcpServers === undefined ? {} : object(config.mcpServers, "mcpServers");
-      const previous = servers["codecaine-docs"] === undefined ? {} : object(servers["codecaine-docs"], "codecaine-docs");
+      // The legacy entry is installer-owned when it runs a docs-mcp checkout's `cli.ts mcp`, the only shape install wrote.
+      const legacy = servers[LEGACY];
+      const legacyArgs = typeof legacy === "object" && legacy !== null ? (legacy as { args?: unknown }).args : undefined;
+      const ownedLegacy = Array.isArray(legacyArgs) && legacyArgs.length === 2 && legacyArgs[1] === "mcp" && typeof legacyArgs[0] === "string" && legacyArgs[0].endsWith("docs-mcp/src/cli.ts");
+      const { [LEGACY]: _legacy, ...kept } = servers;
+      const remaining = ownedLegacy ? kept : servers;
+      const previous = servers[SERVER] === undefined ? {} : object(servers[SERVER], SERVER);
       const { url: _url, headers: _headers, ...localOptions } = previous;
-      const after = { ...config, mcpServers: { ...servers, "codecaine-docs": { ...localOptions, type: "stdio", ...command } } };
+      const after = { ...config, mcpServers: { ...remaining, [SERVER]: { ...localOptions, type: "stdio", ...command } } };
       // Preserve formatting when no semantic change is necessary.
       return JSON.stringify(config) === JSON.stringify(after) && before ? before : JSON.stringify(after, null, 2) + "\n";
     });
   }
   if (clients.includes("pi")) {
     const dir = options.piDir ?? (useEnv ? process.env.PI_CODING_AGENT_DIR : undefined) ?? join(home, ".pi/agent");
-    await add(join(dir, "extensions/codecaine-docs.ts"), "extension", () => `// Managed by Codecaine Docs. Re-run install to update this checkout path.\nimport { createPiExtension } from ${JSON.stringify(join(root, "src/pi-extension.ts"))};\nexport default createPiExtension(${JSON.stringify(command)});\n`);
+    await retire(join(dir, `extensions/${LEGACY}.ts`), "extension", (before) => before.startsWith("// Managed by Codecaine Docs."));
+    await add(join(dir, `extensions/${SERVER}.ts`), "extension", () => `// Managed by Docs System. Re-run install to update this checkout path.\nimport { createPiExtension } from ${JSON.stringify(join(root, "src/pi-extension.ts"))};\nexport default createPiExtension(${JSON.stringify(command)});\n`);
   }
   const rendered = await skillFiles(options, root);
-  const destinations = new Set<string>();
-  if (clients.includes("codex") || clients.includes("pi")) destinations.add(join(home, ".agents/skills/codecaine-docs"));
-  if (clients.includes("claude")) destinations.add(join(options.claudeDir ?? join(home, ".claude"), "skills/codecaine-docs"));
-  for (const destination of destinations) {
+  const skillRoots = new Set<string>();
+  if (clients.includes("codex") || clients.includes("pi")) skillRoots.add(join(home, ".agents/skills"));
+  if (clients.includes("claude")) skillRoots.add(join(options.claudeDir ?? join(home, ".claude"), "skills"));
+  for (const skillRoot of skillRoots) {
+    // Remove the legacy skill's installed files only when its SKILL.md still carries the legacy name.
+    const legacy = join(skillRoot, LEGACY);
+    if (!new RegExp(`^name: ${LEGACY}$`, "m").test(await existing(join(legacy, "SKILL.md")) ?? "")) continue;
+    for (const relative of Object.keys(rendered)) await retire(resolve(legacy, relative), "skill", () => true);
+  }
+  for (const destination of [...skillRoots].map((skillRoot) => join(skillRoot, SERVER))) {
     for (const [relative, content] of Object.entries(rendered)) {
       const path = resolve(destination, relative);
       if (!path.startsWith(destination + "/")) throw new Error(`Invalid skill file path: ${relative}`);
@@ -162,8 +194,8 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
   };
   // Complete parsing and generation for all clients before changing any user file.
   for (const file of planned.files) {
-    const action = file.before === file.after ? "unchanged" : file.before === null ? "create" : "update";
-    const change: InstallChange = { path: file.path, kind: file.kind, action, sha256: digest(file.after), written: false };
+    const action = file.before === file.after ? "unchanged" : file.after === null ? "remove" : file.before === null ? "create" : "update";
+    const change: InstallChange = { path: file.path, kind: file.kind, action, sha256: digest(file.after ?? ""), written: false };
     if (options.write && action !== "unchanged") {
       await mkdir(dirname(file.path), { recursive: true });
       if (await existing(file.path) !== file.before) throw new Error(`Configuration changed during installation: ${file.path}. Run the installer again.`);
@@ -173,6 +205,12 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
         change.backup = `${file.path}.codecaine-backup-${Date.now()}-${randomUUID()}`;
         change.backupSha256 = digest(file.before);
         await writeFile(change.backup, file.before, { flag: "wx", mode: 0o600 });
+      }
+      if (file.after === null) {
+        await rm(file.path);
+        change.written = true;
+        result.changes.push(change);
+        continue;
       }
       const temp = `${file.path}.codecaine-${randomUUID()}.tmp`;
       try {
@@ -197,9 +235,17 @@ export async function doctorClients(options: InstallOptions = {}) {
 /** Restore one saved write result. Refuse to overwrite edits made since installation. */
 export async function restoreInstallation(report: InstallResult, options: { write?: boolean } = {}) {
   if (report.mode !== "write") throw new Error("Restore requires the saved result of an install --write run");
-  const planned: Array<{ path: string; action: "remove-created-file" | "restore-backup"; content: string | null; expected: string }> = [];
+  const planned: Array<{ path: string; action: "remove-created-file" | "restore-backup"; content: string | null; expected: string | null }> = [];
   for (const change of report.changes.filter((entry) => entry.written).reverse()) {
     const current = await existing(change.path);
+    if (change.action === "remove") {
+      // Restore a removed legacy file from its backup, unless something has been written there since.
+      const backup = change.backup ? await existing(change.backup) : null;
+      if (current !== null) throw new Error(`Refusing restore because the removed file was recreated: ${change.path}`);
+      if (backup === null || digest(backup) !== change.backupSha256) throw new Error(`Missing or modified installation backup: ${change.backup}`);
+      planned.push({ path: change.path, action: "restore-backup", content: backup, expected: null });
+      continue;
+    }
     if (current === null || digest(current) !== change.sha256) throw new Error(`Refusing restore because the installed file changed: ${change.path}`);
     if (change.action === "create") planned.push({ path: change.path, action: "remove-created-file", content: null, expected: current });
     else if (change.action === "update" && change.backup && change.backupSha256) {
@@ -211,6 +257,7 @@ export async function restoreInstallation(report: InstallResult, options: { writ
   if (options.write) for (const item of planned) {
     if (await existing(item.path) !== item.expected) throw new Error(`File changed during restore: ${item.path}`);
     if (item.content === null) await rm(item.path);
+    else if (item.expected === null) await writeFile(item.path, item.content, { mode: 0o600, flag: "wx" });
     else {
       const mode = (await lstat(item.path)).mode & 0o777;
       const temp = `${item.path}.codecaine-restore-${randomUUID()}.tmp`;
