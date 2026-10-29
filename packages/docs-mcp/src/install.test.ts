@@ -97,6 +97,19 @@ describe("client installation", () => {
     expect(await readFile(join(home, ".pi/agent/extensions/codecaine-docs.ts"), "utf8")).toBe(legacyPi);
     expect(await readFile(join(home, ".claude/skills/codecaine-docs/SKILL.md"), "utf8")).toBe(legacySkill);
   });
+  test("refuses to drop a customized legacy Codex block", () => {
+    const legacy = '# BEGIN CODECAINE DOCS MCP (managed by docs-mcp install)\n[mcp_servers.codecaine-docs]\ncommand = "bun"\nargs = []\nenabled = false\n# END CODECAINE DOCS MCP\n';
+    expect(() => codexConfig(legacy, "bun", [])).toThrow("custom fields");
+  });
+  test("carries the legacy Claude entry's options into the renamed entry", async () => {
+    const options = await fixture();
+    const env = { CODECAINE_DOCS_STATE_DIR: "/state" };
+    await writeFile(join(options.homeDir, ".claude.json"), JSON.stringify({ mcpServers: { "codecaine-docs": { type: "stdio", command: "/bin/bun", args: ["/old checkout/docs-mcp/src/cli.ts", "mcp"], env } } }));
+    await installClients({ ...options, clients: ["claude"], write: true });
+    const servers = JSON.parse(await readFile(join(options.homeDir, ".claude.json"), "utf8")).mcpServers;
+    expect(Object.keys(servers)).toEqual(["docs-system"]);
+    expect(servers["docs-system"].env).toEqual(env);
+  });
   test("leaves unmanaged entries under the legacy name in place", async () => {
     const options = await fixture();
     const home = options.homeDir;

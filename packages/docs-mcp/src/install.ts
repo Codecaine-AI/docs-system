@@ -69,8 +69,13 @@ export function codexConfig(before: string, command: string, args: string[]): st
   const legacyStart = before.indexOf(LEGACY_START);
   const legacyEnd = before.indexOf(LEGACY_END);
   if ((legacyStart < 0) !== (legacyEnd < 0) || (legacyStart >= 0 && legacyEnd < legacyStart)) throw new Error("Incomplete legacy managed block in Codex config");
+  const supported = new Set(["command", "args", "startup_timeout_sec", "tool_timeout_sec"]);
   // The legacy block is installer-owned. Drop it, and put the renamed block in its place when there is none yet.
   if (legacyStart >= 0) {
+    // Refuse custom fields, such as `enabled = false` or `env`, rather than silently discard them.
+    const legacyServers = object(Bun.TOML.parse(before), "Codex config").mcp_servers as Record<string, unknown> | undefined;
+    const legacy = legacyServers?.[LEGACY] === undefined ? {} : object(legacyServers[LEGACY], LEGACY);
+    if (Object.keys(legacy).some((key) => !supported.has(key))) throw new Error(`The managed Codex ${LEGACY} server has custom fields. Move its configuration out of installer management before reinstalling.`);
     const rest = before.slice(legacyEnd + LEGACY_END.length);
     before = before.slice(0, legacyStart) + (before.includes(START) ? rest.replace(/^\n/, "") : `${START}\n${END}${rest}`);
   }
@@ -86,7 +91,6 @@ export function codexConfig(before: string, command: string, args: string[]): st
   if (start >= 0 && servers[SERVER] !== undefined) {
     // The block is installer-owned. Refuse custom fields rather than silently discard them.
     const owned = object(servers[SERVER], SERVER);
-    const supported = new Set(["command", "args", "startup_timeout_sec", "tool_timeout_sec"]);
     if (Object.keys(owned).some((key) => !supported.has(key))) throw new Error("The managed Codex server has custom fields. Move its configuration out of installer management before reinstalling.");
   }
   const after = start < 0 ? `${before}${before && !before.endsWith("\n") ? "\n" : ""}\n${block}\n` : before.slice(0, start) + block + before.slice(end + END.length);
@@ -153,7 +157,8 @@ async function plan(options: InstallOptions) {
       const ownedLegacy = Array.isArray(legacyArgs) && legacyArgs.length === 2 && legacyArgs[1] === "mcp" && typeof legacyArgs[0] === "string" && legacyArgs[0].endsWith("docs-mcp/src/cli.ts");
       const { [LEGACY]: _legacy, ...kept } = servers;
       const remaining = ownedLegacy ? kept : servers;
-      const previous = servers[SERVER] === undefined ? {} : object(servers[SERVER], SERVER);
+      // Carry the legacy entry's options, such as env, into the renamed entry.
+      const previous = servers[SERVER] !== undefined ? object(servers[SERVER], SERVER) : ownedLegacy ? object(legacy, LEGACY) : {};
       const { url: _url, headers: _headers, ...localOptions } = previous;
       const after = { ...config, mcpServers: { ...remaining, [SERVER]: { ...localOptions, type: "stdio", ...command } } };
       // Preserve formatting when no semantic change is necessary.
