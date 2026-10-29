@@ -215,7 +215,7 @@
 .style-rail-nav-label {
   padding: 0.625rem 0.625rem var(--ds-space-1);
   color: var(--muted-foreground);
-  font-size: var(--ds-font-size-micro);
+  font-size: var(--ds-font-size-ui-2xs);
   font-weight: var(--ds-font-weight-semibold);
   letter-spacing: var(--ds-letter-spacing-micro);
   line-height: 0.875rem;
@@ -295,7 +295,7 @@
 
 .style-rail-nav-override-count {
   color: var(--muted-foreground);
-  font-size: var(--ds-font-size-micro);
+  font-size: var(--ds-font-size-ui-2xs);
   font-variant-numeric: tabular-nums;
   line-height: 0.875rem;
 }
