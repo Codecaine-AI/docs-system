@@ -4453,7 +4453,8 @@ describe("style rail rich-text block tokens", () => {
    * while semantic.css carries the workbench value the registry defaults to.
    */
   type Range = { cssVar: string; min: number; max: number; step: number; defaultValue: number };
-  type LengthToken = Range & { declared?: string; fallback?: string };
+  /** `declared: null`: no theme declares the var; the consumer's fallback carries the stock value. */
+  type LengthToken = Range & { declared?: string | null; fallback?: string };
   type NumberToken = Range & { fallback?: string };
   type BlockTokens = {
     pane: string;
@@ -4601,8 +4602,12 @@ describe("style rail rich-text block tokens", () => {
           max: 24,
           step: 0.5,
           defaultValue: 18,
-          // Follows the body size (stock 18px) in both modes.
-          declared: "var(--style-font-size, 18px)",
+          // Follows the body size (stock 18px) in both modes. Undeclared: a
+          // :root alias resolved --style-font-size at the root and missed
+          // hosts that set it on a wrapper, so the head reads
+          // --style-font-size itself as the fallback.
+          declared: null,
+          fallback: "var(--style-font-size,18px)",
         },
         iconSize: { cssVar: "--docs-callout-icon-size", min: 0, max: 32, step: 1, defaultValue: 16 },
         margin: { cssVar: "--docs-callout-margin", min: 0, max: 64, step: 1, defaultValue: 20 },
@@ -4784,6 +4789,10 @@ describe("style rail rich-text block tokens", () => {
         expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: `)}`).toBe(`${cssVar} ×2`);
       }
       for (const { cssVar, defaultValue, declared } of Object.values(lengths)) {
+        if (declared === null) {
+          expect(`${cssVar} ×${occurrences(semanticCss, `  ${cssVar}: `)}`).toBe(`${cssVar} ×0`);
+          continue;
+        }
         const declaration = `  ${cssVar}: ${declared ?? `${defaultValue}px`};`;
         expect(`${declaration} ×${occurrences(semanticCss, declaration)}`).toBe(
           `${declaration} ×2`,

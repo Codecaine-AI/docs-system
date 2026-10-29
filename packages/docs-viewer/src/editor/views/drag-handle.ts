@@ -19,12 +19,19 @@ import { dragSelectPluginKey } from "./drag-select-state";
  * hard-imports the collaboration/yjs stack (~100KB) for functionality this
  * editor doesn't use.
  *
- * v1 scope: TOP-LEVEL blocks only (the grip appears for the outermost block
- * under the pointer; nested list items reorder via Tab/Shift-Tab). The grip
- * hides on scroll, on typing, and outside the editor. Grabbing it sets a
- * NodeSelection on the block — which also gives the block the
- * `.ProseMirror-selectednode` highlight (soft blue, index.css) while it is
- * being dragged.
+ * Scope: the outermost block under the pointer, or the innermost list item
+ * when the pointer is inside one (nested items get their own grip). The grip
+ * hides on scroll, on typing, outside the editor, and over regions marked
+ * `data-docs-grip-hide` (a table's body rows, whose row pills share the
+ * grip's strip). Grabbing it sets a NodeSelection on the block — which also
+ * gives the block the `.ProseMirror-selectednode` highlight (soft blue,
+ * index.css) while it is being dragged.
+ *
+ * Vertical position: the grip centers on the block's first line
+ * (gripCenterY): a furniture anchor when the block has one (code header,
+ * table header row, callout head, media head, divider rule, canvas toolbar,
+ * or anything marked `data-docs-grip-anchor`), else the line box of the
+ * block's first text line.
  */
 
 export const docDragHandlePluginKey = new PluginKey("docDragHandle");
@@ -39,8 +46,28 @@ const GRIP_SVG = `<svg width="10" height="16" viewBox="0 0 10 16" fill="currentC
 /** Horizontal gap between the grip's right edge and the block's left edge — fallback when the host sets no --docs-grip-gap. */
 const GRIP_GAP_PX = 12;
 
-/** Vertical offset from the block's top — fallback when the host sets no --docs-grip-offset-y. */
+/**
+ * Vertical offset — fallback when the host sets no --docs-grip-offset-y. On
+ * a block with no anchor and no text it is the grip's offset from the block
+ * top; everywhere else this default means "centered on the first line" and
+ * another value nudges the grip by the difference.
+ */
 const GRIP_TOP_OFFSET_PX = 6;
+
+/**
+ * Furniture the grip centers on, when it sits outside the block's editable
+ * content: the explicit hook plus the existing header hooks of the code,
+ * media, callout and state-shape surfaces, a table's header row, and the
+ * divider's rule.
+ */
+const GRIP_ANCHOR_SELECTOR = [
+  "[data-docs-grip-anchor]",
+  "[data-code-header]",
+  "[data-media-head]",
+  "[data-callout-head]",
+  "[data-shape-header]",
+  "hr",
+].join(",");
 
 /** Fallback fade duration when the host sets no --docs-grip-fade; the handoff timer adds a small beat on top so the fade-out completes before repositioning. */
 const GRIP_FADE_MS = 100;
@@ -68,6 +95,111 @@ function topLevelBlockElement(view: EditorView, target: EventTarget | null): HTM
     element = element.parentElement;
   }
   return element.parentElement === view.dom ? (element as HTMLElement) : null;
+}
+
+/** The doc position of the list item `item` renders, or null when it is not a docListItem's own DOM. */
+function listItemPos(view: EditorView, item: HTMLElement): number | null {
+  let inner: number;
+  try {
+    inner = view.posAtDOM(item, 0);
+  } catch {
+    return null;
+  }
+  if (inner < 0 || inner > view.state.doc.content.size) return null;
+  const $inner = view.state.doc.resolve(inner);
+  for (let depth = $inner.depth; depth > 0; depth -= 1) {
+    if ($inner.node(depth).type.name !== "docListItem") continue;
+    const pos = $inner.before(depth);
+    if (view.nodeDOM(pos) === item) return pos;
+  }
+  return null;
+}
+
+/**
+ * The block the grip serves for the pointer at `target`: the innermost list
+ * item around it (so a nested item gets its own grip), else the top-level
+ * block. Null over gaps and outside block content.
+ */
+export function gripTarget(
+  view: EditorView,
+  target: EventTarget | null,
+): { element: HTMLElement; pos: number } | null {
+  const top = topLevelBlockElement(view, target);
+  if (!top) return null;
+  for (let element = target as Element | null; element && element !== view.dom; element = element.parentElement) {
+    if (element.tagName !== "LI" || !(element instanceof HTMLElement)) continue;
+    const pos = listItemPos(view, element);
+    if (pos !== null) return { element, pos };
+  }
+  const pos = topLevelBlockPos(view, top);
+  return pos === null ? null : { element: top, pos };
+}
+
+/** The first block-level box at or above `node` (inline and display:contents boxes have no line box of their own). */
+function blockBox(node: Node | null, stop: HTMLElement): HTMLElement | null {
+  let element = node instanceof HTMLElement ? node : node?.parentElement ?? null;
+  while (element && element !== stop.parentElement) {
+    const display = window.getComputedStyle(element).display;
+    if (!display.startsWith("inline") && display !== "contents") return element;
+    element = element.parentElement;
+  }
+  return null;
+}
+
+/** The vertical center of `element`'s first line box: content-box top plus half the line height. */
+function firstLineCenter(element: HTMLElement): number {
+  const style = window.getComputedStyle(element);
+  const fontSize = Number.parseFloat(style.fontSize) || 16;
+  const lineHeight =
+    style.lineHeight === "normal" ? fontSize * 1.2 : Number.parseFloat(style.lineHeight) || fontSize * 1.2;
+  const rect = element.getBoundingClientRect();
+  const top = rect.top + (Number.parseFloat(style.paddingTop) || 0) + (Number.parseFloat(style.borderTopWidth) || 0);
+  return top + lineHeight / 2;
+}
+
+/**
+ * The viewport y the grip centers on for the block at `pos` rendered by
+ * `block`, or null when the block has neither an anchor nor text (the caller
+ * falls back to an offset from the block top).
+ *
+ * 1. A furniture anchor (GRIP_ANCHOR_SELECTOR) that is not inside the
+ *    block's editable content: the code header, a table's header row, the
+ *    callout head, the divider rule. Content is skipped so a list item never
+ *    anchors on a code block nested under it.
+ * 2. The line box of the block's first textblock (paragraph, heading, list
+ *    item text, …).
+ */
+export function gripCenterY(view: EditorView, pos: number, block: HTMLElement): number | null {
+  const node = view.state.doc.nodeAt(pos);
+  if (!node) return null;
+  // The element holding the block's editable children (its content hole):
+  // the parent of its first child's DOM. A textblock (code block) holds text,
+  // not nodes, so its hole is where its first text lands.
+  let content: Node | null = null;
+  if (!node.isAtom && node.content.size > 0) {
+    try {
+      content = node.isTextblock ? view.domAtPos(pos + 1).node : view.nodeDOM(pos + 1)?.parentNode ?? null;
+    } catch {
+      content = null;
+    }
+  }
+  for (const anchor of block.querySelectorAll<HTMLElement>(GRIP_ANCHOR_SELECTOR)) {
+    if (content?.contains(anchor)) continue;
+    const rect = anchor.getBoundingClientRect();
+    if (rect.height <= 0 && rect.width <= 0) continue;
+    return rect.top + rect.height / 2;
+  }
+  let textPos = pos;
+  let textNode: PMNode | null = node;
+  while (textNode && !textNode.isTextblock) {
+    if (textNode.isAtom || !textNode.firstChild) return null;
+    textNode = textNode.firstChild;
+    textPos += 1;
+  }
+  if (!textNode) return null;
+  const dom = textPos === pos ? block : view.nodeDOM(textPos);
+  const box = blockBox(dom ?? null, block);
+  return box ? firstLineCenter(box) : null;
 }
 
 /**
@@ -168,11 +300,14 @@ class DragHandleView {
       this.hide();
       return;
     }
-    const block = topLevelBlockElement(this.view, event.target);
-    if (!block) return; // keep the current grip while over gaps/margins
+    if (event.target instanceof Element && event.target.closest("[data-docs-grip-hide]")) {
+      this.fadeOut();
+      return;
+    }
+    const found = gripTarget(this.view, event.target);
+    if (!found) return; // keep the current grip while over gaps/margins
+    const { element: block, pos } = found;
     if (block === this.blockElement) return;
-    const pos = topLevelBlockPos(this.view, block);
-    if (pos === null) return;
     this.blockPos = pos;
     this.blockElement = block;
     if (this.moveTimer !== null) {
@@ -194,6 +329,17 @@ class DragHandleView {
     }
   };
 
+  /** Fade the grip out where it is and forget its block, so the next hover shows it fresh. */
+  private fadeOut() {
+    if (this.moveTimer !== null) {
+      window.clearTimeout(this.moveTimer);
+      this.moveTimer = null;
+    }
+    this.handle.classList.remove("docs-drag-handle-visible");
+    this.blockPos = null;
+    this.blockElement = null;
+  }
+
   /** Position beside `block` and fade in. */
   private showAt(block: HTMLElement) {
     const blockRect = block.getBoundingClientRect();
@@ -205,7 +351,12 @@ class DragHandleView {
     const anchorRect = anchor.getBoundingClientRect();
     const gap = pixelVar(this.handle, "--docs-grip-gap", GRIP_GAP_PX);
     const topOffset = pixelVar(this.handle, "--docs-grip-offset-y", GRIP_TOP_OFFSET_PX);
-    this.handle.style.top = `${blockRect.top - anchorRect.top + topOffset}px`;
+    const center = this.blockPos === null ? null : gripCenterY(this.view, this.blockPos, block);
+    const top =
+      center === null
+        ? blockRect.top + topOffset
+        : center - this.handle.offsetHeight / 2 + (topOffset - GRIP_TOP_OFFSET_PX);
+    this.handle.style.top = `${top - anchorRect.top}px`;
     this.handle.style.left = `${blockRect.left - anchorRect.left - this.handle.offsetWidth - gap}px`;
     this.handle.classList.add("docs-drag-handle-visible");
   }

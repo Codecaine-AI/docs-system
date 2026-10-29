@@ -88,6 +88,15 @@ const ROW_HANDLE_SIZE = { width: 16, height: 28 };
  * the semantic.css default.
  */
 export const HANDLE_OFFSET_CALC = "calc(-1 * var(--docs-table-handle-offset, 12px))";
+/**
+ * The row pill's left edge: the themed offset plus 8 px, so at the default
+ * 12 px the 16 px pill sits wholly outside the table with a 4 px gap
+ * (-20..-4) instead of covering the table's left edge. The block's drag grip
+ * shares that strip, so the grid marks its body rows and the row pill
+ * `data-docs-grip-hide` and the grip stays hidden while a row pill can show
+ * (editor/views/drag-handle.ts).
+ */
+export const ROW_HANDLE_OFFSET_CALC = "calc(-1 * var(--docs-table-handle-offset, 12px) - 8px)";
 /** Grace period before the handles fade after the pointer leaves the grid, so they can be reached. */
 const HANDLE_LINGER_MS = 150;
 
@@ -478,7 +487,7 @@ export function StructuredTableNodeView({ node, updateAttributes, editor }: Reac
     const rect = cellRect(cellsRef.current, surface, handleRow, 0);
     if (rect) {
       rowHandlePosition = {
-        left: HANDLE_OFFSET_CALC,
+        left: ROW_HANDLE_OFFSET_CALC,
         top: rect.top + rect.height / 2 - ROW_HANDLE_SIZE.height / 2,
       };
     }

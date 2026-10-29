@@ -149,7 +149,7 @@ export function StandaloneCanvasEmbed({
         data-source-id={id}
         data-canvas-id={canvasId}
       >
-        <div className="font-medium text-foreground">{title ?? canvasId}</div>
+        <div data-docs-grip-anchor="" className="font-medium text-foreground">{title ?? canvasId}</div>
         <div className="mt-1 text-muted-foreground">
           This block references central board &quot;{canvasId}&quot;, which isn&apos;t stored in
           this docs repo — canvas embeds render from .canvas.json sidecars in the docs tree.
@@ -176,7 +176,7 @@ export function StandaloneCanvasEmbed({
         data-docs-block-type="canvas"
         data-source-id={id}
       >
-        <div className="font-medium text-destructive">Canvas failed to load</div>
+        <div data-docs-grip-anchor="" className="font-medium text-destructive">Canvas failed to load</div>
         <div className="mt-1 text-muted-foreground">{error}</div>
       </section>
     );
@@ -311,7 +311,7 @@ export function StandaloneCanvasEmbed({
             />
           </>
         )}
-        <div className="absolute right-2 top-6 z-raised flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+        <div data-docs-grip-anchor="" className="absolute right-2 top-6 z-raised flex items-center gap-2 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
           {showEditAction ? (
             <a
               href={studioEditUrl.toString()}

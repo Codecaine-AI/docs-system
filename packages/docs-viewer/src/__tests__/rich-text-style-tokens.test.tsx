@@ -205,7 +205,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     label: "callout head",
     read: "[data-callout-head]",
     edit: "[data-callout-head]",
-    tokens: ["var(--docs-callout-title-text-size,18px)"],
+    tokens: ["var(--docs-callout-title-text-size,var(--style-font-size,18px))"],
   },
   {
     label: "callout title",

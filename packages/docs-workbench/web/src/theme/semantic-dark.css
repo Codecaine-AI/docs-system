@@ -182,7 +182,6 @@
   --docs-callout-hairline-width: var(--ds-border-width-none);
   --docs-callout-pad-x: 14px;
   --docs-callout-pad-y: var(--ds-space-0-5);
-  --docs-callout-title-text-size: var(--style-font-size, var(--ds-font-size-reading));
   --docs-callout-title-weight: var(--ds-font-weight-semibold);
   --docs-callout-icon-size: var(--ds-space-4);
   --docs-callout-body-text-scale: 1;
