@@ -20,9 +20,11 @@
   cursor: pointer;
 }
 
-.style-icon-button:hover {
-  background: var(--muted);
-  color: var(--foreground);
+@media (hover: hover) {
+  .style-icon-button:hover {
+    background: var(--muted);
+    color: var(--foreground);
+  }
 }
 
 .style-range {
@@ -239,8 +241,10 @@
   cursor: pointer;
 }
 
-.style-rail-nav-item:hover {
-  background: var(--muted);
+@media (hover: hover) {
+  .style-rail-nav-item:hover {
+    background: var(--muted);
+  }
 }
 
 .style-rail-nav-item:focus-visible {
@@ -334,8 +338,10 @@
   cursor: pointer;
 }
 
-.style-rail-block-reset:hover {
-  color: var(--foreground);
+@media (hover: hover) {
+  .style-rail-block-reset:hover {
+    color: var(--foreground);
+  }
 }
 
 .style-rail-block-reset:focus-visible {
