@@ -1,6 +1,7 @@
 "use client";
 
 import { Extension } from "@tiptap/core";
+import Code from "@tiptap/extension-code";
 import Italic from "@tiptap/extension-italic";
 import Strike from "@tiptap/extension-strike";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
@@ -27,6 +28,18 @@ import { chipNeedsPieces, chipPieces } from "../mono-breaks";
  */
 export const DocItalic = Italic.extend({ addInputRules: () => [] });
 export const DocStrike = Strike.extend({ addInputRules: () => [] });
+
+/**
+ * Inline `code` that coexists with the other marks. TipTap's stock Code mark
+ * sets `excludes: "_"`, so ProseMirror strips bold/italic/strike/link from
+ * any code run when the doc loads. A stored bold+code span then reads back as
+ * plain code, the first doc-changing transaction marks the editor dirty, and
+ * the save diff rewrites the block without its bold (data loss on a doc the
+ * user never edited). `excludes: ""` keeps every DeltaSpan mark combination
+ * the model allows round-trip clean. DocEditor and EditableCell disable
+ * StarterKit's code and register this instead.
+ */
+export const DocCode = Code.extend({ excludes: "" });
 
 /**
  * Typed inline code in the editor. A mark's DOM is fixed by its attrs, not

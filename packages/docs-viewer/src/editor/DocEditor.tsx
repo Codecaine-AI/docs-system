@@ -13,7 +13,7 @@ import type { DocBlockSaveResult } from "../render/DocBlockRenderer";
 import { useDocsClient, type DraftLockInfo } from "../client";
 import { docToPM, pmToDoc, diffToOps, type PMNode } from "./core/convert";
 import { TEXT_BLOCK_NODES } from "./core/schema";
-import { DocInlineCodeKinds, DocItalic, DocStrike } from "../components/rich-text/editor-marks";
+import { DocCode, DocInlineCodeKinds, DocItalic, DocStrike } from "../components/rich-text/editor-marks";
 import { ATOM_BLOCK_NODES_WITH_VIEWS, DocCodeBlockWithView } from "./views/node-views";
 import { DocDragHandle } from "./views/drag-handle";
 import { DocDragSelect } from "./views/drag-select";
@@ -283,10 +283,9 @@ export default function DocEditor({
       StarterKit.configure({
         blockquote: false,
         bulletList: false,
-        // Inline `code` MARK spans get the same Notion-style chip as the
-        // read surface (renderDeltaSpans) so a mark applied while typing
-        // looks identical in and out of edit mode.
-        code: { HTMLAttributes: { class: INLINE_CODE_CLASSES } },
+        // Inline `code` is re-registered below as DocCode (it must not
+        // exclude bold/italic/strike/link — see editor-marks.ts).
+        code: false,
         codeBlock: false,
         // The drop-line drawn while dragging blocks (grip reorder). The
         // class hands its look to the host stylesheet — docs-workbench
@@ -323,6 +322,10 @@ export default function DocEditor({
       // StarterKit config above).
       DocItalic,
       DocStrike,
+      // Inline `code` MARK spans get the same Notion-style chip as the
+      // read surface (renderDeltaSpans) so a mark applied while typing
+      // looks identical in and out of edit mode.
+      DocCode.configure({ HTMLAttributes: { class: INLINE_CODE_CLASSES } }),
       // Typed inline code: colors each code chip by what it holds, as the
       // read surface does (rich-text editor-marks.ts).
       DocInlineCodeKinds,

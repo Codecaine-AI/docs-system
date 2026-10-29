@@ -282,6 +282,140 @@ describe("DocEditor save boundary", () => {
     expect(batches).toHaveLength(0);
   });
 
+  // Regression: TipTap's stock code mark excludes every other mark, so a
+  // stored bold+code span lost its bold on load and the next doc-changing
+  // transaction (any one, even one that nets to nothing) saved an
+  // updateBlock that dropped it — a hover-only visit rewrote the doc.
+  it("keeps a bold+code run on load, and a net no-op transaction saves zero ops", async () => {
+    const doc: DocDocument = {
+      schemaVersion: 1,
+      id: "bold-code",
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1", "p2"] },
+        p1: {
+          id: "p1",
+          type: "paragraph",
+          props: {},
+          text: [
+            { insert: "Run " },
+            { insert: "bun test", attributes: { bold: true, code: true } },
+            { insert: " now" },
+          ],
+          children: [],
+        },
+        p2: { id: "p2", type: "paragraph", props: {}, text: [{ insert: "Other" }], children: [] },
+      },
+    };
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => expect(editorInstance).toBeTruthy());
+
+    const { from } = findTextRange(editorInstance!, "bun test");
+    const marks = editorInstance!.state.doc.nodeAt(from)!.marks.map((mark) => mark.type.name).sort();
+    expect(marks).toEqual(["bold", "code"]);
+
+    // A doc-changing transaction that nets to the loaded content.
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Other");
+      editorInstance!.commands.insertContentAt(to, "x");
+      editorInstance!.commands.deleteRange({ from: to, to: to + 1 });
+    });
+    await waitFor(() => expect(screen.getByText("Unsaved changes")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(screen.queryByText("Unsaved changes")).toBeNull());
+    expect(batches).toHaveLength(0);
+
+    // A real edit elsewhere touches only that block; the bold+code run survives.
+    act(() => {
+      const { to } = findTextRange(editorInstance!, "Other");
+      editorInstance!.commands.insertContentAt(to, " edited");
+    });
+    await waitFor(() => expect(screen.getByText("Unsaved changes")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(batches).toHaveLength(1));
+    expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
+      { type: "updateBlock", blockId: "p2", text: [{ insert: "Other edited" }] },
+    ]);
+  });
+
+  // The browser path that dropped the bold: a DOM change inside the block
+  // makes ProseMirror re-parse the whole textblock from the DOM, and the
+  // stock code mark's parse rule stripped bold from the code run.
+  it("a DOM re-parse of a block keeps its bold+code run", async () => {
+    const doc: DocDocument = {
+      schemaVersion: 1,
+      id: "bold-code-dom",
+      root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["p1"] },
+        p1: {
+          id: "p1",
+          type: "paragraph",
+          props: {},
+          text: [
+            { insert: "Run " },
+            { insert: "bun test", attributes: { bold: true, code: true } },
+            { insert: " now" },
+          ],
+          children: [],
+        },
+      },
+    };
+    const batches: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    renderWithClient(
+      <DocEditor
+        document={doc}
+        onApplyOps={async (ops) => {
+          batches.push(ops);
+          return { ok: true };
+        }}
+        onEditorReady={(e) => {
+          editorInstance = e;
+        }}
+      />,
+    );
+    await waitFor(() => expect(editorInstance).toBeTruthy());
+
+    const tail = screen.getByText(/now$/);
+    const textNode = Array.from(tail.childNodes).find((node) => node.textContent?.endsWith("now"))!;
+    textNode.textContent = `${textNode.textContent}!`;
+    const proseMirror = document.querySelector('[data-doc-editor="true"]') as HTMLElement;
+    await waitFor(
+      () => {
+        fireEvent.input(proseMirror);
+        expect(editorInstance!.getText()).toContain("now!");
+      },
+      { timeout: 10_000 },
+    );
+    fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+    await waitFor(() => expect(batches).toHaveLength(1));
+    expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
+      {
+        type: "updateBlock",
+        blockId: "p1",
+        text: [
+          { insert: "Run " },
+          { insert: "bun test", attributes: { bold: true, code: true } },
+          { insert: " now!" },
+        ],
+      },
+    ]);
+  }, 12_000);
+
   it("a stale (409) save keeps the in-progress edit and shows the reload prompt", async () => {
     const doc = loadFixture();
     let reloaded = 0;
