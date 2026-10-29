@@ -77,11 +77,11 @@ export const media: Record<string, Record<string, ThemeTokenDefinition>> = {
       unit: "px",
       defaultValue: dsNumber("space.0-5", "px"),
     },
-    // Stock follows the body size: no theme declares this var, so the head
-    // falls back to var(--style-font-size) read on the callout itself
-    // (CalloutDocsBlock), which matches the body in every host. A :root
-    // alias resolved --style-font-size at the root and missed hosts that set
-    // it on a wrapper (Knowledge System: 18px heads on 16px text).
+    // Stock follows the body size: the base semantic stylesheets do not
+    // declare this var, so the head falls back to var(--style-font-size)
+    // read on the callout itself (CalloutDocsBlock), which matches the body
+    // in every host. A :root alias resolved --style-font-size at the root
+    // and missed hosts that set it on a wrapper (Knowledge System: 18px heads on 16px text).
     titleTextSize: {
       vars: ["--docs-callout-title-text-size"],
       kind: "length",
