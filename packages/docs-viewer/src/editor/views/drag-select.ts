@@ -151,10 +151,37 @@ export function moveRangeTr(
 }
 
 /**
+ * Where a NESTED block (a nested list item's own grip, drag-handle.ts
+ * gripTarget) dropped at `pos` lands: the nearest child boundary of the
+ * deepest ancestor of the block that also contains `pos`, skipping slots the
+ * schema refuses (before a list item's own text). So a drop among its
+ * siblings reorders it in its parent, a drop on itself snaps to its own
+ * edge (a no-op), and a drop outside its parent moves it out a level.
+ * Null when only the doc contains `pos` (the top-level rule applies).
+ */
+function nestedDropPos(doc: PMNode, from: number, slice: Slice, pos: number): number | null {
+  const $from = doc.resolve(from);
+  for (let depth = $from.depth; depth > 0; depth -= 1) {
+    if (pos < $from.start(depth) || pos > $from.end(depth)) continue;
+    const parent = $from.node(depth);
+    let best: number | null = null;
+    let offset = $from.start(depth);
+    for (let index = 0; index <= parent.childCount; index += 1) {
+      const better = best === null || Math.abs(offset - pos) < Math.abs(best - pos);
+      if (better && parent.canReplace(index, index, slice.content)) best = offset;
+      if (index < parent.childCount) offset += parent.child(index).nodeSize;
+    }
+    if (best !== null) return best;
+  }
+  return null;
+}
+
+/**
  * The transaction for a SINGLE closed block-slice drop (a grip drag):
  * top-level-clamped reorder with the dropped block left node-selected —
- * PM's native drop handling minus the nesting. Null when the drop is a
- * no-op (inside the dragged block itself). Exported for tests.
+ * PM's native drop handling minus the nesting. A nested block (a nested
+ * list item) moves at its own depth instead (nestedDropPos). Null when the
+ * drop is a no-op (inside the dragged block itself). Exported for tests.
  */
 export function dropBlockSliceTr(
   state: EditorState,
@@ -162,7 +189,12 @@ export function dropBlockSliceTr(
   dropPos: number,
   moved: boolean,
 ): Transaction | null {
-  const target = topLevelDropPos(state.doc, dropPos);
+  const clamped = Math.max(0, Math.min(dropPos, state.doc.content.size));
+  const nested =
+    moved && state.selection instanceof NodeSelection
+      ? nestedDropPos(state.doc, state.selection.from, slice, clamped)
+      : null;
+  const target = nested ?? topLevelDropPos(state.doc, dropPos);
   let tr = state.tr;
   if (moved) {
     // The grip put a NodeSelection on the dragged block; dropping onto

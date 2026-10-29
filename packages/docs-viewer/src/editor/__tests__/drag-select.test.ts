@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { Editor, type AnyExtension, type JSONContent } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
+import type { Node as PMNode } from "@tiptap/pm/model";
 import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
 import {
   DocDragSelect,
@@ -422,5 +423,84 @@ describe("dropBlockSliceTr", () => {
     const selection = NodeSelection.create(editor.state.doc, all[1].pos);
     editor.view.dispatch(editor.state.tr.setSelection(selection));
     expect(dropBlockSliceTr(editor.state, selection.content(), all[1].pos + 1, true)).toBeNull();
+  });
+
+  // Nested list items get their own grip (drag-handle.ts gripTarget), so a
+  // grip drag can carry a nested item: its drop must stay at its own depth.
+  function listItem(text: string, blockId: string, children: JSONContent[] = []): JSONContent {
+    return { type: "docListItem", attrs: { blockId }, content: [wrapper(text), ...children] };
+  }
+
+  function nestedListEditor(): Editor {
+    return createEditor([
+      paragraph("intro", "p1"),
+      listItem("parent", "li1", [listItem("first", "li2"), listItem("second", "li3")]),
+      paragraph("outro", "p2"),
+    ]);
+  }
+
+  function posOf(editor: Editor, blockId: string): number {
+    let found = -1;
+    editor.state.doc.descendants((node, pos) => {
+      if (node.attrs.blockId === blockId) found = pos;
+    });
+    return found;
+  }
+
+  /** The grip's dragstart on the block with `blockId`: NodeSelection, closed slice. */
+  function grab(editor: Editor, blockId: string) {
+    const selection = NodeSelection.create(editor.state.doc, posOf(editor, blockId));
+    editor.view.dispatch(editor.state.tr.setSelection(selection));
+    return selection;
+  }
+
+  /** Each item's text and its child items' texts, depth first. */
+  function outline(node: PMNode): unknown {
+    const items: unknown[] = [];
+    node.forEach((child) => {
+      if (child.type.name === "docListItem") items.push({ [child.firstChild!.textContent]: outline(child) });
+    });
+    return items;
+  }
+
+  it("is a no-op when dropping a nested list item onto itself", () => {
+    const editor = nestedListEditor();
+    const before = editor.state.doc;
+    const selection = grab(editor, "li2");
+    for (const pos of [selection.from, selection.from + 2, selection.to - 1, selection.to]) {
+      const tr = dropBlockSliceTr(editor.state, selection.content(), pos, true);
+      expect(tr === null || tr.doc.eq(before), `drop at ${pos}`).toBe(true);
+    }
+  });
+
+  it("reorders nested siblings inside their parent", () => {
+    const editor = nestedListEditor();
+    const selection = grab(editor, "li3");
+    // Drop on the first sibling's text, nearer its top edge.
+    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li2") + 2, true);
+    expect(tr).not.toBeNull();
+    editor.view.dispatch(tr!);
+
+    expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
+    expect(editor.state.doc.childCount).toBe(3);
+    expect((editor.state.selection as NodeSelection).node.attrs.blockId).toBe("li3");
+  });
+
+  it("drops a nested item onto its parent's text as the parent's first child", () => {
+    const editor = nestedListEditor();
+    const selection = grab(editor, "li3");
+    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li1") + 3, true);
+    editor.view.dispatch(tr!);
+
+    expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
+  });
+
+  it("moves a nested item out to the top level when dropped on a top-level block", () => {
+    const editor = nestedListEditor();
+    const selection = grab(editor, "li3");
+    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "p2") + 2, true);
+    editor.view.dispatch(tr!);
+
+    expect(outline(editor.state.doc)).toEqual([{ parent: [{ first: [] }] }, { second: [] }]);
   });
 });

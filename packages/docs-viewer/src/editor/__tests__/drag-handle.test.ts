@@ -3,7 +3,13 @@ import { Editor, type JSONContent } from "@tiptap/core";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 import StarterKit from "@tiptap/starter-kit";
 import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
-import { DocDragHandle, buildDragGhost, topLevelBlockPos } from "../views/drag-handle";
+import {
+  DocDragHandle,
+  buildDragGhost,
+  gripCenterY,
+  gripTarget,
+  topLevelBlockPos,
+} from "../views/drag-handle";
 
 /**
  * Drag-grip position resolution (drag-handle.ts topLevelBlockPos) over the
@@ -211,5 +217,95 @@ describe("clicks inside an atom block", () => {
   it("leaves clicks in text blocks to ProseMirror", () => {
     const { editor } = atomEditor();
     expect(click(editor, 0)).toBeFalsy();
+  });
+});
+
+function listItem(text: string, blockId: string, children: JSONContent[] = []): JSONContent {
+  return { type: "docListItem", attrs: { blockId }, content: [wrapper(text), ...children] };
+}
+
+/** Pins an element's viewport rect (happy-dom has no layout). */
+function pinRect(element: Element, top: number, height: number) {
+  element.getBoundingClientRect = () =>
+    ({ top, height, bottom: top + height, left: 0, right: 100, width: 100, x: 0, y: top, toJSON: () => ({}) }) as DOMRect;
+}
+
+describe("gripTarget", () => {
+  it("gives a nested list item its own grip, and everything else its top-level block", () => {
+    const editor = createEditor([
+      paragraph("intro", "p1"),
+      listItem("parent", "li1", [listItem("child", "li2", [listItem("grandchild", "li3")])]),
+    ]);
+    const { view } = editor;
+    const items = Array.from(view.dom.querySelectorAll("li")) as HTMLElement[];
+    expect(items).toHaveLength(3);
+    const posOf = (blockId: string) => {
+      let found = -1;
+      editor.state.doc.descendants((node, pos) => {
+        if (node.attrs.blockId === blockId) found = pos;
+      });
+      return found;
+    };
+
+    const textOf = (item: HTMLElement) => item.querySelector("[data-doc-list-content], p, div") ?? item;
+    expect(gripTarget(view, textOf(items[2]))).toEqual({ element: items[2], pos: posOf("li3") });
+    expect(gripTarget(view, textOf(items[1]))).toEqual({ element: items[1], pos: posOf("li2") });
+    expect(gripTarget(view, items[0])).toEqual({ element: items[0], pos: posOf("li1") });
+    const intro = view.dom.children[0] as HTMLElement;
+    expect(gripTarget(view, intro)).toEqual({ element: intro, pos: 0 });
+  });
+});
+
+describe("gripCenterY", () => {
+  it("centers on the first line box of a text block", () => {
+    const editor = createEditor([paragraph("first line", "p1")]);
+    // Computed styles need a connected element.
+    document.body.appendChild(editor.view.dom);
+    const block = editor.view.dom.children[0] as HTMLElement;
+    const line = editor.view.nodeDOM(1) as HTMLElement;
+    for (const element of [block, line]) {
+      element.style.display = "block";
+      element.style.lineHeight = "24px";
+      element.style.paddingTop = "0px";
+    }
+    pinRect(block, 100, 60);
+    pinRect(line, 104, 24);
+    try {
+      expect(gripCenterY(editor.view, 0, block)).toBe(116);
+    } finally {
+      editor.view.dom.remove();
+    }
+  });
+
+  it("centers on an atom's furniture anchor, but never on one inside a text block's children", () => {
+    const editor = createEditor([
+      { type: "docImage", attrs: { blockId: "img", blockProps: { src: "a.png" } } },
+      listItem("item", "li1", [paragraph("nested", "p2")]),
+    ]);
+    const [image, item] = Array.from(editor.view.dom.children) as HTMLElement[];
+    const head = document.createElement("div");
+    head.setAttribute("data-media-head", "");
+    image.appendChild(head);
+    pinRect(head, 10, 36);
+    expect(gripCenterY(editor.view, 0, image)).toBe(28);
+
+    // An anchor in the list item's content (a nested block's header) is not
+    // the item's first line: the item centers on its own text instead.
+    const nested = item.querySelector("p") ?? item.lastElementChild!;
+    const nestedHead = document.createElement("div");
+    nestedHead.setAttribute("data-code-header", "");
+    nested.appendChild(nestedHead);
+    pinRect(nestedHead, 500, 32);
+    const itemPos = editor.state.doc.child(0).nodeSize;
+    document.body.appendChild(editor.view.dom);
+    try {
+      const line = editor.view.nodeDOM(itemPos + 1) as HTMLElement;
+      line.style.display = "block";
+      line.style.lineHeight = "24px";
+      pinRect(line, 200, 24);
+      expect(gripCenterY(editor.view, itemPos, item)).toBe(212);
+    } finally {
+      editor.view.dom.remove();
+    }
   });
 });

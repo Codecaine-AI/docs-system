@@ -92,8 +92,9 @@ export function ColumnHandle({
 /**
  * Row pill handle: 16×28 (dots stacked 3×2), vertically centered on the
  * hovered BODY row and pushed left of the table's left edge by
- * `--docs-table-handle-offset` (a calc() string on that axis, same as the
- * column pill). The header row never gets one — it cannot be moved or
+ * `--docs-table-handle-offset` plus 8 px (a calc() string on that axis, see
+ * ROW_HANDLE_OFFSET_CALC), so it clears the edge. It carries
+ * `data-docs-grip-hide`: the block grip stays hidden while it shows. The header row never gets one — it cannot be moved or
  * removed.
  */
 export function RowHandle({
@@ -117,6 +118,7 @@ export function RowHandle({
       contentEditable={false}
       aria-label="Row handle"
       data-table-row-handle=""
+      data-docs-grip-hide=""
       style={{ left, top }}
       className={cn(HANDLE_BASE_CLASSES, "h-7 w-4", handleSkin(active), TABLE_CONTROL_FOCUS_CLASS)}
       onMouseDown={onMouseDown}

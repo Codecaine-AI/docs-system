@@ -127,7 +127,7 @@ function ProxyCanvas({ api, input }: { api: Api; input: { id: string; canvasId?:
   }, [api]);
   const { value, error } = useSidecar<InteractiveCanvasDocument>(input.src, load);
   if (!input.src) return <StandaloneCanvasEmbed id={input.id} canvasId={input.canvasId} title={input.title} view={input.view} />;
-  if (error) return <section className={frameClass} data-docs-block-type="canvas" data-source-id={input.id}><div className="font-medium text-destructive">Canvas failed to load</div><div className="mt-1">{error}</div></section>;
+  if (error) return <section className={frameClass} data-docs-block-type="canvas" data-source-id={input.id}><div data-docs-grip-anchor="" className="font-medium text-destructive">Canvas failed to load</div><div className="mt-1">{error}</div></section>;
   if (!value) return <section className={frameClass} data-docs-block-type="canvas" data-source-id={input.id}>Loading canvas...</section>;
   return <StandaloneCanvasEmbed key={input.src} id={input.id} initialDocument={value} title={input.title} view={input.view} />;
 }
@@ -140,7 +140,7 @@ function ProxySequence({ api, input }: { api: Api; input: { id: string; sequence
   }, [api]);
   const { value, error } = useSidecar<SequenceDocument>(input.src, load);
   if (!input.src) return <StandaloneSequenceEmbed id={input.id} sequenceId={input.sequenceId} title={input.title} />;
-  if (error) return <section className={frameClass} data-docs-block-type="sequence" data-source-id={input.id}><div className="font-medium text-destructive">Sequence failed to load</div><div className="mt-1">{error}</div></section>;
+  if (error) return <section className={frameClass} data-docs-block-type="sequence" data-source-id={input.id}><div data-docs-grip-anchor="" className="font-medium text-destructive">Sequence failed to load</div><div className="mt-1">{error}</div></section>;
   if (!value) return <section className={frameClass} data-docs-block-type="sequence" data-source-id={input.id}>Loading sequence...</section>;
   return <StandaloneSequenceEmbed key={input.src} id={input.id} initialDocument={value} title={input.title} />;
 }

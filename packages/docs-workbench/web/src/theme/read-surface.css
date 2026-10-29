@@ -305,6 +305,17 @@
 .docs-editor-prosemirror > :is(hr, :has(> [data-doc-node="docDivider"]), :has(> * > hr)) + :is(h1, h2, h3, h4, h5, h6) {
   margin-top: 0;
 }
+/* The divider's hover target in the editor. The rule is one hairline and its
+   spacing is margin that collapses out of the node-view wrapper, so the
+   wrapper is 1px tall. A pseudo-element covers that spacing (same em basis
+   as the rule's margin), so the drag grip shows anywhere in it. */
+.docs-editor-prosemirror [data-doc-node="docDivider"] { position: relative; }
+.docs-editor-prosemirror [data-doc-node="docDivider"]::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block: calc(var(--docs-divider-spacing, 2) * -1em);
+}
 .docs-markdown [data-doc-block-type="heading"]:has(h2) + [data-doc-block-type="heading"] h3,
 .docs-editor-prosemirror > h2 + h3 {
   margin-top: var(--ds-space-4);

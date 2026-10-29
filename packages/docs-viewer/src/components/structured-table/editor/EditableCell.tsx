@@ -8,7 +8,7 @@ import StarterKit from "@tiptap/starter-kit";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { INLINE_CODE_CLASSES } from "../../../render/block-classes";
 import { cn } from "../../../ui/cn";
-import { DocItalic, DocStrike } from "../../rich-text/editor-marks";
+import { DocCode, DocItalic, DocStrike } from "../../rich-text/editor-marks";
 import type { PMNode } from "../../../editor/core/convert";
 import { pmDocToTableCell, tableCellEquals, tableCellSpans, tableCellToPMDoc } from "../cell-content";
 import { renderTableCell } from "../cell-render";
@@ -243,7 +243,8 @@ function cellKeymap(handlers: RefObject<CellHandlers | null>) {
 /**
  * The cell's extension set mirrors DocEditor's StarterKit config for the
  * shared pieces so mark behavior matches the main editor exactly:
- * - inline `code` gets the same Notion-style chip classes as the read surface;
+ * - inline `code` is DocCode (keeps bold/italic/strike/link on code runs)
+ *   with the same Notion-style chip classes as the read surface;
  * - italic/strike re-register WITHOUT markdown typing shortcuts (DocItalic/
  *   DocStrike — bold + inline code are the only auto-converting marks, per
  *   the main editor's policy);
@@ -260,7 +261,7 @@ function buildCellExtensions(handlers: RefObject<CellHandlers | null>) {
     StarterKit.configure({
       blockquote: false,
       bulletList: false,
-      code: { HTMLAttributes: { class: INLINE_CODE_CLASSES } },
+      code: false,
       codeBlock: false,
       document: false,
       dropcursor: false,
@@ -282,6 +283,7 @@ function buildCellExtensions(handlers: RefObject<CellHandlers | null>) {
       underline: false,
       undoRedo: false,
     }),
+    DocCode.configure({ HTMLAttributes: { class: INLINE_CODE_CLASSES } }),
     DocItalic,
     DocStrike,
     cellKeymap(handlers),

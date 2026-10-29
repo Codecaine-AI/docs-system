@@ -157,8 +157,10 @@ export function TableGrid({
       onScroll={onScroll}
     >
       <table className={TABLE_ELEMENT_CLASSES} aria-label={ariaLabel || undefined}>
+        {/* The header row is the block grip's anchor; body rows own the row
+            pills, so the grip hides over them (editor/views/drag-handle.ts). */}
         <thead className={TABLE_HEAD_CLASSES}>
-          <tr>
+          <tr data-docs-grip-anchor="">
             {data.columns.map((column, columnIndex) => (
               <th
                 key={columnIndex}
@@ -188,7 +190,7 @@ export function TableGrid({
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody data-docs-grip-hide="">
           {data.rows.map((row, rowIndex) => (
             <tr
               key={rowIndex}

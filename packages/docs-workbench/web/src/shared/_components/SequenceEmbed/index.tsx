@@ -160,7 +160,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
         data-docs-block-type="sequence"
         data-source-id={id}
       >
-        <div className="font-medium text-destructive">Sequence failed to load</div>
+        <div data-docs-grip-anchor="" className="font-medium text-destructive">Sequence failed to load</div>
         <div className="mt-1 text-muted-foreground">{error}</div>
       </section>
     );

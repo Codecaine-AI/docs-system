@@ -118,7 +118,7 @@ export function calloutLabel(kind: string | undefined, tone: string): string {
 const CALLOUT_FRAME_CLASSES =
   "not-prose my-[var(--docs-callout-margin,20px)] min-w-0 w-full box-border";
 const CALLOUT_HEAD_CLASSES =
-  "flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[length:var(--docs-callout-title-text-size,18px)] leading-[var(--ds-line-height-reading)]";
+  "flex min-h-5 flex-wrap items-center gap-x-2 gap-y-1 text-[length:var(--docs-callout-title-text-size,var(--style-font-size,18px))] leading-[var(--ds-line-height-reading)]";
 const CALLOUT_ICON_WRAP_CLASSES =
   "inline-flex shrink-0 items-center text-[color:var(--docs-callout-accent)]";
 const CALLOUT_ICON_CLASSES =
