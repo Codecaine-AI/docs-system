@@ -36,6 +36,11 @@
   cursor: pointer;
 }
 
+.style-range:focus-visible {
+  outline: var(--ds-border-width-focus) solid var(--foreground);
+  outline-offset: var(--ds-focus-ring-offset);
+}
+
 .style-range::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
