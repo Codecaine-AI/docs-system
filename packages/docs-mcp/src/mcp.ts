@@ -17,7 +17,7 @@ const INSTRUCTIONS=[
 
 export async function startMcp(initialWorkspace:string){
  const state=await ensureDaemon();let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();
- const server=new Server({name:'codecaine-docs',version:manifest.version},{capabilities:{tools:{},resources:{}},instructions:INSTRUCTIONS});
+ const server=new Server({name:'docs-system',version:manifest.version},{capabilities:{tools:{},resources:{}},instructions:INSTRUCTIONS});
  const call=async(name:string,args:Record<string,unknown>={})=>{
   await rootsReady;
   const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);

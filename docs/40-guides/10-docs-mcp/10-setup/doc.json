@@ -167,18 +167,18 @@
         "rows": [
           [
             "Codex",
-            "MCP stdio entry mcp_servers.codecaine-docs in ~/.codex/config.toml; CODEX_HOME changes the config directory.",
-            "~/.agents/skills/codecaine-docs"
+            "MCP stdio entry mcp_servers.docs-system in ~/.codex/config.toml. CODEX_HOME changes the config directory.",
+            "~/.agents/skills/docs-system"
           ],
           [
             "Claude Code",
-            "MCP stdio entry mcpServers.codecaine-docs in ~/.claude.json.",
-            "~/.claude/skills/codecaine-docs"
+            "MCP stdio entry mcpServers.docs-system in ~/.claude.json.",
+            "~/.claude/skills/docs-system"
           ],
           [
             "pi Agent",
-            "~/.pi/agent/extensions/codecaine-docs.ts imports the bridge from the checkout; PI_CODING_AGENT_DIR changes the pi directory.",
-            "~/.agents/skills/codecaine-docs"
+            "~/.pi/agent/extensions/docs-system.ts imports the bridge from the checkout. PI_CODING_AGENT_DIR changes the pi directory.",
+            "~/.agents/skills/docs-system"
           ]
         ]
       },
@@ -190,7 +190,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. Its --home option supports alternate home directories. Custom Claude paths require installer API options; the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries, skill files, and pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
         }
       ],
       "children": []

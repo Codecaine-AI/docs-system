@@ -66,11 +66,11 @@ export function createPiExtension(config: PiLaunchConfig, connectClient = connec
           for (const tool of page.tools) {
             pi.registerTool({
               name: tool.name,
-              label: `Codecaine ${tool.name}`,
+              label: `Docs System ${tool.name}`,
               description: tool.description ?? tool.name,
               parameters: tool.inputSchema,
               async execute(_id, params, signal) {
-                if (!connection) throw new Error("Codecaine Docs is disconnected. Run /reload to reconnect.");
+                if (!connection) throw new Error("Docs System is disconnected. Run /reload to reconnect.");
                 const result = await connection.callTool({ name: tool.name, arguments: params }, { signal });
                 const content = result.content.map((item) => item.type === "text" || item.type === "image" ? item : { type: "text", text: JSON.stringify(item) });
                 if (result.isError) throw new Error(content.map((item) => item.text ?? JSON.stringify(item)).join("\n"));
@@ -79,12 +79,12 @@ export function createPiExtension(config: PiLaunchConfig, connectClient = connec
             });
           }
           cursor = page.nextCursor;
-          if (cursor && seenCursors.has(cursor)) throw new Error("Codecaine returned a repeated tools cursor");
+          if (cursor && seenCursors.has(cursor)) throw new Error("Docs System returned a repeated tools cursor");
           if (cursor) seenCursors.add(cursor);
         } while (cursor);
       } catch (error) {
         await close();
-        ctx.ui?.notify(`Codecaine Docs connection failed: ${error instanceof Error ? error.message : String(error)}`, "error");
+        ctx.ui?.notify(`Docs System connection failed: ${error instanceof Error ? error.message : String(error)}`, "error");
         throw error;
       }
     });

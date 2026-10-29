@@ -40,7 +40,7 @@ export async function runDaemon(){
   }catch(error){return Response.json({error:error instanceof Error?error.message:String(error)},{status:500});}
  }});
  await writeDaemonState({url:`http://127.0.0.1:${server.port}`,token,pid:process.pid,packageRoot:PACKAGE_ROOT,startedAt});
- console.error(`Codecaine Docs service listening at http://127.0.0.1:${server.port}`);
+ console.error(`Docs System service listening at http://127.0.0.1:${server.port}`);
  async function shutdown(){server.stop(true);await unlink(join(stateDirectory(),'daemon.json')).catch(()=>{});await lock.close();await unlink(lockPath).catch(()=>{});process.exit(0);}
  process.on('SIGTERM',()=>void shutdown());process.on('SIGINT',()=>void shutdown());
  return server;

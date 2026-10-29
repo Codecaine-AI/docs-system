@@ -289,7 +289,7 @@
           "insert": "The "
         },
         {
-          "insert": "codecaine-docs",
+          "insert": "docs-system",
           "attributes": {
             "code": true
           }
@@ -298,7 +298,7 @@
           "insert": " skill in "
         },
         {
-          "insert": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+          "insert": "packages/docs-mcp/skills/docs-system/SKILL.md",
           "attributes": {
             "code": true
           }

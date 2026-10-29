@@ -76,10 +76,10 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   }
   for (const initial of await initialRuntimeSources) {
     const current = hashGuidanceContent(await readFile(join(REPO_ROOT, initial.path), "utf8"));
-    if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Codecaine Docs service before beginning a new task.`);
+    if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Docs System service before beginning a new task.`);
     sources.push({ path: initial.path, sha256: initial.hash, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
   }
-  const skillPath = join(PACKAGE_ROOT, "skills/codecaine-docs/SKILL.md");
+  const skillPath = join(PACKAGE_ROOT, "skills/docs-system/SKILL.md");
   sources.push({ path: relative(REPO_ROOT, skillPath), sha256: hashGuidanceContent(await readFile(skillPath, "utf8")), kind: "skill" });
   const text = assembleAuthoringGuidance(docsRoot, inputs);
   // Include the projection itself so a changed projection dependency cannot keep the old identity.
@@ -129,7 +129,7 @@ export async function generateSkillReferences(outputDir: string, guidance?: Guid
   const snapshot = guidance ?? await loadGuidance();
   const references = join(outputDir, "references");
   await mkdir(join(references, "components"), { recursive: true });
-  const stamp = `Generated from Codecaine Docs sources. Snapshot: \`${snapshot.snapshotId}\`. Refresh the installation to regenerate these files.\n\n`;
+  const stamp = `Generated from Docs System sources. Snapshot: \`${snapshot.snapshotId}\`. Refresh the installation to regenerate these files.\n\n`;
   // One Details line per component, in catalog order; two components may share a document.
   let detailIndex = 0;
   const catalog = renderComponentCatalog(snapshot.components).replace(/^Details: (.+)$/gm, (_match, docsPath: string) => {

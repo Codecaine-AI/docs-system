@@ -1,6 +1,6 @@
 # Interaction Surface Approval
 
-The user approved the current design on September 15, 2026. The canonical component reference is `docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface`, mirrored into the codecaine-docs skill references.
+The user approved the current design on September 15, 2026. The canonical component reference is `docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface`, mirrored into the docs-system skill references.
 
 ## Reuse
 

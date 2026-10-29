@@ -86,11 +86,11 @@
       "props": {},
       "text": [
         {
-          "insert": "packages/docs-mcp/skills/codecaine-docs/SKILL.md",
+          "insert": "packages/docs-mcp/skills/docs-system/SKILL.md",
           "attributes": {
             "reference": {
               "kind": "source",
-              "path": "packages/docs-mcp/skills/codecaine-docs/SKILL.md"
+              "path": "packages/docs-mcp/skills/docs-system/SKILL.md"
             }
           }
         },
