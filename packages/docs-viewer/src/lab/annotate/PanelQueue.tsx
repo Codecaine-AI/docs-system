@@ -123,7 +123,7 @@ function AgentStatus({ status }: { status: PanelQueueProps["agentStatus"] }) {
 		: status === "running"
 			? "var(--annotation-accent,#a99af5)"
 			: "var(--annotation-accept,#3fb950)";
-	return <span data-docs-lab-agent-status={status} title={copy.title} className="flex shrink-0 items-center gap-1 text-[length:var(--ds-font-size-micro)] tracking-[var(--ds-letter-spacing-normal)]" style={{ color }}>
+	return <span data-docs-lab-agent-status={status} title={copy.title} className="flex shrink-0 items-center gap-1 text-[length:var(--ds-font-size-ui-2xs)] tracking-[var(--ds-letter-spacing-normal)]" style={{ color }}>
 		<span aria-hidden className={`h-[5px] w-[5px] rounded-full bg-current ${status === "running" ? "animate-pulse" : ""}`} />
 		{copy.label}
 	</span>;
@@ -134,7 +134,7 @@ function newAnnotationId(): string {
 }
 
 function GroupHeader({ label }: { label: string }) {
-	return <div className="px-1.5 pb-0.5 pt-2 text-[length:var(--ds-font-size-micro)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] first:pt-0.5">{label}</div>;
+	return <div className="px-1.5 pb-0.5 pt-2 text-[length:var(--ds-font-size-ui-2xs)] uppercase tracking-[var(--ds-letter-spacing-micro-wide)] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] first:pt-0.5">{label}</div>;
 }
 
 function EmptyGroup() {

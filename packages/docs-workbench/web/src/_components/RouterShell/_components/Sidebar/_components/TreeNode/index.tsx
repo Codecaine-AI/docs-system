@@ -112,7 +112,10 @@ export function TreeNode({
               type="button"
               aria-label={`Toggle ${node.name} children`}
               onClick={() => setOpen((prev) => !prev)}
-              className="shrink-0"
+              // A 24px hit area around the 12px chevron: the padding reaches
+              // into the row's left padding and the gap, and the negative
+              // margins keep the row's layout as it was.
+              className="-my-1.5 -ml-2 -mr-1 flex shrink-0 items-center py-1.5 pl-2 pr-1"
             >
               {open ? (
                 <ChevronDownIcon className="h-3 w-3" />

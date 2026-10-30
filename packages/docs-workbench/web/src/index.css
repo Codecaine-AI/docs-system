@@ -25,6 +25,9 @@
    viewer sheets so it keeps the cascade position these rules had inline. */
 @import "./theme/read-surface.css";
 
+/* The fixed page title above every doc, and its rename focus wash. */
+@import "./theme/page-title.css";
+
 @plugin "@tailwindcss/typography";
 
 /*
@@ -111,8 +114,10 @@
   border-radius: var(--ds-radius-pill);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background-color: var(--docs-scrollbar-color, var(--docs-icon-muted));
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--docs-scrollbar-color, var(--docs-icon-muted));
+  }
 }
 
 ::-webkit-scrollbar-track {
@@ -122,33 +127,6 @@
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
-
-/*
- * Fixed page title (DocPage furniture, R2-D11) — mirrors the sidebar name
- * above every doc. Deliberately a step LARGER than a block H1 (prose-sm h1
- * ≈ 2.14em of the 14px base ≈ 30px), on the theme heading font. Not a
- * block: it lives outside the renderer/editor and can't be selected,
- * dragged, or edited.
- */
-.docs-page-title {
-  font-family: var(--style-heading-font, var(--font-tx02)), ui-sans-serif, system-ui, sans-serif;
-  font-size: var(--ds-font-size-title);
-  line-height: var(--ds-line-height-tight);
-  font-weight: var(--ds-font-weight-bold);
-  letter-spacing: var(--ds-letter-spacing-title);
-  color: var(--docs-viewer-text-heading, var(--foreground));
-  /* Title→content gap — style-rail Layout knob (default 20px). */
-  margin: 0 0 var(--style-title-padding, var(--ds-space-5));
-  outline: none;
-  /* NOTE: the title's text-lane cap deliberately does NOT live here. The
-     measure is expressed in `ch`, which resolves against the font-size of the
-     element that USES it — on this 2.25rem title `60ch` would be ~1300px
-     instead of the ~650px an 18px paragraph gets. The hosts wrap the title in a
-     lane div at the body font-size (`--style-font-size`) instead, so the cap
-     resolves at the doc's base font size and lines up exactly with the prose
-     beneath it. */
-}
-
 
 /* Edit-surface text lane. The read surface wraps every top-level block in its
    own lane element (docs-viewer render/block-layout.ts, applied by
@@ -250,7 +228,6 @@
   border-radius: var(--docs-highlight-radius, var(--radius, var(--ds-radius-base)));
   box-shadow: 0 0 0 var(--docs-highlight-padding, var(--ds-space-1))
     var(--docs-highlight-color, var(--color-bg-blue));
-  outline: none;
 }
 
 /*
@@ -384,9 +361,11 @@
   height: auto;
 }
 
-.docs-drag-handle:hover {
-  background-color: var(--docs-surface-muted);
-  color: var(--docs-viewer-text-body);
+@media (hover: hover) {
+  .docs-drag-handle:hover {
+    background-color: var(--docs-surface-muted);
+    color: var(--docs-viewer-text-body);
+  }
 }
 
 .docs-drag-handle:active {
