@@ -10,12 +10,20 @@
   .docs-app .ds-shell {
     --ds-layout-sidebar-width: 288px;
   }
+
+  .docs-app .ds-shell[data-sidebar="collapsed"] {
+    --docs-sidebar-now: var(--ds-layout-sidebar-width-collapsed);
+  }
 }
 
 .docs-app .ds-shell {
   /* The Style rail's two-pane width (the old rail's w-184), at most half the
-     window while it pushes the page. */
-  --ds-layout-inspector-width: min(46rem, 50vw);
+     window while it pushes the page. It also leaves the doc column and its
+     topbar 22.5rem, room for the title and every page action (at 1024px the
+     half-window rail left 224px and hid Export), and never drops below the
+     23.5rem its two panes need. */
+  --docs-sidebar-now: var(--ds-layout-sidebar-width);
+  --ds-layout-inspector-width: clamp(23.5rem, 100vw - var(--docs-sidebar-now) - 22.5rem, min(46rem, 50vw));
   /* The doc column is a tool view on the full lane with its own scroller
      (rule 12): main adds no padding, and the doc page pads itself with the
      Style rail's content-margin knob (DocPage reads --docs-page-margin). */
@@ -61,6 +69,37 @@
 /* The doc column and the side peek fill the window under the topbar. */
 .docs-workspace {
   height: var(--docs-workspace-height);
+}
+
+/* The topbar's own width picks the compact actions below. When it runs out
+   of room the title gives way first, down to a floor, and only then do the
+   actions scroll (layout.css). */
+.docs-app .ds-topbar {
+  container: docs-topbar / inline-size;
+  --docs-topbar-title-min: min(var(--ds-space-16), 50%);
+}
+
+.docs-app .ds-topbar-title {
+  flex-shrink: 1;
+  min-width: var(--docs-topbar-title-min);
+}
+
+.docs-app .ds-topbar-actions {
+  flex-shrink: 0;
+  max-width: calc(100% - var(--docs-topbar-title-min) - var(--ds-space-4));
+}
+
+/* A narrow topbar (Style open at laptop widths) shows Style as its icon
+   alone; the button keeps its name through aria-label. */
+@container docs-topbar (max-width: 22rem) {
+  .docs-topbar-label {
+    display: none;
+  }
+
+  .docs-topbar-style {
+    width: var(--ds-space-8);
+    padding: 0;
+  }
 }
 
 /* Topbar title: the old DocPage header's breadcrumb above the page title. */
