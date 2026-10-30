@@ -45,7 +45,8 @@ export function TopbarActions({
           key="style"
           ref={styleButtonRef}
           type="button"
-          className="ds-shell-button"
+          className="ds-shell-button docs-topbar-style"
+          aria-label="Style"
           aria-expanded={styleOpen}
           aria-controls="ds-inspector"
           // The side peek owns the right edge while it is open (it
@@ -56,11 +57,11 @@ export function TopbarActions({
           onClick={() => (styleOpen ? closeStyle() : setStyleOpenByUser(true))}
         >
           <SlidersHorizontal aria-hidden="true" />
-          Style
+          <span className="docs-topbar-label">Style</span>
         </button>
       )}
-      {/* Last: when the bar runs out of room (Style open at laptop
-          widths), the actions scroll and Export goes first. */}
+      {/* Last: if the bar still runs out of room (an undo notice beside
+          a narrow title), the actions scroll and Export goes first. */}
       {!isStatic && (
         <button
           key="export"
