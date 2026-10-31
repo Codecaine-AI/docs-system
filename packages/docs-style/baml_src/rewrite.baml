@@ -8,7 +8,7 @@
 // system message, so a route with prefix caching can reuse it across every call in a sweep. All
 // per-block text comes last, in the user message.
 //
-// Run the tests: bun run baml:test (the Token Burner gateway must answer; see clients.baml).
+// Run the tests: bun run baml:test (Token Gateway must answer; see clients.baml).
 
 class RewriteFinding {
   rule_id string

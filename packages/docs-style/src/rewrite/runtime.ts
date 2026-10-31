@@ -7,9 +7,9 @@
  * resolves the env var of every client in a chain up front, so a missing OpenRouter key would
  * break calls that never needed it.
  */
-import { codecaineEnv, tokenBurnerKey, tokenBurnerUrl } from "./env";
+import { codecaineEnv, tokenGatewayKey, tokenGatewayUrl } from "./env";
 
-export { TOKEN_BURNER_DEFAULT_URL } from "./env";
+export { TOKEN_GATEWAY_DEFAULT_URL } from "./env";
 export const OPENROUTER_URL = "https://openrouter.ai/api/v1";
 export const OPENROUTER_HEADERS = { "HTTP-Referer": "https://github.com/codecaine-ai/docs-system", "X-Title": "codecaine-docs-style" };
 const PROBE_TIMEOUT_MS = 1500;
@@ -22,11 +22,11 @@ export const RETRY_POLICY = "RewriteRetry";
 export const FINISHED_ONLY = { finish_reason_allow_list: ["stop"] };
 
 export interface RouteOptions {
-  /** The gateway's /v1 base. Default TOKEN_BURNER_BASE_URL, else http://100.104.171.122:8793/v1. */
+  /** The gateway's /v1 base. Default TOKEN_GATEWAY_BASE_URL, else http://100.104.171.122:8793/v1. */
   gatewayUrl?: string;
   /**
-   * The gateway key. Default TOKEN_BURNER_API_KEY from the process env or ~/.config/codecaine/env,
-   * else ~/.config/token-burner/mini-macbook-key, else ~/.config/token-burner/mini-key. "" turns the gateway off.
+   * The gateway key. Default TOKEN_GATEWAY_API_KEY from the process env or ~/.config/codecaine/env,
+   * else ~/.config/token-gateway/mini-macbook-key, else ~/.config/token-gateway/mini-key. "" turns the gateway off.
    */
   gatewayKey?: string;
   /** Default: OPENROUTER_API_KEY from the process env or ~/.config/codecaine/env. "" turns OpenRouter off. */
@@ -36,23 +36,23 @@ export interface RouteOptions {
 }
 
 export interface Endpoint {
-  name: "token-burner" | "OpenRouter";
+  name: "token-gateway" | "OpenRouter";
   baseUrl: string;
   apiKey: string;
 }
 
 /** The gateway when it answers (or when probe is false), else OpenRouter when a key exists. Throws otherwise. */
 export async function chooseEndpoint(options: RouteOptions, purpose: string): Promise<Endpoint> {
-  const gatewayUrl = (options.gatewayUrl ?? tokenBurnerUrl()).replace(/\/+$/, "");
-  const gatewayKey = options.gatewayKey ?? tokenBurnerKey();
+  const gatewayUrl = (options.gatewayUrl ?? tokenGatewayUrl()).replace(/\/+$/, "");
+  const gatewayKey = options.gatewayKey ?? tokenGatewayKey();
   if (gatewayKey && (options.probe === false || (await answers(gatewayUrl, gatewayKey)))) {
-    return { name: "token-burner", baseUrl: gatewayUrl, apiKey: gatewayKey };
+    return { name: "token-gateway", baseUrl: gatewayUrl, apiKey: gatewayKey };
   }
   const openRouterKey = options.openRouterKey ?? codecaineEnv("OPENROUTER_API_KEY");
   if (openRouterKey) return { name: "OpenRouter", baseUrl: OPENROUTER_URL, apiKey: openRouterKey };
   const gateway = gatewayKey
-    ? `the Token Burner gateway does not answer at ${gatewayUrl}`
-    : "no Token Burner key is set (TOKEN_BURNER_API_KEY, or ~/.config/token-burner/mini-macbook-key or mini-key)";
+    ? `Token Gateway does not answer at ${gatewayUrl}`
+    : "no Token Gateway key is set (TOKEN_GATEWAY_API_KEY, or ~/.config/token-gateway/mini-macbook-key or mini-key)";
   throw new Error(`No ${purpose} route: ${gateway}, and OPENROUTER_API_KEY is not set in the process env or ~/.config/codecaine/env.`);
 }
 
