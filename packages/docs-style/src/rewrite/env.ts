@@ -33,7 +33,7 @@ function readEnvFile(): Record<string, string> {
   return values;
 }
 
-/** The Token Gateway gateway's OpenAI-compatible base: the fleet's model endpoint (it replaced codex-lb). */
+/** Token Gateway's OpenAI-compatible base: the fleet's model endpoint (it replaced codex-lb). */
 export const TOKEN_GATEWAY_DEFAULT_URL = "http://100.104.171.122:8793/v1";
 /** Key files under the home directory, first existing wins: the MacBook's, then services-01's. */
 const TOKEN_GATEWAY_KEY_FILES = [".config/token-gateway/mini-macbook-key", ".config/token-gateway/mini-key"];

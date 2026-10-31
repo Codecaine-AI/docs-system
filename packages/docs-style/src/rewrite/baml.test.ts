@@ -68,7 +68,7 @@ test("rejects a reply the model did not finish, or one shaped like an array, wit
 test("fails with the reason when the gateway is down and no OpenRouter key exists", async () => {
   const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/down/v1`, openRouterKey: "" });
 
-  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: the Token Gateway gateway does not answer/);
+  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: Token Gateway does not answer/);
   // The probe reached the server and read its 503, so the route failed for the right reason.
   expect(server.probes).toContain("/down/v1/models");
 });

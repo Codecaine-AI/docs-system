@@ -1,5 +1,5 @@
 /**
- * Test support: a stand-in for the Token Gateway gateway (an OpenAI-compatible chat endpoint) on a local port, so the
+ * Test support: a stand-in for Token Gateway (an OpenAI-compatible chat endpoint) on a local port, so the
  * BAML adapters run end to end without the network.
  *
  * It is a node:http server that writes raw replies, because the repo's test preload swaps the

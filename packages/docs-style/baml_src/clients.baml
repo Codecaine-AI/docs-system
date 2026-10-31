@@ -24,7 +24,7 @@ retry_policy RewriteRetry {
   }
 }
 
-// Fast: GPT-6 Luna through the Token Gateway gateway. Effort "low" spent 0 reasoning tokens in the 2026-10-02 runs.
+// Fast: GPT-6 Luna through Token Gateway. Effort "low" spent 0 reasoning tokens in the 2026-10-02 runs.
 // json_object mode through the gateway needs the word "json" in a user message (see rewrite.baml).
 client<llm> LunaTB {
   provider "openai-generic"
@@ -44,7 +44,7 @@ client<llm> LunaTB {
   }
 }
 
-// Strong: GPT-6.1 Sol through the Token Gateway gateway, for the one retry after a fast rewrite fails a guardrail.
+// Strong: GPT-6.1 Sol through Token Gateway, for the one retry after a fast rewrite fails a guardrail.
 client<llm> SolTB {
   provider "openai-generic"
   retry_policy RewriteRetry
@@ -111,7 +111,7 @@ client<llm> SolOR {
   }
 }
 
-// Meaning verifier: GPT-6.1 Sol through the Token Gateway gateway at reasoning "medium", with a strict JSON schema
+// Meaning verifier: GPT-6.1 Sol through Token Gateway at reasoning "medium", with a strict JSON schema
 // so the reply always has the MeaningCheck shape. src/verify/baml.ts builds the same client at
 // runtime; this one serves `baml-cli test`.
 client<llm> SolVerifyTB {

@@ -1,7 +1,7 @@
 /**
  * The meaning Verifier on BAML (baml_src/verify.baml): GPT-6.1 Sol at reasoning "medium" decides
  * whether AFTER says exactly what BEFORE says, in both directions. The reply follows a strict JSON
- * schema, and only a finished reply counts. Runs through the Token Gateway gateway, or OpenRouter when the
+ * schema, and only a finished reply counts. Runs through Token Gateway, or OpenRouter when the
  * gateway does not answer and a key exists.
  */
 import type { ClientRegistry } from "@boundaryml/baml";

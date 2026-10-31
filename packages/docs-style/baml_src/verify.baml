@@ -8,7 +8,7 @@
 // A multi-block AFTER is a lead line plus "- " bullet lines, with "  - " for a sub-bullet.
 //
 // Prompt layout: the static rules sit in the system message and the two texts come last.
-// Run the tests: bun run baml:test -i "CompareMeaning::" (the Token Gateway gateway must answer).
+// Run the tests: bun run baml:test -i "CompareMeaning::" (Token Gateway must answer).
 
 class MeaningDiff {
   kind string @description("fact, number, name, condition, limit, modality, scope, relation, reference, hierarchy, emphasis, added, or other")

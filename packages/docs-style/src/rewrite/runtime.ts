@@ -51,7 +51,7 @@ export async function chooseEndpoint(options: RouteOptions, purpose: string): Pr
   const openRouterKey = options.openRouterKey ?? codecaineEnv("OPENROUTER_API_KEY");
   if (openRouterKey) return { name: "OpenRouter", baseUrl: OPENROUTER_URL, apiKey: openRouterKey };
   const gateway = gatewayKey
-    ? `the Token Gateway gateway does not answer at ${gatewayUrl}`
+    ? `Token Gateway does not answer at ${gatewayUrl}`
     : "no Token Gateway key is set (TOKEN_GATEWAY_API_KEY, or ~/.config/token-gateway/mini-macbook-key or mini-key)";
   throw new Error(`No ${purpose} route: ${gateway}, and OPENROUTER_API_KEY is not set in the process env or ~/.config/codecaine/env.`);
 }
