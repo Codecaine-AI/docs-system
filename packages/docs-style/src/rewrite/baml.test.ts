@@ -27,7 +27,7 @@ const request: RewriteRequest = {
   allowList: false,
 };
 
-test("rewrites through token-burner with Luna for fast and Sol for strong, probing once", async () => {
+test("rewrites through token-gateway with Luna for fast and Sol for strong, probing once", async () => {
   const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
 
   const fast = await rewriter.rewrite(request, "fast");
@@ -55,7 +55,7 @@ test("rejects a reply the model did not finish, or one shaped like an array, wit
   try {
     // A reply cut off at "length" parses leniently into partial text unless the client refuses it.
     server.answer = () => ({ content: JSON.stringify({ markdown: "Run ⟦0⟧ first. Then publish the" }), finishReason: "length" });
-    await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/Rewrite on gpt-6-luna through token-burner failed/);
+    await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/Rewrite on gpt-6-luna through token-gateway failed/);
     expect(server.requests.length).toBe(sent + 1);
 
     server.answer = () => ({ content: JSON.stringify({ markdown: ["Run ⟦0⟧ first.", "Then publish the page."] }) });
@@ -68,7 +68,7 @@ test("rejects a reply the model did not finish, or one shaped like an array, wit
 test("fails with the reason when the gateway is down and no OpenRouter key exists", async () => {
   const rewriter = createBamlRewriter({ gatewayKey: "test-key", gatewayUrl: `${server.baseUrl}/down/v1`, openRouterKey: "" });
 
-  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: the Token Burner gateway does not answer/);
+  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: the Token Gateway gateway does not answer/);
   // The probe reached the server and read its 503, so the route failed for the right reason.
   expect(server.probes).toContain("/down/v1/models");
 });
@@ -77,6 +77,6 @@ test("skips the gateway without a key and names the missing key", async () => {
   const rewriter = createBamlRewriter({ gatewayKey: "", gatewayUrl: `${server.baseUrl}/v1`, openRouterKey: "" });
   const probed = server.probes.length;
 
-  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: no Token Burner key is set/);
+  await expect(rewriter.rewrite(request, "fast")).rejects.toThrow(/No rewrite route: no Token Gateway key is set/);
   expect(server.probes.length).toBe(probed);
 });

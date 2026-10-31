@@ -52,7 +52,7 @@ test("with two samples, one answer that finds a difference makes the verdict dif
 test("a reply the model did not finish is an error, never a verdict", async () => {
   server.answer = () => ({ content: '{"differences": [], "same": tr', finishReason: "length" });
   try {
-    await expect(verifier().compare(input)).rejects.toThrow(/Meaning check on gpt-6.1-sol through token-burner failed/);
+    await expect(verifier().compare(input)).rejects.toThrow(/Meaning check on gpt-6.1-sol through token-gateway failed/);
   } finally {
     server.answer = () => ({ content: JSON.stringify(answers.shift()) });
   }

@@ -12,7 +12,7 @@
   "scripts": {
     "test": "bun test src",
     "generate": "baml-cli generate --from baml_src",
-    "baml:test": "TOKEN_BURNER_API_KEY=\"${TOKEN_BURNER_API_KEY:-$(cat ~/.config/token-burner/mini-macbook-key 2>/dev/null || cat ~/.config/token-burner/mini-key 2>/dev/null)}\" baml-cli test --from baml_src"
+    "baml:test": "TOKEN_GATEWAY_API_KEY=\"${TOKEN_GATEWAY_API_KEY:-$(cat ~/.config/token-gateway/mini-macbook-key 2>/dev/null || cat ~/.config/token-gateway/mini-key 2>/dev/null)}\" baml-cli test --from baml_src"
   },
   "dependencies": {
     "@boundaryml/baml": "0.222.0",

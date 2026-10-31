@@ -1,6 +1,6 @@
 /**
  * The Tier 3 Rewriter on BAML (baml_src/rewrite.baml). Fast is GPT-6 Luna and strong is
- * GPT-6.1 Sol. Both run through the Token Burner gateway when it answers, else through OpenRouter when an
+ * GPT-6.1 Sol. Both run through the Token Gateway gateway when it answers, else through OpenRouter when an
  * OpenRouter key exists (see runtime.ts).
  */
 import type { ClientRegistry } from "@boundaryml/baml";
@@ -76,7 +76,7 @@ export function createBamlRewriter(options: RouteOptions = {}): Rewriter {
  * unverified: no key existed on the build machine).
  */
 function rewriteRoute(endpoint: Endpoint): Route {
-  const gw = endpoint.name === "token-burner";
+  const gw = endpoint.name === "token-gateway";
   const client = (model: string, effort: string, requestTimeoutMs: number): Client => ({
     model: gw ? model : `openai/${model}`,
     options: {

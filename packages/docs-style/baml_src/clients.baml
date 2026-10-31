@@ -6,9 +6,9 @@
 // static chain even when the gateway is up. There is deliberately no fallback client here.
 //
 // Routes:
-//   Token Burner  the fleet gateway, http://100.104.171.122:8793/v1 (OpenAI-compatible). It needs
-//                 a real key in TOKEN_BURNER_API_KEY: `bun run baml:test` fills it from
-//                 ~/.config/token-burner/mini-macbook-key (or mini-key) when it is unset.
+//   Token Gateway  the fleet gateway, http://100.104.171.122:8793/v1 (OpenAI-compatible). It needs
+//                 a real key in TOKEN_GATEWAY_API_KEY: `bun run baml:test` fills it from
+//                 ~/.config/token-gateway/mini-macbook-key (or mini-key) when it is unset.
 //   OpenRouter    the portable route, used only when the gateway is unreachable and
 //                 OPENROUTER_API_KEY is set.
 
@@ -24,14 +24,14 @@ retry_policy RewriteRetry {
   }
 }
 
-// Fast: GPT-6 Luna through the Token Burner gateway. Effort "low" spent 0 reasoning tokens in the 2026-10-02 runs.
+// Fast: GPT-6 Luna through the Token Gateway gateway. Effort "low" spent 0 reasoning tokens in the 2026-10-02 runs.
 // json_object mode through the gateway needs the word "json" in a user message (see rewrite.baml).
 client<llm> LunaTB {
   provider "openai-generic"
   retry_policy RewriteRetry
   options {
     base_url "http://100.104.171.122:8793/v1"
-    api_key env.TOKEN_BURNER_API_KEY
+    api_key env.TOKEN_GATEWAY_API_KEY
     model "gpt-6-luna"
     reasoning_effort "low"
     response_format { type "json_object" }
@@ -44,13 +44,13 @@ client<llm> LunaTB {
   }
 }
 
-// Strong: GPT-6.1 Sol through the Token Burner gateway, for the one retry after a fast rewrite fails a guardrail.
+// Strong: GPT-6.1 Sol through the Token Gateway gateway, for the one retry after a fast rewrite fails a guardrail.
 client<llm> SolTB {
   provider "openai-generic"
   retry_policy RewriteRetry
   options {
     base_url "http://100.104.171.122:8793/v1"
-    api_key env.TOKEN_BURNER_API_KEY
+    api_key env.TOKEN_GATEWAY_API_KEY
     model "gpt-6.1-sol"
     reasoning_effort "low"
     response_format { type "json_object" }
@@ -111,7 +111,7 @@ client<llm> SolOR {
   }
 }
 
-// Meaning verifier: GPT-6.1 Sol through the Token Burner gateway at reasoning "medium", with a strict JSON schema
+// Meaning verifier: GPT-6.1 Sol through the Token Gateway gateway at reasoning "medium", with a strict JSON schema
 // so the reply always has the MeaningCheck shape. src/verify/baml.ts builds the same client at
 // runtime; this one serves `baml-cli test`.
 client<llm> SolVerifyTB {
@@ -119,7 +119,7 @@ client<llm> SolVerifyTB {
   retry_policy RewriteRetry
   options {
     base_url "http://100.104.171.122:8793/v1"
-    api_key env.TOKEN_BURNER_API_KEY
+    api_key env.TOKEN_GATEWAY_API_KEY
     model "gpt-6.1-sol"
     reasoning_effort "medium"
     response_format {
