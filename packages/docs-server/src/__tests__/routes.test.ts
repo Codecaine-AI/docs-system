@@ -454,6 +454,107 @@ describe("createDocsRoutes (write contracts)", () => {
       unsubscribe();
     }
   });
+
+  test("the SSE stream names the annotation id and intent when an agent request is filed", async () => {
+    const stream = await get("/api/events");
+    const reader = stream.body!.getReader();
+    const decoder = new TextDecoder();
+    // Reads SSE frames until one carries a JSON `data:` payload (skips "connected").
+    async function nextChangeEvent(): Promise<DocsChangeEvent> {
+      let buffered = "";
+      while (true) {
+        const chunk = await reader.read();
+        if (chunk.done) throw new Error("SSE stream ended before a change event");
+        // Elysia's in-process handle can yield string frames as well as bytes.
+        const value: unknown = chunk.value;
+        buffered += value instanceof Uint8Array ? decoder.decode(value, { stream: true }) : String(value);
+        const data = buffered.split("\n").find((line) => line.startsWith("data: {"));
+        if (data) return JSON.parse(data.slice("data: ".length)) as DocsChangeEvent;
+      }
+    }
+    try {
+      const addRes = await postJson("/api/annotations", {
+        path: "guide",
+        target: { kind: "block", blockId: "h1" },
+        body: "Rewrite the title",
+        intent: "agent-request",
+        author: "ford",
+        session_id: "session-a",
+      });
+      expect(addRes.status).toBe(201);
+      const added = (await addRes.json()) as { annotation: { id: string } };
+
+      const event = await nextChangeEvent();
+      expect(event).toMatchObject({
+        path: "guide",
+        actor: "session-a",
+        annotation: { id: added.annotation.id, intent: "agent-request", change: "created" },
+      });
+    } finally {
+      await reader.cancel();
+    }
+  });
+
+  test("PUT /api/annotations/:id/thread binds and clears a thread and leaves the annotation open", async () => {
+    const addRes = await postJson("/api/annotations", {
+      path: "guide",
+      target: { kind: "block", blockId: "h1" },
+      body: "Rewrite the title",
+      intent: "agent-request",
+      author: "ford",
+    });
+    const added = (await addRes.json()) as { annotation: { id: string } };
+    const events: DocsChangeEvent[] = [];
+    const unsubscribe = createDocsStore(docsRoot).subscribeChanges((event) => events.push(event));
+
+    function putThread(body: unknown): Promise<Response> {
+      return app.handle(
+        new Request(`http://localhost/api/annotations/${added.annotation.id}/thread`, {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+      );
+    }
+    type Listed = { annotations: { annotations: Array<{ id: string; status: string; thread?: unknown }> } };
+    async function readBack(): Promise<Listed["annotations"]["annotations"][number] | undefined> {
+      const listed = (await (await get("/api/annotations?path=guide")).json()) as Listed;
+      return listed.annotations.annotations.find((annotation) => annotation.id === added.annotation.id);
+    }
+
+    try {
+      const thread = { id: "thread-123", title: "Guide" };
+      const bindRes = await putThread({ path: "guide", thread });
+      expect(bindRes.status).toBe(200);
+      expect(await readBack()).toMatchObject({ status: "open", thread });
+      expect(events.at(-1)?.annotation).toEqual({
+        id: added.annotation.id,
+        intent: "agent-request",
+        change: "thread",
+      });
+
+      const clearRes = await putThread({ path: "guide", thread: null });
+      expect(clearRes.status).toBe(200);
+      const cleared = await readBack();
+      expect(cleared?.status).toBe("open");
+      expect(cleared && "thread" in cleared).toBe(false);
+
+      expect((await putThread({ path: "guide", thread: { id: "" } })).status).toBe(422);
+      expect(
+        (
+          await app.handle(
+            new Request("http://localhost/api/annotations/missing/thread", {
+              method: "PUT",
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ path: "guide", thread }),
+            }),
+          )
+        ).status,
+      ).toBe(404);
+    } finally {
+      unsubscribe();
+    }
+  });
 });
 
 describe("POST /api/assets/video (strict video upload)", () => {

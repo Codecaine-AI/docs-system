@@ -1,5 +1,7 @@
 import { manageFiles, restoreManagedFiles, listManagedAssets, type ManageFilesInput } from "./manage-files";
+import { randomUUID } from "node:crypto";
 import { join, resolve } from "node:path";
+import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 
 import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { ACTION_REGISTRY, checkParams } from "@codecaine-ai/docs-model";
@@ -25,6 +27,7 @@ import {
   attachAgentRunToAnnotation,
   getBundleAnnotations,
   resolveBundleAnnotation,
+  setBundleAnnotationThread,
   type AddBundleAnnotationInput,
   type AddBundleAnnotationResult,
   type AddBundleAnnotationReplyInput,
@@ -34,6 +37,8 @@ import {
   type AttachAgentRunResult,
   type BundleAnnotationsReadResult,
   type ResolveBundleAnnotationResult,
+  type SetBundleAnnotationThreadInput,
+  type SetBundleAnnotationThreadResult,
 } from "./doc-ops";
 import {
   acceptBundleProposal,
@@ -116,6 +121,7 @@ import { withPathLock } from "./path-mutex";
 import {
   publishDocsChangeEvent,
   subscribeToDocsChangeEvents,
+  type DocsAnnotationChange,
   type DocsChangeEvent,
 } from "./docs-events";
 import { getBacklinksDb } from "./backlinks-cache";
@@ -234,6 +240,12 @@ export interface DocsStore {
     actor?: string,
     response?: string,
   ): Promise<AnnotationResolveResult>;
+  setAnnotationThread(
+    path: string,
+    annotationId: string,
+    input: SetBundleAnnotationThreadInput,
+    sessionId?: string,
+  ): Promise<SetBundleAnnotationThreadResult>;
   attachAgentRun(path: string, input: AttachAgentRunInput): Promise<AttachAgentRunResult>;
   uploadAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
   uploadVideoAsset(input: UploadDocAssetInput): Promise<UploadDocAssetResult>;
@@ -580,6 +592,25 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
   // Change events are channeled per resolved docs root, so every store (and
   // every host) bound to the same tree shares one event stream.
   const channel = root;
+  // Annotation mutations name the annotation and its intent on the event,
+  // so a request dispatcher can act on it without diffing the sidecar.
+  const publishAnnotationChange = (
+    path: string,
+    annotations: AnnotationsDocument,
+    annotationId: string,
+    change: DocsAnnotationChange["change"],
+    sessionId: string | undefined,
+  ): void => {
+    const annotation = annotations.annotations.find((item) => item.id === annotationId);
+    if (!annotation) return;
+    publishDocsChangeEvent(channel, {
+      path,
+      changedIds: [],
+      patchId: `annotation-${randomUUID()}`,
+      actor: sessionId ?? "anonymous",
+      annotation: { id: annotation.id, intent: annotation.intent, change },
+    });
+  };
 
   const store: DocsStore = {
     docsRoot: root,
@@ -653,13 +684,31 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
       forwardCanvasAction(root, path, op, expectedDocHash, expectedCanvasHash, sessionId),
     forwardSequenceAction: (path, op, expectedDocHash, expectedSequenceHash, sessionId) =>
       forwardSequenceAction(root, path, op, expectedDocHash, expectedSequenceHash, sessionId),
-    addAnnotation: (path, input, sessionId) => addBundleAnnotation(root, path, input, sessionId),
-    addAnnotationReply: (path, annotationId, input, sessionId) =>
-      addBundleAnnotationReply(root, path, annotationId, input, sessionId),
-    resolveAnnotation: (path, annotationId, expectedHash, sessionId, response) =>
-      resolveBundleAnnotation(root, path, annotationId, expectedHash, sessionId, response),
-    annotationResolve: (path, annotationId, expectedHash, actor, response) =>
-      annotation_resolve(root, path, annotationId, expectedHash, actor, response),
+    addAnnotation: async (path, input, sessionId) => {
+      const result = await addBundleAnnotation(root, path, input, sessionId);
+      if (result.ok) publishAnnotationChange(path, result.annotations, result.annotation.id, "created", sessionId);
+      return result;
+    },
+    addAnnotationReply: async (path, annotationId, input, sessionId) => {
+      const result = await addBundleAnnotationReply(root, path, annotationId, input, sessionId);
+      if (result.ok) publishAnnotationChange(path, result.annotations, annotationId, "replied", sessionId);
+      return result;
+    },
+    resolveAnnotation: async (path, annotationId, expectedHash, sessionId, response) => {
+      const result = await resolveBundleAnnotation(root, path, annotationId, expectedHash, sessionId, response);
+      if (result.ok) publishAnnotationChange(path, result.annotations, annotationId, "resolved", sessionId);
+      return result;
+    },
+    annotationResolve: async (path, annotationId, expectedHash, actor, response) => {
+      const result = await annotation_resolve(root, path, annotationId, expectedHash, actor, response);
+      if (result.ok) publishAnnotationChange(path, result.annotations, annotationId, "resolved", actor);
+      return result;
+    },
+    setAnnotationThread: async (path, annotationId, input, sessionId) => {
+      const result = await setBundleAnnotationThread(root, path, annotationId, input, sessionId);
+      if (result.ok) publishAnnotationChange(path, result.annotations, annotationId, "thread", sessionId);
+      return result;
+    },
     attachAgentRun: (path, input) => attachAgentRunToAnnotation(root, path, input),
     uploadAsset: (input) => uploadDocAsset(root, input),
     uploadVideoAsset: (input) => uploadDocVideoAsset(root, input),

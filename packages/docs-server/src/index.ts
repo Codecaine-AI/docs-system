@@ -127,6 +127,7 @@ export {
   attachAgentRunToAnnotation,
   getBundleAnnotations,
   resolveBundleAnnotation,
+  setBundleAnnotationThread,
   type AddBundleAnnotationInput,
   type AddBundleAnnotationResult,
   type AddBundleAnnotationReplyInput,
@@ -136,6 +137,8 @@ export {
   type AttachAgentRunResult,
   type BundleAnnotationsReadResult,
   type ResolveBundleAnnotationResult,
+  type SetBundleAnnotationThreadInput,
+  type SetBundleAnnotationThreadResult,
 } from "./doc-ops";
 
 // Staged doc-op proposals

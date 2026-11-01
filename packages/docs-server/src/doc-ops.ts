@@ -11,6 +11,7 @@ import type {
   AnnotationTarget,
   DocAnnotation,
   DocAnnotationReply,
+  DocAnnotationThread,
 } from "@codecaine-ai/docs-model/annotations-schema";
 import {
   docTargetFingerprint,
@@ -472,6 +473,91 @@ export async function resolveBundleAnnotation(
     }
     const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
     return { ok: true, annotations: validated.document, hash: written.hash };
+  });
+}
+
+export type SetBundleAnnotationThreadInput = {
+  /** The thread to bind, or null to clear the binding. */
+  thread: DocAnnotationThread | null;
+  expectedHash?: string;
+};
+
+export type SetBundleAnnotationThreadResult =
+  | { ok: true; annotation: DocAnnotation; annotations: AnnotationsDocument; hash: string }
+  | {
+      ok: false;
+      status: number;
+      detail: string;
+      current_hash?: string;
+      expected_hash?: string;
+      held_by?: DraftLockInfo;
+    };
+
+/**
+ * Sets or clears an annotation's `thread` binding under the sidecar hash +
+ * draft-lock guards. Leaves `status` unchanged: a bound request stays open.
+ */
+export async function setBundleAnnotationThread(
+  docsRoot: string,
+  path: string,
+  annotationId: string,
+  input: SetBundleAnnotationThreadInput,
+  sessionId?: string,
+): Promise<SetBundleAnnotationThreadResult> {
+  const jsonAbs = resolveDocBundleJsonPath(docsRoot, path);
+  if (!jsonAbs) {
+    return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
+  }
+  const annotationsAbs = annotationsSidecarAbs(jsonAbs);
+  const bundlePath = normalizeBundlePath(path);
+
+  return withPathLock(annotationsAbs, async (): Promise<SetBundleAnnotationThreadResult> => {
+    const existing = await readAnnotationsSidecar(docsRoot, annotationsAbs);
+    if ("error" in existing) {
+      return { ok: false, status: existing.error.status, detail: existing.error.detail };
+    }
+    if (input.expectedHash && input.expectedHash !== existing.hash) {
+      return {
+        ok: false,
+        status: 409,
+        detail: "Annotations sidecar is stale; reload before setting the thread.",
+        current_hash: existing.hash ?? undefined,
+        expected_hash: input.expectedHash,
+      };
+    }
+    const current = existing.annotations.annotations.find((annotation) => annotation.id === annotationId);
+    if (!current) {
+      return { ok: false, status: 404, detail: `Annotation not found: ${annotationId}` };
+    }
+
+    const lockCheck = draftLockStore.forRoot(docsRoot).checkForMutation({ kind: "doc", path: bundlePath }, sessionId);
+    if (lockCheck.blocked) {
+      return {
+        ok: false,
+        status: 423,
+        detail: "Draft in progress — another session is editing this file.",
+        held_by: lockCheck.heldBy,
+      };
+    }
+
+    const { thread: _previous, ...unbound } = current;
+    const annotation: DocAnnotation = input.thread ? { ...unbound, thread: input.thread } : unbound;
+    const nextDocument: AnnotationsDocument = {
+      schemaVersion: 1,
+      annotations: existing.annotations.annotations.map((item) => (item.id === annotationId ? annotation : item)),
+    };
+    const validated = validateAnnotationsDocument(nextDocument);
+    if (!validated.ok) {
+      return {
+        ok: false,
+        status: 422,
+        detail: `Annotation failed schema validation: ${validated.issues
+          .map((issue) => `${issue.path}: ${issue.message}`)
+          .join("; ")}`,
+      };
+    }
+    const written = await writeAnnotationsSidecar(docsRoot, annotationsAbs, validated.document);
+    return { ok: true, annotation, annotations: validated.document, hash: written.hash };
   });
 }
 

@@ -13,11 +13,22 @@
  * not a horizontally-scaled multi-instance deployment.
  */
 
+import type { AnnotationIntent } from "@codecaine-ai/docs-model/annotations-schema";
+
+/** Which annotation a change touched, so a listener can act without a diff. */
+export type DocsAnnotationChange = {
+  id: string;
+  intent: AnnotationIntent;
+  change: "created" | "replied" | "resolved" | "thread";
+};
+
 export type DocsChangeEvent = {
   path: string;
   changedIds: string[];
   patchId: string;
   actor: string;
+  /** Present only when the change created, replied to, resolved, or bound a thread on one annotation. */
+  annotation?: DocsAnnotationChange;
 };
 
 type Listener = (event: DocsChangeEvent) => void;

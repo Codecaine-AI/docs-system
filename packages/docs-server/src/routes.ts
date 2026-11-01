@@ -152,6 +152,8 @@ function toSnakeCaseWire(value: unknown): unknown {
  *   POST /api/annotations                   -> 201 { annotation, annotations, hash } | 409/423
  *   POST /api/annotations/:annotationId/replies -> { annotations, hash } | 404/409/423
  *   POST /api/annotations/:annotationId/resolve -> { annotations, hash } | 404/409/423
+ *   PUT  /api/annotations/:annotationId/thread  -> { annotation, annotations, hash } | 404/409/422/423
+ *                                              body { path, thread: { id, title? } | null }. null clears it.
  *   GET  /api/proposals?path=               -> { proposals, hash }
  *   POST /api/proposals                     -> 201 { proposal, proposals, hash } | 400/409/423
  *   POST /api/proposals/:id/accept          -> accepted proposal + applied doc/patch | 404/409/423
@@ -817,6 +819,38 @@ export function createDocsRoutes(
           expected_hash: t.Optional(t.String()),
           session_id: t.Optional(t.String()),
           response: t.Optional(t.String()),
+        }),
+      },
+    )
+    .put(
+      "/api/annotations/:annotationId/thread",
+      async ({ params, body, set }) => {
+        const result = await store.setAnnotationThread(
+          body.path,
+          params.annotationId,
+          { thread: body.thread, expectedHash: body.expected_hash },
+          body.session_id,
+        );
+        if (!result.ok) {
+          set.status = result.status;
+          return {
+            detail: result.detail,
+            current_hash: result.current_hash,
+            expected_hash: result.expected_hash,
+            held_by: result.held_by,
+          };
+        }
+        return { annotation: result.annotation, annotations: result.annotations, hash: result.hash };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          thread: t.Union([
+            t.Object({ id: t.String({ minLength: 1 }), title: t.Optional(t.String()) }),
+            t.Null(),
+          ]),
+          expected_hash: t.Optional(t.String()),
+          session_id: t.Optional(t.String()),
         }),
       },
     )

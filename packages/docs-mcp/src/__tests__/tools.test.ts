@@ -218,7 +218,8 @@ test('creates a Sequence through the service and preserves annotation targets wh
  const inserted=await call('docs_insert',{path:'page',type:'sequence',props:{src:'assets/sequences/new.sequence.json'},parentId:'root',index:2,expected_hash:(await read()).hash});expect(inserted.ok).toBe(true);
  expect((await call('docs_component_read',{path:'page',blockId:inserted.blockId})).ok).toBe(true);
  const note=await call('docs_annotation_add',{path:'page',target:{kind:'block',blockId:'p'},body:'Review this.',author:'test',intent:'note'});expect(note.ok).toBe(true);
- const reply=await call('docs_annotation_reply',{path:'page',annotation_id:note.annotation.id,body:'Reviewed.',author:'test',expected_annotations_hash:note.hash});expect(reply.ok).toBe(true);
+ const bound=await call('docs_annotation_thread',{path:'page',annotation_id:note.annotation.id,thread:{id:'thread-1'},expected_annotations_hash:note.hash});expect(bound.annotation).toMatchObject({status:'open',thread:{id:'thread-1'}});
+ const reply=await call('docs_annotation_reply',{path:'page',annotation_id:note.annotation.id,body:'Reviewed.',author:'test',expected_annotations_hash:bound.hash});expect(reply.ok).toBe(true);
  expect((await call('docs_annotation_resolve',{path:'page',annotation_id:note.annotation.id,expected_annotations_hash:reply.hash})).ok).toBe(true);
 });
 
