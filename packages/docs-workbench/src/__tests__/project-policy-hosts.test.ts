@@ -10,8 +10,8 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
  * B7-05: every supported host loads the project's codecaine.docs.json policy
  * itself. Each host runs in a FRESH bun process against a knowledge base with
  * `"docsRoot": "."` and an `exclude` glob; nothing calls setDocsRootExclude or
- * passes the globs in. Hosts: the MCP service, the standalone serve app, the
- * kernel edit-session service and the CLI export (with its asset walker).
+ * passes the globs in. Hosts: the MCP service, the standalone serve app
+ * and the CLI export (with its asset walker).
  */
 
 const PACKAGES = resolve(import.meta.dir, "../../..");
@@ -129,22 +129,6 @@ describe("fresh hosts honor codecaine.docs.json exclude without any registration
     expect(result.frozenAsset).toBe(400);
     expect(result.seedBundle).toBe(200);
     expect(result.seedAsset).toBe(200);
-  }, 60_000);
-
-  test("kernel edit-session service: an excluded page never loads into a session", async () => {
-    const result = await fresh("kernel", `
-      import { createDocsEditSessionService } from ${JSON.stringify(join(PACKAGES, "docs-kernel/src/docs-edit-session/service.ts"))};
-      const [kb] = process.argv.slice(2);
-      const service = createDocsEditSessionService({ docsRoot: kb, allowWrites: false });
-      const frozen = await service.createSession({ path: ${JSON.stringify(FROZEN)}, instruction: "Tighten the wording.", spawn: false });
-      const seed = await service.createSession({ path: "notes/seed", instruction: "Tighten the wording.", spawn: false });
-      console.log(JSON.stringify({ frozen, seed }));
-      service.disposeAll();
-      process.exit(0);
-    `);
-    // The excluded page never loads; the seed page loads (it only has no requests to work).
-    expect(result.frozen).toEqual({ ok: false, reason: "launch-error", errors: [`Invalid docs path: ${FROZEN}`] });
-    expect(result.seed).toMatchObject({ ok: false, reason: "empty-scope" });
   }, 60_000);
 
   test("CLI export: no excluded bundle, markdown or asset file is published", async () => {

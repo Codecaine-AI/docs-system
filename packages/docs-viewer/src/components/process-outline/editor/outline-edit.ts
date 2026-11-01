@@ -17,7 +17,7 @@ import type { DocBlock, DocValidationIssue } from "@codecaine-ai/docs-model/doc-
  * touches the DOM or the editor.
  *
  * The plans never mutate the tree themselves. They name actions from the SAME
- * registry the docs-kernel `outline_*` tools dispatch
+ * registry the `outline_*` tools dispatch
  * (`process-outline.insertStep` and friends), and `runOutlineActions` replays
  * doc-ops.ts's `componentAction` case verbatim: registry lookup, TypeBox
  * `checkParams`, `apply`, shallow-merge the returned props patch. A hand edit

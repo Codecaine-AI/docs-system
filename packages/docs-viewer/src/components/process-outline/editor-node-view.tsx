@@ -111,8 +111,7 @@ const COMMIT_DEBOUNCE_MS = 300;
  *
  * Every one of those is a plan of TYPED COMPONENT ACTIONS
  * (`process-outline.insertStep` / `.setStepText` / `.removeStep` /
- * `.moveStep`) run through the registry exactly as the docs-kernel
- * `outline_*` tools run them — same params, same TypeBox validation, same
+ * `.moveStep`) run through the registry exactly as the `outline_*` tools run them — same params, same TypeBox validation, same
  * note-is-a-leaf refusals. `setSteps` is never used. A plan that the actions
  * refuse (or that a planner blocks up front) is simply dropped: the keystroke
  * does nothing rather than writing a tree the schema would reject.

@@ -12,7 +12,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
  * - B7-2-04: a knowledge base whose codecaine.docs.json has a present
  *   non-string `docsRoot` (42) is refused by every host before any corpus
  *   access or export work, exactly as central discovery refuses it: the MCP
- *   service, the standalone serve app, the kernel edit-session service and the
+ *   service, the standalone serve app and the
  *   real `docs-cli export` entry. The corpus (dot folders included) stays
  *   byte-identical and no export folder appears.
  * - B7-2-02: a standalone serve app over KB/notes refuses an assets alias
@@ -133,21 +133,6 @@ describe("B7-2-04: a present non-string docsRoot refuses every fresh host, as di
     `, kb);
     expect(result).toMatchObject({ refused: true, subfolderRefused: true });
     expect(result.message).toContain("Invalid docsRoot");
-  }, 60_000);
-
-  test("kernel edit-session: the page never loads; the refusal names the invalid docsRoot", async () => {
-    const result = await fresh("kernel-malformed", `
-      import { createDocsEditSessionService } from ${JSON.stringify(join(PACKAGES, "docs-kernel/src/docs-edit-session/service.ts"))};
-      const [kb] = process.argv.slice(2);
-      const service = createDocsEditSessionService({ docsRoot: kb, allowWrites: false });
-      const seed = await service.createSession({ path: "notes/seed", instruction: "Tighten the wording.", spawn: false });
-      console.log(JSON.stringify({ seed }));
-      service.disposeAll();
-      process.exit(0);
-    `, kb);
-    expect(result.seed.ok).toBe(false);
-    expect(result.seed.reason).toBe("launch-error");
-    expect(JSON.stringify(result.seed.errors)).toContain("Invalid docsRoot");
   }, 60_000);
 
   test("CLI export: exits non-zero before any build or copy; no output folder", async () => {
