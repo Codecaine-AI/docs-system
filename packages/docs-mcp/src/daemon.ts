@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { createRpcRecorder, serveRpc } from './action-record';
 import { createInteractionService } from './service';
 import { textMeasureReady } from '@codecaine-ai/docs-server';
 import { PACKAGE_ROOT, writeDaemonState, implementationFingerprint, stateDirectory } from './lifecycle';
@@ -21,7 +22,7 @@ export async function runDaemon(){
  // Layout lints measure with text-measure's exact HarfBuzz backend: load it before serving (health reports it as textMeasure).
  await textMeasureReady();
  const service=createInteractionService({globalThemesRoot:process.env.CODECAINE_DOCS_GLOBAL_THEMES||join(stateDirectory(),'themes'),codeThemesRoot:process.env.CODECAINE_DOCS_CODE_THEMES||join(stateDirectory(),'code-themes')});const token=randomBytes(32).toString('hex');const fingerprint=await implementationFingerprint();
- const startedAt=new Date().toISOString();
+ const startedAt=new Date().toISOString();const record=createRpcRecorder();
  const server=Bun.serve({hostname:'127.0.0.1',port:0,idleTimeout:120,async fetch(request){
   const url=new URL(request.url);
   if(url.hostname!=='127.0.0.1' || (request.headers.get('origin') && request.headers.get('origin')!==url.origin))return new Response('Forbidden origin',{status:403});
@@ -32,7 +33,7 @@ export async function runDaemon(){
    if(url.pathname==='/tools')return Response.json({tools:service.listTools()});
    if(url.pathname==='/rpc'&&request.method==='POST'){
     const body=await request.json() as any;if(typeof body.workspace!=='string'||typeof body.name!=='string')return Response.json({error:'workspace and name required'},{status:400});
-    return Response.json(await service.call(body.workspace,body.name,body.arguments??{}));
+    return Response.json(await serveRpc(service,record,body));
    }
    const match=url.pathname.match(/^\/projects\/([^/]+)\/api(?:\/|$)/);
    if(match)return service.uiRequest(match[1]!,request);

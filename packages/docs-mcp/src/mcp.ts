@@ -4,6 +4,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSche
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { ensureDaemon, daemonFetch } from './lifecycle';
+import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import manifest from '../package.json';
 
 /** Short by design: clients load this with every session. The full rules live in docs_guidance topic "style". */
@@ -17,10 +18,11 @@ const INSTRUCTIONS=[
 
 export async function startMcp(initialWorkspace:string){
  const state=await ensureDaemon();let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();
+ const identity={runId:newRunId(),...identityFromEnv()};
  const server=new Server({name:'docs-system',version:manifest.version},{capabilities:{tools:{},resources:{}},instructions:INSTRUCTIONS});
  const call=async(name:string,args:Record<string,unknown>={})=>{
   await rootsReady;
-  const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
+  const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args,identity});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
   const result=await response.json() as any;
   if(name==='docs_discover'&&!result.isError&&typeof result.structuredContent?.workspace==='string')workspace=result.structuredContent.workspace;
   return result;
