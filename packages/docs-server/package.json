@@ -20,6 +20,7 @@
     "./proposal-ops": "./src/proposal-ops.ts",
     "./changesets": "./src/changesets/index.ts",
     "./confine": "./src/confine.ts",
+    "./component-lints": "./src/component-lints.ts",
     "./docs-tree": "./src/docs-tree.ts",
     "./code-themes": "./src/code-themes.ts",
     "./editor-themes": "./src/editor-themes.ts"

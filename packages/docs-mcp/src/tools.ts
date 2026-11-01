@@ -21,6 +21,9 @@ import {
   resolveCanvasSidecarRelativePath, resolveCanvasSidecarRootRelativePath,
   resolveSequenceSidecarRelativePath, resolveSequenceSidecarRootRelativePath,
 } from "@codecaine-ai/docs-server/confine";
+import {
+  blockingFindings, canvasFindings, sequenceFindings, type ComponentFinding,
+} from "@codecaine-ai/docs-server/component-lints";
 
 export interface DocsToolResult {
   content: Array<{ type: "text"; text: string }>;
@@ -35,15 +38,18 @@ export interface DocsTool {
   execute(args: unknown, ctx?: DocsToolCallContext): Promise<DocsToolResult>;
 }
 /** Each task's first-touch documents, keyed `${project}:${bundle path}`. */
-export interface TaskBaselines {
+export interface TaskBaselines<T = DocDocument | null> {
   /** undefined: not captured yet. null: the doc did not exist at first touch. */
-  get(taskId: string, key: string): DocDocument | null | undefined;
-  set(taskId: string, key: string, doc: DocDocument | null): void;
+  get(taskId: string, key: string): T | undefined;
+  set(taskId: string, key: string, doc: T): void;
 }
+type CanvasDocument = Parameters<typeof canvasFindings>[0];
 export interface DocsToolContext {
   resolveProject(project: string): Promise<{ id: string; docsRoot: string }>;
   /** Enables docs_check's style gate for callers that pass a task ID. */
   taskBaselines?: TaskBaselines;
+  /** Each task's first-touch Canvas sidecars, keyed `${project}:${sidecar path}`: what the canvas text lints judge against. */
+  taskCanvasBaselines?: TaskBaselines<CanvasDocument>;
   /** Model-judged style rules: advisory in write results, gated by docs_check with task_id. Fails open. */
   judgmentEngine?: JudgmentEngine;
 }
@@ -67,6 +73,7 @@ const target = { project: str, path: Type.String({ description: "Bundle path rel
 const writeTarget = { ...target, expected_hash: str };
 const SAVED_NEXT = "Changes are saved. Run docs_check with task_id before reporting completion.";
 const FIX_STYLE_NEXT = "Changes are saved. Fix style_findings, then run docs_check with task_id.";
+const FIX_COMPONENT_NEXT = "Changes are saved. Fix component_findings, then run docs_check with task_id.";
 /** A clean write still reports violations an earlier write in the task left open on the page. */
 const nextHint = (findings: boolean, open: number) => findings ? FIX_STYLE_NEXT
   : open === 1 ? "Changes are saved. 1 style violation this task introduced on this page is still open. Run docs_check with task_id to list it."
@@ -84,6 +91,9 @@ function response(data: Record<string, unknown>): DocsToolResult {
     ...(data.ok === false ? { isError: true } : {}) };
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
+/** Component findings as write results and docs_check carry them: errors, then warnings, then notes, capped like style findings. */
+const COMPONENT_FINDINGS_LIMIT = 5;
+const findingList = (findings: ComponentFinding[]) => ({ shown: findings.slice(0, COMPONENT_FINDINGS_LIMIT), omitted: Math.max(0, findings.length - COMPONENT_FINDINGS_LIMIT) });
 
 /** Resolve a component src exactly as the viewer and root-relative server routes do. */
 export function componentSidecarPath(
@@ -224,13 +234,26 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     const doc = await store.docGet(args.path);
     if (!doc.ok) return doc;
     const block = doc.doc.blocks[args.blockId];
-    if (!block || (block.type !== "canvas" && block.type !== "sequence")) return failure("blockId must name a canvas or sequence block.");
-    if (typeof block.props.src !== "string") return failure("This component has no sidecar src. Central component references are not supported by the Docs store.");
+    const refused = (detail: string) => ({ ok: false as const, status: 400, detail });
+    if (!block || (block.type !== "canvas" && block.type !== "sequence")) return refused("blockId must name a canvas or sequence block.");
+    if (typeof block.props.src !== "string") return refused("This component has no sidecar src. Central component references are not supported by the Docs store.");
     const src = componentSidecarPath(normalizeBundlePath(args.path), block.type, block.props.src);
-    if (!src) return failure("Invalid component sidecar path.");
+    if (!src) return refused("Invalid component sidecar path.");
     await confined(store.docsRoot, resolve(store.docsRoot, src));
-    return { type: block.type, src, doc_hash: doc.hash,
-      ...(block.type === "canvas" ? await store.canvasGet(src) : await store.sequenceGet(src)) };
+    return block.type === "canvas"
+      ? { type: "canvas" as const, src, doc_hash: doc.hash, ...await store.canvasGet(src) }
+      : { type: "sequence" as const, src, doc_hash: doc.hash, ...await store.sequenceGet(src) };
+  }
+
+  /** The board a task first touched at this sidecar, if it has. */
+  function canvasBaseline(ctx: DocsToolCallContext, project: string, src: string): CanvasDocument | undefined {
+    return ctx.taskId ? context.taskCanvasBaselines?.get(ctx.taskId, `${project}:${src}`) : undefined;
+  }
+  /** A saved sidecar edit: its findings and render lead, then the usual applied result. */
+  async function componentApplied(store: DocsStore, path: string, result: Record<string, any>, findings: ComponentFinding[], render: Record<string, unknown>) {
+    const { next, ...saved } = await applied(store, path, result);
+    return { ok: true, component_findings: findingList(findings), ...render,
+      next: findings.length ? FIX_COMPONENT_NEXT : next, ...saved };
   }
 
   const tools = [
@@ -248,7 +271,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -256,7 +279,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       for (const block of Object.values(result.doc.blocks)) {
         if (block.type === "canvas" || block.type === "sequence") {
           const checked = await component(store, { ...args, blockId: block.id });
-          components.push({ blockId: block.id, type: block.type, ok: checked.ok, ...(!checked.ok ? { detail: checked.detail } : {}) });
+          const findings = !checked.ok ? sequenceFindings("issues" in checked ? checked.issues ?? [] : [])
+            : checked.type === "canvas" ? canvasFindings(checked.canvas, { finishing: true, baseline: canvasBaseline(ctx, args.project, checked.src) })
+            : [];
+          components.push({ blockId: block.id, type: block.type, ok: checked.ok && blockingFindings(findings).length === 0,
+            ...(!checked.ok ? { detail: checked.detail } : {}), ...(findings.length ? { findings: findingList(findings) } : {}) });
         }
       }
       // Without a task baseline for this page, the check is exactly the untasked one.
@@ -326,13 +353,19 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         return args.content_type.startsWith("video/")?store.uploadVideoAsset({bundlePath:args.path,file}):store.uploadAsset({bundlePath:args.path,file});
       }),
     tool("docs_component_create", "Create a validated Canvas or Sequence sidecar for a page. src is page-relative, for example ./assets/canvases/<name>.canvas.json or ./assets/sequences/<name>.sequence.json; a bare assets/... src is normalized to ./assets/.... Insert the typed component block with the returned src. Refuses overwrite.",
-      obj({...writeTarget,component:Type.Union([Type.Literal("canvas"),Type.Literal("sequence")]),src:str,document:record}),async(args,store)=>{
+      obj({...writeTarget,component:Type.Union([Type.Literal("canvas"),Type.Literal("sequence")]),src:str,document:record}),async(args,store,ctx)=>{
         const src=canonicalBundleSrc(args.src);
         const docPath=`${normalizeBundlePath(args.path)}/doc.json`;
         const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,src,store.docsRoot):resolveSequenceSidecarRelativePath(docPath,src,store.docsRoot);
         if(!rel)return failure("Invalid sidecar path.");await confined(store.docsRoot,resolve(store.docsRoot,rel));
         const result=args.component==="canvas"?await store.createCanvasSidecar({docPath,src,canvas:args.document,originalHash:args.expected_hash,insertMdx:false}):await store.createSequenceSidecar({docPath,src,sequence:args.document,originalHash:args.expected_hash});
-        return {...result,src};
+        if(!result.ok||args.component!=="canvas")return {...result,src};
+        // Everything on a board this task created is the task's writing, so its text lints judge against an empty board.
+        const board=args.document as CanvasDocument;const empty={...board,objects:[]};
+        const key=componentSidecarPath(args.path,"canvas",src);
+        if(ctx.taskId&&key&&canvasBaseline(ctx,args.project,key)===undefined)context.taskCanvasBaselines?.set(ctx.taskId,`${args.project}:${key}`,empty);
+        const findings=canvasFindings(board,{baseline:empty});
+        return {component_findings:findingList(findings),...(findings.length?{next:FIX_COMPONENT_NEXT}:{}),...result,src};
       }),
     tool("docs_proposals", "List staged proposals and stale status for a page.",obj(target),(args,store)=>store.proposals(args.path)),
     tool("docs_proposal_stage", "Stage typed document operations for review instead of applying them. Uses the current page hash. Sidecar edits use component tools.",
@@ -421,10 +454,19 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         if (!forwarded) return apply(store, args, [op], ctx);
         const read = await component(store, args);
         if (!read.ok) return read;
-        const result = action.forward.authority === "canvas"
-          ? await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash)
-          : await store.forwardSequenceAction(args.path, op, args.expected_hash, args.expected_component_hash);
-        return applied(store, args.path, result);
+        if (action.forward.authority === "sequence") {
+          const result = await store.forwardSequenceAction(args.path, op, args.expected_hash, args.expected_component_hash);
+          // A program or document the sequence diagnostics flag is refused; its findings say why.
+          if (!result.ok) return { ...result, ...(Array.isArray(result.issues) ? { component_findings: findingList(sequenceFindings(result.issues)) } : {}) };
+          const { program, svg, ...rest } = result;
+          return componentApplied(store, args.path, rest, [], { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program });
+        }
+        // The text lints judge what this task wrote: against its first-touch board, else the board this edit replaced.
+        if (read.type === "canvas" && ctx.taskId && canvasBaseline(ctx, args.project, read.src) === undefined) context.taskCanvasBaselines?.set(ctx.taskId, `${args.project}:${read.src}`, read.canvas);
+        const result = await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash);
+        if (!result.ok || read.type !== "canvas") return applied(store, args.path, result);
+        const findings = canvasFindings(result.canvas, { baseline: canvasBaseline(ctx, args.project, read.src) ?? read.canvas });
+        return componentApplied(store, args.path, result, findings, {});
       }));
   }
   return tools;

@@ -113,6 +113,7 @@ import {
   resolveSequenceSidecarRelativePath,
 } from "./confine";
 import { withPathLock } from "./path-mutex";
+import { renderSequenceSvgFile, sequenceProgram } from "./component-lints";
 import {
   publishDocsChangeEvent,
   subscribeToDocsChangeEvents,
@@ -422,6 +423,10 @@ export type ForwardSequenceActionResult =
       patchId: string;
       changedIds: string[];
       sequenceRelPath: string;
+      /** The saved sequence as program text. */
+      program: string;
+      /** The saved sequence rendered to SVG, or why the render failed. The edit is saved either way. */
+      svg: { path: string } | { error: string };
     }
   | {
       ok: false;
@@ -553,8 +558,12 @@ async function forwardSequenceAction(
     );
     if (!applied.ok) return applied;
 
+    const svg = await renderSequenceSvgFile(docsRoot, sequenceRelPath, applied.sequence)
+      .then((path) => ({ path }), (error: unknown) => ({ error: error instanceof Error ? error.message : String(error) }));
     return {
       ok: true,
+      program: sequenceProgram(applied.sequence),
+      svg,
       sequence: applied.sequence,
       sequenceHash: applied.hash,
       patchId: applied.patchId,

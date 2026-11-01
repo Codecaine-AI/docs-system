@@ -509,13 +509,14 @@ export async function canvas_apply_patch(
 // sequence_get
 // ---------------------------------------------------------------------------
 
+/** issues: the schema diagnostics when the sidecar failed validation. */
 export type SequenceGetResult =
   | { ok: true; sequence: SequenceDocument; hash: string; sequenceRelPath: string }
-  | { ok: false; status: number; detail: string };
+  | { ok: false; status: number; detail: string; issues?: Array<{ path: string; message: string }> };
 
 type SequenceSidecarLoad =
   | { ok: true; sequence: SequenceDocument; raw: string; hash: string }
-  | { ok: false; status: number; detail: string };
+  | { ok: false; status: number; detail: string; issues?: Array<{ path: string; message: string }> };
 
 /**
  * Shared stat -> read -> parse -> validate loader for a sequence sidecar's
@@ -552,6 +553,7 @@ async function loadSequenceSidecar(
       ok: false,
       status: 422,
       detail: `Sequence sidecar failed schema validation: ${validated.errors.join("; ")}`,
+      issues: validated.errors.map((message) => ({ path: "$", message })),
     };
   }
   return { ok: true, sequence: parsed as SequenceDocument, raw, hash: createContentHash(raw) };

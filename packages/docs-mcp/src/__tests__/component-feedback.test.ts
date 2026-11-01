@@ -1,0 +1,143 @@
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { cp, mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
+import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
+import { createDocsTools, type DocsTool, type DocsToolCallContext, type DocsToolContext } from "../tools";
+import { createInteractionService } from "../service";
+
+const fixture: DocDocument = {
+  schemaVersion: 1, id: "feedback", title: "Feedback", root: "root",
+  blocks: {
+    root: { id: "root", type: "paragraph", props: {}, children: ["intro", "board", "flow"] },
+    intro: { id: "intro", type: "paragraph", props: {}, children: [], text: [{ insert: "This page holds one board and one flow." }] },
+    board: { id: "board", type: "canvas", props: { src: "./assets/canvases/board.canvas.json" }, children: [] },
+    flow: { id: "flow", type: "sequence", props: { src: "./assets/sequences/flow.sequence.json" }, children: [] },
+  },
+};
+const board = { schemaVersion: 1, id: "board", mode: "diagram", objects: [], connections: [], links: [], annotations: [] };
+const flow = {
+  version: 1, id: "flow", title: "Flow", style: {},
+  participants: [{ id: "client", name: "client", kind: "actor" }, { id: "service", name: "service", kind: "participant" }],
+  items: [{ kind: "message", id: "m1", from: "client", to: "service", line: "sync", text: "request" }],
+};
+const LONG_DETAIL = "Receives every request, checks the token and forwards it on";
+const PROGRAM = "participant 1 text=client kind=actor\nparticipant 2 text=service\n\nseq\n  1 > 2 text=request\n  2 --> 1 text=response\n";
+const task: DocsToolCallContext = { taskId: "task-1" };
+let temp: string;
+let tools: DocsTool[];
+async function call(name: string, args: Record<string, unknown>, ctx?: DocsToolCallContext) {
+  const tool = tools.find((entry) => entry.name === name)!;
+  return (await tool.execute({ project: "a", path: "page", ...args }, ctx)).structuredContent as Record<string, any>;
+}
+async function hashes(blockId: string) {
+  const read = await call("docs_component_read", { blockId });
+  expect(read.ok).toBe(true);
+  return { blockId, expected_hash: read.doc_hash, expected_component_hash: read.hash };
+}
+const component = (checked: Record<string, any>, blockId: string) => checked.components.find((entry: any) => entry.blockId === blockId);
+
+beforeEach(async () => {
+  temp = await mkdtemp(join(tmpdir(), "docs-mcp-components-"));
+  await mkdir(join(temp, "page/assets/canvases"), { recursive: true });
+  await mkdir(join(temp, "page/assets/sequences"), { recursive: true });
+  await writeFile(join(temp, "page/doc.json"), serializeDocDocument(fixture));
+  await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify(board));
+  await writeFile(join(temp, "page/assets/sequences/flow.sequence.json"), JSON.stringify(flow));
+  const pinned = new Map<string, unknown>();
+  const store = <T>() => ({ get: (taskId: string, key: string) => pinned.get(`${taskId}|${key}`) as T | undefined, set: (taskId: string, key: string, value: T) => { pinned.set(`${taskId}|${key}`, value); } });
+  const context: DocsToolContext = { resolveProject: async (id) => ({ id, docsRoot: temp }), taskBaselines: store(), taskCanvasBaselines: store() };
+  tools = createDocsTools(context);
+});
+afterEach(async () => {
+  // The store indexes backlinks best-effort after each write.
+  await Bun.sleep(30);
+  await rm(temp, { recursive: true, force: true });
+});
+
+describe("component feedback", () => {
+  test("a sequence program edit returns the saved program, an SVG file and findings", async () => {
+    const saved = await call("docs_sequence_set_program", { ...await hashes("flow"), params: { program: PROGRAM } }, task);
+    expect(saved.ok).toBe(true);
+    // The program as saved: setProgram keeps the title the program left out.
+    expect(saved.program).toBe(`title "Flow"\n${PROGRAM.trimEnd()}`);
+    expect(saved.component_findings).toEqual({ shown: [], omitted: 0 });
+    // Feedback and the render lead, so a client that shows only the start of a result still sees them.
+    expect(Object.keys(saved).slice(0, 5)).toEqual(["ok", "component_findings", "svg_path", "program", "next"]);
+    expect((await stat(saved.svg_path)).isFile()).toBe(true);
+    const svg = await readFile(saved.svg_path, "utf8");
+    expect(svg).toStartWith("<svg");
+    expect(svg).toContain("response");
+    // The render lives in the server's cache, never in the docs root as a corpus asset.
+    expect(saved.svg_path.startsWith(temp)).toBe(false);
+    await rm(saved.svg_path);
+  });
+
+  test("a sequence program the sequence diagnostics flag is refused with its findings, and a flagged sidecar shows in docs_check", async () => {
+    const refused = await call("docs_sequence_set_program", { ...await hashes("flow"), params: { program: "participant 1 text=client\n\nseq\n  1 > 3 text=request\n" } }, task);
+    expect(refused.ok).toBe(false);
+    expect(refused.component_findings.shown.length).toBeGreaterThan(0);
+    expect(refused.component_findings.shown[0]).toMatchObject({ rule: "sequence-program", severity: "error" });
+    expect(refused.component_findings.shown[0].problem).toMatch(/^Line 4: /);
+    expect(JSON.parse(await readFile(join(temp, "page/assets/sequences/flow.sequence.json"), "utf8"))).toEqual(flow);
+
+    // The same defect seeded in the sidecar: a message to a participant the program never declared.
+    const seeded = { ...flow, items: [{ ...flow.items[0], to: "ghost" }] };
+    await writeFile(join(temp, "page/assets/sequences/flow.sequence.json"), JSON.stringify(seeded));
+    const checked = await call("docs_check", {});
+    expect(checked.ok).toBe(false);
+    expect(component(checked, "flow")).toMatchObject({ type: "sequence", ok: false, findings: { shown: [{ rule: "sequence-schema", severity: "error", problem: '/items/0/to: unknown participant id "ghost"' }], omitted: 0 } });
+  });
+
+  test("a canvas edit that writes an overlong detail reports it on the edit and in docs_check for the task", async () => {
+    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
+    const edited = await call("docs_canvas_add_object", { ...await hashes("board"), params: { object } }, task);
+    expect(edited.ok).toBe(true);
+    expect(edited.component_findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", severity: "warning", at: ["gateway"] }));
+    expect(edited.next).toBe("Changes are saved. Fix component_findings, then run docs_check with task_id.");
+
+    const checked = await call("docs_check", {}, task);
+    expect(checked.ok).toBe(false);
+    const entry = component(checked, "board");
+    expect(entry.ok).toBe(false);
+    expect(entry.findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", at: ["gateway"] }));
+
+    // A later edit in the same task still judges the detail against the board the task first touched.
+    const moved = await call("docs_canvas_update_object", { ...await hashes("board"), params: { objectId: "gateway", patch: { geometry: { x: 128, y: 96, width: 288, height: 96 } } } }, task);
+    expect(moved.ok).toBe(true);
+    expect(moved.component_findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", at: ["gateway"] }));
+  });
+
+  test("a person's own detail is left alone, while geometry lints judge every board", async () => {
+    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
+    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [object] }));
+    const checked = await call("docs_check", {});
+    const rules = component(checked, "board").findings.shown.map((finding: any) => finding.rule);
+    expect(rules).toContain("clipped-text");
+    expect(rules).not.toContain("detail-too-long");
+  });
+
+  test("through the service, a task's canvas baseline reaches docs_check and the style read gate still refuses writes", async () => {
+    const workspace = join(temp, "workspace");
+    await mkdir(join(workspace, "alpha/docs"), { recursive: true });
+    await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }]));
+    await cp(join(temp, "page"), join(workspace, "alpha/docs/page"), { recursive: true });
+    const service = createInteractionService({ judgmentEngine: null });
+    try {
+      const invoke = async (name: string, args: Record<string, unknown> = {}) =>
+        (await service.call(workspace, name, args)).structuredContent as Record<string, any>;
+      const project = (await invoke("docs_discover")).projects[0].id;
+      const { task_id } = await invoke("docs_begin");
+      const read = await invoke("docs_component_read", { project, path: "page", blockId: "board" });
+      const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
+      const args = { task_id, project, path: "page", blockId: "board", expected_hash: read.doc_hash, expected_component_hash: read.hash, params: { object } };
+      expect((await invoke("docs_canvas_add_object", args)).detail).toContain('topic "style"');
+      expect((await invoke("docs_guidance", { task_id, topic: "style" })).ok).toBe(true);
+      expect((await invoke("docs_canvas_add_object", args)).ok).toBe(true);
+      const rules = async (extra: Record<string, unknown>) => component(await invoke("docs_check", { project, path: "page", ...extra }), "board").findings.shown.map((finding: any) => finding.rule);
+      expect(await rules({ task_id })).toContain("detail-too-long");
+      // Without the task nothing on the board is attributable to an agent.
+      expect(await rules({})).not.toContain("detail-too-long");
+    } finally { service.close(); }
+  });
+});
