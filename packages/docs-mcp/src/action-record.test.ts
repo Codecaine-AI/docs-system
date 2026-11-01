@@ -45,4 +45,6 @@ test('docs_begin with thread_id binds the run, so earlier and later calls resolv
  expect(records.map(r => r.tool)).toEqual(['docs_begin', 'docs_read']);
  expect(records[0]).toMatchObject({ agent: 'docs-mcp', snapshotId: begun.snapshot_id });
  expect(records[1]!.target).toBe('page');
+ await rpc('docs_read', { path: 'missing-page' }, { runId: 'run-b', threadId: null, agent: null });
+ expect(openActionLog().query({ threadId: 'thread-b' })[2]).toMatchObject({ target: 'missing-page', result: 'refused' });
 });

@@ -2,13 +2,10 @@ import { newRunId, openActionLog, type ActionLog } from '@codecaine-ai/action-lo
 
 type RpcBody = { name: string; arguments?: Record<string, unknown>; identity?: { runId?: string; threadId?: string | null; agent?: string | null } };
 
-/** Short outcome for the log: never a payload. */
+/** "ok", "refused" or "<n> findings". Error detail stays out, because validation text can echo the page's content. */
 function summarize(result: any): string {
  const data = result?.structuredContent ?? {};
- if (result?.isError || data.ok === false) {
-  const detail = String(data.detail ?? data.error ?? 'failed').split('\n')[0]!;
-  return `refused: ${detail}`;
- }
+ if (result?.isError || data.ok === false) return 'refused';
  const findings = [data.style_findings, data.findings].find(Array.isArray) as unknown[] | undefined;
  return findings?.length ? `${findings.length} findings` : 'ok';
 }
