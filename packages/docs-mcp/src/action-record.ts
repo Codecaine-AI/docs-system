@@ -20,13 +20,19 @@ export function summarize(result: any): string {
 export function createRpcRecorder() {
  const daemonRunId = newRunId();
  let log: ActionLog | undefined;
+ /** Each task's pinned guidance snapshot, from its docs_begin result, so every later call of the task carries it. */
+ const taskSnapshots = new Map<string, string>();
  return (body: RpcBody, result: any): void => {
   try {
    log ??= openActionLog();
    const identity = body.identity ?? {};
    const runId = identity.runId || daemonRunId;
    const args = body.arguments ?? {};
-   if (body.name === 'docs_begin' && typeof args.thread_id === 'string' && args.thread_id) log.bindThread(runId, args.thread_id);
+   const data = result?.structuredContent ?? {};
+   const refused = result?.isError === true || data.ok === false;
+   if (body.name === 'docs_begin' && !refused && typeof args.thread_id === 'string' && args.thread_id) log.bindThread(runId, args.thread_id);
+   if (body.name === 'docs_begin' && !refused && typeof data.task_id === 'string' && typeof data.snapshot_id === 'string') taskSnapshots.set(data.task_id, data.snapshot_id);
+   const snapshotId = typeof data.snapshot_id === 'string' ? data.snapshot_id : (typeof args.task_id === 'string' ? taskSnapshots.get(args.task_id) : undefined) ?? null;
    log.record({
     runId,
     threadId: identity.threadId || null,
@@ -34,7 +40,7 @@ export function createRpcRecorder() {
     tool: body.name,
     target: typeof args.path === 'string' && args.path ? args.path : '-',
     result: summarize(result),
-    snapshotId: typeof result?.structuredContent?.snapshot_id === 'string' ? result.structuredContent.snapshot_id : null,
+    snapshotId,
     at: new Date(),
    });
   } catch (error) {

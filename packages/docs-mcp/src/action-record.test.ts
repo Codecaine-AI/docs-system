@@ -40,11 +40,14 @@ test('a call with an identity writes one record with its thread id and tool', as
 test('docs_begin with thread_id binds the run, so earlier and later calls resolve to the thread', async () => {
  const begun = (await rpc('docs_begin', { thread_id: 'thread-b' }, { runId: 'run-b', threadId: null, agent: null })).structuredContent;
  expect(begun.ok).toBe(true);
- await rpc('docs_read', { path: 'page' }, { runId: 'run-b', threadId: null, agent: null });
+ await rpc('docs_read', { path: 'page', task_id: begun.task_id }, { runId: 'run-b', threadId: null, agent: null });
  const records = openActionLog().query({ threadId: 'thread-b' });
  expect(records.map(r => r.tool)).toEqual(['docs_begin', 'docs_read']);
  expect(records[0]).toMatchObject({ agent: 'docs-mcp', snapshotId: begun.snapshot_id });
- expect(records[1]!.target).toBe('page');
+ expect(records[1]).toMatchObject({ target: 'page', snapshotId: begun.snapshot_id });
+ // The managed service accepts every docs_begin, so a refusal is fed to the recorder directly.
+ createRpcRecorder()({ name: 'docs_begin', arguments: { thread_id: 'thread-refused' }, identity: { runId: 'run-c', threadId: null, agent: null } }, { isError: true, structuredContent: { ok: false, detail: 'x' } });
+ expect(openActionLog().query({ runId: 'run-c' })).toMatchObject([{ threadId: null, result: 'refused' }]);
  await rpc('docs_read', { path: 'missing-page' }, { runId: 'run-b', threadId: null, agent: null });
  expect(openActionLog().query({ threadId: 'thread-b' })[2]).toMatchObject({ target: 'missing-page', result: 'refused' });
 });
