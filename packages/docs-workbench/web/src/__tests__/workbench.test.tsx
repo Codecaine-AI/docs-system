@@ -375,14 +375,12 @@ describe("workbench shell", () => {
 
 describe("static public-site shell", () => {
   it("renders a read-only reading site with the exported site title and repository link", async () => {
-    // Route data/site.json (the exporter's public-site config) and record
-    // every request; everything else still hits the real serve app.
-    const requested: string[] = [];
+    // Route data/site.json (the exporter's public-site config); everything
+    // else still hits the real serve app.
     const routed = globalThis.fetch;
     globalThis.fetch = ((input: RequestInfo | URL, init?: RequestInit) => {
       const raw =
         typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-      requested.push(raw);
       if (new URL(raw, "http://localhost/").pathname === "/data/site.json") {
         return Promise.resolve(
           Response.json({ repoUrl: "https://github.com/Lascari-AI/objectives", title: "Objectives Docs" }),
@@ -411,9 +409,6 @@ describe("static public-site shell", () => {
       expect(screen.queryByRole("button", { name: /AI panel/ })).toBeNull();
       expect(document.querySelector('[data-doc-editor="true"]')).toBeNull();
       expect(document.querySelector(".docs-page-title")?.getAttribute("contenteditable")).toBe("false");
-      // No live-server-only probes (lab config, docs kernel).
-      expect(requested.some((url) => url.includes("lab-config"))).toBe(false);
-      expect(requested.some((url) => url.includes("/kernel/"))).toBe(false);
     } finally {
       view.unmount();
       globalThis.fetch = routed;
@@ -952,16 +947,14 @@ describe("annotate mode", () => {
 });
 
 describe("docs lab integration", () => {
-  it("uses glass tabs for targeting, disconnected Apply, wash, and Escape", async () => {
+  it("uses glass tabs for targeting, wash, and Escape", async () => {
     renderDocPage("92-mode");
     await waitFor(() => expect(screen.getByText("Hello from Mode")).toBeTruthy());
 
     fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
     expect(document.querySelector('[data-docs-mode="annotate"]')).toBeTruthy();
     expect(document.querySelector("[data-docs-annotation-wash]")).toBeTruthy();
-    const apply = document.querySelector<HTMLButtonElement>("[data-docs-lab-queue-apply]");
-    expect(apply?.disabled).toBe(true);
-    expect(apply?.title).toBe("docs agent not connected");
+    expect(document.querySelector("[data-docs-lab-queue-apply]")).toBeNull();
 
     const block = document.querySelector('[data-block-id="para-1"]')!;
     fireEvent.mouseMove(block);

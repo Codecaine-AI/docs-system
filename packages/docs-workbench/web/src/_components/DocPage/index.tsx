@@ -209,7 +209,7 @@ export function DocPage({
     setPaneError,
     setIsAnnotationSubmitting,
   });
-  const { kernelSession, lab, handleFocusTarget, handleFocusDocEditTarget } = useDocLabWiring({
+  const { lab, handleFocusTarget, handleFocusDocEditTarget } = useDocLabWiring({
     path,
     isStatic,
     doc,
@@ -218,7 +218,6 @@ export function DocPage({
     annotationsHash,
     expectedHashRef,
     fetchBundle,
-    fetchBundleRef,
     contentRef,
     liveStateRef,
     flash,

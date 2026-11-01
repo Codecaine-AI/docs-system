@@ -1,6 +1,6 @@
 export { IS_STATIC, ApiError } from "./http";
-export { DEFAULT_LAB_CONFIG, fetchLabConfig, getSiteConfig, getServeConfig } from "./config";
-export type { LabConfig, SiteConfig, ServeConfig } from "./config";
+export { getSiteConfig, getServeConfig } from "./config";
+export type { SiteConfig, ServeConfig } from "./config";
 export { getTree, getBundle, getCanvasBySrc, getSequenceBySrc, assetUrl, uploadVideoAsset, getBacklinks, applyDocOps, moveDoc, undoPatch } from "./docs";
 export type { BundlePayload, CanvasPayload, SequencePayload, BacklinkRow, UploadVideoAssetResponse, ApplyDocOpsResponse, UndoResult } from "./docs";
 export { listChangesets, acceptChangeset, rejectChangeset, undoChangeset } from "./changesets";

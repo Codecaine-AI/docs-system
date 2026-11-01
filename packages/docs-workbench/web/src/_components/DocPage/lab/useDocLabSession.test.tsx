@@ -4,7 +4,6 @@ import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-s
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 
 import { useDocLabSession } from "./useDocLabSession";
-import type { DocsKernelSessionSnapshot } from "./docs-kernel-session-source";
 
 const DOC: DocDocument = {
   schemaVersion: 1,
@@ -140,27 +139,6 @@ function renderSession(overrides: Partial<Parameters<typeof useDocLabSession>[0]
 }
 
 describe("useDocLabSession", () => {
-	it("fetches change-sets and overlays the latest kernel event view", async () => {
-		changesets = [{
-			id: "cs-1", summary: "Move content", status: "open", session_id: "session-1",
-			entries: [{ doc_path: "guide", proposal_id: "p-cs", status: "staged", stale: false, summary: "Remove", add_count: 0, del_count: 1 }],
-			tree_ops: [], created_at: "2026-01-01T00:00:00.000Z", progress: { accepted: 0, total: 1 },
-		}];
-		let liveViews = new Map();
-		const kernelSession = {
-			live: () => true,
-			statusOverlay: () => new Map(),
-			changesets: () => liveViews,
-			sessionId: () => "session-1",
-		} as never;
-		const { result, rerender } = renderSession({ kernelSession });
-		await waitFor(() => expect(result.current.changesets[0]?.summary).toBe("Move content"));
-		liveViews = new Map([["cs-1", { ...result.current.changesets[0]!, summary: "Move content now", entries: [{ ...result.current.changesets[0]!.entries[0]!, addCount: 2 }] }]]);
-		rerender();
-		expect(result.current.changesets[0]?.summary).toBe("Move content now");
-		expect(result.current.changesets[0]?.entries[0]?.addCount).toBe(2);
-	});
-
 	it("tracks accept busy state through the applied refetch and records failures", async () => {
 		changesets = [{
 			id: "cs-1", summary: "Move content", status: "open",
@@ -197,115 +175,6 @@ describe("useDocLabSession", () => {
 			"This change-set is no longer open — refresh to see its current status.",
 		);
 		expect(result.current.changesets[0]?.status).toBe("open");
-	});
-
-	it("overlays live kernel request statuses by annotation id", async () => {
-		const kernelSession = {
-			live: () => true,
-			statusOverlay: () => new Map([["ann-1", "working"]]),
-		} as never;
-		const { result } = renderSession({ kernelSession });
-
-		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
-		expect(result.current.session.requests[0]?.status).toBe("working");
-	});
-
-	it("optimistically overlays submitted requests while the kernel session starts", async () => {
-		const kernelSession = {
-			live: () => false,
-			statusOverlay: () => new Map([["ann-1", "working"]]),
-		} as never;
-		const kernelSnapshot: DocsKernelSessionSnapshot = {
-			live: false,
-			starting: true,
-			state: null,
-			statusOverlay: new Map([["ann-1", "working" as const]]),
-			changesets: new Map(),
-		};
-		const { result } = renderSession({
-			kernelSession,
-			kernelSnapshot,
-			onApplyQueue: async () => {},
-		});
-
-		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
-		expect(result.current.session.requests[0]?.status).toBe("working");
-		expect(result.current.applying).toBe(true);
-		expect(result.current.agentStatus).toBe("running");
-	});
-
-	it("derives connected, running, and settled controller state from the snapshot", async () => {
-		const idleSnapshot: DocsKernelSessionSnapshot = {
-			live: false,
-			starting: false,
-			state: null,
-			statusOverlay: new Map(),
-			changesets: new Map(),
-		};
-		const options: Partial<Parameters<typeof useDocLabSession>[0]> = {
-			onApplyQueue: async () => {},
-			kernelSnapshot: idleSnapshot,
-		};
-		const { result, rerender } = renderSession(options);
-		await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
-		expect(result.current.applying).toBe(false);
-		expect(result.current.agentStatus).toBe("connected");
-
-		options.kernelSnapshot = {
-			...idleSnapshot,
-			live: true,
-			state: {
-				sessionId: "session-1",
-				path: "guide",
-				docId: "doc-1",
-				baseHash: "hash-1",
-				currentHash: "hash-1",
-				status: "running" as const,
-				createdAt: "2026-01-01T00:00:00.000Z",
-				scope: ["ann-1"],
-				requests: [],
-				proposals: [],
-				nextAcceptAlias: null,
-				undoableAlias: null,
-				skipped: [],
-				agent: {
-					spawned: true,
-					running: true,
-					turns: 1,
-					rerunPending: false,
-				},
-			},
-		};
-		rerender();
-		expect(result.current.applying).toBe(true);
-		expect(result.current.agentStatus).toBe("running");
-
-		options.kernelSnapshot = {
-			...options.kernelSnapshot,
-			state: {
-				...options.kernelSnapshot.state!,
-				status: "completed",
-				agent: {
-					...options.kernelSnapshot.state!.agent,
-					running: false,
-				},
-			},
-		};
-		rerender();
-		expect(result.current.applying).toBe(false);
-		expect(result.current.agentStatus).toBe("connected");
-	});
-
-	it("keeps the static projection when the kernel session is not live", async () => {
-		proposals = [stagedProposal()];
-		const kernelSession = {
-			live: () => false,
-			statusOverlay: () => new Map([["ann-1", "working"]]),
-		} as never;
-		const { result } = renderSession({ kernelSession });
-
-		await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
-		expect(result.current.session.requests[0]?.status).toBe("ready");
 	});
 
   it("populates session proposals from the initial fetch", async () => {
@@ -368,29 +237,6 @@ describe("useDocLabSession", () => {
     expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
   });
 
-  it("targets a live kernel accept by transaction id", async () => {
-    proposals = [stagedProposal()];
-    const accepts: Array<[string, string | undefined]> = [];
-    const kernelSession = {
-      live: () => true,
-      accept: async (annotationId: string, proposalId?: string) => {
-        accepts.push([annotationId, proposalId]);
-        return { ok: true };
-      },
-      statusOverlay: () => new Map(),
-      changesets: () => new Map(),
-      sessionId: () => "session-1",
-    } as never;
-    const { result } = renderSession({ kernelSession });
-    await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
-
-    await act(async () => {
-      await result.current.session.onAccept?.("R1", "proposal-1");
-    });
-
-    expect(accepts).toEqual([["ann-1", "proposal-1"]]);
-  });
-
   it("rejects the staged proposal and refreshes the bundle", async () => {
     proposals = [stagedProposal()];
     let refreshes = 0;
@@ -402,30 +248,6 @@ describe("useDocLabSession", () => {
     expect(result.current.session.proposals).toHaveLength(0);
     expect(refreshes).toBe(1);
     expect(calls.find((call) => call.url.endsWith("/reject"))?.body).toMatchObject({ path: "guide" });
-  });
-
-  it("sends reject feedback through a live kernel session and refetches proposals", async () => {
-    proposals = [stagedProposal()];
-    const replies: Array<[string, string]> = [];
-    const kernelSession = {
-      live: () => true,
-      reply: async (annotationId: string, note: string) => {
-        replies.push([annotationId, note]);
-        return { ok: true };
-      },
-      statusOverlay: () => new Map(),
-      changesets: () => new Map(),
-      sessionId: () => "session-1",
-    } as never;
-    const { result } = renderSession({ kernelSession });
-    await waitFor(() => expect(result.current.session.proposals).toHaveLength(1));
-
-    await act(async () => {
-      await result.current.session.onRejectWithFeedback?.("R1", "Keep the opening sentence");
-    });
-
-    expect(replies).toEqual([["ann-1", "Keep the opening sentence"]]);
-    expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
   });
 
   it("rejects without resolving the annotation before adding fallback feedback", async () => {
@@ -573,21 +395,5 @@ describe("useDocLabSession", () => {
     expect(refreshes).toBe(1);
     expect(calls.filter((call) => call.url.startsWith("api/proposals?")).length).toBe(2);
     expect(result.current.requestErrors.R1).toBeUndefined();
-  });
-
-  it("blocks dismissing a request held by a live kernel session", async () => {
-    const kernelSession = {
-      live: () => true,
-      statusOverlay: () => new Map([["ann-1", "working"]]),
-    } as never;
-    const { result } = renderSession({ kernelSession });
-    await waitFor(() => expect(result.current.session.requests).toHaveLength(1));
-
-    await act(async () => { await result.current.session.onDismissRequest?.("ann-1"); });
-
-    expect(result.current.requestErrors.R1).toBe(
-      "This note is part of the running session — it can't be removed right now.",
-    );
-    expect(calls.some((call) => call.url.includes("/resolve"))).toBe(false);
   });
 });

@@ -26,7 +26,6 @@ function newestFirst(changesets: DocChangeSetView[]): DocChangeSetView[] {
 export function selectChangesetsForDoc(
 	changesets: DocChangeSetView[],
 	openDocPath: string,
-	sessionId?: string,
 ): DocChangeSetView[] {
 	let appliedHistoryIncluded = false;
 	return newestFirst(changesets.filter((changeset) => {
@@ -35,34 +34,13 @@ export function selectChangesetsForDoc(
 		if (changeset.status === "applied") {
 			return Boolean(changeset.compoundPatchId) && touchesOpenDoc;
 		}
-		return touchesOpenDoc || (sessionId !== undefined && changeset.sessionId === sessionId);
+		return touchesOpenDoc;
 	})).filter((changeset) => {
 		if (changeset.status !== "applied") return true;
 		if (appliedHistoryIncluded) return false;
 		appliedHistoryIncluded = true;
 		return true;
 	});
-}
-
-function resolutionRank(changeset: DocChangeSetView): number {
-	return (changeset.status !== "open" ? 1 : 0)
-		+ (changeset.resolvedAt ? 1 : 0)
-		+ (changeset.compoundPatchId ? 1 : 0);
-}
-
-/** Merge REST state with kernel event views, preserving the more-resolved view by id. */
-export function overlayChangesets(
-	fetched: DocChangeSetView[],
-	updates: Iterable<DocChangeSetView>,
-): DocChangeSetView[] {
-	const byId = new Map(fetched.map((changeset) => [changeset.id, changeset]));
-	for (const update of updates) {
-		const fetchedView = byId.get(update.id);
-		if (!fetchedView || resolutionRank(update) >= resolutionRank(fetchedView)) {
-			byId.set(update.id, update);
-		}
-	}
-	return newestFirst([...byId.values()]);
 }
 
 let aiModeHandoff = false;

@@ -76,7 +76,6 @@ describe("buildRequestQueue populations", () => {
 		const model = buildRequestQueue({
 			requests: [filed("R1", "batch", "working"), filed("R2", "batch"), filed("R3", "global")],
 			proposals: [],
-			applying: false,
 		});
 		expect(model.queue.map((entry) => entry.request.alias)).toEqual(["R1", "R2", "R3"]);
 		expect(model.records).toEqual([]);
@@ -86,7 +85,6 @@ describe("buildRequestQueue populations", () => {
 		const model = buildRequestQueue({
 			requests: [filed("R1", "batch", "applied")],
 			proposals: [],
-			applying: false,
 		});
 		expect(model.queue).toEqual([]);
 		expect(model.records[0]).toMatchObject({ ok: true, stateLabel: "resolved", targetLabel: "block-R1" });
@@ -96,7 +94,6 @@ describe("buildRequestQueue populations", () => {
 		const model = buildRequestQueue({
 			requests: [filed("R1", "batch", "declined"), filed("R2", "global", "resolved")],
 			proposals: [],
-			applying: false,
 		});
 		expect(model.records.map((record) => record.stateLabel)).toEqual(["rejected", "resolved"]);
 		expect(model.records[0]!.ok).toBe(false);
@@ -107,7 +104,6 @@ describe("buildRequestQueue populations", () => {
 		const model = buildRequestQueue({
 			requests: [filed("R1", "batch", "failed")],
 			proposals: [],
-			applying: false,
 		});
 		expect(model.queue).toEqual([]);
 		expect(model.records[0]).toMatchObject({ ok: false, stateLabel: "failed" });
@@ -117,44 +113,31 @@ describe("buildRequestQueue populations", () => {
 describe("buildRequestQueue narration", () => {
 	const queued = [filed("R1", "batch"), filed("R2", "batch"), filed("R3", "global")];
 
-	test("before Apply, requests have positions but none is processing", () => {
-		const model = buildRequestQueue({ requests: queued, proposals: [], applying: false });
-		expect(model.activeAlias).toBeNull();
+	test("open requests get queue positions in filing order", () => {
+		const model = buildRequestQueue({ requests: queued, proposals: [] });
 		expect(model.queue.map((entry) => entry.stateLabel)).toEqual(["queued · next", "queued · #2", "queued · #3"]);
 		expect(model.pipeline).toBe("3 queued");
-		expect(model.canApply).toBe(true);
 	});
 
-	test("Apply advances as each proposal stages", () => {
-		const first = buildRequestQueue({ requests: queued, proposals: [], applying: true });
-		expect(first.activeAlias).toBe("R1");
-		expect(first.queue.map((entry) => entry.stateLabel)).toEqual(["processing", "queued · next", "queued · #2"]);
-		expect(first.pipeline).toBe("processing R1 · 2 queued");
-		expect(first.canApply).toBe(false);
-
-		const second = buildRequestQueue({ requests: queued, proposals: [proposal("R1")], applying: true });
-		expect(second.activeAlias).toBe("R2");
-		expect(second.queue.map((entry) => entry.stateLabel)).toEqual(["staged", "processing", "queued · next"]);
-		expect(second.pipeline).toBe("processing R2 · 1 queued · 1 staged");
+	test("positions advance as each proposal stages", () => {
+		const second = buildRequestQueue({ requests: queued, proposals: [proposal("R1")] });
+		expect(second.queue.map((entry) => entry.stateLabel)).toEqual(["staged", "queued · next", "queued · #2"]);
+		expect(second.pipeline).toBe("2 queued · 1 staged");
 
 		const done = buildRequestQueue({
 			requests: queued,
 			proposals: [proposal("R1"), proposal("R2"), proposal("R3")],
-			applying: true,
 		});
-		expect(done.activeAlias).toBeNull();
 		expect(done.pipeline).toBe("3 staged");
 	});
 
 	test("empty queues idle and conflicted aliases mark only their card", () => {
-		const idle = buildRequestQueue({ requests: [filed("R1", "batch", "resolved")], proposals: [], applying: false });
+		const idle = buildRequestQueue({ requests: [filed("R1", "batch", "resolved")], proposals: [] });
 		expect(idle.pipeline).toBe("queue idle");
-		expect(idle.canApply).toBe(false);
 
 		const conflicted = buildRequestQueue({
 			requests: queued,
 			proposals: [],
-			applying: false,
 			conflictedAliases: new Set(["R2"]),
 		});
 		expect(conflicted.queue.map((entry) => entry.conflict)).toEqual([false, true, false]);
@@ -166,8 +149,8 @@ describe("small vocabulary", () => {
 		expect(queuePositionLabel(0)).toBe("queued · next");
 		expect(queuePositionLabel(1)).toBe("queued · #2");
 		expect(queuePositionLabel(-1)).toBe("queued");
-		expect(pipelineSummary({ activeAlias: null, queued: 0, staged: 0 })).toBe("queue idle");
-		expect(pipelineSummary({ activeAlias: "R4", queued: 0, staged: 2 })).toBe("processing R4 · 2 staged");
+		expect(pipelineSummary({ queued: 0, staged: 0 })).toBe("queue idle");
+		expect(pipelineSummary({ queued: 1, staged: 2 })).toBe("1 queued · 2 staged");
 	});
 
 	test("requestBlockId ignores document-level targets", () => {

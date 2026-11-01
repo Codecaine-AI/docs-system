@@ -45,7 +45,6 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
       if (!project) return Response.json({ detail: 'Unknown project; register its workspace first.' }, { status: 404 });
       if (url.pathname.endsWith('/api/export-pdf')) return handlePdfExport(request);
       if (url.pathname.endsWith('/api/serve-config')) return Response.json({ themeLocked: false, globalTheme: true });
-      if (url.pathname.endsWith('/api/lab-config')) return Response.json({ kernelUrl: 'http://127.0.0.1:4840', corpus: project.name });
       return service.uiRequest(match[1]!, request);
     }
     return new Response('Not found', { status: 404 });

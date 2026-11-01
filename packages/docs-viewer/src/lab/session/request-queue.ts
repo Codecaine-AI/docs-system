@@ -1,6 +1,6 @@
 // Slice: the queue's derivation — pure functions that turn a session's
-// requests into the queue the interaction model runs on. Everything queues:
-// nothing runs until Apply, and closed loops become compact records.
+// requests into the queue the lab panel renders. Open requests queue, and
+// closed loops become compact records.
 //
 // No React, no DOM — the lab feeds it the session and renders the result.
 
@@ -41,9 +41,7 @@ export interface QueueEntry {
 	disposition: DocRequestDisposition;
 	/** A proposal for this request is staged and waiting on the human. */
 	staged: boolean;
-	/** The one card the batch run is working right now. */
-	processing: boolean;
-	/** `processing` · `staged` · `queued · next` · `queued · #2` · … */
+	/** `staged` · `queued · next` · `queued · #2` · … */
 	stateLabel: string;
 	/** An accepted change has moved the block this note was filed against. */
 	conflict: boolean;
@@ -66,23 +64,13 @@ export interface RequestQueueModel {
 	queue: QueueEntry[];
 	/** Every closed request, in filing order. */
 	records: RecordEntry[];
-	/** The queue card being worked, or null when the queue is at rest. */
-	activeAlias: string | null;
-	/** `processing R2 · 1 queued · 1 staged`, or `queue idle`. */
+	/** `1 queued · 1 staged`, or `queue idle`. */
 	pipeline: string;
-	/** Apply has something to do. */
-	canApply: boolean;
 }
 
 export interface RequestQueueInput {
 	requests: readonly DocEditRequest[];
 	proposals: readonly DocEditProposal[];
-	/**
-	 * Apply has been pressed and the batch has not drained. Only then does a
-	 * card read `processing` — before Apply the queue is quiet, however many
-	 * notes are waiting in it.
-	 */
-	applying: boolean;
 	/** Aliases whose filed target has drifted. */
 	conflictedAliases?: ReadonlySet<string>;
 }
@@ -95,19 +83,10 @@ export function requestBlockId(
 	return target.kind === "doc" ? null : target.blockId;
 }
 
-/**
- * The whole REQUESTS-zone model in one pass.
- *
- * `activeAlias` is derived, not tracked: it is the first queued request
- * WITHOUT a staged proposal. Session events already arrive per staged
- * proposal, so the narration advances by itself as each one lands — there is
- * no separate "which one is running" signal to keep in sync (and none to go
- * stale when a host stages out of order).
- */
+/** The whole REQUESTS-zone model in one pass. */
 export function buildRequestQueue({
 	requests,
 	proposals,
-	applying,
 	conflictedAliases,
 }: RequestQueueInput): RequestQueueModel {
 	const stagedAliases = new Set(proposals.map((proposal) => proposal.alias));
@@ -139,28 +118,20 @@ export function buildRequestQueue({
 		queueRequests.push(request);
 	}
 
-	const unstaged = queueRequests.filter(
+	// Positions are counted over what is still WAITING on a proposal.
+	const waiting = queueRequests.filter(
 		(request) => !stagedAliases.has(request.alias),
 	);
-	const activeAlias = applying ? (unstaged[0]?.alias ?? null) : null;
-	// Positions are counted over what is still WAITING — the processing card
-	// is not "queued · next" to itself.
-	const waiting = unstaged.filter((request) => request.alias !== activeAlias);
 
 	const queue = queueRequests.map<QueueEntry>((request) => {
 		const staged = stagedAliases.has(request.alias);
-		const processing = request.alias === activeAlias;
-		const waitingIndex = waiting.indexOf(request);
 		return {
 			request,
 			disposition: requestDisposition(request),
 			staged,
-			processing,
 			stateLabel: staged
 				? "staged"
-				: processing
-					? "processing"
-					: queuePositionLabel(waitingIndex),
+				: queuePositionLabel(waiting.indexOf(request)),
 			conflict: conflictedAliases?.has(request.alias) ?? false,
 		};
 	});
@@ -168,13 +139,10 @@ export function buildRequestQueue({
 	return {
 		queue,
 		records,
-		activeAlias,
 		pipeline: pipelineSummary({
-			activeAlias,
 			queued: waiting.length,
 			staged: queue.filter((entry) => entry.staged).length,
 		}),
-		canApply: !applying && unstaged.length > 0,
 	};
 }
 
@@ -184,18 +152,15 @@ export function queuePositionLabel(waitingIndex: number): string {
 	return waitingIndex === 0 ? "queued · next" : `queued · #${waitingIndex + 1}`;
 }
 
-/** The pipeline line above the queue: what runs, what waits, what is staged. */
+/** The pipeline line above the queue: what waits and what is staged. */
 export function pipelineSummary({
-	activeAlias,
 	queued,
 	staged,
 }: {
-	activeAlias: string | null;
 	queued: number;
 	staged: number;
 }): string {
 	const parts: string[] = [];
-	if (activeAlias) parts.push(`processing ${activeAlias}`);
 	if (queued > 0) parts.push(`${queued} queued`);
 	if (staged > 0) parts.push(`${staged} staged`);
 	return parts.length > 0 ? parts.join(" · ") : "queue idle";

@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type {
-	DocEditProposal,
 	DocEditRequest,
 	DocEditSession,
 	DocChangeSetView,
@@ -86,17 +85,6 @@ function request(
 	};
 }
 
-function proposal(alias: string): DocEditProposal {
-	return {
-		transactionId: `proposal-${alias}`,
-		alias,
-		summary: `Proposal ${alias}`,
-		ops: [],
-		changedBlockIds: ["body-1"],
-		baseHash: "hash",
-	};
-}
-
 function lab(
 	session: DocEditSession,
 	overrides: Partial<DocLabSessionResult> = {},
@@ -109,10 +97,6 @@ function lab(
 		changesets: [],
 		changesetBusy: {},
 		changesetErrors: {},
-		agentConnected: Boolean(session.onApplyQueue),
-		applying: false,
-		sessionError: null,
-		agentStatus: session.onApplyQueue ? "connected" : "offline",
 		refetchProposals: mock(async () => {}),
 		refetchChangesets: mock(async () => {}),
 		acceptChangeset: mock(async () => {}),
@@ -231,7 +215,7 @@ describe("DocLab", () => {
 
 	});
 
-	it("disables Run queue without an agent and surfaces session errors", () => {
+	it("surfaces target conflicts and proposal, annotation and request errors", () => {
 		const session: DocEditSession = {
 			requests: [{ ...request("R1"), targetChanged: true }],
 			proposals: [],
@@ -250,130 +234,11 @@ describe("DocLab", () => {
 			</div>,
 		);
 
-		const apply = screen.getByRole("button", { name: "Apply queue" });
-		expect(apply.hasAttribute("disabled")).toBe(true);
-		expect(apply.getAttribute("title")).toBe("docs agent not connected");
 		expect(document.querySelector('[data-docs-lab-card-conflict="R1"]')).toBeTruthy();
 		expect(screen.getByText("Could not load proposals")).toBeTruthy();
 		expect(
 			document.querySelector("[data-docs-lab-annotations-error]")?.textContent,
 		).toBe("Could not load annotations");
 		expect(screen.getByText("R1: Request failed")).toBeTruthy();
-	});
-
-	it("renders session failures and connectivity transitions in the queue dock", () => {
-		const session: DocEditSession = {
-			requests: [request("R1")],
-			proposals: [],
-			onApplyQueue: mock(async () => {}),
-		};
-		const props = {
-			doc: DOC,
-			onFocusTarget: mock(() => {}),
-		};
-		const view = render(
-			<div className="relative h-[800px]">
-				<DocLab
-					{...props}
-					lab={lab(session, {
-						agentConnected: false,
-						agentStatus: "offline",
-						sessionError:
-							"The docs agent is running against a different docs root — it doesn't know this document.",
-					})}
-				/>
-			</div>,
-		);
-
-		expect(
-			document.querySelector('[data-docs-lab-agent-status="offline"]'),
-		).toBeTruthy();
-		expect(document.querySelector("[data-docs-lab-session-error]")?.textContent).toContain(
-			"different docs root",
-		);
-
-		view.rerender(
-			<div className="relative h-[800px]">
-				<DocLab {...props} lab={lab(session, { agentStatus: "connected" })} />
-			</div>,
-		);
-		expect(
-			document.querySelector('[data-docs-lab-agent-status="connected"]'),
-		).toBeTruthy();
-
-		view.rerender(
-			<div className="relative h-[800px]">
-				<DocLab
-					{...props}
-					lab={lab(session, { applying: true, agentStatus: "running" })}
-				/>
-			</div>,
-		);
-		expect(
-			document.querySelector('[data-docs-lab-agent-status="running"]'),
-		).toBeTruthy();
-		expect(screen.getByRole("button", { name: "Apply queue" }).textContent).toBe(
-			"running…",
-		);
-	});
-
-	it("moves the first submitted card from queued to processing immediately", () => {
-		const session: DocEditSession = {
-			requests: [request("R1"), request("R2")],
-			proposals: [],
-			onApplyQueue: mock(async () => {}),
-		};
-		const props = {
-			doc: DOC,
-			onFocusTarget: mock(() => {}),
-		};
-		const view = render(
-			<div className="relative h-[800px]">
-				<DocLab {...props} lab={lab(session)} />
-			</div>,
-		);
-		const firstState = () =>
-			document.querySelector('[data-docs-lab-card-state="R1"]');
-		expect(firstState()?.textContent).toBe("");
-
-		view.rerender(
-			<div className="relative h-[800px]">
-				<DocLab
-					{...props}
-					lab={lab(
-						{
-							...session,
-							requests: [request("R1", "working"), request("R2")],
-						},
-						{ applying: true, agentStatus: "running" },
-					)}
-				/>
-			</div>,
-		);
-		expect(firstState()?.textContent).toBe("processing");
-	});
-
-	it("applies unstaged request annotation ids in queue order", () => {
-		const onApplyQueue = mock(async (_ids: string[]) => {});
-		const session: DocEditSession = {
-			requests: [request("R1"), request("R2", "ready"), request("R3")],
-			proposals: [proposal("R2")],
-			onApplyQueue,
-		};
-		render(
-			<div className="relative h-[800px]">
-				<DocLab
-					doc={DOC}
-					lab={lab(session)}
-					onFocusTarget={mock(() => {})}
-				/>
-			</div>,
-		);
-
-		fireEvent.click(screen.getByRole("button", { name: "Apply queue" }));
-		expect(onApplyQueue).toHaveBeenCalledWith([
-			"annotation-R1",
-			"annotation-R3",
-		]);
 	});
 });
