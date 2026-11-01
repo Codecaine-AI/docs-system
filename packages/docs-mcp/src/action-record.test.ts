@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { openActionLog } from '@codecaine-ai/action-log';
 import { serializeDocDocument } from '@codecaine-ai/docs-model';
-import { createRpcRecorder, serveRpc } from './action-record';
+import { createRpcRecorder, serveRpc, summarize } from './action-record';
 import { createInteractionService } from './service';
 
 let root: string; let workspace: string;
@@ -47,4 +47,11 @@ test('docs_begin with thread_id binds the run, so earlier and later calls resolv
  expect(records[1]!.target).toBe('page');
  await rpc('docs_read', { path: 'missing-page' }, { runId: 'run-b', threadId: null, agent: null });
  expect(openActionLog().query({ threadId: 'thread-b' })[2]).toMatchObject({ target: 'missing-page', result: 'refused' });
+});
+
+test('the result summary counts a write\'s style findings and a check\'s lint findings, and never carries error text', () => {
+ expect(summarize({ structuredContent: { ok: true, style_findings: { shown: [{ rule: 'a' }], omitted: 2 } } })).toBe('3 findings');
+ expect(summarize({ structuredContent: { ok: true, lint: { findings: [{ rule: 'a' }] } } })).toBe('1 findings');
+ expect(summarize({ structuredContent: { ok: true, lint: { findings: [] } } })).toBe('ok');
+ expect(summarize({ isError: true, structuredContent: { detail: 'secret page text' } })).toBe('refused');
 });
