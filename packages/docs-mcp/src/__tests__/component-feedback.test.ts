@@ -117,6 +117,27 @@ describe("component feedback", () => {
     expect(rules).not.toContain("detail-too-long");
   });
 
+  test("under a task, a board's pre-existing warning is reported but blocks docs_check only once the task touches the board", async () => {
+    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
+    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [object] }));
+    const read = await call("docs_read", {});
+    const prose = await call("docs_write_text", { blockId: "intro", expected_hash: read.hash, markdown: "This page holds a board and a flow." }, task);
+    expect(prose.ok).toBe(true);
+
+    const untouched = await call("docs_check", {}, task);
+    expect(untouched.style_gate).toEqual([]);
+    expect(component(untouched, "board")).toMatchObject({ ok: false, touched_by_task: false });
+    expect(component(untouched, "board").findings.shown).toContainEqual(expect.objectContaining({ rule: "clipped-text", at: ["gateway"] }));
+    expect(untouched.ok).toBe(true);
+
+    const cramped = { id: "cache", type: "process", text: "Cache", detail: LONG_DETAIL, geometry: { x: 480, y: 96, width: 288, height: 96 } };
+    expect((await call("docs_canvas_add_object", { ...await hashes("board"), params: { object: cramped } }, task)).ok).toBe(true);
+    const touched = await call("docs_check", {}, task);
+    expect(component(touched, "board")).toMatchObject({ ok: false, touched_by_task: true });
+    expect(component(touched, "board").findings.shown).toContainEqual(expect.objectContaining({ at: ["cache"] }));
+    expect(touched.ok).toBe(false);
+  });
+
   test("through the service, a task's canvas baseline reaches docs_check and the style read gate still refuses writes", async () => {
     const workspace = join(temp, "workspace");
     await mkdir(join(workspace, "alpha/docs"), { recursive: true });

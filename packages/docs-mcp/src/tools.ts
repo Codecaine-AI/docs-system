@@ -271,7 +271,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, only blocks the task touched fail the check, marked touched_by_task.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -282,17 +282,22 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           const findings = !checked.ok ? sequenceFindings("issues" in checked ? checked.issues ?? [] : [])
             : checked.type === "canvas" ? canvasFindings(checked.canvas, { finishing: true, baseline: canvasBaseline(ctx, args.project, checked.src) })
             : [];
+          // A task answers only for the boards it touched, as it answers only for the style violations it introduced.
+          // Sequence edits that the diagnostics flag are refused, so a task never leaves a flagged sequence.
+          const src = checked.ok ? checked.src : undefined;
+          const touched = ctx.taskId ? (src !== undefined && canvasBaseline(ctx, args.project, src) !== undefined) : undefined;
           components.push({ blockId: block.id, type: block.type, ok: checked.ok && blockingFindings(findings).length === 0,
+            ...(touched !== undefined ? { touched_by_task: touched } : {}),
             ...(!checked.ok ? { detail: checked.detail } : {}), ...(findings.length ? { findings: findingList(findings) } : {}) });
         }
       }
-      // Without a task baseline for this page, the check is exactly the untasked one.
+      // Without a task baseline for this page, the style check is exactly the untasked one.
       const baseline = ctx.taskId ? context.taskBaselines?.get(ctx.taskId, baselineKey(args.project, args.path)) : undefined;
       const style_gate = baseline === undefined ? undefined : styleGate(lintDocument(result.doc, { phase: "complete", baseline: baseline ?? undefined }));
       // Judged findings on blocks the task changed join the gate. Unavailable judgment is reported and never blocks.
       const judged = style_gate && context.judgmentEngine ? await judgedStyleGate({ engine: context.judgmentEngine, baseline: baseline ?? null, doc: result.doc }) : undefined;
       if (judged?.available) style_gate!.push(...judged.gate);
-      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
+      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok || entry.touched_by_task === false) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
     tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {

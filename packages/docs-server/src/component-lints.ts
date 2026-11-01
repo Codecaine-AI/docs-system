@@ -5,11 +5,11 @@
  * them in one finding shape.
  */
 import { createHash } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 import { FINISHING_RULES, LAYOUT_RULES, runDiagnostics, type Severity } from "@codecaine-ai/canvas/lints";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
+import { atomicWriteFile } from "./atomic-write";
 import { renderSequenceSvgString, serializeSequenceProgram } from "@codecaine-ai/sequence";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 
@@ -68,7 +68,7 @@ export async function renderSequenceSvgFile(
 ): Promise<string> {
   const root = createHash("sha256").update(docsRoot).digest("hex").slice(0, 16);
   const path = join(tmpdir(), "codecaine-docs-renders", root, sequenceRelPath.replace(/\.json$/, ".svg"));
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, renderSequenceSvgString(sequence));
+  // A reader can open the file during the next edit, so it never sees a partial render.
+  await atomicWriteFile(path, renderSequenceSvgString(sequence));
   return path;
 }
