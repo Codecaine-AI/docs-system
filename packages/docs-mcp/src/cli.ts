@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { resolve, join } from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import { startMcp } from './mcp';
 import { runDaemon } from './daemon';
 import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint } from './lifecycle';
@@ -37,7 +38,7 @@ try{
   case 'discover':case 'call':case 'tools':{
    const state=await ensureDaemon();
    const name=command==='discover'?'docs_discover':args[0];
-   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='discover'?{}:JSON.parse(option('--args','{}')!)});
+   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='discover'?{}:JSON.parse(option('--args','{}')!),identity:{runId:newRunId(),...identityFromEnv()}});
    const result=await response.json();out(result);if(!response.ok||(result as any).isError)process.exitCode=1;break;
   }
   case 'install':{

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
+    "@codecaine-ai/action-log": "workspace:*",
     "@codecaine-ai/docs-server": "workspace:*",
     "@codecaine-ai/docs-model": "workspace:*",
     "@sinclair/typebox": "^0.34",

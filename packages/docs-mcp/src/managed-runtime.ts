@@ -1,4 +1,5 @@
 import { createInteractionService } from './service';
+import { createRpcRecorder, serveRpc } from './action-record';
 import { ledgerStats, textMeasureReady } from '@codecaine-ai/docs-server';
 import { loadGuidance } from './guidance';
 import type { DocsProject } from './discovery';
@@ -23,6 +24,7 @@ for (const workspace of registry.workspaces) {
   try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }
 }
 await loadGuidance();
+const record = createRpcRecorder();
 const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, async fetch(request) {
   if (request.headers.get('authorization') !== `Bearer ${token}`) return new Response('Unauthorized', { status: 401 });
   const url = new URL(request.url);
@@ -35,7 +37,7 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
     if (url.pathname === '/tools') return Response.json({ tools: service.listTools() });
     if (url.pathname === '/rpc' && request.method === 'POST') {
       const body = await request.json() as any;
-      return Response.json(await service.call(body.workspace, body.name, body.arguments ?? {}));
+      return Response.json(await serveRpc(service, record, body));
     }
     const match = url.pathname.match(/^\/projects\/([^/]+)\/api(?:\/|$)/);
     if (match) {
