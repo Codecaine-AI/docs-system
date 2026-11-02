@@ -40,15 +40,17 @@ test('a call with an identity writes one record with its thread id and tool', as
 test('docs_begin with thread_id binds the run, so earlier and later calls resolve to the thread', async () => {
  const begun = (await rpc('docs_begin', { thread_id: 'thread-b' }, { runId: 'run-b', threadId: null, agent: null })).structuredContent;
  expect(begun.ok).toBe(true);
- await rpc('docs_read', { path: 'page', task_id: begun.task_id }, { runId: 'run-b', threadId: null, agent: null });
+ const project = begun.projects[0].id;
+ expect((await rpc('docs_read', { project, path: 'page', task_id: begun.task_id }, { runId: 'run-b', threadId: null, agent: null })).structuredContent.ok).toBe(true);
  const records = openActionLog().query({ threadId: 'thread-b' });
  expect(records.map(r => r.tool)).toEqual(['docs_begin', 'docs_read']);
  expect(records[0]).toMatchObject({ agent: 'docs-mcp', snapshotId: begun.snapshot_id });
- expect(records[1]).toMatchObject({ target: 'page', snapshotId: begun.snapshot_id });
+ expect(records[1]).toMatchObject({ target: 'page', result: '1 findings', snapshotId: begun.snapshot_id });
  // The managed service accepts every docs_begin, so a refusal is fed to the recorder directly.
  createRpcRecorder()({ name: 'docs_begin', arguments: { thread_id: 'thread-refused' }, identity: { runId: 'run-c', threadId: null, agent: null } }, { isError: true, structuredContent: { ok: false, detail: 'x' } });
  expect(openActionLog().query({ runId: 'run-c' })).toMatchObject([{ threadId: null, result: 'refused' }]);
- await rpc('docs_read', { path: 'missing-page' }, { runId: 'run-b', threadId: null, agent: null });
+ const missing = await rpc('docs_read', { project, path: 'missing-page' }, { runId: 'run-b', threadId: null, agent: null });
+ expect(missing.structuredContent.detail).not.toContain('Project');
  expect(openActionLog().query({ threadId: 'thread-b' })[2]).toMatchObject({ target: 'missing-page', result: 'refused' });
 });
 
@@ -56,5 +58,6 @@ test('the result summary counts a write\'s style findings and a check\'s lint fi
  expect(summarize({ structuredContent: { ok: true, style_findings: { shown: [{ rule: 'a' }], omitted: 2 } } })).toBe('3 findings');
  expect(summarize({ structuredContent: { ok: true, lint: { findings: [{ rule: 'a' }] } } })).toBe('1 findings');
  expect(summarize({ structuredContent: { ok: true, lint: { findings: [] } } })).toBe('ok');
+ expect(summarize({ isError: true, structuredContent: { ok: false, lint: { findings: [{ rule: 'a' }, { rule: 'b' }] } } })).toBe('2 findings');
  expect(summarize({ isError: true, structuredContent: { detail: 'secret page text' } })).toBe('refused');
 });

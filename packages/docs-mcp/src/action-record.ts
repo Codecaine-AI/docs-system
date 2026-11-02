@@ -2,15 +2,15 @@ import { newRunId, openActionLog, type ActionLog } from '@codecaine-ai/action-lo
 
 type RpcBody = { name: string; arguments?: Record<string, unknown>; identity?: { runId?: string; threadId?: string | null; agent?: string | null } };
 
-/** "ok", "refused" or "<n> findings": a write's style_findings {shown, omitted} plus a read or check's lint.findings. Error detail stays out, because validation text can echo the page's content. */
+/** "<n> findings", "ok" or "refused": a write's style_findings {shown, omitted} plus a read or check's lint.findings. A failed check still counts its findings. Error detail stays out, because validation text can echo the page's content. */
 export function summarize(result: any): string {
  const data = result?.structuredContent ?? {};
- if (result?.isError || data.ok === false) return 'refused';
  const style = data.style_findings;
  const styleCount = Array.isArray(style?.shown) ? style.shown.length + (Number(style.omitted) || 0) : 0;
  const lintCount = Array.isArray(data.lint?.findings) ? data.lint.findings.length : 0;
  const count = styleCount + lintCount;
- return count ? `${count} findings` : 'ok';
+ if (count) return `${count} findings`;
+ return result?.isError || data.ok === false ? 'refused' : 'ok';
 }
 
 /**
