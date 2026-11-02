@@ -54,6 +54,13 @@ test('docs_begin with thread_id binds the run, so earlier and later calls resolv
  expect(openActionLog().query({ threadId: 'thread-b' })[2]).toMatchObject({ target: 'missing-page', result: 'refused' });
 });
 
+test('the daemon\'s own probes, sent without an identity, write no record', async () => {
+ const before = openActionLog().query().length;
+ const result = await serveRpc(service, createRpcRecorder(), { workspace, name: 'docs_discover', arguments: {} });
+ expect(result.structuredContent.ok).toBe(true);
+ expect(openActionLog().query().length).toBe(before);
+});
+
 test('the result summary counts a write\'s style findings and a check\'s lint findings, and never carries error text', () => {
  expect(summarize({ structuredContent: { ok: true, style_findings: { shown: [{ rule: 'a' }], omitted: 2 } } })).toBe('3 findings');
  expect(summarize({ structuredContent: { ok: true, lint: { findings: [{ rule: 'a' }] } } })).toBe('1 findings');
