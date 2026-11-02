@@ -1,2 +1,3 @@
 [test]
-preload = ["./happydom.ts", "./react-dedup.ts", "./text-measure.ts"]
+# The action-log temp path loads first, so no test writes ~/.codecaine/action-log.sqlite.
+preload = ["./action-log-preload.ts", "./happydom.ts", "./react-dedup.ts", "./text-measure.ts"]
