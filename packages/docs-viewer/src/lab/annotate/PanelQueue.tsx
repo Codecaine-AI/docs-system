@@ -1,14 +1,12 @@
 // Slice: the AI panel's queue — a CHAT PANEL, same shape as prompt-kit's
 // PanelQueue:
 //
-//   TOP BAR     pinned: Open/Done filters plus agent status.
+//   TOP BAR     pinned: Open/Done filters.
 //   TRANSCRIPT  scrolls: open TARGET/DOCUMENT notes or closed-loop ✓/✕
 //               records, then any host-provided tail. Filing order holds
 //               within each section.
 //   DOCK        pinned at the very bottom, chat-composer position: the
-//               whole-document input plus Run queue. Enter files a document
-//               note; Run queue is click-only — a keystroke never starts the
-//               batch by accident.
+//               whole-document input. Enter files a document note.
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -22,15 +20,6 @@ import type { QueueEntry, RecordEntry, RequestQueueModel } from "../session/requ
 export interface PanelQueueProps {
 	session: DocEditSession;
 	queue: RequestQueueModel;
-	applying: boolean;
-	/** Current docs-agent connectivity/run state, always shown in the top bar. */
-	agentStatus: "connected" | "offline" | "running";
-	/** Session-level create/stream failure, already mapped for display by the host. */
-	sessionError?: string | null;
-	/** Host-level reason Apply is unavailable, independent of the queue model. */
-	applyDisabledReason?: string | null;
-	/** Starts the batch over the queue's current open requests. */
-	onApply: () => void;
 	/** Files a document-level note from the rail input. */
 	onFileGlobal?: (body: string) => void;
 	/** Select a target in the document surface. */
@@ -46,8 +35,8 @@ export interface PanelQueueProps {
 
 /** Queue rail, chat-shaped: scrolling transcript (block notes, document
  * notes, closed-loop records, host tail) over a pinned composer dock
- * (whole-document input + Run queue). */
-export function PanelQueue({ session, queue, applying, agentStatus, sessionError, applyDisabledReason, onApply, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget, children }: PanelQueueProps) {
+ * (whole-document input). */
+export function PanelQueue({ session, queue, onFileGlobal, onFocusTarget, onHoverTarget, labelForTarget, children }: PanelQueueProps) {
 	const docInputRef = useRef<HTMLInputElement | null>(null);
 	const [view, setView] = useState<"open" | "done">("open");
 	const sendDocMessage = () => {
@@ -63,8 +52,6 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 	const targetEntries = queue.queue.filter((entry) => entry.disposition !== "global");
 	const documentRecords = queue.records.filter((record) => record.disposition === "global");
 	const targetRecords = queue.records.filter((record) => record.disposition !== "global");
-	const queuedCount = queue.queue.filter((entry) => !entry.staged).length;
-	const runLabel = queuedCount > 0 ? `Run queue (${queuedCount})` : "Run queue";
 	const renderRow = (entry: QueueEntry) => <QueueRow key={entry.request.alias} entry={entry} session={session} onFocusTarget={onFocusTarget} onHoverTarget={onHoverTarget} labelForTarget={labelForTarget} />;
 	const showDocInput = Boolean(onFileGlobal ?? session.onFileRequest);
 	return <div className="flex h-full min-h-0 flex-col" data-docs-lab-session-rail="">
@@ -73,7 +60,6 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 				<FilterButton active={view === "open"} filter="open" onClick={() => setView("open")}>Open ({queue.queue.length})</FilterButton>
 				<FilterButton active={view === "done"} filter="done" onClick={() => setView("done")}>Done ({queue.records.length})</FilterButton>
 			</div>
-			<AgentStatus status={agentStatus} />
 		</div>
 		{/* THE TRANSCRIPT — everything filed, top-down like a chat; the dock
 		    stays put below while this scrolls. */}
@@ -89,18 +75,13 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 				<GroupHeader label="Document" />
 				{documentRecords.length > 0 ? documentRecords.map((record) => <RecordRow key={record.request.alias} record={record} session={session} onFocusTarget={onFocusTarget} labelForTarget={labelForTarget} />) : <EmptyGroup />}
 			</>}
-			{sessionError ? <p data-docs-lab-session-error="" role="alert" className="px-1.5 py-1 text-[length:var(--ds-font-size-ui-xs)] text-[color:var(--destructive,#f85149)]">{sessionError}</p> : null}
 			{children}
 		</div>
 		{/* THE DOCK — chat-composer position, pinned bottommost: the
-		    whole-document input plus Run queue. Enter files a note; only a click
-		    runs the batch. */}
+		    whole-document input. Enter files a note. */}
 		<div data-docs-lab-queue-dock="" className="mt-2 flex shrink-0 flex-col gap-2">
 			<div data-docs-lab-queue-dock-input="" className="flex border-t border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] pt-2.5">
 				{showDocInput && <input ref={docInputRef} aria-label="Message the whole document" placeholder="Note about the whole document…" className="min-w-0 w-full rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--background,#181818)] px-2 py-1.5 text-[length:var(--ds-font-size-ui-sm)] outline-none focus:border-[color:var(--annotation-accent,#a99af5)]" onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); sendDocMessage(); } }} />}
-			</div>
-			<div data-docs-lab-queue-dock-run="" className="flex justify-end">
-				<button type="button" aria-label="Apply queue" data-docs-lab-queue-apply="" disabled={applying || (applyDisabledReason !== null && applyDisabledReason !== undefined) || !queue.canApply} title={applyDisabledReason ?? (applying ? "The queue is running" : queue.canApply ? "Run the queued notes" : "Nothing queued")} className="shrink-0 rounded-[var(--radius,2px)] border border-[color:var(--docs-panel-border,var(--border,#2b2b2b))] bg-[color:var(--annotation-accent-fill,rgba(138,122,176,.11))] px-2.5 py-1 text-[length:var(--ds-font-size-ui-xs)] tracking-[var(--ds-letter-spacing-normal)] text-[color:var(--annotation-accent,#a99af5)] transition-colors disabled:cursor-default disabled:opacity-50" onClick={onApply}>{applying ? "running…" : runLabel}</button>
 			</div>
 		</div>
 	</div>;
@@ -108,25 +89,6 @@ export function PanelQueue({ session, queue, applying, agentStatus, sessionError
 
 function FilterButton({ active, filter, onClick, children }: { active: boolean; filter: "open" | "done"; onClick: () => void; children: ReactNode }) {
 	return <button type="button" data-docs-lab-filter={filter} aria-pressed={active} className="rounded-[var(--radius,2px)] border bg-[color:var(--background,#181818)] px-2 py-0.5 text-[length:var(--ds-font-size-ui-2xs)] text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] transition-colors" style={active ? { borderColor: "var(--annotation-accent,#a99af5)", color: "var(--annotation-accent,#a99af5)" } : { borderColor: "var(--docs-panel-border,var(--border,#2b2b2b))" }} onClick={onClick}>{children}</button>;
-}
-
-const AGENT_STATUS_COPY = {
-	connected: { label: "connected", title: "Docs agent connected" },
-	offline: { label: "not connected", title: "Docs agent not connected" },
-	running: { label: "session running", title: "Docs agent session running" },
-} as const;
-
-function AgentStatus({ status }: { status: PanelQueueProps["agentStatus"] }) {
-	const copy = AGENT_STATUS_COPY[status];
-	const color = status === "offline"
-		? "var(--docs-muted-foreground,var(--muted-foreground,#71717a))"
-		: status === "running"
-			? "var(--annotation-accent,#a99af5)"
-			: "var(--annotation-accept,#3fb950)";
-	return <span data-docs-lab-agent-status={status} title={copy.title} className="flex shrink-0 items-center gap-1 text-[length:var(--ds-font-size-ui-2xs)] tracking-[var(--ds-letter-spacing-normal)]" style={{ color }}>
-		<span aria-hidden className={`h-[5px] w-[5px] rounded-full bg-current ${status === "running" ? "animate-pulse" : ""}`} />
-		{copy.label}
-	</span>;
 }
 
 function newAnnotationId(): string {
@@ -152,19 +114,18 @@ function QueueRow({ entry, session, onFocusTarget, onHoverTarget, labelForTarget
 		if (!previousWaitingRef.current && waiting) setThreadOpen(true);
 		previousWaitingRef.current = waiting;
 	}, [waiting]);
-	const stateLabel = entry.staged ? "staged" : entry.processing ? "processing" : "";
+	const stateLabel = entry.staged ? "staged" : "";
 	const sendReply = () => {
 		const body = replyRef.current?.value.trim() ?? "";
 		if (!body || !session.onReplyToRequest) return;
 		void session.onReplyToRequest(request.alias, body);
 		if (replyRef.current) replyRef.current.value = "";
 	};
-	return <div data-docs-lab-session-card={request.alias} className={`group rounded-[var(--radius,2px)] border-l-2 px-1.5 py-1 transition-colors ${entry.processing || waiting ? "border-transparent" : "border-transparent hover:bg-[color:var(--ds-color-fill-hover)]"} ${target ? "cursor-pointer" : ""}`} style={entry.processing ? { borderLeftColor: "var(--annotation-accent,#8a7ab0)", background: "var(--annotation-accent-fill,rgba(138,122,176,.11))" } : waiting ? { borderLeftColor: "color-mix(in srgb, var(--annotation-thread-accent,#f59e0b) 60%, transparent)" } : undefined} onMouseEnter={() => { if (target) onHoverTarget?.(target); }} onMouseLeave={() => onHoverTarget?.(null)} onClick={(event) => { if (event.target instanceof HTMLElement && event.target.closest("button, input")) return; if (target) onFocusTarget?.(target); }}>
+	return <div data-docs-lab-session-card={request.alias} className={`group rounded-[var(--radius,2px)] border-l-2 px-1.5 py-1 transition-colors ${waiting ? "border-transparent" : "border-transparent hover:bg-[color:var(--ds-color-fill-hover)]"} ${target ? "cursor-pointer" : ""}`} style={waiting ? { borderLeftColor: "color-mix(in srgb, var(--annotation-thread-accent,#f59e0b) 60%, transparent)" } : undefined} onMouseEnter={() => { if (target) onHoverTarget?.(target); }} onMouseLeave={() => onHoverTarget?.(null)} onClick={(event) => { if (event.target instanceof HTMLElement && event.target.closest("button, input")) return; if (target) onFocusTarget?.(target); }}>
 		<div className="flex items-baseline gap-2">
 			<span data-docs-lab-card-target={request.alias} className="min-w-0 truncate text-[length:var(--ds-font-size-ui-xs)] text-[color:var(--annotation-accent,#a99af5)]">{request.target.kind === "doc" ? "document" : labelForTarget(request.target)}</span>
-			{entry.processing && <span aria-hidden className="h-[5px] w-[5px] shrink-0 self-center rounded-full bg-[color:var(--annotation-accent,#8a7ab0)]" />}
-			<span data-docs-lab-card-state={request.alias} className="ml-auto shrink-0 text-[length:var(--ds-font-size-micro)] tracking-[var(--ds-letter-spacing-normal)]" style={{ color: entry.staged ? "var(--annotation-accept,#3fb950)" : entry.processing ? "var(--annotation-accent,#a99af5)" : waiting ? "var(--annotation-thread-accent,#f59e0b)" : undefined }}>{stateLabel}</span>
-			{session.onDismissRequest && !entry.processing && !entry.staged && <button type="button" aria-label={`Dismiss ${request.alias}`} title={`Dismiss ${request.alias} — removes it from the queue`} className="shrink-0 text-[length:var(--ds-font-size-ui-xs)] leading-none text-transparent transition-colors group-hover:text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] hover:!text-[color:var(--annotation-reject,#f85149)]" onClick={() => void session.onDismissRequest?.(request.id)}>✕</button>}
+			<span data-docs-lab-card-state={request.alias} className="ml-auto shrink-0 text-[length:var(--ds-font-size-micro)] tracking-[var(--ds-letter-spacing-normal)]" style={{ color: entry.staged ? "var(--annotation-accept,#3fb950)" : waiting ? "var(--annotation-thread-accent,#f59e0b)" : undefined }}>{stateLabel}</span>
+			{session.onDismissRequest && !entry.staged && <button type="button" aria-label={`Dismiss ${request.alias}`} title={`Dismiss ${request.alias} — removes it from the queue`} className="shrink-0 text-[length:var(--ds-font-size-ui-xs)] leading-none text-transparent transition-colors group-hover:text-[color:var(--docs-muted-foreground,var(--muted-foreground,#71717a))] hover:!text-[color:var(--annotation-reject,#f85149)]" onClick={() => void session.onDismissRequest?.(request.id)}>✕</button>}
 		</div>
 		<div className="mt-1"><MessageBubble author="user" body={request.body} /></div>
 		{entry.conflict && <p data-docs-lab-card-conflict={request.alias} title="An accepted change touched this block after the note was filed." className="mt-0.5 text-[length:var(--ds-font-size-ui-2xs)] text-[color:var(--annotation-thread-accent,#f59e0b)]">target changed since filed</p>}

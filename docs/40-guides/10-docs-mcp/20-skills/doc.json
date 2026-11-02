@@ -545,7 +545,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The Docs Lab context loader at packages/docs-kernel/catalog/docs-lab-editor/context/index.ts and the sibling agent-kernel/catalog/docs-writer/context/index.ts both use the shared authoring-guidance renderer. Their prompts, model configuration, context loading, and staged editing sessions remain owned by those agents. External MCP edits do not run those agents."
+          "insert": "The agent-kernel docs-writer context at agent-kernel/catalog/docs-writer/context/index.ts uses the shared authoring-guidance renderer. Its prompt, model configuration, context loading, and staged editing sessions remain owned by that agent. External MCP edits do not run that agent."
         }
       ],
       "children": []

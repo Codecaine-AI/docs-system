@@ -38,10 +38,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={mixedSession}
-				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
@@ -73,10 +70,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={completedSession}
-				queue={buildRequestQueue({ requests: completedSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: completedSession.requests, proposals: [] })}
 				onFileGlobal={onFileGlobal}
 				labelForTarget={() => "Paragraph"}
 			/>,
@@ -101,10 +95,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={emptySession}
-				queue={buildRequestQueue({ requests: [], proposals: [], applying: false })}
-				applying={false}
-				agentStatus="offline"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: [], proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
@@ -118,19 +109,16 @@ describe("PanelQueue", () => {
 		expect(screen.getAllByText("empty")).toHaveLength(2);
 	});
 
-	it("puts filters and status in the top bar and splits the dock into filing and run rows", () => {
+	it("puts filters in the top bar and the whole-document input in the dock", () => {
 		render(
-			<PanelQueue session={session} queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: false })} applying={false} agentStatus="connected" onApply={() => {}} onFileGlobal={() => {}} labelForTarget={() => "Paragraph"} />,
+			<PanelQueue session={session} queue={buildRequestQueue({ requests: session.requests, proposals: [] })} onFileGlobal={() => {}} labelForTarget={() => "Paragraph"} />,
 		);
 
 		const topBar = document.querySelector('[data-docs-lab-queue-top-bar]')!;
 		const dock = document.querySelector('[data-docs-lab-queue-dock]')!;
 		expect(topBar.querySelector('[data-docs-lab-filter="open"]')).toBeTruthy();
 		expect(topBar.querySelector('[data-docs-lab-filter="done"]')).toBeTruthy();
-		expect(topBar.querySelector('[data-docs-lab-agent-status="connected"]')).toBeTruthy();
-		expect(dock.querySelector('[data-docs-lab-agent-status]')).toBeNull();
-		expect(document.querySelector('[data-docs-lab-queue-dock-input] input[aria-label="Message the whole document"]')).toBeTruthy();
-		expect(document.querySelector('[data-docs-lab-queue-dock-run] [data-docs-lab-queue-apply]')).toBeTruthy();
+		expect(dock.querySelector('[data-docs-lab-queue-dock-input] input[aria-label="Message the whole document"]')).toBeTruthy();
 	});
 
 	it("groups done records, shows bodies and collapsed replies, focuses targets, and undoes applied work", () => {
@@ -146,7 +134,7 @@ describe("PanelQueue", () => {
 			onUndo,
 		};
 		render(
-			<PanelQueue session={doneSession} queue={buildRequestQueue({ requests: doneSession.requests, proposals: [], applying: false })} applying={false} agentStatus="connected" onApply={() => {}} onFocusTarget={onFocusTarget} labelForTarget={() => "Paragraph"} />,
+			<PanelQueue session={doneSession} queue={buildRequestQueue({ requests: doneSession.requests, proposals: [] })} onFocusTarget={onFocusTarget} labelForTarget={() => "Paragraph"} />,
 		);
 
 		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
@@ -180,10 +168,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={threadedSession}
-				queue={buildRequestQueue({ requests: threadedSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: threadedSession.requests, proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
@@ -221,10 +206,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={waitingSession}
-				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
@@ -257,10 +239,7 @@ describe("PanelQueue", () => {
 		const { rerender } = render(
 			<PanelQueue
 				session={openSession}
-				queue={buildRequestQueue({ requests: openSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: openSession.requests, proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
@@ -278,93 +257,13 @@ describe("PanelQueue", () => {
 		rerender(
 			<PanelQueue
 				session={waitingSession}
-				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: waitingSession.requests, proposals: [] })}
 				labelForTarget={() => "Paragraph"}
 			/>,
 		);
 
 		expect(toggle.getAttribute("aria-expanded")).toBe("true");
 		expect(screen.getByText("Which audience?")).toBeTruthy();
-	});
-
-	it("gives an external Apply disabled reason precedence over an applicable queue", () => {
-		render(
-			<PanelQueue
-				session={session}
-				queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="offline"
-				applyDisabledReason="docs agent not connected"
-				onApply={() => {}}
-				labelForTarget={() => "Paragraph"}
-			/>,
-		);
-
-		const apply = screen.getByRole("button", { name: "Apply queue" }) as HTMLButtonElement;
-		expect(apply.disabled).toBe(true);
-		expect(apply.getAttribute("title")).toBe("docs agent not connected");
-		expect(apply.textContent).toBe("Run queue (1)");
-	});
-
-	it("preserves the queue model behavior when no external reason is present", () => {
-		render(
-			<PanelQueue
-				session={session}
-				queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				applyDisabledReason={null}
-				onApply={() => {}}
-				labelForTarget={() => "Paragraph"}
-			/>,
-		);
-
-		const apply = screen.getByRole("button", { name: "Apply queue" }) as HTMLButtonElement;
-		expect(apply.disabled).toBe(false);
-		expect(apply.getAttribute("title")).toBe("Run the queued notes");
-		expect(apply.textContent).toBe("Run queue (1)");
-		expect(document.querySelector('[data-docs-lab-agent-status="connected"]')?.textContent).toContain("connected");
-	});
-
-	it("renders a disabled running state while applying", () => {
-		render(
-			<PanelQueue
-				session={session}
-				queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: true })}
-				applying
-				agentStatus="running"
-				onApply={() => {}}
-				labelForTarget={() => "Paragraph"}
-			/>,
-		);
-
-		const apply = screen.getByRole("button", { name: "Apply queue" }) as HTMLButtonElement;
-		expect(apply.disabled).toBe(true);
-		expect(apply.textContent).toBe("running…");
-		expect(apply.getAttribute("title")).toBe("The queue is running");
-		expect(document.querySelector('[data-docs-lab-agent-status="running"]')?.textContent).toContain("session running");
-	});
-
-	it("renders a session failure in the queue transcript", () => {
-		render(
-			<PanelQueue
-				session={session}
-				queue={buildRequestQueue({ requests: session.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="offline"
-				sessionError="The docs agent is running against a different docs root — it doesn't know this document."
-				onApply={() => {}}
-				labelForTarget={() => "Paragraph"}
-			/>,
-		);
-
-		const error = document.querySelector('[data-docs-lab-session-error]');
-		expect(error?.getAttribute("role")).toBe("alert");
-		expect(error?.textContent).toContain("different docs root");
-		expect(document.querySelector('[data-docs-lab-agent-status="offline"]')?.getAttribute("title")).toBe("Docs agent not connected");
 	});
 
 	it("renders labels from mixed-document targets without inspecting them", () => {
@@ -389,10 +288,7 @@ describe("PanelQueue", () => {
 		render(
 			<PanelQueue
 				session={mixedSession}
-				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [], applying: false })}
-				applying={false}
-				agentStatus="connected"
-				onApply={() => {}}
+				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [] })}
 				labelForTarget={(target) => target.docPath?.endsWith("20-north-star") ? "north star → block" : "Overview"}
 			/>,
 		);

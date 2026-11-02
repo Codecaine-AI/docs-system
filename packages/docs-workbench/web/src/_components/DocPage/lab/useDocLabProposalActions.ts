@@ -4,22 +4,8 @@ import { errorMessage } from "./error-message";
 import type { DocLabActionContext } from "./types";
 
 export function useDocLabProposalActions(context: DocLabActionContext) {
-	const { options, path, doc, requestsRef, stagedRef, clearAliasError, setAliasError, proposalsRef, proposalsHashRef, docHashRef, refreshBundleRef, onDocAppliedRef, refetchProposalsRef, proposals, setProposals, setUndoable } = context;
+	const { path, doc, requestsRef, stagedRef, clearAliasError, setAliasError, proposalsRef, proposalsHashRef, docHashRef, refreshBundleRef, onDocAppliedRef, refetchProposalsRef, proposals, setProposals, setUndoable } = context;
 	const onAccept = useCallback(async (alias: string, transactionId?: string) => {
-		const request = requestsRef.current.find((row) => row.alias === alias);
-		if (options.kernelSession?.live() && request?.annotationId) {
-			const result = await options.kernelSession.accept(request.annotationId, transactionId);
-			if (result.ok) {
-				clearAliasError(alias);
-				await refreshBundleRef.current();
-				await refetchProposalsRef.current();
-				return;
-			}
-			if (!result.miss) {
-				setAliasError(alias, result.message);
-				return;
-			}
-		}
 		const stagedProposal = transactionId
 			? stagedRef.current.find((proposal) => proposal.transactionId === transactionId)
 			: stagedRef.current.find((proposal) => proposal.alias === alias);
@@ -48,23 +34,9 @@ export function useDocLabProposalActions(context: DocLabActionContext) {
 			}
 			setAliasError(alias, errorMessage(error));
 		}
-	}, [path, options.kernelSession, clearAliasError, setAliasError]);
+	}, [path, clearAliasError, setAliasError]);
 
 	const onReject = useCallback(async (alias: string, note?: string, transactionId?: string) => {
-		const request = requestsRef.current.find((row) => row.alias === alias);
-		if (options.kernelSession?.live() && request?.annotationId) {
-			const result = await options.kernelSession.reject(request.annotationId, note, transactionId);
-			if (result.ok) {
-				clearAliasError(alias);
-				await refreshBundleRef.current();
-				await refetchProposalsRef.current();
-				return;
-			}
-			if (!result.miss) {
-				setAliasError(alias, result.message);
-				return;
-			}
-		}
 		const stagedProposal = transactionId
 			? stagedRef.current.find((proposal) => proposal.transactionId === transactionId)
 			: stagedRef.current.find((proposal) => proposal.alias === alias);
@@ -93,7 +65,7 @@ export function useDocLabProposalActions(context: DocLabActionContext) {
 		} catch (error) {
 			setAliasError(alias, errorMessage(error));
 		}
-	}, [path, options.kernelSession, clearAliasError, setAliasError]);
+	}, [path, clearAliasError, setAliasError]);
 
 	return { onAccept, onReject };
 }

@@ -1289,10 +1289,6 @@
             "note": "Shared UI proxy"
           },
           {
-            "path": "packages/docs-kernel/catalog/docs-lab-editor/context/index.ts",
-            "note": "Internal Docs Lab authoring context consumer"
-          },
-          {
             "path": "packages/docs-mcp/src/lint-feedback.ts",
             "note": "Gated style rule policy, write findings, judgment rules, and the judged gate"
           },

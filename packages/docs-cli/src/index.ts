@@ -260,7 +260,7 @@ function usage(): string {
     "  docs-cli audit [docsRoot]",
     "  docs-cli style lint|sweep|report|stage [options]   (run `docs-cli style` for details)",
     "  docs-cli migrate [repoRoot] [--drafts] [--dry-run]",
-    "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]",
+    "  docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]",
     "  docs-cli export [--root <path>] --out <dir> [--rebuild] [--repo-url <url>] [--site-title <text>]",
     "  docs-cli code-theme import [--from auto|cursor|vscode|<theme.json>] [--id <id>] [--name <name>] [--use]",
     "  docs-cli code-theme list",
@@ -535,7 +535,7 @@ async function main() {
 
     if (command === "serve") {
       // Standalone read-only docs server + viewer SPA (packages/docs-workbench).
-      //   docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--kernel-url <url>] [--corpus <name>] [--dev] [--rebuild] [--theme-locked]
+      //   docs-cli serve [--root <path>] [--themes-root <path>] [--port <port>] [--ui-port <port>] [--host <addr>] [--dev] [--rebuild] [--theme-locked]
       // Default mode vite-builds the SPA once (cached) and serves API + SPA
       // from one port; --dev spawns `vite dev` with an /api proxy instead.
       // Binds loopback unless --host is given (the docs tree may be private).
@@ -569,8 +569,6 @@ async function main() {
         dev: args.includes("--dev"),
         forceBuild: args.includes("--rebuild"),
         themeLocked: args.includes("--theme-locked"),
-        kernelUrl: flagValue(args, "--kernel-url"),
-        corpus: flagValue(args, "--corpus"),
       });
       return;
     }

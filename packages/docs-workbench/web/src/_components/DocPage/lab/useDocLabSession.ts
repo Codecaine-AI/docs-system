@@ -2,8 +2,7 @@ import { useCallback, useMemo, useRef } from "react";
 import type { DocChangeSetView, DocEditRequest, DocEditSession } from "@codecaine-ai/docs-viewer/lab";
 import { acceptChangeset as acceptChangesetApi, rejectChangeset as rejectChangesetApi, undoChangeset as undoChangesetApi } from "../../../data/api";
 import { deriveDocEditRequests, deriveStagedProposals, staleStagedProposals } from "./doc-lab-projection";
-import { docsKernelSessionApplying } from "./docs-kernel-session-source";
-import { overlayChangesets, selectChangesetsForDoc } from "./doc-lab-changesets";
+import { selectChangesetsForDoc } from "./doc-lab-changesets";
 import { changesetFailureMessage, type ChangesetAction } from "./doc-lab-changeset-messages";
 import type { DocLabSessionResult, UseDocLabSessionOptions } from "./types";
 import { useDocLabRemoteState } from "./useDocLabRemoteState";
@@ -17,31 +16,15 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 	const { path, doc, annotations } = options;
 	const enabled = options.enabled ?? true;
 	const remoteState = useDocLabRemoteState(options, enabled);
-	const { refreshBundleRef, onApplyQueueRef, refetchProposals, refetchChangesets, refetchProposalsRef, refetchChangesetsRef, proposals, proposalsError, fetchedChangesets, changesetBusy, setChangesetBusy, changesetErrors, setChangesetErrors, requestErrors, setRequestErrors, undoable } = remoteState;
+	const { refreshBundleRef, refetchProposals, refetchChangesets, refetchProposalsRef, refetchChangesetsRef, proposals, proposalsError, fetchedChangesets, changesetBusy, setChangesetBusy, changesetErrors, setChangesetErrors, requestErrors, setRequestErrors, undoable } = remoteState;
 
-	const kernelLive = options.kernelSession?.live() ?? false;
-	const kernelStatusOverlay = options.kernelSession?.statusOverlay();
-	const kernelStarting = options.kernelSnapshot?.starting ?? false;
-	const kernelChangesets = options.kernelSession?.changesets?.() ?? new Map<string, DocChangeSetView>();
 	const changesets = useMemo(
-		() => selectChangesetsForDoc(
-			overlayChangesets(fetchedChangesets, kernelChangesets.values()),
-			path,
-			options.kernelSession?.sessionId?.(),
-		),
-		[fetchedChangesets, kernelChangesets, path, options.kernelSession],
+		() => selectChangesetsForDoc(fetchedChangesets, path),
+		[fetchedChangesets, path],
 	);
-	const requests = useMemo(() => {
-		const projected = deriveDocEditRequests({ annotations, proposals, doc });
-		if ((!kernelLive && !kernelStarting) || !kernelStatusOverlay) return projected;
-		return projected.map((request) => {
-			const status = request.annotationId
-				? kernelStatusOverlay.get(request.annotationId)
-				: undefined;
-			return status === undefined ? request : { ...request, status };
-		});
-	},
-		[annotations, proposals, doc, kernelLive, kernelStarting, kernelStatusOverlay],
+	const requests = useMemo(
+		() => deriveDocEditRequests({ annotations, proposals, doc }),
+		[annotations, proposals, doc],
 	);
 	const staged = useMemo(
 		() => deriveStagedProposals({ proposals, requests }),
@@ -72,10 +55,6 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 	const { onRejectWithFeedback, onUndo } = useDocLabReviewActions(actionContext);
 
 	const { onFileRequest, onReplyToRequest, onDismissRequest } = useDocLabRequestActions(actionContext);
-
-	const onApplyQueue = useMemo(() => options.onApplyQueue
-		? (annotationIds: string[]) => onApplyQueueRef.current?.(annotationIds)
-		: undefined, [options.onApplyQueue]);
 
 	const runChangesetAction = useCallback(async (
 		id: string,
@@ -132,17 +111,11 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		onRejectWithFeedback,
 		onUndo,
 		onReplyToRequest,
-		onApplyQueue,
 		// Accept-all and draft discard are not wired in wave 1.
 		onAcceptAll: undefined,
 		onDiscardDraft: undefined,
 		onDismissRequest,
-	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onRejectWithFeedback, onUndo, onReplyToRequest, onApplyQueue, onDismissRequest]);
-
-	const agentConnected = Boolean(options.onApplyQueue);
-	const applying = options.kernelSnapshot
-		? docsKernelSessionApplying(options.kernelSnapshot)
-		: false;
+	}), [requests, staged, undoable, onFileRequest, onAccept, onReject, onRejectWithFeedback, onUndo, onReplyToRequest, onDismissRequest]);
 
 	return {
 		session,
@@ -152,17 +125,6 @@ export function useDocLabSession(options: UseDocLabSessionOptions): DocLabSessio
 		changesets,
 		changesetBusy,
 		changesetErrors,
-		agentConnected,
-		applying,
-		sessionError:
-			options.kernelSnapshot?.sessionError ??
-			options.kernelSnapshot?.streamError ??
-			null,
-		agentStatus: applying
-			? "running"
-			: agentConnected
-				? "connected"
-				: "offline",
 		refetchProposals,
 		refetchChangesets,
 		acceptChangeset,

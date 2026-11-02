@@ -1,28 +1,8 @@
 import { IS_STATIC, fetchJson } from "./http";
 
-export type LabConfig = { kernelUrl: string; corpus: string };
-
-export const DEFAULT_LAB_CONFIG: LabConfig = {
-  kernelUrl: "http://127.0.0.1:4840",
-  corpus: "docs-system",
-};
-
 // ---------------------------------------------------------------------------
 // Reads (serve + static)
 // ---------------------------------------------------------------------------
-
-/**
- * Static exports have no config route (and no lab), so they never probe it;
- * on a live host every failure preserves localhost defaults.
- */
-export async function fetchLabConfig(isStatic: boolean = IS_STATIC): Promise<LabConfig> {
-  if (isStatic) return DEFAULT_LAB_CONFIG;
-  try {
-    return await fetchJson<LabConfig>(`api/lab-config`);
-  } catch {
-    return DEFAULT_LAB_CONFIG;
-  }
-}
 
 /**
  * Public-site chrome for a static export: `data/site.json`, written by

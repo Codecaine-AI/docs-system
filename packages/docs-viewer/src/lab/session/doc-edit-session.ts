@@ -120,17 +120,8 @@ export interface DocEditSession {
 	onAcceptAll?: () => void | Promise<void>;
 	onDiscardDraft?: () => void | Promise<void>;
 	onReplyToRequest?: (alias: string, body: string) => void | Promise<void>;
-	/** Launch one batch session for the queued annotation ids, in queue order. */
-	onApplyQueue?: (annotationIds: string[]) => void | Promise<void>;
 	/** Dismiss a queued note before any run consumes it. */
 	onDismissRequest?: (requestId: string) => void | Promise<void>;
-}
-
-/** The stable request handle for host callbacks. */
-export function requestRunId(
-	request: Pick<DocEditRequest, "id" | "annotationId">,
-): string {
-	return request.annotationId ?? request.id;
 }
 
 /* ------------------------------------------------------------------ */

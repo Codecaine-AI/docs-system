@@ -8,7 +8,6 @@ import {
 	ChangeSetCard,
 	PanelQueue,
 	buildRequestQueue,
-	requestRunId,
 	type DocEditTarget,
 } from "@codecaine-ai/docs-viewer/lab";
 
@@ -55,22 +54,14 @@ export function DocLab({
 			buildRequestQueue({
 				requests: lab.session.requests,
 				proposals: lab.session.proposals,
-				applying: lab.applying,
 				conflictedAliases,
 			}),
-		[conflictedAliases, lab.applying, lab.session.proposals, lab.session.requests],
+		[conflictedAliases, lab.session.proposals, lab.session.requests],
 	);
 	const targetLabel = useCallback(
 		(target: DocEditTarget) => labelForTarget(doc, target, openDocPath),
 		[doc, openDocPath],
 	);
-	const applyQueue = useCallback(() => {
-		const annotationIds = queue.queue
-			.filter((entry) => !entry.staged)
-			.map((entry) => requestRunId(entry.request));
-		if (annotationIds.length === 0) return;
-		void lab.session.onApplyQueue?.(annotationIds);
-	}, [lab.session, queue.queue]);
 	const requestErrors = Object.entries(lab.requestErrors);
 
 	return (
@@ -84,13 +75,6 @@ export function DocLab({
 				<PanelQueue
 					session={lab.session}
 					queue={queue}
-					applying={lab.applying}
-					sessionError={lab.sessionError}
-					agentStatus={lab.agentStatus}
-					onApply={applyQueue}
-					applyDisabledReason={
-						lab.agentConnected ? null : "docs agent not connected"
-					}
 					onFocusTarget={onFocusTarget}
 					labelForTarget={targetLabel}
 				>

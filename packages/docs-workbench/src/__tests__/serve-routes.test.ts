@@ -113,27 +113,6 @@ describe("GET /api/tree", () => {
   });
 });
 
-describe("GET /api/lab-config", () => {
-  test("returns defaults and invocation-specific kernel settings", async () => {
-    const defaults = await get("/api/lab-config");
-    expect(await defaults.json()).toEqual({
-      kernelUrl: "http://127.0.0.1:4840",
-      corpus: "docs-system",
-    });
-
-    const configured = createDocsServeApp({
-      docsRoot,
-      kernelUrl: "http://127.0.0.1:9999",
-      corpus: "product-docs",
-    });
-    const response = await configured.handle(new Request("http://localhost/api/lab-config"));
-    expect(await response.json()).toEqual({
-      kernelUrl: "http://127.0.0.1:9999",
-      corpus: "product-docs",
-    });
-  });
-});
-
 describe("GET /api/themes", () => {
   test("uses the serve-level themesRoot override", async () => {
     const themesRoot = await mkdtemp(join(tmpdir(), "docs-workbench-themes-"));

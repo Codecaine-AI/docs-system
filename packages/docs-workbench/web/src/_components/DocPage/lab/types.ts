@@ -3,7 +3,6 @@ import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-s
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocChangeSetView, DocEditRequest, DocEditSession } from "@codecaine-ai/docs-viewer/lab";
 import type { DocProposal } from "../../../data/api";
-import type { DocsKernelSessionHandle, DocsKernelSessionSnapshot } from "./docs-kernel-session-source";
 import type { useDocLabRemoteState } from "./useDocLabRemoteState";
 import type { deriveStagedProposals } from "./doc-lab-projection";
 
@@ -17,13 +16,6 @@ export interface UseDocLabSessionOptions {
 	refreshBundle: () => void | Promise<void>;
 	/** Fired after a successful accept with the server's post-accept doc + hash. */
 	onDocApplied?: (doc: DocDocument, hash: string) => void;
-	/** SEAM — a kernel-session source supplies this later. When absent the queue's
-	 * Apply affordance is disabled ("docs agent not connected"). */
-	onApplyQueue?: (annotationIds: string[]) => void | Promise<void>;
-	/** Optional live kernel session overlay and review router. */
-	kernelSession?: DocsKernelSessionHandle;
-	/** Reactive snapshot paired with kernelSession (including session creation). */
-	kernelSnapshot?: DocsKernelSessionSnapshot;
 	/** Serve-mode gate; static exports do not call proposal/write routes. */
 	enabled?: boolean;
 }
@@ -36,10 +28,6 @@ export interface DocLabSessionResult {
 	changesets: DocChangeSetView[];
 	changesetBusy: Record<string, "accepting" | "rejecting" | "undoing">;
 	changesetErrors: Record<string, string>;
-	agentConnected: boolean;
-	applying: boolean;
-	sessionError: string | null;
-	agentStatus: "connected" | "offline" | "running";
 	refetchProposals: () => Promise<void>;
 	refetchChangesets: () => Promise<void>;
 	acceptChangeset: (id: string) => Promise<void>;

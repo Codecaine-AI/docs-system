@@ -23,14 +23,12 @@ export function useDocLabRemoteState(options: UseDocLabSessionOptions, enabled: 
 	const docHashRef = useRef(docHash);
 	const refreshBundleRef = useRef(options.refreshBundle);
 	const onDocAppliedRef = useRef(options.onDocApplied);
-	const onApplyQueueRef = useRef(options.onApplyQueue);
 
 	pathRef.current = path;
 	annotationsHashRef.current = annotationsHash;
 	docHashRef.current = docHash;
 	refreshBundleRef.current = options.refreshBundle;
 	onDocAppliedRef.current = options.onDocApplied;
-	onApplyQueueRef.current = options.onApplyQueue;
 
 	const refetchProposals = useCallback(async () => {
 		if (!enabled) return;
@@ -93,5 +91,5 @@ export function useDocLabRemoteState(options: UseDocLabSessionOptions, enabled: 
 		});
 	}, [enabled]);
 
-	return { proposalsRef, proposalsHashRef, fetchSequenceRef, changesetFetchSequenceRef, pathRef, annotationsHashRef, docHashRef, refreshBundleRef, onDocAppliedRef, onApplyQueueRef, refetchProposals, refetchChangesets, refetchProposalsRef, refetchChangesetsRef, proposals, setProposals, proposalsError, setProposalsError, fetchedChangesets, setFetchedChangesets, changesetBusy, setChangesetBusy, changesetErrors, setChangesetErrors, requestErrors, setRequestErrors, undoable, setUndoable };
+	return { proposalsRef, proposalsHashRef, fetchSequenceRef, changesetFetchSequenceRef, pathRef, annotationsHashRef, docHashRef, refreshBundleRef, onDocAppliedRef, refetchProposals, refetchChangesets, refetchProposalsRef, refetchChangesetsRef, proposals, setProposals, proposalsError, setProposalsError, fetchedChangesets, setFetchedChangesets, changesetBusy, setChangesetBusy, changesetErrors, setChangesetErrors, requestErrors, setRequestErrors, undoable, setUndoable };
 }

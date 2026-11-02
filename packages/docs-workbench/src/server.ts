@@ -81,10 +81,6 @@ export interface DocsServeAppOptions {
    * without it each origin's localStorage rail state wins and viewers drift.
    */
   themeLocked?: boolean;
-  /** Docs kernel origin exposed to the lab UI. */
-  kernelUrl?: string;
-  /** Kernel corpus this served docs tree belongs to. */
-  corpus?: string;
   /** Explicit development UI origins allowed to request offline PDF printing. */
   pdfOrigins?: string[];
 }
@@ -114,8 +110,6 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
   const staticDir = options.staticDir ?? null;
 
   const themeLocked = !!options.themeLocked;
-  const kernelUrl = options.kernelUrl ?? "http://127.0.0.1:4840";
-  const corpus = options.corpus ?? "docs-system";
   const app = new Elysia();
   if (options.sharedApi) {
     const proxy = createSharedDocsApiProxy(options.sharedApi);
@@ -124,7 +118,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
       if (themeLocked && /^\/api\/(?:code-)?themes(?:\/|$)/.test(pathname) && !["GET", "HEAD", "OPTIONS"].includes(request.method)) {
         return Response.json({ detail: "Theme is locked on this serve: edit the theme in the primary docs-system app." }, { status: 403 });
       }
-      if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/lab-config" && pathname !== "/api/export-pdf") {
+      if (pathname.startsWith("/api/") && pathname !== "/api/serve-config" && pathname !== "/api/export-pdf") {
         return proxy(request);
       }
     });
@@ -152,8 +146,7 @@ export function createDocsServeApp(options: DocsServeAppOptions) {
     // route table: themeLocked is a property of this serve invocation, not
     // of the docs tree, so hosts embedding createDocsRoutes directly are
     // untouched. The SPA reads it once at boot to pick its theme path.
-    .get("/api/serve-config", () => ({ themeLocked, globalTheme: !!options.globalThemesRoot }))
-    .get("/api/lab-config", () => ({ kernelUrl, corpus }));
+    .get("/api/serve-config", () => ({ themeLocked, globalTheme: !!options.globalThemesRoot }));
 
   if (staticDir) {
     const indexAbs = join(staticDir, "index.html");
