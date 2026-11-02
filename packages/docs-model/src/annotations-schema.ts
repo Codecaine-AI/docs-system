@@ -91,7 +91,15 @@ export type DocAnnotation = {
   resolution?: string;
   /** Optional conversation thread. Kept in the annotations sidecar. */
   replies?: DocAnnotationReply[];
+  /**
+   * Optional T3 Code thread the request was dispatched to. Unlike
+   * `agentRun`, binding a thread never changes `status`.
+   */
+  thread?: DocAnnotationThread;
 };
+
+/** The T3 Code thread bound to an annotation. */
+export type DocAnnotationThread = { id: string; title?: string };
 
 export type AnnotationsDocument = { schemaVersion: 1; annotations: DocAnnotation[] };
 
@@ -369,10 +377,44 @@ export const docsAnnotationSchema = createAnnotationSchema<AnnotationTarget>({
 
 export function validateAnnotationsDocument(value: unknown): AnnotationsValidationResult {
   const result = docsAnnotationSchema.validateDocument(value);
-  if (!result.ok) return result;
-  // The schema is configured with the docs intents/statuses, so the wide
-  // engine strings are guaranteed to be the narrow docs unions.
-  return { ok: true, document: result.document as AnnotationsDocument };
+  // The shared engine rebuilds each annotation from known keys and drops
+  // `thread`, a docs-only field, so it is parsed here from the raw input.
+  const rawAnnotations = isRecord(value) && Array.isArray(value.annotations) ? value.annotations : [];
+  const threadIssues: ValidationIssue[] = [];
+  const threads = rawAnnotations.map((raw, index) =>
+    parseThread(isRecord(raw) ? raw.thread : undefined, `$.annotations[${index}].thread`, threadIssues),
+  );
+  if (!result.ok) return { ok: false, issues: [...result.issues, ...threadIssues] };
+  if (threadIssues.length > 0) return { ok: false, issues: threadIssues };
+  // A valid engine result keeps every raw annotation in order, so the
+  // indexes line up. The schema is configured with the docs intents and
+  // statuses, so the wide engine strings are the narrow docs unions.
+  const annotations = (result.document.annotations as DocAnnotation[]).map((annotation, index) => {
+    const thread = threads[index];
+    return thread ? { ...annotation, thread } : annotation;
+  });
+  return { ok: true, document: { schemaVersion: 1, annotations } };
+}
+
+function parseThread(
+  raw: unknown,
+  path: string,
+  issues: ValidationIssue[],
+): DocAnnotationThread | undefined {
+  if (raw === undefined) return undefined;
+  if (!isRecord(raw)) {
+    issues.push({ path, message: "Annotation thread must be an object." });
+    return undefined;
+  }
+  if (typeof raw.id !== "string" || raw.id.length === 0) {
+    issues.push({ path: `${path}.id`, message: "Annotation thread id must be a non-empty string." });
+    return undefined;
+  }
+  if (raw.title !== undefined && typeof raw.title !== "string") {
+    issues.push({ path: `${path}.title`, message: "Annotation thread title must be a string when present." });
+    return undefined;
+  }
+  return { id: raw.id, ...(raw.title !== undefined ? { title: raw.title } : {}) };
 }
 
 /* ------------------------------------------------------------------ */

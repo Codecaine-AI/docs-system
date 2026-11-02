@@ -17,7 +17,7 @@ const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'o
 const string={type:'string',minLength:1};
 const MUTATION_READS = new Set(['docs_tree','docs_read','docs_check','docs_annotations','docs_component_read','docs_search','docs_backlinks','docs_asset_read','docs_assets','docs_proposals','docs_changesets','docs_changeset_read']);
 /** Tree, annotation, review-decision, asset, undo, restore, and lint-fix writes skip the style gate. Every other write is content. */
-const STYLE_GATE_EXEMPT=new Set(['docs_create','docs_move','docs_rename','docs_delete','docs_set_title','docs_annotation_add','docs_annotation_reply','docs_annotation_resolve','docs_proposal_accept','docs_proposal_reject','docs_changeset_stage','docs_changeset_accept','docs_changeset_reject','docs_asset_upload','docs_asset_move','docs_asset_delete','docs_undo','docs_management_restore','docs_fix_lints']);
+const STYLE_GATE_EXEMPT=new Set(['docs_create','docs_move','docs_rename','docs_delete','docs_set_title','docs_annotation_add','docs_annotation_reply','docs_annotation_resolve','docs_annotation_thread','docs_proposal_accept','docs_proposal_reject','docs_changeset_stage','docs_changeset_accept','docs_changeset_reject','docs_asset_upload','docs_asset_move','docs_asset_delete','docs_undo','docs_management_restore','docs_fix_lints']);
 const STYLE_GATE='Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 const STYLE_NEXT='Read docs_guidance with task_id and topic "style" before your first edit. Writes are refused until you do.';
 const topicIndex=(topics:GuidanceTopic[])=>topics.map(({topic,covers,text})=>({topic,covers,chars:text.length}));
