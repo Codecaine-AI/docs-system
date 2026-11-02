@@ -37,7 +37,8 @@ Follow these steps for every edit, and for each open request on a page.
    - Edit a block in place. Never delete and recreate a block to change it, and never write structure, arrows or layout as text.
    - Fix the `style_findings` and `component_findings` in each result before the next edit. A Sequence edit also returns the saved `program` and an `svg_path` to open as an image.
    - If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error.
-4. Run `docs_check` with `task_id` on each changed page. Fix its `lint`, `style_gate` and `components` findings.
+4. Run `docs_check` with `task_id` on each changed page. Fix its `lint` and `style_gate` findings and each failing component.
+   - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
 5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.
 
 For a request, reply with `docs_annotation_reply` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.

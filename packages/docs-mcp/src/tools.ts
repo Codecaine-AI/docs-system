@@ -271,7 +271,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, only blocks the task touched fail the check, marked touched_by_task.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -297,7 +297,8 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       // Judged findings on blocks the task changed join the gate. Unavailable judgment is reported and never blocks.
       const judged = style_gate && context.judgmentEngine ? await judgedStyleGate({ engine: context.judgmentEngine, baseline: baseline ?? null, doc: result.doc }) : undefined;
       if (judged?.available) style_gate!.push(...judged.gate);
-      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok || entry.touched_by_task === false) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
+      // An unreadable block always fails: the page cannot load it, whoever broke it.
+      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
     tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
@@ -467,9 +468,10 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           return componentApplied(store, args.path, rest, [], { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program });
         }
         // The text lints judge what this task wrote: against its first-touch board, else the board this edit replaced.
-        if (read.type === "canvas" && ctx.taskId && canvasBaseline(ctx, args.project, read.src) === undefined) context.taskCanvasBaselines?.set(ctx.taskId, `${args.project}:${read.src}`, read.canvas);
         const result = await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash);
         if (!result.ok || read.type !== "canvas") return applied(store, args.path, result);
+        // Only a saved edit touches the board. Its baseline is the board read before the edit.
+        if (ctx.taskId && canvasBaseline(ctx, args.project, read.src) === undefined) context.taskCanvasBaselines?.set(ctx.taskId, `${args.project}:${read.src}`, read.canvas);
         const findings = canvasFindings(result.canvas, { baseline: canvasBaseline(ctx, args.project, read.src) ?? read.canvas });
         return componentApplied(store, args.path, result, findings, {});
       }));

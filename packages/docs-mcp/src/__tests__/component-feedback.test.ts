@@ -130,6 +130,18 @@ describe("component feedback", () => {
     expect(component(untouched, "board").findings.shown).toContainEqual(expect.objectContaining({ rule: "clipped-text", at: ["gateway"] }));
     expect(untouched.ok).toBe(true);
 
+    // A refused edit leaves the board untouched.
+    const stale = await call("docs_canvas_add_object", { ...await hashes("board"), expected_component_hash: "stale", params: { object: { ...object, id: "other" } } }, task);
+    expect(stale.ok).toBe(false);
+    expect((await call("docs_check", {}, task)).ok).toBe(true);
+
+    // An unreadable block fails the check although the task never touched it.
+    await rm(join(temp, "page/assets/sequences/flow.sequence.json"));
+    const missing = await call("docs_check", {}, task);
+    expect(component(missing, "flow")).toMatchObject({ ok: false, touched_by_task: false });
+    expect(missing.ok).toBe(false);
+    await writeFile(join(temp, "page/assets/sequences/flow.sequence.json"), JSON.stringify(flow));
+
     const cramped = { id: "cache", type: "process", text: "Cache", detail: LONG_DETAIL, geometry: { x: 480, y: 96, width: 288, height: 96 } };
     expect((await call("docs_canvas_add_object", { ...await hashes("board"), params: { object: cramped } }, task)).ok).toBe(true);
     const touched = await call("docs_check", {}, task);

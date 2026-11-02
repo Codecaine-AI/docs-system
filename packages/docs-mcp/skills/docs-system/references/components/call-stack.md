@@ -1,6 +1,6 @@
 # call-stack
 
-Generated from Docs System sources. Snapshot: `sha256:4b26fd8c34999af0ec37bfd0425559ae560838240e8721f09c4edb5a2e2e4bb2`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 Use Call Stack to show which function calls which on one code path, with the file and line each frame lives at. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
 

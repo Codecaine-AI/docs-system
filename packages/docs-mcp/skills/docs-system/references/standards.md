@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:4b26fd8c34999af0ec37bfd0425559ae560838240e8721f09c4edb5a2e2e4bb2`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
