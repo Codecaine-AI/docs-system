@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6",
+  "snapshotId": "sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -214,7 +214,7 @@
     },
     {
       "path": "packages/docs-mcp/skills/docs-system/SKILL.md",
-      "sha256": "af77c5648f6c006b2d37f27b369dcd3b1ff03a51686875046a16c09304f3f3b5",
+      "sha256": "6ce318e68c8c41e582f7a951a2c6f300ca23e6526ac172954217ed141a826b14",
       "kind": "skill"
     }
   ]

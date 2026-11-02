@@ -1,6 +1,6 @@
 # interaction-surface
 
-Generated from Docs System sources. Snapshot: `sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation is one collapsed row. Hovering its name shows the kind and purpose, and opening it shows Parameters and Returns cards. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Add exampleCall with the code text of one real example invocation (authored values, never invented). Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
 

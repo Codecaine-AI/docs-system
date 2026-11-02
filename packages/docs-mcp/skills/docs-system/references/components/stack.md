@@ -1,6 +1,6 @@
 # stack
 
-Generated from Docs System sources. Snapshot: `sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
 

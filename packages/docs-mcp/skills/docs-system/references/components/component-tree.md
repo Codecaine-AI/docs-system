@@ -1,6 +1,6 @@
 # component-tree
 
-Generated from Docs System sources. Snapshot: `sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 Use Component Tree to show which component renders which, and the hooks each one calls. Write each node as JSX or a hook call. Use Call Stack for plain function calls.
 

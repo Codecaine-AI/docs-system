@@ -4,7 +4,7 @@ import { createDocsStore } from '@codecaine-ai/docs-server/store';
 import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type DocsProject } from './discovery';
-import { createDocsTools, type DocsToolResult } from './tools';
+import { createDocsTools, type DocsToolContext, type DocsToolResult } from './tools';
 import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
 import { STYLE_DIGEST } from './style-digest';
 import { implementationFingerprint } from './lifecycle';
@@ -28,7 +28,8 @@ export const DEFAULT_TASK_IDLE_MS=30*MINUTE;
 export const DEFAULT_TASK_MAX_AGE_MS=12*HOUR;
 const RETIRED_KEEP_MS=24*HOUR,SWEEP_EVERY_MS=MINUTE;
 type RetireReason='idle'|'max-age'|'ended';
-type Task={workspace:string,snapshot:GuidanceSnapshot,createdAt:number,lastUsedAt:number,inFlight:number,styleRead:boolean,baselines:Map<string,DocDocument|null>};
+type TaskCanvasBaseline=NonNullable<ReturnType<NonNullable<DocsToolContext['taskCanvasBaselines']>['get']>>;
+type Task={workspace:string,snapshot:GuidanceSnapshot,createdAt:number,lastUsedAt:number,inFlight:number,styleRead:boolean,baselines:Map<string,DocDocument|null>,canvasBaselines:Map<string,TaskCanvasBaseline>};
 const plural=(n:number,unit:string)=>`${n} ${unit}${n===1?'':'s'}`;
 /** A duration in the largest whole unit: 30 minutes, 12 hours. */
 const span=(ms:number)=>ms%HOUR===0?plural(ms/HOUR,'hour'):ms%MINUTE===0?plural(ms/MINUTE,'minute'):plural(Math.ceil(ms/1000),'second');
@@ -102,6 +103,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  },
  // First-touch documents per task, freed when the task retires (docs_end or expiry). undefined: not captured yet. null: the doc did not exist at first touch.
  taskBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.baselines.get(key),set:(taskId:string,key:string,doc:DocDocument|null)=>{tasks.get(taskId)?.baselines.set(key,doc);}},
+ // First-touch Canvas sidecars per task, freed with the task: the boards its canvas text lints judge against.
+ taskCanvasBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.canvasBaselines.get(key),set:(taskId:string,key:string,board:TaskCanvasBaseline)=>{tasks.get(taskId)?.canvasBaselines.set(key,board);}},
  judgmentEngine:options.judgmentEngine===null?undefined:options.judgmentEngine??defaultJudgmentEngine()});
  async function discover(workspace:string){
   const discovery=await discoverProjects(workspace);
@@ -144,7 +147,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
      const t0=now();const idlest=Math.max(...[...tasks.values()].map(t=>t.inFlight>0?0:t0-t.lastUsedAt));
      throw new Error(`Too many open authoring activities (${tasks.size}). The longest-idle one has been idle ${idlest<MINUTE?'under a minute':span(Math.floor(idlest/MINUTE)*MINUTE)}; tasks expire after ${span(idleMs)} without a docs call. End finished tasks with docs_end.`);
     }
-    const snapshot=internSnapshot(await loadGuidance());const id=randomUUID();const t0=now();tasks.set(id,{workspace:discovery.workspace,snapshot,createdAt:t0,lastUsedAt:t0,inFlight:0,styleRead:false,baselines:new Map()});
+    const snapshot=internSnapshot(await loadGuidance());const id=randomUUID();const t0=now();tasks.set(id,{workspace:discovery.workspace,snapshot,createdAt:t0,lastUsedAt:t0,inFlight:0,styleRead:false,baselines:new Map(),canvasBaselines:new Map()});
     // Clients may show only the first 2 KB of a large result, so the digest leads and full guidance stays behind docs_guidance topics.
     return reply({ok:true,task_id:id,style_digest:STYLE_DIGEST,next:STYLE_NEXT,topics:topicIndex(guidanceTopics(snapshot)),components:snapshot.components.map(({name,whenToUse})=>({name,when_to_use:oneLine(whenToUse)})),snapshot_id:snapshot.snapshotId,implementation_hash:await startupFingerprint,tool_contract_hash:createHash('sha256').update(JSON.stringify(listTools())).digest('hex'),projects:discovery.projects});
    }

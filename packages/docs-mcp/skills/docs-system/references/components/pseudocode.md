@@ -1,6 +1,6 @@
 # pseudocode
 
-Generated from Docs System sources. Snapshot: `sha256:19abe36c0fc280e1cb2de3a770d43ee0e24cd9a87b1c6a8312cba7e9a54cd5a6`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
 
 Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
 
