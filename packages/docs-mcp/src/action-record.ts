@@ -15,7 +15,9 @@ export function summarize(result: any): string {
 
 /**
  * Appends one action-log record per tool call. The daemon serves several stdio
- * bridges, so identity arrives with each call. A failed write never fails the call.
+ * bridges, so identity arrives with each call. A call without an identity is the
+ * daemon's own warm-up or discovery probe, not an agent action, so it is not logged.
+ * A failed write never fails the call.
  */
 export function createRpcRecorder() {
  const daemonRunId = newRunId();
@@ -23,9 +25,10 @@ export function createRpcRecorder() {
  /** Each task's pinned guidance snapshot, from its docs_begin result, so every later call of the task carries it. */
  const taskSnapshots = new Map<string, string>();
  return (body: RpcBody, result: any): void => {
+  if (!body.identity) return;
   try {
    log ??= openActionLog();
-   const identity = body.identity ?? {};
+   const identity = body.identity;
    const runId = identity.runId || daemonRunId;
    const args = body.arguments ?? {};
    const data = result?.structuredContent ?? {};
