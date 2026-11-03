@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
+import { useViewerEscape, useViewerMotion } from "@codecaine-ai/docs-viewer/viewer-motion";
 import { createPortal } from "react-dom";
 import { ExternalLinkIcon, Maximize2Icon, XIcon } from "lucide-react";
 import type { SequenceEmbedProps } from "@codecaine-ai/docs-viewer/client";
@@ -54,12 +54,13 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
   const closeViewer = useCallback(() => {
     animateClose(dialogRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
   }, [animateClose, expansionSource]);
+  useViewerEscape(viewerOpen, closeViewer);
 
   useEffect(() => {
     if (!viewerOpen) return;
     const dialog = dialogRef.current;
     const previousOverflow = window.document.body.style.overflow;
-    dialog?.showModal();
+    dialog?.show();
     if (expansionSource) captureOrigin(expansionSource);
     animateOpen(dialog);
     window.document.body.style.overflow = "hidden";
@@ -81,7 +82,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
     [document, title, measureRevision],
   );
   const diagramSize = useMemo(() => (viewerDocument ? layoutSequence(viewerDocument) : null), [viewerDocument]);
-  // After the showModal effect above, so the first fit measures an open dialog.
+  // After the show effect above, so the first fit measures an open dialog.
   const panZoom = usePanZoom({
     viewportRef,
     contentWidth: diagramSize?.width ?? 0,
@@ -210,7 +211,6 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           style={{ transformOrigin: "top left" }}
           className="docs-sequence-dialog not-prose bg-background text-foreground"
           aria-label={`${viewerTitle} sequence viewer`}
-          onCancel={event => { event.preventDefault(); closeViewer(); }}
           // A StrictMode remount closes then reopens the dialog; the queued close event must not unmount it.
           onClose={() => { if (!dialogRef.current?.open) setViewerOpen(false); }}
         >

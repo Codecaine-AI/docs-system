@@ -67,11 +67,14 @@
   outline-offset: -3px;
 }
 
+/* Non-modal, so it stacks by z-index and fills the host's viewer area
+   (useViewerEscape in docs-viewer's useViewerMotion.ts). */
 .docs-sequence-dialog {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  inset: var(--docs-viewer-inset, 0);
+  z-index: 100;
+  width: auto;
+  height: auto;
   max-width: none;
   max-height: none;
   margin: 0;
