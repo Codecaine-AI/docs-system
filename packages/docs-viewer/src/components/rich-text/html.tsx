@@ -182,7 +182,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     </div>
     <div className="p-3">
       <div ref={slotRef} style={{ minWidth: 0, height: expanded ? inlineRectRef.current?.height ?? previewHeight : undefined }}>
-        <dialog ref={dialogRef} role={expanded ? "dialog" : "group"} aria-label={label}
+        <dialog ref={dialogRef} role={expanded ? "dialog" : "group"} aria-label={label} data-docs-viewer={expanded ? "" : undefined}
           style={{ display: "flex", flexDirection: "column", position: expanded ? "fixed" : "relative",
             inset: expanded ? "var(--docs-viewer-inset, 0)" : "auto", zIndex: expanded ? 100 : undefined,
             width: expanded ? "auto" : "100%", height: "auto",

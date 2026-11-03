@@ -451,7 +451,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Each viewer opens non-modal, so a host's sidebar and tabs outside the viewer area stay usable."
+          "insert": "Each viewer opens non-modal, so a host's sidebar and tabs outside the viewer area stay usable. An open viewer carries "
+        },
+        {
+          "insert": "data-docs-viewer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a host can raise its chrome over the viewer only while one is open."
         }
       ],
       "children": []

@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef } from "react";
  * Full-screen viewers open non-modal, so the host page around them (a sidebar,
  * tabs) stays usable. They fill the host's viewer area: the CSS property
  * `--docs-viewer-inset` (an `inset` value, default 0, the whole window).
+ * An open viewer carries `data-docs-viewer`, so a host can lift its own
+ * chrome over it only while one is open.
  * A non-modal dialog gets no Escape cancel, so this closes the viewer on Escape.
  */
 export function useViewerEscape(open: boolean, close: () => void) {

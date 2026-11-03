@@ -40,8 +40,10 @@ describe("ExpandableImage", () => {
   it("closes on Escape from anywhere on the page, since the viewer is not modal", () => {
     const { getByRole, baseElement } = render(<ExpandableImage src="/a.png" alt="Diagram" title="Overview" />);
     fireEvent.click(getByRole("button", { name: "Open Overview in full-screen viewer" }));
+    expect(baseElement.querySelector("[data-docs-viewer]")).toBeTruthy();
     fireEvent.keyDown(window, { key: "Escape" });
     expect(baseElement.querySelector(".docs-image-dialog")).toBeNull();
+    expect(baseElement.querySelector("[data-docs-viewer]")).toBeNull();
   });
 });
 
