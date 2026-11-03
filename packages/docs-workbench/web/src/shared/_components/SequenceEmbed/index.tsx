@@ -210,6 +210,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
           ref={dialogRef}
           style={{ transformOrigin: "top left" }}
           className="docs-sequence-dialog not-prose bg-background text-foreground"
+          data-docs-viewer=""
           aria-label={`${viewerTitle} sequence viewer`}
           // A StrictMode remount closes then reopens the dialog; the queued close event must not unmount it.
           onClose={() => { if (!dialogRef.current?.open) setViewerOpen(false); }}

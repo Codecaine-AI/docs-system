@@ -32,6 +32,7 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
   const expand = getByRole("button", { name: "Expand HTML content" });
   fireEvent.click(expand);
   expect(container.querySelector("dialog")!.open).toBe(true);
+  expect(container.querySelector("dialog")!.hasAttribute("data-docs-viewer")).toBe(true);
   fireEvent.click(getByRole("button", { name: "100%" }));
   expect(container.querySelector("iframe")).toBe(frame);
   expect(frame.srcdoc).toBe(source);
@@ -39,6 +40,7 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
     source: frame.contentWindow, origin: "null", data: { type: "docs-html-escape" },
   })));
   expect(container.querySelector("dialog")!.open).toBe(false);
+  expect(container.querySelector("dialog")!.hasAttribute("data-docs-viewer")).toBe(false);
   expect(container.querySelector("iframe")).toBe(frame);
   expect(document.activeElement).toBe(expand);
   expect(document.body.style.overflow).not.toBe("hidden");

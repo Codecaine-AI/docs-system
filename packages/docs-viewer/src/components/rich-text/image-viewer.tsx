@@ -104,6 +104,7 @@ export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }:
       ref={dialogRef}
       style={{ transformOrigin: "top left" }}
       className="docs-image-dialog not-prose bg-background text-foreground"
+      data-docs-viewer=""
       aria-label={`${title} image viewer`}
       // A StrictMode remount closes then reopens the dialog; the queued close event must not unmount it.
       onClose={() => { if (!dialogRef.current?.open) onClose(); }}
