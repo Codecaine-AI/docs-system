@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Maximize2Icon, XIcon } from "lucide-react";
-import { useViewerMotion } from "../../transitions/useViewerMotion";
+import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
 import { usePanZoom } from "../../transitions/usePanZoom";
 
 type ExpandableImageProps = {
@@ -70,7 +70,7 @@ type ImageViewerDialogProps = {
   onClose: () => void;
 };
 
-/** Full-screen modal viewer: fits on open, wheel zooms toward the cursor, drag pans. */
+/** Full-screen viewer: fits on open, wheel zooms toward the cursor, drag pans. */
 export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }: ImageViewerDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -79,11 +79,12 @@ export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }:
   const closeViewer = useCallback(() => {
     animateClose(dialogRef.current, expansionSource, onClose);
   }, [animateClose, expansionSource, onClose]);
+  useViewerEscape(true, closeViewer);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     const previousOverflow = window.document.body.style.overflow;
-    dialog?.showModal();
+    dialog?.show();
     captureOrigin(expansionSource);
     animateOpen(dialog);
     window.document.body.style.overflow = "hidden";
@@ -104,7 +105,6 @@ export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }:
       style={{ transformOrigin: "top left" }}
       className="docs-image-dialog not-prose bg-background text-foreground"
       aria-label={`${title} image viewer`}
-      onCancel={(event) => { event.preventDefault(); closeViewer(); }}
       // A StrictMode remount closes then reopens the dialog; the queued close event must not unmount it.
       onClose={() => { if (!dialogRef.current?.open) onClose(); }}
     >

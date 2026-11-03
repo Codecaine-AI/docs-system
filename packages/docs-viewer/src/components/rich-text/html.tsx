@@ -1,7 +1,7 @@
 "use client";
 
 import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useViewerMotion } from "../../transitions/useViewerMotion";
+import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
 import { fitHtmlScale, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
@@ -93,6 +93,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     if (!dialog?.open) return;
     animateClose(dialog, slotRef.current, () => setExpanded(false));
   }, [animateClose]);
+  useViewerEscape(expanded, closeViewer);
 
   useEffect(() => { setMeasured(null); }, [srcDoc, initialHeight]);
   useEffect(() => {
@@ -140,7 +141,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     if (!expanded) return;
     const dialog = dialogRef.current!;
     const previousOverflow = document.body.style.overflow;
-    dialog.showModal();
+    dialog.show();
     document.body.style.overflow = "hidden";
     const measureArea = () => {
       const area = areaRef.current!;
@@ -165,8 +166,8 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const scale = expanded ? zoom ?? fitHtmlScale(naturalWidth, naturalHeight, area.width || naturalWidth, area.height || naturalHeight) : inlineScale;
   const previewHeight = naturalHeight * inlineScale;
 
-  // This dialog and iframe never move or remount. showModal promotes the existing
-  // element to the top layer, preserving the artifact's DOM and script state.
+  // This dialog and iframe never move or remount: expanding fixes the existing
+  // element over the host's viewer area, preserving the artifact's DOM and script state.
   return <figure className={HTML_PANEL_CLASSES} data-docs-block-type="html">
     <div className={`${MEDIA_HEAD_CLASSES} ${MEDIA_HEAD_TEXT}`}>
       <MediaHeadContent icon={AppWindowIcon} title={label} meta={allowScripts ? "sandbox · scripts" : "sandbox"}>
@@ -182,9 +183,9 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     <div className="p-3">
       <div ref={slotRef} style={{ minWidth: 0, height: expanded ? inlineRectRef.current?.height ?? previewHeight : undefined }}>
         <dialog ref={dialogRef} role={expanded ? "dialog" : "group"} aria-label={label}
-          onCancel={event => { event.preventDefault(); closeViewer(); }}
           style={{ display: "flex", flexDirection: "column", position: expanded ? "fixed" : "relative",
-            inset: expanded ? 0 : "auto", width: expanded ? "100vw" : "100%", height: expanded ? "100dvh" : "auto",
+            inset: expanded ? "var(--docs-viewer-inset, 0)" : "auto", zIndex: expanded ? 100 : undefined,
+            width: expanded ? "auto" : "100%", height: "auto",
             maxWidth: "none", maxHeight: "none", margin: 0, padding: 0, border: 0,
             transformOrigin: "top left", color: "inherit",
             background: expanded ? "var(--docs-page, #fdfdfd)" : "transparent", overflow: "hidden" }}>

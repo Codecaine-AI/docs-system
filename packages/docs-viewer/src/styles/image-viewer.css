@@ -51,11 +51,14 @@
   outline-offset: calc(-1 * var(--ds-border-width-focus));
 }
 
+/* Non-modal, so it stacks by z-index and fills the host's viewer area
+   (useViewerEscape in useViewerMotion.ts). */
 .docs-image-dialog {
   position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100dvh;
+  inset: var(--docs-viewer-inset, 0);
+  z-index: 100;
+  width: auto;
+  height: auto;
   max-width: none;
   max-height: none;
   margin: 0;

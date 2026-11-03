@@ -235,9 +235,8 @@ export function StandaloneCanvasEmbed({
             ref={viewerRef}
             style={{ transformOrigin: "top left" }}
             role="dialog"
-            aria-modal="true"
             aria-label={`${viewerTitle} canvas viewer`}
-            className="fixed inset-0 z-[100] flex flex-col bg-background"
+            className="fixed inset-[var(--docs-viewer-inset,0)] z-[100] flex flex-col bg-background"
           >
             <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b bg-background px-4">
               <div className="min-w-0">
