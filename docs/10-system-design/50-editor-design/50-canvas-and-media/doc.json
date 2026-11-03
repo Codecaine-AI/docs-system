@@ -378,6 +378,8 @@
         "b-cmed-rule-viewer-fit",
         "b-cmed-rule-viewer-controls",
         "b-cmed-rule-viewer-host",
+        "e13682f1-3729-4dbd-a040-0655d80d5db6",
+        "5ce684f4-e79c-4b55-94b7-82bb123e3d75",
         "b-cmed-rule-viewer-close"
       ]
     },
@@ -410,6 +412,46 @@
       "text": [
         {
           "insert": "The dialog owns the only header; the viewer remains a bare diagram surface. Canvas preview and exploration never nest Studio or another canvas application in an iframe."
+        }
+      ],
+      "children": []
+    },
+    "e13682f1-3729-4dbd-a040-0655d80d5db6": {
+      "id": "e13682f1-3729-4dbd-a040-0655d80d5db6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The canvas, sequence, image, and HTML viewers fill the host's viewer area, the CSS "
+        },
+        {
+          "insert": "inset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " value in "
+        },
+        {
+          "insert": "--docs-viewer-inset",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". With no value set, the area is the whole window."
+        }
+      ],
+      "children": []
+    },
+    "5ce684f4-e79c-4b55-94b7-82bb123e3d75": {
+      "id": "5ce684f4-e79c-4b55-94b7-82bb123e3d75",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each viewer opens non-modal, so a host's sidebar and tabs outside the viewer area stay usable."
         }
       ],
       "children": []
