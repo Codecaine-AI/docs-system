@@ -114,10 +114,10 @@ async function pool<T, R>(items: T[], limit: number, work: (item: T) => Promise<
 
 const settled = await pool(briefs, Number(opt.concurrency), runBrief);
 await $`bun ${join(REPO, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir)) } as Record<string, string>).quiet().nothrow();
-const failed = settled.flatMap((s, i) => s.status === "rejected" ? [`brief ${briefs[i]!.id}: ${s.reason instanceof Error ? s.reason.message : s.reason}`] : []);
+const failed = settled.flatMap((s, i) => s.status === "rejected" ? [{ set: briefs[i]!.set, text: `run brief ${briefs[i]!.id}: ${s.reason instanceof Error ? s.reason.message : s.reason}` }] : []);
 const done = settled.flatMap((s) => s.status === "fulfilled" ? [s.value] : []);
 
-const cost = (m: WriterMetrics): WriterCost => ({ briefId: m.briefId, toolCalls: m.toolCalls, tokens: m.tokens.total });
+const cost = (m: WriterMetrics): WriterCost => ({ set: briefs.find((b) => b.id === m.briefId)!.set, briefId: m.briefId, toolCalls: m.toolCalls, tokens: m.tokens.total });
 async function baselineCosts(): Promise<WriterCost[] | null> {
   if (opt.baseline === opt.round) return done.map((d) => cost(d.metrics));
   const files = briefs.map((b) => join(pageDir(opt.baseline!, b), "metrics.json")).filter(existsSync);
@@ -131,7 +131,7 @@ const guards = [
 ];
 const pages = done.flatMap((d) => d.scores);
 const gate = evaluateGate(pages, counting, guards);
-if (failed.length) { gate.pass = false; gate.failures.unshift(...failed.map((f) => `run ${f}`)); }
+if (failed.length) { gate.pass = false; gate.failures.unshift(...failed); }
 const report = builderReport(gate, pages);
 // gate.json is the full result for the gate folder. report.json is all the builder may read.
 await writeFile(join(dir, "gate.json"), JSON.stringify({ round: opt.round, judges, counting, briefs: briefs.map((b) => b.id), rules: rules.label, ...gate }, null, 2));
@@ -141,7 +141,11 @@ console.log(`Round ${opt.round}: gate ${report.pass ? "PASSED" : "FAILED"} (${br
 for (const [judge, sets] of Object.entries(report.scores)) for (const [set, s] of Object.entries(sets)) {
   console.log(`  ${judge} ${set}: ${Object.entries(s.categories).map(([c, v]) => `${c} ${v.mean.toFixed(2)}`).join(", ")}`);
 }
-for (const guard of report.guards) console.log(`  guard ${guard.name}: ${guard.pass ? "pass" : "FAIL"} (${guard.detail})`);
+for (const guard of report.guards) {
+  console.log(`  guard ${guard.name}: ${guard.pass ? "pass" : "FAIL"} (${guard.detail})`);
+  for (const item of guard.items) console.log(`    - ${item}`);
+  if (guard.heldOutItems) console.log(`    - ${guard.heldOutItems} held-out item(s)`);
+}
 for (const failure of report.failures) console.log(`  - ${failure}`);
 if (report.heldOutFailures) console.log(`  - ${report.heldOutFailures} held-out check(s) below the gate`);
 console.log(`Report: ${join(dir, "report.json")}`);

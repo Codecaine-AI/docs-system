@@ -1,6 +1,6 @@
 // Renders one written page: `docs-cli export` of its scratch corpus to a static site, a Playwright PNG of the
 // whole page at a fixed viewport, its markdown, its scorable blocks, and its docs_check lint findings.
-// `bun render.ts lint <doc.json> <rules root>` lints with the docs-model code found under the rules root.
+// `bun render.ts lint <doc.json> <rules root>` lints with the docs-model and docs-mcp code found under the rules root.
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -13,7 +13,8 @@ import { REPO, pagePath } from "./write";
 export const VIEWPORT = { width: 1280, height: 900 } as const;
 
 export interface PageBlock { id: string; type: string; group: BlockGroup; text: string }
-export interface LintSummary { rules: string; blocking: number; findings: { ruleId: string; severity: string; blockId?: string; message: string }[] }
+/** `blocking` counts what the writer's docs_check with task_id blocks on: lint errors plus `styleGate` gated style findings. */
+export interface LintSummary { rules: string; blocking: number; styleGate: number; findings: { ruleId: string; severity: string; blockId?: string; message: string }[] }
 
 /** The in-scope blocks of a page in reading order, which each judge must score. */
 export function pageBlocks(doc: DocDocument): PageBlock[] {
@@ -51,8 +52,8 @@ export async function lintRules(ref?: string): Promise<{ root: string; label: st
   return { root, label: `rules@${sha.slice(0, 12)}` };
 }
 
-/** docs_check's document lint (untasked, phase complete) under the rules in `root`. */
-async function lintPage(docJson: string, rules: { root: string; label: string }): Promise<LintSummary> {
+/** The document lint and style gate of the writer's docs_check with task_id, under the rules in `root`. */
+export async function lintPage(docJson: string, rules: { root: string; label: string }): Promise<LintSummary> {
   const out = await $`bun ${import.meta.path} lint ${docJson} ${rules.root}`.cwd(rules.root).quiet().nothrow();
   if (out.exitCode !== 0) throw new Error(`Lint under ${rules.label} failed: ${out.stderr.toString()}`);
   return { rules: rules.label, ...JSON.parse(out.stdout.toString()) };
@@ -110,9 +111,12 @@ if (import.meta.main && process.argv[2] === "lint") {
   const model = join(process.argv[4]!, "packages/docs-model/src");
   const { validateDocDocument } = await import(join(model, "doc-schema.ts"));
   const { lintDocument } = await import(join(model, "lint/index.ts"));
+  const { styleGate } = await import(join(process.argv[4]!, "packages/docs-mcp/src/lint-feedback.ts"));
   const parsed = validateDocDocument(JSON.parse(await readFile(process.argv[3]!, "utf8")));
   if (!parsed.ok) throw new Error(`Invalid doc.json: ${parsed.issues.map((i: { message: string }) => i.message).join("; ")}`);
+  // The writer's task created the page, so docs_check has no baseline for it and every finding is introduced.
   const report: LintReport = lintDocument(parsed.document, { phase: "complete" });
+  const gated: unknown[] = styleGate(report);
   const brief = (f: (typeof report.findings)[number]) => ({ ruleId: f.ruleId, severity: f.severity, blockId: f.blockId, message: f.message });
-  console.log(JSON.stringify({ blocking: report.blocking.length, findings: report.findings.map(brief) }));
+  console.log(JSON.stringify({ blocking: report.blocking.length + gated.length, styleGate: gated.length, findings: report.findings.map(brief) }));
 }

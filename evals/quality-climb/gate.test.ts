@@ -1,12 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type PageScore } from "./gate";
+import { builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type PageScore, type WriterCost } from "./gate";
 import { BLOCK_GROUPS, PAGE_CATEGORIES, type BriefSet, type PageCategory } from "./schema";
 
 const okGuards: GuardResult[] = [
-  { name: "tests", pass: true, detail: "ok" },
-  { name: "lint", pass: true, detail: "ok" },
-  { name: "writer-cost", pass: true, detail: "ok" },
+  { name: "tests", pass: true, detail: "ok", items: [] },
+  { name: "lint", pass: true, detail: "ok", items: [] },
+  { name: "writer-cost", pass: true, detail: "ok", items: [] },
 ];
+const texts = (gate: { failures: { text: string }[] }) => gate.failures.map((f) => f.text);
 
 /** A page with one block of every group, all scored `score`, unless overridden. */
 function page(judge: string, set: BriefSet, briefId: number, score = 10, over: { categories?: Partial<Record<PageCategory, number>>; blockScore?: number; finding?: string } = {}): PageScore {
@@ -39,33 +40,33 @@ describe("evaluateGate", () => {
     const pages = [page("sol", "climb", 1, 10, { categories: { craft: 9 } }), page("sol", "climb", 2, 10, { categories: { craft: 9 } }), page("sol", "held-out", 7)];
     const gate = evaluateGate(pages, ["sol"], okGuards);
     expect(gate.pass).toBe(false);
-    expect(gate.failures).toEqual(["sol climb craft: mean 9.00 < 9.5"]);
+    expect(texts(gate)).toEqual(["sol climb craft: mean 9.00 < 9.5"]);
   });
 
   test("fails when one page scores below 9 even though the mean reaches 9.5", () => {
     const climb = [8, ...Array(9).fill(10)].map((s, i) => page("sol", "climb", i + 1, 10, { categories: { scope: s } }));
     const gate = evaluateGate([...climb, page("sol", "held-out", 7)], ["sol"], okGuards);
     expect(gate.scores.sol!.climb!.categories.scope.mean).toBe(9.8);
-    expect(gate.failures).toEqual(["sol climb scope: a page scored 8 < 9"]);
+    expect(texts(gate)).toEqual(["sol climb scope: a page scored 8 < 9"]);
   });
 
   test("a block group score is the mean over its blocks in the set, and fails below 9.5", () => {
     const pages = [page("sol", "climb", 1, 10, { blockScore: 9 }), page("sol", "climb", 2, 10, { blockScore: 9 }), page("sol", "held-out", 7)];
     const gate = evaluateGate(pages, ["sol"], okGuards);
     expect(gate.scores.sol!.climb!.groups.stack).toEqual({ mean: 9, blocks: 2 });
-    expect(gate.failures).toContain("sol climb stack: mean 9.00 < 9.5");
+    expect(texts(gate)).toContain("sol climb stack: mean 9.00 < 9.5");
   });
 
   test("fails when a group has no blocks in a set", () => {
     const sparse = page("sol", "held-out", 7);
     sparse.reply.blocks = sparse.reply.blocks.filter((b) => sparse.groups[b.id] !== "pseudocode");
     const gate = evaluateGate([page("sol", "climb", 1), sparse], ["sol"], okGuards);
-    expect(gate.failures).toEqual(["sol held-out pseudocode: no blocks of this group"]);
+    expect(gate.failures).toEqual([{ set: "held-out", text: "sol held-out pseudocode: no blocks of this group" }]);
   });
 
   test("fails when a counting judge has not scored the held-out set", () => {
     const gate = evaluateGate([page("sol", "climb", 1)], ["sol"], okGuards);
-    expect(gate.failures).toEqual(["sol held-out: no pages scored"]);
+    expect(texts(gate)).toEqual(["sol held-out: no pages scored"]);
   });
 
   test("every counting judge must pass, and a non-counting judge never blocks", () => {
@@ -75,8 +76,8 @@ describe("evaluateGate", () => {
   });
 
   test("a failed guard fails the gate", () => {
-    const guards: GuardResult[] = [...okGuards.slice(0, 2), { name: "writer-cost", pass: false, detail: "tokens per page 130% of baseline" }];
-    expect(evaluateGate(fullRound(["sol"]), ["sol"], guards).failures).toEqual(["guard writer-cost: tokens per page 130% of baseline"]);
+    const guards: GuardResult[] = [...okGuards.slice(0, 2), { name: "writer-cost", pass: false, detail: "tokens per page 130% of baseline", items: [] }];
+    expect(texts(evaluateGate(fullRound(["sol"]), ["sol"], guards))).toEqual(["guard writer-cost: tokens per page 130% of baseline"]);
   });
 });
 
@@ -86,7 +87,7 @@ describe("guards", () => {
   test("tests guard fails on a failing test or type error the baseline lacks, and names it", () => {
     const current = { tests: [...baseline.tests, "b.test.ts > broke"], typeErrors: [...baseline.typeErrors, "src/y.ts:9 TS2345"] };
     expect(testsGuard({ harnessExitCode: 0, current, baseline, failedAgain: ["b.test.ts > broke"] })).toEqual({
-      name: "tests", pass: false, detail: "failed: new failing test b.test.ts > broke, new type error src/y.ts:9 TS2345",
+      name: "tests", pass: false, detail: "failed: new failing test b.test.ts > broke, new type error src/y.ts:9 TS2345", items: [],
     });
   });
 
@@ -97,7 +98,7 @@ describe("guards", () => {
 
   test("tests guard with no baseline records the sets and passes, but the harness tests stay strict", () => {
     const current = { tests: ["a.test.ts > known slow"], typeErrors: ["src/x.ts:3 TS2322"] };
-    expect(testsGuard({ harnessExitCode: 0, current, baseline: null, failedAgain: [] })).toEqual({ name: "tests", pass: true, detail: "baseline recorded" });
+    expect(testsGuard({ harnessExitCode: 0, current, baseline: null, failedAgain: [] })).toEqual({ name: "tests", pass: true, detail: "baseline recorded", items: [] });
     expect(testsGuard({ harnessExitCode: 1, current, baseline: null, failedAgain: [] }).pass).toBe(false);
     expect(testsGuard({ harnessExitCode: 1, current, baseline, failedAgain: [] }).pass).toBe(false);
     expect(testsGuard(null).pass).toBe(false);
@@ -110,25 +111,26 @@ describe("guards", () => {
     expect(parseTypeErrors(tsc)).toEqual(["src/x.ts:273 TS2322"]);
   });
 
-  test("lint guard fails on any blocking finding under the snapshot rules", () => {
+  test("lint guard fails on any blocking finding under the snapshot rules, one item per page with its set", () => {
     expect(lintGuard([{ set: "climb", briefId: 1, blocking: 0 }], "rules@abc").pass).toBe(true);
     const failed = lintGuard([{ set: "climb", briefId: 1, blocking: 2 }, { set: "held-out", briefId: 8, blocking: 1 }], "rules@abc");
     expect(failed.pass).toBe(false);
-    expect(failed.detail).toBe("blocking findings under rules@abc: brief 1 (2), 1 held-out page(s)");
+    expect(failed.detail).toBe("2 of 2 pages have blocking findings under rules@abc");
+    expect(failed.items).toEqual([{ set: "climb", text: "brief 1 (2)" }, { set: "held-out", text: "brief 8 (1)" }]);
   });
 
   test("writer-cost guard allows up to 120% of the baseline per page", () => {
-    const base = [{ briefId: 1, toolCalls: 10, tokens: 1000 }, { briefId: 2, toolCalls: 20, tokens: 3000 }];
-    expect(costGuard([{ briefId: 1, toolCalls: 12, tokens: 1200 }, { briefId: 2, toolCalls: 24, tokens: 3600 }], base).pass).toBe(true);
-    const over = costGuard([{ briefId: 1, toolCalls: 12, tokens: 1000 }, { briefId: 2, toolCalls: 25, tokens: 3000 }], base);
-    expect(over).toEqual({ name: "writer-cost", pass: false, detail: "toolCalls per page 123% of baseline" });
+    const base: WriterCost[] = [{ set: "climb", briefId: 1, toolCalls: 10, tokens: 1000 }, { set: "climb", briefId: 2, toolCalls: 20, tokens: 3000 }];
+    expect(costGuard([{ set: "climb", briefId: 1, toolCalls: 12, tokens: 1200 }, { set: "climb", briefId: 2, toolCalls: 24, tokens: 3600 }], base).pass).toBe(true);
+    const over = costGuard([{ set: "climb", briefId: 1, toolCalls: 12, tokens: 1000 }, { set: "climb", briefId: 2, toolCalls: 25, tokens: 3000 }], base);
+    expect(over).toEqual({ name: "writer-cost", pass: false, detail: "toolCalls per page 123% of baseline", items: [] });
   });
 
   test("writer-cost guard compares only the briefs this round wrote, and fails without a baseline", () => {
-    const base = [{ briefId: 1, toolCalls: 10, tokens: 1000 }, { briefId: 9, toolCalls: 100, tokens: 99000 }];
-    expect(costGuard([{ briefId: 1, toolCalls: 13, tokens: 1000 }], base).pass).toBe(false);
-    expect(costGuard([{ briefId: 1, toolCalls: 10, tokens: 1000 }], null).pass).toBe(false);
-    expect(costGuard([{ briefId: 2, toolCalls: 10, tokens: 1000 }], base).pass).toBe(false);
+    const base: WriterCost[] = [{ set: "climb", briefId: 1, toolCalls: 10, tokens: 1000 }, { set: "climb", briefId: 9, toolCalls: 100, tokens: 99000 }];
+    expect(costGuard([{ set: "climb", briefId: 1, toolCalls: 13, tokens: 1000 }], base).pass).toBe(false);
+    expect(costGuard([{ set: "climb", briefId: 1, toolCalls: 10, tokens: 1000 }], null).pass).toBe(false);
+    expect(costGuard([{ set: "climb", briefId: 2, toolCalls: 10, tokens: 1000 }], base).pass).toBe(false);
   });
 });
 
@@ -144,5 +146,20 @@ describe("builderReport", () => {
     expect(text).not.toContain("secret held-out finding");
     expect(text).not.toContain("held-out accuracy");
     expect(report.heldOutFailures).toBeGreaterThan(0);
+  });
+
+  test("a held-out writer error and lint finding appear only as counts, with no held-out brief id, slug or path", () => {
+    const pages = [page("sol", "climb", 1), page("sol", "held-out", 7)];
+    const guards = [okGuards[0]!, lintGuard([{ set: "climb", briefId: 1, blocking: 1 }, { set: "held-out", briefId: 7, blocking: 3 }], "rules@abc"),
+      costGuard([{ set: "climb", briefId: 1, toolCalls: 1, tokens: 1 }, { set: "held-out", briefId: 7, toolCalls: 1, tokens: 1 }], [{ set: "climb", briefId: 1, toolCalls: 1, tokens: 1 }])];
+    const gate = evaluateGate(pages, ["sol"], guards);
+    gate.failures.unshift({ set: "held-out", text: "run brief 7: writer failed in /round-x/held-out/07-secret-slug/metrics.json" });
+    const report = builderReport(gate, pages);
+    const text = JSON.stringify(report);
+    for (const leak of ["brief 7", "secret-slug", "07-", "/held-out/", '"briefId":7']) expect(text).not.toContain(leak);
+    expect(report.guards.find((g) => g.name === "lint")).toMatchObject({ pass: false, items: ["brief 1 (1)"], heldOutItems: 1 });
+    expect(report.guards.find((g) => g.name === "writer-cost")).toMatchObject({ pass: false, items: [], heldOutItems: 1 });
+    expect(report.heldOutFailures).toBe(1);
+    expect(report.scores.sol!["held-out"]!.categories.accuracy.mean).toBe(10);
   });
 });
