@@ -20,7 +20,7 @@ const MINOR_WORDS = new Set([
 ]);
 
 /** Domain acronyms rendered all-caps. */
-const ACRONYMS = new Set(["ai", "api", "cli", "css", "html", "json", "md", "mdx", "ui", "ux"]);
+const ACRONYMS = new Set(["ai", "api", "ci", "cli", "css", "html", "http", "json", "mcp", "md", "mdx", "npm", "pdf", "sdk", "sql", "ui", "url", "ux"]);
 
 /**
  * The inverse direction, for renaming a doc by editing its page title:

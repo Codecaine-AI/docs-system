@@ -20,6 +20,7 @@ describe("docTitleFromPath", () => {
     expect(docTitleFromPath("60-docs-cli")).toBe("Docs CLI");
     expect(docTitleFromPath("40-system-ui")).toBe("System UI");
     expect(docTitleFromPath("50-api-notes")).toBe("API Notes");
+    expect(docTitleFromPath("docs-mcp-setup")).toBe("Docs MCP Setup");
   });
 
   it("handles numberless and trailing-slash segments", () => {
