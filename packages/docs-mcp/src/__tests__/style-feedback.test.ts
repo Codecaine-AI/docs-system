@@ -247,6 +247,7 @@ describe("claims to check", () => {
     expect(written.claims_to_check).toEqual(sentences.slice(0, 12));
     expect(written.claims_omitted).toBe(1);
     expect(written.next).toContain("read its whole body for each early return");
+    expect(written.next).toContain("guard for a missing value, check for a repeated value");
   });
 
   test("a write lists the call-stack and pseudocode rows that hold a condition, under their block id", async () => {

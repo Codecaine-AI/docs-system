@@ -19,7 +19,7 @@ const BEHAVIOR_WORD = /\b(?:returns?|throws?|rejects?|refuses?|fails?|answers?|s
 const CONDITION_CODE = /=>|&&|\|\||[!=]==?|\?\?|\?\.|\b(?:if|else|filter|find|some|switch|case|catch)\b/;
 
 export const CLAIMS_LIMIT = 12;
-export const CLAIMS_NEXT = "Before docs_check, check each sentence and block row in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, and branch for another mode, client, or input. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
+export const CLAIMS_NEXT = "Before docs_check, check each sentence and block row in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, guard for a missing value, check for a repeated value, and branch for another mode, client, or input. A code row keeps every condition and guard of the line it condenses. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
 
 const blockText = (block: Block | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
 const sentences = (text: string) => text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);

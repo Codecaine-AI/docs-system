@@ -402,7 +402,53 @@
       "props": {},
       "text": [
         {
-          "insert": "A claim about what code does names the function that does it, in inline code. Before you write it, read that function's whole body: an early return, a thrown error, or a branch for another mode, client, or input can change the claim. A fix you tell the reader to make passes every check in the code that refused."
+          "insert": "A claim about what code does names the function that does it, in inline code."
+        }
+      ],
+      "children": [
+        "sg-ws-trace-body",
+        "sg-ws-trace-rows",
+        "sg-ws-trace-fix"
+      ]
+    },
+    "sg-ws-trace-body": {
+      "id": "sg-ws-trace-body",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Before you write the claim, read that function's whole body. An early return, a thrown error, a guard for a missing value, a check for a repeated value, or a branch for another mode can change the claim."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-trace-rows": {
+      "id": "sg-ws-trace-rows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses, such as "
+        },
+        {
+          "insert": "layout?.width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for a layout that can be missing."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-trace-fix": {
+      "id": "sg-ws-trace-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A fix you tell the reader to make passes every check in the code that refused."
         }
       ],
       "children": []
