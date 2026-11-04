@@ -955,14 +955,15 @@
       },
       "text": [
         {
-          "insert": "Writing Error",
+          "insert": "Writing Errors",
           "attributes": {
             "bold": true
           }
         }
       ],
       "children": [
-        "b-80-authoring-lints-writing-no-em-dash-flags-34"
+        "b-80-authoring-lints-writing-no-em-dash-flags-34",
+        "writing-literal-backticks-lint"
       ]
     },
     "b-80-authoring-lints-writing-no-em-dash-flags-34": {
@@ -974,6 +975,34 @@
       "text": [
         {
           "insert": "writing.no-em-dash flags em dashes in authored prose and descriptive metadata. It enforces completion and respects the writing exclusions above."
+        }
+      ],
+      "children": []
+    },
+    "writing-literal-backticks-lint": {
+      "id": "writing-literal-backticks-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.literal-backticks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a backtick pair in the plain text of a paragraph, heading, list item, or callout, because the reader sees delta text as typed. The fix is a span with the code mark, which "
+        },
+        {
+          "insert": "docs_write_text",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " makes from markdown."
         }
       ],
       "children": []

@@ -117,12 +117,13 @@ test("authored component fields cover table, files, operations, steps, media and
   );
   expect(findings).toHaveLength(8);
 });
-test("plain-string code markup is excluded; document title is authored prose", () => {
+test("an em dash inside backticks is not prose; document title is authored prose", () => {
   const doc = document(paragraph("p", "Use `a—b` here."));
   doc.title = "Title — prose";
-  expect(
-    lintDocument(doc, { phase: "complete" }).blocking.map((f) => f.field),
-  ).toEqual(["title"]);
+  const blocking = lintDocument(doc, { phase: "complete" }).blocking;
+  expect(blocking.filter((f) => f.ruleId === "writing.no-em-dash").map((f) => f.field)).toEqual(["title"]);
+  // The backtick pair itself is literal in delta text, so it blocks on its own.
+  expect(blocking.filter((f) => f.ruleId === "writing.literal-backticks").map((f) => f.blockId)).toEqual(["p"]);
 });
 test("dense paragraph is advisory", () => {
   const sentence = "Ten short words make one sentence for this paragraph test.";

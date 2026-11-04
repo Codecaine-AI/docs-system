@@ -62,7 +62,9 @@ const id = Type.String({ pattern: "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$" });
 const obj = (properties: Record<string, TSchema>) => Type.Object(properties, { additionalProperties: false });
 const record = Type.Record(Type.String(), Type.Unknown());
 const blockType = Type.Union(DOC_BLOCK_TYPES.map((type) => Type.Literal(type)));
-const delta = Type.Array(obj({ insert: Type.String(), attributes: Type.Optional(record) }));
+const delta = Type.Array(obj({ insert: Type.String(), attributes: Type.Optional(record) }), {
+  description: "Literal text spans: markdown is not parsed, so `name` shows its backticks. Give inline code its own span with attributes { code: true }, or write the block's text with docs_write_text markdown.",
+});
 const opSchema = Type.Union([
   obj({ type: Type.Literal("insertBlock"), blockId: id, parentId: id, index: Type.Integer({ minimum: 0 }), blockType, props: record, text: Type.Optional(delta) }),
   obj({ type: Type.Literal("updateBlock"), blockId: id, props: Type.Optional(record), text: Type.Optional(Type.Union([delta, Type.Null()])) }),
