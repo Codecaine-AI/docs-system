@@ -21,7 +21,14 @@
         "shape-b-shape-use-a-bare-verb-phrase-f-3",
         "shape-b-shape-introduce-a-list-with-a-4",
         "shape-b-shape-preserve-the-established-5",
-        "shape-image-alt-guidance"
+        "shape-image-alt-guidance",
+        "852df798-83f6-4853-86e3-02d48a841bdb",
+        "22bcd44c-7ec9-47db-a26f-8f7f248e5e47",
+        "85998fe4-8918-4545-8d1b-db40087ffab5",
+        "sg-struct-shape-use",
+        "sg-struct-shape-keep-list",
+        "sg-struct-shape-specs",
+        "sg-struct-shape-example"
       ]
     },
     "b-sg-struct-intro-1": {
@@ -388,6 +395,196 @@
       "text": [
         {
           "insert": "Give every image nonempty alt text that describes the information it contributes."
+        }
+      ],
+      "children": []
+    },
+    "852df798-83f6-4853-86e3-02d48a841bdb": {
+      "id": "852df798-83f6-4853-86e3-02d48a841bdb",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Show the Shape in a Typed Block"
+        }
+      ],
+      "children": []
+    },
+    "22bcd44c-7ec9-47db-a26f-8f7f248e5e47": {
+      "id": "22bcd44c-7ec9-47db-a26f-8f7f248e5e47",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Typed blocks are the main value of this docs system. A typed block shows a shape that bullets can only describe. Before you write a section as prose or bullets, check whether it describes one of the shapes in this table."
+        }
+      ],
+      "children": []
+    },
+    "85998fe4-8918-4545-8d1b-db40087ffab5": {
+      "id": "85998fe4-8918-4545-8d1b-db40087ffab5",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Shape in the section",
+          "Typed block"
+        ],
+        "rows": [
+          [
+            "Data fields and an example instance",
+            [
+              {
+                "insert": "state-shape",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Files and folders",
+            [
+              {
+                "insert": "file-tree",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Ordered steps",
+            [
+              {
+                "insert": "process-outline",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Operations on a state",
+            [
+              {
+                "insert": "interaction-surface",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Layers and the rule at each line",
+            [
+              {
+                "insert": "stack",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Connections, ownership, or a pipeline",
+            [
+              {
+                "insert": "canvas",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Calls and returns between participants",
+            [
+              {
+                "insert": "sequence",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "Rows that compare the same fields",
+            [
+              {
+                "insert": "structured-table",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            "A screen or a physical layout",
+            [
+              {
+                "insert": "html",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ]
+        ],
+        "title": "Shapes and the typed block for each"
+      },
+      "children": []
+    },
+    "sg-struct-shape-use": {
+      "id": "sg-struct-shape-use",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the section describes a shape, use its typed block. Put one or two sentences around the block to orient the reader."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-keep-list": {
+      "id": "sg-struct-shape-keep-list",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a short list of plain facts as a list. Never force a fact into a diagram only to have one."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-specs": {
+      "id": "sg-struct-shape-specs",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Specs, plans, and design pages need typed blocks most. Readers align on these pages, and they align faster when they can see the shape."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-example": {
+      "id": "sg-struct-shape-example",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A spec that lists the nine fields of a record as bullets breaks this rule. One "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block with the fields and a JSON example follows it."
         }
       ],
       "children": []

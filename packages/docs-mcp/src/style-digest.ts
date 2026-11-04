@@ -6,6 +6,7 @@ export const STYLE_DIGEST: readonly string[] = [
   "Open every page with a 2 to 4 sentence paragraph. Keep each section short enough to scan in one screen. Use Title Case headings.",
   "Give each sentence one thought. Review sentences over about 25 words.",
   "Use periods, not semicolons or em dashes. Use a colon only before a list or example. Never open a block with a label and a colon, such as \"Kernel changes:\".",
+  "Show a shape in its typed block, not in bullets: fields in state-shape, folders in file-tree, steps in process-outline, connections in canvas, call order in sequence. Keep plain facts as a list.",
   "Keep table cells to short facts. Put explanation in bullets near the table, and never restate its rows.",
   "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice.",
   "Each section stands alone. Define or link every label and term it uses.",
