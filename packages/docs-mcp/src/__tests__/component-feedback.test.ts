@@ -3,6 +3,7 @@ import { cp, mkdtemp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promi
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
+import type { SequenceLinter } from "@codecaine-ai/docs-server/component-lints";
 import { createDocsTools, type DocsTool, type DocsToolCallContext, type DocsToolContext } from "../tools";
 import { createInteractionService } from "../service";
 
@@ -24,8 +25,16 @@ const flow = {
 const LONG_DETAIL = "Receives every request, checks the token and forwards it on";
 const PROGRAM = "participant 1 text=client kind=actor\nparticipant 2 text=service\n\nseq\n  1 > 2 text=request\n  2 --> 1 text=response\n";
 const task: DocsToolCallContext = { taskId: "task-1" };
+/** The sequence package's crossed-columns lint: a message that crosses 2 or more other lifelines. */
+const crossedColumns: SequenceLinter = (sequence) => {
+  const column = new Map(sequence.participants.map((participant, index) => [participant.id, index]));
+  return sequence.items.flatMap((item) => item.kind === "message" && Math.abs(column.get(item.from)! - column.get(item.to)!) > 2
+    ? [{ rule: "crossed-columns", severity: "info" as const, message: `"${item.text}" crosses 2 other columns.`, target: item.id }] : []);
+};
+const CROSSING_PROGRAM = "participant 1 text=client\nparticipant 2 text=gateway\nparticipant 3 text=cache\nparticipant 4 text=service\n\nseq\n  1 > 4 text=request\n  4 --> 1 text=response\n";
 let temp: string;
 let tools: DocsTool[];
+let context: DocsToolContext;
 async function call(name: string, args: Record<string, unknown>, ctx?: DocsToolCallContext) {
   const tool = tools.find((entry) => entry.name === name)!;
   return (await tool.execute({ project: "a", path: "page", ...args }, ctx)).structuredContent as Record<string, any>;
@@ -46,7 +55,7 @@ beforeEach(async () => {
   await writeFile(join(temp, "page/assets/sequences/flow.sequence.json"), JSON.stringify(flow));
   const pinned = new Map<string, unknown>();
   const store = <T>() => ({ get: (taskId: string, key: string) => pinned.get(`${taskId}|${key}`) as T | undefined, set: (taskId: string, key: string, value: T) => { pinned.set(`${taskId}|${key}`, value); } });
-  const context: DocsToolContext = { resolveProject: async (id) => ({ id, docsRoot: temp }), taskBaselines: store(), taskCanvasBaselines: store() };
+  context = { resolveProject: async (id) => ({ id, docsRoot: temp }), taskBaselines: store(), taskCanvasBaselines: store() };
   tools = createDocsTools(context);
 });
 afterEach(async () => {
@@ -87,6 +96,50 @@ describe("component feedback", () => {
     const checked = await call("docs_check", {});
     expect(checked.ok).toBe(false);
     expect(component(checked, "flow")).toMatchObject({ type: "sequence", ok: false, findings: { shown: [{ rule: "sequence-schema", severity: "error", problem: '/items/0/to: unknown participant id "ghost"' }], omitted: 0 } });
+  });
+
+  test("a sequence lint finding is a warning on the edit and in docs_check, and never blocks either", async () => {
+    tools = createDocsTools({ ...context, sequenceLinter: crossedColumns });
+    const saved = await call("docs_sequence_set_program", { ...await hashes("flow"), params: { program: CROSSING_PROGRAM } }, task);
+    expect(saved.ok).toBe(true);
+    const warnings = saved.component_findings.shown;
+    expect(warnings).toHaveLength(2);
+    expect(warnings[0]).toMatchObject({ rule: "crossed-columns", severity: "warning", problem: '"request" crosses 2 other columns.' });
+    expect(saved.next).toContain("never block");
+    // The write applied: the sidecar holds the four participants.
+    const sidecar = JSON.parse(await readFile(join(temp, "page/assets/sequences/flow.sequence.json"), "utf8"));
+    expect(sidecar.participants).toHaveLength(4);
+    expect(warnings[0].at).toEqual([sidecar.items[0].id]);
+    await rm(saved.svg_path);
+
+    const checked = await call("docs_check", {}, task);
+    expect(component(checked, "flow")).toMatchObject({ type: "sequence", ok: true, findings: { shown: warnings, omitted: 0 } });
+    expect(checked.ok).toBe(true);
+  });
+
+  test("creating a sequence sidecar the lints flag returns their warnings, saves it, and docs_check still passes", async () => {
+    tools = createDocsTools({ ...context, sequenceLinter: crossedColumns });
+    const participants = ["client", "gateway", "cache", "service"].map((name) => ({ id: name, name, kind: "participant" }));
+    const document = { version: 1, id: "wide", title: "Wide", style: {}, participants,
+      items: [{ kind: "message", id: "m1", from: "client", to: "service", line: "sync", text: "request" }] };
+    const read = await call("docs_read", {});
+    const created = await call("docs_component_create", { expected_hash: read.hash, component: "sequence", src: "./assets/sequences/wide.sequence.json", document }, task);
+    expect(created.ok).toBe(true);
+    expect(created.component_findings).toEqual({ shown: [{ rule: "crossed-columns", severity: "warning", at: ["m1"], problem: '"request" crosses 2 other columns.' }], omitted: 0 });
+    expect(created.next).toContain("never block");
+    expect(JSON.parse(await readFile(join(temp, "page/assets/sequences/wide.sequence.json"), "utf8")).participants).toHaveLength(4);
+    expect((await call("docs_check", {}, task)).ok).toBe(true);
+  });
+
+  test("without lintSequence in the sequence package, a sequence edit and docs_check carry no lint findings and no error", async () => {
+    tools = createDocsTools({ ...context, sequenceLinter: null });
+    const saved = await call("docs_sequence_set_program", { ...await hashes("flow"), params: { program: CROSSING_PROGRAM } }, task);
+    expect(saved.ok).toBe(true);
+    expect(saved.component_findings).toEqual({ shown: [], omitted: 0 });
+    await rm(saved.svg_path);
+    const checked = await call("docs_check", {}, task);
+    expect(component(checked, "flow")).toEqual({ blockId: "flow", type: "sequence", ok: true, touched_by_task: false });
+    expect(checked.ok).toBe(true);
   });
 
   test("a canvas edit that writes an overlong detail reports it on the edit and in docs_check for the task", async () => {

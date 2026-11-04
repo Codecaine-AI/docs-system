@@ -1,6 +1,7 @@
 /**
  * Feedback for Canvas and Sequence sidecars: the canvas package's board lints,
- * the sequence package's program and document diagnostics, and a rendered SVG
+ * the sequence package's program and document diagnostics and its quality
+ * lints, and a rendered SVG
  * of a sequence an agent can open as an image. Edits and `docs_check` report
  * them in one finding shape.
  */
@@ -10,6 +11,7 @@ import { join } from "node:path";
 import { FINISHING_RULES, LAYOUT_RULES, runDiagnostics, type Severity } from "@codecaine-ai/canvas/lints";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import { atomicWriteFile } from "./atomic-write";
+import * as sequencePackage from "@codecaine-ai/sequence";
 import { renderSequenceSvgString, serializeSequenceProgram } from "@codecaine-ai/sequence";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 
@@ -47,6 +49,36 @@ export function sequenceFindings(issues: ReadonlyArray<{ message: string }>): Co
     severity: "error",
     problem: message,
   }));
+}
+
+/** One result of the sequence package's `lintSequence`. */
+export interface SequenceLintResult {
+  rule: string;
+  severity: "error" | "warning" | "info";
+  message: string;
+  /** Item or participant id the result points at. */
+  target?: string;
+}
+export type SequenceLinter = (sequence: SequenceDocument) => readonly SequenceLintResult[];
+
+/** A sequence package's `lintSequence`, or null when the package predates the lints. */
+export function sequenceLinter(module: object): SequenceLinter | null {
+  const lint = (module as { lintSequence?: unknown }).lintSequence;
+  return typeof lint === "function" ? lint as SequenceLinter : null;
+}
+/** The installed sequence package's lints. */
+export const installedSequenceLinter = sequenceLinter(sequencePackage);
+
+/**
+ * The sequence quality lints over a saved sequence, as warnings. They advise:
+ * a write that has them still applies, and they never fail `docs_check`.
+ * Without a linter, or when the linter throws, a sequence has no lint findings.
+ */
+export function sequenceLintFindings(sequence: SequenceDocument, lint: SequenceLinter | null): ComponentFinding[] {
+  if (!lint) return [];
+  let results: readonly SequenceLintResult[];
+  try { results = lint(sequence); } catch { return []; }
+  return results.map(({ rule, message, target }) => ({ rule, severity: "warning", ...(target ? { at: [target] } : {}), problem: message }));
 }
 
 /** Findings that fail a check: errors and warnings. Notes never block. */

@@ -22,7 +22,8 @@ import {
   resolveSequenceSidecarRelativePath, resolveSequenceSidecarRootRelativePath,
 } from "@codecaine-ai/docs-server/confine";
 import {
-  blockingFindings, canvasFindings, sequenceFindings, type ComponentFinding,
+  blockingFindings, canvasFindings, installedSequenceLinter, sequenceFindings, sequenceLintFindings,
+  type ComponentFinding, type SequenceLinter,
 } from "@codecaine-ai/docs-server/component-lints";
 
 export interface DocsToolResult {
@@ -52,6 +53,8 @@ export interface DocsToolContext {
   taskCanvasBaselines?: TaskBaselines<CanvasDocument>;
   /** Model-judged style rules: advisory in write results, gated by docs_check with task_id. Fails open. */
   judgmentEngine?: JudgmentEngine;
+  /** The sequence quality lints, reported as warnings that never block. Defaults to the installed sequence package's; null turns them off. */
+  sequenceLinter?: SequenceLinter | null;
 }
 
 const str = Type.String({ minLength: 1 });
@@ -74,6 +77,7 @@ const writeTarget = { ...target, expected_hash: str };
 const SAVED_NEXT = "Changes are saved. Run docs_check with task_id before reporting completion.";
 const FIX_STYLE_NEXT = "Changes are saved. Fix style_findings, then run docs_check with task_id.";
 const FIX_COMPONENT_NEXT = "Changes are saved. Fix component_findings, then run docs_check with task_id.";
+const SEQUENCE_WARNINGS_NEXT = "Changes are saved. component_findings holds sequence lint warnings. They never block, but fix each one that applies, then run docs_check with task_id.";
 /** A clean write still reports violations an earlier write in the task left open on the page. */
 const nextHint = (findings: boolean, open: number) => findings ? FIX_STYLE_NEXT
   : open === 1 ? "Changes are saved. 1 style violation this task introduced on this page is still open. Run docs_check with task_id to list it."
@@ -250,11 +254,12 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     return ctx.taskId ? context.taskCanvasBaselines?.get(ctx.taskId, `${project}:${src}`) : undefined;
   }
   /** A saved sidecar edit: its findings and render lead, then the usual applied result. */
-  async function componentApplied(store: DocsStore, path: string, result: Record<string, any>, findings: ComponentFinding[], render: Record<string, unknown>) {
+  async function componentApplied(store: DocsStore, path: string, result: Record<string, any>, findings: ComponentFinding[], render: Record<string, unknown>, fixNext = FIX_COMPONENT_NEXT) {
     const { next, ...saved } = await applied(store, path, result);
     return { ok: true, component_findings: findingList(findings), ...render,
-      next: findings.length ? FIX_COMPONENT_NEXT : next, ...saved };
+      next: findings.length ? fixNext : next, ...saved };
   }
+  const lintSequence = context.sequenceLinter === undefined ? installedSequenceLinter : context.sequenceLinter;
 
   const tools = [
     tool("docs_tree", "Discover the documentation tree for a project. Read documents through docs_read, never edit doc.json directly.", obj({ project: str }), async (_, store) => ({ ok: true, tree: await store.tree() })),
@@ -271,7 +276,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -281,12 +286,14 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           const checked = await component(store, { ...args, blockId: block.id });
           const findings = !checked.ok ? sequenceFindings("issues" in checked ? checked.issues ?? [] : [])
             : checked.type === "canvas" ? canvasFindings(checked.canvas, { finishing: true, baseline: canvasBaseline(ctx, args.project, checked.src) })
-            : [];
+            : sequenceLintFindings(checked.sequence, lintSequence);
           // A task answers only for the boards it touched, as it answers only for the style violations it introduced.
           // Sequence edits that the diagnostics flag are refused, so a task never leaves a flagged sequence.
+          // A readable sequence's lint warnings advise and never block.
+          const blocking = checked.ok && checked.type === "sequence" ? [] : blockingFindings(findings);
           const src = checked.ok ? checked.src : undefined;
           const touched = ctx.taskId ? (src !== undefined && canvasBaseline(ctx, args.project, src) !== undefined) : undefined;
-          components.push({ blockId: block.id, type: block.type, ok: checked.ok && blockingFindings(findings).length === 0,
+          components.push({ blockId: block.id, type: block.type, ok: checked.ok && blocking.length === 0,
             ...(touched !== undefined ? { touched_by_task: touched } : {}),
             ...(!checked.ok ? { detail: checked.detail } : {}), ...(findings.length ? { findings: findingList(findings) } : {}) });
         }
@@ -365,7 +372,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         const rel=args.component==="canvas"?resolveCanvasSidecarRelativePath(docPath,src,store.docsRoot):resolveSequenceSidecarRelativePath(docPath,src,store.docsRoot);
         if(!rel)return failure("Invalid sidecar path.");await confined(store.docsRoot,resolve(store.docsRoot,rel));
         const result=args.component==="canvas"?await store.createCanvasSidecar({docPath,src,canvas:args.document,originalHash:args.expected_hash,insertMdx:false}):await store.createSequenceSidecar({docPath,src,sequence:args.document,originalHash:args.expected_hash});
-        if(!result.ok||args.component!=="canvas")return {...result,src};
+        if(!result.ok)return {...result,src};
+        if(args.component==="sequence"){
+          const findings=sequenceLintFindings(args.document as Parameters<typeof sequenceLintFindings>[0],lintSequence);
+          return {component_findings:findingList(findings),...(findings.length?{next:SEQUENCE_WARNINGS_NEXT}:{}),...result,src};
+        }
         // Everything on a board this task created is the task's writing, so its text lints judge against an empty board.
         const board=args.document as CanvasDocument;const empty={...board,objects:[]};
         const key=componentSidecarPath(args.path,"canvas",src);
@@ -468,7 +479,8 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           // A program or document the sequence diagnostics flag is refused; its findings say why.
           if (!result.ok) return { ...result, ...(Array.isArray(result.issues) ? { component_findings: findingList(sequenceFindings(result.issues)) } : {}) };
           const { program, svg, ...rest } = result;
-          return componentApplied(store, args.path, rest, [], { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program });
+          return componentApplied(store, args.path, rest, sequenceLintFindings(result.sequence, lintSequence),
+            { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program }, SEQUENCE_WARNINGS_NEXT);
         }
         // The text lints judge what this task wrote: against its first-touch board, else the board this edit replaced.
         const result = await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash);
