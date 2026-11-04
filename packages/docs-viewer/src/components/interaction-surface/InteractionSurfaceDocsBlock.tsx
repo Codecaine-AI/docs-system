@@ -13,7 +13,7 @@ import { tokenizeExampleCall, tokenizeSigType } from "./signature-tokens";
 
 export const INTERACTION_SURFACE_LABEL = "Interaction Surface";
 export const INTERACTION_SURFACE_AGENT_DESCRIPTION =
-  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Each operation is a disclosure row headed by its chevron and the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType. Operations start open, so a static reader sees every parameter and return; click, Enter, or Space collapses one to its one-line row with params elided. The name is a described name: hover or focus shows a tooltip with a lowercase kind badge (action, query, or event, colored by kind) above the purpose. Open, a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed inline. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
+  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Each operation is a disclosure row headed by its chevron and the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType. An operation with params or returnShape fields starts open, so a static reader sees its contract. Any other operation starts as one line with params elided. Click, Enter, or Space toggles a row. The name is a described name: hover or focus shows a tooltip with a lowercase kind badge (action, query, or event, colored by kind) above the purpose. Open, the purpose prints first, then a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed under the type. returns is a type name such as OpsResponse or { ok, doc }. Put any condition on the return in the description, not in returns. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
 
 export type InteractionSurfaceParam = Field;
 export type InteractionSurfaceOperation = {
@@ -197,6 +197,7 @@ const SURFACE_STYLE = `
 @media screen{[data-operation-disclosure]:not([open])>[data-operation-body]{height:0}}
 [data-operation-disclosure][open]::details-content{overflow:visible}
 [data-operation-disclosure][open]>[data-operation-body]{overflow:visible}
+[data-operation-purpose]{margin:0;padding:0 var(--op-pad-x) var(--ds-space-3);max-width:var(--ds-layout-lane-text);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--docs-interaction-desc-text-size,13.5px);line-height:var(--docs-interaction-desc-line-height,20px);color:var(--fl-desc)}
 [data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-3);padding:0 0 var(--ds-space-3)}
 [data-op-card]{min-width:0;container-type:inline-size;background:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7))));border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}
 [data-op-card-head]{display:flex;align-items:baseline;gap:var(--ds-space-2);margin:0;padding:var(--docs-interaction-column-head-pad-y,8px) var(--op-pad-x);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))}
@@ -213,6 +214,15 @@ const SURFACE_STYLE = `
 `;
 const SURFACE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + DISCLOSURE_STYLE + SURFACE_STYLE + SIG_TOKEN_STYLE;
 
+/**
+ * An operation starts open when it has a contract to read: parameters, or
+ * returned fields. The rest stay one line each (name, elided params and
+ * return type), so a surface of many simple routes stays compact.
+ */
+export function startsOpen(operation: InteractionSurfaceOperation): boolean {
+  return Boolean(operation.params?.length || operation.returnShape?.fields.length);
+}
+
 function OperationRow({ blockId, operation }: { blockId: string; operation: InteractionSurfaceOperation }) {
   const kind: OperationKind = operation.kind ?? "action";
   const rows = paramRows(operation);
@@ -223,8 +233,8 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
   const hasReturns = Boolean(operation.returns || operation.returnShape);
   const nameId = domId(blockId, operation.name, "name"); const kindId = domId(blockId, operation.name, "kind"); const purposeId = domId(blockId, operation.name, "purpose");
   return <div data-interaction-operation={operation.name} data-operation-kind={kind}>
-    {/* Rendered open, in static markup too, so a reader sees every contract. `open` never changes between renders, so React never re-applies it and a re-render (the workbench node view re-renders on every selection change) never resets a row the reader toggled. */}
-    <details open ref={syncDisclosureExpanded} data-disclosure="true" data-operation-disclosure="true">
+    {/* Starts open, in static markup too, when it has a contract to read (see startsOpen). `open` never changes between renders, so React never re-applies it and a re-render (the workbench node view re-renders on every selection change) never resets a row the reader toggled. */}
+    <details open={startsOpen(operation)} ref={syncDisclosureExpanded} data-disclosure="true" data-operation-disclosure="true">
       {/* One line, collapsed or open: chevron and `receiver.method(…) → Type`. The name is a described name: its tooltip (hover dwell, or the summary's keyboard focus) shows the kind badge and the purpose; the summary is labelled by name + kind and described by the purpose for assistive tech. */}
       <summary data-operation-line="true" aria-labelledby={`${nameId} ${kindId}`} aria-describedby={operation.description ? purposeId : undefined}>
         <span data-operation-line-row="true">
@@ -242,14 +252,15 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
           <span data-operation-sr="true" id={kindId}>{kind}</span>
         </span>
       </summary>
-      {/* Open: the Parameters card (params | example call), then the Returns card (fields | example). */}
+      {/* Open: the purpose, the Parameters card (params | example call), then the Returns card (fields | example). */}
       <div data-operation-body="true">
+        {operation.description && <p data-operation-purpose="true">{operation.description}</p>}
         {(hasCall || hasReturns) && <div data-op-cards="true">
           {hasCall && <section data-op-card="params" aria-label={`${operation.name} parameters`}>
             <h4 data-op-card-head="params">Parameters</h4>
             <LinkGroup>
               <div data-op-row="call" data-has-list={rows.length > 0 ? "true" : undefined} data-has-code={callLines ? "true" : undefined}>
-                {rows.length > 0 && <div data-op-list="true" data-op-params="true"><FieldLedger rows={rows} /></div>}
+                {rows.length > 0 && <div data-op-list="true" data-op-params="true"><FieldLedger rows={rows} inlineNotes /></div>}
                 {callLines && <div data-op-code="true" data-op-call="true" data-code-surface="true" data-ref-code="true">
                   <CodeLines data-op-example-call="true" lines={callLines} tabIndex={0} role="region" aria-label={`${operation.name} example call`} />
                 </div>}
@@ -260,7 +271,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
             <h4 data-op-card-head="returns">Returns{operation.returns && <span data-op-return-type="true"><TypeToken text={operation.returns} /></span>}</h4>
             {shape && hasReturnRow && <LinkGroup>
               <div data-op-row="returns" data-has-list={shape.rows.length > 0 ? "true" : undefined} data-has-code={shape.exampleLines ? "true" : undefined}>
-                {shape.rows.length > 0 && <div data-op-list="true"><FieldLedger rows={shape.rows} data-return-ledger="true" /></div>}
+                {shape.rows.length > 0 && <div data-op-list="true"><FieldLedger rows={shape.rows} inlineNotes data-return-ledger="true" /></div>}
                 {shape.exampleLines && <div data-op-code="true" data-op-example="true" data-code-surface="true" data-ref-code="true">
                   <CodeLines data-shape-example="true" lines={shape.exampleLines} tabIndex={0} role="region" aria-label={`${operation.returns ?? operation.name} example`} />
                 </div>}
