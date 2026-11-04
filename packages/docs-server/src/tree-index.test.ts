@@ -402,6 +402,19 @@ describe("tree index", () => {
     expect(treeEtag(a.tree)).toBe(`"${a.revision}"`);
   });
 
+  test("two registrations share one index, and it lives until the last one releases", async () => {
+    const first = index.watch(dir);
+    const second = index.watch(dir);
+    await index.tree(dir);
+    first();
+    first();
+    expect(index.isWatched(dir)).toBe(true);
+    await index.tree(dir);
+    expect(walk.state.walks).toBe(1);
+    second();
+    expect(index.isWatched(dir)).toBe(false);
+  });
+
   test("unwatch stops rebuilds and returns the root to per-call walks", async () => {
     unwatch = index.watch(dir);
     await index.tree(dir);

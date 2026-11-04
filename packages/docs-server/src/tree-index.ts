@@ -113,6 +113,8 @@ export function excludePolicyFingerprint(root: string): string {
 
 type Entry = {
   key: string;
+  /** Live watch registrations on this root. The entry goes when the last one releases. */
+  registrations: number;
   snapshot?: TreeSnapshot;
   /** The last fingerprint seen on a call, an event or a build start. */
   lastFingerprint?: string;
@@ -280,6 +282,7 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
       if (!entry) {
         const created: Entry = {
           key,
+          registrations: 1,
           dirty: false,
           closed: false,
           retryMs: retryMinMs,
@@ -291,10 +294,16 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
         created.unsubscribe = subscribeToDocsChangeEvents(realDocsRootPath(root), () => onChange(created));
         entries.set(key, created);
         entry = created;
+      } else {
+        entry.registrations += 1;
       }
       const registered = entry;
+      // Each unsubscribe releases its own registration once, and the shared entry lives until the last one goes.
+      let released = false;
       return () => {
-        if (entries.get(key) !== registered) return;
+        if (released || entries.get(key) !== registered) return;
+        released = true;
+        if (--registered.registrations > 0) return;
         registered.closed = true;
         registered.unsubscribe();
         clearTimers(registered);
