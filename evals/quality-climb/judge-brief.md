@@ -28,12 +28,20 @@ Score each of the 8 categories with a whole number from 1 to 10. Each category h
 
 Use the source files for the Meaning group. Use the markdown for the Writing group. Use only the PNG for the Look group.
 
-Use the whole scale.
+Use the whole scale. Each whole number has one meaning.
 
-- 10: An expert in this field cannot find a fault.
-- 7 or 8: The page works, with faults a careful reader notices.
-- 4 to 6: The page has faults that mislead or slow the reader.
-- 1 to 3: The page fails its reader.
+- 10: The page has no fault worth fixing.
+- 9: The page has only small faults that a careful reader notices on a second read.
+- 8: The page has a fault that a careful reader notices on the first read.
+- 7: The page has faults that make the reader read a part again.
+- 6: The page has a fault that slows the reader or leaves a question open.
+- 5: The page has faults that slow the reader in more than one place.
+- 4: The page has a fault that misleads the reader.
+- 3: The page has faults that mislead the reader in more than one place.
+- 2: The page fails its reader in most places.
+- 1: The page fails its reader in every place.
+
+A score must agree with your findings. A category with no finding of `medium` or `high` severity scores 9 or 10. A finding on a block counts for the category that it is about.
 
 ## Score Each Block
 
@@ -42,9 +50,9 @@ The packet lists each block on the page that you must score, by id and type. Giv
 - Rich text is the `paragraph`, `heading` and `list-item` blocks.
 - The other block types are `callout`, `code`, `structured-table`, `file-tree`, `interaction-surface`, `state-shape`, `process-outline`, `stack`, `call-stack`, `component-tree`, `pseudocode` and `file-explorer`.
 
-## List the Top Findings
+## List the Findings
 
-List up to 8 findings, the most important first. Each finding names one fault that a change to the page, the writing rules or the render can fix.
+List only the real faults that you found, the most important first. Give from 0 to 8 findings. A list with 0 findings is a valid answer. Each finding names one fault that a change to the page, the writing rules or the render can fix.
 
 - Set `target` to a category name or a block id.
 - Set `severity` to `high`, `medium` or `low`.
