@@ -6,7 +6,8 @@ import { dirname, join } from "node:path";
 import { manageFiles, type ManageFilesInput } from "../manage-files";
 import { manageFiles as manageFilesLegacy } from "./fixtures/manage-files.legacy";
 
-/** Golden test: the tree operations rewrite every reference form byte for byte as the code before managed-refs.ts did. */
+/** Golden test: the tree operations rewrite every reference form byte for byte as the code before managed-refs.ts did,
+ * and answer the same apart from tree_hash. */
 
 const page = (id: string, blocks: Record<string, Record<string, unknown>>) => ({
   schemaVersion: 1, id, title: id, root: "root",
@@ -90,7 +91,9 @@ async function run(manage: typeof manageFiles, input: Omit<ManageFilesInput, "ex
         await manage(root, { ...input, expected_hash, preview: false, expected_tree_hash: preview.tree_hash });
       applied = rest;
     }
-    return { preview, applied, files: await tree(root) };
+    // tree_hash is the only planned difference: it now covers the read set, not the whole corpus.
+    const { tree_hash: _hash, ...shown } = preview;
+    return { preview: shown, applied, files: await tree(root) };
   } finally {
     await rm(root, { recursive: true, force: true });
   }

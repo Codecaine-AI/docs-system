@@ -11,6 +11,7 @@ import { getBacklinksDb } from './backlinks-cache';
 import { withPathLock } from './path-mutex';
 import { draftLockStore } from './draft-locks';
 import { extractManagedRefs, holdsManagedRefs, isDoc, resolveAssetTarget } from './managed-refs';
+import { referenceCache } from './reference-cache';
 
 export type ManageFilesInput = {
   kind: 'page' | 'asset' | 'title'; path: string; to?: string; title?: string;
@@ -19,7 +20,7 @@ export type ManageFilesInput = {
 const hash = (b: Uint8Array|string) => createHash('sha256').update(b).digest('hex');
 const under = (file:string, dir:string) => file === dir || file.startsWith(dir+'/');
 const safe = (p:string) => p.length>0 && !p.includes('\\') && !p.includes('\0') && !p.startsWith('/') && p.split('/').every(x=>x!=='.'&&x!=='..'&&x.length>0&&!x.startsWith('.'));
-const failure = (detail:string,status=409) => ({ok:false,status,detail});
+const failure = (detail:string,status=409) => ({ok:false as const,status,detail});
 /** A 403 refusal from the docs-root chokepoint (excluded lexically or on disk, or carried out of the root). */
 const refused403 = (root:string,p:string) => {const c=checkDocsPath(root,p,'read');return !c.ok&&c.status===403?c:null;};
 /** Every target of a management mutation, before its first change. */
@@ -80,6 +81,16 @@ async function hashInventoried(fs:ReturnType<typeof docsFs>,p:string,seen:Invent
     return h.digest('hex');
   }finally{await handle.close();}
 }
+/** The streamed sha256 of one corpus file, null when nothing is there; refusals as hashInventoried. */
+async function streamHash(fs:ReturnType<typeof docsFs>,p:string):Promise<string|null> {
+  let s;
+  try{s=await lstat(fs.guard(p,'inspect').canonical,{bigint:true});}
+  catch(e:any){if(e.code==='ENOENT'||e.code==='ENOTDIR')return null;throw e;}
+  return hashInventoried(fs,p,{size:s.size,dev:s.dev,ino:s.ino});
+}
+/** One read-set file of a plan: its content hash and the hash of what the plan writes there. */
+type PlanEntry = { path:string; content:string|null; output:string|null };
+type Plan = { ok:true; hash:string; entries:PlanEntry[]; moving:string[]; children:string[]; outputs:Map<string,Buffer>; affected:Set<string> };
 async function confined(root:string,path:string) {
   const fs=docsFs(root);let current='';
   for(const segment of path.split('/')){
@@ -112,57 +123,77 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       const guard=await guardWholeFolderOperation(root,input.path,{operation:input.to?'move':'delete',destination:input.to});
       if(!guard.ok)return {...failure(guard.detail,guard.status),records:guard.findings.records,excluded:guard.findings.excluded,excluded_at_destination:guard.findings.excludedAtDestination};
     }
-    const before=await capture(root), source=before.files.get(sourceFile);
-    if(!source)return failure('Source not found.',404);
-    if(hash(source)!==input.expected_hash)return {...failure('Source changed. Read again.'),current_hash:hash(source)};
-    if(input.to){try {await docsFs(root).lstat(input.to);return failure('Destination already exists.');}catch(e:any){if(e.code!=='ENOENT')throw e;}}
-    if(input.kind==='asset' && input.to && (extname(input.path)!==extname(input.to) || ['canvas','sequence'].some(kind=>input.path.endsWith(`.${kind}.json`) && (!input.to!.endsWith(`.${kind}.json`) || !input.to!.includes(`/assets/${kind==='canvas'?'canvases':'sequences'}/`)))))return failure('Asset relocation must preserve its file type and component asset directory.',400);
-    if(input.kind==='asset' && input.to){const owner=input.to.split('/assets/')[0];if(!before.files.has(owner+'/doc.json'))return failure('Destination must belong to an existing page.');}
-    const moving=[...before.files.keys()].filter(p=>isPage?under(p,input.path):p===sourceFile);
-    const children=moving.filter(p=>isDoc(p)&&p!==sourceFile);
-    if(isPage&&!input.to&&children.length&&!input.recursive)return {...failure('Subtree deletion requires recursive:true.'),children};
-    if(input.kind==='title' && (!input.title?.trim() || input.to))return failure('Supply a nonempty title without a destination.',400);
     const map=(p:string)=>input.to&&(isPage?under(p,input.path):p===input.path)?input.to+p.slice(input.path.length):p;
-    const outputs=new Map<string,Buffer>(), affected=new Set<string>(), inbound=new Set<string>();
-    for(const [file,bytes] of before.files) {
-      if(!holdsManagedRefs(file))continue;
-      let data:any;try{data=JSON.parse(bytes.toString());}catch{return failure(`Malformed JSON: ${file}`,422);}
-      let changed=false;
-      // Doc refs, then document media, attachment links, component assets and annotation canvas targets.
-      for(const ref of extractManagedRefs(file,data,root)){
-        if(ref.form==='doc'){
-          if(!isPage||!under(ref.target,input.path))continue;
-          if(!input.to){if(!under(file,input.path))inbound.add(file);}
-          else {ref.holder[ref.key]=map(ref.target);changed=true;}
-          continue;
+    /** The operation planned from its read set: the files it moves plus every file whose references reach one of them.
+     * tree_hash covers each read-set path with its content hash and planned output, so a write elsewhere never changes it. */
+    async function plan():Promise<Plan|(Record<string,any>&{ok:false})>{
+      let lookup;
+      try{lookup=await referenceCache(root).lookup();}catch(e:any){if(e?.status===422)return failure(e.message,422);throw e;}
+      const {files}=lookup, fs=docsFs(root);
+      if(!files.has(sourceFile))return failure('Source not found.',404);
+      const sourceHash=await streamHash(fs,sourceFile);
+      if(sourceHash!==input.expected_hash)return {...failure('Source changed. Read again.'),current_hash:sourceHash};
+      if(input.to){try {await fs.lstat(input.to);return failure('Destination already exists.');}catch(e:any){if(e.code!=='ENOENT')throw e;}}
+      if(input.kind==='asset' && input.to && (extname(input.path)!==extname(input.to) || ['canvas','sequence'].some(kind=>input.path.endsWith(`.${kind}.json`) && (!input.to!.endsWith(`.${kind}.json`) || !input.to!.includes(`/assets/${kind==='canvas'?'canvases':'sequences'}/`)))))return failure('Asset relocation must preserve its file type and component asset directory.',400);
+      if(input.kind==='asset' && input.to){const owner=input.to.split('/assets/')[0];if(!files.has(owner+'/doc.json'))return failure('Destination must belong to an existing page.');}
+      const moving=[...files].filter(p=>isPage?under(p,input.path):p===sourceFile), movingSet=new Set(moving);
+      const children=moving.filter(p=>isDoc(p)&&p!==sourceFile);
+      if(isPage&&!input.to&&children.length&&!input.recursive)return {...failure('Subtree deletion requires recursive:true.'),children};
+      if(input.kind==='title' && (!input.title?.trim() || input.to))return failure('Supply a nonempty title without a destination.',400);
+      const hasFile=(p:string)=>files.has(p), isMoving=(p:string)=>movingSet.has(p);
+      const outputs=new Map<string,Buffer>(), affected=new Set<string>(), inbound=new Set<string>(), content=new Map<string,string|null>();
+      for(const [file,cached] of lookup.refs) {
+        // Only a moving file or one with a reference into the moving set can change. Every reference is still resolved,
+        // so an ambiguous one anywhere refuses as before.
+        if(!isMoving(file)&&!cached.some(ref=>ref.form==='doc'?isPage&&under(ref.target,input.path):isMoving(resolveAssetTarget(ref,hasFile,isMoving)?.target??'')))continue;
+        // Parse again from this read: the cached data is shared and never written through.
+        const bytes=await fs.readFile(file);content.set(file,hash(bytes));
+        let data:any;try{data=JSON.parse(bytes.toString());}catch{return failure(`Malformed JSON: ${file}`,422);}
+        let changed=false;
+        // Doc refs, then document media, attachment links, component assets and annotation canvas targets.
+        for(const ref of extractManagedRefs(file,data,root)){
+          if(ref.form==='doc'){
+            if(!isPage||!under(ref.target,input.path))continue;
+            if(!input.to){if(!under(file,input.path))inbound.add(file);}
+            else {ref.holder[ref.key]=map(ref.target);changed=true;}
+            continue;
+          }
+          const resolved=resolveAssetTarget(ref,hasFile,isMoving);
+          if(!resolved)continue;
+          const {target}=resolved;
+          if(!input.to&&input.kind!=='title'&&isMoving(target)&&!isMoving(file)){inbound.add(file);continue;}
+          if(!input.to)continue;
+          const nextTarget=map(target),nextFile=map(file);
+          if(target===nextTarget&&file===nextFile)continue;
+          ref.holder[ref.key]=(resolved.relative?canonicalBundleSrc(relative(dirname(nextFile),nextTarget).split(sep).join('/')):nextTarget)+ref.suffix;changed=true;
         }
-        const resolved=resolveAssetTarget(ref,p=>before.files.has(p),p=>moving.includes(p));
-        if(!resolved)continue;
-        const {target}=resolved;
-        if(!input.to&&input.kind!=='title'&&moving.includes(target)&&!moving.includes(file)){inbound.add(file);continue;}
-        if(!input.to)continue;
-        const nextTarget=map(target),nextFile=map(file);
-        if(target===nextTarget&&file===nextFile)continue;
-        ref.holder[ref.key]=(resolved.relative?canonicalBundleSrc(relative(dirname(nextFile),nextTarget).split(sep).join('/')):nextTarget)+ref.suffix;changed=true;
+        if(input.kind==='title'&&file===sourceFile){data.title=input.title;changed=true;}
+        if(changed){
+          if(isDoc(file)){const valid=validateDocDocument(data);if(!valid.ok)return {...failure(`Invalid rewritten document: ${file}`,422),issues:valid.issues};outputs.set(file,Buffer.from(serializeDocDocument(valid.document)));}
+          else outputs.set(file,Buffer.from(JSON.stringify(data,null,2)+'\n'));
+          affected.add(file);
+        }
       }
-      if(input.kind==='title'&&file===sourceFile){data.title=input.title;changed=true;}
-      if(changed){
-        if(isDoc(file)){const valid=validateDocDocument(data);if(!valid.ok)return {...failure(`Invalid rewritten document: ${file}`,422),issues:valid.issues};outputs.set(file,Buffer.from(serializeDocDocument(valid.document)));}
-        else outputs.set(file,Buffer.from(JSON.stringify(data,null,2)+'\n'));
-        affected.add(file);
-      }
+      if(inbound.size)return {...failure('Other pages still reference the page or its assets. Relocate assets or repair links first.'),inbound:[...inbound]};
+      for(const file of moving){affected.add(file);if(!content.has(file))content.set(file,await streamHash(fs,file));}
+      const entries=[...content].sort(([a],[b])=>a<b?-1:a>b?1:0).map(([path,c]):PlanEntry=>({path,content:c,output:outputs.has(path)?hash(outputs.get(path)!):null}));
+      return {ok:true,hash:hash(JSON.stringify(entries)),entries,moving,children,outputs,affected};
     }
-    if(inbound.size)return {...failure('Other pages still reference the page or its assets. Relocate assets or repair links first.'),inbound:[...inbound]};
-    for(const file of moving)affected.add(file);
-    const preview={ok:true,preview:true,path:input.path,to:input.to,tree_hash:before.hash,files:moving,children,rewritten_sources:[...outputs.keys()].map(map),undo_available:true,undo_tool:'docs_management_restore'};
+    const planned=await plan();
+    if(!planned.ok)return planned;
+    const {moving,children,outputs,affected}=planned;
+    const preview={ok:true,preview:true,path:input.path,to:input.to,tree_hash:planned.hash,files:moving,children,rewritten_sources:[...outputs.keys()].map(map),undo_available:true,undo_tool:'docs_management_restore'};
     if(input.preview!==false)return preview;
-    if(input.expected_tree_hash!==before.hash)return failure('Corpus changed or preview missing. Preview this operation again.');
-    // Lock all captured files because any may contain a reference or be a source of a concurrent edit.
+    if(input.expected_tree_hash!==planned.hash)return failure('Corpus changed or preview missing. Preview this operation again.');
+    // Lock the read set and every destination: any of them may be the source of a concurrent edit.
     const lockOrder=(p:string)=>p.endsWith('/proposals.json')?0:p.endsWith('/doc.json')?1:p.endsWith('/annotations.json')?3:2;
-    const locks=[...new Set([...before.files.keys(),...moving.map(map)].map(p=>join(root,p)))].sort((a,b)=>lockOrder(a)-lockOrder(b)||a.localeCompare(b));
+    const locks=[...new Set([...planned.entries.map(e=>e.path),...moving.map(map)].map(p=>join(root,p)))].sort((a,b)=>lockOrder(a)-lockOrder(b)||a.localeCompare(b));
     const acquire=(n:number):Promise<Record<string,any>>=>n===locks.length?commit():withPathLock(locks[n],()=>acquire(n+1));
     async function commit():Promise<Record<string,any>>{
-      if((await capture(root)).hash!==before.hash)return failure('Corpus changed while waiting for locks. Preview again.');
+      const again=await plan();
+      if(!again.ok)return again;
+      if(again.hash!==planned.hash)return failure('Corpus changed while waiting for locks. Preview again.');
+      const before=await capture(root);
       for(const file of affected){
         const kind=isDoc(file)?'doc':file.endsWith('.canvas.json')?'canvas':file.endsWith('.sequence.json')?'sequence':null;
         if(kind){const locked=draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file});if(locked.blocked)return {...failure(`Draft in progress: ${file}`,423),held_by:locked.heldBy};}
