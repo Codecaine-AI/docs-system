@@ -20,10 +20,13 @@ const STYLE_ID = "docs-process-outline-style";
  * plain file-tree elbows (a short tick, no arrowhead), and depth reads from
  * indent. Phases (first-level steps with substeps) read in the brighter
  * title ink at the branch weight and are spaced apart by the branch gap.
- * Loop keywords take the control-flow colour (coloured, not also bold),
- * backtick chips are typed (typed-chip.ts, Light+ / Dark+), notes are italic
- * comment-coloured asides behind a `//` marker, and a trace mark is a quiet
- * mono tag. Consecutive outlines share one width (equal-width.ts).
+ * A loop keyword that opens a step (and the `until` of a Repeat step) takes
+ * the control-flow colour (coloured, not also bold), backtick chips are typed
+ * (typed-chip.ts, Light+ / Dark+), and notes are italic asides in the muted
+ * ink behind a dash, so prose never reads as code comments. A trace mark is
+ * a quiet mono tag on the edit surface only: the read page keeps it as the
+ * data-process-outline-trace attribute. Consecutive outlines share one width
+ * (equal-width.ts).
  *
  * Every tunable value rides a style-rail token (workbench theme/theme-folders.ts
  * "process-outline") and carries the token's LIGHT default as its literal
@@ -65,9 +68,9 @@ const PROCESS_OUTLINE_CSS = `
   font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-text-size, 13.5px)); line-height:var(--po-line);
 }
 .docs-process-outline {
-  --po-note-fg: var(--docs-process-outline-note-fg, #008000);
+  --po-note-fg: var(--docs-process-outline-note-fg, #666562);
   --po-note-rule: var(--docs-process-outline-note-rule, #e6e5e3);
-  --po-note-bullet: var(--docs-process-outline-note-bullet, #008000);
+  --po-note-bullet: var(--docs-process-outline-note-bullet, #666562);
   --po-rail: var(--docs-process-outline-rail, color-mix(in srgb,#1f1f1f 45%,#f8f8f7));
   --po-title: var(--docs-process-outline-title-fg, #1f1f1f);
   --po-c: var(--po-rail);
@@ -138,7 +141,7 @@ const PROCESS_OUTLINE_CSS = `
 /* typed chips: one soft neutral chip, the text colour says what the code is */
 .docs-process-outline__code {
   border-radius:var(--ds-radius-base); background:var(--docs-process-outline-code-bg, #ebebe9); padding:.1em .3em;
-  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:var(--ds-font-size-ui-xs); font-weight:var(--ds-font-weight-regular);
+  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:calc(1em * var(--docs-inline-code-text-size, 0.85)); font-weight:var(--ds-font-weight-regular);
   box-decoration-break:clone; -webkit-box-decoration-break:clone;
 }
 /* chips colour like code in VS Code: Light+ on the light page, Dark+ on the dark page */
@@ -149,7 +152,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
   font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
 }
-/* notes: italic comment-coloured asides at the step indent, a // comment marker where an elbow would be */
+/* notes: italic muted asides at the step indent, a dash where an elbow would be */
 .docs-process-outline__note-card {
   --po-line:var(--po-note-line); display:block; max-width:var(--ds-layout-lane-text); margin-left:var(--po-note-inset);
   border:var(--docs-process-outline-note-border-width, 0px) solid var(--docs-process-outline-note-border, #e6e5e3);
@@ -161,9 +164,9 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
 }
 .docs-process-outline__note-bullet { position:relative; overflow-wrap:anywhere; }
 .docs-process-outline__note-bullet::before {
-  position:absolute; top:0; right:calc(100% + 3px); content:"//";
+  position:absolute; top:0; right:calc(100% + 4px); content:"–";
   color:color-mix(in srgb,var(--po-c) calc(var(--docs-process-outline-note-accent, 0) * 1%),var(--po-note-bullet));
-  font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace); font-size:var(--ds-font-size-ui-xs); font-style:normal; letter-spacing:-0.15em;
+  font-style:normal;
   line-height:var(--po-line); white-space:nowrap; user-select:none;
 }
 .docs-process-outline__flow>.docs-process-outline__node--note { padding-left:var(--ds-space-3); }
@@ -198,10 +201,15 @@ function injectProcessOutlineStyles(): void {
   const style = document.createElement("style"); style.id = STYLE_ID; style.textContent = PROCESS_OUTLINE_CSS; document.head.appendChild(style);
 }
 
-const KEYWORD_PATTERN = /^(Repeat|While|For each)\b|\b(until)\b/g;
-function renderPlainText(text: string, segmentIndex: number): ReactNode[] {
+// A loop keyword counts only where it opens the step, and `until` only inside a Repeat step:
+// "Wait until the version lands" is prose, not control flow.
+const OPENING_KEYWORD = /^(Repeat|While|For each)\b/g;
+const UNTIL_KEYWORD = /\buntil\b/g;
+function renderPlainText(text: string, segmentIndex: number, repeatStep: boolean): ReactNode[] {
   const output: ReactNode[] = []; let cursor = 0;
-  for (const match of text.matchAll(KEYWORD_PATTERN)) {
+  const matches = [...(segmentIndex === 0 ? text.matchAll(OPENING_KEYWORD) : []), ...(repeatStep ? text.matchAll(UNTIL_KEYWORD) : [])]
+    .sort((x, y) => (x.index ?? 0) - (y.index ?? 0));
+  for (const match of matches) {
     const index = match.index ?? 0; if (index > cursor) output.push(text.slice(cursor,index));
     output.push(<strong key={`${segmentIndex}-${index}`} className="docs-process-outline__keyword" data-process-outline-keyword={match[0]}>{match[0]}</strong>);
     cursor = index + match[0].length;
@@ -209,9 +217,10 @@ function renderPlainText(text: string, segmentIndex: number): ReactNode[] {
   if (cursor < text.length) output.push(text.slice(cursor)); return output;
 }
 function renderText(text: string): ReactNode[] {
+  const repeatStep = /^Repeat\b/.test(text);
   return text.split("`").map((segment,index) => index % 2
     ? <span key={index} className="docs-process-outline__code" data-process-outline-code="true" data-chip-kind={chipKind(segment)}>{chipBreaks(segment)}</span>
-    : <span key={index}>{renderPlainText(segment,index)}</span>);
+    : <span key={index}>{renderPlainText(segment,index,repeatStep)}</span>);
 }
 export const renderProcessOutlineText = renderText;
 
@@ -244,7 +253,8 @@ const TILE_GLYPH = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 function renderNode(node: ProcessOutlineNode, path: string, indexPath: readonly number[], edit?: ProcessOutlineEditHooks): ReactNode {
   const root=node.depth===0;
   const depthClass=root?" docs-process-outline__node--root":node.depth===1?" docs-process-outline__node--depth-one":node.depth>=3?" docs-process-outline__node--deep":"";
-  const line=<div className="docs-process-outline__line">{lineContent(node,indexPath,edit)}{node.trace?<span className="docs-process-outline__trace" data-process-outline-trace-pill="true">trace</span>:null}</div>;
+  // The trace tag is an authoring aid: the read page keeps only the data attribute below.
+  const line=<div className="docs-process-outline__line">{lineContent(node,indexPath,edit)}{node.trace&&edit?<span className="docs-process-outline__trace" data-process-outline-trace-pill="true">trace</span>:null}</div>;
   return <div key={path} className={`docs-process-outline__node${depthClass}`} data-process-outline-depth={node.depth} data-process-outline-node="true" {...(node.trace?{"data-process-outline-trace":"true"}:{})}>
     {/* A root step names its panel: the family tile, then the root text as the title. */}
     {root?<div className="docs-process-outline__head"><span className="docs-process-outline__tile" aria-hidden="true">{TILE_GLYPH}</span>{line}</div>:line}
