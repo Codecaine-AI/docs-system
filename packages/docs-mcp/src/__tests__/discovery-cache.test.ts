@@ -253,3 +253,12 @@ test("a project dropped from the workspace releases its watcher and its tree ind
     watched.close();
   }
 });
+
+test("two docs_discover calls that overlap share one scan, so neither can commit over the other", async () => {
+  const [first, second] = await Promise.all([invoke(workspace, "docs_discover"), invoke(workspace, "docs_discover")]);
+  expect(scans).toHaveBeenCalledTimes(1);
+  expect(first.projects.map((p: Record<string, unknown>) => p.id)).toEqual(second.projects.map((p: Record<string, unknown>) => p.id));
+  // A rescan after the shared scan settles is a scan of its own.
+  expect((await invoke(workspace, "docs_discover")).ok).toBe(true);
+  expect(scans).toHaveBeenCalledTimes(2);
+});

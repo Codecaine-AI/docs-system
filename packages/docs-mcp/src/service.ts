@@ -184,7 +184,10 @@ export function createInteractionService(options: { managed?: boolean; projectId
  async function discover(workspace:string,rescan=false):Promise<Discovery>{
   const key=resolve(workspace);
   await dropDisowned();
-  const cached=rescan?undefined:discoveries.get(key);
+  const current=discoveries.get(key);
+  // A rescan that arrives while a scan of this workspace runs joins it. Two scans of one workspace would otherwise race to commit its workspace set and its watchers, and the slower one could close a project the faster one found.
+  if(rescan&&current&&!current.settled){try{return (await current.pending).discovery;}catch{/* The failed scan was dropped; scan again. */}}
+  const cached=rescan?undefined:current;
   if(cached){
    try{
     if(!cached.settled)return (await cached.pending).discovery;
