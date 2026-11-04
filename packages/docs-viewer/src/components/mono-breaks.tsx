@@ -38,12 +38,14 @@ export function monoBreaks(text: string, options?: { underscore?: boolean; camel
  * browser's own break after a hyphen, so `--docs-kind-*` never splits as
  * `--` / `docs-kind-*`.
  *
- * - A word of CHIP_LONG_WORD characters or fewer never breaks:
- *   `block-layout.ts`, `root.children` and `node_modules` stay whole, and
- *   the chip moves to the next line instead.
+ * - A word of CHIP_LONG_WORD (32) characters or fewer never breaks:
+ *   `CODECAINE_DOCS_STATE_DIR`, `agent-kernel-viewer-core` and
+ *   `../canvas/packages/text-measure` stay whole, and the chip moves to the
+ *   next line instead.
  * - A chip with spaces (`docs-cli code-theme import`) breaks at its spaces.
- * - A longer word breaks after `/ . _ -` when a word character sits on
- *   both sides: `packages/` `docs-viewer/` `src`, `--docs-` `kind-*`, while
+ * - A longer path breaks only after `/`, and any other longer word after
+ *   `. -`, when a word character sits on both sides: `packages/`
+ *   `docs-viewer/` `src`, `--docs-` `kind-*`. `_` never breaks, while
  *   a leading `--`, a `./` prefix and a trailing `-*` stay attached. A piece
  *   of CHIP_SHORT_PIECE characters or fewer joins the piece before it, so a
  *   line never ends a chip on a lone `ts` or `src`.
@@ -53,14 +55,16 @@ export function monoBreaks(text: string, options?: { underscore?: boolean; camel
  * could break after (`-`, `/`, `?`, brackets, ...) needs no wrapping at all:
  * `chipNeedsPieces` is false and the renderers keep its plain text.
  */
-const CHIP_BREAK_AFTER = /(?<=[A-Za-z0-9][/._-])(?=[A-Za-z0-9<{[(~$@])/;
-const CHIP_LONG_WORD = 20;
+const CHIP_BREAK_AFTER = /(?<=[A-Za-z0-9][/.-])(?=[A-Za-z0-9<{[(~$@])/;
+const CHIP_BREAK_AFTER_SLASH = /(?<=[A-Za-z0-9]\/)(?=[A-Za-z0-9<{[(~$@])/;
+const CHIP_LONG_WORD = 32;
 const CHIP_SHORT_PIECE = 3;
 
-/** A long word's separator pieces, each short piece joined to the one before it. */
+/** A long word's separator pieces, each short piece joined to the one before it. A path breaks only after its slashes. */
 function longWordPieces(word: string): string[] {
   const pieces: string[] = [];
-  for (const piece of word.split(CHIP_BREAK_AFTER)) {
+  const at = CHIP_BREAK_AFTER_SLASH.test(word) ? CHIP_BREAK_AFTER_SLASH : CHIP_BREAK_AFTER;
+  for (const piece of word.split(at)) {
     if (pieces.length > 0 && piece.length <= CHIP_SHORT_PIECE) pieces[pieces.length - 1] += piece;
     else pieces.push(piece);
   }
