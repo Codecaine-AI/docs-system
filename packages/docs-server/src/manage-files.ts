@@ -4,7 +4,7 @@ import { copyFile, lstat, open } from 'node:fs/promises';
 import { dirname, extname, join, relative, sep } from 'node:path';
 import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
-import { rescanAll } from '@codecaine-ai/docs-index/backlinks';
+import { rescanSources } from '@codecaine-ai/docs-index/backlinks';
 import { guardWholeFolderOperation } from '@codecaine-ai/docs-index/subtree-guard';
 import { checkDocsPath, docsFs, type DocsPreflightTarget } from '@codecaine-ai/docs-index/safe-path';
 import { getBacklinksDb } from './backlinks-cache';
@@ -99,6 +99,12 @@ async function staleReferrers(root:string,files:Set<string>,pages:string|undefin
     if(refs.some(ref=>ref.form==='doc'?pages!==undefined&&under(ref.target,pages):[ref.rel,ref.rooted].some(p=>p.includes('/assets/')&&files.has(p))))found.push(file);
   }
   return found;
+}
+/** The backlinks rows of every path an outcome touched: rescanned where a file now is, dropped where none is. */
+async function reindex(root:string,paths:Iterable<string>){
+  const fs=docsFs(root),changed:string[]=[],removed:string[]=[];
+  for(const p of new Set(paths))(await fs.lexists(p)?changed:removed).push(p);
+  await rescanSources(root,await getBacklinksDb(root),changed,removed);
 }
 async function confined(root:string,path:string) {
   const fs=docsFs(root);let current='';
@@ -231,7 +237,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
         if(input.to){await fs.mkdir(dirname(join(root,input.to)),{recursive:true});await fs.rename(join(root,input.path),join(root,input.to));relocated=true;}
         else if(input.kind!=='title'){await fs.rename(join(root,input.path),join(journal,'deleted'));relocated=true;}
         for(const [file,bytes] of outputs){if(!input.to&&input.kind!=='title'&&moving.includes(file))continue;await fs.atomicWrite(join(root,map(file)),bytes.toString());}
-        await rescanAll(root,await getBacklinksDb(root));
+        await reindex(root,[...affected,...[...affected].map(map)]);
         const after_hashes:Record<string,string|null>={};
         for(const p of new Set([...affected,...[...affected].map(map)]))after_hashes[p]=await streamHash(fs,p);
         // The last check before the change counts as applied: nothing outside the plan may still point at the old location.
@@ -245,7 +251,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
         try{
           if(relocated){if(input.to)await fs.rename(join(root,input.to),join(root,input.path));else await fs.rename(join(journal,'deleted'),join(root,input.path));}
           for(const file of affected){await fs.mkdir(dirname(join(root,file)),{recursive:true});await copy(fs,join(journal,'backup',file),join(root,file));}
-          await rescanAll(root,await getBacklinksDb(root));
+          await reindex(root,[...affected,...[...affected].map(map)]);
           await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
           if(error instanceof ReferenceAppeared)return {...failure(REFERENCE_APPEARED,409),changed_paths:error.paths,rolled_back:true,recovery_journal:relative(root,journal)};
           return {...failure(String(error),500),rolled_back:true,recovery_journal:relative(root,journal)};
@@ -339,7 +345,7 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
     if(input.to){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(root,input.to),join(root,input.path));}
     else if(input.kind!=='title'){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(journal,'deleted'),join(root,input.path));}
     for(const [file,bytes] of backups){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),bytes);}
-    await rescanAll(root,await getBacklinksDb(root));
+    await reindex(root,Object.keys(afterHashes));
     // Nothing outside the restored files may still point at the location the restore emptied.
     if(input.to){
      const emptied=new Set(Object.keys(afterHashes).filter(p=>afterHashes[p]!==null&&under(p,input.to!)));
@@ -348,7 +354,7 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
       // Undo the restore: the applied bytes back, then the folder back to where the change put it.
       for(const file of backups.keys()){if(await fs.lexists(join(undo,file)))await copy(fs,join(undo,file),file);else await fs.rm(file,{force:true});}
       await fs.rename(join(root,input.path),join(root,input.to));
-      await rescanAll(root,await getBacklinksDb(root));
+      await reindex(root,Object.keys(afterHashes));
       return {...failure(REFERENCE_APPEARED,409),changed_paths:stale,rolled_back:true,recovery_journal:rel};
      }
     }
