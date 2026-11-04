@@ -39,7 +39,8 @@
     "packages/docs-cli/src/**/*",
     "packages/docs-viewer/src/**/*",
     "packages/docs-workbench/src/**/*",
-    "packages/docs-workbench/web/src/**/*"
+    "packages/docs-workbench/web/src/**/*",
+    "evals/**/*"
   ],
   "exclude": ["node_modules", "dist", "external/canvas"]
 }
