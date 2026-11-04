@@ -17,6 +17,7 @@ import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "@codeca
 import { checkDocsPath, docsFs, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
 import { normalizeBundlePath } from "@codecaine-ai/docs-server/bundle";
 import { createDocsStore, type DocsStore } from "@codecaine-ai/docs-server/store";
+import { currentCallTiming } from "@codecaine-ai/docs-server/call-timing";
 import {
   resolveCanvasSidecarRelativePath, resolveCanvasSidecarRootRelativePath,
   resolveSequenceSidecarRelativePath, resolveSequenceSidecarRootRelativePath,
@@ -90,7 +91,10 @@ const baselineKey = (project: string, path: string) => `${project}:${normalizeBu
 const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
   ops.flatMap((op) => "blockIds" in op ? op.blockIds : "blockId" in op ? [op.blockId] : []);
 
-function response(data: Record<string, unknown>): DocsToolResult {
+function response(result: Record<string, unknown>): DocsToolResult {
+  // Inside a service tool call, the result names the call its call-timings line records.
+  const callId = currentCallTiming()?.callId;
+  const data = callId ? { ...result, call_id: callId } : result;
   return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data,
     ...(data.ok === false ? { isError: true } : {}) };
 }

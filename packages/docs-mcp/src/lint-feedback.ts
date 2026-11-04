@@ -1,6 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import type { DocBlockType, DocDocument } from "@codecaine-ai/docs-model";
 import { lintDocument, type LintReport, type RuleMatch } from "@codecaine-ai/docs-model/lint";
+import { addJevSpan } from "@codecaine-ai/docs-server/call-timing";
 import { blockMarkdown, listRun, nearestHeading, nextSibling, parentOf, previousSibling } from "./doc-context";
 
 /**
@@ -301,15 +302,21 @@ export function styleGate(report: LintReport): StyleFinding[] {
     .map((finding) => compact(finding, finding.suggestion));
 }
 
-/** One judge call over the blocks some rule targets after a change to `touched`. Throws when the engine does. */
-async function judgeTouched(engine: JudgmentEngine, rules: readonly JudgmentRule[], doc: DocDocument, touched: Iterable<string>): Promise<JudgedFinding[]> {
-  const ids = [...touched];
-  const targets = new Map(rules.map((rule) => [rule, ruleTargets(rule, doc, ids)] as const));
-  const blockIds = [...new Set([...targets.values()].flat())];
-  if (!blockIds.length) return [];
-  const asked = new Set(blockIds);
-  const judged = await engine.judge({ doc, blockIds, rules: rules.filter((rule) => targets.get(rule)!.length) });
-  return judged.filter((finding) => finding.blockId !== undefined && asked.has(finding.blockId));
+/** One judge call over the blocks some rule targets after a change to `touched`. Throws when the engine does.
+ * Its wall-clock span is charged to the current tool call even when it throws or times out. */
+export async function judgeTouched(engine: JudgmentEngine, rules: readonly JudgmentRule[], doc: DocDocument, touched: Iterable<string>): Promise<JudgedFinding[]> {
+  const started = performance.now();
+  try {
+    const ids = [...touched];
+    const targets = new Map(rules.map((rule) => [rule, ruleTargets(rule, doc, ids)] as const));
+    const blockIds = [...new Set([...targets.values()].flat())];
+    if (!blockIds.length) return [];
+    const asked = new Set(blockIds);
+    const judged = await engine.judge({ doc, blockIds, rules: rules.filter((rule) => targets.get(rule)!.length) });
+    return judged.filter((finding) => finding.blockId !== undefined && asked.has(finding.blockId));
+  } finally {
+    addJevSpan(performance.now() - started);
+  }
 }
 
 /** Judgment for write feedback. The write is already saved and judgment is advisory, so any failure reports nothing. */
@@ -343,7 +350,11 @@ export async function judgedStyleGate(input: {
     const existed = prior ? found.filter((f) => ruleApplies(byId.get(f.ruleId)!, prior, f.blockId!)) : [];
     let inherited = new Set<string>();
     if (prior && existed.length) {
-      const again = await input.engine.judge({ doc: prior, blockIds: [...new Set(existed.map((f) => f.blockId!))], rules: rules.filter((rule) => existed.some((f) => f.ruleId === rule.id)) });
+      // A direct engine call, outside judgeTouched: its span is charged here, once.
+      const started = performance.now();
+      let again: JudgedFinding[];
+      try { again = await input.engine.judge({ doc: prior, blockIds: [...new Set(existed.map((f) => f.blockId!))], rules: rules.filter((rule) => existed.some((f) => f.ruleId === rule.id)) }); }
+      finally { addJevSpan(performance.now() - started); }
       inherited = new Set(again.filter(clears).map((f) => `${f.ruleId}\u0000${f.blockId}`));
     }
     return { available: true, gate: found.filter((f) => !inherited.has(`${f.ruleId}\u0000${f.blockId}`)).map((f) => compact(f, f.fix)) };
