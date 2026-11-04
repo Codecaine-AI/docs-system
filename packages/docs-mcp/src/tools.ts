@@ -98,6 +98,28 @@ function response(data: Record<string, unknown>): DocsToolResult {
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
 /** Component findings as write results and docs_check carry them: errors, then warnings, then notes, capped like style findings. */
+/** Words that claim a whole set. Match the Source asks the writer to check each one against the source. */
+const ABSOLUTE_WORD = /\b(?:every|all|only|never|always|nothing)\b/i;
+const CLAIMS_LIMIT = 8;
+const CLAIMS_NEXT = "Before docs_end, check each sentence in claims_to_check against the source. Where no source line proves the whole set, name the condition or narrow the claim, as Match the Source says. This list never fails docs_check.";
+const blockText = (block: DocDocument["blocks"][string] | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
+
+/**
+ * The sentences with an absolute word in the text blocks this task wrote or
+ * changed (every block when the task made the page). docs_check lists them so
+ * the writer checks each claim once, at the end, against the source.
+ */
+export function claimsToCheck(doc: DocDocument, baseline: DocDocument | null): string[] {
+  const claims: string[] = [];
+  for (const block of Object.values(doc.blocks)) {
+    if (!["paragraph", "list-item", "callout"].includes(block.type)) continue;
+    const text = blockText(block);
+    if (baseline && blockText(baseline.blocks[block.id]) === text) continue;
+    for (const sentence of text.split(/(?<=[.!?])\s+/)) if (ABSOLUTE_WORD.test(sentence)) claims.push(sentence.trim());
+  }
+  return claims.slice(0, CLAIMS_LIMIT);
+}
+
 const COMPONENT_FINDINGS_LIMIT = 5;
 const findingList = (findings: ComponentFinding[]) => ({ shown: findings.slice(0, COMPONENT_FINDINGS_LIMIT), omitted: Math.max(0, findings.length - COMPONENT_FINDINGS_LIMIT) });
 
@@ -278,7 +300,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails. A passing check with task_id lists claims_to_check: sentences the task wrote with every, all, only, never, always, or nothing, to check against the source.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -307,7 +329,10 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const judged = style_gate && context.judgmentEngine ? await judgedStyleGate({ engine: context.judgmentEngine, baseline: baseline ?? null, doc: result.doc }) : undefined;
       if (judged?.available) style_gate!.push(...judged.gate);
       // An unreadable block always fails: the page cannot load it, whoever broke it.
-      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
+      const ok = lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length;
+      // A passing check is the writer's last step, so it carries the claims to check against the source.
+      const claims = ok && baseline !== undefined ? claimsToCheck(result.doc, baseline) : [];
+      return { ok, ...(claims.length ? { claims_to_check: claims, next: CLAIMS_NEXT } : {}), structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
     tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
