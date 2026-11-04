@@ -11,7 +11,7 @@ import { extractManagedRefs, holdsManagedRefs, type ManagedRef } from "./managed
 export type ReferenceLookup = { files: Set<string>; refs: Map<string, ManagedRef[]> };
 export type ReferenceCache = { lookup(): Promise<ReferenceLookup> };
 
-/** Service-owned metadata at the docs root, never corpus (the same names capture() skips). */
+/** Service-owned metadata at the docs root, never corpus (the same names the asset inventory skips). */
 const ROOT_SKIPPED = new Set([".index", ".changesets", ".git"]);
 type Parsed = { size: bigint; mtimeNs: bigint; ino: bigint; refs: ManagedRef[] };
 
@@ -26,7 +26,7 @@ export function referenceCache(root: string): ReferenceCache {
 }
 
 /**
- * The corpus walk and refusals of manage-files' capture(), through one guarded listing per folder.
+ * The corpus walk and refusals of tree operations, through one guarded listing per folder.
  * A reference file is parsed again only when its size, mtime or inode changed since the last lookup.
  */
 function createReferenceCache(root: string): ReferenceCache {

@@ -26,27 +26,7 @@ const refused403 = (root:string,p:string) => {const c=checkDocsPath(root,p,'read
 /** Every target of a management mutation, before its first change. */
 const preflight = (root:string,targets:DocsPreflightTarget[]) => {const r=docsFs(root).preflight(targets);return r.ok?null:{...failure(r.detail,r.status),refused:r.refused.map(x=>x.path)};};
 
-/** Snapshot the corpus, excluding service-owned metadata and the project's `exclude` paths. Reject symlinks before any read.
- * Every listing and read goes through the docs-root chokepoint, which also omits entries excluded at their canonical location. */
-async function capture(root:string) {
-  const files=new Map<string,Buffer>(), fs=docsFs(root);
-  async function walk(dir:string) {
-    for(const entry of await fs.readdirEntries(dir)) {
-      if(!dir && ['.index','.changesets','.git'].includes(entry.name))continue;
-      const p=dir?`${dir}/${entry.name}`:entry.name;
-      // Excluded paths are not corpus: never read, fingerprinted, rewritten or restored.
-      if(entry.isSymbolicLink())throw Error(`Symbolic links are unsupported for corpus management: ${p}`);
-      if(entry.isDirectory())await walk(p);
-      else if(entry.isFile())files.set(p,await fs.readFile(p));
-      else throw Error(`Unsupported filesystem entry: ${p}`);
-    }
-  }
-  await walk('');
-  const h=createHash('sha256');
-  for(const [p,b] of [...files].sort(([a],[b])=>a.localeCompare(b)))h.update(p).update('\0').update(b).update('\0');
-  return {files,hash:h.digest('hex')};
-}
-/** Metadata-only twin of capture(): the same walk and refusals, but it records identity and size and reads no file bytes. */
+/** The corpus walk and refusals of tree operations (see reference-cache.ts), recording identity and size and reading no file bytes. */
 type InventoryEntry = { size:bigint; dev:bigint; ino:bigint };
 async function inventoryAssets(root:string) {
   const entries=new Map<string,InventoryEntry>(), fs=docsFs(root);
@@ -133,7 +113,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
     await confined(root,input.path);if(input.to)await confined(root,input.to);
     await confined(root,'.changesets');await confined(root,'.index');
     // A page move, rename or delete carries the whole physical folder. Refuse before any read
-    // when it holds a knowledge-base record file or an excluded path (the capture below skips
+    // when it holds a knowledge-base record file or an excluded path (the reference cache skips
     // excluded paths, so neither the preview nor the journal would account for them), or when
     // part of it would land on an excluded path.
     if(isPage){
@@ -266,10 +246,9 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
    const fs=docsFs(root);
    const manifest=JSON.parse(await fs.readFile(join(journal,'manifest.json'),'utf8'));
    if(manifest.status!=='applied'||!manifest.after_hashes)return failure('Journal is not an applied, restorable change.');
-   const before=await capture(root);
-   for(const [file,expected] of Object.entries(manifest.after_hashes)){
+   const afterHashes=manifest.after_hashes as Record<string,string|null>;
+   for(const file of Object.keys(afterHashes)){
     if(file.startsWith('/')||file.split('/')[0].startsWith('.')||file.split('/').some(p=>p==='..'||p==='.'||!p)||file.includes('\\'))return failure('Invalid journal path.',422);
-    if((before.files.has(file)?hash(before.files.get(file)!):null)!==expected)return failure(`Cannot restore after subsequent edits: ${file}`);
    }
    const input=manifest.input as ManageFilesInput;
    if(!safe(input.path)||(input.to&&!safe(input.to)))return failure('Invalid journal paths.',422);
@@ -283,13 +262,40 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
     if(!guard.ok&&(input.to||guard.status===403))return {...failure(guard.detail,guard.status),records:guard.findings.records,excluded:guard.findings.excluded,excluded_at_destination:guard.findings.excludedAtDestination};
    }
    if(input.kind!=='title'){try{await fs.lstat(input.path);return failure('Original path is occupied.');}catch(error:any){if(error.code!=='ENOENT')throw error;}}
-   for(const file of before.files.keys())if((under(file,input.path)||(input.to&&under(file,input.to)))&&!(file in manifest.after_hashes))return failure(`Cannot restore after files were added: ${file}`);
-   if(preview)return {ok:true,preview:true,tree_hash:before.hash,files:manifest.files,restores:input.path};
-   if(expectedTreeHash!==before.hash)return failure('Corpus changed or restore preview missing. Preview again.');
-   const ordered=Object.keys(manifest.after_hashes).sort((a,b)=>Number(!a.endsWith('/doc.json'))-Number(!b.endsWith('/doc.json'))||a.localeCompare(b));
+   const inScope=(p:string)=>under(p,input.path)||(input.to!==undefined&&under(p,input.to));
+   /** The three restore checks: every affected file still holds its applied bytes, nothing was added under the original
+    * or moved path, and no file outside the journal now references either path. tree_hash covers what they read. */
+   async function restoreState():Promise<{ok:true;hash:string;referrers:string[]}|(Record<string,any>&{ok:false})>{
+    const current:Array<[string,string|null]>=[];
+    for(const [file,expected] of Object.entries(afterHashes)){
+     const now=await streamHash(fs,file);
+     if(now!==expected)return failure(`Cannot restore after subsequent edits: ${file}`);
+     current.push([file,now]);
+    }
+    let lookup;
+    try{lookup=await referenceCache(root).lookup();}catch(e:any){if(e?.status===422)return failure(e.message,422);throw e;}
+    for(const file of lookup.files)if(inScope(file)&&!(file in afterHashes))return failure(`Cannot restore after files were added: ${file}`);
+    const referrers:string[]=[];
+    // A title change moves nothing, so a page that links to it never blocks its restore.
+    if(input.kind!=='title')for(const [file,refs] of lookup.refs){
+     if(file in afterHashes)continue;
+     const reaches=refs.some(ref=>{const target=ref.form==='doc'?ref.target:resolveAssetTarget(ref,p=>lookup.files.has(p),()=>false)?.target;return target!==undefined&&inScope(target);});
+     if(reaches)referrers.push(file);
+    }
+    if(referrers.length)return {...failure('Other pages now reference the restored paths. Remove those references before restoring.'),referrers};
+    return {ok:true,hash:hash(JSON.stringify([id,current,referrers])),referrers};
+   }
+   const state=await restoreState();
+   if(!state.ok)return state;
+   if(preview)return {ok:true,preview:true,tree_hash:state.hash,files:manifest.files,restores:input.path};
+   if(expectedTreeHash!==state.hash)return failure('Corpus changed or restore preview missing. Preview again.');
+   const lockOrder=(p:string)=>p.endsWith('/proposals.json')?0:p.endsWith('/doc.json')?1:p.endsWith('/annotations.json')?3:2;
+   const ordered=[...new Set([...Object.keys(afterHashes),input.path,...state.referrers])].sort((a,b)=>lockOrder(a)-lockOrder(b)||a.localeCompare(b));
    const acquire=(n:number):Promise<Record<string,any>>=>n===ordered.length?commit():withPathLock(join(root,ordered[n]),()=>acquire(n+1));
    async function commit(){
-    if((await capture(root)).hash!==before.hash)return failure('Corpus changed while waiting. Preview restore again.');
+    const again=await restoreState();
+    if(!again.ok)return again;
+    if(again.hash!==state.hash)return failure('Corpus changed while waiting. Preview restore again.');
     for(const file of ordered){const kind=isDoc(file)?'doc':file.endsWith('.canvas.json')?'canvas':file.endsWith('.sequence.json')?'sequence':null;
      if(kind&&draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file}).blocked)return failure(`Draft in progress: ${file}`,423);
     }
