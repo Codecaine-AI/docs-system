@@ -10,6 +10,7 @@ import {
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
 import { judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine } from "./lint-feedback";
+import { CLAIMS_LIMIT, CLAIMS_NEXT, claimsToCheck } from "./claims";
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
@@ -98,35 +99,6 @@ function response(data: Record<string, unknown>): DocsToolResult {
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
 /** Component findings as write results and docs_check carry them: errors, then warnings, then notes, capped like style findings. */
-/** Words that claim a whole set. Match the Source asks the writer to check each one against the source. */
-const ABSOLUTE_WORD = /\b(?:every|all|only|never|always|nothing)\b/i;
-/**
- * Words that state what code does on a path: a result, a refusal, or a branch. The round 3b and 4
- * judges found most wrong facts here, where a writer read a function's main path and missed an
- * early return, another mode, or the exact check.
- */
-const BEHAVIOR_WORD = /\b(?:returns?|throws?|rejects?|refuses?|fails?|answers?|skips?|falls? back|instead of|unless)\b/i;
-const CLAIMS_LIMIT = 12;
-const CLAIMS_NEXT = "Before docs_check, check each sentence in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, and branch for another mode, client, or input. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
-const blockText = (block: DocDocument["blocks"][string] | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
-
-/**
- * The sentences with an absolute or a behavior word in the text blocks a write changed
- * (every block when the write made the page). The write result lists them, so
- * the writer checks each claim while the page is still open for edits, and the
- * final docs_check stays one call.
- */
-export function claimsToCheck(doc: DocDocument, baseline: DocDocument | null): string[] {
-  const claims: string[] = [];
-  for (const block of Object.values(doc.blocks)) {
-    if (!["paragraph", "list-item", "callout"].includes(block.type)) continue;
-    const text = blockText(block);
-    if (baseline && blockText(baseline.blocks[block.id]) === text) continue;
-    for (const sentence of text.split(/(?<=[.!?])\s+/)) if (ABSOLUTE_WORD.test(sentence) || BEHAVIOR_WORD.test(sentence)) claims.push(sentence.trim());
-  }
-  return claims;
-}
-
 const COMPONENT_FINDINGS_LIMIT = 5;
 const findingList = (findings: ComponentFinding[]) => ({ shown: findings.slice(0, COMPONENT_FINDINGS_LIMIT), omitted: Math.max(0, findings.length - COMPONENT_FINDINGS_LIMIT) });
 

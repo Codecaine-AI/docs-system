@@ -232,7 +232,7 @@ describe("claims to check", () => {
     expect(written.ok).toBe(true);
     // Only the sentence this write changed is listed: the untouched intro and legacy blocks are not.
     expect(written.claims_to_check).toEqual(["The table lists every status code."]);
-    expect(written.next).toContain("Before docs_check, check each sentence in claims_to_check");
+    expect(written.next).toContain("Before docs_check, check each sentence and block row in claims_to_check");
     // A write that leaves the claim unchanged lists nothing.
     const intro = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: written.hash, markdown: "The table lists every status code. Saves take a lock." }, task);
     expect("claims_to_check" in intro).toBe(false);
@@ -247,5 +247,27 @@ describe("claims to check", () => {
     expect(written.claims_to_check).toEqual(sentences.slice(0, 12));
     expect(written.claims_omitted).toBe(1);
     expect(written.next).toContain("read its whole body for each early return");
+  });
+
+  test("a write lists the call-stack and pseudocode rows that hold a condition, under their block id", async () => {
+    const ops = [
+      { type: "insertBlock", blockId: "cs", parentId: "root", index: 3, blockType: "call-stack", props: { frames: [
+        { text: "POST /api/ops handler", frames: [
+          { text: "ops.filter((op) => ACTION_REGISTRY.get(op.action))", comment: "finds forwarded actions" },
+          { text: "store.applyDocOps(path, ops)" },
+          { text: "expectedHash !== loaded.docHash", kind: "branch" },
+        ] },
+      ] } },
+      { type: "insertBlock", blockId: "pc", parentId: "root", index: 4, blockType: "pseudocode", props: {},
+        text: [{ insert: "laneClass(layout)\n  width = layout.width ?? \"text\"\n  log(width)" }] },
+    ];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.ok).toBe(true);
+    // A plain call row and a pseudocode line with no condition are not claims.
+    expect(written.claims_to_check).toEqual([
+      "cs: ops.filter((op) => ACTION_REGISTRY.get(op.action)) (finds forwarded actions)",
+      "cs: expectedHash !== loaded.docHash",
+      "pc: width = layout.width ?? \"text\"",
+    ]);
   });
 });
