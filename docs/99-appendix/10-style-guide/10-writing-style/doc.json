@@ -336,7 +336,32 @@
       "props": {},
       "text": [
         {
-          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial. A list that names only some items says how many it leaves out and names the file that holds them."
+          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial."
+        }
+      ],
+      "children": [
+        "sg-ws-lists-read",
+        "sg-ws-lists-partial"
+      ]
+    },
+    "sg-ws-lists-read": {
+      "id": "sg-ws-lists-read",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read each file before you say what it holds, even when only an import names it."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-lists-partial": {
+      "id": "sg-ws-lists-partial",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave items out only when the task does not ask for the whole set. Then say how many you leave out and name the file that holds them."
         }
       ],
       "children": []
