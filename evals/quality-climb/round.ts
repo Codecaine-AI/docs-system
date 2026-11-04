@@ -4,12 +4,12 @@
 // Writes .tmp/quality-climb/round-<n>/ and prints the builder-facing gate result. A step whose output already
 // exists is skipped, so a crashed round resumes where it stopped.
 import { existsSync, unlinkSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { $ } from "bun";
 import briefsJson from "./briefs.json";
-import { builderReport, costGuard, evaluateGate, lintGuard, testsGuard, type PageScore, type WriterCost } from "./gate";
+import { added, builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type FailureSets, type PageScore, type WriterCost } from "./gate";
 import { judgePage, type Packet } from "./judge";
 import { lintRules, renderPage, type LintSummary, type PageBlock } from "./render";
 import { groupOf, type Brief, type JudgeReply } from "./schema";
@@ -48,12 +48,36 @@ const settings = await authSettings(dir);
 const rules = await lintRules(opt["lint-ref"]);
 const log = (line: string) => console.error(`[round ${opt.round}] ${line}`);
 
-// The tests guard runs beside the writers: it does not depend on the pages.
-const checks = opt["skip-tests"] ? Promise.resolve([]) : Promise.all(["test", "typecheck"].map(async (script) => {
-  const out = await $`bun run ${script}`.cwd(REPO).quiet().nothrow();
-  await writeFile(join(dir, `${script}.log`), out.stdout.toString() + out.stderr.toString());
-  return { command: `bun run ${script}`, exitCode: out.exitCode };
-}));
+// The tests guard runs beside the writers: it does not depend on the pages. Each round records its failing
+// tests and type errors in checks.json, and the guard fails only on ones the baseline round's checks.json lacks.
+async function runChecks() {
+  const run = async (args: string[], log: string) => {
+    const out = await $`bun ${args}`.cwd(REPO).quiet().nothrow();
+    const text = out.stdout.toString() + out.stderr.toString();
+    await appendFile(join(dir, log), text);
+    return { exitCode: out.exitCode, text };
+  };
+  for (const log of ["test.log", "typecheck.log", "harness-test.log", "rerun.log"]) await rm(join(dir, log), { force: true });
+  const [test, typecheck, harness] = await Promise.all([
+    run(["run", "test"], "test.log"), run(["run", "typecheck"], "typecheck.log"), run(["test", "evals/quality-climb"], "harness-test.log"),
+  ]);
+  // A non-zero exit with no parsed failure is itself a failure, so a crashed run never reads as clean.
+  const orExit = (found: string[], exitCode: number, script: string) => found.length || exitCode === 0 ? found : [`(bun run ${script} exited ${exitCode})`];
+  const current: FailureSets = { tests: orExit(parseTestLog(test.text), test.exitCode, "test"), typeErrors: orExit(parseTypeErrors(typecheck.text), typecheck.exitCode, "typecheck") };
+  const baselineFile = join(roundDir(opt.baseline!), "checks.json");
+  const baseline = opt.baseline !== opt.round && existsSync(baselineFile) ? await readJson<FailureSets>(baselineFile) : null;
+  // Rerun each file with a new failing test once, one file at a time, so only a repeat failure counts.
+  const fresh = baseline ? added(current.tests, baseline.tests) : [];
+  const files = [...new Set(fresh.map((t) => t.split(" > ")[0]!))];
+  const failedAgain: string[] = [];
+  for (const file of files) {
+    if (!file || !existsSync(join(REPO, file))) { failedAgain.push(...fresh.filter((t) => t.startsWith(`${file} > `) || t === file)); continue; }
+    failedAgain.push(...parseTestLog((await run(["test", `./${file}`], "rerun.log")).text));
+  }
+  await writeFile(join(dir, "checks.json"), JSON.stringify({ ...current, harnessExitCode: harness.exitCode, baseline: baseline ? opt.baseline : null, rerunFiles: files, failedAgain }, null, 2));
+  return { harnessExitCode: harness.exitCode, current, baseline, failedAgain };
+}
+const checks = opt["skip-tests"] ? Promise.resolve(null) : runChecks();
 
 // Renders share one SPA build, so they run one at a time and only the first rebuilds it.
 let renderChain: Promise<unknown> = Promise.resolve();

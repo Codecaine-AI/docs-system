@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { builderReport, costGuard, evaluateGate, lintGuard, testsGuard, type GuardResult, type PageScore } from "./gate";
+import { builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type PageScore } from "./gate";
 import { BLOCK_GROUPS, PAGE_CATEGORIES, type BriefSet, type PageCategory } from "./schema";
 
 const okGuards: GuardResult[] = [
@@ -81,10 +81,33 @@ describe("evaluateGate", () => {
 });
 
 describe("guards", () => {
-  test("tests guard passes only when every check exits 0", () => {
-    expect(testsGuard([{ command: "bun run test", exitCode: 0 }, { command: "bun run typecheck", exitCode: 0 }]).pass).toBe(true);
-    expect(testsGuard([{ command: "bun run test", exitCode: 1 }]).pass).toBe(false);
-    expect(testsGuard([]).pass).toBe(false);
+  const baseline = { tests: ["a.test.ts > known slow"], typeErrors: ["src/x.ts:3 TS2322"] };
+
+  test("tests guard fails on a failing test or type error the baseline lacks, and names it", () => {
+    const current = { tests: [...baseline.tests, "b.test.ts > broke"], typeErrors: [...baseline.typeErrors, "src/y.ts:9 TS2345"] };
+    expect(testsGuard({ harnessExitCode: 0, current, baseline, failedAgain: ["b.test.ts > broke"] })).toEqual({
+      name: "tests", pass: false, detail: "failed: new failing test b.test.ts > broke, new type error src/y.ts:9 TS2345",
+    });
+  });
+
+  test("tests guard passes on failures the baseline has, and on a new failure that passes its rerun", () => {
+    const current = { tests: [...baseline.tests, "b.test.ts > timed out once"], typeErrors: baseline.typeErrors };
+    expect(testsGuard({ harnessExitCode: 0, current, baseline, failedAgain: [] }).pass).toBe(true);
+  });
+
+  test("tests guard with no baseline records the sets and passes, but the harness tests stay strict", () => {
+    const current = { tests: ["a.test.ts > known slow"], typeErrors: ["src/x.ts:3 TS2322"] };
+    expect(testsGuard({ harnessExitCode: 0, current, baseline: null, failedAgain: [] })).toEqual({ name: "tests", pass: true, detail: "baseline recorded" });
+    expect(testsGuard({ harnessExitCode: 1, current, baseline: null, failedAgain: [] }).pass).toBe(false);
+    expect(testsGuard({ harnessExitCode: 1, current, baseline, failedAgain: [] }).pass).toBe(false);
+    expect(testsGuard(null).pass).toBe(false);
+  });
+
+  test("parses failing test names per file and type errors by file, line and code", () => {
+    const log = ["src/a.test.ts:", "(fail) group > slow one [1003.79ms]", "", "src/b.test.tsx:", "# Unhandled error between tests", "(fail) loads [0.09ms]"].join("\n");
+    expect(parseTestLog(log)).toEqual(["src/a.test.ts > group > slow one", "src/b.test.tsx > (unhandled error)", "src/b.test.tsx > loads"]);
+    const tsc = "src/x.ts(273,41): error TS2322: Type 'A' is not assignable.\n  Type 'B' detail.\nsrc/x.ts(273,50): error TS2322: again.\n";
+    expect(parseTypeErrors(tsc)).toEqual(["src/x.ts:273 TS2322"]);
   });
 
   test("lint guard fails on any blocking finding under the snapshot rules", () => {

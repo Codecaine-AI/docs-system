@@ -75,11 +75,52 @@ export function evaluateGate(pages: PageScore[], countingJudges: string[], guard
   return { pass: failures.length === 0, failures, scores, guards };
 }
 
-/** Tests guard: every check command exited 0. A check that did not run fails the guard. */
-export function testsGuard(checks: { command: string; exitCode: number | null }[]): GuardResult {
-  if (checks.length === 0) return { name: "tests", pass: false, detail: "no checks ran" };
-  const failed = checks.filter((c) => c.exitCode !== 0);
-  return { name: "tests", pass: failed.length === 0, detail: failed.length ? `failed: ${failed.map((c) => `${c.command} (exit ${c.exitCode ?? "not run"})`).join(", ")}` : `${checks.length} checks passed` };
+/** One round's failing tests (`file > describe > name`) and type errors (`file:line TScode`). */
+export interface FailureSets { tests: string[]; typeErrors: string[] }
+
+const TEST_FILE_HEADER = /^(\S.*\.(?:test|spec)\.[cm]?[jt]sx?):$/;
+
+/** Failing test names from `bun test` output. A load or between-tests error counts as one failure of its file. */
+export function parseTestLog(log: string): string[] {
+  const failing = new Set<string>();
+  let file = "";
+  for (const line of log.split("\n")) {
+    const header = TEST_FILE_HEADER.exec(line);
+    if (header) file = header[1]!;
+    else if (line.startsWith("(fail) ")) failing.add(`${file} > ${line.slice(7).replace(/ \[[\d.]+m?s\]$/, "")}`);
+    else if (line.startsWith("# Unhandled error")) failing.add(`${file} > (unhandled error)`);
+  }
+  return [...failing];
+}
+
+/** Type errors from `tsc` output, keyed by file, line and code so a column shift is not a new error. */
+export function parseTypeErrors(log: string): string[] {
+  return [...new Set([...log.matchAll(/^(\S.*?)\((\d+),\d+\): error (TS\d+):/gm)].map((m) => `${m[1]}:${m[2]} ${m[3]}`))];
+}
+
+/** Entries of `current` that `baseline` lacks. */
+export function added(current: string[], baseline: string[]): string[] {
+  const known = new Set(baseline);
+  return current.filter((x) => !known.has(x));
+}
+
+/**
+ * Tests guard. The harness's own tests must pass. The repo's tests and typecheck must add no failure the
+ * baseline round lacks. A new failing test counts only if it is in `failedAgain`, the failures of a serial
+ * rerun of its file, so a timeout under load does not flap the guard. With no baseline, the guard passes
+ * and this round's sets become the baseline.
+ */
+export function testsGuard(checks: { harnessExitCode: number | null; current: FailureSets; baseline: FailureSets | null; failedAgain: string[] } | null): GuardResult {
+  if (!checks) return { name: "tests", pass: false, detail: "no checks ran" };
+  const harness = checks.harnessExitCode === 0 ? [] : [`bun test evals/quality-climb (exit ${checks.harnessExitCode ?? "not run"})`];
+  if (!checks.baseline) return { name: "tests", pass: harness.length === 0, detail: harness.length ? `failed: ${harness[0]}` : "baseline recorded" };
+  const again = new Set(checks.failedAgain);
+  const bad = [
+    ...harness,
+    ...added(checks.current.tests, checks.baseline.tests).filter((t) => again.has(t)).map((t) => `new failing test ${t}`),
+    ...added(checks.current.typeErrors, checks.baseline.typeErrors).map((e) => `new type error ${e}`),
+  ];
+  return { name: "tests", pass: bad.length === 0, detail: bad.length ? `failed: ${bad.join(", ")}` : `no new failures against baseline (${checks.current.tests.length} failing tests, ${checks.current.typeErrors.length} type errors known)` };
 }
 
 /** Lint guard: every page has zero blocking docs_check findings under the snapshot rules. Held-out pages are only counted. */
