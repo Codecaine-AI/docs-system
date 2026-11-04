@@ -20,7 +20,7 @@ const globalThemesRoot = resolve(process.env.CODECAINE_DOCS_GLOBAL_THEMES || joi
 const codeThemesRoot = resolve(process.env.CODECAINE_DOCS_CODE_THEMES || join(dirname(process.env.CODECAINE_DOCS_REGISTRY!), 'code-themes'));
 // Layout lints measure with text-measure's exact HarfBuzz backend: load it before serving (health reports it as textMeasure).
 await textMeasureReady();
-const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, codeThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])) });
+const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, codeThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])), registryFile: process.env.CODECAINE_DOCS_REGISTRY! });
 for (const workspace of registry.workspaces) {
   try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }
 }
