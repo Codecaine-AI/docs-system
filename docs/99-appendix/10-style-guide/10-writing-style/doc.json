@@ -428,7 +428,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Put each command that the reader runs in a code block, so the reader can copy it whole. A step that names a command in inline code also shows the command in a code block."
+          "insert": "Put a command in a code block only when the reader runs it and no other block on the page shows it. Show each command once: a code block never repeats the commands that a process outline, a numbered step, or a table on the page already shows whole."
         }
       ],
       "children": []
