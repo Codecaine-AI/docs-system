@@ -2,6 +2,7 @@ import { createInteractionService } from './service';
 import { createRpcRecorder, serveRpc } from './action-record';
 import { ledgerStats, textMeasureReady } from '@codecaine-ai/docs-server';
 import { loadGuidance } from './guidance';
+import { memoryReport, startMemoryLog } from './runtime-health';
 import type { DocsProject } from './discovery';
 import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
 import { dirname, join, resolve } from 'node:path';
@@ -31,8 +32,9 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
   try {
     if (url.pathname === '/health') {
       // newestTaskUseMs: ms since the most recent authoring-task call (null without tasks). patches: undo-ledger counts.
+      // memory and jscHeapSize: process.memoryUsage() and JavaScriptCore's heap size in bytes (runtime-health.ts).
       const stats: ReturnType<typeof service.stats> & { newestTaskUseMs?: number | null } = service.stats();
-      return Response.json({ service: 'codecaine-docs-runtime', build: process.env.CODECAINE_DOCS_BUILD, ...stats, newestTaskUseMs: stats.newestTaskUseMs ?? null, patches: ledgerStats() });
+      return Response.json({ service: 'codecaine-docs-runtime', build: process.env.CODECAINE_DOCS_BUILD, ...stats, newestTaskUseMs: stats.newestTaskUseMs ?? null, patches: ledgerStats(), ...memoryReport() });
     }
     if (url.pathname === '/tools') return Response.json({ tools: service.listTools() });
     if (url.pathname === '/rpc' && request.method === 'POST') {
@@ -51,4 +53,6 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
   } catch (error) { return Response.json({ detail: String(error) }, { status: 500 }); }
 } });
 console.log(JSON.stringify({ ready: true, port: server.port }));
+// One memory line every 10 minutes in the supervisor's background.log.
+startMemoryLog();
 process.on('SIGTERM', () => { service.close(); server.stop(true); process.exit(0); });
