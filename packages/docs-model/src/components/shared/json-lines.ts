@@ -34,6 +34,34 @@ function joinKey(path: string, key: string): string {
   return path === "" ? key : `${path}.${key}`;
 }
 
+export type JsonLinesOptions = {
+  /**
+   * Print a non-empty array or object whose entries are all primitives on one
+   * line when that line fits in this many columns, indent included. Omit it
+   * for the canonical form.
+   */
+  inlineWidth?: number;
+};
+
+const isPrimitive = (value: unknown): boolean => value === null || typeof value !== "object";
+
+/** The one-line form of an array or object of primitives, with its child paths; null when it does not qualify. */
+function inlineForm(value: unknown, path: string): { text: string; children: string[] } | null {
+  if (Array.isArray(value)) {
+    if (value.length === 0 || !value.every(isPrimitive)) return null;
+    return { text: `[${value.map((item) => JSON.stringify(item) ?? "null").join(", ")}]`, children: value.map((_, index) => `${path}[${index}]`) };
+  }
+  if (isRecord(value)) {
+    const entries = Object.entries(value).filter(([, entry]) => isSerializableEntry(entry));
+    if (entries.length === 0 || !entries.every(([, entry]) => isPrimitive(entry))) return null;
+    return {
+      text: `{ ${entries.map(([key, entry]) => `${JSON.stringify(key)}: ${JSON.stringify(entry)}`).join(", ")} }`,
+      children: entries.map(([key]) => joinKey(path, key)),
+    };
+  }
+  return null;
+}
+
 function emitValue(
   value: unknown,
   path: string,
@@ -42,13 +70,18 @@ function emitValue(
   suffix: string,
   lines: string[],
   ranges: JsonLineRange[],
+  options: JsonLinesOptions = {},
 ): void {
   // Pre-order recording: parents precede children, ranges sort by start line.
   const range: JsonLineRange | undefined =
     path === "" ? undefined : { path, start: lines.length + 1, end: lines.length + 1 };
   if (range) ranges.push(range);
 
-  if (Array.isArray(value)) {
+  const inline = options.inlineWidth === undefined ? null : inlineForm(value, path);
+  if (inline && `${indent}${prefix}${inline.text}${suffix}`.length <= options.inlineWidth!) {
+    lines.push(`${indent}${prefix}${inline.text}${suffix}`);
+    for (const child of inline.children) ranges.push({ path: child, start: lines.length, end: lines.length });
+  } else if (Array.isArray(value)) {
     if (value.length === 0) {
       lines.push(`${indent}${prefix}[]${suffix}`);
     } else {
@@ -62,6 +95,7 @@ function emitValue(
           index < value.length - 1 ? "," : "",
           lines,
           ranges,
+          options,
         );
       });
       lines.push(`${indent}]${suffix}`);
@@ -81,6 +115,7 @@ function emitValue(
           index < entries.length - 1 ? "," : "",
           lines,
           ranges,
+          options,
         );
       });
       lines.push(`${indent}}${suffix}`);
@@ -101,10 +136,12 @@ function emitValue(
  * (where its key/opening token appears) and end line (its closing token's
  * line). Determinism: same value → same bytes and ranges; object keys emit
  * in insertion order, exactly as JSON.parse/JSON.stringify preserve them.
+ * `options.inlineWidth` folds short arrays and objects of primitives onto one
+ * line (the read surface's example pane); the agent view keeps the canon.
  */
-export function printJsonLines(value: unknown): JsonLinesResult {
+export function printJsonLines(value: unknown, options: JsonLinesOptions = {}): JsonLinesResult {
   const lines: string[] = [];
   const ranges: JsonLineRange[] = [];
-  emitValue(value, "", "", "", "", lines, ranges);
+  emitValue(value, "", "", "", "", lines, ranges, options);
   return { lines, ranges };
 }

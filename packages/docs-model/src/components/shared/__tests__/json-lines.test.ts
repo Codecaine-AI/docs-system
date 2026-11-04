@@ -96,6 +96,27 @@ describe("printJsonLines", () => {
     expect(printJsonLines(null)).toEqual({ lines: ["null"], ranges: [] });
   });
 
+  it("folds a short array or object of primitives onto one line under inlineWidth, keeping every path", () => {
+    const value = { id: "h1", children: ["a", "b"], props: { level: 2 }, text: [{ insert: "Install" }], long: ["x".repeat(60)] };
+    const { lines, ranges } = printJsonLines(value, { inlineWidth: 40 });
+    expect(lines).toEqual([
+      "{",
+      '  "id": "h1",',
+      '  "children": ["a", "b"],',
+      '  "props": { "level": 2 },',
+      '  "text": [',
+      '    { "insert": "Install" }',
+      "  ],",
+      '  "long": [',
+      `    "${"x".repeat(60)}"`,
+      "  ]",
+      "}",
+    ]);
+    expect(ranges.find((r) => r.path === "children[1]")).toEqual({ path: "children[1]", start: 3, end: 3 });
+    expect(ranges.find((r) => r.path === "text[0].insert")).toEqual({ path: "text[0].insert", start: 6, end: 6 });
+    expect(JSON.parse(lines.join("\n"))).toEqual(value);
+  });
+
   it("keeps empty objects and arrays inline", () => {
     const { lines, ranges } = printJsonLines({ fields: [], source: {} });
     expect(lines).toEqual(["{", '  "fields": [],', '  "source": {}', "}"]);

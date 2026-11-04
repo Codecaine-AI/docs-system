@@ -160,7 +160,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
   if (parsed) {
-    const { lines, ranges } = printJsonLines(value);
+    const { lines, ranges } = printJsonLines(value, { inlineWidth: 56 });
     const paths = new Set(flat.map((row) => row.path));
     const keysByLine = new Array<string[] | undefined>(lines.length);
     for (const range of ranges) {
