@@ -25,10 +25,8 @@
         "852df798-83f6-4853-86e3-02d48a841bdb",
         "22bcd44c-7ec9-47db-a26f-8f7f248e5e47",
         "85998fe4-8918-4545-8d1b-db40087ffab5",
-        "sg-struct-shape-use",
-        "sg-struct-shape-keep-list",
-        "sg-struct-shape-specs",
-        "sg-struct-shape-example"
+        "sg-struct-shape-group-use",
+        "sg-struct-shape-group-lists"
       ]
     },
     "b-sg-struct-intro-1": {
@@ -455,7 +453,7 @@
             ]
           ],
           [
-            "Ordered steps",
+            "Expected execution path of a system",
             [
               {
                 "insert": "process-outline",
@@ -536,6 +534,24 @@
       },
       "children": []
     },
+    "sg-struct-shape-group-use": {
+      "id": "sg-struct-shape-group-use",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the Typed Block When the Shape Is There",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "sg-struct-shape-use",
+        "sg-struct-shape-specs",
+        "sg-struct-shape-example"
+      ]
+    },
     "sg-struct-shape-use": {
       "id": "sg-struct-shape-use",
       "type": "list-item",
@@ -543,17 +559,6 @@
       "text": [
         {
           "insert": "If the section describes a shape, use its typed block. Put one or two sentences around the block to orient the reader."
-        }
-      ],
-      "children": []
-    },
-    "sg-struct-shape-keep-list": {
-      "id": "sg-struct-shape-keep-list",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Keep a short list of plain facts as a list. Never force a fact into a diagram only to have one."
         }
       ],
       "children": []
@@ -585,6 +590,45 @@
         },
         {
           "insert": " block with the fields and a JSON example follows it."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-group-lists": {
+      "id": "sg-struct-shape-group-lists",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep Lists Where Lists Fit",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "sg-struct-shape-keep-list",
+        "sg-struct-shape-keep-steps"
+      ]
+    },
+    "sg-struct-shape-keep-list": {
+      "id": "sg-struct-shape-keep-list",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a short list of plain facts as a list. Never force a fact into a diagram only to have one."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-keep-steps": {
+      "id": "sg-struct-shape-keep-steps",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep steps that the reader follows as a numbered list, as Number Sequential Actions says."
         }
       ],
       "children": []

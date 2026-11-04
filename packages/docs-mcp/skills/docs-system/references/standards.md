@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d10d3ed86f982b1a960d70fb1255621a7b94137`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:ed7e18d1c1302d33d52a358dcc0a4c886b8a48ee73856b455137065517199f6d`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -1262,6 +1262,38 @@ Generated from Docs System sources. Snapshot: `sha256:4eee17776ead86c78679a4081d
     - Preserve the established page template. Supporting reasons or reference details can serve the page's primary purpose, as defined in Document Purpose.
 
     - Give every image nonempty alt text that describes the information it contributes.
+
+    ## Show the Shape in a Typed Block
+
+    Typed blocks are the main value of this docs system. A typed block shows a shape that bullets can only describe. Before you write a section as prose or bullets, check whether it describes one of the shapes in this table.
+
+    **Shapes and the typed block for each**
+
+    | Shape in the section | Typed block |
+    | --- | --- |
+    | Data fields and an example instance | `state-shape` |
+    | Files and folders | `file-tree` |
+    | Expected execution path of a system | `process-outline` |
+    | Operations on a state | `interaction-surface` |
+    | Layers and the rule at each line | `stack` |
+    | Connections, ownership, or a pipeline | `canvas` |
+    | Calls and returns between participants | `sequence` |
+    | Rows that compare the same fields | `structured-table` |
+    | A screen or a physical layout | `html` |
+
+    - **Use the Typed Block When the Shape Is There**
+
+      - If the section describes a shape, use its typed block. Put one or two sentences around the block to orient the reader.
+
+      - Specs, plans, and design pages need typed blocks most. Readers align on these pages, and they align faster when they can see the shape.
+
+      - A spec that lists the nine fields of a record as bullets breaks this rule. One `state-shape` block with the fields and a JSON example follows it.
+
+    - **Keep Lists Where Lists Fit**
+
+      - Keep a short list of plain facts as a list. Never force a fact into a diagram only to have one.
+
+      - Keep steps that the reader follows as a numbered list, as Number Sequential Actions says.
 
   </doc>
   <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/workspace/codebases/codecaine/core/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
