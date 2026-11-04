@@ -87,6 +87,19 @@ function planChanged(reviewed:PlanEntry[]|undefined,current:PlanEntry[]){
   const a=state(reviewed),b=state(current);
   return {...refusal,changed_paths:[...new Set([...a.keys(),...b.keys()])].filter(p=>a.get(p)!==b.get(p)).sort()};
 }
+const REFERENCE_APPEARED='A reference to the moved pages appeared during the apply. Preview this operation again.';
+/** Thrown inside an apply's change window so the apply rolls back like any other failure, then refuses by name. */
+class ReferenceAppeared extends Error { constructor(readonly paths:string[]){super(REFERENCE_APPEARED);} }
+/** Files outside `written` that still reference a location the apply just emptied: a doc ref under `pages`, or an
+ * asset ref with a candidate in `files`. An edit that takes only its own page's lock can add one during the apply. */
+async function staleReferrers(root:string,files:Set<string>,pages:string|undefined,written:Set<string>){
+  const found:string[]=[];
+  for(const [file,refs] of (await referenceCache(root).lookup()).refs){
+    if(written.has(file))continue;
+    if(refs.some(ref=>ref.form==='doc'?pages!==undefined&&under(ref.target,pages):[ref.rel,ref.rooted].some(p=>p.includes('/assets/')&&files.has(p))))found.push(file);
+  }
+  return found;
+}
 async function confined(root:string,path:string) {
   const fs=docsFs(root);let current='';
   for(const segment of path.split('/')){
@@ -221,6 +234,11 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
         await rescanAll(root,await getBacklinksDb(root));
         const after_hashes:Record<string,string|null>={};
         for(const p of new Set([...affected,...[...affected].map(map)]))after_hashes[p]=await streamHash(fs,p);
+        // The last check before the change counts as applied: nothing outside the plan may still point at the old location.
+        if(input.kind!=='title'){
+          const stale=await staleReferrers(root,new Set(moving),isPage?input.path:undefined,new Set([...outputs.keys()].map(map)));
+          if(stale.length)throw new ReferenceAppeared(stale);
+        }
         await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'applied',after_hashes},null,2));
         return {ok:true,applied:true,path:input.to??input.path,previous_path:input.path,rewritten_sources:[...outputs.keys()].map(map),files:moving,tree_change_id:id,recovery_journal:relative(root,journal),undo_available:true,undo_tool:'docs_management_restore'};
       }catch(error){
@@ -229,6 +247,7 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
           for(const file of affected){await fs.mkdir(dirname(join(root,file)),{recursive:true});await copy(fs,join(journal,'backup',file),join(root,file));}
           await rescanAll(root,await getBacklinksDb(root));
           await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
+          if(error instanceof ReferenceAppeared)return {...failure(REFERENCE_APPEARED,409),changed_paths:error.paths,rolled_back:true,recovery_journal:relative(root,journal)};
           return {...failure(String(error),500),rolled_back:true,recovery_journal:relative(root,journal)};
         }catch(rollback){return {...failure(String(error),500),rolled_back:false,rollback_error:String(rollback),recovery_journal:relative(root,journal)};}
       }
@@ -302,20 +321,37 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
      if(kind&&draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file}).blocked)return failure(`Draft in progress: ${file}`,423);
     }
     // Load every recovery byte before changing anything.
-    const backups=new Map<string,Buffer>();
+    const backups=new Map<string,Buffer>(), undo=join(journal,'restore-undo');
     for(const file of manifest.files){if(!(file in manifest.after_hashes))return failure('Invalid backup entry.',422);await confined(root,`${rel}/backup/${file}`);backups.set(file,await fs.readFile(join(journal,'backup',file)));}
     // Every target the restore changes, inside the locks and before the first change.
     const blocked=preflight(root,[
      ...(input.to?[{path:input.to,intent:'rename-from' as const},{path:input.path,intent:'rename-to' as const},{path:dirname(input.path),intent:'mkdir' as const}]
        :input.kind!=='title'?[{path:join(journal,'deleted'),intent:'rename-from' as const},{path:input.path,intent:'rename-to' as const},{path:dirname(input.path),intent:'mkdir' as const}]:[]),
      ...[...backups.keys()].map(file=>({path:file,intent:'write' as const})),
+     ...(input.to?[...backups.keys()].map(file=>({path:join(undo,file),intent:'write' as const})):[]),
      {path:join(journal,'manifest.json'),intent:'write'},
     ]);
     if(blocked)return blocked;
+    // Restoring a move: keep each file the restore overwrites in its applied form, for the post-restore check's rollback.
+    const applied=(file:string)=>under(file,input.path)?input.to+file.slice(input.path.length):file;
+    if(input.to)await fs.rm(undo,{recursive:true,force:true});
+    if(input.to)for(const file of backups.keys())if(await fs.lexists(applied(file))){await fs.mkdir(dirname(join(undo,file)),{recursive:true});await copy(fs,applied(file),join(undo,file));}
     if(input.to){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(root,input.to),join(root,input.path));}
     else if(input.kind!=='title'){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(journal,'deleted'),join(root,input.path));}
     for(const [file,bytes] of backups){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),bytes);}
     await rescanAll(root,await getBacklinksDb(root));
+    // Nothing outside the restored files may still point at the location the restore emptied.
+    if(input.to){
+     const emptied=new Set(Object.keys(afterHashes).filter(p=>afterHashes[p]!==null&&under(p,input.to!)));
+     const stale=await staleReferrers(root,emptied,input.kind==='page'?input.to:undefined,new Set(backups.keys()));
+     if(stale.length){
+      // Undo the restore: the applied bytes back, then the folder back to where the change put it.
+      for(const file of backups.keys()){if(await fs.lexists(join(undo,file)))await copy(fs,join(undo,file),file);else await fs.rm(file,{force:true});}
+      await fs.rename(join(root,input.path),join(root,input.to));
+      await rescanAll(root,await getBacklinksDb(root));
+      return {...failure(REFERENCE_APPEARED,409),changed_paths:stale,rolled_back:true,recovery_journal:rel};
+     }
+    }
     await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'restored'},null,2));
     return {ok:true,restored:true,path:input.path,recovery_journal:rel};
    }
