@@ -255,7 +255,7 @@ describe("tree index", () => {
     expect(names(await index.tree(dir))).toEqual(["alpha", "beta"]);
   });
 
-  test("setDocsRootExclude with the same globs leaves the index clean; different globs rebuild", async () => {
+  test("setDocsRootExclude with the same globs leaves the index clean; different globs rebuild before the next read answers", async () => {
     setDocsRootExclude(dir, ["drafts/**"]);
     unwatch = index.watch(dir);
     const first = await index.snapshot(dir);
@@ -268,17 +268,16 @@ describe("tree index", () => {
     await clock.advance(60_000);
     expect(walk.state.walks).toBe(1);
 
+    // A policy change is a mutation made through this process: the read that sees it waits for the
+    // rebuild, so no caller gets a tree that still lists a path the new policy excludes.
     setDocsRootExclude(dir, ["drafts/**", "beta/**"]);
-    expect(await index.snapshot(dir)).toBe(first);
-    expect(index.state(dir)?.dirty).toBe(true);
-    expect(clock.pending()).toEqual([200]);
-    // Calls in the quiet window see the same fingerprint again and do not re-mark.
-    await index.snapshot(dir);
-    expect(clock.pending()).toEqual([200]);
-    await clock.advance(200);
     const second = await index.snapshot(dir);
     expect(second).not.toBe(first);
     expect(names(second.tree)).toEqual(["alpha"]);
+    expect(walk.state.walks).toBe(2);
+    expect(index.state(dir)?.dirty).toBe(false);
+    // The same fingerprint again changes nothing.
+    expect(await index.snapshot(dir)).toBe(second);
     expect(walk.state.walks).toBe(2);
   });
 

@@ -219,10 +219,12 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
     }, quietMs);
   };
 
-  /** Throws while the policy is unreadable. A changed fingerprint marks the index dirty. */
+  /** Throws while the policy is unreadable. A changed fingerprint invalidates the index, so the read that saw it waits for the rebuild. */
   const observeFingerprint = (entry: Entry): void => {
     const current = fingerprint(entry.key);
-    if (entry.lastFingerprint !== undefined && current !== entry.lastFingerprint) markDirty(entry);
+    // A policy change is made through this process (setDocsRootExclude), so the read that sees it waits
+    // for the rebuild instead of answering a tree that may still list a path the policy now excludes.
+    if (entry.lastFingerprint !== undefined && current !== entry.lastFingerprint) invalidate(entry);
     entry.lastFingerprint = current;
   };
 
