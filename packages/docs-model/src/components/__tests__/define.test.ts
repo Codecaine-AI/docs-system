@@ -4,6 +4,7 @@ import { describe, expect, it } from "bun:test";
 import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
+import { applyOps } from "../../doc-ops";
 import { DOC_BLOCK_TYPES } from "../../doc-schema";
 import { collectRegistryIssues } from "../checks";
 import { checkParams, schemaIssues } from "../define";
@@ -31,6 +32,21 @@ describe("schemaIssues", () => {
     const schema = Type.Object({ name: Type.String() }, { additionalProperties: false });
     const issues = schemaIssues(Value.Errors(schema, {}));
     expect(issues.some((issue) => issue.path === "$.params.name")).toBe(true);
+  });
+
+  it("names the allowed values when a value is outside a union of literals", () => {
+    const schema = Type.Object({ tone: Type.Optional(Type.Union([Type.Literal("info"), Type.Literal("risk")])) });
+    expect(schemaIssues(Value.Errors(schema, { tone: "note" }), "$.op.props")).toEqual([
+      { path: "$.op.props.tone", message: "tone must be one of: info, risk" },
+    ]);
+  });
+
+  it("names the allowed callout tones when an insert op sends an unknown tone", () => {
+    const doc = { schemaVersion: 1 as const, id: "d", title: "T", root: "root", blocks: { root: { id: "root", type: "paragraph" as const, props: {}, children: [] } } };
+    const result = applyOps(doc, [{ type: "insertBlock", blockId: "c", parentId: "root", index: 0, blockType: "callout", props: { tone: "note" } }], () => "x");
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual({ path: "$.op.props.tone", message: "tone must be one of: info, decision, risk, warning, success" });
   });
 
   it("deduplicates overlapping missing-property issues", () => {

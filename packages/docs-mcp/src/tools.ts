@@ -4,7 +4,7 @@ import { dirname, relative, resolve, sep } from "node:path";
 import { Type, type TObject, type TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import {
-  ACTION_REGISTRY, ALL_COMPONENTS, DOC_BLOCK_TYPES, emptyStateFor, stateFor,
+  ACTION_REGISTRY, ALL_COMPONENTS, DOC_BLOCK_TYPES, emptyStateFor, stateFor, valueErrorMessage,
   type DocDocument, type DocOp, type ComponentAction,
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
@@ -179,7 +179,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     return { name, description, inputSchema: jsonSchema(schema), execute: async (args, ctx = {}) => {
       try {
         if (!Value.Check(schema, args)) {
-          return response({ ...failure("Tool arguments failed validation."), issues: [...Value.Errors(schema, args)].map(({ path, message }) => ({ path, message })) });
+          return response({ ...failure("Tool arguments failed validation."), issues: [...Value.Errors(schema, args)].map((error) => ({ path: error.path, message: valueErrorMessage(error) })) });
         }
         const input = args as Record<string, any>;
         const store = await storeFor(input);
