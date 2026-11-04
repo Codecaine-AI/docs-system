@@ -121,6 +121,15 @@ describe("layout findings", () => {
   });
 });
 
+describe("the page in write results", () => {
+  test("a write returns the root and the blocks it changed, counts the rest, and docs_read returns the whole page", async () => {
+    const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: "We ship on Tuesday." }, task);
+    expect(Object.keys(written.doc.blocks).sort()).toEqual(["body", "root"]);
+    expect(written.doc.blocks.root.children).toEqual(["intro", "legacy", "body"]);
+    expect(written.doc_omitted_blocks).toBe(2);
+    expect(Object.keys((await call("docs_read", { path: "page" })).doc.blocks).sort()).toEqual(["body", "intro", "legacy", "root"]);
+  });
+});
 describe("docs_check style gate", () => {
   test("blocks on gated findings the task introduced, not on findings that predate it", async () => {
     expect("style_gate" in await call("docs_check", { path: "page" }, task)).toBe(false);

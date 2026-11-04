@@ -9,7 +9,7 @@ import {
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
-import { checkBlocksFor, judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine, type StyleFinding } from "./lint-feedback";
+import { checkBlocksFor, judgedStyleGate, styleGate, touchedBlockIds, writeStyleFeedback, type JudgmentEngine, type StyleFinding } from "./lint-feedback";
 import { CLAIMS_LIMIT, CLAIMS_NEXT, claimsToCheck } from "./claims";
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
@@ -93,6 +93,22 @@ interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocum
 const baselineKey = (project: string, path: string) => `${project}:${normalizeBundlePath(path)}`;
 const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
   ops.flatMap((op) => "blockIds" in op ? op.blockIds : "blockId" in op ? [op.blockId] : []);
+
+/**
+ * The saved page as a write result carries it: the root, each block the write changed, and the parent
+ * of each, so the writer sees the root id and where its blocks sit. Echoing the whole page grew every
+ * later turn of a writer that builds a page in many writes (round 6 brief 1: 7 writes, 27 KB each by
+ * the end). A page the write made comes back whole. docs_read returns the whole page.
+ */
+function writtenView(before: DocDocument | null, after: DocDocument, named: Iterable<string>): { doc: DocDocument; doc_omitted_blocks?: number } {
+  if (!before) return { doc: after };
+  const keep = new Set([after.root, ...touchedBlockIds(before, after, named)]);
+  for (const block of Object.values(after.blocks)) if (block.children?.some((child) => keep.has(child))) keep.add(block.id);
+  const omitted = Object.keys(after.blocks).length - keep.size;
+  if (omitted === 0) return { doc: after };
+  const blocks = Object.fromEntries(Object.entries(after.blocks).filter(([id]) => keep.has(id)));
+  return { doc: { ...after, blocks }, doc_omitted_blocks: omitted };
+}
 
 function response(data: Record<string, unknown>): DocsToolResult {
   return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data,
@@ -227,10 +243,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     const open = gate.length;
     const claims = docWrite && docWrite.before !== undefined ? claimsToCheck(result.doc, docWrite.before) : [];
     const next = nextHint(style !== undefined, open, style?.shown.some((finding) => finding.blocks_check) ?? false);
+    const view = docWrite && docWrite.before !== undefined ? writtenView(docWrite.before, result.doc, [...changedIds, ...opBlockIds(docWrite.ops)]) : {};
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
     return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
       ...(claims.length ? { claims_to_check: claims.slice(0, CLAIMS_LIMIT) } : {}), ...(claims.length > CLAIMS_LIMIT ? { claims_omitted: claims.length - CLAIMS_LIMIT } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
-      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
+      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result, ...view };
   }
   /** The document the task's first write to this page replaced: null for a page the task made, undefined with no task. */
   function taskBaselineOf(write: DocWrite, path: string): DocDocument | null | undefined {
@@ -446,7 +463,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         const style = after.ok ? await writeStyleFeedback({ before, after: after.doc, engine: context.judgmentEngine }) : undefined;
         return style ? { ok: true, style_findings: style, next: FIX_STYLE_NEXT, ...result } : result;
       }),
-    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store, ctx) => apply(store, args, args.ops, ctx)),
+    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. The result's doc holds the root, the changed blocks and their parents. docs_read returns the whole page. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store, ctx) => apply(store, args, args.ops, ctx)),
     tool("docs_insert", "Insert a component block using registry defaults, returning its generated blockId. Supply initial props or markdown when useful, then edit using its component tools.", obj({ ...writeTarget, parentId: id, index: Type.Integer({ minimum: 0 }), type: blockType, props: Type.Optional(record), markdown: Type.Optional(Type.String()) }), async (args, store, ctx) => {
       if (args.markdown !== undefined && !stateFor(args.type).carriesText) return failure("This component carries structured props, not markdown text.");
       const blockId = randomUUID();
