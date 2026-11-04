@@ -183,6 +183,7 @@
       ],
       "children": [
         "shape-detail-3-0",
+        "shape-detail-3-2",
         "shape-detail-3-1"
       ]
     },
@@ -193,6 +194,17 @@
       "text": [
         {
           "insert": "Use a numbered list for multi-step work, with one bounded action per step."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-3-2": {
+      "id": "shape-detail-3-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A numbered procedure holds only the steps of its one task, in order. A step that applies only after a later change, such as a rebuild or an undo, goes after the procedure under its own heading."
         }
       ],
       "children": []
