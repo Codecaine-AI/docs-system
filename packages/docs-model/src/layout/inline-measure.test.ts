@@ -66,17 +66,17 @@ describe("where ordinary text breaks (Chromium's min-content runs)", () => {
 
 describe("inline code chips", () => {
   test("a chip's pieces break at their <wbr>, each piece carrying the chip's padding on both sides", () => {
-    // Chromium: "aaa." <wbr> "verification" is 90.625px at min-content, the last piece and two paddings.
-    const measured = widest([code("aaa.verification")]);
+    // Chromium: "aaaa." <wbr> "bbbb." <wbr> "verification" is 90.625px at min-content, the last piece and two paddings.
+    const measured = widest([code("aaaa.bbbb.verification")]);
     expect(measured.text).toBe("verification");
     expect(measured.width).toBeCloseTo(measureWidth("verification", codeFont(chip.sizePx)) + 2 * chip.padXPx, 6);
   });
 
   test("the first piece of a chip that breaks at a <wbr> carries a third padding, as Chromium's min-content does", () => {
-    // Chromium: "verification." <wbr> "json" is 101.515625px, three paddings.
-    const measured = widest([code("verification.json")]);
-    expect(measured.text).toBe("verification.");
-    expect(measured.width).toBeCloseTo(measureWidth("verification.", codeFont(chip.sizePx)) + 3 * chip.padXPx, 6);
+    // Chromium: "verificationresult." <wbr> "json": the first piece carries three paddings.
+    const measured = widest([code("verificationresult.json")]);
+    expect(measured.text).toBe("verificationresult.");
+    expect(measured.width).toBeCloseTo(measureWidth("verificationresult.", codeFont(chip.sizePx)) + 3 * chip.padXPx, 6);
   });
 
   test("a chip without pieces breaks at its spaces with two paddings per line", () => {
@@ -88,14 +88,14 @@ describe("inline code chips", () => {
 
   test("punctuation right after a chip stays on its line", () => {
     // Chromium: chip + "," is 87.516px.
-    const measured = widest([code("brand-huggingface"), { insert: "," }]);
+    const measured = widest([code("brand-colors-huggingface"), { insert: "," }]);
     expect(measured.text).toBe("huggingface,");
   });
 
   test("a <wbr> breaks even where text never wraps (Chromium honors it under white-space: nowrap)", () => {
-    const layout = measureInline([code("packages/docs-viewer/src")], { font: codeFont(13), chip: { sizePx: 13, padXPx: 0 }, wrap: "nowrap" });
-    expect(layout.widest.text).toBe("packages/");
-    expect(layout.natural.text).toBe("packages/docs-viewer/src");
+    const layout = measureInline([code("packagesrootfolder/docs-viewer/src")], { font: codeFont(13), chip: { sizePx: 13, padXPx: 0 }, wrap: "nowrap" });
+    expect(layout.widest.text).toBe("packagesrootfolder/");
+    expect(layout.natural.text).toBe("packagesrootfolder/docs-viewer/src");
   });
 
   test("in print, chip text without pieces wraps anywhere, and pieces stay whole", () => {

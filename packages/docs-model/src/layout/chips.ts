@@ -48,14 +48,23 @@ export function chipKind(raw: string): ChipKind {
  */
 const CHIP_BREAK_AFTER = /(?<=[A-Za-z0-9][/._-])(?=[A-Za-z0-9<{[(~$@])/;
 const CHIP_LONG_WORD = 20;
+const CHIP_SHORT_PIECE = 3;
 
+/** A long word's separator pieces, each short piece joined to the one before it. */
+function longWordPieces(word: string): string[] {
+  const pieces: string[] = [];
+  for (const piece of word.split(CHIP_BREAK_AFTER)) {
+    if (pieces.length > 0 && piece.length <= CHIP_SHORT_PIECE) pieces[pieces.length - 1] += piece;
+    else pieces.push(piece);
+  }
+  return pieces;
+}
+
+/** A word of CHIP_LONG_WORD characters or fewer is one piece. A longer word breaks after `/ . _ -`. */
 export function chipPieces(text: string): string[] {
   const words = text.split(/(\s+)/).filter((part) => part !== "");
-  const spaced = words.some((part) => /^\s+$/.test(part));
   return words.flatMap((word) =>
-    /^\s+$/.test(word) || (spaced && word.length <= CHIP_LONG_WORD)
-      ? [word]
-      : word.split(CHIP_BREAK_AFTER),
+    /^\s+$/.test(word) || word.length <= CHIP_LONG_WORD ? [word] : longWordPieces(word),
   );
 }
 

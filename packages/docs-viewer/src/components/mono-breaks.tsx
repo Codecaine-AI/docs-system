@@ -38,12 +38,15 @@ export function monoBreaks(text: string, options?: { underscore?: boolean; camel
  * browser's own break after a hyphen, so `--docs-kind-*` never splits as
  * `--` / `docs-kind-*`.
  *
- * - A chip with spaces (`docs-cli code-theme import`) breaks only at its
- *   spaces; a word in it longer than CHIP_LONG_WORD also takes the
- *   separator breaks below, so a long path in a command can still fit.
- * - A one-word chip breaks after `/ . _ -` when a word character sits on
+ * - A word of CHIP_LONG_WORD characters or fewer never breaks:
+ *   `block-layout.ts`, `root.children` and `node_modules` stay whole, and
+ *   the chip moves to the next line instead.
+ * - A chip with spaces (`docs-cli code-theme import`) breaks at its spaces.
+ * - A longer word breaks after `/ . _ -` when a word character sits on
  *   both sides: `packages/` `docs-viewer/` `src`, `--docs-` `kind-*`, while
- *   a leading `--`, a `./` prefix and a trailing `-*` stay attached.
+ *   a leading `--`, a `./` prefix and a trailing `-*` stay attached. A piece
+ *   of CHIP_SHORT_PIECE characters or fewer joins the piece before it, so a
+ *   line never ends a chip on a lone `ts` or `src`.
  *
  * Whitespace runs come back as their own pieces (they stay breakable).
  * A chip whose words are each one piece and hold no character the browser
@@ -52,14 +55,22 @@ export function monoBreaks(text: string, options?: { underscore?: boolean; camel
  */
 const CHIP_BREAK_AFTER = /(?<=[A-Za-z0-9][/._-])(?=[A-Za-z0-9<{[(~$@])/;
 const CHIP_LONG_WORD = 20;
+const CHIP_SHORT_PIECE = 3;
+
+/** A long word's separator pieces, each short piece joined to the one before it. */
+function longWordPieces(word: string): string[] {
+  const pieces: string[] = [];
+  for (const piece of word.split(CHIP_BREAK_AFTER)) {
+    if (pieces.length > 0 && piece.length <= CHIP_SHORT_PIECE) pieces[pieces.length - 1] += piece;
+    else pieces.push(piece);
+  }
+  return pieces;
+}
 
 export function chipPieces(text: string): string[] {
   const words = text.split(/(\s+)/).filter((part) => part !== "");
-  const spaced = words.some((part) => /^\s+$/.test(part));
   return words.flatMap((word) =>
-    /^\s+$/.test(word) || (spaced && word.length <= CHIP_LONG_WORD)
-      ? [word]
-      : word.split(CHIP_BREAK_AFTER),
+    /^\s+$/.test(word) || word.length <= CHIP_LONG_WORD ? [word] : longWordPieces(word),
   );
 }
 

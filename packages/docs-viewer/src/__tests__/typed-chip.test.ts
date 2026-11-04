@@ -65,12 +65,16 @@ describe("chipKind", () => {
 
 describe("chipPieces", () => {
   it.each([
-    // never `--` / `docs-kind-*`: leading hyphens and a trailing `-*` stay attached
-    ["--docs-kind-*", ["--docs-", "kind-*"]],
+    // a word of 20 characters or fewer never breaks
+    ["--docs-kind-*", ["--docs-kind-*"]],
+    ["editor.setContent", ["editor.setContent"]],
+    ["block-layout.ts", ["block-layout.ts"]],
     // a spaced chip breaks only at its spaces
     ["docs-cli code-theme import", ["docs-cli", " ", "code-theme", " ", "import"]],
-    ["packages/docs-viewer/src", ["packages/", "docs-", "viewer/", "src"]],
-    ["editor.setContent", ["editor.", "setContent"]],
+    // a longer word breaks after a separator; leading hyphens stay attached, and a piece of 3 or fewer joins the one before
+    ["--docs-code-annotation-accent", ["--docs-", "code-", "annotation-", "accent"]],
+    ["packages/docs-viewer/src", ["packages/", "docs-", "viewer/src"]],
+    ["packages/docs-viewer/src/render/block-layout.ts", ["packages/", "docs-", "viewer/", "src/", "render/", "block-", "layout.ts"]],
     ["DocsChangeEvent", ["DocsChangeEvent"]],
     ["./foo", ["./foo"]],
   ])("%p cuts into %p", (text, pieces) => {
