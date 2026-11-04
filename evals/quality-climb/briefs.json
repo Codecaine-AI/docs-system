@@ -88,21 +88,6 @@
     "rewrites": "docs/30-implementation/10-packages"
   },
   {
-    "id": 6,
-    "set": "climb",
-    "slug": "core-handbook-overview",
-    "title": "Core Overview",
-    "reader": "An agent or developer who is new to the Codecaine Core workspace and must release a package",
-    "prompt": "Write the overview page of the Core handbook. Explain what Core is and which member repos it links, list the published packages with their repo and version, and give the release flow as an ordered process from the version bump to a clean install outside Core. Warn the reader about the release rules that the first publish found.",
-    "sources": [
-      "/Users/Ford/workspace/knowledge-base/areas/codecaine/areas/core/docs/10-overview/doc.json",
-      "/Users/Ford/workspace/codebases/codecaine/core/DEVELOPMENT.md",
-      "/Users/Ford/workspace/codebases/codecaine/core/members.json"
-    ],
-    "blockTypes": ["rich-text", "callout", "structured-table", "process-outline"],
-    "rewrites": "/Users/Ford/workspace/knowledge-base/areas/codecaine/areas/core/docs/10-overview"
-  },
-  {
     "id": 7,
     "set": "held-out",
     "slug": "docs-style-judge-pipeline",
@@ -135,24 +120,6 @@
     ],
     "blockTypes": ["rich-text", "code", "file-tree", "file-explorer", "interaction-surface"],
     "rewrites": "docs/40-guides/20-release-core-products"
-  },
-  {
-    "id": 9,
-    "set": "held-out",
-    "slug": "session-report",
-    "title": "Publish Codecaine Core Packages Report",
-    "reader": "Ford, who reads the report to decide what to do next",
-    "prompt": "Write the Report page of the Session that published the Codecaine Core packages to npm. Say what the Session set out to do and whether it did it, give a table of the checkpoints with their result, and call out what broke and what is still open. Use only the Session's Spec, Plan and run Log docs as sources.",
-    "sources": [
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/10-align/doc.json",
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/20-plan/doc.json",
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/30-run/log/10-rename-scope/doc.json",
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/30-run/log/20-publishable-and-release-script/doc.json",
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/30-run/log/30-first-publish/doc.json",
-      "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/30-run/log/40-budget-on-npm/doc.json"
-    ],
-    "blockTypes": ["rich-text", "callout", "structured-table"],
-    "rewrites": "/Users/Ford/workspace/knowledge-base/sessions/publish-codecaine-core-packages/60-report"
   },
   {
     "id": 10,

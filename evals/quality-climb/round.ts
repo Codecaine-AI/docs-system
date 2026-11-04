@@ -1,6 +1,7 @@
 // One round of the quality climb: write, render, judge, then gate.
 //   bun evals/quality-climb/round.ts --round <n> [--set climb|held-out|all] [--judges fake|sol,opus] [--briefs 1,2]
 //     [--counting sol,opus] [--baseline 0] [--lint-ref <git ref>] [--skip-tests] [--concurrency 3]
+// Set QUALITY_CLIMB_LOCAL_BRIEFS to the local briefs file to run the full brief set (see briefs.ts).
 // Writes .tmp/quality-climb/round-<n>/ and prints the builder-facing gate result. A step whose output already
 // exists is skipped, so a crashed round resumes where it stopped.
 import { existsSync, unlinkSync } from "node:fs";
@@ -8,7 +9,7 @@ import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { $ } from "bun";
-import briefsJson from "./briefs.json";
+import { loadBriefs } from "./briefs";
 import { added, builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type FailureSets, type PageScore, type WriterCost } from "./gate";
 import { judgePage, type Packet } from "./judge";
 import { lintRules, renderPage, type LintSummary, type PageBlock } from "./render";
@@ -29,7 +30,7 @@ const judges = opt.judges!.split(",");
 // The Gemini jester never counts toward a gate.
 const counting = opt.counting ? opt.counting.split(",") : judges.filter((j) => j !== "gemini");
 const wanted = opt.briefs?.split(",").map(Number);
-const briefs = (briefsJson as Brief[]).filter((b) => (opt.set === "all" || b.set === opt.set) && (!wanted || wanted.includes(b.id)));
+const briefs = loadBriefs().filter((b) => (opt.set === "all" || b.set === opt.set) && (!wanted || wanted.includes(b.id)));
 if (briefs.length === 0) throw new Error("No brief matches --set and --briefs.");
 const pageDir = (round: string, b: Brief) => join(roundDir(round), b.set, `${String(b.id).padStart(2, "0")}-${b.slug}`);
 const readJson = async <T>(path: string): Promise<T> => JSON.parse(await readFile(path, "utf8"));
