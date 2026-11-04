@@ -1,7 +1,9 @@
 // Judge adapters by name. Each one takes the judge prompt and the page packet and returns the judge's raw text.
 // judgePage validates the text against the schema and retries once on a bad reply.
 import { createHash } from "node:crypto";
+import { readdirSync, existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { PAGE_CATEGORIES, JudgeReplySchema, parseJudgeReply, type Brief, type JudgeReply } from "./schema";
 import type { PageBlock } from "./render";
@@ -33,13 +35,46 @@ export async function judgePrompt(packet: Packet): Promise<string> {
   ].join("\n\n");
 }
 
-async function run(cmd: string[], options: { cwd: string; stdin: string; timeoutMs?: number }): Promise<string> {
-  const proc = Bun.spawn(cmd, { cwd: options.cwd, env: cleanEnv(), stdin: new Blob([options.stdin]), stdout: "pipe", stderr: "pipe" });
+/** Runs a judge CLI. Its whole stderr goes to `<workDir>/<cli>-stderr.txt`, because the tail alone can be a base64 image. */
+async function run(cmd: string[], options: { cwd: string; stdin: string; workDir: string; env?: Record<string, string>; timeoutMs?: number }): Promise<string> {
+  const proc = Bun.spawn(cmd, { cwd: options.cwd, env: cleanEnv(options.env), stdin: new Blob([options.stdin]), stdout: "pipe", stderr: "pipe" });
   const timer = setTimeout(() => proc.kill(), options.timeoutMs ?? 30 * 60_000);
   const [stdout, stderr, code] = await Promise.all([new Response(proc.stdout).text(), new Response(proc.stderr).text(), proc.exited]);
   clearTimeout(timer);
-  if (code !== 0) throw new Error(`${cmd[0]} exited ${code}: ${stderr.slice(-2000)}`);
+  const log = join(options.workDir, `${cmd[0]}-stderr.txt`);
+  await writeFile(log, stderr);
+  if (code !== 0) {
+    const lines = stderr.split("\n").filter((l) => /error/i.test(l) && l.length < 500).slice(-5).join("\n");
+    throw new Error(`${cmd[0]} exited ${code}: ${lines || "(no error line)"} (full stderr in ${log})`);
+  }
   return stdout;
+}
+
+/**
+ * A CODEX_HOME that holds only the user's model provider and its auth, so the Sol judge, like the Opus judge,
+ * gets no user AGENTS.md, skills, plugins or MCP servers. The user's ~/.agents skills are turned off by path.
+ */
+async function codexJudgeHome(): Promise<string> {
+  const home = join(REPO, ".tmp/quality-climb/codex-judge-home");
+  await mkdir(home, { recursive: true });
+  const user = Bun.TOML.parse(await readFile(join(homedir(), ".codex/config.toml"), "utf8").catch(() => "")) as Record<string, any>;
+  const lines: string[] = ["[skills.bundled]", "enabled = false"];
+  const name = user.model_provider as string | undefined;
+  const provider = name ? user.model_providers?.[name] : undefined;
+  if (name && provider) {
+    lines.unshift(`model_provider = ${JSON.stringify(name)}`);
+    lines.push(`[model_providers.${JSON.stringify(name)}]`);
+    for (const [key, value] of Object.entries(provider)) if (typeof value !== "object") lines.push(`${key} = ${JSON.stringify(value)}`);
+    if (provider.auth) {
+      lines.push(`[model_providers.${JSON.stringify(name)}.auth]`);
+      for (const [key, value] of Object.entries(provider.auth)) lines.push(`${key} = ${JSON.stringify(value)}`);
+    }
+  }
+  const agentSkills = join(homedir(), ".agents/skills");
+  const skills = existsSync(agentSkills) ? readdirSync(agentSkills).map((d) => join(agentSkills, d, "SKILL.md")).filter(existsSync) : [];
+  for (const path of skills) lines.push("[[skills.config]]", `path = ${JSON.stringify(path)}`, "enabled = false");
+  await writeFile(join(home, "config.toml"), `${lines.join("\n")}\n`, { mode: 0o600 });
+  return home;
 }
 
 /** Deterministic scores from the brief id: every block 9 or 10, one finding. For tests and dry rounds. */
@@ -52,14 +87,14 @@ const fake: Adapter = async (_prompt, packet) => {
   });
 };
 
-/** GPT-6.1 Sol through Codex, with the PNG attached and the reply held to the JSON schema. */
+/** GPT-6.1 Sol through Codex in a bare CODEX_HOME, with the PNG attached and the reply held to the JSON schema. */
 const sol: Adapter = async (prompt, packet, workDir) => {
   const schema = join(workDir, "judge-schema.json");
   const reply = join(workDir, "sol-reply.txt");
   await writeFile(schema, JSON.stringify(JudgeReplySchema));
   await run(["codex", "exec", "-m", "gpt-6.1-sol", "-c", 'model_reasoning_effort="high"', "--enable", "fast_mode",
     "-s", "read-only", "--skip-git-repo-check", "-C", REPO, "--output-schema", schema, "-o", reply, `--image=${packet.png}`, "-"],
-  { cwd: REPO, stdin: prompt });
+  { cwd: REPO, stdin: prompt, workDir, env: { CODEX_HOME: await codexJudgeHome() } });
   return readFile(reply, "utf8");
 };
 
@@ -70,7 +105,7 @@ const opus: Adapter = async (prompt, packet, workDir) => {
     "--setting-sources", "", ...(await authSettings(workDir)), "--strict-mcp-config",
     "--tools", "Read", "--allowedTools", "Read", "--permission-mode", "dontAsk", "--add-dir", ...dirs,
     "--disable-slash-commands", "--no-session-persistence", "--output-format", "json"],
-  { cwd: workDir, stdin: prompt });
+  { cwd: workDir, stdin: prompt, workDir });
   const result = JSON.parse(out);
   if (result.is_error) throw new Error(`opus judge error: ${result.result}`);
   return String(result.result);
