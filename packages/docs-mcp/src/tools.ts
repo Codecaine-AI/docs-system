@@ -242,12 +242,9 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine })
       : undefined;
     const open = docWrite ? openStyleGate(docWrite, path, result.doc) : 0;
-    // Feedback and the new hash lead. The saved document and its inverse ops stay out: the caller holds what it
-    // wrote, every later turn would carry the whole page again, and docs_read returns it on demand.
-    const { doc: _doc, inverse: _inverse, ...rest } = result;
-    const changed = [...new Set([...opBlockIds(write?.ops), ...changedIds])];
+    // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
     return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}), next: nextHint(style !== undefined, open),
-      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...(changed.length ? { changed_ids: changed } : {}), ...rest };
+      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
   }
   /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
   function openStyleGate(write: DocWrite, path: string, doc: DocDocument): number {
@@ -301,8 +298,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const ops = titleHeadingFixOps(result.doc);
       if (ops.length === 0) return { ok: true, path: args.path, hash: result.hash, expected_hash: result.hash, fixed: 0, lint: lintDocument(result.doc, { phase: "complete" }) };
       const fixed = await apply(store, args, ops, ctx, result.doc);
-      const saved = fixed.ok ? await store.docGet(args.path) : undefined;
-      return { ...fixed, ...(saved?.ok ? { fixed: ops.length, ops, lint: lintDocument(saved.doc, { phase: "complete" }) } : {}) };
+      return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
     tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails. A passing check with task_id lists claims_to_check: sentences the task wrote with every, all, only, never, always, or nothing, to check against the source.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);

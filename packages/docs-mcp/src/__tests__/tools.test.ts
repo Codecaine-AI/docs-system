@@ -47,10 +47,6 @@ describe("direct Docs MCP tools", () => {
     expect(saved.lint.phase).toBe("draft");
     expect(saved.hash).not.toBe(before.hash);
     expect(saved.patchId).toBeString();
-    // The result names what changed and leaves the page itself to docs_read, so it stays small.
-    expect(saved.changed_ids).toEqual(["p"]);
-    expect(saved.doc).toBeUndefined();
-    expect(saved.inverse).toBeUndefined();
     const uiRead = await createDocsStore(roots.a).docGet("page");
     expect(uiRead.ok && uiRead.markdown).toContain("**revised**");
     expect((await read()).doc.blocks.p.id).toBe("p");
@@ -305,8 +301,7 @@ test("title lint fix requires a current revision, removes duplicates, and suppor
   const fixed = await call("docs_fix_lints", { path: "page", expected_hash: added.hash });
   expect(fixed.ok).toBe(true);
   expect(fixed.fixed).toBe(1);
-  expect(fixed.doc).toBeUndefined();
-  expect((await read()).doc.blocks.title).toBeUndefined();
+  expect(fixed.doc.blocks.title).toBeUndefined();
   expect((await call("docs_check", { path: "page" })).ok).toBe(true);
   const repeat = await call("docs_fix_lints", { path: "page", expected_hash: fixed.hash });
   expect(repeat.fixed).toBe(0);
