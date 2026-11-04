@@ -195,7 +195,7 @@ export const judgmentRules: readonly JudgmentRule[] = [
     }),
     // Asking directly about regrouping scored 0.2 to 0.6 on every list. The wall-of-text framing separates.
     question: "Read the flat documentation list `bullets`. Is it a wall of text: bullets that pack a claim together with its explanation, details, or examples, instead of short parallel items?",
-    fix: "Group the bullets under bold-label parent bullets. Give each parent one-sentence sub-bullets.",
+    fix: "Group the bullets under bold-label parent bullets after the lead sentence, and give each parent one-sentence sub-bullets. When a group is a subsection with no lead to join, make its label an h3 heading instead.",
   },
   {
     id: "judgment.join-test",

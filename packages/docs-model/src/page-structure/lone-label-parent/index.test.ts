@@ -25,3 +25,19 @@ test("accepts two label groups, a sentence parent, and flat items", () => {
   expect(check(sentence)).toEqual([]);
   expect(check(document(paragraph("lead", "Two rules apply."), ...rules))).toEqual([]);
 });
+
+test("flags label groups that open a list with no lead sentence, as headings would", () => {
+  const more = [item("r3", "Target the attribute pair."), item("r4", "Write the class literally.")];
+  const table = { ...paragraph("lanes", ""), type: "structured-table" as const };
+  const doc = withBlocks(
+    document(table, item("classes", "Lane Classes", ["r1", "r2"]), item("changing", "Changing a Lane", ["r3", "r4"])),
+    ...rules, ...more,
+  );
+  expect(check(doc).map((m) => m.blockId)).toEqual(["classes", "changing"]);
+  // The same groups after a lead sentence read as one paragraph, and pass.
+  const led = withBlocks(
+    document(paragraph("lead", "Lanes follow two sets of rules."), item("classes", "Lane Classes", ["r1", "r2"]), item("changing", "Changing a Lane", ["r3", "r4"])),
+    ...rules, ...more,
+  );
+  expect(check(led)).toEqual([]);
+});

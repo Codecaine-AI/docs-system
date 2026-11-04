@@ -1314,7 +1314,7 @@
       },
       "text": [
         {
-          "insert": "structure.lone-label-parent flags a list whose only bullet is a short label over 2 or more list items. The label repeats the lead or stands in for a heading, so the items move up under the lead or the label becomes a heading."
+          "insert": "structure.lone-label-parent flags label bullets that stand in for headings. It flags a list whose only bullet is a short label over 2 or more list items, and a list of 2 or more label groups with no lead paragraph before it. The items move up under the lead, or each label becomes an h3 heading."
         }
       ],
       "children": []
