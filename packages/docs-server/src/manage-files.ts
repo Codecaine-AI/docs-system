@@ -174,7 +174,9 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       if(inbound.size)return {...failure('Other pages still reference the page or its assets. Relocate assets or repair links first.'),inbound:[...inbound]};
       for(const file of moving){affected.add(file);if(!content.has(file))content.set(file,await streamHash(fs,file));}
       const entries=[...content].sort(([a],[b])=>a<b?-1:a>b?1:0).map(([path,c]):PlanEntry=>({path,content:c,output:outputs.has(path)?hash(outputs.get(path)!):null}));
-      return {ok:true,hash:hash(JSON.stringify(entries)),entries,moving,children,outputs,affected};
+      // The hash binds the whole request too: a preview of one destination or title never applies another.
+      const request=[input.kind,input.path,input.to??null,input.title??null,input.recursive??false];
+      return {ok:true,hash:hash(JSON.stringify([request,entries])),entries,moving,children,outputs,affected};
     }
     const planned=await plan();
     if(!planned.ok)return planned;

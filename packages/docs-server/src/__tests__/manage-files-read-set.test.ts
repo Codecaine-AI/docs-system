@@ -117,6 +117,21 @@ test("title: its read set is the page itself, so an edit to it refuses as a chan
   expect(applied).toMatchObject({ ok: false, status: 409, detail: "Source changed. Read again." });
 });
 
+test("a preview for one destination refuses an apply to another", async () => {
+  // "other" holds no references, so its planned outputs are the same for every destination.
+  const args = { kind: "page" as const, path: "other", to: "moved", expected_hash: await sha("other/doc.json") };
+  const preview = await manageFiles(root, args);
+  expect(await manageFiles(root, { ...args, to: "elsewhere", preview: false, expected_tree_hash: preview.tree_hash })).toMatchObject({ ok: false, status: 409, detail: CHANGED });
+  expect(await readFile(join(root, "other/doc.json"), "utf8")).toBe(page("other"));
+});
+
+test("a title preview refuses an apply with a different title", async () => {
+  const args = { kind: "title" as const, path: "page", title: "Reviewed", expected_hash: await sha("page/doc.json") };
+  const preview = await manageFiles(root, args);
+  expect(await manageFiles(root, { ...args, title: "Swapped", preview: false, expected_tree_hash: preview.tree_hash })).toMatchObject({ ok: false, status: 409, detail: CHANGED });
+  expect(JSON.parse(await readFile(join(root, "page/doc.json"), "utf8")).title).toBe("page");
+});
+
 test("a referrer edited while the apply waits for its lock refuses with the plan built inside the locks", async () => {
   await withReferrer();
   const args = { kind: "page" as const, path: "page", to: "section/moved", expected_hash: await sha("page/doc.json") };
