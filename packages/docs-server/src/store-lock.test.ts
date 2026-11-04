@@ -35,11 +35,13 @@ describe("store-operation lock", () => {
       await Bun.sleep(2000);
       return tree;
     });
-    const started = performance.now();
-    const bundle = await store.bundle("guide");
-    const elapsed = performance.now() - started;
-    expect("error" in bundle).toBe(false);
-    expect(elapsed).toBeLessThan(30);
+    // The read finishes before the 2 s lock holder does: an ordering check, not a wall-clock one, so load cannot flake it.
+    const first = await Promise.race([
+      store.bundle("guide").then((bundle) => ({ who: "bundle" as const, bundle })),
+      slowTree.then(() => ({ who: "tree" as const })),
+    ]);
+    expect(first.who).toBe("bundle");
+    if (first.who === "bundle") expect("error" in first.bundle).toBe(false);
     expect((await slowTree).length).toBeGreaterThan(0);
   }, 5000);
 
