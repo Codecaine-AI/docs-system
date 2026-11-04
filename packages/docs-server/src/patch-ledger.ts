@@ -63,7 +63,23 @@ const idsByRoot = new Map<string, Set<string>>();
 const droppedIds = new Set<string>();
 let droppedTotal = 0;
 
-/** Record a patch, dropping the root's oldest beyond MAX_PATCHES_PER_ROOT. Re-recording an id makes it the newest. */
+/**
+ * The patches that leave the ledger with `patchId`: it, and when it is a
+ * compound or a member of one, that compound and its live members. A compound
+ * then never outlives a member, so its undo is whole or reports it dropped.
+ */
+function evictionUnit(ids: Set<string>, patchId: string): Set<string> {
+  const unit = new Set([patchId]);
+  for (const id of ids) {
+    const patch = patchesById.get(id);
+    if (patch?.kind !== "compound" || (id !== patchId && !patch.patchIds.includes(patchId))) continue;
+    unit.add(id);
+    for (const memberId of patch.patchIds) if (ids.has(memberId)) unit.add(memberId);
+  }
+  return unit;
+}
+
+/** Record a patch, dropping the root's oldest units beyond MAX_PATCHES_PER_ROOT. Re-recording an id makes it the newest. */
 function store(patchId: string, patch: StoredPatch): void {
   const previous = patchesById.get(patchId);
   if (previous) idsByRoot.get(previous.docsRoot)?.delete(patchId);
@@ -73,13 +89,19 @@ function store(patchId: string, patch: StoredPatch): void {
   if (!ids) idsByRoot.set(patch.docsRoot, (ids = new Set()));
   ids.add(patchId);
   while (ids.size > MAX_PATCHES_PER_ROOT) {
-    const oldest = ids.values().next().value as string;
-    ids.delete(oldest);
-    patchesById.delete(oldest);
-    droppedIds.add(oldest);
-    droppedTotal++;
+    for (const dropped of evictionUnit(ids, ids.values().next().value as string)) {
+      ids.delete(dropped);
+      patchesById.delete(dropped);
+      droppedIds.add(dropped);
+      droppedTotal++;
+    }
     while (droppedIds.size > MAX_DROPPED_REMEMBERED) droppedIds.delete(droppedIds.values().next().value as string);
   }
+}
+
+/** Put a patch taken out with `deleteStoredPatch` back as the root's newest (a compound undo that failed part way). */
+export function restoreStoredPatch(patchId: string, patch: StoredPatch): void {
+  store(patchId, patch);
 }
 
 /** True when the ledger dropped this patch to stay within MAX_PATCHES_PER_ROOT (and nothing re-recorded it since). */

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, test } from "bun:test";
@@ -126,4 +126,57 @@ test("a root keeps its newest MAX_PATCHES_PER_ROOT patches, drops the oldest fir
   } finally {
     await rm(otherRoot, { recursive: true, force: true });
   }
+});
+
+test("undo of a compound whose members fill the root restores every member and consumes the compound", async () => {
+  const memberIds: string[] = [];
+  for (let i = 0; i < MAX_PATCHES_PER_ROOT - 1; i++) {
+    const applied = await insertParagraph(`fill-${i}`);
+    if (!applied.ok) throw new Error(applied.detail);
+    memberIds.push(applied.patchId);
+  }
+  recordCompoundPatch("full-root-compound", memberIds, docsRoot);
+
+  // Each member undo records its own inverse: the full root must not drop a member still to undo.
+  const undone = await undo_patch(docsRoot, "full-root-compound");
+  expect(undone).toEqual({ ok: true, kind: "compound", undonePatchIds: [...memberIds].reverse() });
+  expect(JSON.parse(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).blocks.root.children).toEqual(["h1"]);
+  expect(getStoredPatch("full-root-compound", docsRoot)).toBeUndefined();
+  expect(memberIds.some((id) => getStoredPatch(id, docsRoot))).toBe(false);
+});
+
+test("the ledger drops a compound with its members as one unit, and undo of it says so before touching any file", async () => {
+  const member = await insertParagraph("unit-member");
+  if (!member.ok) throw new Error(member.detail);
+  recordCompoundPatch("unit-compound", [member.patchId], docsRoot);
+  const docBefore = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+  const before = ledgerStats();
+  for (let i = 0; i < MAX_PATCHES_PER_ROOT - 2; i++) recordDocPatch(`unit-fill-${i}`, "guide", [], "hash", docsRoot);
+  // One more drops the oldest unit: the member and its compound together, never the member alone.
+  expect(getStoredPatch(member.patchId, docsRoot)).toBeDefined();
+  recordDocPatch("unit-overflow", "guide", [], "hash", docsRoot);
+  expect(getStoredPatch(member.patchId, docsRoot)).toBeUndefined();
+  expect(getStoredPatch("unit-compound", docsRoot)).toBeUndefined();
+  expect(getStoredPatch("unit-fill-0", docsRoot)).toBeDefined();
+  expect(ledgerStats().dropped - before.dropped).toBe(2);
+
+  expect(await undo_patch(docsRoot, "unit-compound")).toMatchObject({ ok: false, status: 404, detail: expect.stringContaining("is no longer in the ledger") });
+  expect(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).toBe(docBefore);
+});
+
+test("a compound undo that fails part way keeps the compound and the members not undone", async () => {
+  await mkdir(join(docsRoot, "other"), { recursive: true });
+  await writeFile(join(docsRoot, "other", "doc.json"), JSON.stringify({ ...SAMPLE_DOC, id: "other" }), "utf8");
+  const older = await insertParagraph("part-older");
+  const newer = await doc_update_blocks(docsRoot, "other", [{ type: "insertBlock", blockId: "part-newer", parentId: "root", index: 0, blockType: "paragraph", props: {}, text: [{ insert: "New" }] }], undefined, "ledger-test");
+  if (!older.ok || !newer.ok) throw new Error("apply failed");
+  recordCompoundPatch("part-compound", [older.patchId, newer.patchId], docsRoot);
+  // The older member's document changes outside the ledger, so its undo is refused.
+  await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
+
+  const undone = await undo_patch(docsRoot, "part-compound");
+  expect(undone).toMatchObject({ ok: false, status: 409, failedPatchId: older.patchId, undonePatchIds: [newer.patchId] });
+  expect(getStoredPatch("part-compound", docsRoot)).toBeDefined();
+  expect(getStoredPatch(older.patchId, docsRoot)).toBeDefined();
+  expect(getStoredPatch(newer.patchId, docsRoot)).toBeUndefined();
 });

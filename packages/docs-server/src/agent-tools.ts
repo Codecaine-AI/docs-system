@@ -82,6 +82,7 @@ import {
   recordSidecarPatch,
   recordSequencePatch,
   recordTreePatch,
+  restoreStoredPatch,
   type StoredPatch,
 } from "./patch-ledger";
 
@@ -97,6 +98,7 @@ export {
   recordSidecarPatch,
   recordSequencePatch,
   recordTreePatch,
+  restoreStoredPatch,
   type StoredPatch,
 } from "./patch-ledger";
 
@@ -738,7 +740,10 @@ export type UndoPatchResult =
  *   -document replace, but ONLY after verifying the current on-disk hash
  *   still equals `hashAfterApply`. Runs inside `withPathLock` for the same
  *   lost-update protection every other canvas write gets.
- * - compound patches: member patches are undone newest-first. Successfully
+ * - compound patches: every member is resolved and taken out of the ledger
+ *   before the first change, so a missing member fails the undo with no file
+ *   touched and the inverses the undo records cannot drop a member still to
+ *   undo. Members are then undone newest-first. Successfully
  *   undone members remain consumed if a later member fails, while the
  *   compound entry remains available as the record of that partial result.
  *
@@ -791,15 +796,20 @@ function undoTargets(docsRoot: string, stored: StoredPatch, seen = new Set<strin
   return [];
 }
 
+/** The ledger keeps a bounded history: a dropped patch is told apart from one never recorded. */
+function missingPatchDetail(patchId: string): string {
+  return patchWasDropped(patchId)
+    ? `Patch ${patchId} is no longer in the ledger: it keeps the newest ${MAX_PATCHES_PER_ROOT} patches per docs root.`
+    : `No undoable patch found for id: ${patchId}`;
+}
+
 export async function undo_patch(docsRoot: string, patchId: string): Promise<UndoPatchResult> {
   const stored = getStoredPatch(patchId, docsRoot);
-  if (!stored) {
-    // The ledger keeps a bounded history: a dropped patch is told apart from one never recorded.
-    const detail = patchWasDropped(patchId)
-      ? `Patch ${patchId} is no longer in the ledger: it keeps the newest ${MAX_PATCHES_PER_ROOT} patches per docs root.`
-      : `No undoable patch found for id: ${patchId}`;
-    return { ok: false, status: 404, detail };
-  }
+  if (!stored) return { ok: false, status: 404, detail: missingPatchDetail(patchId) };
+  return undoStoredPatch(docsRoot, patchId, stored);
+}
+
+async function undoStoredPatch(docsRoot: string, patchId: string, stored: StoredPatch): Promise<UndoPatchResult> {
 
   // Every target the undo would write, unlink or rename (compound members
   // included) goes through the docs-root chokepoint before the first change:
@@ -812,22 +822,46 @@ export async function undo_patch(docsRoot: string, patchId: string): Promise<Und
   }
 
   if (stored.kind === "compound") {
+    const members = [...stored.patchIds].reverse().map((id) => ({ id, patch: getStoredPatch(id, docsRoot) }));
+    const missing = members.find((member) => !member.patch);
+    if (missing) {
+      return {
+        ok: false,
+        status: 404,
+        detail: `Cannot undo compound patch ${patchId}: member ${missing.id} failed: ${missingPatchDetail(missing.id)}`,
+        failedPatchId: missing.id,
+        undonePatchIds: [],
+      };
+    }
+    deleteStoredPatch(patchId, docsRoot);
+    for (const member of members) deleteStoredPatch(member.id, docsRoot);
+    // The compound and the members not undone go back, so the partial result stays on record.
+    const putBack = (from: number) => {
+      for (const member of members.slice(from).reverse()) restoreStoredPatch(member.id, member.patch!);
+      restoreStoredPatch(patchId, stored);
+    };
     const undonePatchIds: string[] = [];
-    for (const memberPatchId of [...stored.patchIds].reverse()) {
-      const result = await undo_patch(docsRoot, memberPatchId);
+    for (const [index, member] of members.entries()) {
+      let result: UndoPatchResult;
+      try {
+        result = await undoStoredPatch(docsRoot, member.id, member.patch!);
+      } catch (error) {
+        putBack(index);
+        throw error;
+      }
       if (!result.ok) {
+        putBack(index);
         return {
           ok: false,
           status: result.status,
-          detail: `Cannot undo compound patch ${patchId}: member ${memberPatchId} failed: ${result.detail}`,
+          detail: `Cannot undo compound patch ${patchId}: member ${member.id} failed: ${result.detail}`,
           current_hash: result.current_hash,
-          failedPatchId: memberPatchId,
+          failedPatchId: member.id,
           undonePatchIds,
         };
       }
-      undonePatchIds.push(memberPatchId);
+      undonePatchIds.push(member.id);
     }
-    deleteStoredPatch(patchId, docsRoot);
     return { ok: true, kind: "compound", undonePatchIds };
   }
 
