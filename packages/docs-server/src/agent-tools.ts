@@ -835,11 +835,13 @@ async function undoStoredPatch(docsRoot: string, patchId: string, stored: Stored
     }
     deleteStoredPatch(patchId, docsRoot);
     for (const member of members) deleteStoredPatch(member.id, docsRoot);
-    // The members not undone go back, then the compound with only their ids, so a retry undoes the rest.
+    // The compound goes back first with only the ids of the members not undone, then those members,
+    // so each member re-enters as part of a live compound's unit and the cap never drops one of them
+    // while the rest are still on their way back. A retry then undoes the rest.
     const putBack = (from: number) => {
       const remaining = members.slice(from).reverse();
-      for (const member of remaining) restoreStoredPatch(member.id, member.patch!);
       restoreStoredPatch(patchId, { ...stored, patchIds: remaining.map((member) => member.id) });
+      for (const member of remaining) restoreStoredPatch(member.id, member.patch!);
     };
     const undonePatchIds: string[] = [];
     for (const [index, member] of members.entries()) {

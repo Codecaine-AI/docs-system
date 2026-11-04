@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { canvas_apply_patch, doc_update_blocks, undo_patch } from "../agent-tools";
-import { deleteStoredPatch, getStoredPatch, ledgerStats, MAX_PATCHES_PER_ROOT, recordCompoundPatch, recordDocPatch, type LedgerStats } from "../patch-ledger";
+import { deleteStoredPatch, getStoredPatch, ledgerStats, MAX_PATCHES_PER_ROOT, recordCompoundPatch, recordDocPatch, withPatchBatch, type LedgerStats } from "../patch-ledger";
 import { ledgerStats as exportedLedgerStats } from "../index";
 import { acceptChangeSet, createChangeSet } from "../changesets/changeset-ops";
 
@@ -188,6 +188,37 @@ test("a compound undo that fails part way keeps the compound with only the membe
   expect(await undo_patch(docsRoot, "part-compound")).toEqual({ ok: true, kind: "compound", undonePatchIds: [older.patchId] });
   expect(JSON.parse(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).blocks.root.children).toEqual(["h1"]);
   expect(getStoredPatch("part-compound", docsRoot)).toBeUndefined();
+});
+
+test("a compound with more than MAX_PATCHES_PER_ROOT members that fails on its first undo keeps every member for the retry", async () => {
+  const count = MAX_PATCHES_PER_ROOT + 5;
+  const memberIds = await withPatchBatch(docsRoot, async (keep) => {
+    const ids: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const applied = await insertParagraph(`big-${i}`);
+      if (!applied.ok) throw new Error(applied.detail);
+      ids.push(applied.patchId);
+    }
+    recordCompoundPatch("big-compound", ids, docsRoot);
+    keep("big-compound");
+    return ids;
+  });
+  expect(memberIds.every((id) => getStoredPatch(id, docsRoot))).toBe(true);
+  const applied = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+  // The document changes outside the ledger, so the first (newest) member undo is refused with every member still to undo.
+  await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
+
+  const undone = await undo_patch(docsRoot, "big-compound");
+  expect(undone).toMatchObject({ ok: false, status: 409, undonePatchIds: [] });
+  // The put-back must not let the cap drop the oldest members before the compound is back.
+  expect(memberIds.filter((id) => !getStoredPatch(id, docsRoot))).toEqual([]);
+  expect(getStoredPatch("big-compound", docsRoot)).toMatchObject({ kind: "compound", patchIds: memberIds });
+
+  await writeFile(join(docsRoot, "guide", "doc.json"), applied, "utf8");
+  const retried = await undo_patch(docsRoot, "big-compound");
+  expect(retried).toMatchObject({ ok: true, kind: "compound" });
+  expect((retried as { undonePatchIds: string[] }).undonePatchIds.length).toBe(count);
+  expect(JSON.parse(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).blocks.root.children).toEqual(["h1"]);
 });
 
 test("a change-set of more than MAX_PATCHES_PER_ROOT steps whose last step fails rolls back every step", async () => {
