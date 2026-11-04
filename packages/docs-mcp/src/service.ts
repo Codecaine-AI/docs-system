@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { DocDocument } from '@codecaine-ai/docs-model';
-import { createDocsStore } from '@codecaine-ai/docs-server/store';
+import { createDocsStore, treeIndex } from '@codecaine-ai/docs-server/store';
 import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type DocsProject } from './discovery';
@@ -98,6 +98,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const sweeper=setInterval(sweep,SWEEP_EVERY_MS);sweeper.unref?.();
  const watchers=new Map<string,ReturnType<typeof watchDocsRoot>>();
+ const treeWatches=new Map<string,()=>void>();
  const tools=createDocsTools({resolveProject:async(id)=>{
   const project=projects.get(id);if(!project)throw new Error('Unknown project. Call docs_discover for the active workspace first.');return project;
  },
@@ -115,6 +116,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
   if(options.watchFs) for(const project of discovery.projects) if(!watchers.has(project.docsRoot)) {
    const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
    watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
+   treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
   return discovery;
@@ -204,5 +206,5 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));
  }
- return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats,close:()=>{clearInterval(sweeper);for(const watcher of watchers.values())watcher.close();watchers.clear();}};
+ return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats,close:()=>{clearInterval(sweeper);for(const watcher of watchers.values())watcher.close();watchers.clear();for(const unwatch of treeWatches.values())unwatch();treeWatches.clear();}};
 }

@@ -12,7 +12,8 @@ import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-
 import { loadDocsRootExcludePolicy, resolveDocBundleJsonPath, setDocsRootExclude } from "@codecaine-ai/docs-index/paths";
 import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
-import { walkDocsDir, type DocsTreeNode } from "./docs-tree";
+import type { DocsTreeNode } from "./docs-tree";
+import { treeIndex, type TreeSnapshot } from "./tree-index";
 import {
   loadDocBundle,
   loadDocProjection,
@@ -135,6 +136,8 @@ import {
   undoChangeSet,
 } from "./changesets/changeset-ops";
 
+export { treeIndex, type TreeSnapshot } from "./tree-index";
+
 /**
  * `createDocsStore(docsRoot)` — the docs framework's single mutation
  * authority for one docs tree, bound to an explicit `docsRoot` (no host-app
@@ -158,7 +161,10 @@ export interface DocsStore {
   readonly locks: DraftLockStore;
 
   // -- reads ---------------------------------------------------------------
+  /** The docs tree: the in-memory snapshot when a host registered this root with `treeIndex.watch`, else one walk per call. */
   tree(): Promise<DocsTreeNode[]>;
+  /** The tree with its revision (sha256 hex of the serialized tree). `GET /api/tree` answers with the ETag `"<revision>"`. */
+  treeSnapshot(): Promise<TreeSnapshot>;
   bundle(path: string): Promise<DocBundleLoadResult | DocBundleLoadError>;
   projection(path: string): Promise<DocProjectionResult | DocBundleLoadError>;
   annotations(path: string): Promise<BundleAnnotationsReadResult>;
@@ -587,7 +593,7 @@ async function forwardSequenceAction(
 
 /** Store reads that run outside the store-operation lock. Every other method keeps it. */
 const UNLOCKED_READS: ReadonlySet<keyof DocsStore> = new Set<keyof DocsStore>([
-  "tree", "bundle", "projection", "annotations", "annotationList", "proposals", "changesets", "changesetGet",
+  "tree", "treeSnapshot", "bundle", "projection", "annotations", "annotationList", "proposals", "changesets", "changesetGet",
   "docGet", "canvasGet", "canvasByDocPath", "sequenceGet", "sequenceByDocPath", "assets", "readAsset", "backlinks",
 ]);
 
@@ -631,7 +637,8 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
     docsRoot: root,
     locks: draftLockStore.forRoot(root),
 
-    tree: () => walkDocsDir(root),
+    tree: () => treeIndex.tree(root),
+    treeSnapshot: () => treeIndex.snapshot(root),
     bundle: (path) => loadDocBundle(root, path),
     projection: (path) => loadDocProjection(root, path),
     annotations: (path) => getBundleAnnotations(root, path),
