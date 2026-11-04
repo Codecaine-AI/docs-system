@@ -1,10 +1,11 @@
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { canvas_apply_patch, doc_update_blocks, undo_patch } from "../agent-tools";
 import { deleteStoredPatch, getStoredPatch, ledgerStats, MAX_PATCHES_PER_ROOT, recordCompoundPatch, recordDocPatch, type LedgerStats } from "../patch-ledger";
 import { ledgerStats as exportedLedgerStats } from "../index";
+import { acceptChangeSet, createChangeSet } from "../changesets/changeset-ops";
 
 // The ledger is process-wide, so other tests' entries are present: assert before/after deltas only.
 const SAMPLE_DOC = {
@@ -180,3 +181,23 @@ test("a compound undo that fails part way keeps the compound and the members not
   expect(getStoredPatch(older.patchId, docsRoot)).toBeDefined();
   expect(getStoredPatch(newer.patchId, docsRoot)).toBeUndefined();
 });
+
+test("a change-set of more than MAX_PATCHES_PER_ROOT steps whose last step fails rolls back every step", async () => {
+  const steps = MAX_PATCHES_PER_ROOT + 5;
+  const created = Array.from({ length: steps - 1 }, (_, i) => `batch-${i}`);
+  // The last step creates a doc that already exists, so it fails after every other step applied.
+  const staged = await createChangeSet(docsRoot, {
+    summary: "Large batch",
+    sessionId: "ledger-test",
+    entries: [],
+    treeOps: [...created, "guide"].map((docPath) => ({ kind: "create-doc" as const, docPath, title: docPath, position: 0 })),
+  });
+  if (!staged.ok) throw new Error(staged.detail);
+  const before = (await readdir(docsRoot)).sort();
+
+  const accepted = await acceptChangeSet(docsRoot, staged.changeset.id, { sessionId: "ledger-test" });
+  expect(accepted).toMatchObject({ ok: false, rolledBack: true });
+  expect(accepted.ok === false && accepted.rollbackFailures).toBeFalsy();
+  expect(accepted.results.filter((result) => result.ok && !result.rolledBack)).toEqual([]);
+  expect((await readdir(docsRoot)).sort()).toEqual(before);
+}, 60_000);

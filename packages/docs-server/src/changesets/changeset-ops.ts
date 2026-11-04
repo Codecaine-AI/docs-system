@@ -16,6 +16,7 @@ import {
   recordCompoundPatch,
   recordSidecarPatch,
   recordTreePatch,
+  withPatchBatch,
 } from "../patch-ledger";
 import { withPathLock } from "../path-mutex";
 import {
@@ -458,7 +459,8 @@ export async function acceptChangeSet(
     return { ...initial, results: [], rolledBack: true };
   }
 
-  return withOrderedSentinelLocks(docsRoot, lockPaths(initial.changeset), async () => {
+  // One patch batch: the ledger drops none of this accept's inverses while it runs, so rollback can undo every step.
+  return withOrderedSentinelLocks(docsRoot, lockPaths(initial.changeset), () => withPatchBatch(docsRoot, async (keepPatch) => {
     const loaded = await readChangeSetRecord(docsRoot, id);
     if (!loaded.ok) return { ...loaded, results: [], rolledBack: true };
     const record = loaded.changeset;
@@ -727,6 +729,7 @@ export async function acceptChangeSet(
     }
 
     recordCompoundPatch(compoundPatchId, patchIds, docsRoot);
+    keepPatch(compoundPatchId);
     const resolved: DocChangeSet = {
       ...record,
       status: "applied",
@@ -784,7 +787,7 @@ export async function acceptChangeSet(
       results,
       ...(annotationFailure ? { annotationFailure } : {}),
     };
-  });
+  }));
 }
 
 export async function rejectChangeSet(

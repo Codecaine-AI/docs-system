@@ -79,6 +79,28 @@ function evictionUnit(ids: Set<string>, patchId: string): Set<string> {
   return unit;
 }
 
+/** Open patch batches per canonical docs root: while one runs, that root drops nothing. */
+const openBatchesByRoot = new Map<string, number>();
+
+/**
+ * Drop the root's oldest units until it holds MAX_PATCHES_PER_ROOT or fewer.
+ * The unit of `keepId` stays even when it alone is larger than the cap.
+ */
+function trim(ids: Set<string>, keepId?: string): void {
+  const keep = keepId === undefined ? new Set<string>() : evictionUnit(ids, keepId);
+  while (ids.size > MAX_PATCHES_PER_ROOT) {
+    const oldest = [...ids].find((id) => !keep.has(id));
+    if (oldest === undefined) break;
+    for (const dropped of evictionUnit(ids, oldest)) {
+      ids.delete(dropped);
+      patchesById.delete(dropped);
+      droppedIds.add(dropped);
+      droppedTotal++;
+    }
+    while (droppedIds.size > MAX_DROPPED_REMEMBERED) droppedIds.delete(droppedIds.values().next().value as string);
+  }
+}
+
 /** Record a patch, dropping the root's oldest units beyond MAX_PATCHES_PER_ROOT. Re-recording an id makes it the newest. */
 function store(patchId: string, patch: StoredPatch): void {
   const previous = patchesById.get(patchId);
@@ -88,14 +110,31 @@ function store(patchId: string, patch: StoredPatch): void {
   let ids = idsByRoot.get(patch.docsRoot);
   if (!ids) idsByRoot.set(patch.docsRoot, (ids = new Set()));
   ids.add(patchId);
-  while (ids.size > MAX_PATCHES_PER_ROOT) {
-    for (const dropped of evictionUnit(ids, ids.values().next().value as string)) {
-      ids.delete(dropped);
-      patchesById.delete(dropped);
-      droppedIds.add(dropped);
-      droppedTotal++;
+  if (!openBatchesByRoot.has(patch.docsRoot)) trim(ids, patchId);
+}
+
+/**
+ * Run `work` as one patch batch on `docsRoot` (a change-set accept). The root
+ * drops no patch while the batch runs, so a rollback can undo every step
+ * however many there are. When the batch ends the root trims back to the cap,
+ * and the unit of the id passed to `keep` (the batch's compound) stays.
+ */
+export async function withPatchBatch<T>(docsRoot: string, work: (keep: (patchId: string) => void) => Promise<T>): Promise<T> {
+  const root = canonicalDocsRoot(docsRoot);
+  let keepId: string | undefined;
+  openBatchesByRoot.set(root, (openBatchesByRoot.get(root) ?? 0) + 1);
+  try {
+    return await work((patchId) => {
+      keepId = patchId;
+    });
+  } finally {
+    const open = openBatchesByRoot.get(root)! - 1;
+    if (open > 0) openBatchesByRoot.set(root, open);
+    else {
+      openBatchesByRoot.delete(root);
+      const ids = idsByRoot.get(root);
+      if (ids) trim(ids, keepId);
     }
-    while (droppedIds.size > MAX_DROPPED_REMEMBERED) droppedIds.delete(droppedIds.values().next().value as string);
   }
 }
 
