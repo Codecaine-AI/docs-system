@@ -25,6 +25,7 @@ import bash from "highlight.js/lib/languages/bash";
 import css from "highlight.js/lib/languages/css";
 import diff from "highlight.js/lib/languages/diff";
 import go from "highlight.js/lib/languages/go";
+import ini from "highlight.js/lib/languages/ini";
 import javascript from "highlight.js/lib/languages/javascript";
 import json from "highlight.js/lib/languages/json";
 import markdown from "highlight.js/lib/languages/markdown";
@@ -38,7 +39,8 @@ import yaml from "highlight.js/lib/languages/yaml";
 /**
  * Curated grammar set. Each grammar registers its own aliases (typescript:
  * ts/tsx, javascript: js/jsx/mjs/cjs, bash: sh, xml: html/xhtml/svg, yaml:
- * yml, markdown: md, python: py, diff: patch, go: golang, rust: rs), so the
+ * yml, markdown: md, python: py, diff: patch, go: golang, rust: rs, ini:
+ * toml), so the
  * common `props.language` spellings all resolve. Registration is idempotent
  * and module-load-time only.
  */
@@ -46,6 +48,7 @@ hljs.registerLanguage("bash", bash);
 hljs.registerLanguage("css", css);
 hljs.registerLanguage("diff", diff);
 hljs.registerLanguage("go", go);
+hljs.registerLanguage("ini", ini);
 hljs.registerLanguage("javascript", javascript);
 hljs.registerLanguage("json", json);
 hljs.registerLanguage("markdown", markdown);
@@ -67,6 +70,7 @@ export const HIGHLIGHT_LANGUAGES = [
   "css",
   "diff",
   "go",
+  "ini",
   "javascript",
   "json",
   "markdown",
