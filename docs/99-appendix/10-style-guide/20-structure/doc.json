@@ -114,7 +114,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Put a bold label, a link, or a short phrase in the parent bullet. Put supporting facts in sub-bullets."
+          "insert": "Put a bold label, a link, or a short phrase in a parent bullet that has 3 or more supporting facts in sub-bullets. Write 1 or 2 facts as plain bullets or a short paragraph. A label that names a section of the page is a heading, not a bullet."
         }
       ],
       "children": []

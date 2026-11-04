@@ -16,6 +16,11 @@
         "b-sg-ws-no-preamble-5",
         "b-sg-ws-no-memory-6",
         "b-sg-ws-present-state-7",
+        "b-sg-ws-match-source-h",
+        "b-sg-ws-match-source-p",
+        "b-sg-ws-match-source-lists",
+        "b-sg-ws-match-source-absolutes",
+        "b-sg-ws-match-source-code",
         "writing-b-writing-write-sentences-to-the-r-1",
         "writing-b-writing-use-plain-words-and-the-2",
         "writing-b-writing-address-the-reader-as-y-3",
@@ -261,6 +266,63 @@
       "text": [
         {
           "insert": "A finished doc describes what exists now. No change-log voice (\"now\", \"previously\", \"no longer\") unless the doc is explicitly about migration history."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-h": {
+      "id": "b-sg-ws-match-source-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Match the Source"
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-p": {
+      "id": "b-sg-ws-match-source-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these three faults against the source before you finish a page."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-lists": {
+      "id": "b-sg-ws-match-source-lists",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has. A partial list says that it is partial and names the file that holds the rest."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-absolutes": {
+      "id": "b-sg-ws-match-source-absolutes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write \"every\", \"all\", \"only\", \"never\", \"nothing\", or \"always\" when a line of the source proves it. Otherwise name the condition, as in \"every existing file\" or \"the planning checks\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-code": {
+      "id": "b-sg-ws-match-source-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code example runs as written when a reader copies it. Two commands in one block never write the same file, and each placeholder is marked as a placeholder."
         }
       ],
       "children": []
