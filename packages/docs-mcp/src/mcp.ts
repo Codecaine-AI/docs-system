@@ -12,6 +12,7 @@ const INSTRUCTIONS=[
  'Call docs_discover for the active workspace, then docs_begin. Its result opens with the style digest.',
  'Before your first edit, read docs_guidance with task_id and topic "style". Writes are refused until you do.',
  'The most-broken rules are bold-label parent bullets with fact sub-bullets, lists of about 5 items, and no semicolons or label-colon openers.',
+ 'When content describes a shape, show it in its typed block (state-shape, file-tree, process-outline, canvas, sequence and the rest). Keep plain facts as a list.',
  'Write results carry style_findings. Fix them as you go, and run docs_check with task_id on each changed page.',
  'Edit only through typed Docs tools with task_id and revision hashes. Never rewrite doc.json or component sidecars directly.',
 ].join('\n');
