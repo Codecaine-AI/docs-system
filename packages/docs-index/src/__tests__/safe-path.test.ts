@@ -183,3 +183,32 @@ describe("docsFs guarded operations", () => {
     expect(fs.existsSync("notes/real/doc.json")).toBe(true);
   });
 });
+
+describe("docsFs.listingWalk", () => {
+  test("a child is read only while it is still a real folder: a link, inside or outside the root, or nothing in its place is not listed", async () => {
+    await mkdir(join(kb, "notes/to-outside"));
+    await mkdir(join(kb, "notes/to-inside"));
+    await mkdir(join(kb, "notes/gone"));
+    const walk = docsFs(kb).listingWalk();
+    const notes = await walk.list("notes");
+    const entry = (name: string) => notes.entries.find((candidate) => candidate.name === name)!;
+    expect(entry("to-outside").isDirectory()).toBe(true);
+
+    // Since the listing: one became a link out of the root, one a link to a sibling bundle, one is gone.
+    await rm(join(kb, "notes/to-outside"), { recursive: true });
+    await symlink(join(temp, "outside"), join(kb, "notes/to-outside"), "dir");
+    await rm(join(kb, "notes/to-inside"), { recursive: true });
+    await symlink(join(kb, "notes/real"), join(kb, "notes/to-inside"), "dir");
+    await rm(join(kb, "notes/gone"), { recursive: true });
+
+    expect(await walk.listChild(notes, entry("to-outside"))).toBeNull();
+    expect(await walk.listChild(notes, entry("to-inside"))).toBeNull();
+    expect(await walk.listChild(notes, entry("gone"))).toBeNull();
+    // Still a real folder: listed, at its canonical location.
+    const real = await walk.listChild(notes, entry("real"));
+    expect(real?.canonical).toBe(join(kb, "notes/real"));
+    expect(real?.entries.map((candidate) => candidate.name).sort()).toEqual(["assets", "doc.json"]);
+    // A link in the listing itself is not a directory entry: refused outright.
+    await expect(walk.listChild(notes, entry("out"))).rejects.toMatchObject({ reason: "unsafe" });
+  });
+});

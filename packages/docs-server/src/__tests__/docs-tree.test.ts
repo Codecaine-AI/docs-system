@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, realpath, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, realpath, rename, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { loadDocsRootExcludePolicy, setDocsRootExclude } from "@codecaine-ai/docs-index/paths";
 import { isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
-import { collectBundlePaths, walkDocsDir, type DocsTreeNode } from "../docs-tree";
+import { collectBundlePaths, walkDocsDir, type DocsTreeNode, type DocsWalkYield } from "../docs-tree";
 import { walkDocsDirLegacy } from "./fixtures/docs-tree.legacy";
 
 /**
@@ -211,5 +211,41 @@ describe("walkDocsDir matches the probing walk", () => {
     // No glob reaches the served folder.
     const a = await same(join(root, "a"));
     expect(names(a)).toEqual(["bundle:b"]);
+  });
+});
+
+describe("walkDocsDir while the disk changes under it", () => {
+  test("a folder replaced by a link while the walk yields is skipped, whether the link leaves the root or stays in it", async () => {
+    setDocsRootExclude(root, EXCLUDE);
+    // Two real folders when the root is listed, each with a page or a bundle below it.
+    await file("zzz/doc.json");
+    await file("zzz/inner/doc.json");
+    await file("aaa/page.md");
+    await writeFile(join(outside, "private.md"), "private");
+    // In the first yield (the root is listed, no child is read yet): zzz becomes a link out of the
+    // root, aaa a link to a bundle inside it. The folders move out of the root.
+    let yields = 0;
+    const swapInFirstYield: DocsWalkYield = () => {
+      if (yields++ > 0) return undefined;
+      return (async () => {
+        await rename(join(root, "zzz"), join(outside, "was-zzz"));
+        await symlink(outside, join(root, "zzz"));
+        await rename(join(root, "aaa"), join(outside, "was-aaa"));
+        await symlink(join(root, "linked"), join(root, "aaa"));
+      })();
+    };
+
+    const raced = await walkDocsDir(root, "", undefined, swapInFirstYield);
+
+    expect(find(raced, "zzz")).toBeUndefined();
+    expect(find(raced, "aaa")).toBeUndefined();
+    const paths = JSON.stringify(raced);
+    expect(paths).not.toContain("private.md");
+    expect(paths).not.toContain("was-zzz");
+    expect(paths).not.toContain('"zzz/');
+    expect(paths).not.toContain('"aaa/');
+    // The rest is the tree both walks return now that the two links are in the listing.
+    expect(raced).toEqual(await same(root));
+    expect(find(raced, "linked")?.kind).toBe("bundle");
   });
 });

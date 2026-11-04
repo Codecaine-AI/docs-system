@@ -428,9 +428,12 @@ export type DocsListingWalk = {
    * Lists the directory `entry` of `parent`'s listing. An lstat-typed link is
    * not a directory, so the entry's canonical folder is the parent's canonical
    * folder plus the stored name; its entries are judged at both locations when
-   * the parent's differ. Any other entry is refused.
+   * the parent's differ. Any other entry is refused. The listing is a snapshot:
+   * the child is read only while it is still a real directory there (one lstat
+   * right before the read), so a link that took its place since the listing is
+   * never followed, inside or outside the root. Null when it is not one any more.
    */
-  listChild(parent: DocsListedDir, entry: Dirent): Promise<DocsListedDir>;
+  listChild(parent: DocsListedDir, entry: Dirent): Promise<DocsListedDir | null>;
 };
 
 function classifyEntries(docsRoot: string, dir: DocsPathTarget, entries: Dirent[]): DocsDirEntry[] {
@@ -641,9 +644,14 @@ export function docsFs(docsRoot: string): DocsFs {
               refusal(400, "unsafe", rel, `Not a directory entry of the listing of ${parent.rel || "."}: ${entry.name}`),
             );
           }
+          const canonical = join(parent.canonical, entry.name);
+          // The parent's listing is a snapshot, and the walk yields between listings. readdir
+          // follows a link, so the child is read only while a real directory is still at its
+          // place: anything else (a link in or out of the root, a file, nothing) is not listed.
+          if (!lstatOrNull(canonical)?.isDirectory()) return null;
           return listed({
             rel,
-            canonical: join(parent.canonical, entry.name),
+            canonical,
             canonicalRel: parent.canonicalRel ? `${parent.canonicalRel}/${entry.name}` : entry.name,
           });
         },

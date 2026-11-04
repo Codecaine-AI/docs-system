@@ -27,7 +27,10 @@ import { docsFs, type DocsFs, type DocsListedDir, type DocsListingWalk } from "@
  * entry once at its lexical and its canonical location, and locates a child
  * folder from its parent's listing instead of resolving it on disk again. So
  * an entry excluded at its canonical location, or a link that leaves the root,
- * is never listed as a doc, and a link is never walked into. A folder's own
+ * is never listed as a doc, and a link is never walked into: neither one in the
+ * listing nor one that took a child folder's place while the walk yielded (the
+ * listing checks the child right before it reads it, and the walk skips a
+ * child that is no longer a real folder). A folder's own
  * listing says whether it is a bundle; the parent marks the child's kind and
  * suppresses its markdown twin after the recursion, so no child is probed. The
  * walk hands the event loop back (setImmediate) once 8 ms have passed since it
@@ -45,15 +48,20 @@ const ALLOWED_DOC_EXT = new Set([".md", ".markdown", ".mdx"]);
 const BUNDLE_FILE = "doc.json";
 const YIELD_AFTER_MS = 8;
 
+/** When the walk hands the event loop back: a pending yield when one is due, else undefined. */
+export type DocsWalkYield = () => Promise<void> | undefined;
+
+/** `yieldIfDue` is the 8 ms pacer unless the caller brings its own (a test that changes the disk while the walk yields). */
 export async function walkDocsDir(
   absRoot: string,
   relPath = "",
   exclude?: readonly string[],
+  yieldIfDue: DocsWalkYield = pacer(),
 ): Promise<DocsTreeNode[]> {
   const fs = docsFs(absRoot);
   const walk = fs.listingWalk();
   const start = await walk.list(relPath);
-  const { nodes } = await walkListed({ fs, walk, exclude, yieldIfDue: pacer() }, start);
+  const { nodes } = await walkListed({ fs, walk, exclude, yieldIfDue }, start);
   return nodes;
 }
 
@@ -62,12 +70,11 @@ type Walk = {
   walk: DocsListingWalk;
   /** Explicit globs, when given: the project policy always applies through the listing. */
   exclude: readonly string[] | undefined;
-  /** A pending yield to the event loop when one is due, else undefined. */
-  yieldIfDue: () => Promise<void> | undefined;
+  yieldIfDue: DocsWalkYield;
 };
 
 /** Yields with setImmediate once `YIELD_AFTER_MS` have passed since the last yield (a timer yield costs about 1 ms in Bun). */
-function pacer(): Walk["yieldIfDue"] {
+function pacer(): DocsWalkYield {
   let last = performance.now();
   return () => {
     if (performance.now() - last < YIELD_AFTER_MS) return undefined;
@@ -95,7 +102,10 @@ async function walkListed(context: Walk, dir: DocsListedDir): Promise<{ nodes: D
     if (entry.isDirectory()) {
       if (entry.name === "assets") continue;
       if (exclude && isExcludedDocPath(childRel, exclude)) continue;
-      const child = await walkListed(context, await context.walk.listChild(dir, entry));
+      const listing = await context.walk.listChild(dir, entry);
+      // No longer a real folder (replaced, removed or linked since its parent was listed): never read, never a node.
+      if (!listing) continue;
+      const child = await walkListed(context, listing);
       if (child.isBundle) {
         bundleDirNames.add(entry.name);
         dirs.push({
