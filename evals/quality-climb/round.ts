@@ -47,6 +47,8 @@ process.on("exit", () => { try { unlinkSync(lock); } catch { /* already gone */ 
 const settings = await authSettings(dir);
 const rules = await lintRules(opt["lint-ref"]);
 const log = (line: string) => console.error(`[round ${opt.round}] ${line}`);
+// Progress lines reach the builder, so a held-out page is never named in them.
+const name = (b: Brief) => (b.set === "held-out" ? "a held-out page" : `brief ${b.id}`);
 
 // The tests guard runs beside the writers: it does not depend on the pages. Each round records its failing
 // tests and type errors in checks.json, and the guard fails only on ones the baseline round's checks.json lacks.
@@ -86,9 +88,9 @@ let rebuilt = false;
 async function runBrief(b: Brief) {
   const page = pageDir(opt.round!, b);
   await mkdir(page, { recursive: true });
-  if (!existsSync(join(page, "metrics.json"))) { log(`brief ${b.id}: writing`); await writePage(b, page, stateDir, settings); }
+  if (!existsSync(join(page, "metrics.json"))) { log(`${name(b)}: writing`); await writePage(b, page, stateDir, settings); }
   if (!existsSync(join(page, "page.png"))) {
-    const render = renderChain.then(() => { log(`brief ${b.id}: rendering`); const r = renderPage(b, page, rules, !rebuilt); rebuilt = true; return r; });
+    const render = renderChain.then(() => { log(`${name(b)}: rendering`); const r = renderPage(b, page, rules, !rebuilt); rebuilt = true; return r; });
     renderChain = render.catch(() => {});
     await render;
   }
@@ -96,7 +98,7 @@ async function runBrief(b: Brief) {
   const scores: PageScore[] = [];
   for (const judge of judges) {
     const file = join(page, "scores", `${judge}.json`);
-    const reply = existsSync(file) ? await readJson<JudgeReply>(file) : (log(`brief ${b.id}: judging with ${judge}`), await judgePage(judge, packet, page));
+    const reply = existsSync(file) ? await readJson<JudgeReply>(file) : (log(`${name(b)}: judging with ${judge}`), await judgePage(judge, packet, page));
     scores.push({ judge, set: b.set, briefId: b.id, reply, groups: Object.fromEntries(packet.blocks.map((block) => [block.id, groupOf(block.type)!])) });
   }
   return { scores, lint: await readJson<LintSummary>(join(page, "lint.json")), metrics: await readJson<WriterMetrics>(join(page, "metrics.json")) };
