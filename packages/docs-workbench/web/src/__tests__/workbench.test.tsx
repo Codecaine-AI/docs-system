@@ -1,5 +1,6 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -132,7 +133,6 @@ function renderDocPage(
     onEditorReady?: (editor: Editor) => void;
     isStatic?: boolean;
     autoSaveDelayMs?: number;
-    onDocMoved?: (newPath: string) => void;
   },
 ) {
   // The shell topbar's action slot: DocPage portals its save state, undo
@@ -148,7 +148,6 @@ function renderDocPage(
         onEditorReady={options?.onEditorReady}
         isStatic={options?.isStatic}
         autoSaveDelayMs={options?.autoSaveDelayMs}
-        onDocMoved={options?.onDocMoved}
       />
     </DocsClientProvider>
   );
@@ -711,10 +710,9 @@ describe("edit mode save loop", () => {
   });
 });
 
-describe("page title rename", () => {
-  it("commits an edited title as a bundle move (prefix kept) and reports the new path", async () => {
-    const moves: string[] = [];
-    renderDocPage("80-rename", { onDocMoved: (newPath) => moves.push(newPath) });
+describe("page title edit", () => {
+  it("saves an edited H1 as doc.json's title and keeps the folder name", async () => {
+    renderDocPage("80-rename");
     await waitFor(() => {
       expect(screen.getByText("Hello from Rename")).toBeTruthy();
     });
@@ -724,28 +722,31 @@ describe("page title rename", () => {
     title.textContent = "Fresh Coat";
     fireEvent.blur(title);
 
-    // The REAL server moved the folder on disk, numeric prefix intact…
+    // The REAL server wrote the title into doc.json, and the folder stayed.
     await waitFor(async () => {
-      const raw = await readFile(join(docsRoot, "80-fresh-coat", "doc.json"), "utf8");
-      expect(raw).toContain("Hello from Rename");
+      const raw = JSON.parse(await readFile(join(docsRoot, "80-rename", "doc.json"), "utf8"));
+      expect(raw.title).toBe("Fresh Coat");
     });
-    // …and the host was told where the doc lives now.
-    expect(moves).toEqual(["80-fresh-coat"]);
+    expect(existsSync(join(docsRoot, "80-fresh-coat"))).toBe(false);
+    // The H1 shows the saved title, which the folder name "80-rename" could not give.
+    await waitFor(() => {
+      expect((document.querySelector(".docs-page-title") as HTMLElement).textContent).toBe("Fresh Coat");
+    });
 
     // Restore for any later test that reuses the fixture list.
-    const { moveDoc } = await import("../data/api");
-    await moveDoc("80-fresh-coat", "80-rename");
+    const { setDocTitle } = await import("../data/api");
+    await setDocTitle("80-rename", "Rename", (await getBundle("80-rename")).doc_hash);
   });
 
-  it("reverts on Escape and on empty/unchanged titles without touching disk", async () => {
-    const moves: string[] = [];
-    renderDocPage("80-rename", { onDocMoved: (newPath) => moves.push(newPath) });
+  it("reverts on Escape and on empty or unchanged titles without touching disk", async () => {
+    renderDocPage("80-rename");
     await waitFor(() => {
       expect(screen.getByText("Hello from Rename")).toBeTruthy();
     });
     const title = document.querySelector(".docs-page-title") as HTMLElement;
+    const before = await readFile(join(docsRoot, "80-rename", "doc.json"), "utf8");
 
-    // Escape: typed text restores, no move.
+    // Escape: typed text restores, no save.
     title.textContent = "Discarded";
     fireEvent.keyDown(title, { key: "Escape" });
     fireEvent.blur(title);
@@ -753,23 +754,14 @@ describe("page title rename", () => {
       expect(title.textContent).toBe("Rename");
     });
 
-    // Empty commit: restores, no move.
+    // Empty commit: restores, no save.
     title.textContent = "   ";
     fireEvent.blur(title);
     await waitFor(() => {
       expect(title.textContent).toBe("Rename");
     });
 
-    // Punctuation-only commit (slug collapses to nothing): restores, no move.
-    title.textContent = "!!!";
-    fireEvent.blur(title);
-    await waitFor(() => {
-      expect(title.textContent).toBe("Rename");
-    });
-
-    expect(moves).toEqual([]);
-    const raw = await readFile(join(docsRoot, "80-rename", "doc.json"), "utf8");
-    expect(raw).toContain("Hello from Rename");
+    expect(await readFile(join(docsRoot, "80-rename", "doc.json"), "utf8")).toBe(before);
   });
 });
 

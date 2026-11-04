@@ -45,4 +45,4 @@ export function resolveBundleAssetSrc(
 // entry because exports-map keys are frozen — `./bundle-src` is the
 // package's React-free path-helpers surface, so hosts (workbench doc-title)
 // can import the title helpers without pulling any component graph.
-export { docSegmentFromTitle, docTitleFromPath } from "./doc-title";
+export { docPageTitle, docSegmentFromTitle, docTitleFromPath } from "./doc-title";

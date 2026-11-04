@@ -18,6 +18,10 @@ export type ManageFilesInput = {
   expected_hash: string; preview?: boolean; expected_tree_hash?: string; recursive?: boolean;
 };
 const hash = (b: Uint8Array|string) => createHash('sha256').update(b).digest('hex');
+/** A page's hash as docs_read and GET /api/bundle report it: the canonical serialization. Null when the bytes are not a valid doc. */
+const canonicalDocHash = (bytes:Buffer) => {
+  try{const valid=validateDocDocument(JSON.parse(bytes.toString()));return valid.ok?hash(serializeDocDocument(valid.document)):null;}catch{return null;}
+};
 const under = (file:string, dir:string) => file === dir || file.startsWith(dir+'/');
 const safe = (p:string) => p.length>0 && !p.includes('\\') && !p.includes('\0') && !p.startsWith('/') && p.split('/').every(x=>x!=='.'&&x!=='..'&&x.length>0&&!x.startsWith('.'));
 const failure = (detail:string,status=409) => ({ok:false as const,status,detail});
@@ -148,7 +152,8 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       const {files}=lookup, fs=docsFs(root);
       if(!files.has(sourceFile))return failure('Source not found.',404);
       const sourceHash=await streamHash(fs,sourceFile);
-      if(sourceHash!==input.expected_hash)return {...failure('Source changed. Read again.'),current_hash:sourceHash};
+      // A page accepts the raw file hash or the canonical doc hash, so a caller can pass the hash it read from either.
+      if(sourceHash!==input.expected_hash && !(isDoc(sourceFile)&&canonicalDocHash(await fs.readFile(sourceFile))===input.expected_hash))return {...failure('Source changed. Read again.'),current_hash:sourceHash};
       if(input.to){try {await fs.lstat(input.to);return failure('Destination already exists.');}catch(e:any){if(e.code!=='ENOENT')throw e;}}
       if(input.kind==='asset' && input.to && (extname(input.path)!==extname(input.to) || ['canvas','sequence'].some(kind=>input.path.endsWith(`.${kind}.json`) && (!input.to!.endsWith(`.${kind}.json`) || !input.to!.includes(`/assets/${kind==='canvas'?'canvases':'sequences'}/`)))))return failure('Asset relocation must preserve its file type and component asset directory.',400);
       if(input.kind==='asset' && input.to){const owner=input.to.split('/assets/')[0];if(!files.has(owner+'/doc.json'))return failure('Destination must belong to an existing page.');}

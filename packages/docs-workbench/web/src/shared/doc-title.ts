@@ -5,4 +5,4 @@
  * import point — a pure re-export via the viewer's frozen `./bundle-src`
  * exports-map entry (React-free path-helpers surface).
  */
-export { docSegmentFromTitle, docTitleFromPath } from "@codecaine-ai/docs-viewer/bundle-src";
+export { docPageTitle, docTitleFromPath } from "@codecaine-ai/docs-viewer/bundle-src";

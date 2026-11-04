@@ -22,7 +22,7 @@ import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import DocBlockRenderer, { type DocBlockRendererProps } from "../render/DocBlockRenderer";
 import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "../render/block-classes";
 import { resolveBundleAssetSrc } from "../render/bundle-src";
-import { docTitleFromPath } from "../render/doc-title";
+import { docPageTitle } from "../render/doc-title";
 import { cn } from "../ui/cn";
 import { PageTransition } from "../transitions/PageTransition";
 import { useDocPeek } from "./use-doc-peek";
@@ -142,7 +142,7 @@ export function DocPeekPanel({
               {/* Fixed page title, same furniture as the main doc surface
                   (DocPage's h1: class + margin come from the host-global
                   `.docs-page-title` rule) and the SAME derivation
-                  (docTitleFromPath on the bundle path), so a peeked doc
+                  (docPageTitle: doc.json's title), so a peeked doc
                   opens with the identical title the full page shows.
                   Read-only here — no rename affordance in a preview.
                   The body-font-size lane wrapper mirrors DocPage: it gives the
@@ -150,7 +150,7 @@ export function DocPeekPanel({
                   doc's base font size rather than the h1's own 2.25rem (the
                   measure is in `ch`). */}
               <div className="w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]">
-                <h1 className="docs-page-title">{docTitleFromPath(state.ref.path)}</h1>
+                <h1 className="docs-page-title">{docPageTitle(state.load.status === "loaded" ? state.load.document.title : undefined, state.ref.path)}</h1>
               </div>
               {state.load.status === "loading" && (
                 <div className="text-[length:var(--ds-font-size-ui-lg)] text-muted-foreground">Loading preview…</div>

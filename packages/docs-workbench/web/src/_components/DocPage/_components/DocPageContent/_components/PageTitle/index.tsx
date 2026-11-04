@@ -1,19 +1,20 @@
 import type { RefObject } from "react";
-import { docTitleFromPath } from "../../../../../../shared/doc-title";
 
 export type PageTitleProps = {
   path: string;
+  /** doc.json's title, or the folder name when the title is empty. */
+  title: string;
   titleRef: RefObject<HTMLHeadingElement | null>;
   isStatic: boolean;
   revertTitleRef: RefObject<boolean>;
   commitTitleEdit: () => Promise<void>;
 };
 
-export function PageTitle({ path, titleRef, isStatic, revertTitleRef, commitTitleEdit }: PageTitleProps) {
+export function PageTitle({ path, title, titleRef, isStatic, revertTitleRef, commitTitleEdit }: PageTitleProps) {
   return (
             <div className="w-full max-w-[var(--style-content-width,var(--ds-layout-lane-text))] text-[length:var(--style-font-size,var(--ds-font-size-reading))]">
             <h1
-              key={path}
+              key={`${path}\n${title}`}
               ref={titleRef}
               className="docs-page-title"
               contentEditable={!isStatic}
@@ -30,7 +31,7 @@ export function PageTitle({ path, titleRef, isStatic, revertTitleRef, commitTitl
               }}
               onBlur={() => void commitTitleEdit()}
             >
-              {docTitleFromPath(path)}
+              {title}
             </h1>
             </div>
   );

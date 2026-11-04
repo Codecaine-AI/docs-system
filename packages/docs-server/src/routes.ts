@@ -172,6 +172,7 @@ function toSnakeCaseWire(value: unknown): unknown {
  *   POST /api/assets (multipart)            -> 201 { src, path, document_path, content_type, size, filename }
  *   POST /api/assets/video (multipart)      -> 201 same shape; strict video allowlist, 64MB cap, assets/videos/
  *   POST /api/move                          -> { moved, rewrittenSources, failures }
+ *   POST /api/title                         -> { ok } | 409 body { path, title, expected_hash }: sets doc.json's title
  *   POST /api/undo                          -> { ok, doc|canvas|sequence, hash } | 404/409
  *   PUT  /api/canvas                        -> save existing sidecar | 409/423. Two body forms:
  *                                              {path, src, ...} = doc-relative (src resolved against
@@ -1307,6 +1308,32 @@ export function createDocsRoutes(
         body: t.Object({
           fromPath: t.String({ minLength: 1 }),
           toPath: t.String({ minLength: 1 }),
+        }),
+      },
+    )
+
+    // -- title --------------------------------------------------------------
+    // The page H1 is doc.json's title. An H1 edit previews and applies the
+    // title change in one call, guarded by the doc hash the page loaded.
+    .post(
+      "/api/title",
+      async ({ body, set }) => {
+        const target = { kind: "title" as const, path: body.path, title: body.title, expected_hash: body.expected_hash };
+        const preview = await store.manageFiles(target);
+        const result = preview.ok
+          ? await store.manageFiles({ ...target, preview: false, expected_tree_hash: preview.tree_hash })
+          : preview;
+        if (!result.ok) {
+          set.status = result.status ?? 409;
+          return { detail: result.detail };
+        }
+        return { ok: true };
+      },
+      {
+        body: t.Object({
+          path: t.String({ minLength: 1 }),
+          title: t.String({ minLength: 1 }),
+          expected_hash: t.String({ minLength: 1 }),
         }),
       },
     )

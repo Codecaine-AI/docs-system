@@ -16,6 +16,7 @@ import { Backlinks } from "./_components/Backlinks";
 export type DocPageContentProps = {
   isLoading: boolean;
   path: string;
+  title: string;
   error: string | null;
   doc: DocDocument | null;
   mode: WorkbenchMode;
@@ -53,6 +54,7 @@ export type DocPageContentProps = {
 export function DocPageContent({
   isLoading,
   path,
+  title,
   error,
   doc,
   mode,
@@ -158,13 +160,12 @@ export function DocPageContent({
                   : undefined
               }
             >
-            {/* Fixed page furniture, not a block: mirrors the sidebar name
-                so page and tree read as one thing (R2-D11). Lives outside
+            {/* Fixed page furniture, not a block. Lives outside
                 the editor/renderer, so it can't be selected or dragged.
-                Click to rename (R2-D12): Enter/blur commits — the bundle
-                folder re-slugs (numeric prefix kept) and the sidebar
-                follows; Escape reverts. Keyed by path so a rename or
-                navigation always remounts with clean text.
+                It shows doc.json's title. Click to edit it: Enter/blur
+                saves the title and the folder keeps its name; Escape
+                reverts. Keyed by path and title so a save or navigation
+                always remounts with clean text.
 
                 The wrapper is the title's LANE: it gives the h1 the same text
                 measure a paragraph block gets, so the title wraps on the same
@@ -175,7 +176,7 @@ export function DocPageContent({
                 2.25rem h1 would make `60ch` ~1300px instead of the ~650px an
                 18px paragraph gets. The h1's own size is set in `rem`, so the
                 wrapper's font-size never reaches it. */}
-            <PageTitle path={path} titleRef={titleRef} isStatic={isStatic} revertTitleRef={revertTitleRef} commitTitleEdit={commitTitleEdit} />
+            <PageTitle path={path} title={title} titleRef={titleRef} isStatic={isStatic} revertTitleRef={revertTitleRef} commitTitleEdit={commitTitleEdit} />
             {isStatic ? (
               // Static-export degradation: no write routes, so no editor —
               // the plain read-only renderer.

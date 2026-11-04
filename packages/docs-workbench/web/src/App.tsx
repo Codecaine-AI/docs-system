@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { DocsClientProvider, type DocsTreeNode } from "@codecaine-ai/docs-viewer/client";
 import { DocPeekPanel } from "@codecaine-ai/docs-viewer/doc-peek-panel";
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
-import { IS_STATIC, assetUrl, getTree, type SiteConfig } from "./data/api";
+import { IS_STATIC, assetUrl, type SiteConfig } from "./data/api";
 import { createStandaloneDocsClient } from "./data/client";
 import { StandaloneCanvasEmbed } from "./shared/_components/CanvasEmbed";
 import { StandaloneSequenceEmbed } from "./shared/_components/SequenceEmbed";
@@ -166,14 +166,6 @@ export function App({ isStatic = IS_STATIC }: AppProps = {}) {
                   sidePeekOpen={sidePeekOpen}
                   alignment={styleSettings.layout.alignment}
                   topbarActionsTarget={topbarSlot}
-                  onDocMoved={(newPath) => {
-                    // A title rename moved the bundle: follow it and let the
-                    // sidebar pick up the new name.
-                    window.location.hash = `#/${newPath}`;
-                    void getTree()
-                      .then(({ tree: nodes }) => setTree(nodes))
-                      .catch(() => {});
-                  }}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center p-8 text-ui-lg text-muted-foreground">
