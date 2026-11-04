@@ -75,6 +75,8 @@ import type {
 import {
   deleteStoredPatch,
   getStoredPatch,
+  MAX_PATCHES_PER_ROOT,
+  patchWasDropped,
   recordCanvasPatch,
   recordCompoundPatch,
   recordSidecarPatch,
@@ -87,6 +89,8 @@ import {
 export {
   deleteStoredPatch,
   getStoredPatch,
+  MAX_PATCHES_PER_ROOT,
+  patchWasDropped,
   recordCanvasPatch,
   recordCompoundPatch,
   recordDocPatch,
@@ -790,7 +794,11 @@ function undoTargets(docsRoot: string, stored: StoredPatch, seen = new Set<strin
 export async function undo_patch(docsRoot: string, patchId: string): Promise<UndoPatchResult> {
   const stored = getStoredPatch(patchId, docsRoot);
   if (!stored) {
-    return { ok: false, status: 404, detail: `No undoable patch found for id: ${patchId}` };
+    // The ledger keeps a bounded history: a dropped patch is told apart from one never recorded.
+    const detail = patchWasDropped(patchId)
+      ? `Patch ${patchId} is no longer in the ledger: it keeps the newest ${MAX_PATCHES_PER_ROOT} patches per docs root.`
+      : `No undoable patch found for id: ${patchId}`;
+    return { ok: false, status: 404, detail };
   }
 
   // Every target the undo would write, unlink or rename (compound members

@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { canvas_apply_patch, doc_update_blocks, undo_patch } from "../agent-tools";
-import { deleteStoredPatch, ledgerStats, recordCompoundPatch, type LedgerStats } from "../patch-ledger";
+import { deleteStoredPatch, getStoredPatch, ledgerStats, MAX_PATCHES_PER_ROOT, recordCompoundPatch, recordDocPatch, type LedgerStats } from "../patch-ledger";
 import { ledgerStats as exportedLedgerStats } from "../index";
 
 // The ledger is process-wide, so other tests' entries are present: assert before/after deltas only.
@@ -94,4 +94,36 @@ test("doc undo leaves the doc count unchanged; canvas undo removes one canvas en
   const beforeCanvasUndo = ledgerStats();
   expect((await undo_patch(docsRoot, canvas.patchId)).ok).toBe(true);
   expect(delta(beforeCanvasUndo, ledgerStats())).toEqual({ entries: -1, doc: 0, canvas: -1, sequence: 0, tree: 0, sidecars: 0, compound: 0 });
+});
+
+test("a root keeps its newest MAX_PATCHES_PER_ROOT patches, drops the oldest first, and undo of a dropped patch says so", async () => {
+  const otherRoot = await mkdtemp(join(tmpdir(), "docs-patch-ledger-other-"));
+  try {
+    const before = ledgerStats();
+    for (let i = 0; i <= MAX_PATCHES_PER_ROOT; i++) recordDocPatch(`cap-${i}`, "guide", [], "hash", docsRoot);
+    // The other root counts on its own: its one patch stays while this root is full.
+    recordDocPatch("other-0", "guide", [], "hash", otherRoot);
+    recordDocPatch(`cap-${MAX_PATCHES_PER_ROOT + 1}`, "guide", [], "hash", docsRoot);
+
+    expect(getStoredPatch("cap-0", docsRoot)).toBeUndefined();
+    expect(getStoredPatch("cap-1", docsRoot)).toBeUndefined();
+    expect(getStoredPatch("cap-2", docsRoot)).toBeDefined();
+    expect(getStoredPatch(`cap-${MAX_PATCHES_PER_ROOT + 1}`, docsRoot)).toBeDefined();
+    expect(getStoredPatch("other-0", otherRoot)).toBeDefined();
+    const after = ledgerStats();
+    expect(after.entries - before.entries).toBe(MAX_PATCHES_PER_ROOT + 1);
+    expect(after.dropped - before.dropped).toBe(2);
+    expect(after.maxPerRoot).toBe(MAX_PATCHES_PER_ROOT);
+
+    expect(await undo_patch(docsRoot, "cap-0")).toEqual({ ok: false, status: 404, detail: `Patch cap-0 is no longer in the ledger: it keeps the newest ${MAX_PATCHES_PER_ROOT} patches per docs root.` });
+    expect(await undo_patch(docsRoot, "never-recorded")).toEqual({ ok: false, status: 404, detail: "No undoable patch found for id: never-recorded" });
+
+    // A consumed undo frees a slot: the next record drops nothing.
+    deleteStoredPatch("cap-2", docsRoot);
+    recordDocPatch("cap-after-undo", "guide", [], "hash", docsRoot);
+    expect(ledgerStats().dropped - before.dropped).toBe(2);
+    expect(getStoredPatch("cap-3", docsRoot)).toBeDefined();
+  } finally {
+    await rm(otherRoot, { recursive: true, force: true });
+  }
 });
