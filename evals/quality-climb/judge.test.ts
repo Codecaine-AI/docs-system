@@ -6,7 +6,7 @@ import { join } from "node:path";
 import briefs from "./briefs.json";
 import { judgePage, judgePrompt, type Packet } from "./judge";
 import { parseJudgeReply, PAGE_CATEGORIES, type Brief } from "./schema";
-import { REPO, SOURCE_REF, SOURCE_ROOT, freezeSources, parseTranscript, sourcePaths } from "./write";
+import { REPO, SOURCE_REF, SOURCE_ROOT, docsMcpEnv, freezeSources, parseTranscript, sourcePaths } from "./write";
 
 const packet: Packet = {
   brief: (briefs as Brief[])[0]!,
@@ -49,6 +49,12 @@ test("a brief's repo sources resolve to the round 0 snapshot, not the worktree",
 
 test("an absolute source, such as a local brief's, stays as it is", () => {
   expect(sourcePaths({ ...packet.brief, sources: ["/elsewhere/doc.json"] })).toEqual(["/elsewhere/doc.json"]);
+});
+
+test("writers that start at once on a fresh system root share one core layout", async () => {
+  const root = await mkdtemp(join(tmpdir(), "qc-system-"));
+  const envs = await Promise.all([1, 2, 3].map((n) => docsMcpEnv(join(root, `state-${n}`), root)));
+  expect(new Set(envs.map((e) => e.CODECAINE_DOCS_PACKAGE_ROOT))).toEqual(new Set([join(root, ".tmp/quality-climb/core-layout/docs-system/packages/docs-mcp")]));
 });
 
 test("the fake judge saves a valid score file for every block", async () => {

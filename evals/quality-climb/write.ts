@@ -59,7 +59,10 @@ export async function docsMcpEnv(stateDir: string, root = REPO): Promise<Record<
   const core = join(root, ".tmp/quality-climb/core-layout");
   await mkdir(core, { recursive: true });
   const links: Record<string, string> = { "docs-system": root, canvas: "external/canvas", sequence: "external/sequence", annotations: "external/annotations" };
-  for (const [name, target] of Object.entries(links)) if (!existsSync(join(core, name))) await symlink(resolve(root, target), join(core, name));
+  // Writers start at once, so another one can make a link between the check and the symlink call.
+  for (const [name, target] of Object.entries(links)) {
+    if (!existsSync(join(core, name))) await symlink(resolve(root, target), join(core, name)).catch((error) => { if (error.code !== "EEXIST") throw error; });
+  }
   return { ...env, CODECAINE_DOCS_PACKAGE_ROOT: join(core, "docs-system/packages/docs-mcp") };
 }
 
