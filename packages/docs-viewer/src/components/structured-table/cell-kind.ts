@@ -45,6 +45,11 @@ function isWholeCodeCell(cell: TableCell): boolean {
   ) && cell.some((span) => span.insert.trim().length > 0);
 }
 
+/** A span cell that mixes code spans with other text, such as a list of names: it keeps its code chips. */
+function isPartCodeCell(cell: TableCell): boolean {
+  return typeof cell !== "string" && cell.some((span) => span.attributes?.code === true) && !isWholeCodeCell(cell);
+}
+
 /** A plain-string cell that is one token: no whitespace anywhere once trimmed. */
 function singleToken(cell: TableCell): string | null {
   if (typeof cell !== "string") return null;
@@ -58,6 +63,9 @@ function singleToken(cell: TableCell): string | null {
  * plain string matching a strict identifier shape; inside a qualifying
  * column every single-token plain string and every whole code span sets
  * mono, while cells with spaces (prose) and other rich cells stay sans.
+ * A column with any cell that mixes code chips with other text (a list of
+ * names) is never typed: its one-name cells keep their chips too, so the
+ * same name looks the same in every row.
  */
 export function tableCellKinds(
   storedRows: readonly (readonly TableCell[])[],
@@ -66,7 +74,7 @@ export function tableCellKinds(
   // Backtick code in a plain string counts as the code span it renders as.
   const rows = storedRows.map((row) => row.map(liftBacktickCode));
   const qualifies = Array.from({ length: columnCount }, (_, column) =>
-    rows.some((row) => {
+    !rows.some((row) => isPartCodeCell(row[column] ?? "")) && rows.some((row) => {
       const cell = row[column] ?? "";
       if (isWholeCodeCell(cell)) return true;
       const token = singleToken(cell);
