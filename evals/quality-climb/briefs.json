@@ -9,8 +9,7 @@
     "sources": [
       "packages/docs-model/src/doc-schema.ts",
       "packages/docs-model/src/doc-ops.ts",
-      "packages/docs-model/src/index.ts",
-      "packages/docs-model/src/project-markdown.ts"
+      "packages/docs-model/src/index.ts"
     ],
     "blockTypes": ["rich-text", "callout", "state-shape", "structured-table"],
     "rewrites": "docs/30-implementation/10-packages/10-docs-model"
@@ -38,7 +37,7 @@
     "slug": "docs-server-request-path",
     "title": "Docs Server Request Path",
     "reader": "An engineer who will debug or change how the docs server saves an edit",
-    "prompt": "Write the page that follows one edit request through the docs server, from the HTTP route to the bundle on disk. Show the HTTP operations the server exposes for documents, the call stack of one save, the steps of the save in order, and the key code that applies the ops and writes the file.",
+    "prompt": "Write the page that follows one edit request through the docs server, from the HTTP route to the bundle on disk. Show the HTTP operations a save uses (GET /api/bundle, POST /api/ops, POST /api/undo and GET /api/events), the call stack of one save, the steps of the save in order, and the key code that applies the ops and writes the file.",
     "sources": [
       "packages/docs-server/src/routes.ts",
       "packages/docs-server/src/store.ts",
