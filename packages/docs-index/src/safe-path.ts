@@ -20,6 +20,8 @@ import {
   hasDocsRootExcludePolicy,
   isExcludedDocPath,
   isExcludedUnderDocsRoot,
+  snapshotDocsRootExclude,
+  type DocsExcludeSnapshot,
 } from "./paths";
 
 /**
@@ -400,6 +402,37 @@ export type DocsDirEntry = {
   excluded: boolean;
 };
 
+/** A folder a listing walk listed: where it is, and its lstat-typed entries with excluded entries omitted. */
+export type DocsListedDir = {
+  /** Lexical root-relative path ("" for the root). */
+  readonly rel: string;
+  /** Canonical absolute path: the folder that was read. */
+  readonly canonical: string;
+  /** Canonical root-relative path. */
+  readonly canonicalRel: string;
+  readonly entries: readonly Dirent[];
+};
+
+/**
+ * Guarded listings for one walk over the served root (the docs tree). Every
+ * listing is judged by one snapshot of the exclude policy, taken at the first
+ * listing, and a child folder is located from its parent's listing instead of
+ * being resolved on disk again. The verdicts are `readdirEntries`'s: an entry
+ * excluded lexically or at its canonical location is never listed, and a link
+ * is reported as a link, never followed.
+ */
+export type DocsListingWalk = {
+  /** Lists `path` as `readdirEntries` does: guarded as a read, so a link on the way is followed and judged. */
+  list(path: string): Promise<DocsListedDir>;
+  /**
+   * Lists the directory `entry` of `parent`'s listing. An lstat-typed link is
+   * not a directory, so the entry's canonical folder is the parent's canonical
+   * folder plus the stored name; its entries are judged at both locations when
+   * the parent's differ. Any other entry is refused.
+   */
+  listChild(parent: DocsListedDir, entry: Dirent): Promise<DocsListedDir>;
+};
+
 function classifyEntries(docsRoot: string, dir: DocsPathTarget, entries: Dirent[]): DocsDirEntry[] {
   return entries.map((entry) => {
     const rel = dir.rel ? `${dir.rel}/${entry.name}` : entry.name;
@@ -488,6 +521,8 @@ export type DocsFs = {
   readdirEntries(path: string): Promise<Dirent[]>;
   /** Every entry with its exclusion verdict (for guards that must see excluded entries). */
   readdirClassified(path: string): Promise<DocsDirEntry[]>;
+  /** Listings for one walk over the root, judged by one snapshot of the exclude policy. */
+  listingWalk(): DocsListingWalk;
   writeFile(path: string, data: string | Uint8Array): Promise<void>;
   /** Write-temp-then-rename in the target's folder; creates missing parent folders. */
   atomicWrite(path: string, data: string | Uint8Array): Promise<void>;
@@ -563,6 +598,57 @@ export function docsFs(docsRoot: string): DocsFs {
     readdir: async (path) => (await listing(path)).filter((item) => !item.excluded).map((item) => item.name),
     readdirEntries: async (path) => (await listing(path)).filter((item) => !item.excluded).map((item) => item.entry),
     readdirClassified: listing,
+    listingWalk() {
+      let snapshot: DocsExcludeSnapshot | undefined;
+      const policy = (): DocsExcludeSnapshot => {
+        if (snapshot) return snapshot;
+        try {
+          snapshot = snapshotDocsRootExclude(docsRoot);
+        } catch (error) {
+          throw new DocsPathRefusedError(
+            refusal(
+              500,
+              "policy-invalid",
+              ".",
+              `Docs project policy cannot be read: ${error instanceof Error ? error.message : String(error)}`,
+            ),
+          );
+        }
+        return snapshot;
+      };
+      const listed = async (dir: Omit<DocsListedDir, "entries">): Promise<DocsListedDir> => {
+        // A synchronous listing: the walk yields to the event loop on its own clock, and the
+        // thread-pool round trip of an asynchronous readdir costs more than reading the folder.
+        const read = readdirSync(dir.canonical, { withFileTypes: true });
+        const excluded = policy();
+        // The same verdicts as classifyEntries: the lexical and the canonical location, when they differ.
+        const judgedTwice = dir.rel !== dir.canonicalRel;
+        const entries = read.filter(
+          (entry) =>
+            !excluded.excludesChild(dir.rel, entry.name) &&
+            !(judgedTwice && excluded.excludesChild(dir.canonicalRel, entry.name)),
+        );
+        return { rel: dir.rel, canonical: dir.canonical, canonicalRel: dir.canonicalRel, entries };
+      };
+      return {
+        async list(path) {
+          return listed(guard(path, "read"));
+        },
+        async listChild(parent, entry) {
+          const rel = parent.rel ? `${parent.rel}/${entry.name}` : entry.name;
+          if (!entry.isDirectory()) {
+            throw new DocsPathRefusedError(
+              refusal(400, "unsafe", rel, `Not a directory entry of the listing of ${parent.rel || "."}: ${entry.name}`),
+            );
+          }
+          return listed({
+            rel,
+            canonical: join(parent.canonical, entry.name),
+            canonicalRel: parent.canonicalRel ? `${parent.canonicalRel}/${entry.name}` : entry.name,
+          });
+        },
+      };
+    },
     async writeFile(path, data) {
       await fsp.writeFile(guard(path, "write").canonical, data);
     },

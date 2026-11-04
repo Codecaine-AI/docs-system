@@ -221,6 +221,114 @@ export function hasDocsRootExcludePolicy(docsRoot: string): boolean {
   return excludeByDocsRoot.has(resolve(docsRoot)) || diskPolicyScopes(docsRoot).length > 0;
 }
 
+/** One glob's compiled matcher and the folding forms (`FOLDS` index, -1 the exact path) it is matched against. */
+type CompiledExcludeGroup = { glob: GlobMatcher; folds: number[] };
+const compiledGroups = new Map<string, CompiledExcludeGroup[]>();
+
+/** `compileExcludeGlob` grouped by source text, so equal folded paths are matched once per glob. */
+function compileExcludeGroups(pattern: string): CompiledExcludeGroup[] {
+  let groups = compiledGroups.get(pattern);
+  if (!groups) {
+    groups = [];
+    const bySource = new Map<string, CompiledExcludeGroup>();
+    for (const { fold, source, glob } of compileExcludeGlob(pattern)) {
+      let group = bySource.get(source);
+      if (!group) {
+        group = { glob, folds: [] };
+        bySource.set(source, group);
+        groups.push(group);
+      }
+      group.folds.push(fold);
+    }
+    compiledGroups.set(pattern, groups);
+  }
+  return groups;
+}
+
+const ASCII_ONLY = /^[\x00-\x7f]*$/;
+
+/**
+ * True when one of `exclude` matches `candidate` itself (not one of its
+ * ancestors) in some folding form: the one test `isExcludedDocPath` still owes
+ * a path whose parent folder is known not to be excluded.
+ */
+function excludeMatchesWhole(exclude: readonly string[], candidate: string): boolean {
+  // Every folding form of an ASCII path is its lower case.
+  const ascii = ASCII_ONLY.test(candidate);
+  let lower: string | undefined;
+  const forms: Array<string | undefined> = [];
+  const form = (fold: number): string => {
+    if (fold < 0) return candidate;
+    if (ascii) return (lower ??= candidate.toLowerCase());
+    return (forms[fold] ??= FOLDS[fold]!(candidate));
+  };
+  for (const pattern of exclude) {
+    for (const group of compileExcludeGroups(pattern)) {
+      let last: string | undefined;
+      for (const fold of group.folds) {
+        const value = form(fold);
+        if (value === last) continue;
+        last = value;
+        if (group.glob.match(value)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
+ * The exclude policy of one docs root, pinned for one walk: the registration
+ * and every governing scope resolved once, each glob compiled once.
+ */
+export type DocsExcludeSnapshot = {
+  /**
+   * True when the entry `name` of the folder `parentRel` (a normalized
+   * root-relative path, "" for the root) is excluded, given that `parentRel`
+   * itself is not: the verdict `isExcludedUnderDocsRoot` gives
+   * `parentRel/name`, with the ancestors' tests already paid by the parent.
+   */
+  excludesChild(parentRel: string, name: string): boolean;
+};
+
+/**
+ * Snapshots the policy that `isExcludedUnderDocsRoot` applies to `docsRoot`
+ * now (the registration, else its own codecaine.docs.json, plus every
+ * enclosing project's). A walk takes one snapshot, so every folder it lists
+ * is judged by the same policy; throws on a malformed policy.
+ */
+export function snapshotDocsRootExclude(docsRoot: string): DocsExcludeSnapshot {
+  const key = resolve(docsRoot);
+  const explicit = excludeByDocsRoot.get(key);
+  type ScopeTest = { prefix: string; prefixExcluded: boolean; exclude: readonly string[] };
+  const tests: ScopeTest[] = [];
+  // A scope whose prefix (the served root inside the enclosing project) is itself excluded excludes
+  // every entry; otherwise the prefix's ancestors are the parent's business.
+  const add = (prefix: string, exclude: readonly string[]) =>
+    tests.push({ prefix, prefixExcluded: prefix !== "" && isExcludedDocPath(prefix, exclude), exclude });
+  for (const scope of diskPolicyScopes(key)) {
+    if (scope.prefix === "") {
+      if (!explicit) add("", scope.exclude);
+      continue;
+    }
+    add(scope.prefix, scope.exclude);
+  }
+  if (explicit) add("", explicit);
+  return {
+    excludesChild(parentRel, name) {
+      const rel = parentRel ? `${parentRel}/${name}` : name;
+      // The full test reads a backslash as a separator, which moves the segment boundaries.
+      if (rel.includes("\\")) {
+        return tests.some((test) => isExcludedDocPath(test.prefix ? `${test.prefix}/${rel}` : rel, test.exclude));
+      }
+      for (const test of tests) {
+        if (test.prefixExcluded) return true;
+        if (excludeMatchesWhole(test.exclude, test.prefix ? `${test.prefix}/${rel}` : rel)) return true;
+      }
+      return false;
+    },
+  };
+}
+
 /**
  * True when the docs-root filesystem chokepoint (safe-path.ts) refuses to
  * read `relPath` under `docsRoot`: the path is excluded lexically, or its
