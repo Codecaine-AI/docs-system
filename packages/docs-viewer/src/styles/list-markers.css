@@ -185,14 +185,16 @@
  * never bold a parent by hand. Label groups sit three item gaps apart (12px
  * at the default gap). Read surface: div[role=listitem] > content div >
  * children div > child items. Edit surface: li > [data-doc-list-content] >
- * the docBlockText span, then the child <li>s.
+ * the docBlockText span, then the child <li>s. On the read surface a parent
+ * whose text ends a sentence (data-doc-list-sentence) states a fact, not a
+ * label, so it keeps body weight and only the group spacing.
  */
 .docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]),
 .docs-markdown li:has(> [data-doc-list-content] > li) {
   margin-top: calc(var(--docs-list-item-gap, var(--ds-space-1)) * 3);
   margin-bottom: calc(var(--docs-list-item-gap, var(--ds-space-1)) * 3);
 }
-.docs-markdown [role="listitem"]:has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]),
+.docs-markdown [role="listitem"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker]),
 .docs-markdown li:has(> [data-doc-list-content] > li) > [data-doc-list-content] > [data-doc-node="docBlockText"] {
   font-weight: var(--ds-font-weight-semibold);
   color: var(--docs-ink, var(--ds-light-color-text-ink));

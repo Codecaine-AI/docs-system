@@ -329,6 +329,28 @@ describe("rich-text style tokens", () => {
     expect(edit).toEqual(read);
   });
 
+  it("gives a label parent the label weight and keeps a sentence parent at body weight", () => {
+    const parents = {
+      id: "doc", version: 1, title: "Parents", root: "root",
+      blocks: {
+        root: { id: "root", type: "paragraph", props: {}, children: ["label", "fact"] },
+        label: { id: "label", type: "list-item", props: {}, text: text("Tests"), children: ["label-1"] },
+        "label-1": { id: "label-1", type: "list-item", props: {}, text: text("One test."), children: [] },
+        fact: { id: "fact", type: "list-item", props: {}, text: text("The host-app test scans src."), children: ["fact-1"] },
+        "fact-1": { id: "fact-1", type: "list-item", props: {}, text: text("No test scans docs-mcp."), children: [] },
+      },
+    } as unknown as DocDocument;
+    const { container } = render(<DocBlockRenderer document={parents} bundlePath="docs/x" />);
+    const mark = (id: string) => container.querySelector(`[data-block-id="${id}"][role="listitem"]`)!.getAttribute("data-doc-list-sentence");
+    expect(mark("label")).toBeNull();
+    expect(mark("fact")).toBe("true");
+    // happy-dom does not match :has(), so read the rule that sets the label weight.
+    const css = readFileSync(new URL("../styles/list-markers.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+    const weight = css.slice(0, css.indexOf("font-weight: var(--ds-font-weight-semibold)"));
+    const readSelector = weight.slice(weight.lastIndexOf("}") + 1).trim().split(",\n")[0];
+    expect(readSelector).toBe('.docs-markdown [role="listitem"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker])');
+  });
+
   it("styles the checkbox and done text only with tokens and docs knobs", () => {
     const css = readFileSync(new URL("../styles/list-markers.css", import.meta.url), "utf8");
     const task = css.slice(css.indexOf("[data-doc-checked] > [data-doc-list-marker] {"));
