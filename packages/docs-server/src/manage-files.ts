@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { constants as fsConstants } from 'node:fs';
-import { lstat, open } from 'node:fs/promises';
+import { copyFile, lstat, open } from 'node:fs/promises';
 import { dirname, extname, join, relative, sep } from 'node:path';
 import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
@@ -88,6 +88,8 @@ async function streamHash(fs:ReturnType<typeof docsFs>,p:string):Promise<string|
   catch(e:any){if(e.code==='ENOENT'||e.code==='ENOTDIR')return null;throw e;}
   return hashInventoried(fs,p,{size:s.size,dev:s.dev,ino:s.ino});
 }
+/** A kernel copy between two guarded paths; neither file passes through memory. */
+const copy=async(fs:ReturnType<typeof docsFs>,from:string,to:string)=>copyFile(fs.guard(from,'read').canonical,fs.guard(to,'write').canonical);
 /** One read-set file of a plan: its content hash and the hash of what the plan writes there. */
 type PlanEntry = { path:string; content:string|null; output:string|null };
 type Plan = { ok:true; hash:string; entries:PlanEntry[]; moving:string[]; children:string[]; outputs:Map<string,Buffer>; affected:Set<string> };
@@ -193,7 +195,6 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       const again=await plan();
       if(!again.ok)return again;
       if(again.hash!==planned.hash)return failure('Corpus changed while waiting for locks. Preview again.');
-      const before=await capture(root);
       for(const file of affected){
         const kind=isDoc(file)?'doc':file.endsWith('.canvas.json')?'canvas':file.endsWith('.sequence.json')?'sequence':null;
         if(kind){const locked=draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file});if(locked.blocked)return {...failure(`Draft in progress: ${file}`,423),held_by:locked.heldBy};}
@@ -210,7 +211,8 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
       ]);
       if(blocked)return blocked;
       await fs.mkdir(join(journal,'backup'),{recursive:true});
-      for(const file of affected){await fs.mkdir(dirname(join(journal,'backup',file)),{recursive:true});await fs.writeFile(join(journal,'backup',file),before.files.get(file)!);}
+      // Streamed copies, inside the locks: the plan just checked each affected file's content.
+      for(const file of affected){await fs.mkdir(dirname(join(journal,'backup',file)),{recursive:true});await copy(fs,file,join(journal,'backup',file));}
       const manifest={id,input,files:[...affected],status:'prepared'};
       await fs.writeFile(join(journal,'manifest.json'),JSON.stringify(manifest,null,2));
       let relocated=false;
@@ -219,14 +221,14 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
         else if(input.kind!=='title'){await fs.rename(join(root,input.path),join(journal,'deleted'));relocated=true;}
         for(const [file,bytes] of outputs){if(!input.to&&input.kind!=='title'&&moving.includes(file))continue;await fs.atomicWrite(join(root,map(file)),bytes.toString());}
         await rescanAll(root,await getBacklinksDb(root));
-        const after=await capture(root);
-        const after_hashes=Object.fromEntries([...new Set([...affected,...[...affected].map(map)])].map(p=>[p,after.files.has(p)?hash(after.files.get(p)!):null]));
+        const after_hashes:Record<string,string|null>={};
+        for(const p of new Set([...affected,...[...affected].map(map)]))after_hashes[p]=await streamHash(fs,p);
         await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'applied',after_hashes},null,2));
         return {ok:true,applied:true,path:input.to??input.path,previous_path:input.path,rewritten_sources:[...outputs.keys()].map(map),files:moving,tree_change_id:id,recovery_journal:relative(root,journal),undo_available:true,undo_tool:'docs_management_restore'};
       }catch(error){
         try{
           if(relocated){if(input.to)await fs.rename(join(root,input.to),join(root,input.path));else await fs.rename(join(journal,'deleted'),join(root,input.path));}
-          for(const file of affected){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),before.files.get(file)!);}
+          for(const file of affected){await fs.mkdir(dirname(join(root,file)),{recursive:true});await copy(fs,join(journal,'backup',file),join(root,file));}
           await rescanAll(root,await getBacklinksDb(root));
           await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
           return {...failure(String(error),500),rolled_back:true,recovery_journal:relative(root,journal)};
