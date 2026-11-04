@@ -98,7 +98,8 @@ describe("style-rail stock", () => {
       [...new Set([`--ds-light-color-${role}`, `--ds-dark-color-${role}`].flatMap((name) => resolvedValues(`var(${name})`, css)))].sort();
     expect(painted("--docs-list-task-fill")).toEqual(themed("accent"));
     expect(painted("--docs-list-task-check")).toEqual(themed("text-on-solid"));
-    expect(painted("--docs-list-task-done-fg")).toEqual(themed("text-muted"));
+    // Done text is muted on the page, and the brighter secondary text inside a dark code panel.
+    expect(painted("--docs-list-task-done-fg")).toEqual([...themed("text-muted"), ...resolvedValues("var(--ds-dark-color-text-secondary)", css)].sort());
     expect(painted("--docs-list-task-border")).toEqual(painted("--docs-list-marker-fg"));
   });
 

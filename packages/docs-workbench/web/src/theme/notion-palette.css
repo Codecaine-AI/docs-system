@@ -218,4 +218,10 @@
      (fill.hover, surface.sunken: ink over the panel). */
   --palette-rule: color-mix(in srgb, var(--docs-code-block-bg) 74%, var(--ds-dark-color-text-ink));
   --palette-rule-soft: color-mix(in srgb, var(--docs-code-block-bg) 86%, var(--ds-dark-color-text-ink));
+  /* Secondary text in a panel (descriptions, call-stack notes, code notes,
+     line refs) is 13 to 13.5px. Primer's muted #9198a1 is 5.72:1 on Dark+
+     #1e1e1e and 4.99:1 on the #292929 ledger rows, and reads dim at that
+     size. The design system's secondary text (body at 84%) is 8.59:1 and
+     7.66:1 there, and stays below the 11.68:1 body text. */
+  --palette-muted: var(--ds-dark-color-text-secondary);
 }
