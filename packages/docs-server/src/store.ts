@@ -161,7 +161,10 @@ export interface DocsStore {
   readonly locks: DraftLockStore;
 
   // -- reads ---------------------------------------------------------------
-  /** The docs tree: the in-memory snapshot when a host registered this root with `treeIndex.watch`, else one walk per call. */
+  /**
+   * The docs tree: the in-memory snapshot when a host registered this root with `treeIndex.watch`, else one walk per call.
+   * A read after a store mutation that moved, created or deleted a bundle or folder waits for the rebuild that mutation started.
+   */
   tree(): Promise<DocsTreeNode[]>;
   /** The tree with its revision (sha256 hex of the serialized tree). `GET /api/tree` answers with the ETag `"<revision>"`. */
   treeSnapshot(): Promise<TreeSnapshot>;
@@ -673,11 +676,18 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
       }
       return result;
     },
-    changesetAccept: (id, sessionId) =>
-      acceptChangeSet(root, id, {
+    changesetAccept: async (id, sessionId) => {
+      const result = await acceptChangeSet(root, id, {
         sessionId,
         publishChange: (event: DocsChangeEvent) => publishDocsChangeEvent(channel, event),
-      }),
+      });
+      // A tree op moved, created or deleted a bundle; a failed accept may have run one and rolled it back.
+      const touchedTree = result.ok
+        ? result.changeset.treeOps.length > 0
+        : result.failedTreeOp !== undefined || result.results.some((step) => step.kind === "tree-op");
+      if (touchedTree) treeIndex.invalidate(root);
+      return result;
+    },
     changesetReject: async (id, sessionId) => {
       const result = await rejectChangeSet(root, id, { sessionId });
       if (result.ok) {
@@ -700,6 +710,9 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
           actor: sessionId ?? result.changeset.sessionId ?? "anonymous",
         });
       }
+      // The undo of a tree op moves a bundle back; a failed undo may have undone some patches before it stopped.
+      const touchedTree = result.ok ? result.changeset.treeOps.length > 0 : (result.undonePatchIds?.length ?? 0) > 0;
+      if (touchedTree) treeIndex.invalidate(root);
       return result;
     },
     forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
@@ -745,17 +758,32 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
       canvas_apply_patch(root, src, operations, expectedHash, actor),
     applySequencePatch: (src, operations, expectedHash, actor) =>
       sequence_apply_patch(root, src, operations, expectedHash, actor),
-    undoPatch: (patchId) => undo_patch(root, patchId),
+    undoPatch: async (patchId) => {
+      const result = await undo_patch(root, patchId);
+      // A tree patch moves a bundle back; a compound patch may hold one; a failed compound undo may have undone some members.
+      const touchedTree = result.ok
+        ? result.kind === "tree" || result.kind === "compound"
+        : (result.undonePatchIds?.length ?? 0) > 0;
+      if (touchedTree) treeIndex.invalidate(root);
+      return result;
+    },
 
     assets: (path) => listManagedAssets(root, path),
     restoreManagedFiles: async (id, preview, expectedTreeHash) => {
       const result = await restoreManagedFiles(root, id, preview, expectedTreeHash);
-      if (result.ok && result.restored) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: id, actor: "undo" });
+      if (result.ok && result.restored) {
+        publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: id, actor: "undo" });
+        treeIndex.invalidate(root);
+      }
       return result;
     },
     manageFiles: async (input) => {
       const result = await manageFiles(root, input);
-      if (result.ok && result.applied) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: result.tree_change_id, actor: "external-agent" });
+      if (result.ok && result.applied) {
+        publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: result.tree_change_id, actor: "external-agent" });
+        // A page move or delete changes the tree; an asset lives under assets/ and a title lives inside doc.json, which the tree never lists.
+        if (input.kind === "page") treeIndex.invalidate(root);
+      }
       return result;
     },
     moveDoc: async (fromPath, toPath) => {
@@ -788,7 +816,10 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
         backlinksDb,
         projectId: "",
       };
-      return moveDocBundle(root, fromPath, toPath, deps);
+      const result = await moveDocBundle(root, fromPath, toPath, deps);
+      // Every refused move returns before the rename; an accepted one has moved the bundle folder.
+      if (result.ok) treeIndex.invalidate(root);
+      return result;
     },
 
     publishChange: (event) => publishDocsChangeEvent(channel, event),

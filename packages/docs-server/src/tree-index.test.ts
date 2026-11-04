@@ -65,9 +65,17 @@ async function settled(index: TreeIndex, root: string): Promise<void> {
   await Bun.sleep(0);
 }
 
-/** The real walk, counted, with a one-shot gate and scripted failures. */
+/**
+ * The real walk, counted, with a one-shot gate before the disk read, a
+ * one-shot hold after it (`holdAfterWalk`), and scripted failures.
+ */
 function countingWalk() {
-  const state = { walks: 0, failNext: 0, gate: undefined as Promise<void> | undefined };
+  const state = {
+    walks: 0,
+    failNext: 0,
+    gate: undefined as Promise<void> | undefined,
+    hold: undefined as { walked: () => void; until: Promise<void> } | undefined,
+  };
   const walk = async (root: string): Promise<DocsTreeNode[]> => {
     state.walks += 1;
     if (state.gate) await state.gate;
@@ -75,9 +83,26 @@ function countingWalk() {
       state.failNext -= 1;
       throw new Error("walk failed");
     }
-    return walkDocsDir(root);
+    const tree = await walkDocsDir(root);
+    const hold = state.hold;
+    if (hold) {
+      state.hold = undefined;
+      hold.walked();
+      await hold.until;
+    }
+    return tree;
   };
   return { walk, state };
+}
+
+/** The next walk reads the disk, then holds its result until `release`; `walked` resolves once it holds. */
+function holdAfterWalk(state: ReturnType<typeof countingWalk>["state"]) {
+  let walked: () => void = () => undefined;
+  let release: () => void = () => undefined;
+  const walkedPromise = new Promise<void>((resolve) => { walked = resolve; });
+  const until = new Promise<void>((resolve) => { release = resolve; });
+  state.hold = { walked, until };
+  return { walked: walkedPromise, release };
 }
 
 describe("tree index", () => {
@@ -255,6 +280,117 @@ describe("tree index", () => {
     expect(second).not.toBe(first);
     expect(names(second.tree)).toEqual(["alpha"]);
     expect(walk.state.walks).toBe(2);
+  });
+
+  test("a read right after invalidate() shows the change, with the watcher's event late or never", async () => {
+    unwatch = index.watch(dir);
+    const first = await index.snapshot(dir);
+
+    // The mutation's own invalidate: no quiet window, a build at once, and the read waits for it.
+    await addBundle(dir, "gamma");
+    index.invalidate(dir);
+    expect(index.state(dir)).toMatchObject({ dirty: false, building: true, waiting: true });
+    expect(clock.pending()).toEqual([]);
+    const second = await index.snapshot(dir);
+    expect(names(second.tree)).toEqual(["alpha", "beta", "gamma"]);
+    expect(second).not.toBe(first);
+    expect(walk.state.walks).toBe(2);
+    expect(index.state(dir)).toMatchObject({ dirty: false, building: false, waiting: false, builds: 2 });
+    expect(await index.snapshot(dir)).toBe(second);
+
+    // The watcher's event for the same change arrives late: one quiet-window build, the same tree.
+    publishDocsChangeEvent(channel, change("gamma"));
+    expect(await index.snapshot(dir)).toBe(second);
+    expect(clock.pending()).toEqual([200]);
+    await clock.advance(200);
+    expect(walk.state.walks).toBe(3);
+    expect((await index.snapshot(dir)).revision).toBe(second.revision);
+
+    // An event that arrived first (quiet timer pending) folds into the invalidate's build.
+    await addBundle(dir, "delta");
+    publishDocsChangeEvent(channel, change("delta"));
+    expect(clock.pending()).toEqual([200]);
+    index.invalidate(dir);
+    expect(clock.pending()).toEqual([]);
+    expect(names(await index.tree(dir))).toEqual(["alpha", "beta", "delta", "gamma"]);
+    expect(walk.state.walks).toBe(4);
+    await clock.advance(60_000);
+    expect(walk.state.walks).toBe(4);
+
+    // Not registered: nothing to invalidate, and nothing to wait for.
+    const other = await mkdtemp(join(tmpdir(), "docs-tree-index-other-"));
+    try {
+      index.invalidate(other);
+      expect(index.state(other)).toBeUndefined();
+    } finally {
+      await rm(other, { recursive: true, force: true });
+    }
+  });
+
+  test("a read with no pending invalidate answers the snapshot at once, even while a build runs", async () => {
+    unwatch = index.watch(dir);
+    const first = await index.snapshot(dir);
+    clock.afterFire = async () => { await Bun.sleep(0); };
+    let release: () => void = () => undefined;
+    walk.state.gate = new Promise<void>((resolve) => { release = resolve; });
+    await addBundle(dir, "gamma");
+    publishDocsChangeEvent(channel, change("gamma"));
+    await clock.advance(200);
+    expect(index.state(dir)).toMatchObject({ building: true, waiting: false });
+
+    // The watcher-driven build is held open: the read must not wait for it.
+    const read = await Promise.race([index.snapshot(dir), Bun.sleep(200).then(() => "waited")]);
+    expect(read).toBe(first);
+
+    walk.state.gate = undefined;
+    release();
+    await settled(index, dir);
+    expect(names((await index.snapshot(dir)).tree)).toEqual(["alpha", "beta", "gamma"]);
+    expect(walk.state.walks).toBe(2);
+  });
+
+  test("an invalidate during a build starts one more build, and the read that follows gets its result", async () => {
+    unwatch = index.watch(dir);
+    const hold = holdAfterWalk(walk.state);
+    // The first build read alpha and beta, and holds that listing while the change lands.
+    const before = index.tree(dir);
+    await hold.walked;
+    await addBundle(dir, "gamma");
+    index.invalidate(dir);
+    expect(index.state(dir)).toMatchObject({ dirty: true, building: true, waiting: true });
+    expect(walk.state.walks).toBe(1);
+    const after = index.tree(dir);
+
+    hold.release();
+    expect(names(await before)).toEqual(["alpha", "beta"]);
+    expect(names(await after)).toEqual(["alpha", "beta", "gamma"]);
+    expect(walk.state.walks).toBe(2);
+    expect(index.state(dir)).toMatchObject({ dirty: false, building: false, waiting: false, builds: 2 });
+    expect(clock.pending()).toEqual([]);
+    await clock.advance(60_000);
+    expect(walk.state.walks).toBe(2);
+  });
+
+  test("a failed build after an invalidate keeps the last snapshot for the waiting read and retries", async () => {
+    unwatch = index.watch(dir);
+    const first = await index.snapshot(dir);
+    await addBundle(dir, "gamma");
+    walk.state.failNext = 1;
+    index.invalidate(dir);
+    expect(await index.snapshot(dir)).toBe(first);
+    expect(index.state(dir)).toMatchObject({ dirty: true, waiting: false, failures: 1 });
+    expect(clock.pending()).toEqual([1_000]);
+    await clock.advance(1_000);
+    expect(names((await index.snapshot(dir)).tree)).toEqual(["alpha", "beta", "gamma"]);
+  });
+
+  test("store.moveDoc() then store.tree() shows the move before any change event", async () => {
+    unwatch = treeIndex.watch(dir);
+    const store = createDocsStore(dir);
+    expect(names(await store.tree())).toEqual(["alpha", "beta"]);
+    const moved = await store.moveDoc("beta", "delta");
+    expect(moved.ok).toBe(true);
+    expect(names(await store.tree())).toEqual(["alpha", "delta"]);
   });
 
   test("an unregistered root walks per call", async () => {

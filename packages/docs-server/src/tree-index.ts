@@ -26,6 +26,16 @@ import { treeEtag } from "./tree-etag";
  * ends. A build walks the whole root and publishes a new snapshot by
  * reference swap, so a reader never sees a half-built tree. A failed build
  * keeps the last snapshot and retries after 1 s, doubling to 10 s.
+ *
+ * A mutation made through this process (a store method that moves, creates
+ * or deletes a bundle or folder) calls `invalidate(root)` after its write:
+ * the index is dirty and a build starts at once, with no quiet window, after
+ * the running build if there is one (that walk may have passed the changed
+ * folder already). A `tree()` or `snapshot()` call that follows the
+ * invalidate waits for that build instead of answering the old snapshot, so
+ * a tree read right after a move shows the move, with the watcher's own
+ * event for it still to come. A call with no such build pending answers the
+ * snapshot at once, as before.
  */
 
 export type TreeSnapshot = Readonly<{
@@ -56,6 +66,8 @@ export type TreeIndexOptions = {
 export type TreeIndexState = Readonly<{
   dirty: boolean;
   building: boolean;
+  /** A read waits for the build an `invalidate` started. */
+  waiting: boolean;
   builds: number;
   failures: number;
   snapshot: TreeSnapshot | undefined;
@@ -69,6 +81,12 @@ export interface TreeIndex {
   tree(root: string): Promise<DocsTreeNode[]>;
   /** The current tree with its revision. An unregistered root gets a fresh walk and revision. */
   snapshot(root: string): Promise<TreeSnapshot>;
+  /**
+   * After a mutation made through this process: builds now (after the running
+   * build, if any) and makes every `tree()` and `snapshot()` call that follows
+   * wait for that build. A no-op on an unregistered root.
+   */
+  invalidate(root: string): void;
   state(root: string): TreeIndexState | undefined;
 }
 
@@ -101,6 +119,8 @@ type Entry = {
   dirty: boolean;
   closed: boolean;
   inflight?: Promise<TreeSnapshot>;
+  /** Set by `invalidate`: settles once a build that started after it ends, either way. */
+  awaited?: Promise<void>;
   quietTimer?: unknown;
   retryTimer?: unknown;
   retryMs: number;
@@ -216,6 +236,27 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
     markDirty(entry);
   };
 
+  /**
+   * Builds now, or right after the running build (its walk may have passed
+   * the changed folder already), and holds the reads that follow until that
+   * build ends. A failed build keeps the last snapshot and retries as usual.
+   */
+  const invalidate = (entry: Entry): void => {
+    if (entry.closed) return;
+    entry.dirty = true;
+    const next = (): Promise<unknown> => (entry.closed ? Promise.resolve() : build(entry));
+    // When the running build ends, its own handler has started the follow-up build (the entry is dirty); `build` joins it.
+    const started = entry.inflight ? entry.inflight.then(next, next) : build(entry);
+    const awaited: Promise<void> = started.then(
+      () => undefined,
+      () => undefined,
+    );
+    entry.awaited = awaited;
+    void awaited.then(() => {
+      if (entry.awaited === awaited) entry.awaited = undefined;
+    });
+  };
+
   const snapshot = async (root: string): Promise<TreeSnapshot> => {
     const key = canonicalPathKey(root);
     const entry = entries.get(key);
@@ -224,6 +265,8 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
       return Object.freeze({ tree, revision: treeRevision(tree), builtAt: now() });
     }
     observeFingerprint(entry);
+    // A read after a mutation made through this process waits for the build that follows it.
+    if (entry.awaited) await entry.awaited;
     if (entry.snapshot) return entry.snapshot;
     return build(entry);
   };
@@ -259,12 +302,17 @@ export function createTreeIndex(options: TreeIndexOptions = {}): TreeIndex {
     isWatched: (root) => entries.has(canonicalPathKey(root)),
     tree: async (root) => (await snapshot(root)).tree,
     snapshot,
+    invalidate(root) {
+      const entry = entries.get(canonicalPathKey(root));
+      if (entry) invalidate(entry);
+    },
     state(root) {
       const entry = entries.get(canonicalPathKey(root));
       if (!entry) return undefined;
       return {
         dirty: entry.dirty,
         building: entry.inflight !== undefined,
+        waiting: entry.awaited !== undefined,
         builds: entry.builds,
         failures: entry.failures,
         snapshot: entry.snapshot,
