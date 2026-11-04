@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "../paths";
-import { checkDocsPath, docsFs, isDocsPathRefusal, preflightDocsPaths, type DocsPathIntent } from "../safe-path";
+import { checkDocsPath, docsFs, isDocsPathRefusal, preflightDocsPaths, type DocsListedDir, type DocsPathIntent } from "../safe-path";
 
 /**
  * The docs-root chokepoint (safe-path.ts): one canonical rule for every
@@ -210,5 +210,30 @@ describe("docsFs.listingWalk", () => {
     expect(real?.entries.map((candidate) => candidate.name).sort()).toEqual(["assets", "doc.json"]);
     // A link in the listing itself is not a directory entry: refused outright.
     await expect(walk.listChild(notes, entry("out"))).rejects.toMatchObject({ reason: "unsafe" });
+  });
+
+  test.each([
+    ["a link out of the root", () => symlink(join(temp, "outside"), join(kb, "notes/deep"), "dir")],
+    ["a link to a folder inside the root", () => symlink(join(kb, "notes/real"), join(kb, "notes/deep"), "dir")],
+    ["a plain file", () => writeFile(join(kb, "notes/deep"), "not a folder")],
+  ])("a child below an ancestor that became %s since the ancestor was listed is not read", async (_what, replaceDeep) => {
+    await mkdir(join(kb, "notes/deep/sub"), { recursive: true });
+    // Both link targets hold a real `sub`, so the child's path still opens a folder: not the one the walk expects.
+    await mkdir(join(temp, "outside/sub"));
+    await writeFile(join(temp, "outside/sub/private.md"), "private");
+    await mkdir(join(kb, "notes/real/sub"));
+    const walk = docsFs(kb).listingWalk();
+    const notes = await walk.list("notes");
+    const child = (dir: DocsListedDir, name: string) => dir.entries.find((candidate) => candidate.name === name)!;
+    const deep = (await walk.listChild(notes, child(notes, "deep")))!;
+    expect(deep.canonical).toBe(join(kb, "notes/deep"));
+
+    await rm(join(kb, "notes/deep"), { recursive: true });
+    await replaceDeep();
+
+    expect(await walk.listChild(deep, child(deep, "sub"))).toBeNull();
+    // The same folder reached with no link on the way is still read, at its canonical location.
+    const real = (await walk.listChild(notes, child(notes, "real")))!;
+    expect((await walk.listChild(real, child(real, "sub")))?.canonical).toBe(join(kb, "notes/real/sub"));
   });
 });

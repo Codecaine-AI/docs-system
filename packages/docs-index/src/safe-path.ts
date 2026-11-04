@@ -428,10 +428,12 @@ export type DocsListingWalk = {
    * Lists the directory `entry` of `parent`'s listing. An lstat-typed link is
    * not a directory, so the entry's canonical folder is the parent's canonical
    * folder plus the stored name; its entries are judged at both locations when
-   * the parent's differ. Any other entry is refused. The listing is a snapshot:
-   * the child is read only while it is still a real directory there (one lstat
-   * right before the read), so a link that took its place since the listing is
-   * never followed, inside or outside the root. Null when it is not one any more.
+   * the parent's differ. Any other entry is refused. The listing is a snapshot
+   * and the walk yields between listings, so the child is read only while its
+   * real path on disk is still that canonical folder (one realpath right before
+   * the read, compared whole): a link that took the child's place, or any
+   * ancestor's, since the listing resolves elsewhere, inside or outside the
+   * root, and is never followed. Null when the child is no longer that folder.
    */
   listChild(parent: DocsListedDir, entry: Dirent): Promise<DocsListedDir | null>;
 };
@@ -494,6 +496,20 @@ function subtreeRefusal(
 function lstatOrNull(path: string): Stats | null {
   try {
     return lstatSync(path);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Where `path` really is on disk, following every link on the way (one
+ * realpath; a component realpath cannot resolve is checked with lstat and
+ * carried as spelled, the way a read target is canonicalized). Null when it
+ * cannot be resolved: a dangling link on the way, or a refused read.
+ */
+function canonicalOrNull(path: string): string | null {
+  try {
+    return canonicalize(path, true);
   } catch {
     return null;
   }
@@ -646,14 +662,23 @@ export function docsFs(docsRoot: string): DocsFs {
           }
           const canonical = join(parent.canonical, entry.name);
           // The parent's listing is a snapshot, and the walk yields between listings. readdir
-          // follows a link, so the child is read only while a real directory is still at its
-          // place: anything else (a link in or out of the root, a file, nothing) is not listed.
-          if (!lstatOrNull(canonical)?.isDirectory()) return null;
-          return listed({
-            rel,
-            canonical,
-            canonicalRel: parent.canonicalRel ? `${parent.canonicalRel}/${entry.name}` : entry.name,
-          });
+          // follows a link in any component of its path, so the child is read only while its
+          // real path is still the one the walk expects: the parent's canonical folder plus
+          // the stored name. A link that took the child's place, or an ancestor's, resolves
+          // somewhere else (inside or outside the root) and the child is not listed. A file
+          // or nothing in its place is refused by the read itself, in the same tick.
+          if (canonicalOrNull(canonical) !== canonical) return null;
+          try {
+            return await listed({
+              rel,
+              canonical,
+              canonicalRel: parent.canonicalRel ? `${parent.canonicalRel}/${entry.name}` : entry.name,
+            });
+          } catch (error) {
+            const code = (error as NodeJS.ErrnoException).code;
+            if (code === "ENOENT" || code === "ENOTDIR") return null;
+            throw error;
+          }
         },
       };
     },

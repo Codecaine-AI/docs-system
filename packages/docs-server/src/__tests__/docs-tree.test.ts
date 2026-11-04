@@ -248,4 +248,43 @@ describe("walkDocsDir while the disk changes under it", () => {
     expect(raced).toEqual(await same(root));
     expect(find(raced, "linked")?.kind).toBe("bundle");
   });
+
+  // `zone` holds one folder, `parent`, with `child` below it, so a walk from `zone` yields first for
+  // `zone` and then for `parent`: in that second yield `parent` is listed and `parent/child` is not yet.
+  async function ancestorSwappedInSecondYield(replaceParent: () => Promise<void>): Promise<DocsTreeNode[]> {
+    let yields = 0;
+    const swapInSecondYield: DocsWalkYield = () => {
+      if (++yields !== 2) return undefined;
+      return (async () => {
+        await rename(join(root, "zone/parent"), join(outside, "was-parent"));
+        await replaceParent();
+      })();
+    };
+    return walkDocsDir(root, "zone", undefined, swapInSecondYield);
+  }
+
+  test.each([
+    ["a link out of the root", () => symlink(outside, join(root, "zone/parent"))],
+    ["a link to a folder inside the root", () => symlink(join(root, "elsewhere"), join(root, "zone/parent"))],
+    ["a plain file", () => writeFile(join(root, "zone/parent"), "not a folder")],
+  ])("an ancestor replaced by %s after it was listed and before its child is: nothing below it is read", async (_what, replaceParent) => {
+    setDocsRootExclude(root, EXCLUDE);
+    await file("zone/parent/child/original.md", "# original");
+    await file("zone/keep.md", "# keep");
+    // Both link targets hold a `child` with a page, so `zone/parent/child` still opens a folder: not the one the walk expects.
+    await mkdir(join(outside, "child"));
+    await writeFile(join(outside, "child/private.md"), "private");
+    await file("elsewhere/child/private.md", "private");
+
+    const raced = await ancestorSwappedInSecondYield(replaceParent);
+
+    const paths = JSON.stringify(raced);
+    expect(paths).not.toContain("private.md");
+    expect(paths).not.toContain("original.md");
+    expect(paths).not.toContain('"zone/parent/');
+    // `parent` was listed before the swap, so its node stays, with nothing below it. The rest is what
+    // both walks return now that `parent` is not a folder.
+    expect(find(raced, "zone/parent")).toEqual({ name: "parent", path: "zone/parent", kind: "dir", children: [] });
+    expect(raced.filter((node) => node.path !== "zone/parent")).toEqual(await same(root, "zone"));
+  });
 });

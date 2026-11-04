@@ -28,9 +28,9 @@ import { docsFs, type DocsFs, type DocsListedDir, type DocsListingWalk } from "@
  * folder from its parent's listing instead of resolving it on disk again. So
  * an entry excluded at its canonical location, or a link that leaves the root,
  * is never listed as a doc, and a link is never walked into: neither one in the
- * listing nor one that took a child folder's place while the walk yielded (the
- * listing checks the child right before it reads it, and the walk skips a
- * child that is no longer a real folder). A folder's own
+ * listing nor one that took a child folder's place, or an ancestor's, while the
+ * walk yielded (the listing checks the child's real path right before it reads
+ * it, and the walk skips a child that is no longer at its folder). A folder's own
  * listing says whether it is a bundle; the parent marks the child's kind and
  * suppresses its markdown twin after the recursion, so no child is probed. The
  * walk hands the event loop back (setImmediate) once 8 ms have passed since it
