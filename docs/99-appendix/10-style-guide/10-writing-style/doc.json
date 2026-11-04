@@ -115,7 +115,9 @@
         }
       ],
       "children": [
-        "b-sg-ws-lead-2-detail"
+        "b-sg-ws-lead-2-detail",
+        "b-sg-ws-lead-2-list-lead",
+        "b-sg-ws-lead-2-roadmap"
       ]
     },
     "b-sg-ws-lead-2-detail": {
@@ -125,6 +127,28 @@
       "text": [
         {
           "insert": "The first sentence of a doc or section states the thing itself. No setup, no \"the idea here is\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-lead-2-list-lead": {
+      "id": "b-sg-ws-lead-2-list-lead",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lead sentence states a fact that its list supports. Never write a lead that only says a list follows, such as \"These rules apply.\""
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-lead-2-roadmap": {
+      "id": "b-sg-ws-lead-2-roadmap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An opening that names the page's sections names them in the order the headings use. Leave the sections out when the headings already show them."
         }
       ],
       "children": []
@@ -188,7 +212,8 @@
       ],
       "children": [
         "b-sg-ws-no-preamble-5-answer",
-        "b-sg-ws-no-preamble-5-tangents"
+        "b-sg-ws-no-preamble-5-tangents",
+        "b-sg-ws-no-preamble-5-extra"
       ]
     },
     "b-sg-ws-no-preamble-5-answer": {
@@ -209,6 +234,17 @@
       "text": [
         {
           "insert": "Write only what the page's task asks for. A tangent or a related task, such as undoing or maintaining what the page sets up, moves to its own page and gets a link."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-no-preamble-5-extra": {
+      "id": "b-sg-ws-no-preamble-5-extra",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cut a section, a sentence, or a rule that the task does not ask for, even when it is true. A list never repeats a step that the page already gives."
         }
       ],
       "children": []
@@ -300,7 +336,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has. A partial list says that it is partial and names the file that holds the rest."
+          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial. A list that names only some items says how many it leaves out and names the file that holds them."
         }
       ],
       "children": []
@@ -380,6 +416,19 @@
       "text": [
         {
           "insert": "A code example runs as written when a reader copies it. Two commands in one block never write the same file, and each placeholder is marked as a placeholder."
+        }
+      ],
+      "children": [
+        "b-sg-ws-match-source-code-blocks"
+      ]
+    },
+    "b-sg-ws-match-source-code-blocks": {
+      "id": "b-sg-ws-match-source-code-blocks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put each command that the reader runs in a code block, so the reader can copy it whole. A step that names a command in inline code also shows the command in a code block."
         }
       ],
       "children": []
