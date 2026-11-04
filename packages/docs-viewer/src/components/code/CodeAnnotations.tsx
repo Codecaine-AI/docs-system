@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type CSSProperties } from "react";
+import { useLayoutEffect, useMemo, useRef, type CSSProperties, type RefObject } from "react";
 import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { cn } from "../../ui/cn";
 import { LinkGroup, useLinkTarget } from "../linked-panels";
@@ -92,14 +92,66 @@ function AnnotatedCodeLine({
 }
 
 /**
+ * Places the notes of a read code block once it has laid out, and again when
+ * its width changes. Beside the code, each note starts level with the first
+ * line it explains, or just under the note above it. When a code line wraps
+ * beside the notes column, the notes move under the code instead
+ * (`data-notes-below`), so the code gets the full panel width. Without
+ * layout (static markup) the notes stay stacked at the top of their column.
+ */
+function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines: readonly number[]) {
+  const key = firstLines.join(",");
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const body = section?.querySelector<HTMLElement>("[data-code-body]");
+    const aside = body?.querySelector<HTMLElement>("[data-code-notes]");
+    const pre = body?.querySelector<HTMLElement>("pre");
+    if (!section || !body || !aside || !pre) return;
+    const notes = Array.from(aside.children) as HTMLElement[];
+    const place = () => {
+      body.removeAttribute("data-notes-below");
+      aside.removeAttribute("data-notes-below");
+      for (const note of notes) note.style.marginTop = "";
+      if (aside.getBoundingClientRect().top >= pre.getBoundingClientRect().bottom - 1) return;
+      const rows = Array.from(pre.querySelectorAll<HTMLElement>("[data-code-line]"));
+      const heights = rows.map((row) => row.getBoundingClientRect().height);
+      const lineHeight = Math.min(...heights);
+      if (heights.some((height) => height > lineHeight * 1.5)) {
+        body.setAttribute("data-notes-below", "true");
+        aside.setAttribute("data-notes-below", "true");
+        return;
+      }
+      notes.forEach((note, index) => {
+        const line = rows[(firstLines[index] ?? 1) - 1];
+        if (!line) return;
+        const lift = line.getBoundingClientRect().top - note.getBoundingClientRect().top;
+        if (lift > 0.5) note.style.marginTop = `${lift}px`;
+      });
+    };
+    place();
+    if (typeof ResizeObserver === "undefined") return;
+    let width = section.getBoundingClientRect().width;
+    const observer = new ResizeObserver(() => {
+      const next = section.getBoundingClientRect().width;
+      if (Math.abs(next - width) < 0.5) return;
+      width = next;
+      place();
+    });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [sectionRef, key]);
+}
+
+/**
  * The READ code block, with or without notes (the edit surface renders
  * through CodeShell). Long lines wrap per line here, so a plain block never
  * scrolls sideways either; with no notes it drops the notes column. The dark
  * panel shares the code frame's furniture — header strip, line height,
  * gutter — via the constants in classes.ts, but keeps its own per-line grid
  * so every annotated line stays a link target. The notes are a column
- * INSIDE the panel, on a slightly lighter surface beside the code (under it
- * in a narrow block).
+ * INSIDE the panel, on a slightly lighter surface beside the code, each level
+ * with its first line (under the code in a narrow block, or when a line
+ * would wrap beside them: see useNotePlacement).
  *
  * Pairing runs on the shared LinkGroup engine (ONE group per block; key =
  * the annotation's `lines` key): hovering or focusing a note or an annotated
@@ -148,6 +200,12 @@ export function AnnotatedCodeBlock({
   }, [annotations, lines.length]);
 
   const hasNotes = annotations.length > 0;
+  const sectionRef = useRef<HTMLElement>(null);
+  const firstLines = useMemo(
+    () => annotations.map((annotation) => Math.min(...expandLineRange(annotation.lines, lines.length), lines.length)),
+    [annotations, lines.length],
+  );
+  useNotePlacement(sectionRef, firstLines);
   const pre = (
     <pre className={CODE_ANNOTATED_PRE_CLASSES}>
       {lines.map((line, index) => {
@@ -187,7 +245,7 @@ export function AnnotatedCodeBlock({
   );
   if (!hasNotes) return frame;
   return (
-    <section className="not-prose" data-code-annotations={id}>
+    <section ref={sectionRef} className="not-prose" data-code-annotations={id}>
       <LinkGroup>
         <CodeNotesLayout>{frame}</CodeNotesLayout>
       </LinkGroup>

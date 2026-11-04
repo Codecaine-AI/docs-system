@@ -69,7 +69,7 @@ export const CODE_LAYOUT_CLASSES = "not-prose my-4 @container";
  * cells sit INSIDE the dark panel; the notes column draws its own hairline.
  */
 export const CODE_BODY_GRID_CLASSES =
-  "grid grid-cols-1 @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)]";
+  "grid grid-cols-1 @min-[760px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,280px)] data-[notes-below]:grid-cols-1";
 
 /** The panel frame inside a layout: the layout owns the margin. */
 export const CODE_FRAME_IN_LAYOUT_CLASSES = "my-0 min-w-0";
@@ -258,7 +258,7 @@ export const CODE_LINE_ROW_ZEBRA_CLASSES =
  * notes are split by a faint hairline: the internal rule at half its opacity.
  */
 export const CODE_NOTES_ASIDE_CLASSES =
-  "grid min-w-0 content-start gap-1 px-2 pb-3 [&>*+*]:border-0 [&>*+*]:border-solid [&>*+*]:border-t-[length:var(--docs-code-rule-width,1px)] [&>*+*]:border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*50%),transparent)] pt-[max(0px,calc(var(--docs-code-pad-top,12px)-var(--ds-space-2)))] font-sans bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))] border-0 border-solid border-t-[length:var(--docs-code-rule-width,1px)] border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)] @min-[760px]:border-t-0 @min-[760px]:border-l-[length:var(--docs-code-rule-width,1px)] @min-[760px]:border-l-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)]";
+  "grid min-w-0 content-start gap-1 px-2 pb-3 [&>*+*]:border-0 [&>*+*]:border-solid [&>*+*]:border-t-[length:var(--docs-code-rule-width,1px)] [&>*+*]:border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*50%),transparent)] pt-[max(0px,calc(var(--docs-code-pad-top,12px)-var(--ds-space-2)))] font-sans bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))] border-0 border-solid border-t-[length:var(--docs-code-rule-width,1px)] border-t-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)] @min-[760px]:border-t-0 @min-[760px]:border-l-[length:var(--docs-code-rule-width,1px)] @min-[760px]:border-l-[color:color-mix(in_srgb,var(--docs-code-rule,var(--border))_calc(var(--docs-code-rule-opacity,0.5)*100%),transparent)] data-[notes-below]:border-l-0 data-[notes-below]:border-t-[length:var(--docs-code-rule-width,1px)]";
 
 /**
  * One note, AT REST: a stacked block (head row, then the body), never run
