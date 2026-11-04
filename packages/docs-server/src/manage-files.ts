@@ -93,6 +93,20 @@ const copy=async(fs:ReturnType<typeof docsFs>,from:string,to:string)=>copyFile(f
 /** One read-set file of a plan: its content hash and the hash of what the plan writes there. */
 type PlanEntry = { path:string; content:string|null; output:string|null };
 type Plan = { ok:true; hash:string; entries:PlanEntry[]; moving:string[]; children:string[]; outputs:Map<string,Buffer>; affected:Set<string> };
+/** The newest previews' read sets by root and tree_hash, so an apply whose plan differs can name each path that changed. */
+const previews=new Map<string,PlanEntry[]>();
+function rememberPreview(root:string,plan:Plan){
+  const key=`${root}\0${plan.hash}`;previews.delete(key);previews.set(key,plan.entries);
+  if(previews.size>64)previews.delete(previews.keys().next().value!);
+}
+/** The refusal for a plan that differs from the reviewed one, with every read-set path whose content or output differs. */
+function planChanged(reviewed:PlanEntry[]|undefined,current:PlanEntry[]){
+  const refusal=failure('Corpus changed or preview missing. Preview this operation again.');
+  if(!reviewed)return refusal;
+  const state=(entries:PlanEntry[])=>new Map(entries.map(e=>[e.path,`${e.content}\0${e.output}`]));
+  const a=state(reviewed),b=state(current);
+  return {...refusal,changed_paths:[...new Set([...a.keys(),...b.keys()])].filter(p=>a.get(p)!==b.get(p)).sort()};
+}
 async function confined(root:string,path:string) {
   const fs=docsFs(root);let current='';
   for(const segment of path.split('/')){
@@ -103,8 +117,9 @@ async function confined(root:string,path:string) {
 }
 
 /** Plan and apply typed page/asset relocations. This is a store operation, not raw MCP filesystem access.
- * A reviewed corpus fingerprint guards all descendants and reference sources. Per-file locks are shared
- * with normal edits. Rollback restores captured bytes; a journal remains for crash/manual recovery.
+ * The reviewed tree_hash guards the read set: every moving file and every reference source that reaches one.
+ * The apply locks that set and the destinations (locks shared with normal edits) and plans again inside them.
+ * Rollback copies the journal's backups back; the journal remains for crash/manual recovery.
  */
 export async function manageFiles(root:string,input:ManageFilesInput):Promise<Record<string,any>> {
  return withPathLock(join(root,'.changesets','.management-lock'),async()=>{
@@ -185,8 +200,8 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
     if(!planned.ok)return planned;
     const {moving,children,outputs,affected}=planned;
     const preview={ok:true,preview:true,path:input.path,to:input.to,tree_hash:planned.hash,files:moving,children,rewritten_sources:[...outputs.keys()].map(map),undo_available:true,undo_tool:'docs_management_restore'};
-    if(input.preview!==false)return preview;
-    if(input.expected_tree_hash!==planned.hash)return failure('Corpus changed or preview missing. Preview this operation again.');
+    if(input.preview!==false){rememberPreview(root,planned);return preview;}
+    if(input.expected_tree_hash!==planned.hash)return planChanged(previews.get(`${root}\0${input.expected_tree_hash}`),planned.entries);
     // Lock the read set and every destination: any of them may be the source of a concurrent edit.
     const lockOrder=(p:string)=>p.endsWith('/proposals.json')?0:p.endsWith('/doc.json')?1:p.endsWith('/annotations.json')?3:2;
     const locks=[...new Set([...planned.entries.map(e=>e.path),...moving.map(map)].map(p=>join(root,p)))].sort((a,b)=>lockOrder(a)-lockOrder(b)||a.localeCompare(b));
@@ -194,7 +209,8 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
     async function commit():Promise<Record<string,any>>{
       const again=await plan();
       if(!again.ok)return again;
-      if(again.hash!==planned.hash)return failure('Corpus changed while waiting for locks. Preview again.');
+      // The plan again inside the locks: a read-set change while waiting refuses; any other write does not.
+      if(again.hash!==planned.hash)return planChanged(planned.entries,again.entries);
       for(const file of affected){
         const kind=isDoc(file)?'doc':file.endsWith('.canvas.json')?'canvas':file.endsWith('.sequence.json')?'sequence':null;
         if(kind){const locked=draftLockStore.forRoot(root).checkForMutation({kind,path:kind==='doc'?file.slice(0,-9):file});if(locked.blocked)return {...failure(`Draft in progress: ${file}`,423),held_by:locked.heldBy};}
