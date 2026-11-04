@@ -585,6 +585,12 @@ async function forwardSequenceAction(
   });
 }
 
+/** Store reads that run outside the store-operation lock. Every other method keeps it. */
+const UNLOCKED_READS: ReadonlySet<keyof DocsStore> = new Set<keyof DocsStore>([
+  "tree", "bundle", "projection", "annotations", "annotationList", "proposals", "changesets", "changesetGet",
+  "docGet", "canvasGet", "canvasByDocPath", "sequenceGet", "sequenceByDocPath", "assets", "readAsset", "backlinks",
+]);
+
 /**
  * Every store honors its project's policy: the codecaine.docs.json `exclude`
  * globs of the project (or an enclosing `"docsRoot": "."` project) are read
@@ -783,8 +789,10 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
   };
   // Store callers share one corpus authority during multi-file reorganizations.
   // Per-file locks still coordinate with lower-level internal editing primitives.
+  // Reads skip the corpus lock, so a bundle read never waits for a tree walk.
   for (const key of Object.keys(store) as Array<keyof DocsStore>) {
     if (key === "publishChange" || key === "subscribeChanges" || typeof store[key] !== "function") continue;
+    if (UNLOCKED_READS.has(key)) continue;
     const operation = store[key] as (...args: any[]) => Promise<any>;
     (store as any)[key] = (...args: any[]) => withPathLock(join(root, ".changesets", ".store-operation-lock"), () => operation(...args));
   }
