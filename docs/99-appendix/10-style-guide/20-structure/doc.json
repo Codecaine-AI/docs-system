@@ -114,7 +114,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Put a bold label, a link, or a short phrase in a parent bullet that has 3 or more supporting facts in sub-bullets. Write 1 or 2 facts as plain bullets or a short paragraph. A label that names a section of the page is a heading, not a bullet."
+          "insert": "Put a bold label, a link, or a short phrase in a parent bullet that has 3 or more facts in sub-bullets. Write 1 or 2 facts as plain bullets, and name a section of the page with a heading, not a bullet."
         }
       ],
       "children": []
@@ -143,7 +143,8 @@
         }
       ],
       "children": [
-        "shape-detail-2-0"
+        "shape-detail-2-0",
+        "shape-detail-2-1"
       ]
     },
     "shape-detail-2-0": {
@@ -153,6 +154,17 @@
       "text": [
         {
           "insert": "Writing before a table or state-shape orients the reader. Bullets that restate its rows are duplication that will drift."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-2-1": {
+      "id": "shape-detail-2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A structured block draws only what the source does. A step that returns early is a branch, an arrow is a real import or call, and a count in the prose equals the count in the block."
         }
       ],
       "children": []
