@@ -331,6 +331,18 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(hangs[1]?.style.getPropertyValue("--hang")).toBe("2ch");
   });
 
+  it("prints an example far taller than its ledger below it, at the full card width", () => {
+    const rows = Array.from({ length: 12 }, (_, i) => ({ id: `block-${i}`, type: "paragraph", children: [`child-${i}`, `other-${i}`] }));
+    render(<StateShapeBlock id="shape-tall" name="Doc" fields={[{ name: "blocks", type: "Block[]" }]} example={JSON.stringify({ blocks: rows })} />);
+    const grid = document.querySelector("[data-shape-grid]") as HTMLElement;
+    expect(grid.hasAttribute("data-has-example")).toBe(false);
+    expect(grid.getAttribute("data-example-below")).toBe("true");
+    // Each 70-column record stays one line, which the 56-column side pane would split.
+    const lines = Array.from(document.querySelectorAll("[data-shape-example] [data-code-line] > [data-line-text]")).map((line) => line.textContent);
+    expect(lines).toHaveLength(rows.length + 4);
+    expect(lines[2]).toBe('    { "id": "block-0", "type": "paragraph", "children": ["child-0", "other-0"] },');
+  });
+
   it("reads its knobs through the shared ledger locals, defaults as fallbacks", () => {
     renderTwoPane();
     const css = sheet();

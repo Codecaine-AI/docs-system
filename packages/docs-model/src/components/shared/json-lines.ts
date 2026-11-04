@@ -36,29 +36,45 @@ function joinKey(path: string, key: string): string {
 
 export type JsonLinesOptions = {
   /**
-   * Print a non-empty array or object whose entries are all primitives on one
-   * line when that line fits in this many columns, indent included. Omit it
-   * for the canonical form.
+   * Print a non-empty array or object on one line when that line fits in this
+   * many columns, indent included. Nested arrays and objects fold the same
+   * way, so a short record of records stays one line. Omit it for the
+   * canonical form.
    */
   inlineWidth?: number;
 };
 
-const isPrimitive = (value: unknown): boolean => value === null || typeof value !== "object";
-
-/** The one-line form of an array or object of primitives, with its child paths; null when it does not qualify. */
-function inlineForm(value: unknown, path: string): { text: string; children: string[] } | null {
+/** The one-line form of any JSON value, with every descendant path in pre-order. */
+function oneLine(value: unknown, path: string): { text: string; children: string[] } {
   if (Array.isArray(value)) {
-    if (value.length === 0 || !value.every(isPrimitive)) return null;
-    return { text: `[${value.map((item) => JSON.stringify(item) ?? "null").join(", ")}]`, children: value.map((_, index) => `${path}[${index}]`) };
+    const children: string[] = [];
+    const parts = value.map((item, index) => {
+      const child = `${path}[${index}]`;
+      const inner = oneLine(item, child);
+      children.push(child, ...inner.children);
+      return inner.text;
+    });
+    return { text: `[${parts.join(", ")}]`, children };
   }
   if (isRecord(value)) {
     const entries = Object.entries(value).filter(([, entry]) => isSerializableEntry(entry));
-    if (entries.length === 0 || !entries.every(([, entry]) => isPrimitive(entry))) return null;
-    return {
-      text: `{ ${entries.map(([key, entry]) => `${JSON.stringify(key)}: ${JSON.stringify(entry)}`).join(", ")} }`,
-      children: entries.map(([key]) => joinKey(path, key)),
-    };
+    if (entries.length === 0) return { text: "{}", children: [] };
+    const children: string[] = [];
+    const parts = entries.map(([key, entry]) => {
+      const child = joinKey(path, key);
+      const inner = oneLine(entry, child);
+      children.push(child, ...inner.children);
+      return `${JSON.stringify(key)}: ${inner.text}`;
+    });
+    return { text: `{ ${parts.join(", ")} }`, children };
   }
+  return { text: JSON.stringify(value) ?? "null", children: [] };
+}
+
+/** The one-line form of a non-empty array or object; null for a primitive or an empty container, which print the same either way. */
+function inlineForm(value: unknown, path: string): { text: string; children: string[] } | null {
+  if (Array.isArray(value)) return value.length === 0 ? null : oneLine(value, path);
+  if (isRecord(value)) return Object.values(value).some(isSerializableEntry) ? oneLine(value, path) : null;
   return null;
 }
 
@@ -136,8 +152,8 @@ function emitValue(
  * (where its key/opening token appears) and end line (its closing token's
  * line). Determinism: same value → same bytes and ranges; object keys emit
  * in insertion order, exactly as JSON.parse/JSON.stringify preserve them.
- * `options.inlineWidth` folds short arrays and objects of primitives onto one
- * line (the read surface's example pane); the agent view keeps the canon.
+ * `options.inlineWidth` folds each array or object whose one-line form fits
+ * onto one line (the read surface's example pane); the agent view keeps the canon.
  */
 export function printJsonLines(value: unknown, options: JsonLinesOptions = {}): JsonLinesResult {
   const lines: string[] = [];

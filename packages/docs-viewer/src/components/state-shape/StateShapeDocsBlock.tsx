@@ -144,7 +144,16 @@ export type ShapeModel = {
   rows: FieldLedgerRow[];
   /** The pretty-printed example, each line keyed with its field chain (deepest first); undefined without a valid example. */
   exampleLines?: LinkedCodeLine[];
+  /** True when the example is so much taller than the ledger that it prints below it, at the full card width. */
+  exampleBelow?: boolean;
 };
+
+/** Columns an example prints in beside the ledger, and below it at the full card width. */
+const SIDE_COLUMNS = 56;
+const BELOW_COLUMNS = 88;
+
+/** A side example taller than this leaves a tall empty ledger column beside it, so it moves below. */
+const exampleFitsBeside = (exampleLines: number, ledgerRows: number) => exampleLines <= Math.ceil(ledgerRows * 1.5) + 6;
 
 /**
  * Fields + optional JSON example -> ledger rows and linked example lines.
@@ -159,8 +168,14 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   }
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
+  let exampleBelow = false;
   if (parsed) {
-    const { lines, ranges } = printJsonLines(value, { inlineWidth: 56 });
+    let printed = printJsonLines(value, { inlineWidth: SIDE_COLUMNS });
+    if (!exampleFitsBeside(printed.lines.length, flat.length)) {
+      exampleBelow = true;
+      printed = printJsonLines(value, { inlineWidth: BELOW_COLUMNS });
+    }
+    const { lines, ranges } = printed;
     const paths = new Set(flat.map((row) => row.path));
     const keysByLine = new Array<string[] | undefined>(lines.length);
     for (const range of ranges) {
@@ -181,7 +196,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
     ...(matched.has(path) ? { linkKey: path } : {}),
     attrs: rowAttrs?.(path, depth, field),
   }));
-  return { rows, exampleLines };
+  return { rows, exampleLines, ...(exampleBelow ? { exampleBelow } : {}) };
 }
 
 const SHAPE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + STATE_SHAPE_STYLE;
@@ -202,7 +217,7 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     </header>}
     {description && <p data-shape-description="true">{description}</p>}
     <LinkGroup>
-      <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined}>
+      <div data-shape-grid="true" data-has-example={model.exampleLines && !model.exampleBelow ? "true" : undefined} data-example-below={model.exampleBelow ? "true" : undefined}>
         <div data-shape-tree="true">
           {fields.length > 0 ? <FieldLedger rows={model.rows} data-shape-ledger="true" /> : <p data-shape-empty="true">(no fields)</p>}
         </div>

@@ -96,24 +96,28 @@ describe("printJsonLines", () => {
     expect(printJsonLines(null)).toEqual({ lines: ["null"], ranges: [] });
   });
 
-  it("folds a short array or object of primitives onto one line under inlineWidth, keeping every path", () => {
-    const value = { id: "h1", children: ["a", "b"], props: { level: 2 }, text: [{ insert: "Install" }], long: ["x".repeat(60)] };
+  it("folds each array or object that fits inlineWidth onto one line, nested ones too, keeping every path", () => {
+    const value = { id: "h1", children: ["a", "b"], props: { level: 2 }, text: [{ insert: "Install" }], long: ["x".repeat(60)], deep: { a: { b: [1, 2] }, c: [{ d: "short" }, {}] } };
     const { lines, ranges } = printJsonLines(value, { inlineWidth: 40 });
     expect(lines).toEqual([
       "{",
       '  "id": "h1",',
       '  "children": ["a", "b"],',
       '  "props": { "level": 2 },',
-      '  "text": [',
-      '    { "insert": "Install" }',
-      "  ],",
+      '  "text": [{ "insert": "Install" }],',
       '  "long": [',
       `    "${"x".repeat(60)}"`,
-      "  ]",
+      "  ],",
+      '  "deep": {',
+      '    "a": { "b": [1, 2] },',
+      '    "c": [{ "d": "short" }, {}]',
+      "  }",
       "}",
     ]);
     expect(ranges.find((r) => r.path === "children[1]")).toEqual({ path: "children[1]", start: 3, end: 3 });
-    expect(ranges.find((r) => r.path === "text[0].insert")).toEqual({ path: "text[0].insert", start: 6, end: 6 });
+    expect(ranges.find((r) => r.path === "text[0].insert")).toEqual({ path: "text[0].insert", start: 5, end: 5 });
+    expect(ranges.find((r) => r.path === "deep.a.b[1]")).toEqual({ path: "deep.a.b[1]", start: 10, end: 10 });
+    expect(ranges.find((r) => r.path === "deep")).toEqual({ path: "deep", start: 9, end: 12 });
     expect(JSON.parse(lines.join("\n"))).toEqual(value);
   });
 
