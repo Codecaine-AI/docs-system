@@ -956,7 +956,8 @@
       ],
       "children": [
         "writing-b-writing-use-start-consistently-31",
-        "writing-b-writing-avoid-idioms-latin-abbr-32"
+        "writing-b-writing-avoid-idioms-latin-abbr-32",
+        "writing-b-writing-name-the-unit-32a"
       ]
     },
     "writing-b-writing-use-start-consistently-31": {
@@ -981,6 +982,37 @@
       "text": [
         {
           "insert": "Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-name-the-unit-32a": {
+      "id": "writing-b-writing-name-the-unit-32a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Name the unit that a count, a length, or an offset uses in the code. JavaScript "
+        },
+        {
+          "insert": "length",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "slice",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " count UTF-16 code units, so write \"UTF-16 code units\" there, not \"characters\"."
         }
       ],
       "children": []
