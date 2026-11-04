@@ -344,6 +344,22 @@ ${TREE_GROUP_COLORS_CSS}
   font: var(--ds-font-weight-regular) var(--tr-source-size, 12px) / var(--tr-row, 28px) var(--tr-mono);
   color: var(--tr-muted, #666562);
 }
+/* notes below: the code column is too wide for a note column beside it, so
+   a noted row's code takes the whole first line, and its note and source
+   share a second line at the child indent */
+.docs-tree__rows[data-notes="below"] {
+  grid-template-columns: [pad] var(--tr-pad-x, 12px) [path] minmax(0, 1fr) [note] 0 [src] max-content [end] var(--tr-pad-x, 12px);
+}
+.docs-tree__rows[data-notes="below"][data-diff] {
+  grid-template-columns: [pad] var(--tr-pad-x, 12px) [mark] var(--tr-gutter) [path] minmax(0, 1fr) [note] 0 [src] max-content [end] var(--tr-pad-x, 12px);
+}
+.docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / end; }
+.docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 2; }
+.docs-tree__rows[data-notes="below"] .docs-tree__note {
+  grid-row: 2; grid-column: path / src;
+  padding: 0 0 var(--ds-space-1-5) calc((var(--depth, 0) + 1) * var(--tr-indent));
+  line-height: 1.45;
+}
 .docs-tree__row:hover > .docs-tree__src { color: var(--tr-ink, #1f1f1f); }
 
 /* code rows (call-stack, component-tree): names colored by syntax role */
