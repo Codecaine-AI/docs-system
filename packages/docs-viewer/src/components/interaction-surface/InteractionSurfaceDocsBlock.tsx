@@ -13,7 +13,7 @@ import { tokenizeExampleCall, tokenizeSigType } from "./signature-tokens";
 
 export const INTERACTION_SURFACE_LABEL = "Interaction Surface";
 export const INTERACTION_SURFACE_AGENT_DESCRIPTION =
-  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Each operation is a disclosure row headed by its chevron and the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType. An operation with params or returnShape fields starts open, so a static reader sees its contract. Any other operation starts as one line with params elided. Click, Enter, or Space toggles a row. The name is a described name: hover or focus shows a tooltip with a lowercase kind badge (action, query, or event, colored by kind) above the purpose. Open, the purpose prints first, then a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed under the type. returns is a type name such as OpsResponse or { ok, doc }. Put any condition on the return in the description, not in returns. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
+  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Each operation is a disclosure row headed by its chevron and the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType. An operation with params or returnShape fields starts open, so a static reader sees its contract. Any other operation starts as one line with params elided. Click, Enter, or Space toggles a row. The name is a described name: hover or focus shows a tooltip with a lowercase kind badge (action, query, or event, colored by kind) above the purpose. Open, the purpose prints first, then a Parameters card holds the params ledger with the authored example call (exampleCall) below it, and a Returns card headed by the return type holds the returned-fields ledger with the returned example. An example sits beside its ledger only on a panel 1000px or wider. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed under the type. returns is a type name such as OpsResponse or { ok, doc }. Put any condition on the return in the description, not in returns. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
 
 export type InteractionSurfaceParam = Field;
 export type InteractionSurfaceOperation = {
@@ -208,7 +208,7 @@ const SURFACE_STYLE = `
 [data-op-code]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}
 [data-op-row]>[data-op-code]:first-child{border-top:0}
 [data-op-code] [data-code-line]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)}
-@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
+@container (min-width:1000px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
 @media print{[data-operation-name]{flex-wrap:wrap;white-space:normal}[data-operation-name]>[data-described]{display:block;flex-basis:100%}[data-operation-tip-kind]{display:inline-block;margin:0 var(--ds-space-2) 0 0}[data-operation-tip-purpose]{display:inline}}
 @media(prefers-reduced-motion:reduce){[data-docs-block-type="interaction-surface"] *{scroll-behavior:auto;transition-duration:.01ms}}
 `;
@@ -252,7 +252,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
           <span data-operation-sr="true" id={kindId}>{kind}</span>
         </span>
       </summary>
-      {/* Open: the purpose, the Parameters card (params | example call), then the Returns card (fields | example). */}
+      {/* Open: the purpose, the Parameters card (params, then the example call), then the Returns card (fields, then the example). */}
       <div data-operation-body="true">
         {operation.description && <p data-operation-purpose="true">{operation.description}</p>}
         {(hasCall || hasReturns) && <div data-op-cards="true">
@@ -270,7 +270,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
           {hasReturns && <section data-op-card="returns" data-op-returns="true" data-operation-output="true" aria-label={`${operation.name} returns`}>
             <h4 data-op-card-head="returns">Returns{operation.returns && <span data-op-return-type="true"><TypeToken text={operation.returns} /></span>}</h4>
             {shape && hasReturnRow && <LinkGroup>
-              <div data-op-row="returns" data-has-list={shape.rows.length > 0 ? "true" : undefined} data-has-code={shape.exampleLines ? "true" : undefined}>
+              <div data-op-row="returns" data-has-list={shape.rows.length > 0 ? "true" : undefined} data-has-code={shape.exampleLines && !shape.exampleBelow ? "true" : undefined}>
                 {shape.rows.length > 0 && <div data-op-list="true"><FieldLedger rows={shape.rows} inlineNotes data-return-ledger="true" /></div>}
                 {shape.exampleLines && <div data-op-code="true" data-op-example="true" data-code-surface="true" data-ref-code="true">
                   <CodeLines data-shape-example="true" lines={shape.exampleLines} tabIndex={0} role="region" aria-label={`${operation.returns ?? operation.name} example`} />

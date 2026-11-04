@@ -280,10 +280,11 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(css).toContain("border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}");
     // The head bar is a sans heading in ink.
     expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
-    // List beside code at the shared 44/56 split once the CARD (the size
-    // container) is 560px; the code pane keeps at least 260px. Stacking is
-    // the narrow-screen last resort only.
-    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
+    // On a page-width card the example sits below the ledger, so the ledger
+    // keeps its full width and prints each note beside its type. Only a CARD
+    // (the size container) of 1000px or more puts the example beside it.
+    expect(css).toContain("@container (min-width:1000px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
+    expect(css).not.toContain("@container (min-width:560px){[data-op-row]");
   });
 
   it("links param rows to the example-call lines that set them: hover lights both sides, click pins, Escape clears", () => {
