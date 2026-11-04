@@ -232,12 +232,20 @@ describe("claims to check", () => {
     expect(written.ok).toBe(true);
     // Only the sentence this write changed is listed: the untouched intro and legacy blocks are not.
     expect(written.claims_to_check).toEqual(["The table lists every status code."]);
-    expect(written.next).toContain("Check each sentence in claims_to_check against the source now");
+    expect(written.next).toContain("Before docs_check, check each sentence in claims_to_check");
     // A write that leaves the claim unchanged lists nothing.
     const intro = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: written.hash, markdown: "The table lists every status code. Saves take a lock." }, task);
     expect("claims_to_check" in intro).toBe(false);
     const checked = await call("docs_check", { path: "page" }, task);
     expect(checked.ok).toBe(true);
     expect("claims_to_check" in checked).toBe(false);
+  });
+
+  test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {
+    const sentences = Array.from({ length: 13 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
+    const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: `Saves take a lock. ${sentences.join(" ")}` }, task);
+    expect(written.claims_to_check).toEqual(sentences.slice(0, 12));
+    expect(written.claims_omitted).toBe(1);
+    expect(written.next).toContain("read its whole body for each early return");
   });
 });

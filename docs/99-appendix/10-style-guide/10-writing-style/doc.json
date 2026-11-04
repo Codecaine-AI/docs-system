@@ -352,6 +352,7 @@
       ],
       "children": [
         "sg-ws-claim-guarantee",
+        "sg-ws-claim-trace",
         "sg-ws-claim-failure",
         "sg-ws-claim-causes",
         "sg-ws-claim-absolutes"
@@ -366,6 +367,17 @@
       "text": [
         {
           "insert": "A guarantee names the check behind it. Write \"loadConfig rejects a file with an unknown key\", not \"loadConfig keeps the config valid\", when no check covers the other fields."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-trace": {
+      "id": "sg-ws-claim-trace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A claim about what code does names the function that does it, in inline code. Before you write it, read that function's whole body: an early return, a thrown error, or a branch for another mode, client, or input can change the claim. A fix you tell the reader to make passes every check in the code that refused."
         }
       ],
       "children": []

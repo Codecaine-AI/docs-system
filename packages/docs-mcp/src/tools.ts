@@ -100,12 +100,18 @@ function failure(detail: string, status = 400): Record<string, unknown> { return
 /** Component findings as write results and docs_check carry them: errors, then warnings, then notes, capped like style findings. */
 /** Words that claim a whole set. Match the Source asks the writer to check each one against the source. */
 const ABSOLUTE_WORD = /\b(?:every|all|only|never|always|nothing)\b/i;
-const CLAIMS_LIMIT = 8;
-const CLAIMS_NEXT = "Check each sentence in claims_to_check against the source now. Where no source line proves the whole set, name the condition or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
+/**
+ * Words that state what code does on a path: a result, a refusal, or a branch. The round 3b and 4
+ * judges found most wrong facts here, where a writer read a function's main path and missed an
+ * early return, another mode, or the exact check.
+ */
+const BEHAVIOR_WORD = /\b(?:returns?|throws?|rejects?|refuses?|fails?|answers?|skips?|falls? back|instead of|unless)\b/i;
+const CLAIMS_LIMIT = 12;
+const CLAIMS_NEXT = "Before docs_check, check each sentence in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, and branch for another mode, client, or input. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
 const blockText = (block: DocDocument["blocks"][string] | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
 
 /**
- * The sentences with an absolute word in the text blocks a write changed
+ * The sentences with an absolute or a behavior word in the text blocks a write changed
  * (every block when the write made the page). The write result lists them, so
  * the writer checks each claim while the page is still open for edits, and the
  * final docs_check stays one call.
@@ -116,9 +122,9 @@ export function claimsToCheck(doc: DocDocument, baseline: DocDocument | null): s
     if (!["paragraph", "list-item", "callout"].includes(block.type)) continue;
     const text = blockText(block);
     if (baseline && blockText(baseline.blocks[block.id]) === text) continue;
-    for (const sentence of text.split(/(?<=[.!?])\s+/)) if (ABSOLUTE_WORD.test(sentence)) claims.push(sentence.trim());
+    for (const sentence of text.split(/(?<=[.!?])\s+/)) if (ABSOLUTE_WORD.test(sentence) || BEHAVIOR_WORD.test(sentence)) claims.push(sentence.trim());
   }
-  return claims.slice(0, CLAIMS_LIMIT);
+  return claims;
 }
 
 const COMPONENT_FINDINGS_LIMIT = 5;
@@ -247,7 +253,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     const next = nextHint(style !== undefined, open);
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
     return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
-      ...(claims.length ? { claims_to_check: claims } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
+      ...(claims.length ? { claims_to_check: claims.slice(0, CLAIMS_LIMIT) } : {}), ...(claims.length > CLAIMS_LIMIT ? { claims_omitted: claims.length - CLAIMS_LIMIT } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
       path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
   }
   /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
