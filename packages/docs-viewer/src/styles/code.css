@@ -267,7 +267,8 @@
  * The code column shrinks to the panel and wraps, and the comment column
  * wraps under itself, so nothing overflows the panel horizontally and each
  * number stays on its own row. A line with no comment lets its code run
- * across the comment column.
+ * across the comment column. When a comment would wrap or the rows would
+ * overflow, every comment moves under its line (data-notes="below").
  */
 .docs-pseudo-grid {
   display: grid;
@@ -316,6 +317,35 @@
   min-width: 0;
   padding: 0 var(--docs-code-pad-x, var(--ds-space-3)) 0 4ch;
   white-space: pre-wrap;
+}
+
+/*
+ * Comments below (PseudocodeGrid data-notes="below"): a comment wraps beside
+ * its line, or the rows overflow the panel. The comment column goes away,
+ * each code line takes the full width, and its comment takes a second line
+ * under it at the line's indent.
+ */
+.docs-pseudo-grid[data-notes="below"] {
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, 1fr);
+}
+
+.docs-pseudo-grid[data-notes="below"][data-pseudo-diff] {
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) 2ch minmax(0, 1fr);
+}
+
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-code {
+  grid-column: -2 / -1;
+  padding-right: var(--docs-code-pad-x, var(--ds-space-3));
+}
+
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment {
+  grid-row: 2;
+  grid-column: -2 / -1;
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid[data-notes="below"][data-pseudo-diff] .docs-pseudo-comment {
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
 }
 
 /*

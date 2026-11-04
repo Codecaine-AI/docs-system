@@ -1,6 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useNotesBelow } from "../notes-below";
 import type { OutlineRow } from "@codecaine-ai/docs-model";
 import {
   TREE_ICONS,
@@ -196,32 +197,8 @@ const FLAVOR_HEAD = {
   component: { icon: TREE_ICONS.components, title: "Component tree" },
 } as const;
 
-/**
- * Whether the comments sit under their rows: true once the rows, with the
- * comments beside the code, are wider than the panel. A width change measures
- * again from the side-by-side layout.
- */
-function useNotesBelow() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [below, setBelow] = useState(false);
-  const [width, setWidth] = useState(0);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(() => setWidth((previous) => {
-      const next = Math.round(el.clientWidth);
-      if (next !== previous) setBelow(false);
-      return next;
-    }));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  useLayoutEffect(() => {
-    const el = ref.current;
-    if (el && !below && el.querySelector(".docs-tree__note") && el.scrollWidth > el.clientWidth + 1) setBelow(true);
-  }, [below, width]);
-  return { ref, below };
-}
+/** The rows, with the comments beside the code, are wider than the panel. */
+const rowsOverflow = (el: HTMLDivElement) => Boolean(el.querySelector(".docs-tree__note")) && el.scrollWidth > el.clientWidth + 1;
 
 export function OutlineRows({
   id,
@@ -237,7 +214,7 @@ export function OutlineRows({
   const flat = flattenRows(rows, [], []);
   const diff = hasChange(rows);
   const head = FLAVOR_HEAD[flavor];
-  const notesBelow = useNotesBelow();
+  const notesBelow = useNotesBelow(rowsOverflow);
   return (
     <section className="not-prose my-4 w-full" data-docs-block-type={blockType} data-source-id={id}>
       <TreeStyle />
