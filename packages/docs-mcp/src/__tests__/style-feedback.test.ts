@@ -51,8 +51,10 @@ describe("style feedback on writes", () => {
       block: "body", rule: "writing.no-em-dash",
       problem: 'Authored prose contains an em dash. Evidence: "We ship on Tuesday — then we rest."',
       fix: fix("writing.no-em-dash"),
+      // An em dash is a lint error, so docs_check fails on it with or without a task.
+      blocks_check: true,
     }], omitted: 0 });
-    expect(flagged.next).toBe("Changes are saved. Fix style_findings, then run docs_check with task_id.");
+    expect(flagged.next).toBe("Changes are saved. Fix the style_findings marked blocks_check first: docs_check fails on them. Fix the rest as you go, then run docs_check with task_id.");
     // Clients may show only the start of a large result, so the feedback precedes the document.
     expect(Object.keys(flagged).slice(0, 3)).toEqual(["ok", "style_findings", "next"]);
     // The untouched legacy dense paragraph predates this write, so it is not reported.
@@ -129,7 +131,10 @@ describe("docs_check style gate", () => {
       problem: `Paragraph exceeds 120 words. Evidence: "${Array(13).fill("words").join(" ")}…"`,
       fix: fix("writing.dense-paragraph"),
     };
-    expect(inserted.style_findings.shown).toContainEqual(gated);
+    // The write marks the finding docs_check will fail on, lists it first, and leaves the advisory one unmarked.
+    expect(inserted.style_findings.shown.map((f: any) => [f.rule, f.blocks_check ?? false])).toEqual([["writing.dense-paragraph", true], ["writing.sentence-length", false]]);
+    expect(inserted.style_findings.shown[0]).toEqual({ ...gated, blocks_check: true });
+    expect(inserted.next).toContain("Fix the style_findings marked blocks_check first");
     // A later write must not move the baseline past the dense paragraph inserted above.
     const later = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: inserted.hash, markdown: "We ship on Tuesday." }, task);
     expect(later.ok).toBe(true);
@@ -195,7 +200,7 @@ describe("docs_check judged gate", () => {
     const { engine } = stubEngine(() => p);
     withEngine(engine);
     const written = await insertList();
-    expect(written.style_findings.shown).toContainEqual({ block: "b0", rule: "judgment.flat-hierarchy", problem: expect.stringContaining("Flat list should be grouped"), fix: expect.any(String) });
+    expect(written.style_findings.shown).toContainEqual({ block: "b0", rule: "judgment.flat-hierarchy", problem: expect.stringContaining("Flat list should be grouped"), fix: expect.any(String), blocks_check: true });
     const checked = await call("docs_check", { path: "page" }, task);
     expect(checked.ok).toBe(false);
     expect(checked.style_gate.map((f: any) => [f.block, f.rule])).toEqual([["b0", "judgment.flat-hierarchy"]]);
@@ -203,6 +208,17 @@ describe("docs_check judged gate", () => {
     const softer = await call("docs_check", { path: "page" }, task);
     expect(softer.ok).toBe(true);
     expect(softer.style_gate).toEqual([]);
+  });
+
+  test("a write lists a judged finding below the gate threshold without blocks_check, and docs_check passes it", async () => {
+    withEngine(stubEngine(() => 0.75).engine);
+    const written = await insertList();
+    const finding = written.style_findings.shown.find((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(finding.block).toBe("b0");
+    expect("blocks_check" in finding).toBe(false);
+    expect(written.next).toMatch(/^Changes are saved\. Fix style_findings, then run docs_check with task_id\./);
+    expect(written.next).not.toContain("blocks_check");
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(true);
   });
 
   test("an unavailable engine is reported and does not block", async () => {

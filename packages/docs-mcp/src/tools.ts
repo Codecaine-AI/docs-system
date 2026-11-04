@@ -9,7 +9,7 @@ import {
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
-import { judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine } from "./lint-feedback";
+import { checkBlocksFor, judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine, type StyleFinding } from "./lint-feedback";
 import { CLAIMS_LIMIT, CLAIMS_NEXT, claimsToCheck } from "./claims";
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
@@ -79,10 +79,11 @@ const target = { project: str, path: Type.String({ description: "Bundle path rel
 const writeTarget = { ...target, expected_hash: str };
 const SAVED_NEXT = "Changes are saved. Run docs_check with task_id before reporting completion.";
 const FIX_STYLE_NEXT = "Changes are saved. Fix style_findings, then run docs_check with task_id.";
+const FIX_BLOCKING_NEXT = "Changes are saved. Fix the style_findings marked blocks_check first: docs_check fails on them. Fix the rest as you go, then run docs_check with task_id.";
 const FIX_COMPONENT_NEXT = "Changes are saved. Fix component_findings, then run docs_check with task_id.";
 const SEQUENCE_WARNINGS_NEXT = "Changes are saved. component_findings holds sequence lint warnings. They never block, but fix each one that applies, then run docs_check with task_id.";
 /** A clean write still reports violations an earlier write in the task left open on the page. */
-const nextHint = (findings: boolean, open: number) => findings ? FIX_STYLE_NEXT
+const nextHint = (findings: boolean, open: number, blocking = false) => blocking ? FIX_BLOCKING_NEXT : findings ? FIX_STYLE_NEXT
   : open === 1 ? "Changes are saved. 1 style violation this task introduced on this page is still open. Run docs_check with task_id to list it."
   : open ? `Changes are saved. ${open} style violations this task introduced on this page are still open. Run docs_check with task_id to list them.`
   : SAVED_NEXT;
@@ -217,21 +218,27 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       patches.set(patchId, { root: store.docsRoot, path, files: [docFile, ...(sidecar ? [resolve(store.docsRoot, sidecar)] : [])] });
     }
     if (patchId) store.publishChange({ path, changedIds, patchId, actor: "external-agent" });
+    const taskBaseline = docWrite ? taskBaselineOf(docWrite, path) : undefined;
+    const gate = taskBaseline === undefined ? [] : openStyleGate(result.doc, taskBaseline);
     const style = docWrite && docWrite.before !== undefined
-      ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine })
+      ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine,
+        checkBlocks: checkBlocksFor(result.doc, taskBaseline, gate) })
       : undefined;
-    const open = docWrite ? openStyleGate(docWrite, path, result.doc) : 0;
+    const open = gate.length;
     const claims = docWrite && docWrite.before !== undefined ? claimsToCheck(result.doc, docWrite.before) : [];
-    const next = nextHint(style !== undefined, open);
+    const next = nextHint(style !== undefined, open, style?.shown.some((finding) => finding.blocks_check) ?? false);
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
     return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
       ...(claims.length ? { claims_to_check: claims.slice(0, CLAIMS_LIMIT) } : {}), ...(claims.length > CLAIMS_LIMIT ? { claims_omitted: claims.length - CLAIMS_LIMIT } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
       path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
   }
-  /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
-  function openStyleGate(write: DocWrite, path: string, doc: DocDocument): number {
-    const baseline = write.ctx.taskId ? context.taskBaselines?.get(write.ctx.taskId, baselineKey(write.project, path)) : undefined;
-    return baseline === undefined ? 0 : styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined })).length;
+  /** The document the task's first write to this page replaced: null for a page the task made, undefined with no task. */
+  function taskBaselineOf(write: DocWrite, path: string): DocDocument | null | undefined {
+    return write.ctx.taskId ? context.taskBaselines?.get(write.ctx.taskId, baselineKey(write.project, path)) : undefined;
+  }
+  /** Gated violations the task has introduced on this page so far, against its pinned baseline: docs_check's style_gate. */
+  function openStyleGate(doc: DocDocument, baseline: DocDocument | null): StyleFinding[] {
+    return styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined }));
   }
   async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument): Promise<Record<string, unknown>> {
     if (ops.some((op) => op.type === "componentAction" && ACTION_REGISTRY.get(op.action) && "forward" in ACTION_REGISTRY.get(op.action)!)) {

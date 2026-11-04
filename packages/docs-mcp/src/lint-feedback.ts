@@ -38,6 +38,8 @@ export interface StyleFinding {
   /** The rule message plus a short excerpt of the offending text. */
   problem: string;
   fix: string;
+  /** Set when docs_check with the task's id fails on this finding while it stays open. */
+  blocks_check?: true;
 }
 /** The worst findings first, capped at STYLE_FINDINGS_LIMIT. omitted counts the rest. */
 export interface StyleFindings {
@@ -262,21 +264,27 @@ export function summarizeStyleFindings(
   touched: Iterable<string>,
   judged: readonly JudgedFinding[] = [],
   rules: readonly JudgmentRule[] = judgmentRules,
+  checkBlocks: CheckBlocks = NO_CHECK_BLOCKS,
 ): StyleFindings | undefined {
   const blocks = new Set(touched);
   const byId = new Map(rules.map((rule) => [rule.id, rule]));
+  // A finding docs_check fails on leads, so the writer fixes it before the one check it runs.
+  const mark = (finding: StyleFinding, blocking: boolean) => blocking ? { ...finding, blocks_check: true as const } : finding;
   const ranked = [
     ...report.findings
       .filter((finding) => finding.introduced || (finding.blockId !== undefined && blocks.has(finding.blockId)))
-      .map((finding) => ({
-        rank: finding.severity === "error" ? 0 : isGatedStyleRule(finding.ruleId) ? 1 : 2,
-        finding: compact(finding, finding.suggestion),
-      })),
+      .map((finding) => {
+        const blocking = checkBlocks.lint.has(findingKey(finding.ruleId, finding.blockId));
+        return {
+          rank: blocking ? 0 : finding.severity === "error" ? 1 : isGatedStyleRule(finding.ruleId) ? 2 : 3,
+          finding: mark(compact(finding, finding.suggestion), blocking),
+        };
+      }),
     ...judged.flatMap((finding) => {
       const rule = byId.get(finding.ruleId);
-      return rule && finding.probability >= rule.threshold
-        ? [{ rank: rule.gate ? 1 : 2, finding: compact(finding, finding.fix) }]
-        : [];
+      if (!rule || finding.probability < rule.threshold) return [];
+      const blocking = checkBlocks.judged && rule.gate === true && finding.probability >= gateThresholdOf(rule);
+      return [{ rank: blocking ? 0 : rule.gate ? 2 : 3, finding: mark(compact(finding, finding.fix), blocking) }];
     }),
   ];
   // Within a rank, each rule's first finding comes before any rule's second, so four findings of
@@ -293,6 +301,23 @@ export function summarizeStyleFindings(
     shown: ordered.slice(0, STYLE_FINDINGS_LIMIT).map(({ finding }) => finding),
     omitted: Math.max(0, ordered.length - STYLE_FINDINGS_LIMIT),
   };
+}
+
+/**
+ * What docs_check fails on, for marking write feedback: lint findings by rule and block, and whether
+ * judged findings on gated rules count (only under a task, as in docs_check).
+ */
+export interface CheckBlocks { lint: ReadonlySet<string>; judged: boolean }
+const NO_CHECK_BLOCKS: CheckBlocks = { lint: new Set(), judged: false };
+const findingKey = (rule: string, block: string | undefined) => `${rule}\u0000${block ?? ""}`;
+/**
+ * The findings on `doc` that docs_check fails on: lint errors it blocks on, and with a task, the gated
+ * findings the task introduced since `taskBaseline` (null for a page the task made, undefined with no task).
+ */
+export function checkBlocksFor(doc: DocDocument, taskBaseline: DocDocument | null | undefined, gate: readonly StyleFinding[] = []): CheckBlocks {
+  const lint = new Set(lintDocument(doc, { phase: "complete" }).blocking.map((f) => findingKey(f.ruleId, f.blockId)));
+  for (const finding of gate) lint.add(findingKey(finding.rule, finding.block));
+  return { lint, judged: taskBaseline !== undefined };
 }
 
 /** docs_check's blocking list: every gated finding the task introduced, uncapped, in report order. */
@@ -374,10 +399,12 @@ export async function writeStyleFeedback(input: {
   named?: Iterable<string>;
   engine?: JudgmentEngine;
   rules?: readonly JudgmentRule[];
+  /** What docs_check fails on for this page (checkBlocksFor). Without it, no finding is marked blocks_check. */
+  checkBlocks?: CheckBlocks;
 }): Promise<StyleFindings | undefined> {
   const rules = input.rules ?? judgmentRules;
   const report = lintDocument(input.after, { phase: "complete", baseline: input.before ?? undefined });
   const touched = touchedBlockIds(input.before, input.after, input.named);
   const judged = input.engine && rules.length ? await judge(input.engine, rules, input.after, touched) : [];
-  return summarizeStyleFindings(report, touched, judged, rules);
+  return summarizeStyleFindings(report, touched, judged, rules, input.checkBlocks);
 }

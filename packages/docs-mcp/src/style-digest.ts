@@ -11,5 +11,5 @@ export const STYLE_DIGEST: readonly string[] = [
   "Keep table cells to short facts. Put explanation in bullets near the table, and never restate its rows.",
   "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice. Write only what the task asks for. An opening names sections only in heading order.",
   "Each section stands alone. Define or link every label and term it uses.",
-  "Write results list style_findings, some model-judged, for changed blocks. Fix them as you go. docs_check with task_id blocks on the ones a task adds.",
+  "Write results list style_findings, some model-judged, for changed blocks. Fix them as you go. docs_check with task_id fails on those marked blocks_check.",
 ];
