@@ -3,7 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
-import { renderSequenceSvgFile } from "../component-lints";
+import * as sequencePackage from "@codecaine-ai/sequence";
+import { installedSequenceLinter, renderSequenceSvgFile, sequenceLintFindings, sequenceLinter } from "../component-lints";
 
 const participants = [{ id: "client", name: "client", kind: "actor" }, { id: "service", name: "service", kind: "participant" }];
 const message = (n: number) => ({ kind: "message", id: `m${n}`, from: "client", to: "service", line: "sync", text: `request ${n}` });
@@ -50,4 +51,23 @@ describe("renderSequenceSvgFile", () => {
       await rm(path, { force: true });
     }
   }, 30_000);
+});
+
+describe("sequenceLintFindings", () => {
+  test("a sequence package without lintSequence gives no linter, and no linter gives no findings", () => {
+    const { lintSequence: _, ...olderPackage } = sequencePackage as Record<string, unknown>;
+    expect(sequenceLinter(olderPackage)).toBeNull();
+    expect(sequenceLintFindings(small, sequenceLinter(olderPackage))).toEqual([]);
+    // The installed package's linter is whatever it exports, or null.
+    expect(installedSequenceLinter).toBe(sequenceLinter(sequencePackage));
+  });
+
+  test("every lint result is a warning, and a linter that throws gives no findings", () => {
+    const lint = () => [{ rule: "crossed-columns", severity: "error" as const, message: "crosses 2 other columns", target: "m0" }, { rule: "other", severity: "info" as const, message: "no target" }];
+    expect(sequenceLintFindings(small, lint)).toEqual([
+      { rule: "crossed-columns", severity: "warning", at: ["m0"], problem: "crosses 2 other columns" },
+      { rule: "other", severity: "warning", problem: "no target" },
+    ]);
+    expect(sequenceLintFindings(small, () => { throw new Error("lint bug"); })).toEqual([]);
+  });
 });
