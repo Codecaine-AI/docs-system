@@ -9,6 +9,7 @@ import { listLengthRule } from "./list-length";
 import { listItemSentencesRule } from "./list-item-sentences";
 import { headingTitleCaseRule } from "./heading-title-case";
 import { labelColonOpenerRule } from "./label-colon-opener";
+import { loneLabelParentRule } from "./lone-label-parent";
 export const pageStructureRules: LintRule[] = [
   openingParagraphRule,
   titleHeadingRule,
@@ -20,4 +21,5 @@ export const pageStructureRules: LintRule[] = [
   listItemSentencesRule,
   headingTitleCaseRule,
   labelColonOpenerRule,
+  loneLabelParentRule,
 ];

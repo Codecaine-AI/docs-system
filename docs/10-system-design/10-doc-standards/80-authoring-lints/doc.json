@@ -286,7 +286,7 @@
       },
       "text": [
         {
-          "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers."
+          "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, label-colon openers, and lone label bullets."
         }
       ],
       "children": []
@@ -1222,7 +1222,8 @@
         "structure-list-length-lint",
         "structure-list-item-sentences-lint",
         "structure-heading-title-case-lint",
-        "structure-label-colon-opener-lint"
+        "structure-label-colon-opener-lint",
+        "structure-lone-label-parent-lint"
       ]
     },
     "b-80-authoring-lints-structure-deep-list-flag-43": {
@@ -1301,6 +1302,19 @@
       "text": [
         {
           "insert": "structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five."
+        }
+      ],
+      "children": []
+    },
+    "structure-lone-label-parent-lint": {
+      "id": "structure-lone-label-parent-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.lone-label-parent flags a list whose only bullet is a short label over 2 or more list items. The label repeats the lead or stands in for a heading, so the items move up under the lead or the label becomes a heading."
         }
       ],
       "children": []
