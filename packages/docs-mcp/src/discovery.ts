@@ -8,7 +8,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
 
 /** exclude: docsRoot-relative globs from codecaine.docs.json whose matches are not part of the project. */
 export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[]; exclude?: string[] }
-/** folders: every folder the scan looked for projects in (the workspace, declared and glob-matched folders and their ancestors, each glob's static prefix). A change to any of their entries can change the result. */
+/** folders: every folder the scan looked for projects in (the workspace, declared and glob-matched folders and their ancestors, each glob's static prefix, each folder a shorter prefix of a nested glob matches). A change to any of their entries can change the result. */
 export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[]; folders: string[] }
 const inside = (root: string, target: string) => target === root || (!relative(root, target).startsWith(`..${sep}`) && relative(root, target) !== '..' && !isAbsolute(relative(root, target)));
 async function json(file: string): Promise<any | undefined> {
@@ -54,6 +54,11 @@ export async function discoverProjects(input: string): Promise<Discovery> {
     // The folder above the first glob segment: a new match is a new entry in it or below a folder already matched.
     const fixed = pattern.split('/'); const glob = fixed.findIndex(x => /[*?[{]/.test(x));
     prefixes.add(resolve(workspace, ...(glob < 0 ? fixed.slice(0, -1) : fixed.slice(0, glob))));
+    // Each shorter prefix past the first glob segment (packages/* and packages/*/sub for packages/*/sub/*): a new match below a folder it matches changes that folder.
+    if (glob >= 0) for (let end = glob + 1; end < fixed.length; end++) for await (const match of new Bun.Glob(fixed.slice(0, end).join('/')).scan({ cwd: workspace, onlyFiles: false })) {
+      const target = resolve(workspace, match);
+      if (await directory(target)) prefixes.add(target);
+    }
     for await (const match of new Bun.Glob(pattern).scan({ cwd: workspace, onlyFiles: false })) {
       const target = resolve(workspace, match);
       if (!await directory(target)) continue;

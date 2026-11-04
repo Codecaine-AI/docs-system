@@ -111,25 +111,29 @@ export function createInteractionService(options: { managed?: boolean; projectId
  taskCanvasBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.canvasBaselines.get(key),set:(taskId:string,key:string,board:TaskCanvasBaseline)=>{tasks.get(taskId)?.canvasBaselines.set(key,board);}},
  judgmentEngine:options.judgmentEngine===null?undefined:options.judgmentEngine??defaultJudgmentEngine()});
  /**
-  * The discovery cache rule. A workspace's discovery is reused while the manifests it was read from
-  * (codecaine.docs.json, members.json and package.json at the workspace and at each discovered project
-  * root) and the folders it looked for projects in (Discovery.folders: the workspace, each declared and
-  * glob-matched folder and its ancestors, each glob's static prefix such as packages/) are unchanged, and
-  * while the registry, each time it is rewritten, still lists each of its projects unchanged and lists no
-  * project under the workspace that it lacks. A new folder under a glob or a manifest added to a matched
-  * folder changes a folder's mtime. docs_discover always rescans, and a workspace never seen is scanned
-  * on first use. Nothing else scans: one discoverProjects on the knowledge base costs 4 s of CPU, and it
-  * used to run on every tool call. A call stats each signed file and folder once, about 85 for 20 projects.
+  * The discovery cache rule. A workspace's discovery is reused while the files it was read from
+  * (members.json and package.json at the workspace, codecaine.docs.json at each folder in
+  * Discovery.folders) and those folders themselves (the workspace, each declared and glob-matched folder
+  * and its ancestors, each glob's static prefix such as packages/, and each folder that a shorter prefix
+  * of a glob with segments after its first wildcard matches) are unchanged, and while the registry, each
+  * time it is rewritten, still lists each of its projects unchanged and lists no project under the
+  * workspace that it lacks. A new folder under a glob or a manifest added to a matched folder changes a
+  * folder's mtime, and an edit to a manifest that enables docs changes the manifest. Each path is signed
+  * after the scan, and one whose mtime is 50 ms before the scan's start or later is signed
+  * changed-during-scan, so a change the scan may have missed rescans once on the next call. docs_discover
+  * always rescans, a workspace never seen is scanned on first use, calls that arrive during a scan share
+  * it, and concurrent calls that find one stale entry share one rescan. Nothing else scans: one
+  * discoverProjects on the knowledge base costs 4 s of CPU, and it used to run on every tool call. A call
+  * stats each signed file and folder once, 47 for 20 projects under packages/*.
   */
- const MANIFESTS=['codecaine.docs.json','members.json','package.json'];
+ const WORKSPACE_MANIFESTS=['members.json','package.json'];
+ /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
+ const MTIME_MARGIN_MS=50;
  type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
- const discoveries=new Map<string,{pending:Promise<CachedDiscovery>,settled?:CachedDiscovery}>();
- /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. */
- const signature=async(file:string)=>{try{const s=await stat(file);return `${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
- async function manifestSignatures(folders:Iterable<string>,into=new Map<string,string>()){
-  for(const folder of folders)for(const name of MANIFESTS){const file=join(folder,name);if(!into.has(file))into.set(file,await signature(file));}
-  return into;
- }
+ type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery};
+ const discoveries=new Map<string,Entry>();
+ /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. since: an mtime at or after it signs changed-during-scan. */
+ const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
  const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
  let registrySignature:string|undefined;
  /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged, and every one that lacks a project the registry lists under its workspace. The supervisor rewrites it after each docs_discover with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
@@ -151,9 +155,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
   for(const [file,sig] of entry.signatures)if(await signature(file)!==sig)return false;
   return true;
  }
- /** One scan: the workspace's manifests are signed before it so a change during the scan shows on the next call. */
+ /** One scan, then its signatures (see the discovery cache rule). */
  async function scan(workspace:string):Promise<CachedDiscovery>{
-  const manifests=await manifestSignatures([workspace]);
+  const since=Date.now()-MTIME_MARGIN_MS;
   const discovery=await discoverProjects(workspace);
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
   // Every store, watcher and resolver of a docs root honors its project's exclude globs.
@@ -165,17 +169,26 @@ export function createInteractionService(options: { managed?: boolean; projectId
    treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
-  const signatures=await manifestSignatures([discovery.workspace,...discovery.projects.map(p=>p.root)],manifests);
-  for(const folder of discovery.folders)if(!signatures.has(folder))signatures.set(folder,await signature(folder));
+  const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
+  const signatures=new Map<string,string>();
+  for(const path of paths)signatures.set(path,await signature(path,since));
   return {discovery,signatures};
  }
- /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (docs_discover). Concurrent first calls share one scan. */
+ /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (docs_discover). */
  async function discover(workspace:string,rescan=false):Promise<Discovery>{
   const key=resolve(workspace);
   await dropDisowned();
   const cached=rescan?undefined:discoveries.get(key);
-  if(cached){try{const entry=await cached.pending;if(await fresh(entry))return entry.discovery;}catch{/* The failed scan was dropped; scan again. */}}
-  const entry:{pending:Promise<CachedDiscovery>,settled?:CachedDiscovery}={pending:scan(workspace)};
+  if(cached){
+   try{
+    if(!cached.settled)return (await cached.pending).discovery;
+    if(await fresh(cached.settled))return cached.settled.discovery;
+   }catch{/* The failed scan was dropped; scan again. */}
+   // Another call found the same entry stale first and replaced it: share its rescan.
+   const replaced=discoveries.get(key);
+   if(replaced&&replaced!==cached)return (await replaced.pending).discovery;
+  }
+  const entry:Entry={pending:scan(workspace)};
   discoveries.set(key,entry);
   try{entry.settled=await entry.pending;return entry.settled.discovery;}
   catch(error){if(discoveries.get(key)===entry)discoveries.delete(key);throw error;}
