@@ -23,11 +23,19 @@ const dir = process.env.HUB_SOAK_PROFILE_DIR;
 if (dir) {
   mkdirSync(dir, { recursive: true });
   const t0 = Date.now();
+  // heapStats() walks the heap, so only every 60 s line carries it (see the header).
+  let lastHeapAt = -Infinity;
   const memoryLine = () => {
     const m = process.memoryUsage();
-    const h = heapStats();
     const c = process.cpuUsage();
-    return JSON.stringify({ t: Math.round((Date.now() - t0) / 1000), cpuMs: Math.round((c.user + c.system) / 1000), rss: m.rss, heapTotal: m.heapTotal, heapUsed: m.heapUsed, external: m.external, arrayBuffers: m.arrayBuffers, heapSize: h.heapSize, heapCapacity: h.heapCapacity, extraMemorySize: h.extraMemorySize, objectCount: h.objectCount, protectedObjectCount: h.protectedObjectCount });
+    const now = Date.now();
+    let heap = {};
+    if (now - lastHeapAt >= 60_000) {
+      lastHeapAt = now;
+      const h = heapStats();
+      heap = { heapSize: h.heapSize, heapCapacity: h.heapCapacity, extraMemorySize: h.extraMemorySize, objectCount: h.objectCount, protectedObjectCount: h.protectedObjectCount };
+    }
+    return JSON.stringify({ t: Math.round((now - t0) / 1000), cpuMs: Math.round((c.user + c.system) / 1000), rss: m.rss, heapTotal: m.heapTotal, heapUsed: m.heapUsed, external: m.external, arrayBuffers: m.arrayBuffers, ...heap });
   };
   const memoryFile = join(dir, 'memory.jsonl');
   writeFileSync(memoryFile, memoryLine() + '\n');
@@ -39,6 +47,12 @@ if (dir) {
     if (busy || !existsSync(requestFile)) return;
     busy = true;
     const statsFile = join(dir, 'heap-stats.json');
+    // The soak polls for this file and parses it at once, so it appears whole or not at all.
+    const writeStats = (body: unknown) => {
+      const tmpStats = `${statsFile}.tmp`;
+      writeFileSync(tmpStats, JSON.stringify(body, null, 2) + '\n');
+      renameSync(tmpStats, statsFile);
+    };
     try {
       unlinkSync(requestFile);
       const started = performance.now();
@@ -49,9 +63,9 @@ if (dir) {
       const tmp = join(dir, 'heap.heapsnapshot.tmp');
       writeFileSync(tmp, snapshot);
       renameSync(tmp, join(dir, 'heap.heapsnapshot'));
-      writeFileSync(statsFile, JSON.stringify({ at: new Date().toISOString(), uptimeS: Math.round(process.uptime()), before, afterGc, snapshotBytes: snapshot.length, ms: Math.round(performance.now() - started) }, null, 2) + '\n');
+      writeStats({ at: new Date().toISOString(), uptimeS: Math.round(process.uptime()), before, afterGc, snapshotBytes: snapshot.length, ms: Math.round(performance.now() - started) });
     } catch (error) {
-      writeFileSync(statsFile, JSON.stringify({ at: new Date().toISOString(), error: String(error) }, null, 2) + '\n');
+      writeStats({ at: new Date().toISOString(), error: String(error) });
     } finally {
       busy = false;
     }
