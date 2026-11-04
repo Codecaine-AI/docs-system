@@ -1,10 +1,10 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { DocsChangeEvent } from "../docs-events";
-import { FS_WATCH_ACTOR, changeTargetForRelPath, watchDocsRoot } from "../fs-watch";
+import { FS_WATCH_ACTOR, changeTargetForRelPath, startPollingScan, watchDocsRoot } from "../fs-watch";
 
 /**
  * Watcher unit tests: the pure filter/mapping rules (`changeTargetForRelPath`)
@@ -158,4 +158,46 @@ describe("fs-watch: watchDocsRoot integration (recursive fs.watch)", () => {
     await sleep(400);
     expect(events).toEqual([]);
   }, 15000);
+});
+
+describe("fs-watch: polling fallback", () => {
+  test("an empty folder that appears, moves or goes is reported like a file change", async () => {
+    const root = await mkdtemp(join(tmpdir(), "docs-fs-poll-test-"));
+    const reported: string[] = [];
+    const stop = startPollingScan(root, (rel) => reported.push(rel), 20);
+    try {
+      await mkdir(join(root, "10-guide"), { recursive: true });
+      await writeFile(join(root, "10-guide", "doc.json"), DOC_JSON);
+      // The scan is live once a file write is reported: writes keep landing until one follows the baseline scan.
+      for (let round = 0; !reported.includes("probe.md") && round < 100; round++) {
+        await writeFile(join(root, "probe.md"), `probe ${round}\n`);
+        await sleep(50);
+      }
+      expect(reported).toContain("probe.md");
+
+      reported.length = 0;
+      await mkdir(join(root, "10-guide", "20-empty"));
+      await waitFor(() => reported.includes("10-guide/20-empty"));
+      expect(reported).toContain("10-guide/20-empty");
+
+      reported.length = 0;
+      await rename(join(root, "10-guide", "20-empty"), join(root, "10-guide", "25-empty"));
+      await waitFor(() => reported.includes("10-guide/20-empty") && reported.includes("10-guide/25-empty"));
+      expect(reported).toContain("10-guide/20-empty");
+      expect(reported).toContain("10-guide/25-empty");
+
+      reported.length = 0;
+      await rm(join(root, "10-guide", "25-empty"), { recursive: true });
+      await waitFor(() => reported.includes("10-guide/25-empty"));
+      expect(reported).toContain("10-guide/25-empty");
+
+      // A folder that stays put is never reported again.
+      reported.length = 0;
+      await sleep(150);
+      expect(reported).toEqual([]);
+    } finally {
+      stop();
+      await rm(root, { recursive: true, force: true });
+    }
+  }, 15_000);
 });
