@@ -835,10 +835,11 @@ async function undoStoredPatch(docsRoot: string, patchId: string, stored: Stored
     }
     deleteStoredPatch(patchId, docsRoot);
     for (const member of members) deleteStoredPatch(member.id, docsRoot);
-    // The compound and the members not undone go back, so the partial result stays on record.
+    // The members not undone go back, then the compound with only their ids, so a retry undoes the rest.
     const putBack = (from: number) => {
-      for (const member of members.slice(from).reverse()) restoreStoredPatch(member.id, member.patch!);
-      restoreStoredPatch(patchId, stored);
+      const remaining = members.slice(from).reverse();
+      for (const member of remaining) restoreStoredPatch(member.id, member.patch!);
+      restoreStoredPatch(patchId, { ...stored, patchIds: remaining.map((member) => member.id) });
     };
     const undonePatchIds: string[] = [];
     for (const [index, member] of members.entries()) {

@@ -165,13 +165,14 @@ test("the ledger drops a compound with its members as one unit, and undo of it s
   expect(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).toBe(docBefore);
 });
 
-test("a compound undo that fails part way keeps the compound and the members not undone", async () => {
+test("a compound undo that fails part way keeps the compound with only the members not undone, and a retry undoes them", async () => {
   await mkdir(join(docsRoot, "other"), { recursive: true });
   await writeFile(join(docsRoot, "other", "doc.json"), JSON.stringify({ ...SAMPLE_DOC, id: "other" }), "utf8");
   const older = await insertParagraph("part-older");
   const newer = await doc_update_blocks(docsRoot, "other", [{ type: "insertBlock", blockId: "part-newer", parentId: "root", index: 0, blockType: "paragraph", props: {}, text: [{ insert: "New" }] }], undefined, "ledger-test");
   if (!older.ok || !newer.ok) throw new Error("apply failed");
   recordCompoundPatch("part-compound", [older.patchId, newer.patchId], docsRoot);
+  const olderApplied = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
   // The older member's document changes outside the ledger, so its undo is refused.
   await writeFile(join(docsRoot, "guide", "doc.json"), JSON.stringify(SAMPLE_DOC), "utf8");
 
@@ -180,6 +181,13 @@ test("a compound undo that fails part way keeps the compound and the members not
   expect(getStoredPatch("part-compound", docsRoot)).toBeDefined();
   expect(getStoredPatch(older.patchId, docsRoot)).toBeDefined();
   expect(getStoredPatch(newer.patchId, docsRoot)).toBeUndefined();
+  expect(getStoredPatch("part-compound", docsRoot)).toMatchObject({ kind: "compound", patchIds: [older.patchId] });
+
+  // Once the document is back to what the ledger recorded, a retry undoes the remaining member.
+  await writeFile(join(docsRoot, "guide", "doc.json"), olderApplied, "utf8");
+  expect(await undo_patch(docsRoot, "part-compound")).toEqual({ ok: true, kind: "compound", undonePatchIds: [older.patchId] });
+  expect(JSON.parse(await readFile(join(docsRoot, "guide", "doc.json"), "utf8")).blocks.root.children).toEqual(["h1"]);
+  expect(getStoredPatch("part-compound", docsRoot)).toBeUndefined();
 });
 
 test("a change-set of more than MAX_PATCHES_PER_ROOT steps whose last step fails rolls back every step", async () => {
