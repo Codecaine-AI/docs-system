@@ -1,23 +1,22 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { constants as fsConstants } from 'node:fs';
 import { lstat, open } from 'node:fs/promises';
-import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { dirname, extname, join, relative, sep } from 'node:path';
 import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
-import { normalizeDocRefPath } from '@codecaine-ai/docs-index/ref-match';
 import { rescanAll } from '@codecaine-ai/docs-index/backlinks';
 import { guardWholeFolderOperation } from '@codecaine-ai/docs-index/subtree-guard';
 import { checkDocsPath, docsFs, type DocsPreflightTarget } from '@codecaine-ai/docs-index/safe-path';
 import { getBacklinksDb } from './backlinks-cache';
 import { withPathLock } from './path-mutex';
 import { draftLockStore } from './draft-locks';
+import { extractManagedRefs, holdsManagedRefs, isDoc, resolveAssetTarget } from './managed-refs';
 
 export type ManageFilesInput = {
   kind: 'page' | 'asset' | 'title'; path: string; to?: string; title?: string;
   expected_hash: string; preview?: boolean; expected_tree_hash?: string; recursive?: boolean;
 };
 const hash = (b: Uint8Array|string) => createHash('sha256').update(b).digest('hex');
-const isDoc = (p:string) => p.endsWith('/doc.json') && !p.includes('/assets/');
 const under = (file:string, dir:string) => file === dir || file.startsWith(dir+'/');
 const safe = (p:string) => p.length>0 && !p.includes('\\') && !p.includes('\0') && !p.startsWith('/') && p.split('/').every(x=>x!=='.'&&x!=='..'&&x.length>0&&!x.startsWith('.'));
 const failure = (detail:string,status=409) => ({ok:false,status,detail});
@@ -126,50 +125,26 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
     const map=(p:string)=>input.to&&(isPage?under(p,input.path):p===input.path)?input.to+p.slice(input.path.length):p;
     const outputs=new Map<string,Buffer>(), affected=new Set<string>(), inbound=new Set<string>();
     for(const [file,bytes] of before.files) {
-      // Only typed document data and component sidecars contain maintained references.
-      if(!isDoc(file)&&!file.endsWith('/annotations.json')&&!file.endsWith('.canvas.json')&&!file.endsWith('.sequence.json'))continue;
+      if(!holdsManagedRefs(file))continue;
       let data:any;try{data=JSON.parse(bytes.toString());}catch{return failure(`Malformed JSON: ${file}`,422);}
       let changed=false;
-      function visit(v:any){
-        if(!v||typeof v!=='object')return;
-        if(isPage&&v.kind==='doc'&&typeof v.path==='string'){
-          const target=normalizeDocRefPath(v.path);
-          if(under(target,input.path)){
-            if(!input.to){if(!under(file,input.path))inbound.add(file);}
-            else {v.path=map(target);changed=true;}
-          }
+      // Doc refs, then document media, attachment links, component assets and annotation canvas targets.
+      for(const ref of extractManagedRefs(file,data,root)){
+        if(ref.form==='doc'){
+          if(!isPage||!under(ref.target,input.path))continue;
+          if(!input.to){if(!under(file,input.path))inbound.add(file);}
+          else {ref.holder[ref.key]=map(ref.target);changed=true;}
+          continue;
         }
-        for(const child of Object.values(v))visit(child);
+        const resolved=resolveAssetTarget(ref,p=>before.files.has(p),p=>moving.includes(p));
+        if(!resolved)continue;
+        const {target}=resolved;
+        if(!input.to&&input.kind!=='title'&&moving.includes(target)&&!moving.includes(file)){inbound.add(file);continue;}
+        if(!input.to)continue;
+        const nextTarget=map(target),nextFile=map(file);
+        if(target===nextTarget&&file===nextFile)continue;
+        ref.holder[ref.key]=(resolved.relative?canonicalBundleSrc(relative(dirname(nextFile),nextTarget).split(sep).join('/')):nextTarget)+ref.suffix;changed=true;
       }
-      visit(data);
-      // Preserve document media, attachment links, and annotation canvas targets.
-      function assetReference(holder:any,key:string){
-          const src=holder?.[key];if(typeof src!=='string'||/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(src))return;
-          const suffix=src.match(/[?#].*$/)?.[0]??'', plain=src.slice(0,src.length-suffix.length).replaceAll('\\','/');
-          const rel=relative(root,resolve(root,dirname(file),plain)).split(sep).join('/');
-          const rooted=plain.replace(/^\//,'').replace(/^\.\//,'');
-          const relativeExists=before.files.has(rel),rootExists=before.files.has(rooted);
-          if(relativeExists&&rootExists&&rel!==rooted&&(moving.includes(rel)||moving.includes(rooted)||moving.includes(file)))throw Error(`Ambiguous asset path in ${file}: ${src}`);
-          const target=relativeExists?rel:rootExists?rooted:undefined;
-          if(!target || !target.includes('/assets/'))return;
-          if(!input.to&&input.kind!=='title'&&moving.includes(target)&&!moving.includes(file)){inbound.add(file);return;}
-          if(!input.to)return;
-          const nextTarget=map(target),nextFile=map(file);
-          if(target===nextTarget&&file===nextFile)return;
-          holder[key]=(relativeExists?canonicalBundleSrc(relative(dirname(nextFile),nextTarget).split(sep).join('/')):nextTarget)+suffix;changed=true;
-      }
-      if(isDoc(file))for(const block of Object.values(data.blocks??{}) as any[]){
-        for(const key of ['src','poster'])assetReference(block.props,key);
-        if(block.type==='image-grid')for(const image of block.props?.images??[])assetReference(image,'src');
-        for(const span of block.text??[])assetReference(span.attributes,'link');
-        // Structured-table cell links have the same inline attribute shape.
-        for(const row of block.props?.rows??[])if(Array.isArray(row))for(const cell of row)if(Array.isArray(cell))for(const span of cell)assetReference(span?.attributes,'link');
-      }
-      if(file.endsWith('.canvas.json')||file.endsWith('.sequence.json')){
-        function componentAssets(value:any){if(!value||typeof value!=='object')return;for(const key of ['src','url','href','imageUrl'])assetReference(value,key);for(const child of Object.values(value))componentAssets(child);}
-        componentAssets(data);
-      }
-      if(file.endsWith('/annotations.json'))for(const annotation of data.annotations??[])assetReference(annotation.target,'canvasSrc');
       if(input.kind==='title'&&file===sourceFile){data.title=input.title;changed=true;}
       if(changed){
         if(isDoc(file)){const valid=validateDocDocument(data);if(!valid.ok)return {...failure(`Invalid rewritten document: ${file}`,422),issues:valid.issues};outputs.set(file,Buffer.from(serializeDocDocument(valid.document)));}
