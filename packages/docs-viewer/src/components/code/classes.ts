@@ -1,7 +1,7 @@
 /**
- * Shared metrics + class constants for the code block's three surfaces —
- * read plain (descriptor.tsx via CodeShell), read annotated
- * (CodeAnnotations.tsx), and edit (editor-node-view.tsx via CodeShell) — so
+ * Shared metrics + class constants for the code block's two surfaces —
+ * read, with or without notes (CodeAnnotations.tsx), and edit
+ * (editor-node-view.tsx via CodeShell) — so
  * the header strip, gutter, annotation marks and notes column look identical
  * everywhere. The pseudocode block reuses the header strip.
  *
@@ -201,13 +201,13 @@ export const CODE_ANNOTATION_ROW_CLASSES =
 export const CODE_ANNOTATION_ROW_LIT_CLASSES =
   "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
-/** The code cell (second grid column) — a <pre> so whitespace stays literal with horizontal scroll (soft wrap OFF everywhere). */
+/** The edit surface's code cell (second grid column) — a <pre> so whitespace stays literal with horizontal scroll (soft wrap OFF while editing). */
 export const CODE_CELL_CLASSES = "relative m-0 bg-transparent p-0 px-[var(--docs-code-pad-x,12px)]";
 
 /**
- * Annotated READ surface: the <pre> body holding the per-line rows. It has no
- * height cap and no scroll: the notes column takes width, so a long line
- * wraps (CODE_LINE_TEXT_CELL_CLASSES) and the panel shows every line.
+ * READ surface: the <pre> body holding the per-line rows. It has no height
+ * cap and no scroll: a long line wraps (CODE_LINE_TEXT_CELL_CLASSES), with or
+ * without notes, and the panel shows every line.
  * Same typography and padding tokens as the content wrapper + scroll body of
  * the other two surfaces (CODE_CONTENT_WRAPPER_CLASSES / CODE_SCROLL_BODY_CLASSES).
  */

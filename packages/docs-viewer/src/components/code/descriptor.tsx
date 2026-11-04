@@ -9,10 +9,7 @@ import {
   stringProp,
 } from "../../render/descriptor-helpers";
 import { parseCodeAnnotations } from "./annotations";
-import { CODE_CELL_CLASSES } from "./classes";
 import { AnnotatedCodeBlock } from "./CodeAnnotations";
-import { CodeShell } from "./CodeShell";
-import { highlightCode, prettyPrintIfJson, resolveDisplayLanguage } from "./highlight";
 
 export const descriptors: DocBlockDescriptor[] = [
   {
@@ -28,42 +25,16 @@ export const descriptors: DocBlockDescriptor[] = [
     // 760px notes breakpoint, so its notes column sits beside the code.
     layout: CODE_LEFT_BLOCK_LAYOUT,
     render: (block, ctx) => {
-      const annotations = parseCodeAnnotations(block.props.annotations);
-      if (annotations) {
-        return el(
-          "div",
-          { key: block.id, ...blockAttrs(block) },
-          createElement(AnnotatedCodeBlock, {
-            id: block.id,
-            language: stringProp(block, "language"),
-            code: deltaToPlainText(block.text),
-            annotations,
-          }),
-          ctx.renderChildren(block),
-        );
-      }
-      const language = stringProp(block, "language");
-      const displayCode = prettyPrintIfJson(deltaToPlainText(block.text), language);
       return el(
         "div",
         { key: block.id, ...blockAttrs(block) },
-        // CodeShell renders the frame: a [data-code-surface] code panel, so
-        // the host's "code panels" setting renders it dark on a light page.
-        createElement(CodeShell, {
-          languageLabel: resolveDisplayLanguage(displayCode, language),
-          copyText: () => displayCode,
-          lineCount: displayCode.split("\n").length,
-          frameAttributes: { "data-language": language },
-          children: el(
-            "pre",
-            { className: CODE_CELL_CLASSES },
-            el("code", {
-              className: "hljs",
-              dangerouslySetInnerHTML: {
-                __html: highlightCode(displayCode, language).join("\n"),
-              },
-            }),
-          ),
+        // The frame is a [data-code-surface] code panel, so the host's
+        // "code panels" setting renders it dark on a light page.
+        createElement(AnnotatedCodeBlock, {
+          id: block.id,
+          language: stringProp(block, "language"),
+          code: deltaToPlainText(block.text),
+          annotations: parseCodeAnnotations(block.props.annotations) ?? [],
         }),
         ctx.renderChildren(block),
       );

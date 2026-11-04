@@ -92,8 +92,9 @@ function AnnotatedCodeLine({
 }
 
 /**
- * Side-annotated code block (used only when annotations exist — the plain
- * code path stays with the registry, rendering through CodeShell). The dark
+ * The READ code block, with or without notes (the edit surface renders
+ * through CodeShell). Long lines wrap per line here, so a plain block never
+ * scrolls sideways either; with no notes it drops the notes column. The dark
  * panel shares the code frame's furniture — header strip, line height,
  * gutter — via the constants in classes.ts, but keeps its own per-line grid
  * so every annotated line stays a link target. The notes are a column
@@ -146,41 +147,49 @@ export function AnnotatedCodeBlock({
     return owner;
   }, [annotations, lines.length]);
 
+  const hasNotes = annotations.length > 0;
+  const pre = (
+    <pre className={CODE_ANNOTATED_PRE_CLASSES}>
+      {lines.map((line, index) => {
+        const lineNumber = index + 1;
+        const owner = lineOwner.get(lineNumber);
+        return (
+          <AnnotatedCodeLine
+            key={index}
+            lineNumber={lineNumber}
+            html={line}
+            indent={indents[index] ?? 0}
+            linkKey={owner === undefined ? null : annotations[owner].lines}
+            runStart={lineOwner.get(lineNumber - 1) !== owner}
+            runEnd={lineOwner.get(lineNumber + 1) !== owner}
+          />
+        );
+      })}
+    </pre>
+  );
+  const frame = (
+    <div
+      className={cn("group/code", CODE_BLOCK_CLASSES, hasNotes && CODE_FRAME_IN_LAYOUT_CLASSES)}
+      data-code-surface="true"
+      data-language={language}
+    >
+      <CodeBlockHeader
+        languageLabel={resolveDisplayLanguage(displayCode, language)}
+        copyText={() => displayCode}
+      />
+      {hasNotes ? (
+        <CodeNotesBody>
+          {pre}
+          <CodeNotesAside annotations={annotations} />
+        </CodeNotesBody>
+      ) : pre}
+    </div>
+  );
+  if (!hasNotes) return frame;
   return (
     <section className="not-prose" data-code-annotations={id}>
       <LinkGroup>
-        <CodeNotesLayout>
-          <div
-            className={cn("group/code", CODE_BLOCK_CLASSES, CODE_FRAME_IN_LAYOUT_CLASSES)}
-            data-code-surface="true"
-            data-language={language}
-          >
-            <CodeBlockHeader
-              languageLabel={resolveDisplayLanguage(displayCode, language)}
-              copyText={() => displayCode}
-            />
-            <CodeNotesBody>
-              <pre className={CODE_ANNOTATED_PRE_CLASSES}>
-                {lines.map((line, index) => {
-                  const lineNumber = index + 1;
-                  const owner = lineOwner.get(lineNumber);
-                  return (
-                    <AnnotatedCodeLine
-                      key={index}
-                      lineNumber={lineNumber}
-                      html={line}
-                      indent={indents[index] ?? 0}
-                      linkKey={owner === undefined ? null : annotations[owner].lines}
-                      runStart={lineOwner.get(lineNumber - 1) !== owner}
-                      runEnd={lineOwner.get(lineNumber + 1) !== owner}
-                    />
-                  );
-                })}
-              </pre>
-              <CodeNotesAside annotations={annotations} />
-            </CodeNotesBody>
-          </div>
-        </CodeNotesLayout>
+        <CodeNotesLayout>{frame}</CodeNotesLayout>
       </LinkGroup>
     </section>
   );

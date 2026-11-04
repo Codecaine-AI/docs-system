@@ -397,7 +397,7 @@ describe("code — optional props.annotations", () => {
     expect(html).not.toContain("malformed");
   });
 
-  it("keeps the plain pre path when annotations are absent or entirely malformed", () => {
+  it("renders plain code with no notes column when annotations are absent or entirely malformed, one wrapping row per line", () => {
     for (const props of [
       {},
       { annotations: [] },
@@ -408,9 +408,12 @@ describe("code — optional props.annotations", () => {
       const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
       expect(html).toContain('data-doc-block="code"');
       expect(html).not.toContain("data-code-annotations");
+      expect(html).not.toContain("data-code-layout");
       expect(html).toContain("<pre");
       expect(html).toContain("const a = 1;");
-      expect(html).toContain('class="hljs"');
+      // Each line is its own row whose text cell wraps, so a long line never scrolls the panel sideways.
+      expect(html).toContain('data-code-line="1"');
+      expect(html).toMatch(/<code class="hljs [^"]*whitespace-pre-wrap/);
     }
   });
 });
@@ -438,9 +441,9 @@ describe("code — syntax highlighting on the plain path", () => {
   it("pretty-prints one-liner JSON into nested form (display only) with tokens", () => {
     const doc = codeDoc('{"name":"app","ok":true}', { language: "json" });
     const html = renderToStaticMarkup(createElement(DocBlockRenderer, { document: doc }));
-    const text = html.replace(/<[^>]+>/g, "");
-    // Nested multi-line structure, never the one-liner (hljs escapes quotes).
-    expect(text).toContain("{\n  &quot;name&quot;: &quot;app&quot;,\n  &quot;ok&quot;: true\n}");
+    // Nested multi-line structure, never the one-liner: one row per displayed line (hljs escapes quotes).
+    const rows = [...html.matchAll(/<code class="hljs[^"]*"[^>]*>(.*?)<\/code>/g)].map((m) => m[1]!.replace(/<[^>]+>/g, ""));
+    expect(rows).toEqual(["{", "  &quot;name&quot;: &quot;app&quot;,", "  &quot;ok&quot;: true", "}"]);
     expect(html).toContain("hljs-attr");
   });
 
