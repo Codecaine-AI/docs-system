@@ -169,6 +169,12 @@ export function createInteractionService(options: { managed?: boolean; projectId
    treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
+  // A root that no workspace lists any more (a project removed or renamed since its last scan) releases its watcher and its tree index.
+  if(options.watchFs){
+   const live=new Set<string>();
+   for(const ids of workspaces.values())for(const id of ids){const root=projects.get(id)?.docsRoot;if(root)live.add(root);}
+   for(const [root,watcher] of watchers)if(!live.has(root)){watcher.close();watchers.delete(root);treeWatches.get(root)?.();treeWatches.delete(root);}
+  }
   const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
   const signatures=new Map<string,string>();
   for(const path of paths)signatures.set(path,await signature(path,since));

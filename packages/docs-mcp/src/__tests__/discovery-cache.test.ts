@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as discovery from "../discovery";
 import { createInteractionService } from "../service";
+import { treeIndex } from "@codecaine-ai/docs-server/store";
 
 // The discovery cache rule (service.ts): one scan per workspace, reused until a manifest or the registry's
 // listing changes; docs_discover always rescans. These tests count discoverProjects calls through a spy and
@@ -230,5 +231,25 @@ test("a project that appears below an unmatched folder of a nested glob is found
     expect(scans).toHaveBeenCalledTimes(2);
   } finally {
     await rm(nested, { recursive: true, force: true });
+  }
+});
+
+test("a project dropped from the workspace releases its watcher and its tree index on the next docs_discover", async () => {
+  const watched = createInteractionService({ judgmentEngine: null, managed: true, registryFile, watchFs: true });
+  const call = (name: string, args: Record<string, unknown> = {}) => watched.call(workspace, name, args).then(r => r.structuredContent as Record<string, any>);
+  try {
+    const found = await call("docs_discover");
+    const alphaRoot = found.projects[0].docsRoot as string;
+    expect(treeIndex.isWatched(alphaRoot)).toBe(true);
+    await mkdir(join(workspace, "beta", "docs", "page"), { recursive: true });
+    await writeFile(join(workspace, "beta", "docs", "page", "doc.json"), JSON.stringify(page));
+    await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "beta" }]));
+    await settle();
+    const again = await call("docs_discover");
+    expect(again.projects.map((p: Record<string, unknown>) => p.docsRoot)).not.toContain(alphaRoot);
+    expect(treeIndex.isWatched(alphaRoot)).toBe(false);
+    expect(treeIndex.isWatched(again.projects[0].docsRoot)).toBe(true);
+  } finally {
+    watched.close();
   }
 });
