@@ -42,7 +42,8 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   `> **INFO: Heads up** — body text`. Always greppable on the leading
  *   `> **<label>` token (e.g. `grep '> \*\*Decision'`). Legacy semantic
  *   blocks coerce to callouts carrying their old type as `kind` (see
- *   doc-schema.ts), so this one projection covers them all.
+ *   doc-schema.ts), so this one projection covers them all. Child blocks
+ *   follow inside the same quote.
  * - `structured-table` -> optional `**<title>**` bold line, then a markdown
  *   pipe table built from `props.columns: string[]` / `props.rows:
  *   string[][]` (header row, `---` separator row, one line per row).
@@ -120,7 +121,13 @@ export function projectToMarkdown(doc: DocDocument): string {
       return;
     }
 
+    const start = lines.length;
     walkChildren(block.children, 0);
+    // A callout's children sit inside its quote, as the read page draws them inside its box.
+    if (block.type === "callout" && ownLines !== null && lines.length > start) {
+      const quoted = lines.splice(start).map((line) => line.split("\n").map((l) => (l ? `> ${l}` : ">")).join("\n"));
+      lines[start - 1] = [lines[start - 1], ...quoted].join("\n>\n");
+    }
   };
 
   /**

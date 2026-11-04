@@ -7,6 +7,7 @@ import {
   InfoIcon,
   OctagonAlertIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import {
   DocsMdxBlock,
   type DocsMdxBlockRenderContext,
@@ -32,6 +33,8 @@ type CalloutData = {
   kind?: string;
   title?: string;
   body: string;
+  /** The callout's child blocks (a rule list under its lead). They render inside the body, never below the box. */
+  nested?: ReactNode;
 };
 
 /**
@@ -245,9 +248,10 @@ export class CalloutDocsBlock extends DocsMdxBlock<CalloutData> {
             </span>
           )}
         </div>
-        {data.body && (
+        {(data.body || data.nested) && (
           <div data-callout-body="true" className={CALLOUT_BODY_CLASSES}>
-            {ctx.renderMarkdown(data.body)}
+            {data.body && ctx.renderMarkdown(data.body)}
+            {data.nested}
           </div>
         )}
       </aside>

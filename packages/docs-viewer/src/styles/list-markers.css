@@ -12,6 +12,9 @@
   height: 1.7em;
   height: 1lh;
   line-height: inherit;
+  /* A number never splits from its period, even in a body that wraps anywhere (a callout's). */
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 /*

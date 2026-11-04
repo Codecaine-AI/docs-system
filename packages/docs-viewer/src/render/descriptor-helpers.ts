@@ -68,6 +68,8 @@ type MdxAdapterOptions = {
   type: DocBlockType;
   block: DocsMdxBlock<any>;
   data: (block: DocBlock, body: string) => Record<string, unknown>;
+  /** Pass the child blocks to the block as `data.nested`, so it draws them inside its own frame. */
+  nestChildren?: boolean;
 };
 
 export function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescriptor {
@@ -80,13 +82,15 @@ export function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescri
     patchOps: TEXT_OPS,
     render: (block, ctx) => {
       const body = deltaToMarkdown(block.text);
+      const children = ctx.renderChildren(block);
+      const data = options.data(block, body);
       const rendered = mdxBlock.render(
         {
           tag: mdxBlock.tag,
           type: mdxBlock.type,
           targetKind: mdxBlock.targetKind,
           sourceId: block.id,
-          data: options.data(block, body),
+          data: options.nestChildren ? { ...data, nested: children } : data,
         },
         { renderMarkdown: ctx.renderMarkdown },
       );
@@ -94,7 +98,7 @@ export function mdxAdapterDescriptor(options: MdxAdapterOptions): DocBlockDescri
         "div",
         { key: block.id, ...blockAttrs(block) },
         rendered,
-        ctx.renderChildren(block),
+        options.nestChildren ? null : children,
       );
     },
   };

@@ -45,6 +45,28 @@ function loadFixture() {
   return result.document;
 }
 
+describe("DocBlockRenderer — callout children", () => {
+  it("draws a callout's child list inside the callout box, and the next block outside it", () => {
+    const block = (id: string, extra: Record<string, unknown>) => ({ id, type: "paragraph", props: {}, children: [], ...extra });
+    const result = validateDocDocument({
+      schemaVersion: 1,
+      id: "doc-callout-children",
+      root: "root",
+      blocks: {
+        root: block("root", { children: ["c", "after"] }),
+        c: block("c", { type: "callout", props: { tone: "warning", title: "Rules" }, text: [{ insert: "Two rules." }], children: ["r1"] }),
+        r1: block("r1", { type: "list-item", props: { ordered: true }, text: [{ insert: "First rule." }] }),
+        after: block("after", { text: [{ insert: "After the callout." }] }),
+      },
+    });
+    if (!result.ok) throw new Error(JSON.stringify(result.issues));
+    render(<DocBlockRenderer document={result.document} />);
+    const box = document.querySelector('[data-docs-block-type="callout"]')!;
+    expect(box.querySelector("[data-callout-body]")?.textContent).toContain("First rule.");
+    expect(box.textContent).not.toContain("After the callout.");
+  });
+});
+
 describe("DocBlockRenderer", () => {
   it("fixture is schema-valid and covers its established v1 block types", () => {
     const doc = loadFixture();
