@@ -227,15 +227,17 @@ describe("docs_check judged gate", () => {
 });
 
 describe("claims to check", () => {
-  test("a passing docs_check lists the absolute sentences the task wrote, and never fails on them", async () => {
+  test("a write lists the absolute sentences it wrote, and docs_check neither lists nor fails on them", async () => {
     const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: "The table lists every status code. Saves take a lock." }, task);
     expect(written.ok).toBe(true);
+    // Only the sentence this write changed is listed: the untouched intro and legacy blocks are not.
+    expect(written.claims_to_check).toEqual(["The table lists every status code."]);
+    expect(written.next).toContain("Check each sentence in claims_to_check against the source now");
+    // A write that leaves the claim unchanged lists nothing.
+    const intro = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: written.hash, markdown: "The table lists every status code. Saves take a lock." }, task);
+    expect("claims_to_check" in intro).toBe(false);
     const checked = await call("docs_check", { path: "page" }, task);
     expect(checked.ok).toBe(true);
-    // The untouched intro and legacy blocks predate the task, so only the new sentence is listed.
-    expect(checked.claims_to_check).toEqual(["The table lists every status code."]);
-    expect(checked.next).toContain("check each sentence in claims_to_check against the source");
-    // Without a task there is no baseline, so there is no list.
-    expect("claims_to_check" in (await call("docs_check", { path: "page" }))).toBe(false);
+    expect("claims_to_check" in checked).toBe(false);
   });
 });

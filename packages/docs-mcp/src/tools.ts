@@ -101,13 +101,14 @@ function failure(detail: string, status = 400): Record<string, unknown> { return
 /** Words that claim a whole set. Match the Source asks the writer to check each one against the source. */
 const ABSOLUTE_WORD = /\b(?:every|all|only|never|always|nothing)\b/i;
 const CLAIMS_LIMIT = 8;
-const CLAIMS_NEXT = "Before docs_end, check each sentence in claims_to_check against the source. Where no source line proves the whole set, name the condition or narrow the claim, as Match the Source says. This list never fails docs_check.";
+const CLAIMS_NEXT = "Check each sentence in claims_to_check against the source now. Where no source line proves the whole set, name the condition or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
 const blockText = (block: DocDocument["blocks"][string] | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
 
 /**
- * The sentences with an absolute word in the text blocks this task wrote or
- * changed (every block when the task made the page). docs_check lists them so
- * the writer checks each claim once, at the end, against the source.
+ * The sentences with an absolute word in the text blocks a write changed
+ * (every block when the write made the page). The write result lists them, so
+ * the writer checks each claim while the page is still open for edits, and the
+ * final docs_check stays one call.
  */
 export function claimsToCheck(doc: DocDocument, baseline: DocDocument | null): string[] {
   const claims: string[] = [];
@@ -242,8 +243,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine })
       : undefined;
     const open = docWrite ? openStyleGate(docWrite, path, result.doc) : 0;
+    const claims = docWrite && docWrite.before !== undefined ? claimsToCheck(result.doc, docWrite.before) : [];
+    const next = nextHint(style !== undefined, open);
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
-    return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}), next: nextHint(style !== undefined, open),
+    return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
+      ...(claims.length ? { claims_to_check: claims } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
       path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
   }
   /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
@@ -300,7 +304,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const fixed = await apply(store, args, ops, ctx, result.doc);
       return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
     }),
-    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails. A passing check with task_id lists claims_to_check: sentences the task wrote with every, all, only, never, always, or nothing, to check against the source.", obj(target), async (args, store, ctx) => {
+    tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
       if (!result.ok) return result;
       const lint = lintDocument(result.doc, { phase: "complete" });
@@ -330,9 +334,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       if (judged?.available) style_gate!.push(...judged.gate);
       // An unreadable block always fails: the page cannot load it, whoever broke it.
       const ok = lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length;
-      // A passing check is the writer's last step, so it carries the claims to check against the source.
-      const claims = ok && baseline !== undefined ? claimsToCheck(result.doc, baseline) : [];
-      return { ok, ...(claims.length ? { claims_to_check: claims, next: CLAIMS_NEXT } : {}), structurally_valid: true, hash: result.hash, lint, components,
+      return { ok, structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
     tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
