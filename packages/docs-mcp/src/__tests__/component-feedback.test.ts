@@ -117,6 +117,20 @@ describe("component feedback", () => {
     expect(checked.ok).toBe(true);
   });
 
+  test("creating a sequence sidecar the lints flag returns their warnings, saves it, and docs_check still passes", async () => {
+    tools = createDocsTools({ ...context, sequenceLinter: crossedColumns });
+    const participants = ["client", "gateway", "cache", "service"].map((name) => ({ id: name, name, kind: "participant" }));
+    const document = { version: 1, id: "wide", title: "Wide", style: {}, participants,
+      items: [{ kind: "message", id: "m1", from: "client", to: "service", line: "sync", text: "request" }] };
+    const read = await call("docs_read", {});
+    const created = await call("docs_component_create", { expected_hash: read.hash, component: "sequence", src: "./assets/sequences/wide.sequence.json", document }, task);
+    expect(created.ok).toBe(true);
+    expect(created.component_findings).toEqual({ shown: [{ rule: "crossed-columns", severity: "warning", at: ["m1"], problem: '"request" crosses 2 other columns.' }], omitted: 0 });
+    expect(created.next).toContain("never block");
+    expect(JSON.parse(await readFile(join(temp, "page/assets/sequences/wide.sequence.json"), "utf8")).participants).toHaveLength(4);
+    expect((await call("docs_check", {}, task)).ok).toBe(true);
+  });
+
   test("without lintSequence in the sequence package, a sequence edit and docs_check carry no lint findings and no error", async () => {
     tools = createDocsTools({ ...context, sequenceLinter: null });
     const saved = await call("docs_sequence_set_program", { ...await hashes("flow"), params: { program: CROSSING_PROGRAM } }, task);
