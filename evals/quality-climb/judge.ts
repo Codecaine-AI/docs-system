@@ -7,7 +7,7 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { PAGE_CATEGORIES, JudgeReplySchema, parseJudgeReply, type Brief, type JudgeReply } from "./schema";
 import type { PageBlock } from "./render";
-import { REPO, authSettings, cleanEnv, sourcePaths } from "./write";
+import { REPO, authSettings, cleanEnv, freezeSources, sourcePaths } from "./write";
 
 export interface Packet { brief: Brief; png: string; markdown: string; blocks: PageBlock[] }
 type Adapter = (prompt: string, packet: Packet, workDir: string) => Promise<string>;
@@ -126,6 +126,7 @@ export const JUDGES: Record<string, Adapter> = {
 export async function judgePage(judge: string, packet: Packet, pageDir: string): Promise<JudgeReply> {
   const adapter = JUDGES[judge];
   if (!adapter) throw new Error(`Unknown judge ${judge}. Use one of: ${Object.keys(JUDGES).join(", ")}`);
+  await freezeSources([packet.brief]);
   const workDir = join(pageDir, "scores", `${judge}-work`);
   await mkdir(workDir, { recursive: true });
   const ids = packet.blocks.map((b) => b.id);

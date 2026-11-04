@@ -6,6 +6,7 @@ import { join, resolve } from "node:path";
 import { publishable } from "./assets";
 import { LOCAL_BRIEFS_ENV, loadBriefs } from "./briefs";
 import { BLOCK_GROUPS, SETS, type Brief } from "./schema";
+import { freezeSources, sourcePaths } from "./write";
 
 const repo = resolve(import.meta.dir, "../..");
 const localPath = process.env[LOCAL_BRIEFS_ENV];
@@ -56,7 +57,8 @@ test("a local brief is marked local, is never publishable, and cannot reuse a re
   }
 });
 
-test("every source file a brief names exists", () => {
-  const missing = briefs.flatMap((b) => b.sources.map((s) => resolve(repo, s))).filter((p) => !existsSync(p));
+test("every source file a brief names exists at the round 0 commit", async () => {
+  await freezeSources(briefs);
+  const missing = briefs.flatMap(sourcePaths).filter((p) => !existsSync(p));
   expect(missing).toEqual([]);
 });

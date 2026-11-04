@@ -1,9 +1,10 @@
 // The fixed writer: one Claude Code run per brief (Opus 5.5, medium effort) that writes one new page
-// in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files.
+// in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files as of SOURCE_REF.
 import { existsSync } from "node:fs";
 import { mkdir, readFile, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
+import { $ } from "bun";
 import type { Brief } from "./schema";
 
 export const REPO = resolve(import.meta.dir, "../..");
@@ -62,8 +63,23 @@ export async function docsMcpEnv(stateDir: string): Promise<Record<string, strin
   return { ...env, CODECAINE_DOCS_PACKAGE_ROOT: join(core, "docs-system/packages/docs-mcp") };
 }
 
-/** Every source as an absolute path. Repo sources are relative to the repo root. */
-export const sourcePaths = (brief: Brief) => brief.sources.map((s) => resolve(REPO, s));
+/**
+ * The round 0 commit. Writers and judges read every repo source from it, so the climb's own commits never
+ * change what a brief describes. It shares the lint-ref snapshot folder.
+ */
+export const SOURCE_REF = "8003057f06cdadef049ee61ec8817ee943ee4198";
+export const SOURCE_ROOT = join(REPO, ".tmp/quality-climb/lint-rules", SOURCE_REF);
+
+/** Every source as an absolute path. Repo sources are relative to the repo root at SOURCE_REF. Absolute sources stay as they are. */
+export const sourcePaths = (brief: Brief) => brief.sources.map((s) => resolve(SOURCE_ROOT, s));
+
+/** Unpacks each repo source of `briefs` that the snapshot lacks from SOURCE_REF. */
+export async function freezeSources(briefs: Brief[]): Promise<void> {
+  const missing = [...new Set(briefs.flatMap((b) => b.sources).filter((s) => !isAbsolute(s) && !existsSync(join(SOURCE_ROOT, s))))];
+  if (missing.length === 0) return;
+  await mkdir(SOURCE_ROOT, { recursive: true });
+  await $`git -C ${REPO} archive ${SOURCE_REF} ${missing} | tar -x -f - -C ${SOURCE_ROOT}`.quiet();
+}
 export const pagePath = (pageDir: string, brief: Brief) => join(pageDir, "corpus/docs", brief.slug, "doc.json");
 
 function writerPrompt(brief: Brief): string {
@@ -109,6 +125,7 @@ export function parseTranscript(jsonl: string): Omit<WriterMetrics, "briefId" | 
 
 /** Makes the brief's scratch corpus in `pageDir`, runs the writer, and saves writer.jsonl and metrics.json. */
 export async function writePage(brief: Brief, pageDir: string, stateDir: string, settingsArgs: string[]): Promise<WriterMetrics> {
+  await freezeSources([brief]);
   const corpus = join(pageDir, "corpus");
   await mkdir(join(corpus, "docs"), { recursive: true });
   await writeFile(join(corpus, "codecaine.docs.json"), JSON.stringify({ id: `quality-climb-${brief.slug}`, name: brief.title, kind: "core", docsRoot: "docs", products: ["docs"] }, null, 2));

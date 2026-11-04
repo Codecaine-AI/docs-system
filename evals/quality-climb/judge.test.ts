@@ -1,11 +1,12 @@
 import { expect, test } from "bun:test";
 import { mkdtemp, readFile } from "node:fs/promises";
+import { $ } from "bun";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import briefs from "./briefs.json";
 import { judgePage, judgePrompt, type Packet } from "./judge";
 import { parseJudgeReply, PAGE_CATEGORIES, type Brief } from "./schema";
-import { parseTranscript } from "./write";
+import { REPO, SOURCE_REF, SOURCE_ROOT, freezeSources, parseTranscript, sourcePaths } from "./write";
 
 const packet: Packet = {
   brief: (briefs as Brief[])[0]!,
@@ -30,6 +31,24 @@ test("the judge prompt carries the brief, sources, PNG and blocks, and never a t
   expect(prompt).toContain("/tmp/page.png");
   expect(prompt).toContain("`shape` (state-shape)");
   expect(prompt).not.toMatch(/9\.5|target score|threshold/i);
+});
+
+test("a brief's repo sources resolve to the round 0 snapshot, not the worktree", async () => {
+  const brief = (briefs as Brief[]).find((b) => b.id === 3)!;
+  await freezeSources([brief]);
+  const paths = sourcePaths(brief);
+  expect(paths).toEqual(brief.sources.map((s) => join(SOURCE_ROOT, s)));
+  for (const [i, path] of paths.entries()) {
+    expect(path.startsWith(`${REPO}/packages/`)).toBe(false);
+    expect(await readFile(path, "utf8")).toBe(await $`git -C ${REPO} show ${SOURCE_REF}:${brief.sources[i]!}`.text());
+  }
+  const prompt = await judgePrompt({ ...packet, brief });
+  expect(prompt).toContain(join(SOURCE_ROOT, "packages/docs-server/src/routes.ts"));
+  expect(prompt).not.toContain(join(REPO, "packages/docs-server/src/routes.ts"));
+});
+
+test("an absolute source, such as a local brief's, stays as it is", () => {
+  expect(sourcePaths({ ...packet.brief, sources: ["/elsewhere/doc.json"] })).toEqual(["/elsewhere/doc.json"]);
 });
 
 test("the fake judge saves a valid score file for every block", async () => {
