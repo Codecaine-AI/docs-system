@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile, stat } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { DocDocument } from '@codecaine-ai/docs-model';
 import { createDocsStore, treeIndex } from '@codecaine-ai/docs-server/store';
 import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
@@ -43,7 +43,7 @@ function durationSetting(name:string,fallback:number):number{
 }
 /** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). codeThemesRoot: the central code-theme folder (`/api/code-themes`). */
 /** judgmentEngine: Jev by default. It reads CODECAINE_DOCS_JUDGMENT on every call, so =off disables it without a restart. Pass null for none. */
-/** registryFile: the supervisor's projects.json. A rewrite that no longer lists a cached workspace's projects unchanged drops that workspace's discovery (see the discovery cache rule). */
+/** registryFile: the supervisor's projects.json. A rewrite that no longer lists a cached workspace's projects unchanged, or lists a project under it that its discovery lacks, drops that workspace's discovery (see the discovery cache rule). */
 /** Tasks expire after taskIdleMs without a call naming them (CODECAINE_DOCS_TASK_IDLE_MS, default 30 min) or taskMaxAgeMs after docs_begin (CODECAINE_DOCS_TASK_MAX_AGE_MS, default 12 h); a task inside a call never expires. now, maxTasks and maxRetired (tombstones kept, default 5,000) are for tests. */
 export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; registryFile?: string; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string; judgmentEngine?: JudgmentEngine | null; now?: () => number; taskIdleMs?: number; taskMaxAgeMs?: number; maxTasks?: number; maxRetired?: number } = {}) {
  const startupFingerprint=options.managed && process.env.CODECAINE_DOCS_BUILD ? Promise.resolve(process.env.CODECAINE_DOCS_BUILD) : implementationFingerprint();
@@ -113,15 +113,18 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /**
   * The discovery cache rule. A workspace's discovery is reused while the manifests it was read from
   * (codecaine.docs.json, members.json and package.json at the workspace and at each discovered project
-  * root) are unchanged, and while the registry, each time it is rewritten, still lists each of its
-  * projects unchanged. docs_discover always rescans, and a workspace never seen is scanned on first use.
-  * Nothing else scans: one discoverProjects on the knowledge base costs 4 s of CPU, and it used to run
-  * on every tool call.
+  * root) and the folders it looked for projects in (Discovery.folders: the workspace, each declared and
+  * glob-matched folder and its ancestors, each glob's static prefix such as packages/) are unchanged, and
+  * while the registry, each time it is rewritten, still lists each of its projects unchanged and lists no
+  * project under the workspace that it lacks. A new folder under a glob or a manifest added to a matched
+  * folder changes a folder's mtime. docs_discover always rescans, and a workspace never seen is scanned
+  * on first use. Nothing else scans: one discoverProjects on the knowledge base costs 4 s of CPU, and it
+  * used to run on every tool call. A call stats each signed file and folder once, about 85 for 20 projects.
   */
  const MANIFESTS=['codecaine.docs.json','members.json','package.json'];
- type CachedDiscovery={discovery:Discovery,manifests:Map<string,string>};
+ type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
  const discoveries=new Map<string,{pending:Promise<CachedDiscovery>,settled?:CachedDiscovery}>();
- /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. */
+ /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. */
  const signature=async(file:string)=>{try{const s=await stat(file);return `${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
  async function manifestSignatures(folders:Iterable<string>,into=new Map<string,string>()){
   for(const folder of folders)for(const name of MANIFESTS){const file=join(folder,name);if(!into.has(file))into.set(file,await signature(file));}
@@ -129,7 +132,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
  let registrySignature:string|undefined;
- /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged. The supervisor rewrites it after each docs_discover with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
+ /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged, and every one that lacks a project the registry lists under its workspace. The supervisor rewrites it after each docs_discover with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
  async function dropDisowned(){
   if(!options.registryFile)return;
   const current=await signature(options.registryFile);
@@ -137,10 +140,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
   registrySignature=current;
   const listed=new Map<string,string>();
   try{for(const p of (JSON.parse(await readFile(options.registryFile,'utf8')).projects??[]) as DocsProject[])listed.set(p.docsRoot,projectKey(p));}catch{return;}
-  for(const [key,entry] of discoveries)if(entry.settled&&!entry.settled.discovery.projects.every(p=>listed.get(p.docsRoot)===projectKey(p)))discoveries.delete(key);
+  for(const [key,entry] of discoveries){
+   if(!entry.settled)continue;
+   const {workspace,projects:cached}=entry.settled.discovery;const have=new Set(cached.map(p=>p.docsRoot));
+   const under=(docsRoot:string)=>{const path=relative(workspace,docsRoot);return path!==''&&!path.startsWith('..')&&!isAbsolute(path);};
+   if(!cached.every(p=>listed.get(p.docsRoot)===projectKey(p))||[...listed.keys()].some(docsRoot=>!have.has(docsRoot)&&under(docsRoot)))discoveries.delete(key);
+  }
  }
  async function fresh(entry:CachedDiscovery){
-  for(const [file,sig] of entry.manifests)if(await signature(file)!==sig)return false;
+  for(const [file,sig] of entry.signatures)if(await signature(file)!==sig)return false;
   return true;
  }
  /** One scan: the workspace's manifests are signed before it so a change during the scan shows on the next call. */
@@ -157,7 +165,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
    treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
-  return {discovery,manifests:await manifestSignatures([discovery.workspace,...discovery.projects.map(p=>p.root)],manifests)};
+  const signatures=await manifestSignatures([discovery.workspace,...discovery.projects.map(p=>p.root)],manifests);
+  for(const folder of discovery.folders)if(!signatures.has(folder))signatures.set(folder,await signature(folder));
+  return {discovery,signatures};
  }
  /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (docs_discover). Concurrent first calls share one scan. */
  async function discover(workspace:string,rescan=false):Promise<Discovery>{
@@ -191,7 +201,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
    // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
    await textMeasureReady();
    const discovery=await discover(name==='docs_discover' && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_discover');
-   if(name==='docs_discover')return reply({ok:true,...discovery,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
+   if(name==='docs_discover')return reply({ok:true,workspace:discovery.workspace,projects:discovery.projects,warnings:discovery.warnings,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
    if(name==='docs_begin'){
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed. Stop and restart the Docs service before beginning a new task.');
     if(tasks.size>=maxTasks){

@@ -102,3 +102,56 @@ test("a registry rewrite drops only a discovery the registry no longer lists unc
   expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
   expect(scans).toHaveBeenCalledTimes(3);
 });
+
+/** A workspace whose package.json globs packages/* and holds one project, packages/alpha. */
+async function globWorkspace() {
+  const root = await realpath(await mkdtemp(join(tmpdir(), "docs-discovery-cache-glob-")));
+  await writeFile(join(root, "package.json"), JSON.stringify({ workspaces: ["packages/*"] }));
+  await mkdir(join(root, "packages", "alpha", "docs", "page"), { recursive: true });
+  await writeFile(join(root, "packages", "alpha", "docs", "page", "doc.json"), JSON.stringify(page));
+  return root;
+}
+
+test("a project that appears under a workspace glob is found on the next call without docs_discover", async () => {
+  const globbed = await globWorkspace();
+  try {
+    // gamma matches the glob but has no corpus at its default docs root, so it is not a project yet.
+    await mkdir(join(globbed, "packages", "gamma", "notes", "page"), { recursive: true });
+    await writeFile(join(globbed, "packages", "gamma", "notes", "page", "doc.json"), JSON.stringify(page));
+    const alpha = (await invoke(globbed, "docs_discover")).projects[0].id as string;
+    expect((await invoke(globbed, "docs_tree", { project: alpha })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(1);
+    // A new sibling folder with a manifest: the glob's prefix folder packages/ changes.
+    await mkdir(join(globbed, "packages", "beta", "docs", "page"), { recursive: true });
+    await writeFile(join(globbed, "packages", "beta", "docs", "page", "doc.json"), JSON.stringify(page));
+    await writeFile(join(globbed, "packages", "beta", "codecaine.docs.json"), JSON.stringify({ name: "beta" }));
+    const beta = projectId("beta", join(globbed, "packages", "beta", "docs"));
+    expect((await invoke(globbed, "docs_tree", { project: beta })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(2);
+    // A manifest added to a folder the glob already matched: that folder changes.
+    await writeFile(join(globbed, "packages", "gamma", "codecaine.docs.json"), JSON.stringify({ name: "gamma", docsRoot: "notes" }));
+    const gamma = projectId("gamma", join(globbed, "packages", "gamma", "notes"));
+    expect((await invoke(globbed, "docs_tree", { project: gamma })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(3);
+    expect((await invoke(globbed, "docs_tree", { project: alpha })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(3);
+  } finally {
+    await rm(globbed, { recursive: true, force: true });
+  }
+});
+
+test("a registry rewrite that lists a new project under a cached workspace drops that workspace, once per rewrite", async () => {
+  // gamma is declared but its docs folder is empty: a doc.json written inside changes no signed folder or manifest.
+  await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
+  await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
+  const found = await invoke(workspace, "docs_discover");
+  expect(found.projects.map((p: any) => p.name)).toEqual(["alpha"]);
+  await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
+  const gamma = { id: projectId("gamma", join(workspace, "gamma", "docs")), name: "gamma", root: join(workspace, "gamma"), docsRoot: join(workspace, "gamma", "docs"), products: ["docs"] };
+  // Another client's docs_discover rewrites the registry with gamma.
+  await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [...found.projects, gamma] }));
+  expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
+  expect(scans).toHaveBeenCalledTimes(2);
+  expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
+  expect(scans).toHaveBeenCalledTimes(2);
+});
