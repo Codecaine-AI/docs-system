@@ -49,17 +49,17 @@ export async function authSettings(dir: string): Promise<string[]> {
 }
 
 /**
- * The environment that runs this worktree's docs MCP and daemon in their own state folder.
+ * The environment that runs the docs MCP and daemon of `root` (this worktree by default) in their own state folder.
  * The daemon reads sibling Core repos at docs-mcp/../../.. (canvas, sequence, annotations). A worktree outside
  * a Core checkout gets that layout as symlinks to its own repo and its external/ submodules.
  */
-export async function docsMcpEnv(stateDir: string): Promise<Record<string, string>> {
+export async function docsMcpEnv(stateDir: string, root = REPO): Promise<Record<string, string>> {
   const env: Record<string, string> = { CODECAINE_DOCS_STATE_DIR: stateDir };
-  if (existsSync(join(REPO, "../canvas/packages/canvas"))) return env;
-  const core = join(REPO, ".tmp/quality-climb/core-layout");
+  if (existsSync(join(root, "../canvas/packages/canvas"))) return env;
+  const core = join(root, ".tmp/quality-climb/core-layout");
   await mkdir(core, { recursive: true });
-  const links: Record<string, string> = { "docs-system": REPO, canvas: "external/canvas", sequence: "external/sequence", annotations: "external/annotations" };
-  for (const [name, target] of Object.entries(links)) if (!existsSync(join(core, name))) await symlink(resolve(REPO, target), join(core, name));
+  const links: Record<string, string> = { "docs-system": root, canvas: "external/canvas", sequence: "external/sequence", annotations: "external/annotations" };
+  for (const [name, target] of Object.entries(links)) if (!existsSync(join(core, name))) await symlink(resolve(root, target), join(core, name));
   return { ...env, CODECAINE_DOCS_PACKAGE_ROOT: join(core, "docs-system/packages/docs-mcp") };
 }
 
@@ -123,8 +123,11 @@ export function parseTranscript(jsonl: string): Omit<WriterMetrics, "briefId" | 
   };
 }
 
-/** Makes the brief's scratch corpus in `pageDir`, runs the writer, and saves writer.jsonl and metrics.json. */
-export async function writePage(brief: Brief, pageDir: string, stateDir: string, settingsArgs: string[]): Promise<WriterMetrics> {
+/**
+ * Makes the brief's scratch corpus in `pageDir`, runs the writer, and saves writer.jsonl and metrics.json.
+ * `systemRoot` is the Docs System checkout whose docs MCP and themes the writer uses (this worktree by default).
+ */
+export async function writePage(brief: Brief, pageDir: string, stateDir: string, settingsArgs: string[], systemRoot = REPO): Promise<WriterMetrics> {
   await freezeSources([brief]);
   const corpus = join(pageDir, "corpus");
   await mkdir(join(corpus, "docs"), { recursive: true });
@@ -132,12 +135,12 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   // Discovery finds a project only when its docs root holds a bundle: seed an empty root page.
   const root = { schemaVersion: 1, id: "doc-quality-climb-root", title: "Quality Climb", root: "root", blocks: { root: { id: "root", type: "paragraph", props: {}, children: [] } } };
   await writeFile(join(corpus, "docs/doc.json"), JSON.stringify(root, null, 2));
-  if (!existsSync(join(corpus, "themes"))) await symlink(join(REPO, "themes"), join(corpus, "themes"));
+  if (!existsSync(join(corpus, "themes"))) await symlink(join(systemRoot, "themes"), join(corpus, "themes"));
   const mcpConfig = join(pageDir, "mcp.json");
   await writeFile(mcpConfig, JSON.stringify({ mcpServers: { "docs-system": {
     type: "stdio", command: process.execPath,
-    args: [join(REPO, "packages/docs-mcp/src/cli.ts"), "mcp", "--workspace", corpus],
-    env: await docsMcpEnv(stateDir),
+    args: [join(systemRoot, "packages/docs-mcp/src/cli.ts"), "mcp", "--workspace", corpus],
+    env: await docsMcpEnv(stateDir, systemRoot),
   } } }, null, 2));
 
   const sourceDirs = [...new Set(sourcePaths(brief).map((p) => dirname(p)))];

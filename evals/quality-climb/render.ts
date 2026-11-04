@@ -86,14 +86,17 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<v
   }
 }
 
-/** Renders the brief's page in `pageDir` to page.png, page.md, blocks.json and lint.json. `rebuild` rebuilds the viewer SPA first. */
-export async function renderPage(brief: Brief, pageDir: string, rules: { root: string; label: string }, rebuild: boolean) {
+/**
+ * Renders the brief's page in `pageDir` to page.png, page.md, blocks.json and lint.json. `rebuild` rebuilds the viewer SPA first.
+ * `systemRoot` is the Docs System checkout that exports the page (this worktree by default).
+ */
+export async function renderPage(brief: Brief, pageDir: string, rules: { root: string; label: string }, rebuild: boolean, systemRoot = REPO) {
   const siteDir = join(pageDir, "site");
   const emptyThemes = join(pageDir, "no-global-theme");
   await mkdir(emptyThemes, { recursive: true });
   // No global theme: the export snapshots the repo's own default theme, which the climb may change.
-  const exported = await $`bun ${join(REPO, "packages/docs-cli/src/index.ts")} export --root ${join(pageDir, "corpus/docs")} --out ${siteDir} ${rebuild ? ["--rebuild"] : []}`
-    .env({ ...process.env, CODECAINE_DOCS_GLOBAL_THEMES: emptyThemes } as Record<string, string>).cwd(REPO).quiet().nothrow();
+  const exported = await $`bun ${join(systemRoot, "packages/docs-cli/src/index.ts")} export --root ${join(pageDir, "corpus/docs")} --out ${siteDir} ${rebuild ? ["--rebuild"] : []}`
+    .env({ ...process.env, CODECAINE_DOCS_GLOBAL_THEMES: emptyThemes } as Record<string, string>).cwd(systemRoot).quiet().nothrow();
   if (exported.exitCode !== 0) throw new Error(`Export failed for brief ${brief.id}: ${exported.stderr.toString()}`);
   const docJson = pagePath(pageDir, brief);
   const doc = JSON.parse(await readFile(docJson, "utf8")) as DocDocument;

@@ -1,12 +1,14 @@
 // One round of the quality climb: write, render, judge, then gate.
 //   bun evals/quality-climb/round.ts --round <n> [--set climb|held-out|all] [--judges fake|sol,opus] [--briefs 1,2]
-//     [--counting sol,opus] [--baseline 0] [--lint-ref <git ref>] [--skip-tests] [--concurrency 3]
+//     [--counting sol,opus] [--baseline 0] [--lint-ref <git ref>] [--system-root <path>] [--skip-tests] [--concurrency 3]
+// --system-root names another Docs System checkout whose docs MCP, export and render make the pages. The harness,
+// the briefs and the judges stay this worktree's.
 // Set QUALITY_CLIMB_LOCAL_BRIEFS to the local briefs file to run the full brief set (see briefs.ts).
 // Writes .tmp/quality-climb/round-<n>/ and prints the builder-facing gate result. A step whose output already
 // exists is skipped, so a crashed round resumes where it stopped.
 import { existsSync, unlinkSync } from "node:fs";
 import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { $ } from "bun";
 import { loadBriefs } from "./briefs";
@@ -19,11 +21,13 @@ import { REPO, authSettings, docsMcpEnv, writePage, type WriterMetrics } from ".
 const { values: opt } = parseArgs({ options: {
   round: { type: "string" }, set: { type: "string", default: "all" }, judges: { type: "string", default: "sol,opus" },
   briefs: { type: "string" }, counting: { type: "string" }, baseline: { type: "string", default: "0" },
-  "lint-ref": { type: "string" }, "skip-tests": { type: "boolean", default: false }, concurrency: { type: "string", default: "3" },
+  "lint-ref": { type: "string" }, "system-root": { type: "string" }, "skip-tests": { type: "boolean", default: false }, concurrency: { type: "string", default: "3" },
 } });
 if (!opt.round) throw new Error("Pass --round <n>.");
 if (!["climb", "held-out", "all"].includes(opt.set!)) throw new Error("--set must be climb, held-out or all.");
 
+const systemRoot = opt["system-root"] ? resolve(opt["system-root"]) : REPO;
+if (!existsSync(join(systemRoot, "packages/docs-mcp/src/cli.ts"))) throw new Error(`--system-root ${systemRoot} holds no packages/docs-mcp.`);
 const roundDir = (round: string) => join(REPO, ".tmp/quality-climb", `round-${round}`);
 const dir = roundDir(opt.round);
 const judges = opt.judges!.split(",");
@@ -89,9 +93,9 @@ let rebuilt = false;
 async function runBrief(b: Brief) {
   const page = pageDir(opt.round!, b);
   await mkdir(page, { recursive: true });
-  if (!existsSync(join(page, "metrics.json"))) { log(`${name(b)}: writing`); await writePage(b, page, stateDir, settings); }
+  if (!existsSync(join(page, "metrics.json"))) { log(`${name(b)}: writing`); await writePage(b, page, stateDir, settings, systemRoot); }
   if (!existsSync(join(page, "page.png"))) {
-    const render = renderChain.then(() => { log(`${name(b)}: rendering`); const r = renderPage(b, page, rules, !rebuilt); rebuilt = true; return r; });
+    const render = renderChain.then(() => { log(`${name(b)}: rendering`); const r = renderPage(b, page, rules, !rebuilt, systemRoot); rebuilt = true; return r; });
     renderChain = render.catch(() => {});
     await render;
   }
@@ -116,7 +120,7 @@ async function pool<T, R>(items: T[], limit: number, work: (item: T) => Promise<
 }
 
 const settled = await pool(briefs, Number(opt.concurrency), runBrief);
-await $`bun ${join(REPO, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir)) } as Record<string, string>).quiet().nothrow();
+await $`bun ${join(systemRoot, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir, systemRoot)) } as Record<string, string>).quiet().nothrow();
 const failed = settled.flatMap((s, i) => s.status === "rejected" ? [{ set: briefs[i]!.set, text: `run brief ${briefs[i]!.id}: ${s.reason instanceof Error ? s.reason.message : s.reason}` }] : []);
 const done = settled.flatMap((s) => s.status === "fulfilled" ? [s.value] : []);
 
@@ -137,7 +141,7 @@ const gate = evaluateGate(pages, counting, guards);
 if (failed.length) { gate.pass = false; gate.failures.unshift(...failed); }
 const report = builderReport(gate, pages);
 // gate.json is the full result for the gate folder. report.json is all the builder may read.
-await writeFile(join(dir, "gate.json"), JSON.stringify({ round: opt.round, judges, counting, briefs: briefs.map((b) => b.id), rules: rules.label, ...gate }, null, 2));
+await writeFile(join(dir, "gate.json"), JSON.stringify({ round: opt.round, judges, counting, briefs: briefs.map((b) => b.id), rules: rules.label, systemRoot, ...gate }, null, 2));
 await writeFile(join(dir, "report.json"), JSON.stringify({ round: opt.round, judges, counting, ...report }, null, 2));
 
 console.log(`Round ${opt.round}: gate ${report.pass ? "PASSED" : "FAILED"} (${briefs.length} briefs, judges ${judges.join(", ")}, counting ${counting.join(", ")})`);
