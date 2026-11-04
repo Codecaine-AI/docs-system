@@ -311,6 +311,63 @@
       "props": {},
       "text": [
         {
+          "insert": "A claim says only what the code checks. Before you write a guarantee, a failure result, or a cause, find the line that makes it true."
+        }
+      ],
+      "children": [
+        "sg-ws-claim-guarantee",
+        "sg-ws-claim-failure",
+        "sg-ws-claim-causes",
+        "sg-ws-claim-absolutes"
+      ]
+    },
+    "sg-ws-claim-guarantee": {
+      "id": "sg-ws-claim-guarantee",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A guarantee names the check behind it. Write \"loadConfig rejects a file with an unknown key\", not \"loadConfig keeps the config valid\", when no check covers the other fields."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-failure": {
+      "id": "sg-ws-claim-failure",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A failure result names the failures it covers. Write \"A save that fails the hash check leaves the file unchanged\", not \"A failed save leaves the file unchanged\", when a later step can fail after the write."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-causes": {
+      "id": "sg-ws-claim-causes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A status or error names every cause that sets it. Write \"A cache miss means the key was never set, expired, or was evicted\", not \"A cache miss means the key expired\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-absolutes": {
+      "id": "sg-ws-claim-absolutes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
           "insert": "Write \"every\", \"all\", \"only\", \"never\", \"nothing\", or \"always\" when a line of the source proves it. Otherwise name the condition, as in \"every existing file\" or \"the planning checks\"."
         }
       ],

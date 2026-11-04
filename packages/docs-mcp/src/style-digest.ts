@@ -2,7 +2,7 @@
 export const STYLE_DIGEST: readonly string[] = [
   "Bullets are the default shape. Write a lead sentence, then bullets that are complete sentences. The lead plus the bullets must read as a well-written paragraph (the join test).",
   "Put a bold label in a parent bullet only when 3 or more facts sit under it. Write 1 or 2 facts as plain bullets or a short paragraph. A label that names a section is a heading. Give each bullet one idea.",
-  "Match the source. List every rule, route, status code, error cause, option, or file it has, or say the list is partial and where the rest lives. Write every, all, only, never, nothing, or always only when a source line proves it. A code example must run as written when copied.",
+  "Match the source. List every rule, route, status code, error cause, option, or file it has, or say the list is partial and where the rest lives. Scope each claim to what the code checks: a guarantee names its check, a failure claim names which failures, and a status names every cause that sets it. Write every, all, only, never, nothing, or always only when a source line proves it. A code example must run as written when copied.",
   "Cap lists at about 5 items. Split or rank longer lists. Number sequential steps, one action per step.",
   "Open every page with a 2 to 4 sentence paragraph. Keep each section short enough to scan in one screen. Use Title Case headings.",
   "Give each sentence one thought. Review sentences over about 25 words.",
