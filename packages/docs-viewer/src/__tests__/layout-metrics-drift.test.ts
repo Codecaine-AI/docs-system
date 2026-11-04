@@ -152,11 +152,9 @@ describe("code panel", () => {
     expect(CODE_LINE_HEIGHT_PX).toBe(m.lineHeightPx);
     expect(CODE_LINE_ROW_CLASSES).toContain(`grid-cols-[var(--docs-code-gutter-width,${m.gutterPx}px)_1fr]`);
     expect(CODE_ANNOTATED_PRE_CLASSES).toContain(`text-[length:var(--docs-code-text-size,${m.fontSizePx}px)]`);
-    // max-h-110 is 110 spacing steps of 4px.
-    expect(CODE_ANNOTATED_PRE_CLASSES.split(" ")).toContain(`max-h-${m.annotatedMaxHeightPx / 4}`);
-    for (const cell of [CODE_CELL_CLASSES, CODE_LINE_TEXT_CELL_CLASSES]) {
-      expect(cell).toContain(`px-[var(--docs-code-pad-x,${m.padXPx}px)]`);
-    }
+    expect(CODE_CELL_CLASSES).toContain(`px-[var(--docs-code-pad-x,${m.padXPx}px)]`);
+    expect(CODE_LINE_TEXT_CELL_CLASSES).toContain(`pr-[var(--docs-code-pad-x,${m.padXPx}px)]`);
+    expect(CODE_LINE_TEXT_CELL_CLASSES).toContain(`pl-[calc(var(--docs-code-pad-x,${m.padXPx}px)+`);
     expect(CODE_BLOCK_CLASSES).toContain(`border-[length:var(--docs-code-border-width,${m.borderPx}px)]`);
     expect(CODE_BODY_GRID_CLASSES).toContain(
       `@min-[${m.notesBesideMinWidthPx}px]:grid-cols-[minmax(0,1fr)_var(--docs-code-notes-width,${m.notesColumnPx}px)]`,
@@ -165,9 +163,11 @@ describe("code panel", () => {
     expect(CODE_LAYOUT_CLASSES.split(" ")).toContain("@container");
   });
 
-  test("code lines never wrap: the content is as wide as its widest line", () => {
+  test("plain code lines never wrap, and annotated code lines wrap with no height cap", () => {
     expect(CODE_CONTENT_WRAPPER_CLASSES.split(" ")).toContain("w-max");
-    expect(CODE_LINE_TEXT_CELL_CLASSES.split(" ")).toContain("whitespace-pre");
+    // The notes column takes width: an annotated line wraps instead of running under the notes, and every line shows.
+    expect(CODE_LINE_TEXT_CELL_CLASSES.split(" ")).toContain("whitespace-pre-wrap");
+    expect(CODE_ANNOTATED_PRE_CLASSES).not.toMatch(/\bmax-h-|\boverflow-/);
   });
 
   test.each([

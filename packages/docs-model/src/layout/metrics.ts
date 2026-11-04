@@ -184,8 +184,6 @@ export const CODE_METRICS = {
   notesColumnPx: 280,
   /** Notes sit beside the code from this block width (a container query) and under it below. */
   notesBesideMinWidthPx: 760,
-  /** The annotated read surface scrolls vertically past this height. */
-  annotatedMaxHeightPx: 440,
   /** Tailwind preflight sets `tab-size: 4` on the workbench page, and code inherits it. */
   tabSize: 4,
 } as const;

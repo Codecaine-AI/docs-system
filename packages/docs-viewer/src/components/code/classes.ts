@@ -205,16 +205,18 @@ export const CODE_ANNOTATION_ROW_LIT_CLASSES =
 export const CODE_CELL_CLASSES = "relative m-0 bg-transparent p-0 px-[var(--docs-code-pad-x,12px)]";
 
 /**
- * Annotated READ surface: the <pre> scroll body holding the per-line rows.
+ * Annotated READ surface: the <pre> body holding the per-line rows. It has no
+ * height cap and no scroll: the notes column takes width, so a long line
+ * wraps (CODE_LINE_TEXT_CELL_CLASSES) and the panel shows every line.
  * Same typography and padding tokens as the content wrapper + scroll body of
  * the other two surfaces (CODE_CONTENT_WRAPPER_CLASSES / CODE_SCROLL_BODY_CLASSES).
  */
 export const CODE_ANNOTATED_PRE_CLASSES =
-  "m-0 max-h-110 overflow-auto p-0 pt-[var(--docs-code-pad-top,12px)] pb-[var(--docs-code-pad-bottom,12px)] font-mono text-[length:var(--docs-code-text-size,13px)] leading-[var(--docs-code-line-height,21px)]";
+  "m-0 min-w-0 p-0 pt-[var(--docs-code-pad-top,12px)] pb-[var(--docs-code-pad-bottom,12px)] font-mono text-[length:var(--docs-code-text-size,13px)] leading-[var(--docs-code-line-height,21px)]";
 
-/** Annotated READ surface: one per-line row (line click target). */
+/** Annotated READ surface: one per-line row (line click target). A wrapped line grows the row; its number stays on the first visual line. */
 export const CODE_LINE_ROW_CLASSES =
-  "grid h-[var(--docs-code-line-height,21px)] grid-cols-[var(--docs-code-gutter-width,40px)_1fr] leading-[var(--docs-code-line-height,21px)]";
+  "grid min-h-[var(--docs-code-line-height,21px)] grid-cols-[var(--docs-code-gutter-width,40px)_1fr] leading-[var(--docs-code-line-height,21px)]";
 
 /**
  * Annotated READ surface: an annotated line is a link target (hover, focus,
@@ -227,8 +229,14 @@ export const CODE_LINE_ROW_LINKABLE_CLASSES =
 export const CODE_LINE_ROW_LIT_CLASSES =
   "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
-/** Annotated READ surface: the line's code text cell — same horizontal padding token as CODE_CELL_CLASSES. */
-export const CODE_LINE_TEXT_CELL_CLASSES = "hljs whitespace-pre px-[var(--docs-code-pad-x,12px)]";
+/**
+ * Annotated READ surface: the line's code text cell — same horizontal padding
+ * token as CODE_CELL_CLASSES. A line longer than the code column wraps, and
+ * its continuation hangs 2ch past the line's own indent (--docs-code-hang,
+ * set per line), so a reader sees one line, not two.
+ */
+export const CODE_LINE_TEXT_CELL_CLASSES =
+  "hljs min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere] pl-[calc(var(--docs-code-pad-x,12px)+var(--docs-code-hang,2ch))] [text-indent:calc(var(--docs-code-hang,2ch)*-1)] pr-[var(--docs-code-pad-x,12px)]";
 
 /**
  * Annotated READ surface: the zebra stripe on even lines, reading the code

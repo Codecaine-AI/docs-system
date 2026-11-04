@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { cn } from "../../ui/cn";
 import { LinkGroup, useLinkTarget } from "../linked-panels";
@@ -37,11 +37,14 @@ export type { CodeAnnotation } from "./annotations";
 function AnnotatedCodeLine({
   lineNumber,
   html,
+  indent,
   linkKey,
   runStart,
   runEnd,
 }: {
   lineNumber: number;
+  /** Leading whitespace width of the raw line, in ch: a wrapped continuation hangs 2ch past it. */
+  indent: number;
   /** hljs output (token spans over escaped text) or fully escaped plain text — see highlight.ts. */
   html: string;
   /** The owning annotation's `lines` key, or null for plain lines. */
@@ -68,6 +71,8 @@ function AnnotatedCodeLine({
         className={cn(
           CODE_GUTTER_CLASSES,
           CODE_GUTTER_LINE_CLASSES,
+          // A wrapped line grows the row: the gutter cell (and its mark) grows with it.
+          "h-auto",
           annotated && CODE_GUTTER_LINE_ANNOTATED_CLASSES,
           annotated && runStart && CODE_GUTTER_MARK_START_CLASSES,
           annotated && runEnd && CODE_GUTTER_MARK_END_CLASSES,
@@ -78,6 +83,7 @@ function AnnotatedCodeLine({
       </span>
       <code
         className={CODE_LINE_TEXT_CELL_CLASSES}
+        style={{ "--docs-code-hang": `${indent + 2}ch` } as CSSProperties}
         // The single space keeps empty lines at full height.
         dangerouslySetInnerHTML={{ __html: html || " " }}
       />
@@ -123,6 +129,11 @@ export function AnnotatedCodeBlock({
   const displayCode = useMemo(() => prettyPrintIfJson(code, language), [code, language]);
   /** One hljs-highlighted HTML string per line (count matches split("\n")). */
   const lines = useMemo(() => highlightCode(displayCode, language), [displayCode, language]);
+  /** Leading whitespace of each displayed line, in ch (a tab counts 4, the page tab-size). */
+  const indents = useMemo(
+    () => displayCode.split("\n").map((line) => [...(/^[ \t]*/.exec(line)?.[0] ?? "")].reduce((n, c) => n + (c === "\t" ? 4 : 1), 0)),
+    [displayCode],
+  );
 
   /** First annotation covering each line — overlaps resolve to the earliest note. */
   const lineOwner = useMemo(() => {
@@ -158,6 +169,7 @@ export function AnnotatedCodeBlock({
                       key={index}
                       lineNumber={lineNumber}
                       html={line}
+                      indent={indents[index] ?? 0}
                       linkKey={owner === undefined ? null : annotations[owner].lines}
                       runStart={lineOwner.get(lineNumber - 1) !== owner}
                       runEnd={lineOwner.get(lineNumber + 1) !== owner}
