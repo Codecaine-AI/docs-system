@@ -159,30 +159,30 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     { name: "table.unbadged" },
   ];
 
-  it("starts every operation closed, re-renders without resetting a toggle", () => {
+  it("starts every operation open, re-renders without resetting a toggle", () => {
     const { rerender } = render(<InteractionSurfaceBlock id="surface-rows" operations={OPERATIONS} />);
     for (const { name } of OPERATIONS) {
       const details = summaryOf(name).parentElement as HTMLDetailsElement;
-      expect(details.hasAttribute("open")).toBe(false);
+      expect(details.hasAttribute("open")).toBe(true);
       expect(details.querySelector(":scope > summary [data-operation-tip]")).not.toBeNull();
     }
     fireEvent.click(summaryOf("table.put"));
     rerender(<InteractionSurfaceBlock id="surface-rows" title="Renamed" operations={OPERATIONS} />);
-    expect(summaryOf("table.put").parentElement?.hasAttribute("open")).toBe(true);
-    expect(summaryOf("table.walk").parentElement?.hasAttribute("open")).toBe(false);
+    expect(summaryOf("table.put").parentElement?.hasAttribute("open")).toBe(false);
+    expect(summaryOf("table.walk").parentElement?.hasAttribute("open")).toBe(true);
   });
 
   it("mirrors the open state onto the summary's aria-expanded", () => {
     render(<InteractionSurfaceBlock id="surface-aria" operations={OPERATIONS} />);
     const summary = summaryOf("table.walk");
     const details = summary.parentElement as HTMLDetailsElement;
-    expect(summary.getAttribute("aria-expanded")).toBe("false");
-    details.open = true;
-    details.dispatchEvent(new Event("toggle"));
     expect(summary.getAttribute("aria-expanded")).toBe("true");
     details.open = false;
     details.dispatchEvent(new Event("toggle"));
     expect(summary.getAttribute("aria-expanded")).toBe("false");
+    details.open = true;
+    details.dispatchEvent(new Event("toggle"));
+    expect(summary.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("draws each line as chevron and described name with the elided tail; the kind and purpose live in the name's tooltip", () => {
@@ -374,8 +374,8 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("real dotted name");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as one-line rows");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("open on click, Enter, or Space");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("Operations start open");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("click, Enter, or Space collapses one");
   });
 });
 

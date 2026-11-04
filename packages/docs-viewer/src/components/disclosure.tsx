@@ -4,8 +4,8 @@ import { ChevronRight } from "lucide-react";
 // disclosures: the <summary> row is the operation line, everything below it
 // is the body. Native rather than React state because the published site is
 // static markup with no hydration, so toggling, Enter / Space, and
-// find-in-page must all work without JS. Operations start collapsed: a
-// surface reads as a compact list of signature lines, each opened on demand.
+// find-in-page must all work without JS. Operations start open, so a static
+// reader sees each contract. A reader collapses one to its signature line.
 //
 // The summary is the row's one tab stop. This sheet removes the native
 // marker, turns the chevron, paints the hover wash and the focus ring (the
