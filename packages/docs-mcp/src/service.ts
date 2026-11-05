@@ -1,9 +1,11 @@
 import { createHash, randomUUID } from 'node:crypto';
+import { readFile, stat } from 'node:fs/promises';
+import { isAbsolute, join, relative, resolve } from 'node:path';
 import type { DocDocument } from '@codecaine-ai/docs-model';
-import { createDocsStore } from '@codecaine-ai/docs-server/store';
+import { createDocsStore, treeIndex } from '@codecaine-ai/docs-server/store';
 import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
-import { discoverProjects, type DocsProject } from './discovery';
+import { discoverProjects, type Discovery, type DocsProject } from './discovery';
 import { createDocsTools, type DocsToolContext, type DocsToolResult } from './tools';
 import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
 import { STYLE_DIGEST } from './style-digest';
@@ -41,8 +43,9 @@ function durationSetting(name:string,fallback:number):number{
 }
 /** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). codeThemesRoot: the central code-theme folder (`/api/code-themes`). */
 /** judgmentEngine: Jev by default. It reads CODECAINE_DOCS_JUDGMENT on every call, so =off disables it without a restart. Pass null for none. */
+/** registryFile: the supervisor's projects.json. A rewrite that no longer lists a cached workspace's projects unchanged, or lists a project under it that its discovery lacks, drops that workspace's discovery (see the discovery cache rule). */
 /** Tasks expire after taskIdleMs without a call naming them (CODECAINE_DOCS_TASK_IDLE_MS, default 30 min) or taskMaxAgeMs after docs_begin (CODECAINE_DOCS_TASK_MAX_AGE_MS, default 12 h); a task inside a call never expires. now, maxTasks and maxRetired (tombstones kept, default 5,000) are for tests. */
-export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string; judgmentEngine?: JudgmentEngine | null; now?: () => number; taskIdleMs?: number; taskMaxAgeMs?: number; maxTasks?: number; maxRetired?: number } = {}) {
+export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; registryFile?: string; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string; judgmentEngine?: JudgmentEngine | null; now?: () => number; taskIdleMs?: number; taskMaxAgeMs?: number; maxTasks?: number; maxRetired?: number } = {}) {
  const startupFingerprint=options.managed && process.env.CODECAINE_DOCS_BUILD ? Promise.resolve(process.env.CODECAINE_DOCS_BUILD) : implementationFingerprint();
  const projects=new Map<string,DocsProject>();
  const workspaces=new Map<string,Set<string>>();
@@ -98,6 +101,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const sweeper=setInterval(sweep,SWEEP_EVERY_MS);sweeper.unref?.();
  const watchers=new Map<string,ReturnType<typeof watchDocsRoot>>();
+ const treeWatches=new Map<string,()=>void>();
  const tools=createDocsTools({resolveProject:async(id)=>{
   const project=projects.get(id);if(!project)throw new Error('Unknown project. Call docs_discover for the active workspace first.');return project;
  },
@@ -106,7 +110,54 @@ export function createInteractionService(options: { managed?: boolean; projectId
  // First-touch Canvas sidecars per task, freed with the task: the boards its canvas text lints judge against.
  taskCanvasBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.canvasBaselines.get(key),set:(taskId:string,key:string,board:TaskCanvasBaseline)=>{tasks.get(taskId)?.canvasBaselines.set(key,board);}},
  judgmentEngine:options.judgmentEngine===null?undefined:options.judgmentEngine??defaultJudgmentEngine()});
- async function discover(workspace:string){
+ /**
+  * The discovery cache rule. A workspace's discovery is reused while the files it was read from
+  * (members.json and package.json at the workspace, codecaine.docs.json at each folder in
+  * Discovery.folders) and those folders themselves (the workspace, each declared and glob-matched folder
+  * and its ancestors, each glob's static prefix such as packages/, and each folder that a shorter prefix
+  * of a glob with segments after its first wildcard matches) are unchanged, and while the registry, each
+  * time it is rewritten, still lists each of its projects unchanged and lists no project under the
+  * workspace that it lacks. A new folder under a glob or a manifest added to a matched folder changes a
+  * folder's mtime, and an edit to a manifest that enables docs changes the manifest. Each path is signed
+  * after the scan, and one whose mtime is 50 ms before the scan's start or later is signed
+  * changed-during-scan, so a change the scan may have missed rescans once on the next call. docs_discover
+  * always rescans, a workspace never seen is scanned on first use, calls that arrive during a scan share
+  * it, and concurrent calls that find one stale entry share one rescan. Nothing else scans: one
+  * discoverProjects on the knowledge base costs 4 s of CPU, and it used to run on every tool call. A call
+  * stats each signed file and folder once, 47 for 20 projects under packages/*.
+  */
+ const WORKSPACE_MANIFESTS=['members.json','package.json'];
+ /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
+ const MTIME_MARGIN_MS=50;
+ type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
+ type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery};
+ const discoveries=new Map<string,Entry>();
+ /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. since: an mtime at or after it signs changed-during-scan. */
+ const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
+ const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
+ let registrySignature:string|undefined;
+ /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged, and every one that lacks a project the registry lists under its workspace. The supervisor rewrites it after each docs_discover with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
+ async function dropDisowned(){
+  if(!options.registryFile)return;
+  const current=await signature(options.registryFile);
+  if(current===registrySignature)return;
+  registrySignature=current;
+  const listed=new Map<string,string>();
+  try{for(const p of (JSON.parse(await readFile(options.registryFile,'utf8')).projects??[]) as DocsProject[])listed.set(p.docsRoot,projectKey(p));}catch{return;}
+  for(const [key,entry] of discoveries){
+   if(!entry.settled)continue;
+   const {workspace,projects:cached}=entry.settled.discovery;const have=new Set(cached.map(p=>p.docsRoot));
+   const under=(docsRoot:string)=>{const path=relative(workspace,docsRoot);return path!==''&&!path.startsWith('..')&&!isAbsolute(path);};
+   if(!cached.every(p=>listed.get(p.docsRoot)===projectKey(p))||[...listed.keys()].some(docsRoot=>!have.has(docsRoot)&&under(docsRoot)))discoveries.delete(key);
+  }
+ }
+ async function fresh(entry:CachedDiscovery){
+  for(const [file,sig] of entry.signatures)if(await signature(file)!==sig)return false;
+  return true;
+ }
+ /** One scan, then its signatures (see the discovery cache rule). */
+ async function scan(workspace:string):Promise<CachedDiscovery>{
+  const since=Date.now()-MTIME_MARGIN_MS;
   const discovery=await discoverProjects(workspace);
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
   // Every store, watcher and resolver of a docs root honors its project's exclude globs.
@@ -115,9 +166,41 @@ export function createInteractionService(options: { managed?: boolean; projectId
   if(options.watchFs) for(const project of discovery.projects) if(!watchers.has(project.docsRoot)) {
    const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
    watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
+   treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
   }
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
-  return discovery;
+  // A root that no workspace lists any more (a project removed or renamed since its last scan) releases its watcher and its tree index.
+  if(options.watchFs){
+   const live=new Set<string>();
+   for(const ids of workspaces.values())for(const id of ids){const root=projects.get(id)?.docsRoot;if(root)live.add(root);}
+   for(const [root,watcher] of watchers)if(!live.has(root)){watcher.close();watchers.delete(root);treeWatches.get(root)?.();treeWatches.delete(root);}
+  }
+  const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
+  const signatures=new Map<string,string>();
+  for(const path of paths)signatures.set(path,await signature(path,since));
+  return {discovery,signatures};
+ }
+ /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (docs_discover). */
+ async function discover(workspace:string,rescan=false):Promise<Discovery>{
+  const key=resolve(workspace);
+  await dropDisowned();
+  const current=discoveries.get(key);
+  // A rescan that arrives while a scan of this workspace runs joins it. Two scans of one workspace would otherwise race to commit its workspace set and its watchers, and the slower one could close a project the faster one found.
+  if(rescan&&current&&!current.settled){try{return (await current.pending).discovery;}catch{/* The failed scan was dropped; scan again. */}}
+  const cached=rescan?undefined:current;
+  if(cached){
+   try{
+    if(!cached.settled)return (await cached.pending).discovery;
+    if(await fresh(cached.settled))return cached.settled.discovery;
+   }catch{/* The failed scan was dropped; scan again. */}
+   // Another call found the same entry stale first and replaced it: share its rescan.
+   const replaced=discoveries.get(key);
+   if(replaced&&replaced!==cached)return (await replaced.pending).discovery;
+  }
+  const entry:Entry={pending:scan(workspace)};
+  discoveries.set(key,entry);
+  try{entry.settled=await entry.pending;return entry.settled.discovery;}
+  catch(error){if(discoveries.get(key)===entry)discoveries.delete(key);throw error;}
  }
  const metadataTools=[
   {name:'docs_discover',description:'Discover normalized documentation in the active workspace and declared member projects. Call first; use returned explicit project IDs. No machine-wide scan.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'}})},
@@ -139,8 +222,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
    sweep();
    // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
    await textMeasureReady();
-   const discovery=await discover(name==='docs_discover' && typeof args.workspace==='string'?args.workspace:workspace);
-   if(name==='docs_discover')return reply({ok:true,...discovery,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
+   const discovery=await discover(name==='docs_discover' && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_discover');
+   if(name==='docs_discover')return reply({ok:true,workspace:discovery.workspace,projects:discovery.projects,warnings:discovery.warnings,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
    if(name==='docs_begin'){
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed. Stop and restart the Docs service before beginning a new task.');
     if(tasks.size>=maxTasks){
@@ -196,7 +279,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  function stats(){
   sweep();const t0=now();
   const newestTaskUseMs=tasks.size?Math.min(...[...tasks.values()].map(t=>t.inFlight>0?0:t0-t.lastUsedAt)):null;
-  return {projects:projects.size,workspaces:workspaces.size,tasks:tasks.size,newestTaskUseMs,textMeasure:textMeasureBackend(),drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)};
+  return {projects:projects.size,workspaces:workspaces.size,discoveries:discoveries.size,tasks:tasks.size,newestTaskUseMs,textMeasure:textMeasureBackend(),drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)};
  }
  async function uiRequest(projectId:string,request:Request){
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
@@ -204,5 +287,5 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));
  }
- return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats,close:()=>{clearInterval(sweeper);for(const watcher of watchers.values())watcher.close();watchers.clear();}};
+ return {discover,listTools,call,uiRequest,globalThemesRoot:options.globalThemesRoot,project:(id:string)=>projects.get(id),stats,close:()=>{clearInterval(sweeper);for(const watcher of watchers.values())watcher.close();watchers.clear();for(const unwatch of treeWatches.values())unwatch();treeWatches.clear();}};
 }

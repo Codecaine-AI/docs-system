@@ -6,6 +6,9 @@ import type { DocOp } from "@codecaine-ai/docs-model/doc-ops";
 import { ACTION_REGISTRY, buildBlocksDiscovery } from "@codecaine-ai/docs-model";
 
 import type { DocsStore } from "./store";
+import { ifNoneMatchHits } from "./tree-etag";
+
+export { treeEtag } from "./tree-etag";
 import { bundleResponse, createContentHash } from "./bundle";
 import {
   MAX_CANVAS_FILE_BYTES,
@@ -230,9 +233,18 @@ export function createDocsRoutes(
     )
 
     // -- reads ---------------------------------------------------------------
-    .get("/api/tree", async ({ set }) => {
+    .get("/api/tree", async ({ set, request }) => {
       try {
-        return { tree: await store.tree() };
+        // The index computed the revision once per build, so no hash runs per request.
+        const { tree, revision } = await store.treeSnapshot();
+        const etag = `"${revision}"`;
+        set.headers["etag"] = etag;
+        set.headers["cache-control"] = "no-cache";
+        if (ifNoneMatchHits(request.headers.get("if-none-match"), etag)) {
+          set.status = 304;
+          return new Response(null, { status: 304, headers: set.headers as HeadersInit });
+        }
+        return { tree };
       } catch (error) {
         set.status = 500;
         return {

@@ -30,7 +30,15 @@
         "b-ds-measure-h",
         "b-ds-measure-d",
         "b-ds-measure-w",
-        "b-ds-measure-a"
+        "b-ds-measure-a",
+        "b-ds-lock-h",
+        "b-ds-lock-d",
+        "b-ds-lock-w",
+        "b-ds-lock-a",
+        "b-ds-idx-h",
+        "b-ds-idx-d",
+        "b-ds-idx-w",
+        "b-ds-idx-a"
       ]
     },
     "b-ds-role": {
@@ -923,6 +931,776 @@
         },
         {
           "insert": " first."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-h": {
+      "id": "b-ds-lock-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Reads Run Outside the Store Lock"
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-d": {
+      "id": "b-ds-lock-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-lock-d-1",
+        "b-ds-lock-d-2",
+        "b-ds-lock-d-3",
+        "b-ds-lock-d-4",
+        "b-ds-lock-d-5"
+      ]
+    },
+    "b-ds-lock-d-1": {
+      "id": "b-ds-lock-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "createDocsStore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wraps each mutation in one "
+        },
+        {
+          "insert": "withPathLock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on "
+        },
+        {
+          "insert": ".changesets/.store-operation-lock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so multi-file reorganizations see one corpus authority. A read never takes that lock."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-d-2": {
+      "id": "b-ds-lock-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "UNLOCKED_READS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store.ts"
+            }
+          }
+        },
+        {
+          "insert": " names the reads: "
+        },
+        {
+          "insert": "tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "treeSnapshot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "bundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "projection",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the annotation, proposal, changeset, doc, canvas, sequence and asset getters, and "
+        },
+        {
+          "insert": "backlinks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Every other method is a mutation and keeps the lock."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-d-3": {
+      "id": "b-ds-lock-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A single-file write is atomic through temp-then-rename, so a read sees the old or the new file, never a torn one."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-d-4": {
+      "id": "b-ds-lock-d-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A read during a multi-file move can see the move half done for one request."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-d-5": {
+      "id": "b-ds-lock-d-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tree read is eventually consistent, and a bundle read that lands mid-move answers 404 once."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-w": {
+      "id": "b-ds-lock-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-lock-w-1",
+        "b-ds-lock-w-2"
+      ]
+    },
+    "b-ds-lock-w-1": {
+      "id": "b-ds-lock-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Behind one lock, a bundle read waited for any tree walk in flight: 3 ms when it bypassed the store, 3,384 ms through "
+        },
+        {
+          "insert": "createDocsStore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". On a 4,000-folder knowledge base, every doc open in a host app waited 2 to 31 s while agents wrote."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-w-2": {
+      "id": "b-ds-lock-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Serializing reads behind a changeset accept was rejected, because a large accept holds the lock for seconds and every doc open would wait for it."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-lock-a": {
+      "id": "b-ds-lock-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-lock-a-1"
+      ]
+    },
+    "b-ds-lock-a-1": {
+      "id": "b-ds-lock-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
+        },
+        {
+          "insert": "store.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store.ts"
+            }
+          }
+        },
+        {
+          "insert": ". A new store method joins "
+        },
+        {
+          "insert": "UNLOCKED_READS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only when it writes nothing, and "
+        },
+        {
+          "insert": "store-lock.test.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/store-lock.test.ts"
+            }
+          }
+        },
+        {
+          "insert": " proves a read finishes beside a held lock."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-h": {
+      "id": "b-ds-idx-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "The Tree Is an Index, Not a Walk"
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d": {
+      "id": "b-ds-idx-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Decision",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-g1",
+        "b-ds-idx-g2",
+        "b-ds-idx-g3"
+      ]
+    },
+    "b-ds-idx-g1": {
+      "id": "b-ds-idx-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The snapshot",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-d-1",
+        "b-ds-idx-d-2",
+        "b-ds-idx-d-2b"
+      ]
+    },
+    "b-ds-idx-d-1": {
+      "id": "b-ds-idx-d-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A docs root's tree lives in memory as an immutable snapshot "
+        },
+        {
+          "insert": "{ tree, revision, builtAt }",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "tree-index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/tree-index.ts"
+            }
+          }
+        },
+        {
+          "insert": ", keyed by canonical root and exclude-policy fingerprint. "
+        },
+        {
+          "insert": "revision",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the sha256 of the serialized tree."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-2": {
+      "id": "b-ds-idx-d-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The host that owns a root's watcher registers it with "
+        },
+        {
+          "insert": "treeIndex.watch(root)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and an unwatched root walks per call."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-2b": {
+      "id": "b-ds-idx-d-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On a watched root "
+        },
+        {
+          "insert": "store.tree()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " answers from the snapshot, and the first call awaits one shared build."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-g2": {
+      "id": "b-ds-idx-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How it stays current",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-d-3",
+        "b-ds-idx-d-4",
+        "b-ds-idx-d-5",
+        "b-ds-idx-d-5b"
+      ]
+    },
+    "b-ds-idx-d-3": {
+      "id": "b-ds-idx-d-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A change event rebuilds the whole tree after 200 ms of quiet, and a change during a build starts one more build when it ends. There is no incremental patch."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-4": {
+      "id": "b-ds-idx-d-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A mutation made through this process calls "
+        },
+        {
+          "insert": "treeIndex.invalidate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after its write: a move, a page create or delete, a changeset accept or undo with tree ops, or a changed exclude policy. That build starts at once, and the read that follows waits for it."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-5": {
+      "id": "b-ds-idx-d-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A failed build keeps the last snapshot, leaves the index dirty, and retries from 1 s doubling to 10 s."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-5b": {
+      "id": "b-ds-idx-d-5b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "While the policy is unreadable, "
+        },
+        {
+          "insert": "tree()",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the policy error."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-g3": {
+      "id": "b-ds-idx-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "How it is read and built",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-d-6",
+        "b-ds-idx-d-7"
+      ]
+    },
+    "b-ds-idx-d-6": {
+      "id": "b-ds-idx-d-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "GET /api/tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets a strong quoted "
+        },
+        {
+          "insert": "ETag",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from the revision and answers 304 with no body when "
+        },
+        {
+          "insert": "If-None-Match",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists that tag, its weak form, or "
+        },
+        {
+          "insert": "*",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-d-7": {
+      "id": "b-ds-idx-d-7",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The build walks with one guarded listing per folder ("
+        },
+        {
+          "insert": "listingWalk",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-index/src/safe-path.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-index/src/safe-path.ts"
+            }
+          }
+        },
+        {
+          "insert": "), a per-build policy snapshot, and a "
+        },
+        {
+          "insert": "setImmediate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " yield after 8 ms. A child folder is listed only while its real path equals its canonical path."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-w": {
+      "id": "b-ds-idx-w",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Why",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-w-1",
+        "b-ds-idx-w-2",
+        "b-ds-idx-w-3"
+      ]
+    },
+    "b-ds-idx-w-1": {
+      "id": "b-ds-idx-w-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A walk per request made the tree the hub's most expensive route. It took 2,070 ms in a quiet process and 2.4 to 11 s in a running hub, for 4,010 folders, while hosts asked for it after every docs change."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-w-2": {
+      "id": "b-ds-idx-w-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The index pays one build per change instead of one walk per request. A build takes 211 to 334 ms on that knowledge base with an 11 ms longest stall, and a "
+        },
+        {
+          "insert": "GET /api/tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " answers in 2.8 to 7.6 ms."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-w-3": {
+      "id": "b-ds-idx-w-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A read that always waits for a fresh build was rejected, because every tree read would pay for the watcher's quiet window. Only a read that follows this process's own mutation waits."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-a": {
+      "id": "b-ds-idx-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Applies to",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-ds-idx-a-1",
+        "b-ds-idx-a-2"
+      ]
+    },
+    "b-ds-idx-a-1": {
+      "id": "b-ds-idx-a-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The rule covers "
+        },
+        {
+          "insert": "tree-index.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/tree-index.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs-tree.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/docs-tree.ts"
+            }
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "tree-etag.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/tree-etag.ts"
+            }
+          }
+        },
+        {
+          "insert": " and the tree route in "
+        },
+        {
+          "insert": "routes.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-server/src/routes.ts"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-ds-idx-a-2": {
+      "id": "b-ds-idx-a-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A new store mutation that changes the tree shape calls "
+        },
+        {
+          "insert": "treeIndex.invalidate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " after its write, and a new host registers its roots with "
+        },
+        {
+          "insert": "treeIndex.watch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

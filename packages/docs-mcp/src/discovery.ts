@@ -8,7 +8,8 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
 
 /** exclude: docsRoot-relative globs from codecaine.docs.json whose matches are not part of the project. */
 export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[]; exclude?: string[] }
-export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[] }
+/** folders: every folder the scan looked for projects in (the workspace, declared and glob-matched folders and their ancestors, each glob's static prefix, each folder a shorter prefix of a nested glob matches). A change to any of their entries can change the result. */
+export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[]; folders: string[] }
 const inside = (root: string, target: string) => target === root || (!relative(root, target).startsWith(`..${sep}`) && relative(root, target) !== '..' && !isAbsolute(relative(root, target)));
 async function json(file: string): Promise<any | undefined> {
   try { return JSON.parse(await readFile(file, 'utf8')); } catch (e: any) { if (e.code === 'ENOENT') return undefined; throw new Error(`Cannot read ${file}: ${e.message}`); }
@@ -47,8 +48,17 @@ export async function discoverProjects(input: string): Promise<Discovery> {
     } else warnings.push(`Declared project unavailable: ${name}`);
   }
   const patterns = Array.isArray(pkg?.workspaces) ? pkg.workspaces : pkg?.workspaces?.packages;
+  const prefixes = new Set<string>();
   if (Array.isArray(patterns)) for (const pattern of patterns) {
     if (typeof pattern !== 'string' || isAbsolute(pattern) || pattern.split('/').includes('..') || pattern.includes('**')) continue;
+    // The folder above the first glob segment: a new match is a new entry in it or below a folder already matched.
+    const fixed = pattern.split('/'); const glob = fixed.findIndex(x => /[*?[{]/.test(x));
+    prefixes.add(resolve(workspace, ...(glob < 0 ? fixed.slice(0, -1) : fixed.slice(0, glob))));
+    // Each shorter prefix past the first glob segment (packages/* and packages/*/sub for packages/*/sub/*): a new match below a folder it matches changes that folder.
+    if (glob >= 0) for (let end = glob + 1; end < fixed.length; end++) for await (const match of new Bun.Glob(fixed.slice(0, end).join('/')).scan({ cwd: workspace, onlyFiles: false })) {
+      const target = resolve(workspace, match);
+      if (await directory(target)) prefixes.add(target);
+    }
     for await (const match of new Bun.Glob(pattern).scan({ cwd: workspace, onlyFiles: false })) {
       const target = resolve(workspace, match);
       if (!await directory(target)) continue;
@@ -108,5 +118,5 @@ export async function discoverProjects(input: string): Promise<Discovery> {
     const id = `${slug}-${createHash('sha256').update(docsRoot).digest('hex').slice(0, 8)}`;
     projects.push({ id, name, root, docsRoot, products, ...(exclude.length ? { exclude } : {}) });
   }
-  return { workspace, projects, warnings };
+  return { workspace, projects, warnings, folders: [...new Set([...candidates, ...prefixes])] };
 }

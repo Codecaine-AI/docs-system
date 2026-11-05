@@ -183,6 +183,7 @@ export function watchDocsRoot(
 
 // -- polling fallback ---------------------------------------------------------
 
+/** Each file as `mtime:size`, and each folder as `dir`: an empty folder that appears or goes changes the snapshot too. */
 type Snapshot = Map<string, string>;
 
 /** Recursive mtime+size scan, skipping dot/node_modules dirs (same ignore set
@@ -200,6 +201,8 @@ async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map(
     const rel = relDir ? `${relDir}/${entry.name}` : entry.name;
     if (excludedOrUnreadablePolicy(docsRoot, rel)) continue;
     if (entry.isDirectory()) {
+      // The folder is an entry of its own: a tree folder with no files in it still has to report its creation, rename or deletion.
+      into.set(rel, "dir");
       await scanTree(docsRoot, rel, into);
     } else if (entry.isFile()) {
       try {
@@ -213,7 +216,13 @@ async function scanTree(docsRoot: string, relDir = "", into: Snapshot = new Map(
   return into;
 }
 
-function startPollingScan(
+/**
+ * The fallback scanner: every `intervalMs`, reports each path whose signature
+ * changed, appeared or disappeared since the last scan. The first scan is the
+ * baseline and reports nothing. Exported so a test can run it where recursive
+ * `fs.watch` is available and the fallback would never engage on its own.
+ */
+export function startPollingScan(
   docsRoot: string,
   onFsChange: (relPath: string) => void,
   intervalMs: number,

@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "../paths";
-import { checkDocsPath, docsFs, isDocsPathRefusal, preflightDocsPaths, type DocsPathIntent } from "../safe-path";
+import { checkDocsPath, docsFs, isDocsPathRefusal, preflightDocsPaths, type DocsListedDir, type DocsPathIntent } from "../safe-path";
 
 /**
  * The docs-root chokepoint (safe-path.ts): one canonical rule for every
@@ -181,5 +181,59 @@ describe("docsFs guarded operations", () => {
     expect(classified.find((item) => item.name === "inputs")?.excluded).toBe(true);
     expect(fs.existsSync("notes/twin/assets/canvases/c.canvas.json")).toBe(false);
     expect(fs.existsSync("notes/real/doc.json")).toBe(true);
+  });
+});
+
+describe("docsFs.listingWalk", () => {
+  test("a child is read only while it is still a real folder: a link, inside or outside the root, or nothing in its place is not listed", async () => {
+    await mkdir(join(kb, "notes/to-outside"));
+    await mkdir(join(kb, "notes/to-inside"));
+    await mkdir(join(kb, "notes/gone"));
+    const walk = docsFs(kb).listingWalk();
+    const notes = await walk.list("notes");
+    const entry = (name: string) => notes.entries.find((candidate) => candidate.name === name)!;
+    expect(entry("to-outside").isDirectory()).toBe(true);
+
+    // Since the listing: one became a link out of the root, one a link to a sibling bundle, one is gone.
+    await rm(join(kb, "notes/to-outside"), { recursive: true });
+    await symlink(join(temp, "outside"), join(kb, "notes/to-outside"), "dir");
+    await rm(join(kb, "notes/to-inside"), { recursive: true });
+    await symlink(join(kb, "notes/real"), join(kb, "notes/to-inside"), "dir");
+    await rm(join(kb, "notes/gone"), { recursive: true });
+
+    expect(await walk.listChild(notes, entry("to-outside"))).toBeNull();
+    expect(await walk.listChild(notes, entry("to-inside"))).toBeNull();
+    expect(await walk.listChild(notes, entry("gone"))).toBeNull();
+    // Still a real folder: listed, at its canonical location.
+    const real = await walk.listChild(notes, entry("real"));
+    expect(real?.canonical).toBe(join(kb, "notes/real"));
+    expect(real?.entries.map((candidate) => candidate.name).sort()).toEqual(["assets", "doc.json"]);
+    // A link in the listing itself is not a directory entry: refused outright.
+    await expect(walk.listChild(notes, entry("out"))).rejects.toMatchObject({ reason: "unsafe" });
+  });
+
+  test.each([
+    ["a link out of the root", () => symlink(join(temp, "outside"), join(kb, "notes/deep"), "dir")],
+    ["a link to a folder inside the root", () => symlink(join(kb, "notes/real"), join(kb, "notes/deep"), "dir")],
+    ["a plain file", () => writeFile(join(kb, "notes/deep"), "not a folder")],
+  ])("a child below an ancestor that became %s since the ancestor was listed is not read", async (_what, replaceDeep) => {
+    await mkdir(join(kb, "notes/deep/sub"), { recursive: true });
+    // Both link targets hold a real `sub`, so the child's path still opens a folder: not the one the walk expects.
+    await mkdir(join(temp, "outside/sub"));
+    await writeFile(join(temp, "outside/sub/private.md"), "private");
+    await mkdir(join(kb, "notes/real/sub"));
+    const walk = docsFs(kb).listingWalk();
+    const notes = await walk.list("notes");
+    const child = (dir: DocsListedDir, name: string) => dir.entries.find((candidate) => candidate.name === name)!;
+    const deep = (await walk.listChild(notes, child(notes, "deep")))!;
+    expect(deep.canonical).toBe(join(kb, "notes/deep"));
+
+    await rm(join(kb, "notes/deep"), { recursive: true });
+    await replaceDeep();
+
+    expect(await walk.listChild(deep, child(deep, "sub"))).toBeNull();
+    // The same folder reached with no link on the way is still read, at its canonical location.
+    const real = (await walk.listChild(notes, child(notes, "real")))!;
+    expect((await walk.listChild(real, child(real, "sub")))?.canonical).toBe(join(kb, "notes/real/sub"));
   });
 });

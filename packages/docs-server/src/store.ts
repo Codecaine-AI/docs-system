@@ -12,7 +12,8 @@ import { moveDocBundle, type MoveDocDeps, type MoveDocResult } from "@codecaine-
 import { loadDocsRootExcludePolicy, resolveDocBundleJsonPath, setDocsRootExclude } from "@codecaine-ai/docs-index/paths";
 import { docsFs } from "@codecaine-ai/docs-index/safe-path";
 
-import { walkDocsDir, type DocsTreeNode } from "./docs-tree";
+import type { DocsTreeNode } from "./docs-tree";
+import { treeIndex, type TreeSnapshot } from "./tree-index";
 import {
   loadDocBundle,
   loadDocProjection,
@@ -135,6 +136,8 @@ import {
   undoChangeSet,
 } from "./changesets/changeset-ops";
 
+export { treeIndex, type TreeSnapshot } from "./tree-index";
+
 /**
  * `createDocsStore(docsRoot)` — the docs framework's single mutation
  * authority for one docs tree, bound to an explicit `docsRoot` (no host-app
@@ -158,7 +161,13 @@ export interface DocsStore {
   readonly locks: DraftLockStore;
 
   // -- reads ---------------------------------------------------------------
+  /**
+   * The docs tree: the in-memory snapshot when a host registered this root with `treeIndex.watch`, else one walk per call.
+   * A read after a store mutation that moved, created or deleted a bundle or folder waits for the rebuild that mutation started.
+   */
   tree(): Promise<DocsTreeNode[]>;
+  /** The tree with its revision (sha256 hex of the serialized tree). `GET /api/tree` answers with the ETag `"<revision>"`. */
+  treeSnapshot(): Promise<TreeSnapshot>;
   bundle(path: string): Promise<DocBundleLoadResult | DocBundleLoadError>;
   projection(path: string): Promise<DocProjectionResult | DocBundleLoadError>;
   annotations(path: string): Promise<BundleAnnotationsReadResult>;
@@ -585,6 +594,12 @@ async function forwardSequenceAction(
   });
 }
 
+/** Store reads that run outside the store-operation lock. Every other method keeps it. */
+const UNLOCKED_READS: ReadonlySet<keyof DocsStore> = new Set<keyof DocsStore>([
+  "tree", "treeSnapshot", "bundle", "projection", "annotations", "annotationList", "proposals", "changesets", "changesetGet",
+  "docGet", "canvasGet", "canvasByDocPath", "sequenceGet", "sequenceByDocPath", "assets", "readAsset", "backlinks",
+]);
+
 /**
  * Every store honors its project's policy: the codecaine.docs.json `exclude`
  * globs of the project (or an enclosing `"docsRoot": "."` project) are read
@@ -625,7 +640,8 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
     docsRoot: root,
     locks: draftLockStore.forRoot(root),
 
-    tree: () => walkDocsDir(root),
+    tree: () => treeIndex.tree(root),
+    treeSnapshot: () => treeIndex.snapshot(root),
     bundle: (path) => loadDocBundle(root, path),
     projection: (path) => loadDocProjection(root, path),
     annotations: (path) => getBundleAnnotations(root, path),
@@ -660,11 +676,18 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
       }
       return result;
     },
-    changesetAccept: (id, sessionId) =>
-      acceptChangeSet(root, id, {
+    changesetAccept: async (id, sessionId) => {
+      const result = await acceptChangeSet(root, id, {
         sessionId,
         publishChange: (event: DocsChangeEvent) => publishDocsChangeEvent(channel, event),
-      }),
+      });
+      // A tree op moved, created or deleted a bundle; a failed accept may have run one and rolled it back.
+      const touchedTree = result.ok
+        ? result.changeset.treeOps.length > 0
+        : result.failedTreeOp !== undefined || result.results.some((step) => step.kind === "tree-op");
+      if (touchedTree) treeIndex.invalidate(root);
+      return result;
+    },
     changesetReject: async (id, sessionId) => {
       const result = await rejectChangeSet(root, id, { sessionId });
       if (result.ok) {
@@ -687,6 +710,9 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
           actor: sessionId ?? result.changeset.sessionId ?? "anonymous",
         });
       }
+      // The undo of a tree op moves a bundle back; a failed undo may have undone some patches before it stopped.
+      const touchedTree = result.ok ? result.changeset.treeOps.length > 0 : (result.undonePatchIds?.length ?? 0) > 0;
+      if (touchedTree) treeIndex.invalidate(root);
       return result;
     },
     forwardCanvasAction: (path, op, expectedDocHash, expectedCanvasHash, sessionId) =>
@@ -732,17 +758,32 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
       canvas_apply_patch(root, src, operations, expectedHash, actor),
     applySequencePatch: (src, operations, expectedHash, actor) =>
       sequence_apply_patch(root, src, operations, expectedHash, actor),
-    undoPatch: (patchId) => undo_patch(root, patchId),
+    undoPatch: async (patchId) => {
+      const result = await undo_patch(root, patchId);
+      // A tree patch moves a bundle back; a compound patch may hold one; a failed compound undo may have undone some members.
+      const touchedTree = result.ok
+        ? result.kind === "tree" || result.kind === "compound"
+        : (result.undonePatchIds?.length ?? 0) > 0;
+      if (touchedTree) treeIndex.invalidate(root);
+      return result;
+    },
 
     assets: (path) => listManagedAssets(root, path),
     restoreManagedFiles: async (id, preview, expectedTreeHash) => {
       const result = await restoreManagedFiles(root, id, preview, expectedTreeHash);
-      if (result.ok && result.restored) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: id, actor: "undo" });
+      if (result.ok && result.restored) {
+        publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: id, actor: "undo" });
+        treeIndex.invalidate(root);
+      }
       return result;
     },
     manageFiles: async (input) => {
       const result = await manageFiles(root, input);
-      if (result.ok && result.applied) publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: result.tree_change_id, actor: "external-agent" });
+      if (result.ok && result.applied) {
+        publishDocsChangeEvent(channel, { path: "", changedIds: [], patchId: result.tree_change_id, actor: "external-agent" });
+        // A page move or delete changes the tree; an asset lives under assets/ and a title lives inside doc.json, which the tree never lists.
+        if (input.kind === "page") treeIndex.invalidate(root);
+      }
       return result;
     },
     moveDoc: async (fromPath, toPath) => {
@@ -775,7 +816,10 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
         backlinksDb,
         projectId: "",
       };
-      return moveDocBundle(root, fromPath, toPath, deps);
+      const result = await moveDocBundle(root, fromPath, toPath, deps);
+      // Every refused move returns before the rename; an accepted one has moved the bundle folder.
+      if (result.ok) treeIndex.invalidate(root);
+      return result;
     },
 
     publishChange: (event) => publishDocsChangeEvent(channel, event),
@@ -783,8 +827,10 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
   };
   // Store callers share one corpus authority during multi-file reorganizations.
   // Per-file locks still coordinate with lower-level internal editing primitives.
+  // Reads skip the corpus lock, so a bundle read never waits for a tree walk.
   for (const key of Object.keys(store) as Array<keyof DocsStore>) {
     if (key === "publishChange" || key === "subscribeChanges" || typeof store[key] !== "function") continue;
+    if (UNLOCKED_READS.has(key)) continue;
     const operation = store[key] as (...args: any[]) => Promise<any>;
     (store as any)[key] = (...args: any[]) => withPathLock(join(root, ".changesets", ".store-operation-lock"), () => operation(...args));
   }
