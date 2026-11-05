@@ -238,7 +238,7 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(union.querySelectorAll("wbr")).toHaveLength(0);
   });
 
-  it("renders names, types, an accessible optional mark, and descriptions as name tooltips", () => {
+  it("renders names, types, an accessible optional mark, and prints each description beside its type", () => {
     renderTwoPane();
     const row = treeRow("source.symbol") as HTMLElement;
     expect(row.querySelector('[data-field-token="name"]')?.textContent).toBe("symbol");
@@ -248,30 +248,18 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(optional.querySelector('[aria-hidden="true"]')?.textContent).toBe("?");
     expect(optional.querySelector("[data-sr-only]")?.textContent).toBe(" (optional)");
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
-    // A described name is focusable and points at its tooltip; the row shows
-    // only name and type (the tooltip sits in the name cell, not the type column).
+    // A static or touch reader sees the description: it prints in the type
+    // column, after the type, and is never a hover-only tooltip.
     const described = treeRow("name") as HTMLElement;
-    const name = described.querySelector('[data-field-token="name"]') as HTMLElement;
-    expect(name.getAttribute("tabindex")).toBe("0");
-    expect(name.hasAttribute("data-has-description")).toBe(true);
-    const description = described.querySelector('[data-field-token="description"]') as HTMLElement;
-    expect(description.textContent).toBe("Shape display name");
-    expect(description.getAttribute("role")).toBe("tooltip");
-    expect(name.getAttribute("aria-describedby")).toBe(description.id);
-    expect(description.closest("[data-field-def]")).toBeNull();
-    expect(description.closest("[data-field-name-cell]")).not.toBeNull();
-    // Tooltip ids are unique within the block.
-    const ids = Array.from(document.querySelectorAll('[role="tooltip"]')).map((tip) => tip.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    // An undescribed name is plain text: no underline target, no tab stop.
-    expect(row.querySelector('[data-field-token="description"]')).toBeNull();
-    expect(row.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
-    // CSS only: a 450ms hover dwell, immediate on focus, inline in print.
-    const css = sheet();
-    expect(css).toContain("[data-described]:hover>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:var(--docs-tip-delay,450ms)}");
-    expect(css).toContain("[data-described]:has(>[data-has-description]:focus-visible)>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:0s}");
-    expect(css).toContain("pointer-events:none");
-    expect(css).toMatch(/@media print\{\[data-described\]\{display:contents\}[^\n]*\[data-description-tip\]\{position:static;display:block/);
+    const note = described.querySelector('[data-field-token="note"]') as HTMLElement;
+    expect(note.textContent).toBe("Shape display name");
+    expect(note.closest("[data-field-def]")?.querySelector('[data-field-token="type"]')?.textContent).toBe("string");
+    expect(described.querySelector('[role="tooltip"]')).toBeNull();
+    expect(described.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
+    // An undescribed field prints no note.
+    expect(row.querySelector('[data-field-token="note"]')).toBeNull();
+    // Notes sit in a third column when the ledger is 600px wide, else under the type.
+    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]){display:flex');
   });
 
   it("colors type text as Dark+ colors a TS type: literals by role, pipes and braces as punctuation", () => {

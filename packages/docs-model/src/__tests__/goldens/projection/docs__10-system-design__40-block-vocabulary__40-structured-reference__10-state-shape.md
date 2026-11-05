@@ -312,7 +312,7 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
 - Descriptions
 
-  - A field name with a description carries a dotted underline. The description opens as a tooltip under the name after a 450 ms hover dwell, or at once on keyboard focus.
+  - A field's description prints on the page beside its type. When the ledger is 600px wide or more, it sits in a third column. When the ledger is narrower, it sits under the type.
 
   - Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description.
 
