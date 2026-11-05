@@ -183,6 +183,7 @@
       ],
       "children": [
         "shape-detail-3-0",
+        "shape-detail-3-3",
         "shape-detail-3-2",
         "shape-detail-3-1"
       ]
@@ -194,6 +195,17 @@
       "text": [
         {
           "insert": "Use a numbered list for multi-step work, with one bounded action per step."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-3-3": {
+      "id": "shape-detail-3-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code block, note, or callout that belongs to a step is a child of that step. It renders inside the step, and the next step keeps its number. Between two steps, it restarts the numbering at 1."
         }
       ],
       "children": []

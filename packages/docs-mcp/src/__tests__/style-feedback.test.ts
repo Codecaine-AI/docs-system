@@ -159,6 +159,24 @@ describe("docs_check style gate", () => {
     expect("style_gate" in untasked).toBe(false);
   });
 
+  test("a code block between two numbered steps fails docs_check until it moves into the step above", async () => {
+    const step = (id: string, index: number, text: string) => ({ type: "insertBlock", blockId: id, parentId: "root", index, blockType: "list-item", props: { ordered: true }, text: [{ insert: text }] });
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
+      step("s1", 3, "Run the boundary test."),
+      { type: "insertBlock", blockId: "run", parentId: "root", index: 4, blockType: "code", props: { language: "sh" }, text: [{ insert: "bun test" }] },
+      step("s2", 5, "Fix each import the test lists."),
+    ] }, task);
+    expect(written.style_findings.shown).toContainEqual({
+      block: "run", rule: "structure.split-ordered-list",
+      problem: 'The code block run sits between step 1 and the next numbered step, so that step renders as "1.". Move run into step 1\'s children.',
+      fix: fix("structure.split-ordered-list"), blocks_check: true,
+    });
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(false);
+    await call("docs_apply_ops", { path: "page", expected_hash: written.hash, ops: [{ type: "moveBlock", blockId: "run", toParentId: "s1", toIndex: 0 }] }, task);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect([checked.ok, checked.style_gate]).toEqual([true, []]);
+  });
+
   test("a page created in the task is gated from its first revision", async () => {
     const created = await call("docs_create", { path: "new-page", title: "New Page", expected_absent: true }, task);
     expect(created.ok).toBe(true);

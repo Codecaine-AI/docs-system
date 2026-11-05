@@ -286,7 +286,7 @@
       },
       "text": [
         {
-          "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, label-colon openers, and lone label bullets."
+          "insert": "The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, label-colon openers, lone label bullets, and numbered lists that a block splits."
         }
       ],
       "children": []
@@ -1223,7 +1223,8 @@
         "structure-list-item-sentences-lint",
         "structure-heading-title-case-lint",
         "structure-label-colon-opener-lint",
-        "structure-lone-label-parent-lint"
+        "structure-lone-label-parent-lint",
+        "structure-split-ordered-list-lint"
       ]
     },
     "b-80-authoring-lints-structure-deep-list-flag-43": {
@@ -1315,6 +1316,19 @@
       "text": [
         {
           "insert": "structure.lone-label-parent flags label bullets that stand in for headings. It flags a list whose only bullet is a short label over 2 or more list items, and a list of 2 or more label groups with no lead paragraph before it. The items move up under the lead, or each label becomes an h3 heading."
+        }
+      ],
+      "children": []
+    },
+    "structure-split-ordered-list-lint": {
+      "id": "structure-split-ordered-list-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as \"1.\", so the block moves into the children of the step above it."
         }
       ],
       "children": []
