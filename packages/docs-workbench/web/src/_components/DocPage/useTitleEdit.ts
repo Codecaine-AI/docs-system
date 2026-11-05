@@ -1,13 +1,15 @@
 import type { Dispatch, SetStateAction, RefObject } from "react";
 import { useCallback } from "react";
-import { setDocTitle } from "../../data/api";
+import { getBundle, setDocTitle } from "../../data/api";
 
 /**
  * Commits an edit of the page H1 as doc.json's title. The bundle folder, and
  * so the URL, keeps its name. Enter or blur commits, Escape reverts, and a
  * failed save restores the title the page loaded. While the body editor holds
  * unsaved edits, the title stays as loaded: the refresh after a title save
- * would reseed the editor over the draft.
+ * would reseed the editor over the draft. When body edits start while the
+ * title save runs, the page skips the refresh and takes only the new hash, so
+ * the next body save lands on the titled doc and brings the title back.
  */
 export function useTitleEdit({
   path,
@@ -50,7 +52,9 @@ export function useTitleEdit({
     }
     try {
       await setDocTitle(path, next, hash);
-      await fetchBundle();
+      const after = liveStateRef.current;
+      if (after.mode === "edit" && after.saveState !== "saved") expectedHashRef.current = (await getBundle(path)).doc_hash;
+      else await fetchBundle();
     } catch (error) {
       el.textContent = title;
       setPaneError(error instanceof Error ? `Title change failed: ${error.message}` : "Title change failed");
