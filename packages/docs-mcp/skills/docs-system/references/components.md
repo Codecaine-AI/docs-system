@@ -1,6 +1,6 @@
 # Component Selection
 
-Generated from Docs System sources. Snapshot: `sha256:ed7e18d1c1302d33d52a358dcc0a4c886b8a48ee73856b455137065517199f6d`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
 
 ### rich-text
 

@@ -18,6 +18,10 @@
         "central-5",
         "central-6",
         "central-7",
+        "central-budget-h",
+        "central-budget-lead",
+        "central-budget-write",
+        "central-budget-move",
         "central-8",
         "central-9",
         "central-10",
@@ -182,6 +186,52 @@
       "text": [
         {
           "insert": "Keep one active runtime for browser and MCP writes. A replacement waits for requests, authoring tasks, and active editor leases to finish."
+        }
+      ],
+      "children": []
+    },
+    "central-budget-h": {
+      "id": "central-budget-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Cost Budget"
+        }
+      ],
+      "children": []
+    },
+    "central-budget-lead": {
+      "id": "central-budget-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each tool call costs work in proportion to the files it reads or writes, never to the corpus size."
+        }
+      ],
+      "children": []
+    },
+    "central-budget-write": {
+      "id": "central-budget-write",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A one-doc write finishes in under 1 s at p95 without the model style check."
+        }
+      ],
+      "children": []
+    },
+    "central-budget-move": {
+      "id": "central-budget-move",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A move apply finishes in under 2 s at p95 on a corpus of 16,700 files."
         }
       ],
       "children": []

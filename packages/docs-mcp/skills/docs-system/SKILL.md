@@ -77,7 +77,7 @@ Do not call a repair tool after ordinary edits. `docs_fix_lints` remains availab
 
 ## Page and Asset Management
 
-Use `docs_move` or `docs_rename` for pages and whole sections with descendants. Use `docs_set_title` for the display title. These operations preview their affected files and reference rewrites; apply the reviewed plan with `preview:false` and its `tree_hash` as `expected_tree_hash`. Start a new preview if the corpus changes.
+Use `docs_move` or `docs_rename` for pages and whole sections with descendants. Use `docs_set_title` for the display title. These operations preview their affected files and reference rewrites; apply the reviewed plan with `preview:false` and its `tree_hash` as `expected_tree_hash`. If the apply refuses with `changed_paths`, start a new preview.
 
 Before deleting an old page that owns a shared Canvas, Sequence, or media asset, read the asset hash with `docs_asset_read` and relocate it with `docs_asset_move`. The service updates references in other pages. Then preview `docs_delete`; use `recursive:true` only when deletion of all descendants is intended. Remaining external references block deletion so they can be repaired explicitly.
 
