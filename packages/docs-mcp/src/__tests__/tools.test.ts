@@ -302,6 +302,8 @@ test("title lint fix requires a current revision, removes duplicates, and suppor
   expect(fixed.ok).toBe(true);
   expect(fixed.fixed).toBe(1);
   expect(fixed.doc.blocks.title).toBeUndefined();
+  // The lint covers the whole saved page, not the trimmed doc in the result.
+  expect(fixed.lint).toEqual((await call("docs_read", { path: "page" })).lint);
   expect((await call("docs_check", { path: "page" })).ok).toBe(true);
   const repeat = await call("docs_fix_lints", { path: "page", expected_hash: fixed.hash });
   expect(repeat.fixed).toBe(0);

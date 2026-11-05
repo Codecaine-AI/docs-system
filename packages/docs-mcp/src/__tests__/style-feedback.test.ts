@@ -278,7 +278,11 @@ describe("docs_check judged gate", () => {
     await insertList();
     // A second task starts from a page that already has the flat run, then edits one bullet.
     const second: DocsToolCallContext = { taskId: "task-2" };
-    await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    const written = await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    // The write still reports the finding, but does not say docs_check fails on it.
+    const judged = written.style_findings.shown.filter((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(judged.length).toBeGreaterThan(0);
+    expect(judged.some((f: any) => f.blocks_check)).toBe(false);
     const checked = await call("docs_check", { path: "page" }, second);
     expect(checked.style_gate).toEqual([]);
     expect(checked.ok).toBe(true);

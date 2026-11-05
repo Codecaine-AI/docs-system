@@ -89,7 +89,7 @@ const nextHint = (findings: boolean, open: number, blocking = false) => blocking
   : SAVED_NEXT;
 
 /** A doc.json write: who made it, where, the document it replaced, and the ops it applied. */
-interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocument | null | undefined; ops?: readonly DocOp[] }
+interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocument | null | undefined; ops?: readonly DocOp[]; /** Lint the whole saved page into `lint`, before the result trims `doc`. */ lint?: boolean }
 const baselineKey = (project: string, path: string) => `${project}:${normalizeBundlePath(path)}`;
 const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
   ops.flatMap((op) => "blockIds" in op ? op.blockIds : "blockId" in op ? [op.blockId] : []);
@@ -247,7 +247,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
     return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
       ...(claims.length ? { claims_to_check: claims.slice(0, CLAIMS_LIMIT) } : {}), ...(claims.length > CLAIMS_LIMIT ? { claims_omitted: claims.length - CLAIMS_LIMIT } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
-      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result, ...view };
+      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result, ...(write?.lint && result.doc ? { lint: lintDocument(result.doc, { phase: "complete" }) } : {}), ...view };
   }
   /** The document the task's first write to this page replaced: null for a page the task made, undefined with no task. */
   function taskBaselineOf(write: DocWrite, path: string): DocDocument | null | undefined {
@@ -257,12 +257,12 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
   function openStyleGate(doc: DocDocument, baseline: DocDocument | null): StyleFinding[] {
     return styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined }));
   }
-  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument): Promise<Record<string, unknown>> {
+  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument, lint?: boolean): Promise<Record<string, unknown>> {
     if (ops.some((op) => op.type === "componentAction" && ACTION_REGISTRY.get(op.action) && "forward" in ACTION_REGISTRY.get(op.action)!)) {
       return failure("Sidecar actions require their typed component tool and expected_component_hash; they cannot be mixed into a document batch.");
     }
     const prior = before ?? await priorDoc(store, args.path);
-    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash), { ctx, project: args.project, before: prior, ops });
+    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash), { ctx, project: args.project, before: prior, ops, lint });
   }
   async function component(store: DocsStore, args: Record<string, any>) {
     const doc = await store.docGet(args.path);
@@ -303,8 +303,9 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       if (result.hash !== args.expected_hash) return failure("Document changed; read the current revision before fixing lints.", 409);
       const ops = titleHeadingFixOps(result.doc);
       if (ops.length === 0) return { ok: true, path: args.path, hash: result.hash, expected_hash: result.hash, fixed: 0, lint: lintDocument(result.doc, { phase: "complete" }) };
-      const fixed = await apply(store, args, ops, ctx, result.doc);
-      return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
+      // The result trims doc to the changed blocks, so the lint comes from the whole saved page.
+      const fixed = await apply(store, args, ops, ctx, result.doc, true);
+      return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops } : {}) };
     }),
     tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);

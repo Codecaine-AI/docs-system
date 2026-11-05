@@ -285,7 +285,8 @@ export function summarizeStyleFindings(
     ...judged.flatMap((finding) => {
       const rule = byId.get(finding.ruleId);
       if (!rule || finding.probability < rule.threshold) return [];
-      const blocking = checkBlocks.judged && rule.gate === true && finding.probability >= gateThresholdOf(rule);
+      const blocking = checkBlocks.judged && rule.gate === true && finding.probability >= gateThresholdOf(rule)
+        && !checkBlocks.inherited?.has(findingKey(finding.ruleId, finding.blockId));
       return [{ rank: blocking ? 0 : rule.gate ? 2 : 3, finding: mark(compact(finding, finding.fix), blocking) }];
     }),
   ];
@@ -309,7 +310,13 @@ export function summarizeStyleFindings(
  * What docs_check fails on, for marking write feedback: lint findings by rule and block, and whether
  * judged findings on gated rules count (only under a task, as in docs_check).
  */
-export interface CheckBlocks { lint: ReadonlySet<string>; judged: boolean }
+export interface CheckBlocks {
+  lint: ReadonlySet<string>; judged: boolean;
+  /** The task's pinned baseline, for dropping judged findings the page had before the task (as docs_check does). */
+  baseline?: DocDocument | null;
+  /** Judged findings by rule and block that the baseline already had: docs_check does not fail on them. */
+  inherited?: ReadonlySet<string>;
+}
 const NO_CHECK_BLOCKS: CheckBlocks = { lint: new Set(), judged: false };
 const findingKey = (rule: string, block: string | undefined) => `${rule}\u0000${block ?? ""}`;
 /**
@@ -319,7 +326,7 @@ const findingKey = (rule: string, block: string | undefined) => `${rule}\u0000${
 export function checkBlocksFor(doc: DocDocument, taskBaseline: DocDocument | null | undefined, gate: readonly StyleFinding[] = []): CheckBlocks {
   const lint = new Set(lintDocument(doc, { phase: "complete" }).blocking.map((f) => findingKey(f.ruleId, f.blockId)));
   for (const finding of gate) lint.add(findingKey(finding.rule, finding.block));
-  return { lint, judged: taskBaseline !== undefined };
+  return { lint, judged: taskBaseline !== undefined, baseline: taskBaseline };
 }
 
 /** docs_check's blocking list: every gated finding the task introduced, uncapped, in report order. */
@@ -352,6 +359,28 @@ async function judge(engine: JudgmentEngine, rules: readonly JudgmentRule[], doc
 }
 
 export type JudgedGate = { available: true; gate: StyleFinding[] } | { available: false; reason: string };
+/** A judged finding that clears its gated rule's threshold and gate threshold. */
+const clearsGate = (byId: ReadonlyMap<string, JudgmentRule>, finding: JudgedFinding) => {
+  const rule = byId.get(finding.ruleId);
+  return rule !== undefined && finding.probability >= gateThresholdOf(rule) && finding.probability >= rule.threshold;
+};
+
+/**
+ * The gate-clearing findings in `found` that `prior` already had on the same block, by rule and block.
+ * One engine call over those blocks of `prior`, made only when some finding sits on a block `prior` has. Throws when the engine does.
+ */
+async function inheritedJudged(engine: JudgmentEngine, rules: readonly JudgmentRule[], prior: DocDocument | null, found: readonly JudgedFinding[]): Promise<Set<string>> {
+  const byId = new Map(rules.map((rule) => [rule.id, rule]));
+  const existed = prior ? found.filter((f) => byId.has(f.ruleId) && ruleApplies(byId.get(f.ruleId)!, prior, f.blockId!)) : [];
+  if (!prior || !existed.length) return new Set();
+  // A direct engine call, outside judgeTouched: its span is charged here, once.
+  const started = performance.now();
+  let again: JudgedFinding[];
+  try { again = await engine.judge({ doc: prior, blockIds: [...new Set(existed.map((f) => f.blockId!))], rules: rules.filter((rule) => existed.some((f) => f.ruleId === rule.id)) }); }
+  finally { addJevSpan(performance.now() - started); }
+  return new Set(again.filter((f) => clearsGate(byId, f)).map((f) => findingKey(f.ruleId, f.blockId)));
+}
+
 /**
  * docs_check's judged gate: gated rules judged over the blocks the task changed since its baseline,
  * kept at or above each rule's gateThreshold. A finding the baseline already had at that level on
@@ -366,25 +395,11 @@ export async function judgedStyleGate(input: {
   const rules = (input.rules ?? judgmentRules).filter((rule) => rule.gate);
   if (!input.engine) return { available: false, reason: "No judgment engine is configured." };
   const byId = new Map(rules.map((rule) => [rule.id, rule]));
-  const clears = (finding: JudgedFinding) => {
-    const rule = byId.get(finding.ruleId);
-    return rule !== undefined && finding.probability >= gateThresholdOf(rule) && finding.probability >= rule.threshold;
-  };
   try {
     const touched = touchedBlockIds(input.baseline, input.doc);
-    const found = (await judgeTouched(input.engine, rules, input.doc, touched)).filter(clears);
-    const prior = input.baseline;
-    const existed = prior ? found.filter((f) => ruleApplies(byId.get(f.ruleId)!, prior, f.blockId!)) : [];
-    let inherited = new Set<string>();
-    if (prior && existed.length) {
-      // A direct engine call, outside judgeTouched: its span is charged here, once.
-      const started = performance.now();
-      let again: JudgedFinding[];
-      try { again = await input.engine.judge({ doc: prior, blockIds: [...new Set(existed.map((f) => f.blockId!))], rules: rules.filter((rule) => existed.some((f) => f.ruleId === rule.id)) }); }
-      finally { addJevSpan(performance.now() - started); }
-      inherited = new Set(again.filter(clears).map((f) => `${f.ruleId}\u0000${f.blockId}`));
-    }
-    return { available: true, gate: found.filter((f) => !inherited.has(`${f.ruleId}\u0000${f.blockId}`)).map((f) => compact(f, f.fix)) };
+    const found = (await judgeTouched(input.engine, rules, input.doc, touched)).filter((f) => clearsGate(byId, f));
+    const inherited = await inheritedJudged(input.engine, rules, input.baseline, found);
+    return { available: true, gate: found.filter((f) => !inherited.has(findingKey(f.ruleId, f.blockId))).map((f) => compact(f, f.fix)) };
   } catch (error) {
     return { available: false, reason: error instanceof Error ? error.message : String(error) };
   }
@@ -408,5 +423,13 @@ export async function writeStyleFeedback(input: {
   const report = lintDocument(input.after, { phase: "complete", baseline: input.before ?? undefined });
   const touched = touchedBlockIds(input.before, input.after, input.named);
   const judged = input.engine && rules.length ? await judge(input.engine, rules, input.after, touched) : [];
-  return summarizeStyleFindings(report, touched, judged, rules, input.checkBlocks);
+  const checkBlocks = input.checkBlocks ?? NO_CHECK_BLOCKS;
+  // A judged finding the task's baseline already had does not fail docs_check, so it is not marked blocks_check.
+  let inherited: Set<string> = new Set();
+  if (input.engine && checkBlocks.judged && checkBlocks.baseline) {
+    const gated = rules.filter((rule) => rule.gate);
+    const byId = new Map(gated.map((rule) => [rule.id, rule]));
+    try { inherited = await inheritedJudged(input.engine, gated, checkBlocks.baseline, judged.filter((f) => clearsGate(byId, f))); } catch { /* Advisory: keep the marks. */ }
+  }
+  return summarizeStyleFindings(report, touched, judged, rules, { ...checkBlocks, inherited });
 }
