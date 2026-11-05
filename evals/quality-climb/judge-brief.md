@@ -26,6 +26,9 @@ Score each of the 8 categories with a whole number from 1 to 10. Each category h
 | Look | `hierarchy` | Do type sizes, spacing and headings show what matters first? |
 | Look | `craft` | Does the page look finished and ready to publish? |
 
+`accuracy` counts only a statement on the page that the source files contradict.
+A fact that the page leaves out counts under `coverage`, not under `accuracy`.
+
 Use the source files for the Meaning group. Use the markdown for the Writing group. Use only the PNG for the Look group.
 
 Use the whole scale. Each whole number has one meaning.
