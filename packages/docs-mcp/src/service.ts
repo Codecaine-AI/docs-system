@@ -53,13 +53,19 @@ const named=(result:DocsToolResult,callId:string):DocsToolResult=>{
 };
 /** Appends one JSON line per tool call to CODECAINE_DOCS_CALL_TIMINGS_FILE (default ~/.codecaine/call-timings.jsonl),
  * moving the file to <file>.1 once it passes 5 MB. Never fails the call it records. */
+const timingWrites=new Map<string,Promise<void>>();
 async function recordCallTiming(line:Record<string,unknown>){
  const file=process.env.CODECAINE_DOCS_CALL_TIMINGS_FILE||join(homedir(),'.codecaine','call-timings.jsonl');
- try{
-  await mkdir(dirname(file),{recursive:true});
-  if(((await stat(file).catch(()=>undefined))?.size??0)>CALL_TIMINGS_MAX_BYTES)await rename(file,`${file}.1`);
-  await appendFile(file,JSON.stringify(line)+'\n');
- }catch(error){console.error(`call-timings: ${error instanceof Error?error.message:String(error)}`);}
+ // One chain per file: a rotation never runs between another call's size check and its append.
+ const write=(timingWrites.get(file)??Promise.resolve()).then(async()=>{
+  try{
+   await mkdir(dirname(file),{recursive:true});
+   if(((await stat(file).catch(()=>undefined))?.size??0)>CALL_TIMINGS_MAX_BYTES)await rename(file,`${file}.1`);
+   await appendFile(file,JSON.stringify(line)+'\n');
+  }catch(error){console.error(`call-timings: ${error instanceof Error?error.message:String(error)}`);}
+ });
+ timingWrites.set(file,write);
+ await write;
 }
 /** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). codeThemesRoot: the central code-theme folder (`/api/code-themes`). */
 /** judgmentEngine: Jev by default. It reads CODECAINE_DOCS_JUDGMENT on every call, so =off disables it without a restart. Pass null for none. */

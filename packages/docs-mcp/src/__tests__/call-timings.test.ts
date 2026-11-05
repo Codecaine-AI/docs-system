@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
 import { mkdir, mkdtemp, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -94,6 +95,24 @@ test("concurrent calls each record only their own lock wait and judge span, and 
     expect(thrownLine.jev_span_ms).toBeGreaterThanOrEqual(THROWING_JUDGE_MS - 5);
     expect(thrownLine.jev_span_ms).toBeLessThan(JUDGE_MS);
   } finally { judgeMode = "slow"; service.close(); }
+});
+
+test("50 concurrent calls across a rotation keep all 50 lines between the file and its .1", async () => {
+  // A file just under the 5 MB limit: the first few calls fill it past the limit, and one of them rotates it.
+  const LIMIT = 5 * 1024 * 1024;
+  await mkdir(join(temp, "timings"), { recursive: true });
+  await writeFile(timings, `${"x".repeat(LIMIT - 1000)}\n`);
+  const service = createInteractionService({ managed: true, judgmentEngine: null });
+  try {
+    await service.call(temp, "docs_discover", {});
+    const results = await Promise.all(Array.from({ length: 50 }, () => service.call(temp, "docs_guidance", {})));
+    const ids = results.map((result) => result.structuredContent!.call_id as string);
+    const rows = [timings, `${timings}.1`].flatMap((file) => readFileSync(file, "utf8").split("\n").filter((line) => line.startsWith("{")))
+      .map((line) => JSON.parse(line).call_id as string);
+    expect(readFileSync(`${timings}.1`, "utf8").startsWith("xxx")).toBe(true);
+    expect(new Set(ids).size).toBe(50);
+    expect(ids.filter((id) => rows.includes(id))).toEqual(ids);
+  } finally { service.close(); }
 });
 
 test("a metadata reply and a refused call each name their own line", async () => {
