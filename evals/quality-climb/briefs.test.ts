@@ -62,3 +62,9 @@ test("every source file a brief names exists at the round 0 commit", async () =>
   const missing = briefs.flatMap(sourcePaths).filter((p) => !existsSync(p));
   expect(missing).toEqual([]);
 });
+
+test("a brief slug that could leave the round dir is refused", async () => {
+  const file = join(await mkdtemp(join(tmpdir(), "briefs-")), "local.json");
+  await writeFile(file, JSON.stringify([{ id: 99, set: "held-out", slug: "../../outside", title: "Outside", reader: "r", prompt: "p", sources: [] }]));
+  expect(() => loadBriefs(file)).toThrow(/slug holds only lowercase letters/);
+});

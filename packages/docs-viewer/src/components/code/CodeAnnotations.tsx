@@ -99,7 +99,7 @@ function AnnotatedCodeLine({
  * (`data-notes-below`), so the code gets the full panel width. Without
  * layout (static markup) the notes stay stacked at the top of their column.
  */
-function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines: readonly number[], code: string) {
+function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines: readonly number[], content: string) {
   const key = firstLines.join(",");
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -107,8 +107,9 @@ function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines:
     const aside = body?.querySelector<HTMLElement>("[data-code-notes]");
     const pre = body?.querySelector<HTMLElement>("pre");
     if (!section || !body || !aside || !pre) return;
-    const notes = Array.from(aside.children) as HTMLElement[];
     const place = () => {
+      // Read the notes on each run: React replaces a note element when its text changes.
+      const notes = Array.from(aside.children) as HTMLElement[];
       body.removeAttribute("data-notes-below");
       aside.removeAttribute("data-notes-below");
       for (const note of notes) note.style.marginTop = "";
@@ -141,7 +142,7 @@ function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines:
     });
     observer.observe(section);
     return () => observer.disconnect();
-  }, [sectionRef, key, code]);
+  }, [sectionRef, key, content]);
 }
 
 /**
@@ -207,7 +208,8 @@ export function AnnotatedCodeBlock({
     () => annotations.map((annotation) => Math.min(...expandLineRange(annotation.lines, lines.length), lines.length)),
     [annotations, lines.length],
   );
-  useNotePlacement(sectionRef, firstLines, displayCode);
+  // Placement runs again when the code or a note changes.
+  useNotePlacement(sectionRef, firstLines, `${displayCode}\u0000${JSON.stringify(annotations)}`);
   const pre = (
     <pre className={CODE_ANNOTATED_PRE_CLASSES}>
       {lines.map((line, index) => {

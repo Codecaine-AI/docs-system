@@ -105,8 +105,13 @@ function writtenView(before: DocDocument | null, after: DocDocument, named: Iter
   const keep = new Set([after.root, ...touchedBlockIds(before, after, named)]);
   // A parent stays when it holds a kept block, or when its children changed: a delete or move leaves the old parent changed.
   const sameChildren = (a: readonly string[] = [], b: readonly string[] = []) => a.length === b.length && a.every((id, i) => id === b[i]);
-  for (const block of Object.values(after.blocks)) {
-    if (block.children?.some((child) => keep.has(child)) || !sameChildren(before.blocks[block.id]?.children, block.children)) keep.add(block.id);
+  // Repeat until no block joins: a parent can come before its kept child in block order.
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const block of Object.values(after.blocks)) {
+      if (keep.has(block.id)) continue;
+      if (block.children?.some((child) => keep.has(child)) || !sameChildren(before.blocks[block.id]?.children, block.children)) { keep.add(block.id); grew = true; }
+    }
   }
   const omitted = Object.keys(after.blocks).length - keep.size;
   if (omitted === 0) return { doc: after };
