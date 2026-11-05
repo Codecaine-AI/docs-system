@@ -1,12 +1,6 @@
 import type { Dispatch, SetStateAction, RefObject } from "react";
 import { useCallback } from "react";
-import { getBundle, setDocTitle } from "../../data/api";
-
-/** The same document apart from its title: true when only a title write sits between `a` and `b`. */
-function sameExceptTitle(a: unknown, b: unknown): boolean {
-  const strip = (doc: unknown) => JSON.stringify({ ...(doc as Record<string, unknown>), title: undefined });
-  return strip(a) === strip(b);
-}
+import { setDocTitle } from "../../data/api";
 
 const BODY_SAVE_WAIT_MS = 15_000;
 
@@ -36,9 +30,9 @@ export function useTitleEdit({
   titleRef: RefObject<HTMLHeadingElement | null>;
   revertTitleRef: RefObject<boolean>;
   expectedHashRef: { current: string | undefined };
-  fetchBundle: () => Promise<void>;
+  fetchBundle: (options?: { keepDraft?: boolean }) => Promise<void>;
   setPaneError: Dispatch<SetStateAction<string | null>>;
-  liveStateRef: { current: { mode: string; saveState: string; doc: unknown } };
+  liveStateRef: { current: { mode: string; saveState: string } };
 }) {
   const commitTitleEdit = useCallback(async () => {
     const el = titleRef.current;
@@ -69,13 +63,7 @@ export function useTitleEdit({
     }
     try {
       await setDocTitle(path, next, hash);
-      if (bodySaved()) {
-        await fetchBundle();
-      } else {
-        const fresh = await getBundle(path);
-        const known = liveStateRef.current.doc;
-        if (known && sameExceptTitle(fresh.doc, known)) expectedHashRef.current = fresh.doc_hash;
-      }
+      await fetchBundle({ keepDraft: true });
     } catch (error) {
       el.textContent = title;
       setPaneError(error instanceof Error ? `Title change failed: ${error.message}` : "Title change failed");

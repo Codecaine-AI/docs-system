@@ -11,6 +11,12 @@ import type { BundleState, WorkbenchMode } from "./types";
 import { canvasBlockIdsForSrc } from "./utils";
 import { cssEscape } from "./dom";
 
+/** The same document apart from its title. */
+function sameExceptTitle(a: unknown, b: unknown): boolean {
+  const strip = (doc: unknown) => JSON.stringify({ ...(doc as Record<string, unknown>), title: undefined });
+  return strip(a) === strip(b);
+}
+
 export function useDocBundle({
   path,
   bundle,
@@ -77,7 +83,13 @@ export function useDocBundle({
   const pathRef = useRef(path);
   pathRef.current = path;
   const fetchBundle = useCallback(
-    async (options?: { showLoading?: boolean }) => {
+    /**
+     * `keepDraft`: when the editor holds unsaved edits as the bundle arrives, the
+     * page keeps its doc, because a new doc would reseed the editor over the draft.
+     * It takes the new hash only when the doc differs from the page's doc by its
+     * title alone, so an outside edit still meets the save's 409 conflict path.
+     */
+    async (options?: { showLoading?: boolean; keepDraft?: boolean }) => {
       const seq = ++loadSeqRef.current;
       if (options?.showLoading) {
         setIsLoading(true);
@@ -86,6 +98,11 @@ export function useDocBundle({
       try {
         const payload = await getBundle(path);
         if (seq !== loadSeqRef.current) return;
+        const live = liveStateRef.current;
+        if (options?.keepDraft && live.mode === "edit" && live.saveState !== "saved") {
+          if (live.doc && sameExceptTitle(payload.doc, live.doc)) expectedHashRef.current = payload.doc_hash;
+          return;
+        }
         expectedHashRef.current = payload.doc_hash;
         setBundle({ doc: payload.doc as DocDocument, hash: payload.doc_hash });
         setAnnotations(payload.annotations ?? { schemaVersion: 1, annotations: [] });
