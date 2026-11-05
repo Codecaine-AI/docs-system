@@ -21,6 +21,7 @@
         "b-sg-ws-match-source-lists",
         "b-sg-ws-match-source-absolutes",
         "b-sg-ws-match-source-path",
+        "b-sg-ws-match-source-reading",
         "b-sg-ws-match-source-code",
         "writing-b-writing-write-sentences-to-the-r-1",
         "writing-b-writing-use-plain-words-and-the-2",
@@ -326,7 +327,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these four faults against the source before you finish a page."
+          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these five faults against the source before you finish a page."
         }
       ],
       "children": []
@@ -561,6 +562,126 @@
       "text": [
         {
           "insert": "A rule that keeps, removes, or allows a set names each case the source treats another way. Write \"keeps every other key except a legacy entry it wrote\", not \"keeps every other key\", when the source removes that entry."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-reading": {
+      "id": "b-sg-ws-match-source-reading",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A condition, exception, or option you add leaves each sentence it changes with one reading. Add it by rewriting the sentence, not by appending a clause or a step."
+        }
+      ],
+      "children": [
+        "sg-ws-reading-summary",
+        "sg-ws-reading-each",
+        "sg-ws-reading-or"
+      ]
+    },
+    "sg-ws-reading-summary": {
+      "id": "sg-ws-reading-summary",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rewrite the title, heading, or lead that the exception narrows, so it still holds. Title a warning \"Validation errors write nothing\", not \"Errors write nothing\", when its body names an error after the write."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-reading-each": {
+      "id": "sg-ws-reading-each",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each result its own condition. Write \""
+        },
+        {
+          "insert": "load",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns null when the file is missing, and "
+        },
+        {
+          "insert": "parse",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " throws when it is empty\", not \"When the file is missing or empty, "
+        },
+        {
+          "insert": "load",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns null and "
+        },
+        {
+          "insert": "parse",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " throws\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-reading-or": {
+      "id": "sg-ws-reading-or",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write an alternative with \"or\", in the step it replaces. Write \"Run "
+        },
+        {
+          "insert": "deploy",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or for a dry run, run "
+        },
+        {
+          "insert": "deploy --plan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\", not a step \"Run "
+        },
+        {
+          "insert": "deploy",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\" followed by \"For a dry run, pass "
+        },
+        {
+          "insert": "--plan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first\"."
         }
       ],
       "children": []
