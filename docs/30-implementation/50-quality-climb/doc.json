@@ -1,0 +1,826 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-99f997591282e542f6dfde7a01d37aaa",
+  "title": "Quality Climb",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "intro",
+        "h-what",
+        "what-lead",
+        "what-outline",
+        "what-builder",
+        "h-run",
+        "run-lead",
+        "run-code",
+        "run-files-lead",
+        "run-files",
+        "run-out-lead",
+        "run-out",
+        "h-cat",
+        "cat-lead",
+        "cat-table",
+        "stage-lead",
+        "stage-table",
+        "guard-lead",
+        "g1",
+        "g2",
+        "g3",
+        "h-res",
+        "res-lead",
+        "res-table",
+        "res-find-lead",
+        "f1",
+        "f2",
+        "f3",
+        "res-pr"
+      ]
+    },
+    "intro": {
+      "id": "intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The quality climb measures how well a fixed AI writer documents this codebase with the docs tools. Its code is in "
+        },
+        {
+          "insert": "evals/quality-climb/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Each round writes, renders and scores the same page briefs. Between rounds, a builder agent changes the viewer, the guidance, the tool text or the lints from the judges' findings."
+        }
+      ],
+      "children": []
+    },
+    "h-what": {
+      "id": "h-what",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "What the Climb Is"
+        }
+      ],
+      "children": []
+    },
+    "what-lead": {
+      "id": "what-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One round runs 4 steps in order. "
+        },
+        {
+          "insert": "round.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skips a step whose output already exists, so a round that crashes resumes where it stopped."
+        }
+      ],
+      "children": []
+    },
+    "what-outline": {
+      "id": "what-outline",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Quality Climb Round",
+            "steps": [
+              {
+                "text": "Write Each Page",
+                "steps": [
+                  {
+                    "text": "The writer, Opus 5.5 at medium effort, writes each brief's page with only the docs MCP tools"
+                  },
+                  {
+                    "text": "Each writer works in its own scratch corpus, with repo sources frozen at commit 8003057"
+                  }
+                ]
+              },
+              {
+                "text": "Render Each Page",
+                "steps": [
+                  {
+                    "text": "render.ts exports the page with docs-cli export and takes a 1280px Playwright PNG"
+                  },
+                  {
+                    "text": "render.ts saves the markdown, the scorable blocks and the docs_check lint findings"
+                  }
+                ]
+              },
+              {
+                "text": "Judge Each Page",
+                "steps": [
+                  {
+                    "text": "Each judge scores the PNG, the markdown and the source in 8 categories and per block"
+                  },
+                  {
+                    "text": "Sol scores each page 3 times and Opus once"
+                  }
+                ]
+              },
+              {
+                "text": "Gate the Round",
+                "steps": [
+                  {
+                    "text": "gate.ts compares the median scores and the guards with the baseline round"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "what-builder": {
+      "id": "what-builder",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The builder commits one fix for each finding it acts on. It reads only the climb set, so the held-out set shows whether a fix helps pages it was not made for."
+        }
+      ],
+      "children": []
+    },
+    "h-run": {
+      "id": "h-run",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Run a Round"
+        }
+      ],
+      "children": []
+    },
+    "run-lead": {
+      "id": "run-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Run a round from the repo root. "
+        },
+        {
+          "insert": "briefs.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds 8 briefs. To add briefs that stay out of the repo, set "
+        },
+        {
+          "insert": "QUALITY_CLIMB_LOCAL_BRIEFS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to a local briefs file."
+        }
+      ],
+      "children": []
+    },
+    "run-code": {
+      "id": "run-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/round.ts --round 10 --set climb --judges sol,opus --samples sol=3,opus=1"
+        }
+      ],
+      "children": []
+    },
+    "run-files-lead": {
+      "id": "run-files-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each step has its own file in "
+        },
+        {
+          "insert": "evals/quality-climb/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and each file has a test beside it."
+        }
+      ],
+      "children": []
+    },
+    "run-files": {
+      "id": "run-files",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "evals/quality-climb/round.ts",
+            "note": "Runs one round: write, render, judge, gate"
+          },
+          {
+            "path": "evals/quality-climb/briefs.json",
+            "note": "The page briefs, each with its set, reader, prompt and sources"
+          },
+          {
+            "path": "evals/quality-climb/write.ts",
+            "note": "The fixed writer: one Claude Code run per brief"
+          },
+          {
+            "path": "evals/quality-climb/render.ts",
+            "note": "Export, PNG, markdown, blocks and lint for one page"
+          },
+          {
+            "path": "evals/quality-climb/judge.ts",
+            "note": "Runs each judge and parses its scores"
+          },
+          {
+            "path": "evals/quality-climb/judge-brief.md",
+            "note": "What each score from 1 to 10 means"
+          },
+          {
+            "path": "evals/quality-climb/gate.ts",
+            "note": "The gate and the guards"
+          },
+          {
+            "path": "evals/quality-climb/assets.ts",
+            "note": "Pushes the before and after images for a PR"
+          }
+        ]
+      },
+      "children": []
+    },
+    "run-out-lead": {
+      "id": "run-out-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A round writes its output to "
+        },
+        {
+          "insert": ".tmp/quality-climb/round-<n>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which git ignores."
+        }
+      ],
+      "children": []
+    },
+    "run-out": {
+      "id": "run-out",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": ".tmp/quality-climb/round-<n>/report.json",
+            "note": "Scores per judge, category and block-type group"
+          },
+          {
+            "path": ".tmp/quality-climb/round-<n>/gate.json",
+            "note": "Pass or fail, with each failed rule"
+          },
+          {
+            "path": ".tmp/quality-climb/round-<n>/checks.json",
+            "note": "Test and typecheck results for the tests guard"
+          },
+          {
+            "path": ".tmp/quality-climb/round-<n>/climb/<nn>-<slug>/page.png",
+            "note": "The rendered page the judges see"
+          },
+          {
+            "path": ".tmp/quality-climb/round-<n>/climb/<nn>-<slug>/scores/",
+            "note": "One JSON file per judge sample"
+          }
+        ]
+      },
+      "children": []
+    },
+    "h-cat": {
+      "id": "h-cat",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Categories and Judges"
+        }
+      ],
+      "children": []
+    },
+    "cat-lead": {
+      "id": "cat-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each judge scores every page from 1 to 10 in 8 categories. Each judge also scores each block, and the gate averages those scores in 13 block-type groups."
+        }
+      ],
+      "children": []
+    },
+    "cat-table": {
+      "id": "cat-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Group",
+          "Category",
+          "The judge checks"
+        ],
+        "rows": [
+          [
+            "Meaning",
+            "Accuracy",
+            "The page states nothing the source contradicts"
+          ],
+          [
+            "Meaning",
+            "Coverage",
+            "Every requirement in the brief is on the page"
+          ],
+          [
+            "Meaning",
+            "Scope",
+            "The page adds nothing the brief does not ask for"
+          ],
+          [
+            "Writing",
+            "Clarity",
+            "Each sentence has one reading, in STE and the house style"
+          ],
+          [
+            "Writing",
+            "Structure",
+            "The opening, headings and bullets let a reader scan the page"
+          ],
+          [
+            "Writing",
+            "Block choice",
+            "Each table, list or structured block fits its content"
+          ],
+          [
+            "Look",
+            "Hierarchy",
+            "Type sizes, spacing and headings show what matters first"
+          ],
+          [
+            "Look",
+            "Craft",
+            "The page looks finished and ready to publish"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "stage-lead": {
+      "id": "stage-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The judges count in 3 stages. A stage passes when each counting judge gives a mean of 9.5 or more in every category and block-type group, with no page under 9, on both sets."
+        }
+      ],
+      "children": []
+    },
+    "stage-table": {
+      "id": "stage-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Stage",
+          "Judges whose scores count"
+        ],
+        "rows": [
+          [
+            "1",
+            "GPT-6.1 Sol and Opus 5.5"
+          ],
+          [
+            "2",
+            "Stage 1 judges and Muse Wonder 1.0"
+          ],
+          [
+            "3",
+            "Stage 2 judges and Fable 5.1"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "guard-lead": {
+      "id": "guard-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A round also fails when any of its 3 guards fails."
+        }
+      ],
+      "children": []
+    },
+    "g1": {
+      "id": "g1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Tests guard",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "g1a"
+      ]
+    },
+    "g1a": {
+      "id": "g1a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "It fails on a test or type error that the baseline round's "
+        },
+        {
+          "insert": "checks.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " does not list."
+        }
+      ],
+      "children": []
+    },
+    "g2": {
+      "id": "g2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Lint guard",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "g2a"
+      ]
+    },
+    "g2a": {
+      "id": "g2a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "It fails on a page with a blocking finding under the rules at the "
+        },
+        {
+          "insert": "--lint-ref",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " snapshot."
+        }
+      ],
+      "children": []
+    },
+    "g3": {
+      "id": "g3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Cost guard",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "g3a"
+      ]
+    },
+    "g3a": {
+      "id": "g3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "It fails when the writer's mean tokens per page pass 120% of the baseline round."
+        }
+      ],
+      "children": []
+    },
+    "h-res": {
+      "id": "h-res",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Results"
+        }
+      ],
+      "children": []
+    },
+    "res-lead": {
+      "id": "res-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first climb ran 9 rounds of stage 1 in November 2026 and stopped without passing the gate. Each cell gives the mean page score in round 0 and in round 9, on 6 climb pages and 4 held-out pages."
+        }
+      ],
+      "children": []
+    },
+    "res-table": {
+      "id": "res-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Category",
+          "Sol climb",
+          "Sol held out",
+          "Opus climb",
+          "Opus held out"
+        ],
+        "rows": [
+          [
+            "Accuracy",
+            "7.83 to 9.00",
+            "7.00 to 6.50",
+            "8.67 to 9.00",
+            "8.50 to 7.25"
+          ],
+          [
+            "Coverage",
+            "9.17 to 9.33",
+            "8.75 to 9.50",
+            "9.00 to 9.50",
+            "9.00 to 8.75"
+          ],
+          [
+            "Scope",
+            "10.00 to 10.00",
+            "9.75 to 10.00",
+            "9.00 to 8.83",
+            "9.00 to 8.75"
+          ],
+          [
+            "Clarity",
+            "8.67 to 9.33",
+            "9.25 to 9.00",
+            "8.50 to 9.00",
+            "9.00 to 9.00"
+          ],
+          [
+            "Structure",
+            "9.67 to 9.67",
+            "9.75 to 10.00",
+            "8.83 to 9.00",
+            "9.00 to 9.00"
+          ],
+          [
+            "Block choice",
+            "9.67 to 10.00",
+            "10.00 to 10.00",
+            "9.00 to 8.83",
+            "9.00 to 8.75"
+          ],
+          [
+            "Hierarchy",
+            "9.00 to 9.67",
+            "9.00 to 9.50",
+            "9.00 to 8.83",
+            "9.00 to 8.75"
+          ],
+          [
+            "Craft",
+            "7.00 to 9.50",
+            "8.25 to 8.50",
+            "7.50 to 8.83",
+            "8.75 to 8.50"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "res-find-lead": {
+      "id": "res-find-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The climb found 3 things that shape the next one."
+        }
+      ],
+      "children": []
+    },
+    "f1": {
+      "id": "f1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The gains mostly stay on the climb set",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "f1a",
+        "f1b"
+      ]
+    },
+    "f1a": {
+      "id": "f1a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "On the held-out pages, Accuracy fell 0.50 for Sol and 1.25 for Opus."
+        }
+      ],
+      "children": []
+    },
+    "f1b": {
+      "id": "f1b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Sol's Craft score rose 2.50 on the climb set and 0.25 on the held-out set."
+        }
+      ],
+      "children": []
+    },
+    "f2": {
+      "id": "f2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Render fixes are the most general change",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "f2a",
+        "f2b"
+      ]
+    },
+    "f2a": {
+      "id": "f2a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A viewer or theme fix changes how a block draws on every page, such as wrapped code panels and open interaction-surface operations."
+        }
+      ],
+      "children": []
+    },
+    "f2b": {
+      "id": "f2b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A guidance rule often fits the climb pages more than pages in general."
+        }
+      ],
+      "children": []
+    },
+    "f3": {
+      "id": "f3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The measure needed 2 fixes before the scores meant anything",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "f3a",
+        "f3b"
+      ]
+    },
+    "f3a": {
+      "id": "f3a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The judge brief defines every score from 1 to 10. The first brief gave Opus no 10 in 192 scores."
+        }
+      ],
+      "children": []
+    },
+    "f3b": {
+      "id": "f3b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Sol scores each page 3 times, because one Sol score of the same page moves about 1.5 points between runs."
+        }
+      ],
+      "children": []
+    },
+    "res-pr": {
+      "id": "res-pr",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each kept change and its commit is listed in "
+        },
+        {
+          "insert": "docs-system PR #23",
+          "attributes": {
+            "link": "https://github.com/Codecaine-AI/docs-system/pull/23"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    }
+  }
+}

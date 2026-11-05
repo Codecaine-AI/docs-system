@@ -2,11 +2,13 @@ How the current docs-system code realizes the system design: how the source is o
 
 ## Source Areas
 
-- packages/ — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under Packages and its per-package children.
+- packages/: the workspace packages, from the document model and the backlinks index to the viewer, the workbench and the command-line dialect. Decisions live under Packages and its per-package children.
 
 - packages/docs-workbench: the composition host where the server and viewer meet. Host-wiring decisions live under Workbench.
 
 - external/: the independently owned Canvas and Sequence projects, mounted as submodules. Boundary decisions live under External Canvas and Sequence.
+
+- evals/: the quality climb, which writes, renders and scores pages to measure the docs tools. Its method and results live under Quality Climb.
 
 - themes/: theme folders and component style knobs. Decisions live under Theming.
 

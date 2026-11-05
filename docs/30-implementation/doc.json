@@ -14,6 +14,7 @@
         "b-implov-area-packages",
         "b-implov-area-workbench",
         "b-implov-area-external",
+        "b-implov-area-evals",
         "b-implov-area-themes",
         "b-implov-tier-h",
         "b-implov-tier-purpose",
@@ -64,7 +65,7 @@
           }
         },
         {
-          "insert": " — the workspace packages: the pure document model, the derived backlinks index, the mutation authority, the browser viewer/editor, the runnable workbench, the command-line dialect, and the methodology package; decisions live under "
+          "insert": ": the workspace packages, from the document model and the backlinks index to the viewer, the workbench and the command-line dialect. Decisions live under "
         },
         {
           "insert": "Packages",
@@ -145,6 +146,42 @@
               "kind": "doc",
               "path": "30-implementation/10-packages/80-external-canvas",
               "label": "External Canvas and Sequence"
+            }
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-implov-area-evals": {
+      "id": "b-implov-area-evals",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "evals/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "evals",
+              "label": "evals/"
+            }
+          }
+        },
+        {
+          "insert": ": the quality climb, which writes, renders and scores pages to measure the docs tools. Its method and results live under "
+        },
+        {
+          "insert": "Quality Climb",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "30-implementation/50-quality-climb",
+              "label": "Quality Climb"
             }
           }
         },
