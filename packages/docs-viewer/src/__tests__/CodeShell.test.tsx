@@ -37,6 +37,9 @@ describe("resolveDisplayLanguage", () => {
   it("returns the declared language when a grammar (or alias) matches, normalized", () => {
     expect(resolveDisplayLanguage("const a = 1;", "ts")).toBe("ts");
     expect(resolveDisplayLanguage("x", " TypeScript ")).toBe("typescript");
+    // A TOML config block gets its label and colors, like the json and typescript listings beside it.
+    expect(resolveDisplayLanguage('command = "bun"', "toml")).toBe("toml");
+    expect(highlightCode('command = "bun"', "toml")[0]).toContain("hljs-string");
     expect(resolveDisplayLanguage("echo hi", "shell")).toBe("shell");
   });
 

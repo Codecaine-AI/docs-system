@@ -54,6 +54,11 @@ function isWholeCodeCell(cell: TableCell): boolean {
   ) && cell.some((span) => span.insert.trim().length > 0);
 }
 
+/** A span cell that mixes code spans with other text, such as a list of names: it keeps its code chips. */
+function isPartCodeCell(cell: TableCell): boolean {
+  return typeof cell !== "string" && cell.some((span) => span.attributes?.code === true) && !isWholeCodeCell(cell);
+}
+
 function singleToken(cell: TableCell): string | null {
   if (typeof cell !== "string") return null;
   const text = cell.trim();
@@ -71,8 +76,9 @@ export function tableCellKinds(
   columnCount: number,
 ): (TableCellKind | undefined)[][] {
   const rows = storedRows.map((row) => row.map(liftBacktickCode));
+  // A column with a cell that mixes code chips and other text is never typed (viewer cell-kind.ts).
   const qualifies = Array.from({ length: columnCount }, (_, column) =>
-    rows.some((row) => {
+    !rows.some((row) => isPartCodeCell(row[column] ?? "")) && rows.some((row) => {
       const cell = row[column] ?? "";
       if (isWholeCodeCell(cell)) return true;
       const token = singleToken(cell);

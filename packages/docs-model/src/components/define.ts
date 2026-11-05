@@ -34,6 +34,20 @@ function issuePath(pointer: string, base: string): string {
   }, base);
 }
 
+/**
+ * The message for one schema error. TypeBox says only "Expected union value" for a wrong enum value, so a
+ * union of literals names the field and its allowed values instead: `tone must be one of: info, risk`.
+ */
+export function valueErrorMessage(error: ValueError): string {
+  const options: unknown = error.schema.anyOf;
+  const literals = Array.isArray(options) && options.length > 0 && options.every((option) => option && typeof option === "object" && "const" in option)
+    ? options.map((option) => String((option as { const: unknown }).const))
+    : null;
+  if (!literals) return error.message;
+  const field = pointerSegment(error.path.split("/").pop() ?? "") || "value";
+  return `${field} must be one of: ${literals.join(", ")}`;
+}
+
 export function schemaIssues(
   errors: Iterable<ValueError>,
   base = "$.params",
@@ -52,7 +66,7 @@ export function schemaIssues(
 
   const issues = Array.from(errors).flatMap(collect).map((error) => ({
     path: issuePath(error.path, base),
-    message: error.message,
+    message: valueErrorMessage(error),
   }));
   const seen = new Set<string>();
   const missingPaths = new Set<string>();

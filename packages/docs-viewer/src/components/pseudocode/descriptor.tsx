@@ -5,6 +5,7 @@ import { CODE_BLOCK_CLASSES } from "../../render/block-classes";
 import { TEXT_OPS, blockAttrs, deltaToPlainText, el } from "../../render/descriptor-helpers";
 import { CodeBlockHeader } from "../code/CodeShell";
 import { highlightPseudoLines } from "./highlight";
+import { PseudocodeGrid } from "./PseudocodeGrid";
 
 /** Diff sign glyphs: plus, and a true minus sign (U+2212) so the two read as a pair. */
 const DIFF_SIGN = { add: "+", del: "\u2212" } as const;
@@ -24,7 +25,8 @@ function codeCell(html: string): string {
 /**
  * Row-grid HTML (styles/code.css `.docs-pseudo-*`): one row per source line
  * with its number, the diff sign when `diff` is on, the code, and the
- * trailing comment. Every cell is escaped or highlighted HTML.
+ * trailing comment, plus the line's indent for a comment moved under it.
+ * Every cell is escaped or highlighted HTML.
  */
 function pseudocodeRows(code: string, diff: boolean): string {
   return highlightPseudoLines(code, diff)
@@ -33,8 +35,10 @@ function pseudocodeRows(code: string, diff: boolean): string {
         ? `<span class="docs-pseudo-sign" aria-hidden="true">${line.mark ? DIFF_SIGN[line.mark] : ""}</span>`
         : "";
       const comment = line.comment === null ? "" : `<span class="hljs-comment docs-pseudo-comment">${line.comment}</span>`;
+      // The indent in ch (a tab counts 4): a comment moved under its line starts there.
+      const indent = [...(/^[ \t]*/.exec(line.code)?.[0] ?? "")].reduce((n, c) => n + (c === "\t" ? 4 : 1), 0);
       return (
-        `<div class="docs-pseudo-row"${line.mark ? ` data-code-diff="${line.mark}"` : ""}>` +
+        `<div class="docs-pseudo-row"${line.mark ? ` data-code-diff="${line.mark}"` : ""} style="--docs-pseudo-indent:${indent}ch">` +
         `<span class="docs-pseudo-num" aria-hidden="true">${index + 1}</span>${sign}` +
         `${codeCell(line.code)}${comment}</div>`
       );
@@ -48,7 +52,7 @@ export const descriptors: DocBlockDescriptor[] = [
     targetKind: "pseudocode",
     label: "Pseudocode",
     agentDescription:
-      "A pseudocode block; the text is the pseudocode. Control words (if / else / for each / return), calls and -> arrows are highlighted, and trailing // comments sit in one aligned comment column that wraps inside the panel. With props.diff: true each line's leading +, - or space is a diff marker: added and removed rows get a +/− sign and a tint, and removed code is struck.",
+      "A pseudocode block; the text is the pseudocode. Control words (if / else / for each / return), calls and -> arrows are highlighted, and trailing // comments sit in one aligned comment column. When a comment would wrap there, or the code is too wide, every comment moves under its line. With props.diff: true each line's leading +, - or space is a diff marker: added and removed rows get a +/− sign and a tint, and removed code is struck.",
     patchOps: TEXT_OPS,
     // Mono lines share the code block's measure (block-layout.ts).
     layout: CODE_LEFT_BLOCK_LAYOUT,
@@ -63,11 +67,7 @@ export const descriptors: DocBlockDescriptor[] = [
           // data-code-surface: the frame is a code panel, like the code block's.
           { className: `group/code ${CODE_BLOCK_CLASSES}`, "data-language": "pseudo", "data-code-surface": "true" },
           createElement(CodeBlockHeader, { languageLabel: "pseudocode", copyText: () => code, kind: "pseudocode" }),
-          el("div", {
-            className: "hljs docs-pseudo-grid font-mono",
-            "data-pseudo-diff": diff ? "true" : undefined,
-            dangerouslySetInnerHTML: { __html: pseudocodeRows(code, diff) },
-          }),
+          createElement(PseudocodeGrid, { html: pseudocodeRows(code, diff), diff }),
         ),
         ctx.renderChildren(block),
       );

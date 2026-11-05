@@ -51,8 +51,10 @@ describe("style feedback on writes", () => {
       block: "body", rule: "writing.no-em-dash",
       problem: 'Authored prose contains an em dash. Evidence: "We ship on Tuesday — then we rest."',
       fix: fix("writing.no-em-dash"),
+      // An em dash is a lint error, so docs_check fails on it with or without a task.
+      blocks_check: true,
     }], omitted: 0 });
-    expect(flagged.next).toBe("Changes are saved. Fix style_findings, then run docs_check with task_id.");
+    expect(flagged.next).toBe("Changes are saved. Fix the style_findings marked blocks_check first: docs_check fails on them. Fix the rest as you go, then run docs_check with task_id.");
     // Clients may show only the start of a large result, so the feedback precedes the document.
     expect(Object.keys(flagged).slice(0, 3)).toEqual(["ok", "style_findings", "next"]);
     // The untouched legacy dense paragraph predates this write, so it is not reported.
@@ -119,6 +121,15 @@ describe("layout findings", () => {
   });
 });
 
+describe("the page in write results", () => {
+  test("a write returns the root and the blocks it changed, counts the rest, and docs_read returns the whole page", async () => {
+    const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: "We ship on Tuesday." }, task);
+    expect(Object.keys(written.doc.blocks).sort()).toEqual(["body", "root"]);
+    expect(written.doc.blocks.root.children).toEqual(["intro", "legacy", "body"]);
+    expect(written.doc_omitted_blocks).toBe(2);
+    expect(Object.keys((await call("docs_read", { path: "page" })).doc.blocks).sort()).toEqual(["body", "intro", "legacy", "root"]);
+  });
+});
 describe("docs_check style gate", () => {
   test("blocks on gated findings the task introduced, not on findings that predate it", async () => {
     expect("style_gate" in await call("docs_check", { path: "page" }, task)).toBe(false);
@@ -129,7 +140,10 @@ describe("docs_check style gate", () => {
       problem: `Paragraph exceeds 120 words. Evidence: "${Array(13).fill("words").join(" ")}…"`,
       fix: fix("writing.dense-paragraph"),
     };
-    expect(inserted.style_findings.shown).toContainEqual(gated);
+    // The write marks the finding docs_check will fail on, lists it first, and leaves the advisory one unmarked.
+    expect(inserted.style_findings.shown.map((f: any) => [f.rule, f.blocks_check ?? false])).toEqual([["writing.dense-paragraph", true], ["writing.sentence-length", false]]);
+    expect(inserted.style_findings.shown[0]).toEqual({ ...gated, blocks_check: true });
+    expect(inserted.next).toContain("Fix the style_findings marked blocks_check first");
     // A later write must not move the baseline past the dense paragraph inserted above.
     const later = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: inserted.hash, markdown: "We ship on Tuesday." }, task);
     expect(later.ok).toBe(true);
@@ -143,6 +157,40 @@ describe("docs_check style gate", () => {
     const untasked = await call("docs_check", { path: "page" });
     expect(untasked.ok).toBe(true);
     expect("style_gate" in untasked).toBe(false);
+  });
+
+  test("a code block between two numbered steps fails docs_check until it moves into the step above", async () => {
+    const step = (id: string, index: number, text: string) => ({ type: "insertBlock", blockId: id, parentId: "root", index, blockType: "list-item", props: { ordered: true }, text: [{ insert: text }] });
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
+      step("s1", 3, "Run the boundary test."),
+      { type: "insertBlock", blockId: "run", parentId: "root", index: 4, blockType: "code", props: { language: "sh" }, text: [{ insert: "bun test" }] },
+      step("s2", 5, "Fix each import the test lists."),
+    ] }, task);
+    expect(written.style_findings.shown).toContainEqual({
+      block: "run", rule: "structure.split-ordered-list",
+      problem: 'The code block run sits between step 1 and the next numbered step, so that step renders as "1.". Move run into step 1\'s children.',
+      fix: fix("structure.split-ordered-list"), blocks_check: true,
+    });
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(false);
+    await call("docs_apply_ops", { path: "page", expected_hash: written.hash, ops: [{ type: "moveBlock", blockId: "run", toParentId: "s1", toIndex: 0 }] }, task);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect([checked.ok, checked.style_gate]).toEqual([true, []]);
+  });
+
+  test("a condition written as an operation's returns fails docs_check until it moves into the description", async () => {
+    const surface = (returns: string, description?: string) => ({ operations: [{ name: "POST /api/undo", returns, ...(description ? { description } : {}) }] });
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
+      { type: "insertBlock", blockId: "surface", parentId: "root", index: 3, blockType: "interaction-surface", props: surface("{ ok: true, doc, hash } for a doc patch. A canvas patch returns its own fields.") },
+    ] }, task);
+    expect(written.style_findings.shown).toContainEqual(expect.objectContaining({
+      block: "surface", rule: "interaction-surface.returns-prose", fix: fix("interaction-surface.returns-prose"), blocks_check: true,
+    }));
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(false);
+    await call("docs_apply_ops", { path: "page", expected_hash: written.hash, ops: [
+      { type: "updateBlock", blockId: "surface", props: surface("{ ok: true, doc, hash }", "Undoes the last doc patch. A canvas patch returns its own fields.") },
+    ] }, task);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect([checked.ok, checked.style_gate]).toEqual([true, []]);
   });
 
   test("a page created in the task is gated from its first revision", async () => {
@@ -195,7 +243,7 @@ describe("docs_check judged gate", () => {
     const { engine } = stubEngine(() => p);
     withEngine(engine);
     const written = await insertList();
-    expect(written.style_findings.shown).toContainEqual({ block: "b0", rule: "judgment.flat-hierarchy", problem: expect.stringContaining("Flat list should be grouped"), fix: expect.any(String) });
+    expect(written.style_findings.shown).toContainEqual({ block: "b0", rule: "judgment.flat-hierarchy", problem: expect.stringContaining("Flat list should be grouped"), fix: expect.any(String), blocks_check: true });
     const checked = await call("docs_check", { path: "page" }, task);
     expect(checked.ok).toBe(false);
     expect(checked.style_gate.map((f: any) => [f.block, f.rule])).toEqual([["b0", "judgment.flat-hierarchy"]]);
@@ -203,6 +251,17 @@ describe("docs_check judged gate", () => {
     const softer = await call("docs_check", { path: "page" }, task);
     expect(softer.ok).toBe(true);
     expect(softer.style_gate).toEqual([]);
+  });
+
+  test("a write lists a judged finding below the gate threshold without blocks_check, and docs_check passes it", async () => {
+    withEngine(stubEngine(() => 0.75).engine);
+    const written = await insertList();
+    const finding = written.style_findings.shown.find((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(finding.block).toBe("b0");
+    expect("blocks_check" in finding).toBe(false);
+    expect(written.next).toMatch(/^Changes are saved\. Fix style_findings, then run docs_check with task_id\./);
+    expect(written.next).not.toContain("blocks_check");
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(true);
   });
 
   test("an unavailable engine is reported and does not block", async () => {
@@ -219,9 +278,138 @@ describe("docs_check judged gate", () => {
     await insertList();
     // A second task starts from a page that already has the flat run, then edits one bullet.
     const second: DocsToolCallContext = { taskId: "task-2" };
-    await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    const written = await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    // The write still reports the finding, but does not say docs_check fails on it.
+    const judged = written.style_findings.shown.filter((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(judged.length).toBeGreaterThan(0);
+    expect(judged.some((f: any) => f.blocks_check)).toBe(false);
     const checked = await call("docs_check", { path: "page" }, second);
     expect(checked.style_gate).toEqual([]);
     expect(checked.ok).toBe(true);
+  });
+
+  test("a write marks no judged finding blocks_check when the baseline cannot be judged", async () => {
+    const { engine } = stubEngine(() => 0.95);
+    withEngine(engine);
+    await insertList();
+    // The baseline still has the original second bullet: judging it fails, as an engine outage would.
+    withEngine({ judge: async (input) => {
+      if ((input.doc.blocks.b1?.text ?? []).some((span) => span.insert === bullets[1])) throw new Error("Jev returned HTTP 500.");
+      return engine.judge(input);
+    } });
+    const second: DocsToolCallContext = { taskId: "task-3" };
+    const written = await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    const judged = written.style_findings.shown.filter((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(judged.length).toBeGreaterThan(0);
+    expect(judged.some((f: any) => f.blocks_check)).toBe(false);
+  });
+});
+
+describe("claims to check", () => {
+  test("a write lists the absolute sentences it wrote, and docs_check neither lists nor fails on them", async () => {
+    const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: "The table lists every status code. Saves take a lock." }, task);
+    expect(written.ok).toBe(true);
+    // Only the sentence this write changed is listed: the untouched intro and legacy blocks are not.
+    expect(written.claims_to_check).toEqual(["The table lists every status code."]);
+    expect(written.next).toContain("Before docs_check, test each claim in claims_to_check against the source.");
+    expect(written.next).toContain("docs_check does not test these claims, so this is their last check.");
+    // A write that leaves the claim unchanged lists nothing.
+    const intro = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: written.hash, markdown: "The table lists every status code. Saves take a lock." }, task);
+    expect("claims_to_check" in intro).toBe(false);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect(checked.ok).toBe(true);
+    expect("claims_to_check" in checked).toBe(false);
+  });
+
+  test("a claim names the code-marked names to find in the source, without the code marks", async () => {
+    const ops = [{ type: "insertBlock", blockId: "svc", parentId: "root", index: 3, blockType: "list-item", props: {}, text: [
+      { insert: "If the service is not healthy after 10 seconds, " }, { insert: "start", attributes: { code: true } },
+      { insert: " fails and names " }, { insert: "service.log", attributes: { code: true } }, { insert: ". Saves take a lock." },
+    ] }];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.claims_to_check).toEqual(["If the service is not healthy after 10 seconds, start fails and names service.log. [find: start, service.log]"]);
+    expect(written.next).toContain("For each name after find:, search the source for it");
+    expect(written.next).toContain("Make every claim and style fix in one docs_apply_ops batch");
+  });
+
+  test("a write lists a callout's title with its body claims, so a title its body narrows gets checked", async () => {
+    const ops = [{ type: "insertBlock", blockId: "warn", parentId: "root", index: 3, blockType: "callout", props: { tone: "warning", title: "Refusals stop the install before any write" }, text: [
+      { insert: "Each refusal below leaves all files unchanged. A file that changes after the plan stops the install, and files written before it stay written." },
+    ] }];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.claims_to_check).toEqual([
+      'Callout title "Refusals stop the install before any write" holds for every case its body names.',
+      "Each refusal below leaves all files unchanged.",
+    ]);
+  });
+
+  test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {
+    const sentences = Array.from({ length: 25 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
+    const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: `Saves take a lock. ${sentences.join(" ")}` }, task);
+    expect(written.claims_to_check).toEqual(sentences.slice(0, 24));
+    expect(written.claims_omitted).toBe(1);
+    expect(written.next).toContain("read the whole function that holds it again");
+    expect(written.next).toContain("guard for a missing or repeated value");
+  });
+
+  test("a write lists the call-stack and pseudocode rows that hold a condition, under their block id", async () => {
+    const ops = [
+      { type: "insertBlock", blockId: "cs", parentId: "root", index: 3, blockType: "call-stack", props: { frames: [
+        { text: "POST /api/ops handler", frames: [
+          { text: "ops.filter((op) => ACTION_REGISTRY.get(op.action))", comment: "finds forwarded actions" },
+          { text: "store.applyDocOps(path, ops)" },
+          { text: "expectedHash !== loaded.docHash", kind: "branch" },
+        ] },
+      ] } },
+      { type: "insertBlock", blockId: "pc", parentId: "root", index: 4, blockType: "pseudocode", props: {},
+        text: [{ insert: "laneClass(layout)\n  width = layout.width ?? \"text\"\n  log(width)" }] },
+    ];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.ok).toBe(true);
+    // A plain call row and a pseudocode line with no condition are not claims.
+    expect(written.claims_to_check).toEqual([
+      "cs: ops.filter((op) => ACTION_REGISTRY.get(op.action)) (finds forwarded actions)",
+      "cs: expectedHash !== loaded.docHash",
+      "pc: width = layout.width ?? \"text\"",
+    ]);
+  });
+
+  test("a write lists the table rows, tree nodes, file notes, and stack notes that state a set or a behavior", async () => {
+    const ops = [
+      { type: "insertBlock", blockId: "tbl", parentId: "root", index: 3, blockType: "structured-table", props: { columns: ["Case", "Fix"], rows: [
+        ["A symlink target", "Replace the link with a copy"],
+        [[{ insert: "List " }, { insert: "react", attributes: { code: true } }, { insert: " in peers" }], "never in dependencies"],
+        ["Each block has at most one parent", "Remove the second reference"],
+      ] } },
+      { type: "insertBlock", blockId: "ct", parentId: "root", index: 4, blockType: "component-tree", props: { nodes: [
+        { text: "<DocBlockRenderer />", nodes: [
+          { text: "root is missing", kind: "branch", comment: "renders null", source: "DocBlockRenderer.tsx:255" },
+          { text: "<Lane />", comment: "one lane per root child" },
+        ] },
+      ] } },
+      { type: "insertBlock", blockId: "ft", parentId: "root", index: 5, blockType: "file-tree", props: { entries: [
+        { path: "src/", note: "Sources" },
+        { path: "src/agent-schema", note: "The only path docs-model may import" },
+      ] } },
+      { type: "insertBlock", blockId: "st", parentId: "root", index: 6, blockType: "stack", props: {
+        nodes: [
+          { name: "Apps", detail: "Also import docs-server", children: [{ name: "docs-cli", detail: "CLI binary" }] },
+          { name: "Model", children: [{ name: "docs-model", detail: "Never imports React" }] },
+        ],
+        boundaries: [{ after: "Apps", rule: "Model code never imports app code" }],
+      } },
+    ];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.ok).toBe(true);
+    // A row, node, or note with no set word, behavior word, or condition is not a claim. A layer's note always is.
+    expect(written.claims_to_check).toEqual([
+      "tbl: List react in peers | never in dependencies [find: react]",
+      "tbl: Each block has at most one parent | Remove the second reference",
+      "ct: root is missing (renders null) [find: DocBlockRenderer.tsx:255]",
+      "ft: src/agent-schema (The only path docs-model may import)",
+      "st: Apps: Also import docs-server",
+      "st: docs-model: Never imports React",
+      "st: rule after Apps: Model code never imports app code",
+    ]);
   });
 });

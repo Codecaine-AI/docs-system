@@ -20,7 +20,7 @@ Rule ownership follows the thing being checked.
 
   - page-structure/rules.ts registers rule folders with checks and tests derived from Structure.
 
-  - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers.
+  - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, label-colon openers, lone label bullets, and numbered lists that a block splits.
 
 - **Layout Rules**
 
@@ -94,9 +94,11 @@ Every registered rule has a stable ID, a corpus docsPath, a severity, enforcemen
 
 The executable catalog is the source for exact applicability and exclusions. These checks cover only part of the corpus guidance.
 
-- **Writing Error**
+- **Writing Errors**
 
   - writing.no-em-dash flags em dashes in authored prose and descriptive metadata. It enforces completion and respects the writing exclusions above.
+
+  - `writing.literal-backticks` flags a backtick pair in the plain text of a paragraph, heading, list item, or callout, because the reader sees delta text as typed. The fix is a span with the code mark, which `docs_write_text` makes from markdown.
 
 - **Writing Warnings**
 
@@ -134,6 +136,10 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five.
 
+  - structure.lone-label-parent flags label bullets that stand in for headings. It flags a list whose only bullet is a short label over 2 or more list items, and a list of 2 or more label groups with no lead paragraph before it. The items move up under the lead, or each label becomes an h3 heading.
+
+  - structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as "1.", so the block moves into the children of the step above it.
+
 - **Component and Asset Checks**
 
   - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
@@ -149,6 +155,8 @@ The executable catalog is the source for exact applicability and exclusions. The
     - It shares the heading rule's minor words and skips backtick code spans, acronyms, and code-looking identifiers. Substeps and notes stay sentence case.
 
     - Each warning names the step field, such as `props.steps[0].steps[1].text`, and its suggestion carries the Title Case text.
+
+  - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
 
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 

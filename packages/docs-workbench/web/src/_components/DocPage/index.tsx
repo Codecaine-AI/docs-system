@@ -16,7 +16,8 @@ import { PageActions } from "./_components/PageActions";
 import { DocPageContent } from "./_components/DocPageContent";
 import { AiDocumentFlow } from "./_components/AiDocumentFlow";
 import { DocLab } from "./_components/DocLab";
-import { useTitleRename } from "./useTitleRename";
+import { useTitleEdit } from "./useTitleEdit";
+import { docPageTitle } from "../../shared/doc-title";
 import { useDocBundle } from "./useDocBundle";
 import { useDocSave } from "./useDocSave";
 import { useDocAnnotations } from "./useDocAnnotations";
@@ -91,12 +92,6 @@ export type DocPageProps = {
    */
   autoSaveDelayMs?: number;
   /**
-   * Fired after a page-title rename moves the bundle on disk (R2-D12).
-   * The host owns what follows — navigate to the new path, refetch the
-   * sidebar tree.
-   */
-  onDocMoved?: (newPath: string) => void;
-  /**
    * The shell topbar's action slot (App renders it). DocPage portals its page
    * actions there: the save indicator, the undo notice and button, and the AI
    * panel toggle. Null or absent renders no actions (tests, static exports).
@@ -111,7 +106,6 @@ export function DocPage({
   onEditorReady,
   isStatic = IS_STATIC,
   autoSaveDelayMs,
-  onDocMoved,
   topbarActionsTarget = null,
 }: DocPageProps) {
   const [bundle, setBundle] = useState<BundleState | null>(null);
@@ -156,13 +150,6 @@ export function DocPage({
   // Escape sets this so the following blur restores instead of committing.
   const revertTitleRef = useRef(false);
 
-  const { commitTitleEdit } = useTitleRename({
-    path,
-    titleRef,
-    revertTitleRef,
-    onDocMoved,
-    setPaneError,
-  });
   const { highlightedIds, flash } = useTransientHighlights();
   const { expectedHashRef, pathRef, fetchBundle, fetchBundleRef, liveStateRef } = useDocBundle({
     path,
@@ -191,6 +178,17 @@ export function DocPage({
   });
 
   const doc = bundle?.doc ?? null;
+  const title = docPageTitle(doc?.title, path);
+  const { commitTitleEdit } = useTitleEdit({
+    path,
+    title,
+    titleRef,
+    revertTitleRef,
+    expectedHashRef,
+    fetchBundle,
+    setPaneError,
+    liveStateRef,
+  });
   const { handleApplyOps, handleReloadDoc } = useDocSave({
     path,
     expectedHashRef,
@@ -300,7 +298,7 @@ export function DocPage({
     <>
       {topbarActions}
       <PageTransition pageKey={path} ready={!isLoading && loadedPath === path} className="flex h-full min-h-0 flex-col">
-        <DocPageContent {...{ isLoading, path, error, doc, mode, canvasEpoch, contentRef, labPanelVisible, labPanelWidth, titleRef, isStatic, revertTitleRef, commitTitleEdit, resolveAssetSrc, renderEditorCanvas, renderEditorSequence, handleUploadAsset, handleApplyOps, handleReloadDoc, onEditorReady, autoSaveDelayMs, setSaveState, highlightedIds, annotateContainerRef, targeting, selectionRef, setSelection, lab, backlinks, sidePeekOpen, centered }} labPanel={<DocLab hidden={labPanelHidden} doc={doc!} openDocPath={path} lab={lab} onPanelWidthChange={setLabPanelWidth} annotationsError={paneError} onFocusTarget={handleFocusDocEditTarget} />} aiDocumentFlow={<AiDocumentFlow {...{ doc, path, stagedRegions, composerTopLevelId, selection, waitingRequests, lab, resolveAssetSrc, handleCanvasObjectSelect, handleComposerSubmit, setPaneError, setSelection }} />} />
+        <DocPageContent {...{ isLoading, path, title, error, doc, mode, canvasEpoch, contentRef, labPanelVisible, labPanelWidth, titleRef, isStatic, revertTitleRef, commitTitleEdit, resolveAssetSrc, renderEditorCanvas, renderEditorSequence, handleUploadAsset, handleApplyOps, handleReloadDoc, onEditorReady, autoSaveDelayMs, setSaveState, highlightedIds, annotateContainerRef, targeting, selectionRef, setSelection, lab, backlinks, sidePeekOpen, centered }} labPanel={<DocLab hidden={labPanelHidden} doc={doc!} openDocPath={path} lab={lab} onPanelWidthChange={setLabPanelWidth} annotationsError={paneError} onFocusTarget={handleFocusDocEditTarget} />} aiDocumentFlow={<AiDocumentFlow {...{ doc, path, stagedRegions, composerTopLevelId, selection, waitingRequests, lab, resolveAssetSrc, handleCanvasObjectSelect, handleComposerSubmit, setPaneError, setSelection }} />} />
       </PageTransition>
     </>
   );

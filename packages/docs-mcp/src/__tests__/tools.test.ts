@@ -302,6 +302,8 @@ test("title lint fix requires a current revision, removes duplicates, and suppor
   expect(fixed.ok).toBe(true);
   expect(fixed.fixed).toBe(1);
   expect(fixed.doc.blocks.title).toBeUndefined();
+  // The lint covers the whole saved page, not the trimmed doc in the result.
+  expect(fixed.lint).toEqual((await call("docs_read", { path: "page" })).lint);
   expect((await call("docs_check", { path: "page" })).ok).toBe(true);
   const repeat = await call("docs_fix_lints", { path: "page", expected_hash: fixed.hash });
   expect(repeat.fixed).toBe(0);
@@ -394,4 +396,30 @@ describe("codecaine.docs.json exclude, read from disk", () => {
     expect(await call("docs_component_create", { path: "page", expected_hash: page.hash, component: "canvas", src: "./assets/canvases/new.canvas.json", document: canvas }))
       .toMatchObject({ ok: true });
   });
+});
+
+test("a write result keeps the parent of a block it deletes, with the parent's new children", async () => {
+  const listed = await call("docs_apply_ops", { path: "page", expected_hash: (await read()).hash, ops: [
+    { type: "insertBlock", blockId: "li", parentId: "root", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Parent item." }] },
+    { type: "insertBlock", blockId: "li-a", parentId: "li", index: 0, blockType: "list-item", props: {}, text: [{ insert: "First child." }] },
+    { type: "insertBlock", blockId: "li-b", parentId: "li", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Second child." }] },
+  ] });
+  expect(listed.ok).toBe(true);
+  const deleted = await call("docs_apply_ops", { path: "page", expected_hash: listed.hash, ops: [{ type: "deleteBlock", blockId: "li-b" }] });
+  expect(deleted.ok).toBe(true);
+  expect(deleted.doc.blocks.li?.children).toEqual(["li-a"]);
+});
+
+test("a write result keeps every ancestor of a parent whose children changed", async () => {
+  // The section comes before its list item in block order, so one pass would miss it.
+  const nested = await call("docs_apply_ops", { path: "page", expected_hash: (await read()).hash, ops: [
+    { type: "insertBlock", blockId: "sec", parentId: "root", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Section." }] },
+    { type: "insertBlock", blockId: "sec-item", parentId: "sec", index: 0, blockType: "list-item", props: {}, text: [{ insert: "Item." }] },
+    { type: "insertBlock", blockId: "sec-a", parentId: "sec-item", index: 0, blockType: "list-item", props: {}, text: [{ insert: "First child." }] },
+    { type: "insertBlock", blockId: "sec-b", parentId: "sec-item", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Second child." }] },
+  ] });
+  expect(nested.ok).toBe(true);
+  const deleted = await call("docs_apply_ops", { path: "page", expected_hash: nested.hash, ops: [{ type: "deleteBlock", blockId: "sec-b" }] });
+  expect(deleted.doc.blocks["sec-item"]?.children).toEqual(["sec-a"]);
+  expect(deleted.doc.blocks.sec?.children).toEqual(["sec-item"]);
 });

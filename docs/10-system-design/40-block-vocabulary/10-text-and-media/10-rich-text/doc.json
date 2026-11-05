@@ -195,8 +195,81 @@
       "props": {},
       "text": [
         {
-          "insert": "Toned admonition with a tone icon, a printed label, and an optional title. "
+          "insert": "Toned admonition with a tone icon, a printed label, and an optional title."
+        }
+      ],
+      "children": [
+        "b-callout-tone-values",
+        "b-callout-variant-values"
+      ]
+    },
+    "b-callout-tone-values": {
+      "id": "b-callout-tone-values",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "props.tone",
+          "attributes": {
+            "code": true
+          }
         },
+        {
+          "insert": " accepts only "
+        },
+        {
+          "insert": "info",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " (default), "
+        },
+        {
+          "insert": "decision",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "risk",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "warning",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or "
+        },
+        {
+          "insert": "success",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-callout-variant-values": {
+      "id": "b-callout-variant-values",
+      "type": "list-item",
+      "props": {},
+      "text": [
         {
           "insert": "props.variant",
           "attributes": {
@@ -240,7 +313,7 @@
           }
         },
         {
-          "insert": ", and all four variants currently render the same rail note."
+          "insert": ", and all four variants render the same rail note."
         }
       ],
       "children": []

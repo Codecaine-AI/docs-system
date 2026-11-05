@@ -214,6 +214,15 @@ export const DocListItem = Node.create({
   },
 });
 
+/**
+ * An item whose own text ends a sentence states a fact, so it keeps body
+ * weight even when it holds child items. Only a label parent, such as
+ * "Tests", reads in the label weight (styles/list-markers.css).
+ */
+function endsSentence(text: readonly { insert: string }[] | undefined): boolean {
+  return /[.!?]["')\]]*\s*$/.test((text ?? []).map((span) => span.insert).join(""));
+}
+
 export const listItemDescriptor: DocBlockDescriptor = {
   type: "list-item",
   targetKind: "list-item",
@@ -232,6 +241,7 @@ export const listItemDescriptor: DocBlockDescriptor = {
         role: "listitem",
         className: LIST_ITEM_CLASSES,
         ...itemKindAttrs(ordered, checked),
+        ...(endsSentence(block.text) ? { "data-doc-list-sentence": "true" } : {}),
       },
       el(
         "span",

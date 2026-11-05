@@ -11,7 +11,7 @@ import { FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, type FieldLedgerRow 
 export { classifyTypeText, splitTypeUnion, type TypeTextClassification } from "./field-ledger";
 
 export const STATE_SHAPE_LABEL = "State Shape";
-export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). A described name has a dotted underline; its description opens in a tooltip after a short hover dwell or at once on keyboard focus, and prints inline beneath the name in print. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
+export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). Each field's description prints on the page beside its type: in a third column when the ledger is 600px wide or more, and under the type when it is narrower. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
 export type StateShapeSourceProps = { path: string; symbol?: string };
 
 /**
@@ -22,9 +22,10 @@ export type StateShapeSourceProps = { path: string; symbol?: string };
  * type: names --syntax-key, types --syntax-type, string-literal types
  * --syntax-string, the ? marker and type punctuation --syntax-punctuation
  * (VS Code Dark+ by default; each literal fallback is the Dark+ value).
- * Field descriptions open as tooltips on their names (../described-name);
- * the head's source shows basename#Symbol with the full path in the same
- * tooltip. Nested fields use the file tree's elbow connectors, colored by
+ * Field descriptions print on the page beside their types (the ledger's
+ * inlineNotes), so a static or touch reader sees every note, as in the
+ * Interaction Surface ledgers. The head's source shows basename#Symbol with
+ * the full path in a tooltip (../described-name). Nested fields use the file tree's elbow connectors, colored by
  * --docs-shape-child-rule. Every visual value reads a --docs-shape-*
  * knob (the style rail's State shape pane, THEME_TOKEN_REGISTRY
  * ["state-shape"]) with a fallback equal to its default; the shared field
@@ -160,7 +161,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
   if (parsed) {
-    const { lines, ranges } = printJsonLines(value);
+    const { lines, ranges } = printJsonLines(value, { inlineWidth: 56 });
     const paths = new Set(flat.map((row) => row.path));
     const keysByLine = new Array<string[] | undefined>(lines.length);
     for (const range of ranges) {
@@ -204,7 +205,7 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     <LinkGroup>
       <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined}>
         <div data-shape-tree="true">
-          {fields.length > 0 ? <FieldLedger rows={model.rows} data-shape-ledger="true" /> : <p data-shape-empty="true">(no fields)</p>}
+          {fields.length > 0 ? <FieldLedger rows={model.rows} inlineNotes data-shape-ledger="true" /> : <p data-shape-empty="true">(no fields)</p>}
         </div>
         {model.exampleLines && <div data-shape-example-pane="true" data-code-surface="true" data-ref-code="true">
           <CodeLines data-shape-example="true" lines={model.exampleLines} tabIndex={0} role="region" aria-label={`${label} example`} />

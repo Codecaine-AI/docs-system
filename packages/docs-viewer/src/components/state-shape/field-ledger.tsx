@@ -135,18 +135,19 @@ export function ledgerGuides(rows: readonly Pick<FieldLedgerRow, "depth">[]): Tr
   });
 }
 
-function FieldRow({ row, guides, tipId }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string }) {
+function FieldRow({ row, guides, tipId, inline }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string; inline: boolean }) {
   const { field, depth } = row;
   const optional = field.required === false && <span data-field-token="optional"><span aria-hidden="true">?</span><span data-sr-only> (optional)</span></span>;
   const content: ReactNode = <>
     <TreeGuides guides={guides} />
     <span data-field-name-cell>
-      {field.description
+      {field.description && !inline
         ? <DescribedName id={tipId} name={monoBreaks(field.name, { underscore: true })} tip={field.description} nameAttrs={{ "data-field-token": "name" }} tipAttrs={{ "data-field-token": "description" }}>{optional}</DescribedName>
         : <><span data-field-token="name">{monoBreaks(field.name, { underscore: true })}</span>{optional}</>}
     </span>
     <span data-field-def>
       <FieldType value={field.type} />
+      {inline && field.description && <span data-field-token="note">{field.description}</span>}
     </span>
   </>;
   const props = { ...row.attrs, "data-field-row": row.path, "data-field-depth": depth, style: { "--field-depth": depth } as CSSProperties };
@@ -155,13 +156,14 @@ function FieldRow({ row, guides, tipId }: { row: FieldLedgerRow; guides: readonl
 
 /**
  * A field ledger: one row per field, in document order. A row shows the name
- * and type; a field's description opens as a tooltip on its name
- * (DescribedName) and prints inline in print media.
+ * and type. A field's description opens as a tooltip on its name
+ * (DescribedName) and prints inline in print media. With `inlineNotes`, the
+ * description prints under the type on screen too, so a static reader sees it.
  */
-export function FieldLedger({ rows, ...rest }: { rows: readonly FieldLedgerRow[] } & DataAttributes) {
+export function FieldLedger({ rows, inlineNotes = false, ...rest }: { rows: readonly FieldLedgerRow[]; inlineNotes?: boolean } & DataAttributes) {
   const tipBase = useId();
   const guides = ledgerGuides(rows);
-  return <div {...rest} data-field-ledger>{rows.map((row, index) => <FieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${tipBase}-tip-${index}`} />)}</div>;
+  return <div {...rest} data-field-ledger>{rows.map((row, index) => <FieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${tipBase}-tip-${index}`} inline={inlineNotes} />)}</div>;
 }
 
 /**
@@ -205,6 +207,9 @@ export const FIELD_LEDGER_STYLE = DESCRIBED_NAME_STYLE + TREE_GUIDES_CSS + `
 [data-field-def]{flex:1 1 0;min-width:0}
 [data-field-token="type"]{display:block;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--fl-type-size);line-height:var(--ds-line-height-ui);color:var(--fl-type);overflow-wrap:anywhere;word-break:normal}
 [data-field-token="type"] [data-type-sep]{color:var(--fl-muted)}
+[data-field-token="note"]{display:block;margin-top:var(--ds-space-0-5);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--fl-desc-size,13.5px);line-height:var(--ds-line-height-ui);color:var(--fl-desc,var(--docs-muted,#666562));overflow-wrap:break-word}
+[data-field-ledger]:has([data-field-token="note"]){container-type:inline-size}
+@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]){display:flex;align-items:baseline;column-gap:var(--ds-space-6)}[data-field-def]>[data-field-token="type"]{flex:0 0 var(--fl-type-w,20ch);min-width:0}[data-field-def]>[data-field-token="note"]{flex:1 1 0;min-width:0;margin-top:0}}
 [data-type-tok="string"]{color:var(--fl-type-string,inherit)}
 [data-type-tok="number"]{color:var(--fl-type-number,inherit)}
 [data-type-tok="keyword"]{color:var(--fl-type-keyword,inherit)}

@@ -127,9 +127,9 @@ describe("ProcessOutlineDocsBlock", () => {
     // The panel follows the page theme: it is never a dark code-surface island.
     expect(container.querySelectorAll("[data-code-surface]")).toHaveLength(0);
     expect(css).not.toContain("data-code-surface");
-    // Keyword and note fallbacks are the Light+ values (semantic.css sets Dark+ in dark mode).
+    // The keyword fallback is the Light+ value (semantic.css sets Dark+ in dark mode); notes take the muted ink.
     expect(css).toContain("var(--docs-process-outline-keyword-fg, #af00db)");
-    expect(css).toContain("var(--docs-process-outline-note-fg, #008000)");
+    expect(css).toContain("var(--docs-process-outline-note-fg, #666562)");
     // Chips pick Light+ (the light typed-chip token: type and number darkened
     // to keep 4.5:1 on the light chip fill) or Dark+ from the page's color-scheme.
     expect(css).toContain(
@@ -180,32 +180,35 @@ describe("ProcessOutlineDocsBlock", () => {
     expect(document.querySelectorAll(".docs-process-outline__node--depth-one")).toHaveLength(3);
   });
 
-  it("draws notes as italic asides behind a // marker, never as faded steps", () => {
+  it("draws notes as italic asides behind a dash, never as faded steps or code comments", () => {
     render(<ProcessOutlineDocsBlock id="process-outline-aside" steps={STEPS} />);
     const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
 
     expect(css).toMatch(/\.docs-process-outline__note-card \{[^}]*font-style:italic/);
-    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*content:"\/\/"/);
+    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*content:"–"/);
     // The marker hangs in the gutter, so the note text lines up with its sibling steps.
-    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*right:calc\(100% \+ 3px\)/);
+    expect(css).toMatch(/\.docs-process-outline__note-bullet::before \{[^}]*right:calc\(100% \+ 4px\)/);
     // Notes take no elbow.
     expect(css).toContain(".docs-process-outline__children>.docs-process-outline__node--note::before");
   });
 
-  // A trace mark is a quiet "trace" tag at the end of the step's text: it says
-  // what it means, and it is never a character in the text itself.
-  it("ends a trace-marked step's line with a `trace` tag and leaves the rest bare", () => {
+  // A trace mark is an authoring aid: the read page keeps it as a data attribute and shows no tag,
+  // and it is never a character in the text itself.
+  it("keeps a trace-marked step's line bare on the read page", () => {
     const steps = parseProcessOutline("Run\n  => Drain\n  -> Sweep");
     const { container } = render(<ProcessOutlineDocsBlock id="process-outline-trace" steps={steps} />);
 
     const marked = container.querySelectorAll("[data-process-outline-trace='true']");
     expect(marked).toHaveLength(1);
-    const line = marked[0].querySelector(".docs-process-outline__line");
-    expect(line?.textContent).toBe("Draintrace");
-    expect(line?.lastElementChild?.getAttribute("data-process-outline-trace-pill")).toBe("true");
-    expect(line?.lastElementChild?.textContent).toBe("trace");
-    expect(container.querySelectorAll("[data-process-outline-trace-pill]")).toHaveLength(1);
+    expect(marked[0].querySelector(".docs-process-outline__line")?.textContent).toBe("Drain");
+    expect(container.querySelectorAll("[data-process-outline-trace-pill]")).toHaveLength(0);
     expect(container.textContent).not.toContain("=>");
+  });
+
+  it("colours a loop keyword only where it opens the step, and until only in a Repeat step", () => {
+    const steps = parseProcessOutline("Run\n  -> Wait until the version lands\n  -> While `x` runs, poll\n  -> Poll while it runs");
+    render(<ProcessOutlineDocsBlock id="process-outline-keywords" steps={steps} />);
+    expect(Array.from(document.querySelectorAll("[data-process-outline-keyword]")).map((node) => node.textContent)).toEqual(["While"]);
   });
 
   it("tints a selected line in its own depth colour, per line, never as a block wash", () => {
@@ -225,10 +228,7 @@ describe("ProcessOutlineDocsBlock", () => {
     const { container } = render(<ProcessOutlineDocsBlock id="process-outline-trace-root" steps={steps} />);
     const root = container.querySelector("[data-process-outline-depth='0']");
     expect(root?.getAttribute("data-process-outline-trace")).toBe("true");
-    expect(root?.querySelector(".docs-process-outline__line")?.textContent).toBe("Runtrace");
-    expect(
-      root?.querySelector(".docs-process-outline__line > [data-process-outline-trace-pill]"),
-    ).toBeTruthy();
+    expect(root?.querySelector(".docs-process-outline__line")?.textContent).toBe("Run");
   });
 
   it("marks the focused edit line with a focus-ring outline and no block-wide wash", () => {

@@ -328,16 +328,17 @@ describe("AnnotatedCodeBlock", () => {
 
     // Per-line row, its gutter cell, and its code cell.
     const row = cls('[data-code-line="3"]');
-    expect(row).toContain("h-[var(--docs-code-line-height,21px)]");
+    // A row is at least one line high and grows when its line wraps; the gutter cell grows with it.
+    expect(row).toContain("min-h-[var(--docs-code-line-height,21px)]");
     expect(row).toContain("grid-cols-[var(--docs-code-gutter-width,40px)_1fr]");
     const gutterCell = cls('[data-code-line="3"] > span');
-    expect(gutterCell).toContain("h-[var(--docs-code-line-height,21px)]");
+    expect(gutterCell).toContain("h-auto");
     expect(gutterCell).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
     expect(gutterCell).toContain("pr-[var(--docs-code-gutter-pad-x,12px)]");
     // Line numbers paint the token as-is; the fallback is the light default.
     expect(gutterCell).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
     expect(gutterCell).toContain("--docs-code-gutter-bg");
-    expect(cls('[data-code-line="3"] > code')).toContain("px-[var(--docs-code-pad-x,12px)]");
+    expect(cls('[data-code-line="3"] > code')).toContain("pr-[var(--docs-code-pad-x,12px)]");
 
     // An annotated gutter cell at rest keeps its size AND number color; the
     // mark is the only resting signal.

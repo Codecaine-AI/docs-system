@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction, RefObject } from "react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 import type { PlannotatorSelection } from "@codecaine-ai/docs-viewer/plannotator";
@@ -10,6 +10,12 @@ import { consumeAiModeHandoff } from "./lab";
 import type { BundleState, WorkbenchMode } from "./types";
 import { canvasBlockIdsForSrc } from "./utils";
 import { cssEscape } from "./dom";
+
+/** The same document apart from its title. */
+function sameExceptTitle(a: unknown, b: unknown): boolean {
+  const strip = (doc: unknown) => JSON.stringify({ ...(doc as Record<string, unknown>), title: undefined });
+  return strip(a) === strip(b);
+}
 
 export function useDocBundle({
   path,
@@ -76,8 +82,22 @@ export function useDocBundle({
   const expectedHashRef = useMemo(() => ({ current: undefined as string | undefined }), [path]);
   const pathRef = useRef(path);
   pathRef.current = path;
+  /** The server title a skipped or failed keepDraft refresh left out of the bundle, or null.
+   * State, not a ref: a failed refresh while the editor is clean still schedules the retry. */
+  const [pendingTitle, setPendingTitle] = useState<string | null>(null);
+  const retryingRef = useRef(false);
   const fetchBundle = useCallback(
-    async (options?: { showLoading?: boolean }) => {
+    /**
+     * `keepDraft`: when the editor holds unsaved edits as the bundle arrives, the
+     * page keeps its doc, because a new doc would reseed the editor over the draft.
+     * It takes the new hash only when the doc differs from the page's doc by its
+     * title alone, so an outside edit still meets the save's 409 conflict path.
+     * A failed keepDraft fetch leaves the page as it is, with no error screen.
+     * `submittedTitle` is the title the caller wrote: the hash is adopted only when
+     * the fetched title is that one, so another actor's title meets the 409 path.
+     * A skipped or failed keepDraft refresh runs again once the editor is clean.
+     */
+    async (options?: { showLoading?: boolean; keepDraft?: boolean; submittedTitle?: string }) => {
       const seq = ++loadSeqRef.current;
       if (options?.showLoading) {
         setIsLoading(true);
@@ -86,13 +106,28 @@ export function useDocBundle({
       try {
         const payload = await getBundle(path);
         if (seq !== loadSeqRef.current) return;
+        const live = liveStateRef.current;
+        if (options?.keepDraft && live.mode === "edit" && live.saveState !== "saved") {
+          const fetchedTitle = (payload.doc as { title?: string } | null)?.title;
+          const ownTitle = options.submittedTitle === undefined || fetchedTitle === options.submittedTitle;
+          if (live.doc && ownTitle && sameExceptTitle(payload.doc, live.doc)) expectedHashRef.current = payload.doc_hash;
+          setPendingTitle(fetchedTitle ?? null);
+          return;
+        }
         expectedHashRef.current = payload.doc_hash;
         setBundle({ doc: payload.doc as DocDocument, hash: payload.doc_hash });
+        setPendingTitle(null);
         setAnnotations(payload.annotations ?? { schemaVersion: 1, annotations: [] });
         setAnnotationsHash(payload.annotations_hash);
         setError(null);
       } catch (loadError) {
         if (seq !== loadSeqRef.current) return;
+        // A keepDraft refresh follows a write that already landed: on failure the page
+        // stays as it is, so the editor and any draft stay mounted.
+        if (options?.keepDraft) {
+          setPendingTitle(options.submittedTitle ?? null);
+          return;
+        }
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");
       } finally {
         if (seq === loadSeqRef.current) {
@@ -139,6 +174,21 @@ export function useDocBundle({
   }>({ path, doc: null, mode, saveState });
   liveStateRef.current = { path, doc: bundle?.doc ?? null, mode, saveState };
 
+  // Once the editor is clean, a title that a keepDraft refresh left out comes in.
+  // A body save reply that already carries it clears the wait without a refetch.
+  useEffect(() => {
+    if (pendingTitle === null || (mode === "edit" && saveState !== "saved")) return;
+    if (bundle?.doc?.title === pendingTitle) {
+      setPendingTitle(null);
+      return;
+    }
+    if (retryingRef.current) return;
+    retryingRef.current = true;
+    // The retry keeps a draft too: body edits can start again while it runs. A failed
+    // retry sets the same pending title, so it does not loop.
+    void fetchBundle({ keepDraft: true, submittedTitle: pendingTitle }).finally(() => { retryingRef.current = false; });
+  }, [pendingTitle, mode, saveState, bundle, fetchBundle]);
+
   useEffect(() => {
     if (isStatic) return;
     return subscribeDocsEvents((event) => {
@@ -150,7 +200,8 @@ export function useDocBundle({
       // precondition (409 -> stale banner + reload) owns conflicts.
       const canRefresh = currentMode !== "edit" || currentSaveState === "saved";
       if (event.path === openPath || event.path === "") {
-        if (canRefresh) void fetchBundleRef.current();
+        // keepDraft: body edits can start between this check and the reply.
+        if (canRefresh) void fetchBundleRef.current({ keepDraft: true });
         flash(event.changedIds);
         return;
       }

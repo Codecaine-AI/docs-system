@@ -4,7 +4,6 @@ import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { DocsClientProvider, type DocsClient } from "../../client";
 import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "../../render/block-classes";
-import { docTitleFromPath } from "../../render/doc-title";
 import { DocPeekPanel } from "../DocPeekPanel";
 import {
   DOC_REFERENCE_NAVIGATE_EVENT,
@@ -144,11 +143,10 @@ describe("DocPeekPanel", () => {
     await dispatchNavigateEvent({ ref: refA, intent: "peek" });
 
     // Same furniture as DocPage: an h1 carrying the host-global
-    // `docs-page-title` class, whose text comes from THE SAME derivation
-    // (docTitleFromPath on the bundle path) — never the doc's own content.
+    // `docs-page-title` class, whose text is doc.json's title, not the folder name.
     const title = panel().querySelector("h1.docs-page-title");
     if (!title) throw new Error("page title not rendered");
-    expect(title.textContent).toBe(docTitleFromPath(refA.path));
+    expect(title.textContent).toBe("Doc A");
     // Read-only in a preview: no rename affordance.
     expect((title as HTMLElement).isContentEditable).toBe(false);
 

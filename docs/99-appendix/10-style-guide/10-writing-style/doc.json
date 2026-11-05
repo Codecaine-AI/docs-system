@@ -16,6 +16,13 @@
         "b-sg-ws-no-preamble-5",
         "b-sg-ws-no-memory-6",
         "b-sg-ws-present-state-7",
+        "b-sg-ws-match-source-h",
+        "b-sg-ws-match-source-p",
+        "b-sg-ws-match-source-lists",
+        "b-sg-ws-match-source-absolutes",
+        "b-sg-ws-match-source-path",
+        "b-sg-ws-match-source-reading",
+        "b-sg-ws-match-source-code",
         "writing-b-writing-write-sentences-to-the-r-1",
         "writing-b-writing-use-plain-words-and-the-2",
         "writing-b-writing-address-the-reader-as-y-3",
@@ -110,7 +117,9 @@
         }
       ],
       "children": [
-        "b-sg-ws-lead-2-detail"
+        "b-sg-ws-lead-2-detail",
+        "b-sg-ws-lead-2-list-lead",
+        "b-sg-ws-lead-2-roadmap"
       ]
     },
     "b-sg-ws-lead-2-detail": {
@@ -120,6 +129,28 @@
       "text": [
         {
           "insert": "The first sentence of a doc or section states the thing itself. No setup, no \"the idea here is\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-lead-2-list-lead": {
+      "id": "b-sg-ws-lead-2-list-lead",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lead sentence states a fact that its list supports. Never write a lead that only says a list follows, such as \"These rules apply.\""
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-lead-2-roadmap": {
+      "id": "b-sg-ws-lead-2-roadmap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An opening that names the page's sections names them in the order the headings use. Leave the sections out when the headings already show them."
         }
       ],
       "children": []
@@ -183,7 +214,8 @@
       ],
       "children": [
         "b-sg-ws-no-preamble-5-answer",
-        "b-sg-ws-no-preamble-5-tangents"
+        "b-sg-ws-no-preamble-5-tangents",
+        "b-sg-ws-no-preamble-5-extra"
       ]
     },
     "b-sg-ws-no-preamble-5-answer": {
@@ -203,7 +235,31 @@
       "props": {},
       "text": [
         {
-          "insert": "Tangents move to their own home and get a link, not a sidebar."
+          "insert": "Write only what the page's task asks for. A tangent or a related task, such as undoing or maintaining what the page sets up, moves to its own page and gets a link."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-no-preamble-5-extra": {
+      "id": "b-sg-ws-no-preamble-5-extra",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cut a section, a sentence, or a rule that the task does not ask for, even when it is true. A list never repeats a step that the page already gives."
+        }
+      ],
+      "children": [
+        "b-sg-ws-no-preamble-5-internals"
+      ]
+    },
+    "b-sg-ws-no-preamble-5-internals": {
+      "id": "b-sg-ws-no-preamble-5-internals",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read every branch, then write the ones the reader can hit or must act on: an error they can see, an option they can pass, a limit they can reach. A retry count, a fallback id format, a helper's internal steps, or a plugin list stays in the source unless the task asks how the code works inside."
         }
       ],
       "children": []
@@ -261,6 +317,408 @@
       "text": [
         {
           "insert": "A finished doc describes what exists now. No change-log voice (\"now\", \"previously\", \"no longer\") unless the doc is explicitly about migration history."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-h": {
+      "id": "b-sg-ws-match-source-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Match the Source"
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-p": {
+      "id": "b-sg-ws-match-source-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these five faults against the source before you finish a page."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-lists": {
+      "id": "b-sg-ws-match-source-lists",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial."
+        }
+      ],
+      "children": [
+        "sg-ws-lists-read",
+        "sg-ws-lists-partial"
+      ]
+    },
+    "sg-ws-lists-read": {
+      "id": "sg-ws-lists-read",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read each file before you say what it holds, even when only an import names it."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-lists-partial": {
+      "id": "sg-ws-lists-partial",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave items out only when the task does not ask for the whole set. Then say how many you leave out and name the file that holds them."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-absolutes": {
+      "id": "b-sg-ws-match-source-absolutes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A claim says only what the code checks. Before you write a guarantee, a failure result, or a cause, find the line that makes it true."
+        }
+      ],
+      "children": [
+        "sg-ws-claim-guarantee",
+        "sg-ws-claim-trace",
+        "sg-ws-claim-failure",
+        "sg-ws-claim-causes",
+        "sg-ws-claim-absolutes"
+      ]
+    },
+    "sg-ws-claim-guarantee": {
+      "id": "sg-ws-claim-guarantee",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A guarantee names the check behind it. Write \"loadConfig rejects a file with an unknown key\", not \"loadConfig keeps the config valid\", when no check covers the other fields."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-trace": {
+      "id": "sg-ws-claim-trace",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A claim about what code does names the function that does it, in inline code. When the reader reaches that code through a command, such as doctor or install, name the command, not the function behind it."
+        }
+      ],
+      "children": [
+        "sg-ws-trace-body",
+        "sg-ws-trace-rows",
+        "sg-ws-trace-fix"
+      ]
+    },
+    "sg-ws-trace-body": {
+      "id": "sg-ws-trace-body",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Before you write the claim, read that function's whole body. An early return, a thrown error, a guard for a missing value, a check for a repeated value, or a branch for another mode can change the claim."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-trace-rows": {
+      "id": "sg-ws-trace-rows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses, such as "
+        },
+        {
+          "insert": "layout?.width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for a layout that can be missing."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-trace-fix": {
+      "id": "sg-ws-trace-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A fix you tell the reader to make passes every check in the code that refused."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-failure": {
+      "id": "sg-ws-claim-failure",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A failure result names the failures it covers. Write \"A save that fails the hash check leaves the file unchanged\", not \"A failed save leaves the file unchanged\", when a later step can fail after the write."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-causes": {
+      "id": "sg-ws-claim-causes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A status or error names every cause that sets it. Write \"A cache miss means the key was never set, expired, or was evicted\", not \"A cache miss means the key expired\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-claim-absolutes": {
+      "id": "sg-ws-claim-absolutes",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Write \"every\", \"all\", \"only\", \"never\", \"nothing\", or \"always\" when a line of the source proves it. Otherwise name the condition, as in \"every existing file\" or \"the planning checks\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-path": {
+      "id": "b-sg-ws-match-source-path",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A choice the page offers holds through every later step the reader runs. Before you offer an option, a fix, or a partial path, follow it through each later step on the page."
+        }
+      ],
+      "children": [
+        "sg-ws-path-option",
+        "sg-ws-path-exception"
+      ]
+    },
+    "sg-ws-path-option": {
+      "id": "sg-ws-path-option",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say what each later step does when the reader takes the choice. Write \""
+        },
+        {
+          "insert": "lint",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " checks every package, so after "
+        },
+        {
+          "insert": "build --only api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " it reports "
+        },
+        {
+          "insert": "web",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as stale\", not only \"Pass "
+        },
+        {
+          "insert": "--only",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to build fewer packages\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-path-exception": {
+      "id": "sg-ws-path-exception",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rule that keeps, removes, or allows a set names each case the source treats another way. Write \"keeps every other key except a legacy entry it wrote\", not \"keeps every other key\", when the source removes that entry."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-reading": {
+      "id": "b-sg-ws-match-source-reading",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A condition, exception, or option you add leaves each sentence it changes with one reading. Add it by rewriting the sentence, not by appending a clause or a step."
+        }
+      ],
+      "children": [
+        "sg-ws-reading-summary",
+        "sg-ws-reading-each",
+        "sg-ws-reading-or"
+      ]
+    },
+    "sg-ws-reading-summary": {
+      "id": "sg-ws-reading-summary",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rewrite the title, heading, or lead that the exception narrows, so it still holds. Title a warning \"Validation errors write nothing\", not \"Errors write nothing\", when its body names an error after the write."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-reading-each": {
+      "id": "sg-ws-reading-each",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each result its own condition. Write \""
+        },
+        {
+          "insert": "load",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns null when the file is missing, and "
+        },
+        {
+          "insert": "parse",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " throws when it is empty\", not \"When the file is missing or empty, "
+        },
+        {
+          "insert": "load",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns null and "
+        },
+        {
+          "insert": "parse",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " throws\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-reading-or": {
+      "id": "sg-ws-reading-or",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write an alternative with \"or\", in the step it replaces. Write \"Run "
+        },
+        {
+          "insert": "deploy",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or for a dry run, run "
+        },
+        {
+          "insert": "deploy --plan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\", not a step \"Run "
+        },
+        {
+          "insert": "deploy",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\" followed by \"For a dry run, pass "
+        },
+        {
+          "insert": "--plan",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-code": {
+      "id": "b-sg-ws-match-source-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A code example runs as written when a reader copies it. Two commands in one block never write the same file, and each placeholder is marked as a placeholder."
+        }
+      ],
+      "children": [
+        "b-sg-ws-match-source-code-blocks"
+      ]
+    },
+    "b-sg-ws-match-source-code-blocks": {
+      "id": "b-sg-ws-match-source-code-blocks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put a command in a code block only when the reader runs it and no other block on the page shows it. Show each command once: a code block never repeats the commands that a process outline, a numbered step, or a table on the page already shows whole."
         }
       ],
       "children": []
@@ -705,7 +1163,9 @@
       ],
       "children": [
         "writing-b-writing-use-start-consistently-31",
-        "writing-b-writing-avoid-idioms-latin-abbr-32"
+        "writing-b-writing-avoid-idioms-latin-abbr-32",
+        "writing-b-writing-define-at-first-use-32b",
+        "writing-b-writing-name-the-unit-32a"
       ]
     },
     "writing-b-writing-use-start-consistently-31": {
@@ -730,6 +1190,66 @@
       "text": [
         {
           "insert": "Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-define-at-first-use-32b": {
+      "id": "writing-b-writing-define-at-first-use-32b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Define each term where the page first uses it, in plain words or with a link. A phrase you build from a code name is a term too. Write \"the retry budget, the number of retries left before "
+        },
+        {
+          "insert": "send",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gives up\", not only \"the retry budget\", for "
+        },
+        {
+          "insert": "retryBudget",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-name-the-unit-32a": {
+      "id": "writing-b-writing-name-the-unit-32a",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Name the unit that a count, a length, or an offset uses in the code. JavaScript "
+        },
+        {
+          "insert": "length",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "slice",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " count UTF-16 code units, so write \"UTF-16 code units\" there, not \"characters\"."
         }
       ],
       "children": []

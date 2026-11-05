@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useNotesBelow } from "../notes-below";
 import type { OutlineRow } from "@codecaine-ai/docs-model";
 import {
   TREE_ICONS,
@@ -19,7 +20,10 @@ import {
  * component-tree, on the trees row system (tree-rows.tsx): one panel with a
  * family-tile head, one row per node with continuous guides, a diff gutter
  * when any row changed, the row text as code colored by syntax role, an
- * aligned comment column that wraps, and a muted source column. A branch row
+ * aligned comment column that wraps, and a muted source column. When the
+ * code column leaves the comments too little room (the rows would scroll),
+ * each comment moves under its row instead (data-notes="below"), so no
+ * comment is ever cut off or squeezed into a sliver. A branch row
  * leads with "?" (the agent-view notation) in the control-flow color.
  *
  * Every visual value reads a --docs-outline-rows-* token, falling back to the
@@ -193,6 +197,9 @@ const FLAVOR_HEAD = {
   component: { icon: TREE_ICONS.components, title: "Component tree" },
 } as const;
 
+/** The rows, with the comments beside the code, are wider than the panel. */
+const rowsOverflow = (el: HTMLDivElement) => Boolean(el.querySelector(".docs-tree__note")) && el.scrollWidth > el.clientWidth + 1;
+
 export function OutlineRows({
   id,
   blockType,
@@ -207,13 +214,16 @@ export function OutlineRows({
   const flat = flattenRows(rows, [], []);
   const diff = hasChange(rows);
   const head = FLAVOR_HEAD[flavor];
+  const notesBelow = useNotesBelow(rowsOverflow);
   return (
     <section className="not-prose my-4 w-full" data-docs-block-type={blockType} data-source-id={id}>
       <TreeStyle />
       <figure className="docs-tree" data-tree-kind={blockType} data-outline-flavor={flavor} data-code-surface="true" style={OUTLINE_ROWS_VARS}>
         <TreeHead icon={head.icon} title={head.title} />
         <div
+          ref={notesBelow.ref}
           className="docs-tree__rows"
+          data-notes={notesBelow.below ? "below" : undefined}
           role="list"
           aria-label={head.title}
           data-diff={diff ? "" : undefined}
@@ -254,7 +264,7 @@ export function OutlineRows({
                       )}
                     </code>
                   </span>
-                  {row.comment ? <span className="docs-tree__note">{row.comment}</span> : null}
+                  {row.comment ? <span className="docs-tree__note" style={depthStyle(depth)}>{row.comment}</span> : null}
                   {source ? (
                     <span className="docs-tree__src" title={row.source} data-outline-source={row.source}>
                       <span className="docs-tree__sr">{source.dir}</span>

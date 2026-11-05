@@ -110,12 +110,12 @@ describe("layout.table-fit on screen", () => {
   });
 
   test("a code span breaks only between its pieces, each padded on both sides", () => {
-    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packages/docs-viewer/src"), { insert: " for the reader." }]]]);
+    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src"), { insert: " for the reader." }]]]);
     const { columns } = structuredTableWidths(block, 688)!;
     const chip = 13.5 * 0.85;
     // The chip breaks at the <wbr> after its first piece, so that piece carries a third padding (Chromium's min-content).
-    expect(columns[1]!.widest.measured.text).toBe("packages/");
-    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packages/", codeFont(chip)) + 3 * chip * 0.35, 6);
+    expect(columns[1]!.widest.measured.text).toBe("packagesrootfolder/");
+    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(chip)) + 3 * chip * 0.35, 6);
   });
 
   test("identifier cells never wrap their text, but a path still breaks at its pieces", () => {

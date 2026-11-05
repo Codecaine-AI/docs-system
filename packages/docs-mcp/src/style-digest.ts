@@ -1,14 +1,15 @@
 // Summarizes docs/99-appendix/10-style-guide, which stays the source of truth. docs_begin returns it first.
 export const STYLE_DIGEST: readonly string[] = [
-  "Bullets are the default shape. Write a lead sentence, then bullets that are complete sentences. The lead plus the bullets must read as a well-written paragraph (the join test).",
-  "Put a bold label or short phrase in the parent bullet and its supporting facts in sub-bullets. Give each bullet one idea. Nest a second idea instead of packing the line.",
-  "Cap lists at about 5 items. Split or rank longer lists. Number sequential steps, one action per step.",
+  "Bullets are the default. A lead sentence that states a fact, then complete-sentence bullets, must read as one paragraph. A lead never only says that a list follows.",
+  "Use bold-label parent bullets only for 2 or more groups of 3 or more facts. Otherwise keep the facts flat, and make a section label a heading. Give each bullet one idea.",
+  "Match the source. List every rule, route, status code, error cause, option, or file it has. Read a file before you say what it holds. Name the command or function behind each behavior claim, and read its whole body first: every early return, branch, and guard for a missing or repeated value. A guarantee names its check, a failure claim names which failures, and a status names every cause. Write every, all, only, never, or always only when a source line proves it. Say what each later step does with an option or fix the page offers. Fix the title or lead an exception narrows. Show each command once, in a code block that runs as written.",
+  "Cap lists at about 5 items. Number sequential steps, one action per step.",
   "Open every page with a 2 to 4 sentence paragraph. Keep each section short enough to scan in one screen. Use Title Case headings.",
   "Give each sentence one thought. Review sentences over about 25 words.",
-  "Use periods, not semicolons or em dashes. Use a colon only before a list or example. Never open a block with a label and a colon, such as \"Kernel changes:\".",
+  "Use periods, not semicolons or em dashes. Never open a block with a label and a colon, such as \"Kernel changes:\".",
   "Show a shape in its typed block, not in bullets: fields in state-shape, folders in file-tree, an execution path in process-outline, connections in canvas, call order in sequence. Keep plain facts and reader steps as lists.",
   "Keep table cells to short facts. Put explanation in bullets near the table, and never restate its rows.",
-  "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice.",
-  "Each section stands alone. Define or link every label and term it uses.",
-  "Write results list style_findings, some model-judged, for changed blocks. Fix them as you go. docs_check with task_id blocks on the ones a task adds.",
+  "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice. Write only what the task asks for, not internals the reader never meets. An opening names sections only in heading order.",
+  "Each section stands alone. Define or link each term at first use, even one taken from code.",
+  "Fix the style_findings in write results as you go. docs_check with task_id fails on those marked blocks_check.",
 ];

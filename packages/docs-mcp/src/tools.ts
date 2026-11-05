@@ -4,12 +4,13 @@ import { dirname, relative, resolve, sep } from "node:path";
 import { Type, type TObject, type TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import {
-  ACTION_REGISTRY, ALL_COMPONENTS, DOC_BLOCK_TYPES, emptyStateFor, stateFor,
+  ACTION_REGISTRY, ALL_COMPONENTS, DOC_BLOCK_TYPES, emptyStateFor, stateFor, valueErrorMessage,
   type DocDocument, type DocOp, type ComponentAction,
 } from "@codecaine-ai/docs-model";
 import { inlineToDelta } from "@codecaine-ai/docs-model/markdown-to-delta";
 import { lintDocument, titleHeadingFixOps } from "@codecaine-ai/docs-model/lint";
-import { judgedStyleGate, styleGate, writeStyleFeedback, type JudgmentEngine } from "./lint-feedback";
+import { checkBlocksFor, judgedStyleGate, styleGate, touchedBlockIds, writeStyleFeedback, type JudgmentEngine, type StyleFinding } from "./lint-feedback";
+import { CLAIMS_LIMIT, CLAIMS_NEXT, claimsToCheck } from "./claims";
 import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
@@ -62,7 +63,9 @@ const id = Type.String({ pattern: "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,96}$" });
 const obj = (properties: Record<string, TSchema>) => Type.Object(properties, { additionalProperties: false });
 const record = Type.Record(Type.String(), Type.Unknown());
 const blockType = Type.Union(DOC_BLOCK_TYPES.map((type) => Type.Literal(type)));
-const delta = Type.Array(obj({ insert: Type.String(), attributes: Type.Optional(record) }));
+const delta = Type.Array(obj({ insert: Type.String(), attributes: Type.Optional(record) }), {
+  description: "Literal text spans: markdown is not parsed, so `name` shows its backticks. Give inline code its own span with attributes { code: true }, or write the block's text with docs_write_text markdown.",
+});
 const opSchema = Type.Union([
   obj({ type: Type.Literal("insertBlock"), blockId: id, parentId: id, index: Type.Integer({ minimum: 0 }), blockType, props: record, text: Type.Optional(delta) }),
   obj({ type: Type.Literal("updateBlock"), blockId: id, props: Type.Optional(record), text: Type.Optional(Type.Union([delta, Type.Null()])) }),
@@ -76,19 +79,45 @@ const target = { project: str, path: Type.String({ description: "Bundle path rel
 const writeTarget = { ...target, expected_hash: str };
 const SAVED_NEXT = "Changes are saved. Run docs_check with task_id before reporting completion.";
 const FIX_STYLE_NEXT = "Changes are saved. Fix style_findings, then run docs_check with task_id.";
+const FIX_BLOCKING_NEXT = "Changes are saved. Fix the style_findings marked blocks_check first: docs_check fails on them. Fix the rest as you go, then run docs_check with task_id.";
 const FIX_COMPONENT_NEXT = "Changes are saved. Fix component_findings, then run docs_check with task_id.";
 const SEQUENCE_WARNINGS_NEXT = "Changes are saved. component_findings holds sequence lint warnings. They never block, but fix each one that applies, then run docs_check with task_id.";
 /** A clean write still reports violations an earlier write in the task left open on the page. */
-const nextHint = (findings: boolean, open: number) => findings ? FIX_STYLE_NEXT
+const nextHint = (findings: boolean, open: number, blocking = false) => blocking ? FIX_BLOCKING_NEXT : findings ? FIX_STYLE_NEXT
   : open === 1 ? "Changes are saved. 1 style violation this task introduced on this page is still open. Run docs_check with task_id to list it."
   : open ? `Changes are saved. ${open} style violations this task introduced on this page are still open. Run docs_check with task_id to list them.`
   : SAVED_NEXT;
 
 /** A doc.json write: who made it, where, the document it replaced, and the ops it applied. */
-interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocument | null | undefined; ops?: readonly DocOp[] }
+interface DocWrite { ctx: DocsToolCallContext; project: string; before: DocDocument | null | undefined; ops?: readonly DocOp[]; /** Lint the whole saved page into `lint`, before the result trims `doc`. */ lint?: boolean }
 const baselineKey = (project: string, path: string) => `${project}:${normalizeBundlePath(path)}`;
 const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
   ops.flatMap((op) => "blockIds" in op ? op.blockIds : "blockId" in op ? [op.blockId] : []);
+
+/**
+ * The saved page as a write result carries it: the root, each block the write changed, and the parent
+ * of each, so the writer sees the root id and where its blocks sit. Echoing the whole page grew every
+ * later turn of a writer that builds a page in many writes (round 6 brief 1: 7 writes, 27 KB each by
+ * the end). A page the write made comes back whole. docs_read returns the whole page.
+ */
+function writtenView(before: DocDocument | null, after: DocDocument, named: Iterable<string>): { doc: DocDocument; doc_omitted_blocks?: number } {
+  if (!before) return { doc: after };
+  const keep = new Set([after.root, ...touchedBlockIds(before, after, named)]);
+  // A parent stays when it holds a kept block, or when its children changed: a delete or move leaves the old parent changed.
+  const sameChildren = (a: readonly string[] = [], b: readonly string[] = []) => a.length === b.length && a.every((id, i) => id === b[i]);
+  // Repeat until no block joins: a parent can come before its kept child in block order.
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const block of Object.values(after.blocks)) {
+      if (keep.has(block.id)) continue;
+      if (block.children?.some((child) => keep.has(child)) || !sameChildren(before.blocks[block.id]?.children, block.children)) { keep.add(block.id); grew = true; }
+    }
+  }
+  const omitted = Object.keys(after.blocks).length - keep.size;
+  if (omitted === 0) return { doc: after };
+  const blocks = Object.fromEntries(Object.entries(after.blocks).filter(([id]) => keep.has(id)));
+  return { doc: { ...after, blocks }, doc_omitted_blocks: omitted };
+}
 
 function response(data: Record<string, unknown>): DocsToolResult {
   return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data,
@@ -177,7 +206,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     return { name, description, inputSchema: jsonSchema(schema), execute: async (args, ctx = {}) => {
       try {
         if (!Value.Check(schema, args)) {
-          return response({ ...failure("Tool arguments failed validation."), issues: [...Value.Errors(schema, args)].map(({ path, message }) => ({ path, message })) });
+          return response({ ...failure("Tool arguments failed validation."), issues: [...Value.Errors(schema, args)].map((error) => ({ path: error.path, message: valueErrorMessage(error) })) });
         }
         const input = args as Record<string, any>;
         const store = await storeFor(input);
@@ -214,25 +243,35 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       patches.set(patchId, { root: store.docsRoot, path, files: [docFile, ...(sidecar ? [resolve(store.docsRoot, sidecar)] : [])] });
     }
     if (patchId) store.publishChange({ path, changedIds, patchId, actor: "external-agent" });
+    const taskBaseline = docWrite ? taskBaselineOf(docWrite, path) : undefined;
+    const gate = taskBaseline === undefined ? [] : openStyleGate(result.doc, taskBaseline);
     const style = docWrite && docWrite.before !== undefined
-      ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine })
+      ? await writeStyleFeedback({ before: docWrite.before, after: result.doc, named: [...changedIds, ...opBlockIds(docWrite.ops)], engine: context.judgmentEngine,
+        checkBlocks: checkBlocksFor(result.doc, taskBaseline, gate) })
       : undefined;
-    const open = docWrite ? openStyleGate(docWrite, path, result.doc) : 0;
+    const open = gate.length;
+    const claims = docWrite && docWrite.before !== undefined ? claimsToCheck(result.doc, docWrite.before) : [];
+    const next = nextHint(style !== undefined, open, style?.shown.some((finding) => finding.blocks_check) ?? false);
+    const view = docWrite && docWrite.before !== undefined ? writtenView(docWrite.before, result.doc, [...changedIds, ...opBlockIds(docWrite.ops)]) : {};
     // Clients may show only the start of a large result, so feedback and the new hash lead and the document follows.
-    return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}), next: nextHint(style !== undefined, open),
-      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result };
+    return { ok: true, ...(style ? { style_findings: style } : {}), ...(open ? { style_gate_open: open } : {}),
+      ...(claims.length ? { claims_to_check: claims.slice(0, CLAIMS_LIMIT) } : {}), ...(claims.length > CLAIMS_LIMIT ? { claims_omitted: claims.length - CLAIMS_LIMIT } : {}), next: claims.length ? `${next} ${CLAIMS_NEXT}` : next,
+      path, ...(result.hash ? { expected_hash: result.hash } : {}), ...result, ...(write?.lint && result.doc ? { lint: lintDocument(result.doc, { phase: "complete" }) } : {}), ...view };
   }
-  /** Gated violations the task has introduced on this page so far, counted against its pinned baseline. */
-  function openStyleGate(write: DocWrite, path: string, doc: DocDocument): number {
-    const baseline = write.ctx.taskId ? context.taskBaselines?.get(write.ctx.taskId, baselineKey(write.project, path)) : undefined;
-    return baseline === undefined ? 0 : styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined })).length;
+  /** The document the task's first write to this page replaced: null for a page the task made, undefined with no task. */
+  function taskBaselineOf(write: DocWrite, path: string): DocDocument | null | undefined {
+    return write.ctx.taskId ? context.taskBaselines?.get(write.ctx.taskId, baselineKey(write.project, path)) : undefined;
   }
-  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument): Promise<Record<string, unknown>> {
+  /** Gated violations the task has introduced on this page so far, against its pinned baseline: docs_check's style_gate. */
+  function openStyleGate(doc: DocDocument, baseline: DocDocument | null): StyleFinding[] {
+    return styleGate(lintDocument(doc, { phase: "complete", baseline: baseline ?? undefined }));
+  }
+  async function apply(store: DocsStore, args: Record<string, any>, ops: DocOp[], ctx: DocsToolCallContext, before?: DocDocument, lint?: boolean): Promise<Record<string, unknown>> {
     if (ops.some((op) => op.type === "componentAction" && ACTION_REGISTRY.get(op.action) && "forward" in ACTION_REGISTRY.get(op.action)!)) {
       return failure("Sidecar actions require their typed component tool and expected_component_hash; they cannot be mixed into a document batch.");
     }
     const prior = before ?? await priorDoc(store, args.path);
-    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash), { ctx, project: args.project, before: prior, ops });
+    return applied(store, args.path, await store.applyDocOps(args.path, ops, args.expected_hash), { ctx, project: args.project, before: prior, ops, lint });
   }
   async function component(store: DocsStore, args: Record<string, any>) {
     const doc = await store.docGet(args.path);
@@ -273,8 +312,9 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       if (result.hash !== args.expected_hash) return failure("Document changed; read the current revision before fixing lints.", 409);
       const ops = titleHeadingFixOps(result.doc);
       if (ops.length === 0) return { ok: true, path: args.path, hash: result.hash, expected_hash: result.hash, fixed: 0, lint: lintDocument(result.doc, { phase: "complete" }) };
-      const fixed = await apply(store, args, ops, ctx, result.doc);
-      return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops, lint: lintDocument(fixed.doc as any, { phase: "complete" }) } : {}) };
+      // The result trims doc to the changed blocks, so the lint comes from the whole saved page.
+      const fixed = await apply(store, args, ops, ctx, result.doc, true);
+      return { ...fixed, ...(fixed.ok ? { fixed: ops.length, ops } : {}) };
     }),
     tool("docs_check", "Run final document validation and writing checks. Inspect blocking findings and resolve them before claiming the task is complete. With task_id, style violations the task introduced fail the check and appear in style_gate. Each Canvas and Sequence block reports its lint findings in components. With task_id, findings fail the check only on blocks the task touched, marked touched_by_task. Sequence lint warnings never fail it. An unreadable block always fails.", obj(target), async (args, store, ctx) => {
       const result = await store.docGet(args.path);
@@ -305,10 +345,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       const judged = style_gate && context.judgmentEngine ? await judgedStyleGate({ engine: context.judgmentEngine, baseline: baseline ?? null, doc: result.doc }) : undefined;
       if (judged?.available) style_gate!.push(...judged.gate);
       // An unreadable block always fails: the page cannot load it, whoever broke it.
-      return { ok: lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length, structurally_valid: true, hash: result.hash, lint, components,
+      const ok = lint.blocking.length === 0 && components.every((entry) => entry.ok || (entry.touched_by_task === false && !("detail" in entry))) && !style_gate?.length;
+      return { ok, structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
-    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
+    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Write the whole page in one docs_apply_ops batch, since each extra write rereads the whole task. Then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
       await confined(store.docsRoot, resolve(store.docsRoot, ".changesets"));
       const staged = await store.changesetStage({ summary: `Create ${args.title}`, entries: [], treeOps: [{ kind: "create-doc", docPath: args.path, title: args.title, position: 0 }] });
       if (!staged.ok) return staged;
@@ -432,7 +473,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         const style = after.ok ? await writeStyleFeedback({ before, after: after.doc, engine: context.judgmentEngine }) : undefined;
         return style ? { ok: true, style_findings: style, next: FIX_STYLE_NEXT, ...result } : result;
       }),
-    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store, ctx) => apply(store, args, args.ops, ctx)),
+    tool("docs_apply_ops", "Apply a batch of typed document operations atomically and immediately. Keeps block IDs stable. Invalid structure or a stale hash leaves the document unchanged. The result's doc holds the root, the changed blocks and their parents. docs_read returns the whole page. Use component tools for sidecars.", obj({ ...writeTarget, ops: Type.Array(opSchema, { minItems: 1, maxItems: 1000 }) }), (args, store, ctx) => apply(store, args, args.ops, ctx)),
     tool("docs_insert", "Insert a component block using registry defaults, returning its generated blockId. Supply initial props or markdown when useful, then edit using its component tools.", obj({ ...writeTarget, parentId: id, index: Type.Integer({ minimum: 0 }), type: blockType, props: Type.Optional(record), markdown: Type.Optional(Type.String()) }), async (args, store, ctx) => {
       if (args.markdown !== undefined && !stateFor(args.type).carriesText) return failure("This component carries structured props, not markdown text.");
       const blockId = randomUUID();

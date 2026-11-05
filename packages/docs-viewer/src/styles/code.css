@@ -110,6 +110,20 @@
   font-weight: var(--syntax-string-font-weight, inherit);
 }
 
+/*
+ * A wrapping code line breaks before a string literal, not inside it, so a
+ * line never ends on a lone quote that reads as cut off. The string is one
+ * inline box that moves to the next visual line whole; a string wider than
+ * the line still wraps inside its own box. Only read code lines (hljs cells
+ * in [data-code-line]) do this.
+ */
+[data-code-line] > code.hljs .hljs-string {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: top;
+  text-indent: 0;
+}
+
 /* Interpolated code inside template strings is code again, not string. */
 .hljs-subst {
   color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
@@ -267,7 +281,8 @@
  * The code column shrinks to the panel and wraps, and the comment column
  * wraps under itself, so nothing overflows the panel horizontally and each
  * number stays on its own row. A line with no comment lets its code run
- * across the comment column.
+ * across the comment column. When a comment would wrap or the rows would
+ * overflow, every comment moves under its line (data-notes="below").
  */
 .docs-pseudo-grid {
   display: grid;
@@ -299,9 +314,16 @@
   user-select: none;
 }
 
+/*
+ * A line longer than the code column wraps, and its continuation hangs 2ch
+ * past the line's own indent (--docs-pseudo-indent, set per row), so a reader
+ * sees one statement, not a new line at the left edge.
+ */
 .docs-pseudo-code {
+  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
   min-width: 0;
-  padding-left: var(--docs-code-pad-x, var(--ds-space-3));
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));
+  text-indent: calc(-1 * var(--docs-pseudo-hang));
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -319,6 +341,35 @@
 }
 
 /*
+ * Comments below (PseudocodeGrid data-notes="below"): a comment wraps beside
+ * its line, or the rows overflow the panel. The comment column goes away,
+ * each code line takes the full width, and its comment takes a second line
+ * under it at the line's indent.
+ */
+.docs-pseudo-grid[data-notes="below"] {
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, 1fr);
+}
+
+.docs-pseudo-grid[data-notes="below"][data-pseudo-diff] {
+  grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) 2ch minmax(0, 1fr);
+}
+
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-code {
+  grid-column: -2 / -1;
+  padding-right: var(--docs-code-pad-x, var(--ds-space-3));
+}
+
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment {
+  grid-row: 2;
+  grid-column: -2 / -1;
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid[data-notes="below"][data-pseudo-diff] .docs-pseudo-comment {
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
+}
+
+/*
  * Diff (props.diff): the shared +/− sign column between the number and the
  * code. A change is never color alone: the sign glyph, a soft row tint, and
  * (for removals) a strike through the code that skips the indent. Sign and
@@ -331,7 +382,7 @@
 }
 
 .docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
-  padding-left: var(--ds-space-1);
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-hang));
 }
 
 .docs-pseudo-sign {

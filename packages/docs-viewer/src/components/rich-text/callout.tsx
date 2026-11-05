@@ -37,4 +37,5 @@ export const calloutDescriptor: DocBlockDescriptor = mdxAdapterDescriptor({
     title: stringProp(block, "title"),
     body,
   }),
+  nestChildren: true,
 });

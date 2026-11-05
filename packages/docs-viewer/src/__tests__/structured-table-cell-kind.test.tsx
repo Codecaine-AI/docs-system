@@ -81,6 +81,24 @@ describe("tableCellKinds", () => {
     ]);
   });
 
+  it("keeps code chips on one-name cells when the column also lists several names", () => {
+    // Round 2 brief 6: "`sequence`" lost its chip while "`canvas`, `text-measure`" kept both.
+    const rows: TableCell[][] = [
+      ["canvas", "`canvas`, `text-measure`"],
+      ["sequence", "`sequence`"],
+    ];
+    expect(tableCellKinds(rows, 2)).toEqual([
+      [undefined, undefined],
+      [undefined, undefined],
+    ]);
+    render(<StructuredTableBlock id="t-mixed" columns={["Repo", "Packages"]} rows={rows} />);
+    const cells = Array.from(document.querySelectorAll("tbody tr")).map((tr) => tr.querySelectorAll("td")[1]!);
+    expect(cells.map((td) => [td.hasAttribute("data-cell-kind"), Array.from(td.querySelectorAll("code")).map((c) => c.textContent)])).toEqual([
+      [false, ["canvas", "text-measure"]],
+      [false, ["sequence"]],
+    ]);
+  });
+
   it("types a whole-cell code span mono in any column, and pads ragged rows", () => {
     expect(tableCellKinds([["Run", code("npm i")], ["Lint"]], 2)).toEqual([
       [undefined, "mono"],

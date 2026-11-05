@@ -1,0 +1,139 @@
+[
+  {
+    "id": 1,
+    "set": "climb",
+    "slug": "docs-model",
+    "title": "Docs Model",
+    "reader": "An engineer who will write code against @codecaine-ai/docs-model for the first time",
+    "prompt": "Write the concept page for the docs model package. Explain what a doc.json document is: the document, its block map and child order, the block types, and how text is stored as delta spans. Show the shape of a document and a block, list the block types with what each one is for, and explain how edits change a document through doc ops. Warn the reader about the rules that make a document invalid.",
+    "sources": [
+      "packages/docs-model/src/doc-schema.ts",
+      "packages/docs-model/src/doc-ops.ts",
+      "packages/docs-model/src/index.ts"
+    ],
+    "blockTypes": ["rich-text", "callout", "state-shape", "structured-table"],
+    "rewrites": "docs/30-implementation/10-packages/10-docs-model"
+  },
+  {
+    "id": 2,
+    "set": "climb",
+    "slug": "docs-mcp-setup",
+    "title": "Docs MCP Setup",
+    "reader": "A developer who wants a coding agent (Claude Code, Codex or Pi) to edit docs through the docs MCP",
+    "prompt": "Write the setup guide for the docs MCP. Give the numbered steps to install it for Claude Code, Codex and Pi, check the install, and start the shared service. Show the commands and the config the installer writes, show which files the install creates or changes, and warn about the cases where the installer refuses to write.",
+    "sources": [
+      "packages/docs-mcp/README.md",
+      "packages/docs-mcp/src/install.ts",
+      "packages/docs-mcp/src/cli.ts",
+      "packages/docs-mcp/src/lifecycle.ts",
+      "packages/docs-mcp/src/mcp.ts"
+    ],
+    "blockTypes": ["rich-text", "code", "callout", "file-tree"],
+    "rewrites": "docs/40-guides/10-docs-mcp/10-setup"
+  },
+  {
+    "id": 3,
+    "set": "climb",
+    "slug": "docs-server-request-path",
+    "title": "Docs Server Request Path",
+    "reader": "An engineer who will debug or change how the docs server saves an edit",
+    "prompt": "Write the page that follows one edit request through the docs server, from the HTTP route to the bundle on disk. Show the HTTP operations a save uses (GET /api/bundle, POST /api/ops, POST /api/undo and GET /api/events), the call stack of one save, the steps of the save in order, and the key code that applies the ops and writes the file.",
+    "sources": [
+      "packages/docs-server/src/routes.ts",
+      "packages/docs-server/src/store.ts",
+      "packages/docs-server/src/doc-ops.ts",
+      "packages/docs-server/src/bundle.ts"
+    ],
+    "blockTypes": ["rich-text", "call-stack", "process-outline", "code", "interaction-surface"],
+    "rewrites": "docs/30-implementation/10-packages/30-docs-server"
+  },
+  {
+    "id": 4,
+    "set": "climb",
+    "slug": "docs-viewer-render",
+    "title": "Docs Viewer Render",
+    "reader": "A front-end engineer who will add or restyle a block renderer in the docs viewer",
+    "prompt": "Write the page that explains how the docs viewer turns a document into the rendered page. Show the React component tree from the page down to one block, the files of the render folder and what each one holds, and the render loop as pseudocode: how a block finds its renderer in the registry and how layout is chosen.",
+    "sources": [
+      "packages/docs-viewer/src/index.ts",
+      "packages/docs-viewer/src/client.tsx",
+      "packages/docs-viewer/src/render/DocBlockRenderer.tsx",
+      "packages/docs-viewer/src/render/block-registry.ts",
+      "packages/docs-viewer/src/render/block-layout.ts"
+    ],
+    "blockTypes": ["rich-text", "component-tree", "file-explorer", "pseudocode"],
+    "rewrites": "docs/30-implementation/10-packages/40-docs-viewer"
+  },
+  {
+    "id": 5,
+    "set": "climb",
+    "slug": "package-layers",
+    "title": "Package Layers and Import Rules",
+    "reader": "A contributor who is about to add an import between two docs-system packages",
+    "prompt": "Write the page that explains how the docs-system packages are layered and which imports are allowed. Show the layers from the model at the bottom to the apps at the top, the package folders, and a table of which package may import which. Explain how the import-boundaries test enforces the rules.",
+    "sources": [
+      "import-boundaries.test.ts",
+      "package.json",
+      "packages/docs-model/package.json",
+      "packages/docs-index/package.json",
+      "packages/docs-server/package.json",
+      "packages/docs-viewer/package.json",
+      "packages/docs-workbench/package.json",
+      "packages/docs-cli/package.json",
+      "packages/docs-mcp/package.json",
+      "packages/docs-style/package.json"
+    ],
+    "blockTypes": ["rich-text", "stack", "file-tree", "structured-table"],
+    "rewrites": "docs/30-implementation/10-packages"
+  },
+  {
+    "id": 7,
+    "set": "held-out",
+    "slug": "docs-style-judge-pipeline",
+    "title": "Docs Style Judge Pipeline",
+    "reader": "An engineer who will tune or debug the model-judged style rules",
+    "prompt": "Write the page that explains how model-judged style rules run on a docs edit. Show the judge pipeline as pseudocode, the call stack from a docs MCP write to the judge call, and the shape of a judged finding and of the cache entry. Explain when judgment blocks docs_check and when it fails open.",
+    "sources": [
+      "packages/docs-style/src/judge/jev.ts",
+      "packages/docs-style/src/judge/judge-blocks.ts",
+      "packages/docs-style/src/judge/index.ts",
+      "packages/docs-mcp/src/jev-engine.ts",
+      "packages/docs-mcp/src/lint-feedback.ts"
+    ],
+    "blockTypes": ["rich-text", "pseudocode", "call-stack", "state-shape"],
+    "rewrites": "docs/10-system-design/10-doc-standards/85-style-enforcement"
+  },
+  {
+    "id": 8,
+    "set": "held-out",
+    "slug": "docs-publish-release",
+    "title": "Docs Publish Release Guide",
+    "reader": "A maintainer who will build and release the docs-publish package",
+    "prompt": "Write the release guide for the docs-publish package. Give the numbered steps to build, check and release it, with the commands. Show the files the build reads and the files it writes, the package folder, and the public API the package exports for a host page.",
+    "sources": [
+      "packages/docs-publish/README.md",
+      "packages/docs-publish/build.ts",
+      "packages/docs-publish/package.json",
+      "packages/docs-publish/src/publish.tsx",
+      "packages/docs-publish/src/bundle.ts"
+    ],
+    "blockTypes": ["rich-text", "code", "file-tree", "file-explorer", "interaction-surface"],
+    "rewrites": "docs/40-guides/20-release-core-products"
+  },
+  {
+    "id": 10,
+    "set": "held-out",
+    "slug": "docs-index-backlinks",
+    "title": "Docs Index Backlinks Design",
+    "reader": "An engineer who will change how references between pages are indexed",
+    "prompt": "Write the design page for the docs index backlinks. Show the layers from the bundle files to the backlinks query, the components that scan, match and store references, and the rescan as an ordered process. Explain how a doc reference and a source reference are matched.",
+    "sources": [
+      "packages/docs-index/src/backlinks.ts",
+      "packages/docs-index/src/ref-match.ts",
+      "packages/docs-index/src/canvas-links.ts",
+      "packages/docs-server/src/backlinks-cache.ts"
+    ],
+    "blockTypes": ["rich-text", "stack", "component-tree", "process-outline"],
+    "rewrites": "docs/30-implementation/10-packages/20-docs-index"
+  }
+]

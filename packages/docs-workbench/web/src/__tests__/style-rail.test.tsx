@@ -4002,7 +4002,7 @@ describe("style rail process-outline tokens", () => {
 
   it("colors the outline in VS Code Light+ on the light page and Dark+ on the dark page", () => {
     const css = readSemanticCss((url) => readFileSync(url, "utf8"));
-    // [light block, dark block]. Keywords and notes take the VS Code palette of
+    // [light block, dark block]. Keywords take the VS Code palette of
     // the page mode; depth markers walk the category roster; text, chips' fill
     // and the frame follow the neutral roles; the rail is secondary in both.
     const ROLE: Record<string, [string, string]> = {
@@ -4020,8 +4020,9 @@ describe("style rail process-outline tokens", () => {
       "cycle-6": ["var(--docs-cat-6)", "var(--docs-cat-6)"],
       // The design-system syntax tokens (VS Code Light+ / Dark+), read here at their lowercase token values.
       "keyword-fg": ["#af00db", "#c586c0"],
-      "note-fg": ["#008000", "#6a9955"],
-      "note-bullet": ["#008000", "#6a9955"],
+      // Notes are prose asides in the muted ink, never comment-colored code.
+      "note-fg": ["var(--docs-muted)", "var(--docs-muted)"],
+      "note-bullet": ["var(--docs-muted)", "var(--docs-muted)"],
       "code-bg": ["var(--docs-chip-bg)", "var(--docs-chip-bg)"],
       border: ["var(--docs-rule)", "var(--docs-rule)"],
     };

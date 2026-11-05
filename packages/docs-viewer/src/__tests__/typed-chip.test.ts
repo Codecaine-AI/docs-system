@@ -65,12 +65,20 @@ describe("chipKind", () => {
 
 describe("chipPieces", () => {
   it.each([
-    // never `--` / `docs-kind-*`: leading hyphens and a trailing `-*` stay attached
-    ["--docs-kind-*", ["--docs-", "kind-*"]],
+    // a word of 32 characters or fewer never breaks, even at an underscore or a slash
+    ["--docs-kind-*", ["--docs-kind-*"]],
+    ["editor.setContent", ["editor.setContent"]],
+    ["block-layout.ts", ["block-layout.ts"]],
+    ["CODECAINE_DOCS_STATE_DIR", ["CODECAINE_DOCS_STATE_DIR"]],
+    ["agent-kernel-viewer-core", ["agent-kernel-viewer-core"]],
+    ["../canvas/packages/text-measure", ["../canvas/packages/text-measure"]],
     // a spaced chip breaks only at its spaces
     ["docs-cli code-theme import", ["docs-cli", " ", "code-theme", " ", "import"]],
-    ["packages/docs-viewer/src", ["packages/", "docs-", "viewer/", "src"]],
-    ["editor.setContent", ["editor.", "setContent"]],
+    // a longer path breaks only after its slashes, never inside a hyphenated folder name
+    ["packages/docs-viewer/src/render/block-layout.ts", ["packages/", "docs-viewer/", "src/", "render/", "block-layout.ts"]],
+    // any other longer word breaks after `.` or `-`; leading hyphens stay attached, and a piece of 3 or fewer joins the one before
+    ["--docs-code-annotation-accent-color-dark", ["--docs-", "code-", "annotation-", "accent-", "color-", "dark"]],
+    ["SOME_VERY_LONG_ENVIRONMENT_VARIABLE_NAME", ["SOME_VERY_LONG_ENVIRONMENT_VARIABLE_NAME"]],
     ["DocsChangeEvent", ["DocsChangeEvent"]],
     ["./foo", ["./foo"]],
   ])("%p cuts into %p", (text, pieces) => {

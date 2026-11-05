@@ -238,7 +238,7 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(union.querySelectorAll("wbr")).toHaveLength(0);
   });
 
-  it("renders names, types, an accessible optional mark, and descriptions as name tooltips", () => {
+  it("renders names, types, an accessible optional mark, and prints each description beside its type", () => {
     renderTwoPane();
     const row = treeRow("source.symbol") as HTMLElement;
     expect(row.querySelector('[data-field-token="name"]')?.textContent).toBe("symbol");
@@ -248,30 +248,18 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(optional.querySelector('[aria-hidden="true"]')?.textContent).toBe("?");
     expect(optional.querySelector("[data-sr-only]")?.textContent).toBe(" (optional)");
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
-    // A described name is focusable and points at its tooltip; the row shows
-    // only name and type (the tooltip sits in the name cell, not the type column).
+    // A static or touch reader sees the description: it prints in the type
+    // column, after the type, and is never a hover-only tooltip.
     const described = treeRow("name") as HTMLElement;
-    const name = described.querySelector('[data-field-token="name"]') as HTMLElement;
-    expect(name.getAttribute("tabindex")).toBe("0");
-    expect(name.hasAttribute("data-has-description")).toBe(true);
-    const description = described.querySelector('[data-field-token="description"]') as HTMLElement;
-    expect(description.textContent).toBe("Shape display name");
-    expect(description.getAttribute("role")).toBe("tooltip");
-    expect(name.getAttribute("aria-describedby")).toBe(description.id);
-    expect(description.closest("[data-field-def]")).toBeNull();
-    expect(description.closest("[data-field-name-cell]")).not.toBeNull();
-    // Tooltip ids are unique within the block.
-    const ids = Array.from(document.querySelectorAll('[role="tooltip"]')).map((tip) => tip.id);
-    expect(new Set(ids).size).toBe(ids.length);
-    // An undescribed name is plain text: no underline target, no tab stop.
-    expect(row.querySelector('[data-field-token="description"]')).toBeNull();
-    expect(row.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
-    // CSS only: a 450ms hover dwell, immediate on focus, inline in print.
-    const css = sheet();
-    expect(css).toContain("[data-described]:hover>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:var(--docs-tip-delay,450ms)}");
-    expect(css).toContain("[data-described]:has(>[data-has-description]:focus-visible)>[data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:0s}");
-    expect(css).toContain("pointer-events:none");
-    expect(css).toMatch(/@media print\{\[data-described\]\{display:contents\}[^\n]*\[data-description-tip\]\{position:static;display:block/);
+    const note = described.querySelector('[data-field-token="note"]') as HTMLElement;
+    expect(note.textContent).toBe("Shape display name");
+    expect(note.closest("[data-field-def]")?.querySelector('[data-field-token="type"]')?.textContent).toBe("string");
+    expect(described.querySelector('[role="tooltip"]')).toBeNull();
+    expect(described.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
+    // An undescribed field prints no note.
+    expect(row.querySelector('[data-field-token="note"]')).toBeNull();
+    // Notes sit in a third column when the ledger is 600px wide, else under the type.
+    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]){display:flex');
   });
 
   it("colors type text as Dark+ colors a TS type: literals by role, pipes and braces as punctuation", () => {
@@ -329,6 +317,14 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(hangs.length).toBe(region.querySelectorAll("[data-code-line]").length);
     expect(hangs[0]?.style.getPropertyValue("--hang")).toBe("0ch");
     expect(hangs[1]?.style.getPropertyValue("--hang")).toBe("2ch");
+  });
+
+  it("keeps an example far taller than its ledger beside the fields", () => {
+    const rows = Array.from({ length: 12 }, (_, i) => ({ id: `block-${i}`, type: "paragraph", children: [`child-${i}`, `other-${i}`] }));
+    render(<StateShapeBlock id="shape-tall" name="Doc" fields={[{ name: "blocks", type: "Block[]" }]} example={JSON.stringify({ blocks: rows })} />);
+    const grid = document.querySelector("[data-shape-grid]") as HTMLElement;
+    expect(grid.getAttribute("data-has-example")).toBe("true");
+    expect(grid.hasAttribute("data-example-below")).toBe(false);
   });
 
   it("reads its knobs through the shared ledger locals, defaults as fallbacks", () => {
@@ -390,29 +386,31 @@ describe("StateShapeBlock — plain reference panel", () => {
 
   it("keys example lines with their whole chain, deepest first — ancestors still light them", () => {
     renderTwoPane();
+    // The pane folds a short object of primitives onto one line, so a field
+    // object such as { "name": ..., "required": ... } is one line that keys both fields.
     expect(exampleLine(1)?.getAttribute("data-link-key")).toBeNull();
-    expect(exampleLine(17)?.getAttribute("data-link-key")).toBeNull();
+    expect(exampleLine(11)?.getAttribute("data-link-key")).toBeNull();
     expect(exampleLine(4)?.getAttribute("data-link-key")).toBe("source.path source");
-    expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.name fields");
-    expect(exampleLine(14)?.getAttribute("data-link-key")).toBe("fields.required fields");
+    expect(exampleLine(8)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
+    expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
     expect(exampleLine(3)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(6)?.getAttribute("data-link-key")).toBe("source");
-    expect(exampleLine(8)?.getAttribute("data-link-key")).toBe("fields");
-    expect(exampleLine(11)?.getAttribute("data-link-key")).toBe("fields");
+    expect(exampleLine(7)?.getAttribute("data-link-key")).toBe("fields");
+    expect(exampleLine(10)?.getAttribute("data-link-key")).toBe("fields");
   });
 
   it("tones JSON tokens with the code theme's syntax roles", () => {
     renderTwoPane();
     const pane = document.querySelector("[data-shape-example]") as HTMLElement;
     expect(pane.getAttribute("data-code-lines")).toBe("true");
-    expect(pane.querySelectorAll("[data-code-line]")).toHaveLength(17);
+    expect(pane.querySelectorAll("[data-code-line]")).toHaveLength(11);
     const line2 = exampleLine(2) as HTMLElement;
     const key = line2.querySelector('[data-json-token="key"]');
     expect(key?.textContent).toBe('"name"');
     expect(key?.className).toContain("--syntax-key");
     expect(key?.className).toContain("--syntax-key-font-style");
     expect(line2.querySelector('[data-json-token="string"]')?.className).toContain("--syntax-string");
-    expect(exampleLine(10)?.querySelector('[data-json-token="boolean"]')?.className).toContain("--syntax-boolean");
+    expect(exampleLine(8)?.querySelector('[data-json-token="boolean"]')?.className).toContain("--syntax-boolean");
     expect(exampleLine(1)?.querySelector('[data-json-token="punct"]')?.className).toContain("--syntax-punctuation");
   });
 

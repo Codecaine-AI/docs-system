@@ -134,9 +134,9 @@
   --docs-process-outline-cycle-6: var(--docs-cat-6);
   --docs-process-outline-keyword-fg: var(--ds-light-color-syntax-control);
   --docs-process-outline-keyword-weight: var(--ds-font-weight-medium);
-  --docs-process-outline-note-fg: var(--ds-light-color-syntax-comment);
+  --docs-process-outline-note-fg: var(--docs-muted);
   --docs-process-outline-note-rule: var(--docs-rule);
-  --docs-process-outline-note-bullet: var(--ds-light-color-syntax-comment);
+  --docs-process-outline-note-bullet: var(--docs-muted);
   --docs-process-outline-note-bg: transparent;
   --docs-process-outline-note-border: var(--docs-rule);
   --docs-process-outline-code-bg: var(--docs-chip-bg);

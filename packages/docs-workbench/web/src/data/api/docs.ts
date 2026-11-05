@@ -164,6 +164,12 @@ export type UndoResult =
  * Replays the stored inverse of a patch. Single-use: a second undo of the
  * same patch id 404s, surfaced as `alreadyUndone`.
  */
+/** Sets doc.json's title, the page H1. The folder name, and so the URL, stays. */
+export async function setDocTitle(path: string, title: string, expectedHash: string): Promise<{ ok: true }> {
+  assertWritable("Title change");
+  return postJson(`api/title`, { path, title, expected_hash: expectedHash });
+}
+
 /** Moves/renames a bundle folder; the server rewrites inbound references. */
 export async function moveDoc(
   fromPath: string,

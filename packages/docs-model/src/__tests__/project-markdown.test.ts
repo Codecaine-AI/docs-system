@@ -211,6 +211,28 @@ describe("projectToMarkdown — callout labels", () => {
   });
 });
 
+describe("projectToMarkdown — callout children", () => {
+  it("keeps a callout's child list inside its quote, and the next block outside it", () => {
+    const doc = docWith(
+      {
+        c: block("c", {
+          type: "callout",
+          props: { tone: "warning", title: "Rules" },
+          text: [{ insert: "Two rules." }],
+          children: ["r1", "r2"],
+        }),
+        r1: block("r1", { type: "list-item", props: { ordered: true }, text: [{ insert: "First rule." }] }),
+        r2: block("r2", { type: "list-item", props: { ordered: true }, text: [{ insert: "Second rule." }] }),
+        after: block("after", { text: [{ insert: "After the callout." }] }),
+      },
+      ["c", "after"],
+    );
+    expect(projectToMarkdown(doc)).toBe(
+      "> **WARNING: Rules** — Two rules.\n>\n> 1. First rule.\n>\n> 2. Second rule.\n\nAfter the callout.\n",
+    );
+  });
+});
+
 describe("projectToMarkdown — interaction-surface signatures", () => {
   function surfaceDoc(operations: unknown[], title?: string): DocDocument {
     return docWith(
