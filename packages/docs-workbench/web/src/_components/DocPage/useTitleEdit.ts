@@ -30,7 +30,7 @@ export function useTitleEdit({
   titleRef: RefObject<HTMLHeadingElement | null>;
   revertTitleRef: RefObject<boolean>;
   expectedHashRef: { current: string | undefined };
-  fetchBundle: (options?: { keepDraft?: boolean }) => Promise<void>;
+  fetchBundle: (options?: { keepDraft?: boolean; submittedTitle?: string }) => Promise<void>;
   setPaneError: Dispatch<SetStateAction<string | null>>;
   liveStateRef: { current: { mode: string; saveState: string } };
 }) {
@@ -63,7 +63,7 @@ export function useTitleEdit({
     }
     try {
       await setDocTitle(path, next, hash);
-      await fetchBundle({ keepDraft: true });
+      await fetchBundle({ keepDraft: true, submittedTitle: next });
     } catch (error) {
       el.textContent = title;
       setPaneError(error instanceof Error ? `Title change failed: ${error.message}` : "Title change failed");

@@ -82,6 +82,8 @@ export function useDocBundle({
   const expectedHashRef = useMemo(() => ({ current: undefined as string | undefined }), [path]);
   const pathRef = useRef(path);
   pathRef.current = path;
+  /** The server title a skipped or failed keepDraft refresh left out of the bundle, or null. */
+  const pendingTitleRef = useRef<string | null>(null);
   const fetchBundle = useCallback(
     /**
      * `keepDraft`: when the editor holds unsaved edits as the bundle arrives, the
@@ -89,8 +91,11 @@ export function useDocBundle({
      * It takes the new hash only when the doc differs from the page's doc by its
      * title alone, so an outside edit still meets the save's 409 conflict path.
      * A failed keepDraft fetch leaves the page as it is, with no error screen.
+     * `submittedTitle` is the title the caller wrote: the hash is adopted only when
+     * the fetched title is that one, so another actor's title meets the 409 path.
+     * A skipped or failed keepDraft refresh runs again once the editor is clean.
      */
-    async (options?: { showLoading?: boolean; keepDraft?: boolean }) => {
+    async (options?: { showLoading?: boolean; keepDraft?: boolean; submittedTitle?: string }) => {
       const seq = ++loadSeqRef.current;
       if (options?.showLoading) {
         setIsLoading(true);
@@ -101,7 +106,10 @@ export function useDocBundle({
         if (seq !== loadSeqRef.current) return;
         const live = liveStateRef.current;
         if (options?.keepDraft && live.mode === "edit" && live.saveState !== "saved") {
-          if (live.doc && sameExceptTitle(payload.doc, live.doc)) expectedHashRef.current = payload.doc_hash;
+          const fetchedTitle = (payload.doc as { title?: string } | null)?.title;
+          const ownTitle = options.submittedTitle === undefined || fetchedTitle === options.submittedTitle;
+          if (live.doc && ownTitle && sameExceptTitle(payload.doc, live.doc)) expectedHashRef.current = payload.doc_hash;
+          pendingTitleRef.current = fetchedTitle ?? null;
           return;
         }
         expectedHashRef.current = payload.doc_hash;
@@ -113,7 +121,10 @@ export function useDocBundle({
         if (seq !== loadSeqRef.current) return;
         // A keepDraft refresh follows a write that already landed: on failure the page
         // stays as it is, so the editor and any draft stay mounted.
-        if (options?.keepDraft) return;
+        if (options?.keepDraft) {
+          pendingTitleRef.current = options.submittedTitle ?? null;
+          return;
+        }
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");
       } finally {
         if (seq === loadSeqRef.current) {
@@ -159,6 +170,15 @@ export function useDocBundle({
     saveState: DocEditorSaveState;
   }>({ path, doc: null, mode, saveState });
   liveStateRef.current = { path, doc: bundle?.doc ?? null, mode, saveState };
+
+  // Once the editor is clean, a title that a keepDraft refresh left out comes in.
+  // A body save reply that already carries it clears the wait without a refetch.
+  useEffect(() => {
+    const pending = pendingTitleRef.current;
+    if (pending === null || (mode === "edit" && saveState !== "saved")) return;
+    pendingTitleRef.current = null;
+    if (bundle?.doc?.title !== pending) void fetchBundle();
+  }, [mode, saveState, bundle, fetchBundle]);
 
   useEffect(() => {
     if (isStatic) return;
