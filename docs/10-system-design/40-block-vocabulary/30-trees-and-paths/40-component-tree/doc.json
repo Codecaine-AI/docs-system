@@ -256,7 +256,7 @@
                 "name": "kind",
                 "type": "\"component\" | \"hook\" | \"branch\"",
                 "required": false,
-                "description": "Defaults to component. A branch is a condition row that may own nodes."
+                "description": "Defaults to component. A branch is a condition row that may own nodes. Give each arm of an if/else or a ternary its own branch row, such as !descriptor and descriptor, so the reader sees which nodes render in which case."
               },
               {
                 "name": "comment",
