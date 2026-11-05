@@ -177,7 +177,8 @@ export function useDocBundle({
     const pending = pendingTitleRef.current;
     if (pending === null || (mode === "edit" && saveState !== "saved")) return;
     pendingTitleRef.current = null;
-    if (bundle?.doc?.title !== pending) void fetchBundle();
+    // The retry keeps a draft too: body edits can start again while it runs.
+    if (bundle?.doc?.title !== pending) void fetchBundle({ keepDraft: true, submittedTitle: pending });
   }, [mode, saveState, bundle, fetchBundle]);
 
   useEffect(() => {
