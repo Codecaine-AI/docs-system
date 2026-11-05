@@ -6,14 +6,19 @@ export const TARGET = 9.5;
 export const PAGE_FLOOR = 9;
 export const COST_LIMIT = 1.2;
 
-/** One judge's score of one page. `groups` maps each scored block id to its block-type group. */
+/**
+ * One judge's scores of one page: one reply per sample, in sample order. The gate reads only their median.
+ * `groups` maps each scored block id to its block-type group.
+ */
 export interface PageScore {
   judge: string;
   set: BriefSet;
   briefId: number;
-  reply: JudgeReply;
+  samples: JudgeReply[];
   groups: Record<string, BlockGroup>;
 }
+/** A finding with the count of samples that named its target. */
+export type MergedFinding = JudgeReply["findings"][number] & { samples: number };
 /** A gate failure or guard detail item. `set` is null for an item no single set owns, such as a typecheck error. */
 export interface GateItem { set: BriefSet | null; text: string }
 export interface WriterCost { set: BriefSet; briefId: number; toolCalls: number; tokens: number }
@@ -31,17 +36,52 @@ export interface GateResult {
 }
 
 const mean = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
+const median = (values: number[]) => {
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = sorted.length >> 1;
+  return sorted.length % 2 ? sorted[mid]! : (sorted[mid - 1]! + sorted[mid]!) / 2;
+};
 
-/** One judge's scores over one set: each category's mean and lowest page, and each group's mean over its blocks. */
+/** The median over a page's samples of each category score and of each block score. */
+export function pageMedian(samples: JudgeReply[]): { categories: Record<PageCategory, number>; blocks: Record<string, number> } {
+  const categories = Object.fromEntries(PAGE_CATEGORIES.map((c) => [c, median(samples.map((s) => s.categories[c]))])) as Record<PageCategory, number>;
+  const ids = [...new Set(samples.flatMap((s) => s.blocks.map((b) => b.id)))];
+  const blocks = Object.fromEntries(ids.map((id) => [id, median(samples.flatMap((s) => s.blocks.filter((b) => b.id === id).map((b) => b.score)))]));
+  return { categories, blocks };
+}
+
+const SEVERITY = { high: 0, medium: 1, low: 2 } as const;
+/**
+ * Each target (a category or a block id) once, with the count of samples that named it. Its severity and text
+ * are those of its most severe finding, the earliest sample first. Most samples first, then most severe.
+ */
+export function mergeFindings(samples: JudgeReply[]): MergedFinding[] {
+  const byTarget = new Map<string, MergedFinding>();
+  samples.forEach((sample, i) => {
+    for (const target of new Set(sample.findings.map((f) => f.target))) {
+      const worst = sample.findings.filter((f) => f.target === target).sort((a, b) => SEVERITY[a.severity] - SEVERITY[b.severity])[0]!;
+      const seen = byTarget.get(target);
+      if (!seen) byTarget.set(target, { ...worst, samples: 1 });
+      else byTarget.set(target, { ...(SEVERITY[worst.severity] < SEVERITY[seen.severity] ? worst : seen), samples: seen.samples + 1 });
+    }
+  });
+  return [...byTarget.values()].sort((a, b) => b.samples - a.samples || SEVERITY[a.severity] - SEVERITY[b.severity]);
+}
+
+/**
+ * One judge's scores over one set, on each page's median: each category's mean and lowest page,
+ * and each group's mean over its blocks.
+ */
 export function setScores(pages: PageScore[]): SetScores {
+  const medians = pages.map((p) => ({ page: p, ...pageMedian(p.samples) }));
   const categories = Object.fromEntries(PAGE_CATEGORIES.map((c) => {
-    const values = pages.map((p) => p.reply.categories[c]);
+    const values = medians.map((m) => m.categories[c]);
     return [c, { mean: mean(values), min: Math.min(...values) }];
   })) as SetScores["categories"];
   const byGroup = new Map<BlockGroup, number[]>();
-  for (const page of pages) for (const block of page.reply.blocks) {
-    const group = page.groups[block.id];
-    if (group) byGroup.set(group, [...(byGroup.get(group) ?? []), block.score]);
+  for (const { page, blocks } of medians) for (const [id, score] of Object.entries(blocks)) {
+    const group = page.groups[id];
+    if (group) byGroup.set(group, [...(byGroup.get(group) ?? []), score]);
   }
   const groups: SetScores["groups"] = {};
   for (const [group, values] of byGroup) groups[group] = { mean: mean(values), blocks: values.length };
@@ -50,7 +90,7 @@ export function setScores(pages: PageScore[]): SetScores {
 
 /**
  * The gate passes only when every counting judge reaches TARGET in every category and every block group
- * on both sets, no page scores below PAGE_FLOOR in any category, and every guard passes.
+ * on both sets, no page's median scores below PAGE_FLOOR in any category, and every guard passes.
  */
 export function evaluateGate(pages: PageScore[], countingJudges: string[], guards: GuardResult[]): GateResult {
   const failures: GateItem[] = [];
@@ -163,6 +203,8 @@ export function builderReport(gate: GateResult, pages: PageScore[]) {
     failures: shown(gate.failures),
     heldOutFailures: heldOut(gate.failures),
     scores: gate.scores,
-    climbPages: pages.filter((p) => p.set === "climb").map((p) => ({ judge: p.judge, briefId: p.briefId, categories: p.reply.categories, findings: p.reply.findings })),
+    climbPages: pages.filter((p) => p.set === "climb").map((p) => ({
+      judge: p.judge, briefId: p.briefId, samples: p.samples.length, categories: pageMedian(p.samples).categories, findings: mergeFindings(p.samples),
+    })),
   };
 }

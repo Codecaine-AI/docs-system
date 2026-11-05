@@ -122,12 +122,15 @@ export const JUDGES: Record<string, Adapter> = {
   gemini: later("gemini (Gemini 4 Argon, stage 3 jester)", "cp5"),
 };
 
-/** Scores one page with one judge, saves scores/<judge>.json beside the page, and retries once on a bad reply. */
-export async function judgePage(judge: string, packet: Packet, pageDir: string): Promise<JudgeReply> {
+/** The score file of one judge's sample of one page, counted from 1. */
+export const scoreFile = (pageDir: string, judge: string, sample: number) => join(pageDir, "scores", `${judge}.${sample}.json`);
+
+/** Scores one page with one judge as sample `sample`, saves scores/<judge>.<sample>.json beside the page, and retries once on a bad reply. */
+export async function judgePage(judge: string, packet: Packet, pageDir: string, sample = 1): Promise<JudgeReply> {
   const adapter = JUDGES[judge];
   if (!adapter) throw new Error(`Unknown judge ${judge}. Use one of: ${Object.keys(JUDGES).join(", ")}`);
   await freezeSources([packet.brief]);
-  const workDir = join(pageDir, "scores", `${judge}-work`);
+  const workDir = join(pageDir, "scores", `${judge}.${sample}-work`);
   await mkdir(workDir, { recursive: true });
   const ids = packet.blocks.map((b) => b.id);
   let prompt = await judgePrompt(packet);
@@ -136,7 +139,7 @@ export async function judgePage(judge: string, packet: Packet, pageDir: string):
     await writeFile(join(workDir, `reply-${attempt}.txt`), text);
     const parsed = parseJudgeReply(text, ids);
     if (parsed.ok) {
-      await writeFile(join(pageDir, "scores", `${judge}.json`), JSON.stringify(parsed.reply, null, 2));
+      await writeFile(scoreFile(pageDir, judge, sample), JSON.stringify(parsed.reply, null, 2));
       return parsed.reply;
     }
     prompt = `${prompt}\n\n# Your Last Reply Was Rejected\n\n${parsed.error}\n\nReply again with one JSON object in the reply format, and nothing else.`;

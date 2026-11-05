@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type PageScore, type WriterCost } from "./gate";
-import { BLOCK_GROUPS, PAGE_CATEGORIES, type BriefSet, type PageCategory } from "./schema";
+import { BLOCK_GROUPS, PAGE_CATEGORIES, type BriefSet, type JudgeReply, type PageCategory } from "./schema";
 
 const okGuards: GuardResult[] = [
   { name: "tests", pass: true, detail: "ok", items: [] },
@@ -15,12 +15,17 @@ function page(judge: string, set: BriefSet, briefId: number, score = 10, over: {
   return {
     judge, set, briefId,
     groups: Object.fromEntries(BLOCK_GROUPS.map((g) => [`${briefId}-${g}`, g])),
-    reply: {
+    samples: [{
       categories: { ...Object.fromEntries(PAGE_CATEGORIES.map((c) => [c, score])), ...over.categories } as Record<PageCategory, number>,
       blocks,
       findings: over.finding ? [{ target: "accuracy", severity: "high", finding: over.finding }] : [],
-    },
+    }],
   };
+}
+/** One page scored once per entry of `accuracy`, with that accuracy and `findings` for that sample, all else 10. */
+function sampled(judge: string, set: BriefSet, briefId: number, accuracy: number[], findings: JudgeReply["findings"][] = []): PageScore {
+  const base = page(judge, set, briefId);
+  return { ...base, samples: accuracy.map((a, i) => ({ ...base.samples[0]!, categories: { ...base.samples[0]!.categories, accuracy: a }, findings: findings[i] ?? [] })) };
 }
 const fullRound = (judges: string[], score = 10) => judges.flatMap((j) => [page(j, "climb", 1, score), page(j, "climb", 2, score), page(j, "held-out", 7, score)]);
 
@@ -59,7 +64,7 @@ describe("evaluateGate", () => {
 
   test("fails when a group has no blocks in a set", () => {
     const sparse = page("sol", "held-out", 7);
-    sparse.reply.blocks = sparse.reply.blocks.filter((b) => sparse.groups[b.id] !== "pseudocode");
+    sparse.samples[0]!.blocks = sparse.samples[0]!.blocks.filter((b) => sparse.groups[b.id] !== "pseudocode");
     const gate = evaluateGate([page("sol", "climb", 1), sparse], ["sol"], okGuards);
     expect(gate.failures).toEqual([{ set: "held-out", text: "sol held-out pseudocode: no blocks of this group" }]);
   });
@@ -73,6 +78,21 @@ describe("evaluateGate", () => {
     const pages = [...fullRound(["sol"]), ...fullRound(["opus"], 9), ...fullRound(["gemini"], 2)];
     expect(evaluateGate(pages, ["sol", "opus"], okGuards).pass).toBe(false);
     expect(evaluateGate(pages, ["sol"], okGuards).pass).toBe(true);
+  });
+
+  test("a page's category and block scores are the median of its samples", () => {
+    const climb = sampled("sol", "climb", 1, [10, 6, 9]);
+    climb.samples = climb.samples.map((s, i) => ({ ...s, blocks: s.blocks.map((b) => ({ ...b, score: [7, 10, 9][i]! })) }));
+    const gate = evaluateGate([climb, sampled("sol", "climb", 2, [10, 9]), page("sol", "held-out", 7)], ["sol"], okGuards);
+    expect(gate.scores.sol!.climb!.categories.accuracy).toEqual({ mean: 9.25, min: 9 });
+    expect(gate.scores.sol!.climb!.groups.stack).toEqual({ mean: 9.5, blocks: 2 });
+  });
+
+  test("the page floor applies to the median, so one low sample of three does not fail it and two do", () => {
+    const pass = evaluateGate([sampled("sol", "climb", 1, [10, 6, 10]), page("sol", "held-out", 7)], ["sol"], okGuards);
+    expect(pass.pass).toBe(true);
+    const fail = evaluateGate([sampled("sol", "climb", 1, [8, 10, 8]), page("sol", "held-out", 7)], ["sol"], okGuards);
+    expect(texts(fail)).toEqual(["sol climb accuracy: mean 8.00 < 9.5", "sol climb accuracy: a page scored 8 < 9"]);
   });
 
   test("a failed guard fails the gate", () => {
@@ -146,6 +166,19 @@ describe("builderReport", () => {
     expect(text).not.toContain("secret held-out finding");
     expect(text).not.toContain("held-out accuracy");
     expect(report.heldOutFailures).toBeGreaterThan(0);
+  });
+
+  test("lists each finding once with the count of samples that named its target, at its most severe", () => {
+    const pages = [sampled("sol", "climb", 1, [8, 8, 10], [
+      [{ target: "p-1", severity: "low", finding: "First wording." }],
+      [{ target: "p-1", severity: "medium", finding: "Second wording." }, { target: "scope", severity: "low", finding: "Once." }],
+      [],
+    ]), page("sol", "held-out", 7)];
+    const report = builderReport(evaluateGate(pages, ["sol"], okGuards), pages);
+    expect(report.climbPages).toEqual([{
+      judge: "sol", briefId: 1, samples: 3, categories: expect.objectContaining({ accuracy: 8 }),
+      findings: [{ target: "p-1", severity: "medium", finding: "Second wording.", samples: 2 }, { target: "scope", severity: "low", finding: "Once.", samples: 1 }],
+    }]);
   });
 
   test("a held-out writer error and lint finding appear only as counts, with no held-out brief id, slug or path", () => {

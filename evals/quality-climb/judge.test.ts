@@ -57,12 +57,13 @@ test("writers that start at once on a fresh system root share one core layout", 
   expect(new Set(envs.map((e) => e.CODECAINE_DOCS_PACKAGE_ROOT))).toEqual(new Set([join(root, ".tmp/quality-climb/core-layout/docs-system/packages/docs-mcp")]));
 });
 
-test("the fake judge saves a valid score file for every block", async () => {
+test("the fake judge saves a valid score file for every block, one file per sample", async () => {
   const dir = await mkdtemp(join(tmpdir(), "qc-judge-"));
   const scored = await judgePage("fake", packet, dir);
   expect(scored.blocks.map((b) => b.id)).toEqual(["intro", "shape"]);
-  expect(JSON.parse(await readFile(join(dir, "scores/fake.json"), "utf8"))).toEqual(scored);
-  expect(await judgePage("fake", packet, dir)).toEqual(scored);
+  expect(JSON.parse(await readFile(join(dir, "scores/fake.1.json"), "utf8"))).toEqual(scored);
+  expect(await judgePage("fake", packet, dir, 2)).toEqual(scored);
+  expect(JSON.parse(await readFile(join(dir, "scores/fake.2.json"), "utf8"))).toEqual(scored);
 });
 
 test("a stub judge names the checkpoint that wires it", async () => {

@@ -1,6 +1,9 @@
 // One round of the quality climb: write, render, judge, then gate.
 //   bun evals/quality-climb/round.ts --round <n> [--set climb|held-out|all] [--judges fake|sol,opus] [--briefs 1,2]
-//     [--counting sol,opus] [--baseline 0] [--lint-ref <git ref>] [--system-root <path>] [--skip-tests] [--concurrency 3]
+//     [--counting sol,opus] [--samples sol=3,opus=1] [--baseline 0] [--lint-ref <git ref>] [--system-root <path>] [--skip-tests]
+//     [--concurrency 3]
+// --samples sets how many times each judge scores each page. The gate reads the median of a judge's samples.
+// A judge it does not name scores each page once.
 // --system-root names another Docs System checkout whose docs MCP, export and render make the pages. The harness,
 // the briefs and the judges stay this worktree's.
 // Set QUALITY_CLIMB_LOCAL_BRIEFS to the local briefs file to run the full brief set (see briefs.ts).
@@ -13,14 +16,14 @@ import { parseArgs } from "node:util";
 import { $ } from "bun";
 import { loadBriefs } from "./briefs";
 import { added, builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type FailureSets, type PageScore, type WriterCost } from "./gate";
-import { judgePage, type Packet } from "./judge";
+import { judgePage, scoreFile, type Packet } from "./judge";
 import { lintRules, renderPage, type LintSummary, type PageBlock } from "./render";
 import { groupOf, type Brief, type JudgeReply } from "./schema";
 import { REPO, authSettings, docsMcpEnv, writePage, type WriterMetrics } from "./write";
 
 const { values: opt } = parseArgs({ options: {
   round: { type: "string" }, set: { type: "string", default: "all" }, judges: { type: "string", default: "sol,opus" },
-  briefs: { type: "string" }, counting: { type: "string" }, baseline: { type: "string", default: "0" },
+  briefs: { type: "string" }, counting: { type: "string" }, samples: { type: "string", default: "sol=3,opus=1" }, baseline: { type: "string", default: "0" },
   "lint-ref": { type: "string" }, "system-root": { type: "string" }, "skip-tests": { type: "boolean", default: false }, concurrency: { type: "string", default: "3" },
 } });
 if (!opt.round) throw new Error("Pass --round <n>.");
@@ -33,6 +36,11 @@ const dir = roundDir(opt.round);
 const judges = opt.judges!.split(",");
 // The Gemini jester never counts toward a gate.
 const counting = opt.counting ? opt.counting.split(",") : judges.filter((j) => j !== "gemini");
+const samples: Record<string, number> = Object.fromEntries(opt.samples!.split(",").map((pair) => {
+  const [judge, count] = pair.split("=");
+  if (!judge || !/^[1-9]\d*$/.test(count ?? "")) throw new Error(`--samples takes judge=count pairs, such as sol=3,opus=1. Bad pair: ${pair}`);
+  return [judge, Number(count)];
+}));
 const wanted = opt.briefs?.split(",").map(Number);
 const briefs = loadBriefs().filter((b) => (opt.set === "all" || b.set === opt.set) && (!wanted || wanted.includes(b.id)));
 if (briefs.length === 0) throw new Error("No brief matches --set and --briefs.");
@@ -102,9 +110,12 @@ async function runBrief(b: Brief) {
   const packet: Packet = { brief: b, png: join(page, "page.png"), markdown: await readFile(join(page, "page.md"), "utf8"), blocks: await readJson<PageBlock[]>(join(page, "blocks.json")) };
   const scores: PageScore[] = [];
   for (const judge of judges) {
-    const file = join(page, "scores", `${judge}.json`);
-    const reply = existsSync(file) ? await readJson<JudgeReply>(file) : (log(`${name(b)}: judging with ${judge}`), await judgePage(judge, packet, page));
-    scores.push({ judge, set: b.set, briefId: b.id, reply, groups: Object.fromEntries(packet.blocks.map((block) => [block.id, groupOf(block.type)!])) });
+    const replies: JudgeReply[] = [];
+    for (let sample = 1; sample <= (samples[judge] ?? 1); sample++) {
+      const file = scoreFile(page, judge, sample);
+      replies.push(existsSync(file) ? await readJson<JudgeReply>(file) : (log(`${name(b)}: judging with ${judge}, sample ${sample}`), await judgePage(judge, packet, page, sample)));
+    }
+    scores.push({ judge, set: b.set, briefId: b.id, samples: replies, groups: Object.fromEntries(packet.blocks.map((block) => [block.id, groupOf(block.type)!])) });
   }
   return { scores, lint: await readJson<LintSummary>(join(page, "lint.json")), metrics: await readJson<WriterMetrics>(join(page, "metrics.json")) };
 }
@@ -141,8 +152,8 @@ const gate = evaluateGate(pages, counting, guards);
 if (failed.length) { gate.pass = false; gate.failures.unshift(...failed); }
 const report = builderReport(gate, pages);
 // gate.json is the full result for the gate folder. report.json is all the builder may read.
-await writeFile(join(dir, "gate.json"), JSON.stringify({ round: opt.round, judges, counting, briefs: briefs.map((b) => b.id), rules: rules.label, systemRoot, ...gate }, null, 2));
-await writeFile(join(dir, "report.json"), JSON.stringify({ round: opt.round, judges, counting, ...report }, null, 2));
+await writeFile(join(dir, "gate.json"), JSON.stringify({ round: opt.round, judges, counting, samples, briefs: briefs.map((b) => b.id), rules: rules.label, systemRoot, ...gate }, null, 2));
+await writeFile(join(dir, "report.json"), JSON.stringify({ round: opt.round, judges, counting, samples, ...report }, null, 2));
 
 console.log(`Round ${opt.round}: gate ${report.pass ? "PASSED" : "FAILED"} (${briefs.length} briefs, judges ${judges.join(", ")}, counting ${counting.join(", ")})`);
 for (const [judge, sets] of Object.entries(report.scores)) for (const [set, s] of Object.entries(sets)) {
