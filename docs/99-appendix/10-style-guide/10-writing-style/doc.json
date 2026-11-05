@@ -249,6 +249,19 @@
           "insert": "Cut a section, a sentence, or a rule that the task does not ask for, even when it is true. A list never repeats a step that the page already gives."
         }
       ],
+      "children": [
+        "b-sg-ws-no-preamble-5-internals"
+      ]
+    },
+    "b-sg-ws-no-preamble-5-internals": {
+      "id": "b-sg-ws-no-preamble-5-internals",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read every branch, then write the ones the reader can hit or must act on: an error they can see, an option they can pass, a limit they can reach. A retry count, a fallback id format, a helper's internal steps, or a plugin list stays in the source unless the task asks how the code works inside."
+        }
+      ],
       "children": []
     },
     "b-sg-ws-no-memory-6": {
