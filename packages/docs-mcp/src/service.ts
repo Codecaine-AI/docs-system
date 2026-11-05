@@ -45,6 +45,12 @@ function durationSetting(name:string,fallback:number):number{
 }
 const round=(ms:number)=>Math.round(ms*10)/10;
 const CALL_TIMINGS_MAX_BYTES=5*1024*1024;
+/** Every reply, metadata, tool or refusal, with the call_id of its call-timings line beside its other fields. */
+const named=(result:DocsToolResult,callId:string):DocsToolResult=>{
+ if(!result.structuredContent)return result;
+ const data={...result.structuredContent,call_id:callId};
+ return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)}]};
+};
 /** Appends one JSON line per tool call to CODECAINE_DOCS_CALL_TIMINGS_FILE (default ~/.codecaine/call-timings.jsonl),
  * moving the file to <file>.1 once it passes 5 MB. Never fails the call it records. */
 async function recordCallTiming(line:Record<string,unknown>){
@@ -233,7 +239,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const started=performance.now();
   return runWithCallTiming(randomUUID(),async timing=>{
    let result:DocsToolResult|undefined;
-   try{return result=await dispatch(workspace,name,args);}
+   try{result=await dispatch(workspace,name,args);return named(result,timing.callId);}
    finally{await recordCallTiming({ts:new Date().toISOString(),tool:name,call_id:timing.callId,total_ms:round(performance.now()-started),store_lock_wait_ms:round(timing.storeLockWaitMs),jev_span_ms:round(timing.jevSpanMs),ok:result!==undefined&&result.isError!==true});}
   });
  }

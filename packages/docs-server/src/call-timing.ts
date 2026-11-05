@@ -10,11 +10,6 @@ export function runWithCallTiming<T>(callId: string, fn: (timing: CallTiming) =>
   return current.run({ callId, storeLockWaitMs: 0, jevSpanMs: 0 }, () => fn(current.getStore()!));
 }
 
-/** The tool call this code runs inside, if any (routes and direct tests run outside one). */
-export function currentCallTiming(): CallTiming | undefined {
-  return current.getStore();
-}
-
 /** Adds time from a store-lock request to its grant. A no-op outside a tool call. */
 export function addStoreLockWait(ms: number): void {
   const timing = current.getStore();

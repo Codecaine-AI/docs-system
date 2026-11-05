@@ -95,3 +95,19 @@ test("concurrent calls each record only their own lock wait and judge span, and 
     expect(thrownLine.jev_span_ms).toBeLessThan(JUDGE_MS);
   } finally { judgeMode = "slow"; service.close(); }
 });
+
+test("a metadata reply and a refused call each name their own line", async () => {
+  const service = createInteractionService({ managed: true, judgmentEngine: null });
+  try {
+    const discovered = await service.call(temp, "docs_discover", {});
+    const refused = await service.call(temp, "docs_write_text", { project: "nope", path: "page", blockId: "a", expected_hash: "x", markdown: "x" });
+    expect(refused.isError).toBe(true);
+    const byId = new Map((await lines()).map((line) => [line.call_id, line]));
+    for (const [result, tool, ok] of [[discovered, "docs_discover", true], [refused, "docs_write_text", false]] as const) {
+      const callId = result.structuredContent!.call_id as string;
+      expect(byId.get(callId)).toMatchObject({ tool, ok });
+      // The text a client reads carries the same id.
+      expect(JSON.parse(result.content[0]!.text).call_id).toBe(callId);
+    }
+  } finally { service.close(); }
+});
