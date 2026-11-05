@@ -300,9 +300,16 @@
   user-select: none;
 }
 
+/*
+ * A line longer than the code column wraps, and its continuation hangs 2ch
+ * past the line's own indent (--docs-pseudo-indent, set per row), so a reader
+ * sees one statement, not a new line at the left edge.
+ */
 .docs-pseudo-code {
+  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
   min-width: 0;
-  padding-left: var(--docs-code-pad-x, var(--ds-space-3));
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));
+  text-indent: calc(-1 * var(--docs-pseudo-hang));
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -361,7 +368,7 @@
 }
 
 .docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
-  padding-left: var(--ds-space-1);
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-hang));
 }
 
 .docs-pseudo-sign {
