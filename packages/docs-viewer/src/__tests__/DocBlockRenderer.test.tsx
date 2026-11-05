@@ -181,8 +181,7 @@ describe("DocBlockRenderer", () => {
     expect(
       document.querySelector('[data-interaction-operation="file-tree.addEntry"]'),
     ).toBeTruthy();
-    // The purpose is in the name tooltip and, for an open operation, printed as its first body line.
-    expect(document.querySelector("[data-operation-purpose]")?.textContent).toBe("Append a path entry to the tree");
+    expect(screen.getByText("Append a path entry to the tree")).toBeTruthy();
 
     // Canvas embed goes through the injected slot with src + view.
     const canvas = screen.getByTestId("fake-canvas-embed");

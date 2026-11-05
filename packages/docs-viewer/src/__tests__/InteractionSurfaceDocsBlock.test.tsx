@@ -159,29 +159,30 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     { name: "table.unbadged" },
   ];
 
-  it("starts an operation open only when it has params or returned fields, re-renders without resetting a toggle", () => {
+  it("starts every operation closed, re-renders without resetting a toggle", () => {
     const { rerender } = render(<InteractionSurfaceBlock id="surface-rows" operations={OPERATIONS} />);
-    const open = (name: string) => (summaryOf(name).parentElement as HTMLDetailsElement).hasAttribute("open");
-    // Params open a row. A bare return type or nothing at all stays one line.
-    expect(OPERATIONS.map(({ name }) => [name, open(name)])).toEqual([["table.walk", true], ["table.put", true], ["table.changed", false], ["table.unbadged", false]]);
-    for (const { name } of OPERATIONS) expect(summaryOf(name).querySelector("[data-operation-tip]")).not.toBeNull();
+    for (const { name } of OPERATIONS) {
+      const details = summaryOf(name).parentElement as HTMLDetailsElement;
+      expect(details.hasAttribute("open")).toBe(false);
+      expect(details.querySelector(":scope > summary [data-operation-tip]")).not.toBeNull();
+    }
     fireEvent.click(summaryOf("table.put"));
     rerender(<InteractionSurfaceBlock id="surface-rows" title="Renamed" operations={OPERATIONS} />);
-    expect(summaryOf("table.put").parentElement?.hasAttribute("open")).toBe(false);
-    expect(summaryOf("table.walk").parentElement?.hasAttribute("open")).toBe(true);
+    expect(summaryOf("table.put").parentElement?.hasAttribute("open")).toBe(true);
+    expect(summaryOf("table.walk").parentElement?.hasAttribute("open")).toBe(false);
   });
 
   it("mirrors the open state onto the summary's aria-expanded", () => {
     render(<InteractionSurfaceBlock id="surface-aria" operations={OPERATIONS} />);
     const summary = summaryOf("table.walk");
     const details = summary.parentElement as HTMLDetailsElement;
-    expect(summary.getAttribute("aria-expanded")).toBe("true");
-    details.open = false;
-    details.dispatchEvent(new Event("toggle"));
     expect(summary.getAttribute("aria-expanded")).toBe("false");
     details.open = true;
     details.dispatchEvent(new Event("toggle"));
     expect(summary.getAttribute("aria-expanded")).toBe("true");
+    details.open = false;
+    details.dispatchEvent(new Event("toggle"));
+    expect(summary.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("draws each line as chevron and described name with the elided tail; the kind and purpose live in the name's tooltip", () => {
@@ -190,8 +191,9 @@ describe("InteractionSurfaceBlock — operation rows", () => {
       const summary = summaryOf(name);
       expect(opRow(name)?.getAttribute("data-operation-kind")).toBe(kind);
       expect(summary.querySelector("[data-disclosure-chevron]")?.getAttribute("aria-hidden")).toBe("true");
-      // No visible badge anywhere outside the tooltip.
+      // No visible badge or purpose line anywhere outside the tooltip.
       expect(opRow(name)!.querySelector("[data-operation-body] [data-operation-kind-badge]")).toBeNull();
+      expect(opRow(name)!.querySelector("[data-operation-intro]")).toBeNull();
       // The name is a described name whose tooltip leads with the kind badge.
       const nameEl = summary.querySelector("[data-operation-name]") as HTMLElement;
       const target = nameEl.querySelector("[data-has-description]") as HTMLElement;
@@ -224,9 +226,6 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(purpose.textContent).toBe("Walk the table");
     expect(summaryOf("table.walk").getAttribute("aria-describedby")).toBe(purpose.id);
     expect(summaryOf("table.put").hasAttribute("aria-describedby")).toBe(false);
-    // Open, the purpose also prints as the body's first line, so a static reader sees it.
-    expect(opRow("table.walk")!.querySelector("[data-operation-body] > [data-operation-purpose]")?.textContent).toBe("Walk the table");
-    expect(opRow("table.put")!.querySelector("[data-operation-purpose]")).toBeNull();
   });
 
   it("builds the collapsed tail from elided params and the return type", () => {
@@ -235,7 +234,7 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(signatureTail({ name: "a.b", params: [{ name: "x", type: "string" }, { name: "y", required: false }], returns: "R" })).toBe("(…) → R");
   });
 
-  it("gives every param a shared ledger row with its type and its description printed under the type", () => {
+  it("gives every param a shared ledger row with its type, the description as a name tooltip", () => {
     render(<InteractionSurfaceBlock id="surface-notes" operations={OPERATIONS} />);
     const op = opRow("table.walk")!;
     expect(op.querySelector('[data-op-card="params"] > [data-op-card-head]')?.textContent).toBe("Parameters");
@@ -245,15 +244,16 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     const opts = rows[0]!;
     expect(opts.querySelector('[data-field-token="name"]')?.textContent).toBe("opts");
     expect(opts.querySelector('[data-field-token="optional"] [data-sr-only]')?.textContent).toBe(" (optional)");
-    // The description prints in the type cell, under the type, with no tooltip.
-    expect(opts.querySelector('[data-field-def] > [data-field-token="note"]')?.textContent).toBe("Traversal options");
-    expect(opts.querySelector('[role="tooltip"]')).toBeNull();
-    expect(rows[1]!.querySelector('[data-field-token="note"]')?.textContent).toBe("How deep to walk");
+    // The shared ledger: the description opens as a tooltip on the focusable name.
+    const tip = opts.querySelector('[data-field-token="description"]') as HTMLElement;
+    expect(tip.textContent).toBe("Traversal options");
+    expect(tip.getAttribute("role")).toBe("tooltip");
+    expect(opts.querySelector('[data-field-token="name"]')?.getAttribute("aria-describedby")).toBe(tip.id);
     // Nested params hang off their parent with the file tree's elbows.
     expect(Array.from(rows[1]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["tee"]);
     expect(Array.from(rows[2]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["end"]);
     expect(rows[2]!.querySelector('[data-field-token="type"]')?.textContent).toBe("string");
-    expect(rows[2]!.querySelector('[data-field-token="note"]')).toBeNull();
+    expect(rows[2]!.querySelector('[data-field-token="description"]')).toBeNull();
     // No parameters and no example call: no Parameters card, no empty ledger.
     expect(opRow("table.changed")?.querySelector('[data-op-card="params"]')).toBeNull();
     expect(opRow("table.changed")?.querySelector("[data-op-params]")).toBeNull();
@@ -280,11 +280,10 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(css).toContain("border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}");
     // The head bar is a sans heading in ink.
     expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
-    // On a page-width card the example sits below the ledger, so the ledger
-    // keeps its full width and prints each note beside its type. Only a CARD
-    // (the size container) of 1000px or more puts the example beside it.
-    expect(css).toContain("@container (min-width:1000px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
-    expect(css).not.toContain("@container (min-width:560px){[data-op-row]");
+    // List beside code at the shared 44/56 split once the CARD (the size
+    // container) is 560px; the code pane keeps at least 260px. Stacking is
+    // the narrow-screen last resort only.
+    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
   });
 
   it("links param rows to the example-call lines that set them: hover lights both sides, click pins, Escape clears", () => {
@@ -335,7 +334,7 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(card.querySelectorAll("details")).toHaveLength(1);
     const output = card.querySelector("[data-operation-body] [data-operation-output]") as HTMLElement;
     expect(output.querySelector("[data-op-return-type]")?.textContent).toBe("Prepared");
-    expect(output.querySelector('[data-shape-path="path"] [data-field-token="note"]')?.textContent).toBe("Where it landed.");
+    expect(output.querySelector('[data-shape-path="path"] [data-field-token="description"]')?.textContent).toBe("Where it landed.");
     const example = card.querySelector("[data-op-example]") as HTMLElement;
     expect(example.hasAttribute("data-code-surface")).toBe(true);
     expect(example.querySelector("[data-shape-example]")?.getAttribute("aria-label")).toBe("Prepared example");
@@ -375,8 +374,8 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("real dotted name");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("An operation with params or returnShape fields starts open");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("Put any condition on the return in the description, not in returns");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as one-line rows");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("open on click, Enter, or Space");
   });
 });
 
