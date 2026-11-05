@@ -257,7 +257,8 @@ describe("claims to check", () => {
     expect(written.ok).toBe(true);
     // Only the sentence this write changed is listed: the untouched intro and legacy blocks are not.
     expect(written.claims_to_check).toEqual(["The table lists every status code."]);
-    expect(written.next).toContain("Before docs_check, check each sentence and block row in claims_to_check");
+    expect(written.next).toContain("Before docs_check, test each claim in claims_to_check against the source.");
+    expect(written.next).toContain("docs_check does not test these claims, so this is their last check.");
     // A write that leaves the claim unchanged lists nothing.
     const intro = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: written.hash, markdown: "The table lists every status code. Saves take a lock." }, task);
     expect("claims_to_check" in intro).toBe(false);
@@ -266,13 +267,23 @@ describe("claims to check", () => {
     expect("claims_to_check" in checked).toBe(false);
   });
 
+  test("a claim names the code-marked names to find in the source, without the code marks", async () => {
+    const ops = [{ type: "insertBlock", blockId: "svc", parentId: "root", index: 3, blockType: "list-item", props: {}, text: [
+      { insert: "If the service is not healthy after 10 seconds, " }, { insert: "start", attributes: { code: true } },
+      { insert: " fails and names " }, { insert: "service.log", attributes: { code: true } }, { insert: ". Saves take a lock." },
+    ] }];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.claims_to_check).toEqual(["If the service is not healthy after 10 seconds, start fails and names service.log. [find: start, service.log]"]);
+    expect(written.next).toContain("For each name after find:, search the source for it");
+  });
+
   test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {
     const sentences = Array.from({ length: 25 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
     const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: `Saves take a lock. ${sentences.join(" ")}` }, task);
     expect(written.claims_to_check).toEqual(sentences.slice(0, 24));
     expect(written.claims_omitted).toBe(1);
-    expect(written.next).toContain("read its whole body for each early return");
-    expect(written.next).toContain("guard for a missing value, check for a repeated value");
+    expect(written.next).toContain("read the whole function that holds it again");
+    expect(written.next).toContain("guard for a missing or repeated value");
   });
 
   test("a write lists the call-stack and pseudocode rows that hold a condition, under their block id", async () => {
@@ -306,7 +317,7 @@ describe("claims to check", () => {
       ] } },
       { type: "insertBlock", blockId: "ct", parentId: "root", index: 4, blockType: "component-tree", props: { nodes: [
         { text: "<DocBlockRenderer />", nodes: [
-          { text: "root is missing", kind: "branch", comment: "renders null" },
+          { text: "root is missing", kind: "branch", comment: "renders null", source: "DocBlockRenderer.tsx:255" },
           { text: "<Lane />", comment: "one lane per root child" },
         ] },
       ] } },
@@ -326,9 +337,9 @@ describe("claims to check", () => {
     expect(written.ok).toBe(true);
     // A row, node, or note with no set word, behavior word, or condition is not a claim. A layer's note always is.
     expect(written.claims_to_check).toEqual([
-      "tbl: List react in peers | never in dependencies",
+      "tbl: List react in peers | never in dependencies [find: react]",
       "tbl: Each block has at most one parent | Remove the second reference",
-      "ct: root is missing (renders null)",
+      "ct: root is missing (renders null) [find: DocBlockRenderer.tsx:255]",
       "ft: src/agent-schema (The only path docs-model may import)",
       "st: Apps: Also import docs-server",
       "st: docs-model: Never imports React",

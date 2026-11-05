@@ -27,9 +27,19 @@ const CONDITION_CODE = /=>|&&|\|\||[!=]==?|\?\?|\?\.|\b(?:if|else|filter|find|so
  * stack rows, a page-making write on the round 6 climb pages holds 17 to 36 claims.
  */
 export const CLAIMS_LIMIT = 24;
-export const CLAIMS_NEXT = "Before docs_check, check each sentence and block row in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, guard for a missing value, check for a repeated value, and branch for another mode, client, or input. A code row keeps every condition and guard of the line it condenses. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
+/**
+ * Round 6 writers saw a wrong claim listed and kept it twice (brief 2 service.log, brief 2 two legacy paths).
+ * Both fixed their style findings, which the old text put first, and went to docs_check with no new Read: the
+ * old text ended "docs_check never lists or fails on them", and no claim said where to look. Each claim now
+ * names what to find in the source, and this text makes the check a step before docs_check.
+ */
+export const CLAIMS_NEXT = "Before docs_check, test each claim in claims_to_check against the source. For each name after find:, search the source for it and read the whole function that holds it again. Look for each early return, thrown error, guard for a missing or repeated value, and branch for another mode, client, or input. For a claim with no find: list, find the function that does it first. Count each set the claim counts. A code row keeps every condition and guard of the line it condenses. Fix each claim that a branch, a count, or a missing case breaks in your next write: name the condition or narrow the claim, as Match the Source says. docs_check does not test these claims, so this is their last check.";
+/** Names a claim's find list holds at most. */
+const FIND_LIMIT = 3;
 
 const blockText = (block: Block | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
+/** Rich text with each code span in backticks, so a claim keeps the names it marks as code. */
+const markedSpans = (spans: unknown) => list(spans).map((span) => typeof span.insert !== "string" ? "" : record(span.attributes).code ? `\`${span.insert}\`` : span.insert).join("");
 const sentences = (text: string) => text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
 const isProseClaim = (sentence: string) => ABSOLUTE_WORD.test(sentence) || BEHAVIOR_WORD.test(sentence);
 /** A "for each" loop header claims no set, so it alone never makes a code row a claim. */
@@ -38,7 +48,9 @@ const record = (value: unknown): Record<string, unknown> => value && typeof valu
 const list = (value: unknown): Record<string, unknown>[] => Array.isArray(value) ? value.map(record) : [];
 const str = (value: unknown) => typeof value === "string" ? value.trim() : "";
 /** A table cell as plain text: a string, or a span list as the rich-text blocks keep it. */
-const cellText = (cell: unknown) => Array.isArray(cell) ? list(cell).map((span) => typeof span.insert === "string" ? span.insert : "").join("").trim() : str(cell);
+const cellText = (cell: unknown) => Array.isArray(cell) ? markedSpans(cell).trim() : str(cell);
+/** A code row with the source file and line its node cites, as its find list. */
+const withSource = (row: string, source: unknown) => str(source) ? `${row} [find: ${str(source)}]` : row;
 
 /** Each row of an outline tree (call-stack frames, process-outline steps), depth first. */
 function outlineRows(rows: unknown, childKey: string): Record<string, unknown>[] {
@@ -58,14 +70,14 @@ function fieldClaims(fields: unknown): string[] {
  * fallback, or a guard, since a condensed line can drop one of its checks.
  */
 const CLAIM_ROWS: Readonly<Record<string, (block: Block) => string[]>> = {
-  paragraph: (block) => sentences(blockText(block)).filter(isProseClaim),
-  "list-item": (block) => sentences(blockText(block)).filter(isProseClaim),
-  callout: (block) => sentences(blockText(block)).filter(isProseClaim),
+  paragraph: (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
+  "list-item": (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
+  callout: (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
   pseudocode: (block) => blockText(block).split("\n").map((line) => line.trim()).filter((line) => line && isCodeClaim(line)),
   "call-stack": (block) => outlineRows(block.props.frames, "frames").flatMap((frame) => {
     const text = str(frame.text);
     const comment = str(frame.comment);
-    return frame.kind === "branch" || isCodeClaim(text) || isProseClaim(comment) ? [comment ? `${text} (${comment})` : text] : [];
+    return frame.kind === "branch" || isCodeClaim(text) || isProseClaim(comment) ? [withSource(comment ? `${text} (${comment})` : text, frame.source)] : [];
   }),
   "process-outline": (block) => outlineRows(block.props.steps, "steps").flatMap((step) => sentences(str(step.text)).filter(isProseClaim)),
   "state-shape": (block) => [...sentences(str(block.props.description)).filter(isProseClaim), ...fieldClaims(block.props.fields)],
@@ -79,7 +91,7 @@ const CLAIM_ROWS: Readonly<Record<string, (block: Block) => string[]>> = {
   "component-tree": (block) => outlineRows(block.props.nodes, "nodes").flatMap((node) => {
     const text = str(node.text);
     const comment = str(node.comment);
-    return node.kind === "branch" || isCodeClaim(text) || isProseClaim(comment) ? [comment ? `${text} (${comment})` : text] : [];
+    return node.kind === "branch" || isCodeClaim(text) || isProseClaim(comment) ? [withSource(comment ? `${text} (${comment})` : text, node.source)] : [];
   }),
   "file-tree": (block) => list(block.props.entries).flatMap((entry) => isProseClaim(str(entry.note)) ? [`${str(entry.path)} (${str(entry.note)})`] : []),
   // A layer's note holds for each package in it, so it is a claim with or without a trigger word. So is each boundary rule.
@@ -97,6 +109,15 @@ const CLAIM_ROWS: Readonly<Record<string, (block: Block) => string[]>> = {
   ]),
 };
 const PROSE_TYPES = new Set(["paragraph", "list-item", "callout"]);
+/** Rows that are code: a backtick in them is code, not a name to find. */
+const CODE_TYPES = new Set(["pseudocode", "call-stack", "component-tree"]);
+
+/** A claim with its code-marked names moved to a find list: "start fails [find: start, service.log]". */
+function named(row: string): string {
+  const names = [...new Set([...row.matchAll(/`([^`]+)`/g)].map((match) => match[1]!.trim()).filter(Boolean))].slice(0, FIND_LIMIT);
+  const text = row.replace(/`([^`]*)`/g, "$1");
+  return names.length ? `${text} [find: ${names.join(", ")}]` : text;
+}
 
 const changed = (block: Block, prior: Block | undefined) =>
   !prior || prior.type !== block.type || !isDeepStrictEqual(prior.props, block.props) || blockText(prior) !== blockText(block);
@@ -104,7 +125,8 @@ const changed = (block: Block, prior: Block | undefined) =>
 /**
  * The claims in the blocks a write changed (every block when the write made the page): prose
  * sentences with an absolute or a behavior word, and the rows of structured blocks that state
- * behavior. A structured row carries its block id, as in "cs-save: ops.filter(...)". The write result
+ * behavior. A structured row carries its block id, as in "cs-save: ops.filter(...)". A claim ends with
+ * the names to find in the source: its code-marked names, or the source line a tree node cites. The write result
  * lists them, so the writer checks each claim while the page is still open for edits, and the
  * final docs_check stays one call.
  */
@@ -113,7 +135,10 @@ export function claimsToCheck(doc: DocDocument, baseline: DocDocument | null): s
   for (const block of Object.values(doc.blocks)) {
     const rows = CLAIM_ROWS[block.type];
     if (!rows || (baseline && !changed(block, baseline.blocks[block.id]))) continue;
-    for (const row of rows(block)) claims.push(PROSE_TYPES.has(block.type) ? row : `${block.id}: ${row}`);
+    for (const row of rows(block)) {
+      const claim = CODE_TYPES.has(block.type) ? row : named(row);
+      claims.push(PROSE_TYPES.has(block.type) ? claim : `${block.id}: ${claim}`);
+    }
   }
   return claims;
 }
