@@ -114,3 +114,26 @@ test("a referrer that appears after the restore's scan inside the locks rolls th
   const manifest = JSON.parse(await readFile(join(root, moved.recovery_journal, "manifest.json"), "utf8"));
   expect(manifest.status).toBe("applied");
 });
+
+test("a restore whose post-restore scan throws rolls back byte for byte and can run again", async () => {
+  const original = await tree();
+  const args = { kind: "page" as const, path: "page", to: "moved", expected_hash: await sha("page/doc.json") };
+  const preview = await manageFiles(root, args);
+  const moved = await manageFiles(root, { ...args, preview: false, expected_tree_hash: preview.tree_hash });
+  expect(moved.ok).toBe(true);
+  const applied = await tree();
+  const restorePreview = await restoreManagedFiles(root, moved.tree_change_id);
+  // Lookups of the restore apply: 1 before the locks, 2 inside them, 3 the scan after the change, which fails.
+  const cache = referenceCache(root), real = cache.lookup;
+  let calls = 0;
+  cache.lookup = async () => { if (++calls === 3) throw new Error("reference scan failed"); return real(); };
+  let result;
+  try { result = await restoreManagedFiles(root, moved.tree_change_id, false, restorePreview.tree_hash); } finally { cache.lookup = real; }
+  expect(result).toMatchObject({ ok: false, status: 500, rolled_back: true });
+  expect(result!.detail).toContain("reference scan failed");
+  expect(await tree()).toEqual(applied);
+  expect(JSON.parse(await readFile(join(root, moved.recovery_journal, "manifest.json"), "utf8")).status).toBe("applied");
+  const again = await restoreManagedFiles(root, moved.tree_change_id);
+  expect(await restoreManagedFiles(root, moved.tree_change_id, false, again.tree_hash)).toMatchObject({ ok: true, restored: true });
+  expect(await tree()).toEqual(original);
+});

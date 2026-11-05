@@ -342,24 +342,33 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
     const applied=(file:string)=>under(file,input.path)?input.to+file.slice(input.path.length):file;
     if(input.to)await fs.rm(undo,{recursive:true,force:true});
     if(input.to)for(const file of backups.keys())if(await fs.lexists(applied(file))){await fs.mkdir(dirname(join(undo,file)),{recursive:true});await copy(fs,applied(file),join(undo,file));}
-    if(input.to){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(root,input.to),join(root,input.path));}
-    else if(input.kind!=='title'){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(journal,'deleted'),join(root,input.path));}
-    for(const [file,bytes] of backups){await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),bytes);}
-    await reindex(root,Object.keys(afterHashes));
-    // Nothing outside the restored files may still point at the location the restore emptied.
-    if(input.to){
-     const emptied=new Set(Object.keys(afterHashes).filter(p=>afterHashes[p]!==null&&under(p,input.to!)));
-     const stale=await staleReferrers(root,emptied,input.kind==='page'?input.to:undefined,new Set(backups.keys()));
-     if(stale.length){
-      // Undo the restore: the applied bytes back, then the folder back to where the change put it.
-      for(const file of backups.keys()){if(await fs.lexists(join(undo,file)))await copy(fs,join(undo,file),file);else await fs.rm(file,{force:true});}
-      await fs.rename(join(root,input.path),join(root,input.to));
-      await reindex(root,Object.keys(afterHashes));
-      return {...failure(REFERENCE_APPEARED,409),changed_paths:stale,rolled_back:true,recovery_journal:rel};
+    // Undo a restored move: the applied bytes back, then the folder back to where the change put it.
+    // The journal keeps its applied state, so the same restore can run again.
+    let renamed=false;const written:string[]=[];
+    const undoRestore=async()=>{
+     for(const file of written){if(await fs.lexists(join(undo,file)))await copy(fs,join(undo,file),file);else await fs.rm(file,{force:true});}
+     if(renamed)await fs.rename(join(root,input.path),join(root,input.to!));
+     await reindex(root,Object.keys(afterHashes));
+    };
+    try{
+     if(input.to){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(root,input.to),join(root,input.path));renamed=true;}
+     else if(input.kind!=='title'){await fs.mkdir(dirname(join(root,input.path)),{recursive:true});await fs.rename(join(journal,'deleted'),join(root,input.path));}
+     for(const [file,bytes] of backups){written.push(file);await fs.mkdir(dirname(join(root,file)),{recursive:true});await fs.writeFile(join(root,file),bytes);}
+     await reindex(root,Object.keys(afterHashes));
+     // Nothing outside the restored files may still point at the location the restore emptied.
+     if(input.to){
+      const emptied=new Set(Object.keys(afterHashes).filter(p=>afterHashes[p]!==null&&under(p,input.to!)));
+      const stale=await staleReferrers(root,emptied,input.kind==='page'?input.to:undefined,new Set(backups.keys()));
+      if(stale.length){await undoRestore();return {...failure(REFERENCE_APPEARED,409),changed_paths:stale,rolled_back:true,recovery_journal:rel};}
      }
+     await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'restored'},null,2));
+     return {ok:true,restored:true,path:input.path,recovery_journal:rel};
+    }catch(error){
+     // A restored move that fails after its first change, its scan included, rolls back the same way.
+     if(!input.to)throw error;
+     try{await undoRestore();}catch(rollback){return {...failure(`Restore failed: ${String(error)}. Inspect the retained journal before retrying.`,500),rolled_back:false,rollback_error:String(rollback),recovery_journal:rel};}
+     return {...failure(`Restore failed: ${String(error)}. It was rolled back and can be retried.`,500),rolled_back:true,recovery_journal:rel};
     }
-    await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'restored'},null,2));
-    return {ok:true,restored:true,path:input.path,recovery_journal:rel};
    }
    return await acquire(0);
   }catch(error){return {...failure(String(error),500),detail:`Restore failed: ${String(error)}. Inspect the retained journal before retrying.`};}
