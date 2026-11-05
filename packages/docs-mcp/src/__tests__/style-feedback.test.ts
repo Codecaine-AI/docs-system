@@ -287,6 +287,22 @@ describe("docs_check judged gate", () => {
     expect(checked.style_gate).toEqual([]);
     expect(checked.ok).toBe(true);
   });
+
+  test("a write marks no judged finding blocks_check when the baseline cannot be judged", async () => {
+    const { engine } = stubEngine(() => 0.95);
+    withEngine(engine);
+    await insertList();
+    // The baseline still has the original second bullet: judging it fails, as an engine outage would.
+    withEngine({ judge: async (input) => {
+      if ((input.doc.blocks.b1?.text ?? []).some((span) => span.insert === bullets[1])) throw new Error("Jev returned HTTP 500.");
+      return engine.judge(input);
+    } });
+    const second: DocsToolCallContext = { taskId: "task-3" };
+    const written = await call("docs_write_text", { path: "page", blockId: "b1", expected_hash: await hash(), markdown: "The router picks one node." }, second);
+    const judged = written.style_findings.shown.filter((f: any) => f.rule === "judgment.flat-hierarchy");
+    expect(judged.length).toBeGreaterThan(0);
+    expect(judged.some((f: any) => f.blocks_check)).toBe(false);
+  });
 });
 
 describe("claims to check", () => {

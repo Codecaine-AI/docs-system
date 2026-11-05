@@ -426,10 +426,12 @@ export async function writeStyleFeedback(input: {
   const checkBlocks = input.checkBlocks ?? NO_CHECK_BLOCKS;
   // A judged finding the task's baseline already had does not fail docs_check, so it is not marked blocks_check.
   let inherited: Set<string> = new Set();
-  if (input.engine && checkBlocks.judged && checkBlocks.baseline) {
+  let judgedBlocks = checkBlocks.judged;
+  if (input.engine && judgedBlocks && checkBlocks.baseline) {
     const gated = rules.filter((rule) => rule.gate);
     const byId = new Map(gated.map((rule) => [rule.id, rule]));
-    try { inherited = await inheritedJudged(input.engine, gated, checkBlocks.baseline, judged.filter((f) => clearsGate(byId, f))); } catch { /* Advisory: keep the marks. */ }
+    // When the baseline cannot be judged, docs_check reports judgment unavailable and blocks on none of it, so mark none.
+    try { inherited = await inheritedJudged(input.engine, gated, checkBlocks.baseline, judged.filter((f) => clearsGate(byId, f))); } catch { judgedBlocks = false; }
   }
-  return summarizeStyleFindings(report, touched, judged, rules, { ...checkBlocks, inherited });
+  return summarizeStyleFindings(report, touched, judged, rules, { ...checkBlocks, judged: judgedBlocks, inherited });
 }

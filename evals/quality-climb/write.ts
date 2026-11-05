@@ -1,7 +1,7 @@
 // The fixed writer: one Claude Code run per brief (Opus 5.5, medium effort) that writes one new page
 // in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files as of SOURCE_REF.
 import { existsSync } from "node:fs";
-import { mkdir, readFile, symlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { $ } from "bun";
@@ -134,6 +134,8 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   await freezeSources([brief]);
   const corpus = join(pageDir, "corpus");
   await mkdir(join(corpus, "docs"), { recursive: true });
+  // A failed earlier run can leave a partial page: the retry starts from no page.
+  await rm(dirname(pagePath(pageDir, brief)), { recursive: true, force: true });
   await writeFile(join(corpus, "codecaine.docs.json"), JSON.stringify({ id: `quality-climb-${brief.slug}`, name: brief.title, kind: "core", docsRoot: "docs", products: ["docs"] }, null, 2));
   // Discovery finds a project only when its docs root holds a bundle: seed an empty root page.
   const root = { schemaVersion: 1, id: "doc-quality-climb-root", title: "Quality Climb", root: "root", blocks: { root: { id: "root", type: "paragraph", props: {}, children: [] } } };
@@ -164,7 +166,9 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   await writeFile(join(pageDir, "writer.jsonl"), stdout);
   if (stderr.trim()) await writeFile(join(pageDir, "writer.stderr.txt"), stderr);
   const metrics: WriterMetrics = { briefId: brief.id, model: WRITER.model, effort: WRITER.effort, exitCode, ...parseTranscript(stdout) };
-  await writeFile(join(pageDir, "metrics.json"), JSON.stringify(metrics, null, 2));
-  if (!existsSync(pagePath(pageDir, brief))) throw new Error(`Writer made no page for brief ${brief.id} (exit ${exitCode}). See ${join(pageDir, "writer.jsonl")}.`);
+  // metrics.json marks a finished write, and round.ts skips the writer when it exists. A failed run keeps its metrics apart.
+  const failed = exitCode !== 0 || metrics.isError || !existsSync(pagePath(pageDir, brief));
+  await writeFile(join(pageDir, failed ? "metrics.failed.json" : "metrics.json"), JSON.stringify(metrics, null, 2));
+  if (failed) throw new Error(`Writer failed for brief ${brief.id} (exit ${exitCode}, page ${existsSync(pagePath(pageDir, brief)) ? "partial" : "missing"}). See ${join(pageDir, "writer.jsonl")}.`);
   return metrics;
 }

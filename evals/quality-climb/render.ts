@@ -3,7 +3,7 @@
 // `bun render.ts lint <doc.json> <rules root>` lints with the docs-model and docs-mcp code found under the rules root.
 import { existsSync } from "node:fs";
 import { copyFile, mkdir, readFile, symlink, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 import { $ } from "bun";
 import type { DocDocument } from "../../packages/docs-model/src/doc-schema";
 import type { LintReport } from "../../packages/docs-model/src/lint";
@@ -63,7 +63,10 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<v
   const { chromium } = await import("playwright");
   const server = Bun.serve({ port: 0, hostname: "127.0.0.1", async fetch(request) {
     const path = decodeURIComponent(new URL(request.url).pathname);
-    const file = Bun.file(join(siteDir, path === "/" ? "index.html" : path));
+    const target = resolve(siteDir, "." + (path === "/" ? "/index.html" : path));
+    // Serve only files inside the exported site.
+    if (!target.startsWith(resolve(siteDir) + sep)) return new Response("Not found", { status: 404 });
+    const file = Bun.file(target);
     return (await file.exists()) ? new Response(file) : new Response("Not found", { status: 404 });
   } });
   const browser = await chromium.launch();
