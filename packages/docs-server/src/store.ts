@@ -1,4 +1,5 @@
 import { manageFiles, restoreManagedFiles, listManagedAssets, type ManageFilesInput } from "./manage-files";
+import { addStoreLockWait } from "./call-timing";
 import { randomUUID } from "node:crypto";
 import { join, resolve } from "node:path";
 import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
@@ -832,7 +833,14 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
     if (key === "publishChange" || key === "subscribeChanges" || typeof store[key] !== "function") continue;
     if (UNLOCKED_READS.has(key)) continue;
     const operation = store[key] as (...args: any[]) => Promise<any>;
-    (store as any)[key] = (...args: any[]) => withPathLock(join(root, ".changesets", ".store-operation-lock"), () => operation(...args));
+    (store as any)[key] = (...args: any[]) => {
+      // The tool call this runs in (if any) is charged the time from lock request to grant.
+      const requested = performance.now();
+      return withPathLock(join(root, ".changesets", ".store-operation-lock"), () => {
+        addStoreLockWait(performance.now() - requested);
+        return operation(...args);
+      });
+    };
   }
   return store;
 }

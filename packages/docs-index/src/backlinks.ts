@@ -332,26 +332,8 @@ export async function rescanAll(
   database.exec("DELETE FROM backlinks");
 
   for (const file of files) {
-    let raw: string;
-    try {
-      raw = await fs.readFile(file.relPath, "utf8");
-    } catch {
-      continue;
-    }
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      continue;
-    }
-
-    let refs: BacklinkRef[];
-    if (file.relPath.endsWith(".canvas.json")) {
-      refs = extractCanvasRefs(parsed as CanvasDocumentWithLinks);
-    } else {
-      refs = extractDocRefs(parsed as DocDocument);
-    }
-
+    const refs = await readSourceRefs(fs, file.relPath);
+    if (!refs) continue;
     sourcesScanned += 1;
     if (refs.length === 0) continue;
     upsertForSource(database, file.relPath, refs);
@@ -359,4 +341,51 @@ export async function rescanAll(
   }
 
   return { dbPath, sourcesScanned, refsIndexed };
+}
+
+/** One source's refs as rescanAll indexes them; null when it cannot be read or parsed (rescanAll skips it). */
+async function readSourceRefs(fs: ReturnType<typeof docsFs>, relPath: string): Promise<BacklinkRef[] | null> {
+  let raw: string;
+  try {
+    raw = await fs.readFile(relPath, "utf8");
+  } catch {
+    return null;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  return relPath.endsWith(".canvas.json")
+    ? extractCanvasRefs(parsed as CanvasDocumentWithLinks)
+    : extractDocRefs(parsed as DocDocument);
+}
+
+/** True when rescanAll's walk would index `relPath`: a doc.json or *.canvas.json outside dot folders and node_modules. */
+function walkIndexes(relPath: string): boolean {
+  const parts = relPath.split("/");
+  const name = parts[parts.length - 1]!;
+  if (name !== "doc.json" && !name.endsWith(".canvas.json")) return false;
+  return parts.every((part, i) => part !== "node_modules" && (i === parts.length - 1 || !part.startsWith(".")));
+}
+
+/**
+ * Brings the rows of the named sources to what rescanAll would give them and leaves every other source's rows alone.
+ * Each `changed` path is parsed again with rescanAll's own per-source code and its rows replaced (none when rescanAll
+ * would not index it, or it cannot be read or parsed); each `removed` path loses its rows.
+ */
+export async function rescanSources(
+  docsRoot: string,
+  db: Database,
+  changed: Iterable<string>,
+  removed: Iterable<string>,
+): Promise<void> {
+  const fs = docsFs(docsRoot);
+  for (const path of removed) removeForSource(db, path);
+  for (const path of changed) {
+    const refs = walkIndexes(path) ? await readSourceRefs(fs, path) : null;
+    if (refs) upsertForSource(db, path, refs);
+    else removeForSource(db, path);
+  }
 }

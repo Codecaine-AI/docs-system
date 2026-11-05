@@ -1,6 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { readFile, stat } from 'node:fs/promises';
-import { isAbsolute, join, relative, resolve } from 'node:path';
+import { appendFile, mkdir, readFile, rename, stat } from 'node:fs/promises';
+import { homedir } from 'node:os';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { runWithCallTiming } from '@codecaine-ai/docs-server/call-timing';
 import type { DocDocument } from '@codecaine-ai/docs-model';
 import { createDocsStore, treeIndex } from '@codecaine-ai/docs-server/store';
 import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
@@ -40,6 +42,30 @@ function durationSetting(name:string,fallback:number):number{
  const raw=process.env[name];if(raw===undefined||raw.trim()==='')return fallback;
  const value=Number(raw);if(Number.isFinite(value)&&value>0)return value;
  console.error(`${name}=${JSON.stringify(raw)} is not a positive number of milliseconds. Using ${fallback}.`);return fallback;
+}
+const round=(ms:number)=>Math.round(ms*10)/10;
+const CALL_TIMINGS_MAX_BYTES=5*1024*1024;
+/** Every reply, metadata, tool or refusal, with the call_id of its call-timings line beside its other fields. */
+const named=(result:DocsToolResult,callId:string):DocsToolResult=>{
+ if(!result.structuredContent)return result;
+ const data={...result.structuredContent,call_id:callId};
+ return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)}]};
+};
+/** Appends one JSON line per tool call to CODECAINE_DOCS_CALL_TIMINGS_FILE (default ~/.codecaine/call-timings.jsonl),
+ * moving the file to <file>.1 once it passes 5 MB. Never fails the call it records. */
+const timingWrites=new Map<string,Promise<void>>();
+async function recordCallTiming(line:Record<string,unknown>){
+ const file=process.env.CODECAINE_DOCS_CALL_TIMINGS_FILE||join(homedir(),'.codecaine','call-timings.jsonl');
+ // One chain per file: a rotation never runs between another call's size check and its append.
+ const write=(timingWrites.get(file)??Promise.resolve()).then(async()=>{
+  try{
+   await mkdir(dirname(file),{recursive:true});
+   if(((await stat(file).catch(()=>undefined))?.size??0)>CALL_TIMINGS_MAX_BYTES)await rename(file,`${file}.1`);
+   await appendFile(file,JSON.stringify(line)+'\n');
+  }catch(error){console.error(`call-timings: ${error instanceof Error?error.message:String(error)}`);}
+ });
+ timingWrites.set(file,write);
+ await write;
 }
 /** globalThemesRoot: the shared global theme folder every project's theme API serves (reserved id `global`). codeThemesRoot: the central code-theme folder (`/api/code-themes`). */
 /** judgmentEngine: Jev by default. It reads CODECAINE_DOCS_JUDGMENT on every call, so =off disables it without a restart. Pass null for none. */
@@ -214,7 +240,16 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const mutation=!MUTATION_READS.has(name);
   return {name,description:mutation?`${description} Call docs_begin first and include task_id.`:description,inputSchema:mutation?{...inputSchema,properties:{...properties,task_id:string},required:[...(inputSchema.required as string[]??[]),'task_id']}:inputSchema};
  })];}
+ /** One tool call inside its own timing context, then one call-timings line for it. */
  async function call(workspace:string,name:string,args:Record<string,unknown>={}):Promise<DocsToolResult>{
+  const started=performance.now();
+  return runWithCallTiming(randomUUID(),async timing=>{
+   let result:DocsToolResult|undefined;
+   try{result=await dispatch(workspace,name,args);return named(result,timing.callId);}
+   finally{await recordCallTiming({ts:new Date().toISOString(),tool:name,call_id:timing.callId,total_ms:round(performance.now()-started),store_lock_wait_ms:round(timing.storeLockWaitMs),jev_span_ms:round(timing.jevSpanMs),ok:result!==undefined&&result.isError!==true});}
+  });
+ }
+ async function dispatch(workspace:string,name:string,args:Record<string,unknown>={}):Promise<DocsToolResult>{
   // The task this call resolved, pinned against expiry until the call returns.
   let pinned:Task|undefined;
   const pin=(task:Task|undefined)=>{if(task){task.inFlight++;pinned=task;}return task;};
