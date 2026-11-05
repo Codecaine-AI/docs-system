@@ -289,7 +289,8 @@ export async function restoreManagedFiles(root:string,id:string,preview=true,exp
     if(!guard.ok&&(input.to||guard.status===403))return {...failure(guard.detail,guard.status),records:guard.findings.records,excluded:guard.findings.excluded,excluded_at_destination:guard.findings.excludedAtDestination};
    }
    if(input.kind!=='title'){try{await fs.lstat(input.path);return failure('Original path is occupied.');}catch(error:any){if(error.code!=='ENOENT')throw error;}}
-   const inScope=(p:string)=>under(p,input.path)||(input.to!==undefined&&under(p,input.to));
+   // A title change moves nothing: no file under its page is added to it, and no reference reaches into it.
+   const inScope=(p:string)=>input.kind!=='title'&&(under(p,input.path)||(input.to!==undefined&&under(p,input.to)));
    /** The three restore checks: every affected file still holds its applied bytes, nothing was added under the original
     * or moved path, and no file outside the journal now references either path. tree_hash covers what they read. */
    async function restoreState():Promise<{ok:true;hash:string;referrers:string[]}|(Record<string,any>&{ok:false})>{

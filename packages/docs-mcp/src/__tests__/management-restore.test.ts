@@ -80,6 +80,14 @@ test("restoring a title change succeeds while other pages still link to the page
   expect(await tree()).toEqual(before);
 });
 
+test("restoring a title change succeeds on a page that holds a child page and an asset", async () => {
+  const before = await tree();
+  const titled = await manage("docs_set_title", { path: "page", title: "New title", expected_hash: await hashOf("page") });
+  expect(titled).toMatchObject({ ok: true, applied: true });
+  expect(await manage("docs_management_restore", { tree_change_id: titled.tree_change_id })).toMatchObject({ ok: true, restored: true });
+  expect(await tree()).toEqual(before);
+});
+
 test("a later edit to a file the move rewrote refuses the restore", async () => {
   const id = await movePage();
   await write("overview/doc.json", page("overview", { to: docLink("section/moved/child") }));
