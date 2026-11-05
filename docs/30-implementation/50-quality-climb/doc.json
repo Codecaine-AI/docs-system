@@ -728,7 +728,8 @@
       ],
       "children": [
         "f2a",
-        "f2b"
+        "f2b",
+        "f2c"
       ]
     },
     "f2a": {
@@ -739,7 +740,7 @@
       },
       "text": [
         {
-          "insert": "A viewer or theme fix changes how a block draws on every page, such as wrapped code panels and open interaction-surface operations."
+          "insert": "A viewer or theme fix changes how a block draws on every page, such as wrapped code panels and inline code chips that stay whole."
         }
       ],
       "children": []
@@ -753,6 +754,19 @@
       "text": [
         {
           "insert": "A guidance rule often fits the climb pages more than pages in general."
+        }
+      ],
+      "children": []
+    },
+    "f2c": {
+      "id": "f2c",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A judge score does not settle a render change. After reading pages in the live app, Ford took out open interaction-surface operations and a tall state-shape example below its fields."
         }
       ],
       "children": []
