@@ -1151,6 +1151,7 @@
       "children": [
         "writing-b-writing-use-start-consistently-31",
         "writing-b-writing-avoid-idioms-latin-abbr-32",
+        "writing-b-writing-define-at-first-use-32b",
         "writing-b-writing-name-the-unit-32a"
       ]
     },
@@ -1176,6 +1177,35 @@
       "text": [
         {
           "insert": "Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax."
+        }
+      ],
+      "children": []
+    },
+    "writing-b-writing-define-at-first-use-32b": {
+      "id": "writing-b-writing-define-at-first-use-32b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Define each term where the page first uses it, in plain words or with a link. A phrase you build from a code name is a term too. Write \"the retry budget, the number of retries left before "
+        },
+        {
+          "insert": "send",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " gives up\", not only \"the retry budget\", for "
+        },
+        {
+          "insert": "retryBudget",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

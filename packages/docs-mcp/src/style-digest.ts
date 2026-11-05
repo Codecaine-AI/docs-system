@@ -1,6 +1,6 @@
 // Summarizes docs/99-appendix/10-style-guide, which stays the source of truth. docs_begin returns it first.
 export const STYLE_DIGEST: readonly string[] = [
-  "Bullets are the default. A lead sentence that states a fact, then complete-sentence bullets, must read as one paragraph (the join test). A lead never only says that a list follows.",
+  "Bullets are the default. A lead sentence that states a fact, then complete-sentence bullets, must read as one paragraph. A lead never only says that a list follows.",
   "Use bold-label parent bullets only for 2 or more groups of 3 or more facts. Otherwise keep the facts flat, and make a section label a heading. Give each bullet one idea.",
   "Match the source. List every rule, route, status code, error cause, option, or file it has. Read a file before you say what it holds. Name the function behind each behavior claim, and read its whole body first: every early return, branch, and guard for a missing or repeated value. A guarantee names its check, a failure claim names which failures, and a status names every cause. Write every, all, only, never, or always only when a source line proves it. Say what each later step does with an option or fix the page offers. Fix the title or lead an exception narrows. Show each command the reader runs once, in a code block that runs as written.",
   "Cap lists at about 5 items. Split or rank longer lists. Number sequential steps, one action per step.",
@@ -10,6 +10,6 @@ export const STYLE_DIGEST: readonly string[] = [
   "Show a shape in its typed block, not in bullets: fields in state-shape, folders in file-tree, an execution path in process-outline, connections in canvas, call order in sequence. Keep plain facts and reader steps as lists.",
   "Keep table cells to short facts. Put explanation in bullets near the table, and never restate its rows.",
   "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice. Write only what the task asks for. An opening names sections only in heading order.",
-  "Each section stands alone. Define or link every label and term it uses.",
+  "Each section stands alone. Define or link each term at first use, even one taken from code.",
   "Fix the style_findings in write results as you go. docs_check with task_id fails on those marked blocks_check.",
 ];
