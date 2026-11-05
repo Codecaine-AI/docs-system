@@ -177,6 +177,22 @@ describe("docs_check style gate", () => {
     expect([checked.ok, checked.style_gate]).toEqual([true, []]);
   });
 
+  test("a condition written as an operation's returns fails docs_check until it moves into the description", async () => {
+    const surface = (returns: string, description?: string) => ({ operations: [{ name: "POST /api/undo", returns, ...(description ? { description } : {}) }] });
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
+      { type: "insertBlock", blockId: "surface", parentId: "root", index: 3, blockType: "interaction-surface", props: surface("{ ok: true, doc, hash } for a doc patch. A canvas patch returns its own fields.") },
+    ] }, task);
+    expect(written.style_findings.shown).toContainEqual(expect.objectContaining({
+      block: "surface", rule: "interaction-surface.returns-prose", fix: fix("interaction-surface.returns-prose"), blocks_check: true,
+    }));
+    expect((await call("docs_check", { path: "page" }, task)).ok).toBe(false);
+    await call("docs_apply_ops", { path: "page", expected_hash: written.hash, ops: [
+      { type: "updateBlock", blockId: "surface", props: surface("{ ok: true, doc, hash }", "Undoes the last doc patch. A canvas patch returns its own fields.") },
+    ] }, task);
+    const checked = await call("docs_check", { path: "page" }, task);
+    expect([checked.ok, checked.style_gate]).toEqual([true, []]);
+  });
+
   test("a page created in the task is gated from its first revision", async () => {
     const created = await call("docs_create", { path: "new-page", title: "New Page", expected_absent: true }, task);
     expect(created.ok).toBe(true);

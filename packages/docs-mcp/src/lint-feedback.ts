@@ -23,6 +23,7 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "structure.deep-list": { gate: true },
   "structure.image-alt": { gate: true },
   "structure.split-ordered-list": { gate: true },
+  "interaction-surface.returns-prose": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },
 };

@@ -1348,6 +1348,7 @@
       "children": [
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
+        "interaction-surface-returns-prose-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1440,6 +1441,19 @@
         },
         {
           "insert": ", and its suggestion carries the Title Case text."
+        }
+      ],
+      "children": []
+    },
+    "interaction-surface-returns-prose-lint": {
+      "id": "interaction-surface-returns-prose-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
         }
       ],
       "children": []
