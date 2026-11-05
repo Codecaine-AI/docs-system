@@ -365,7 +365,7 @@ for (const root of runtimeRoots) if (existsSync(root)) {
 }
 const configFiles = [join(coreRoot, 'bun.lock'), join(config.sourceRoot, 'bun.lock'), join(config.sourceRoot, 'package.json'), join(webRoot, 'vite.config.ts')];
 for await (const file of new Bun.Glob('packages/*/package.json').scan(config.sourceRoot)) configFiles.push(join(config.sourceRoot, file));
-for (const product of ['canvas', 'sequence', 'annotations']) {
+for (const product of ['canvas', 'sequence', 'annotations']) if (existsSync(join(coreRoot, product))) {
   for await (const file of new Bun.Glob('{package.json,packages/*/package.json}').scan(join(coreRoot, product))) configFiles.push(join(coreRoot, product, file));
 }
 for (const file of configFiles.filter(existsSync)) {
