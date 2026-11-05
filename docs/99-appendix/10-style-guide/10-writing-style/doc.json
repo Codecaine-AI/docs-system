@@ -417,7 +417,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A claim about what code does names the function that does it, in inline code."
+          "insert": "A claim about what code does names the function that does it, in inline code. When the reader reaches that code through a command, such as doctor or install, name the command, not the function behind it."
         }
       ],
       "children": [

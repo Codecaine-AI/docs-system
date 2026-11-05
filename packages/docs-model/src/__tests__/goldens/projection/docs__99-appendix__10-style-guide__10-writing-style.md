@@ -4,6 +4,10 @@ Write matter-of-fact prose that states what is, in the order the reader needs it
 
   - The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
 
+  - A lead sentence states a fact that its list supports. Never write a lead that only says a list follows, such as "These rules apply."
+
+  - An opening that names the page's sections names them in the order the headings use. Leave the sections out when the headings already show them.
+
 - One idea per sentence, one topic per block.
 
   - A plain lead sentence plus fact bullets beats a paragraph of prose.
@@ -16,7 +20,11 @@ Write matter-of-fact prose that states what is, in the order the reader needs it
 
   - Start at the answer. Stop when it is stated.
 
-  - Tangents move to their own home and get a link, not a sidebar.
+  - Write only what the page's task asks for. A tangent or a related task, such as undoing or maintaining what the page sets up, moves to its own page and gets a link.
+
+  - Cut a section, a sentence, or a rule that the task does not ask for, even when it is true. A list never repeats a step that the page already gives.
+
+    - Read every branch, then write the ones the reader can hit or must act on: an error they can see, an option they can pass, a limit they can reach. A retry count, a fallback id format, a helper's internal steps, or a plugin list stays in the source unless the task asks how the code works inside.
 
 - Assume no memory.
 
@@ -25,6 +33,52 @@ Write matter-of-fact prose that states what is, in the order the reader needs it
 - Present-state prose.
 
   - A finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
+
+## Match the Source
+
+A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these five faults against the source before you finish a page.
+
+- A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial.
+
+  - Read each file before you say what it holds, even when only an import names it.
+
+  - Leave items out only when the task does not ask for the whole set. Then say how many you leave out and name the file that holds them.
+
+- A claim says only what the code checks. Before you write a guarantee, a failure result, or a cause, find the line that makes it true.
+
+  - A guarantee names the check behind it. Write "loadConfig rejects a file with an unknown key", not "loadConfig keeps the config valid", when no check covers the other fields.
+
+  - A claim about what code does names the function that does it, in inline code. When the reader reaches that code through a command, such as doctor or install, name the command, not the function behind it.
+
+    - Before you write the claim, read that function's whole body. An early return, a thrown error, a guard for a missing value, a check for a repeated value, or a branch for another mode can change the claim.
+
+    - A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses, such as `layout?.width` for a layout that can be missing.
+
+    - A fix you tell the reader to make passes every check in the code that refused.
+
+  - A failure result names the failures it covers. Write "A save that fails the hash check leaves the file unchanged", not "A failed save leaves the file unchanged", when a later step can fail after the write.
+
+  - A status or error names every cause that sets it. Write "A cache miss means the key was never set, expired, or was evicted", not "A cache miss means the key expired".
+
+  - Write "every", "all", "only", "never", "nothing", or "always" when a line of the source proves it. Otherwise name the condition, as in "every existing file" or "the planning checks".
+
+- A choice the page offers holds through every later step the reader runs. Before you offer an option, a fix, or a partial path, follow it through each later step on the page.
+
+  - Say what each later step does when the reader takes the choice. Write "`lint` checks every package, so after `build --only api` it reports `web` as stale", not only "Pass `--only` to build fewer packages".
+
+  - A rule that keeps, removes, or allows a set names each case the source treats another way. Write "keeps every other key except a legacy entry it wrote", not "keeps every other key", when the source removes that entry.
+
+- A condition, exception, or option you add leaves each sentence it changes with one reading. Add it by rewriting the sentence, not by appending a clause or a step.
+
+  - Rewrite the title, heading, or lead that the exception narrows, so it still holds. Title a warning "Validation errors write nothing", not "Errors write nothing", when its body names an error after the write.
+
+  - Give each result its own condition. Write "`load` returns null when the file is missing, and `parse` throws when it is empty", not "When the file is missing or empty, `load` returns null and `parse` throws".
+
+  - Write an alternative with "or", in the step it replaces. Write "Run `deploy`, or for a dry run, run `deploy --plan`", not a step "Run `deploy`" followed by "For a dry run, pass `--plan` first".
+
+- A code example runs as written when a reader copies it. Two commands in one block never write the same file, and each placeholder is marked as a placeholder.
+
+  - Put a command in a code block only when the reader runs it and no other block on the page shows it. Show each command once: a code block never repeats the commands that a process outline, a numbered step, or a table on the page already shows whole.
 
 ## Write Sentences to the Reader
 
@@ -93,6 +147,10 @@ Each sentence has one clear reading. Use the real symbol, file, flag, or command
   - Use "start" consistently instead of alternating with "initiate". Avoid ambiguous words ending in "-ing" when a direct verb is clearer.
 
   - Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax.
+
+  - Define each term where the page first uses it, in plain words or with a link. A phrase you build from a code name is a term too. Write "the retry budget, the number of retries left before `send` gives up", not only "the retry budget", for `retryBudget`.
+
+  - Name the unit that a count, a length, or an offset uses in the code. JavaScript `length` and `slice` count UTF-16 code units, so write "UTF-16 code units" there, not "characters".
 
 ## Use Punctuation and Formatting Deliberately
 
