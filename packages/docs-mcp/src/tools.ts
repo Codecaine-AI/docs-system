@@ -339,7 +339,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       return { ok, structurally_valid: true, hash: result.hash, lint, components,
         ...(style_gate ? { style_gate } : {}), ...(judged && !judged.available ? { judgment: { available: false, reason: judged.reason } } : {}) };
     }),
-    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Populate it with docs_insert or docs_apply_ops, then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
+    tool("docs_create", "Create a new blank documentation bundle through the existing tree service. Refuses an existing destination. Write the whole page in one docs_apply_ops batch, since each extra write rereads the whole task. Then run docs_check.", obj({ ...target, title: str, expected_absent: Type.Literal(true) }), async (args, store, ctx) => {
       await confined(store.docsRoot, resolve(store.docsRoot, ".changesets"));
       const staged = await store.changesetStage({ summary: `Create ${args.title}`, entries: [], treeOps: [{ kind: "create-doc", docPath: args.path, title: args.title, position: 0 }] });
       if (!staged.ok) return staged;
