@@ -275,6 +275,7 @@ describe("claims to check", () => {
     const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
     expect(written.claims_to_check).toEqual(["If the service is not healthy after 10 seconds, start fails and names service.log. [find: start, service.log]"]);
     expect(written.next).toContain("For each name after find:, search the source for it");
+    expect(written.next).toContain("Make every claim and style fix in one docs_apply_ops batch");
   });
 
   test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {

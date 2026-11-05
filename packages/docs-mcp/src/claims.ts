@@ -32,8 +32,10 @@ export const CLAIMS_LIMIT = 24;
  * Both fixed their style findings, which the old text put first, and went to docs_check with no new Read: the
  * old text ended "docs_check never lists or fails on them", and no claim said where to look. Each claim now
  * names what to find in the source, and this text makes the check a step before docs_check.
+ * Round 7 writers then fixed claims in one write per block (brief 3: 3 writes of about 210K tokens each), so
+ * the text asks for one batch.
  */
-export const CLAIMS_NEXT = "Before docs_check, test each claim in claims_to_check against the source. For each name after find:, search the source for it and read the whole function that holds it again. Look for each early return, thrown error, guard for a missing or repeated value, and branch for another mode, client, or input. For a claim with no find: list, find the function that does it first. Count each set the claim counts. A code row keeps every condition and guard of the line it condenses. Fix each claim that a branch, a count, or a missing case breaks in your next write: name the condition or narrow the claim, as Match the Source says. docs_check does not test these claims, so this is their last check.";
+export const CLAIMS_NEXT = "Before docs_check, test each claim in claims_to_check against the source. For each name after find:, search the source for it and read the whole function that holds it again. Look for each early return, thrown error, guard for a missing or repeated value, and branch for another mode, client, or input. For a claim with no find: list, find the function that does it first. Count each set the claim counts. A code row keeps every condition and guard of the line it condenses. Fix each claim that a branch, a count, or a missing case breaks: name the condition or narrow the claim, as Match the Source says. Make every claim and style fix in one docs_apply_ops batch, since each extra write rereads the whole task. docs_check does not test these claims, so this is their last check.";
 /** Names a claim's find list holds at most. */
 const FIND_LIMIT = 3;
 
