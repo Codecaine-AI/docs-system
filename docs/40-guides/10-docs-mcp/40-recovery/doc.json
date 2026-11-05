@@ -571,7 +571,7 @@
       "props": {},
       "text": [
         {
-          "insert": "To delete, first call docs_delete with path and expected_hash. Its default preview returns the files to remove and tree_hash. Review those files and the user's deletion authorization. Apply with preview:false and expected_tree_hash set to that preview hash. Changes to corpus files invalidate the preview. No user documentation is deleted merely by requesting the preview."
+          "insert": "To delete, first call docs_delete with path and expected_hash. Its default preview returns the files to remove and tree_hash. Review those files and the user's deletion authorization. Apply with preview:false and expected_tree_hash set to that preview hash. A change to a file the preview deletes, or to a file that references it, invalidates the preview. No user documentation is deleted merely by requesting the preview."
         }
       ],
       "children": []

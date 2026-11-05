@@ -34,6 +34,11 @@
         "b-mm25-atomic-h",
         "b-mm25-critical-1",
         "b-mm25-gate-1",
+        "b-mm-concurrency-h",
+        "b-mm-concurrency-lead",
+        "b-mm-concurrency-write",
+        "b-mm-concurrency-tree",
+        "b-mm-concurrency-read",
         "b-10-save-pipeline-typed-block-actions-the-21",
         "b-10-save-pipeline-structured-object-blocks-22",
         "b-10-save-pipeline-checklist-action-23",
@@ -643,7 +648,7 @@
           }
         },
         {
-          "insert": " comparison occurs inside that critical section — two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a "
+          "insert": " comparison occurs inside that critical section. Two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a "
         },
         {
           "insert": "patch_id",
@@ -676,7 +681,176 @@
           }
         },
         {
-          "insert": " over HTTP) with typed issue paths; the existing file, undo ledger, and derived indexes stay untouched. What persists on success is the validator's normalized document, so the returned hash matches the next load's canonical bytes — an editor or agent bug cannot save a document the next load refuses."
+          "insert": " over HTTP) with typed issue paths. The existing file, undo ledger, and derived indexes stay untouched. What persists on success is the validator's normalized document, so the returned hash matches the next load's canonical bytes. An editor or agent bug cannot save a document the next load refuses."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-h": {
+      "id": "b-mm-concurrency-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Concurrency"
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-lead": {
+      "id": "b-mm-concurrency-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "One runtime serves every agent on a corpus. A tree change waits only for writers that touch its read set."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-write": {
+      "id": "b-mm-concurrency-write",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A one-doc write keeps its per-doc lock and ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        },
+        {
+          "insert": ".",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-mm-concurrency-write-r0"
+      ]
+    },
+    "b-mm-concurrency-write-r0": {
+      "id": "b-mm-concurrency-write-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A shared mode of the store lock for writes comes only if the measured wait on that lock is over 1 s."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-tree": {
+      "id": "b-mm-concurrency-tree",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tree change checks only its read set.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-mm-concurrency-tree-r0",
+        "b-mm-concurrency-tree-r1",
+        "b-mm-concurrency-tree-r2"
+      ]
+    },
+    "b-mm-concurrency-tree-r0": {
+      "id": "b-mm-concurrency-tree-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A tree change is a move, rename, delete, title change, asset move, or restore."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-tree-r1": {
+      "id": "b-mm-concurrency-tree-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Its read set is the files it moves, deletes, or rewrites, and each file that references them."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-tree-r2": {
+      "id": "b-mm-concurrency-tree-r2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It takes locks in one order: "
+        },
+        {
+          "insert": "proposals.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", sidecars, then "
+        },
+        {
+          "insert": "annotations.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", destination paths included."
+        }
+      ],
+      "children": []
+    },
+    "b-mm-concurrency-read": {
+      "id": "b-mm-concurrency-read",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A read takes no store lock.",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-mm-concurrency-read-r0"
+      ]
+    },
+    "b-mm-concurrency-read-r0": {
+      "id": "b-mm-concurrency-read-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each file write is an atomic rename, so a read sees the old bytes or the new bytes."
         }
       ],
       "children": []
@@ -869,7 +1043,7 @@
           }
         },
         {
-          "insert": " and publishes only after the mutation commits — never for a refused write. It is a hint, not state: canonical content stays on disk and consumers re-fetch it. Out-of-band filesystem edits enter the same stream under the actor "
+          "insert": " and publishes only after the mutation commits, never for a refused write. It is a hint, not state: canonical content stays on disk and consumers re-fetch it. Out-of-band filesystem edits enter the same stream under the actor "
         },
         {
           "insert": "fs",
@@ -878,7 +1052,7 @@
           }
         },
         {
-          "insert": ". Derived indexes such as backlinks update best-effort after the commit; a broken or unavailable index can make derived lookups stale but can never veto a valid save."
+          "insert": ". Derived indexes such as backlinks update best-effort after the commit. A broken or unavailable index can make derived lookups stale but can never veto a valid save."
         }
       ],
       "children": []
@@ -922,7 +1096,7 @@
       },
       "text": [
         {
-          "insert": "SSE auto-apply is suppressed while your editor is dirty or a save is in flight — incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge."
+          "insert": "SSE auto-apply is suppressed while your editor is dirty or a save is in flight. Incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge."
         }
       ],
       "children": []

@@ -17,6 +17,7 @@
         "full-management-5",
         "full-management-6",
         "full-management-7",
+        "full-management-7-note",
         "full-management-8",
         "full-management-9",
         "full-management-10",
@@ -150,7 +151,18 @@
       "props": {},
       "text": [
         {
-          "insert": "3. Apply with preview:false and expected_tree_hash set to the preview tree_hash. A change anywhere in the captured corpus invalidates that plan. Read the destination and run docs_check on affected documents. A directory rename preserves page IDs, block IDs, and titles. When the display title should change, use docs_set_title."
+          "insert": "3. Apply with preview:false and expected_tree_hash set to the preview tree_hash. The tree_hash is a hash of the move plan and of each file the plan reads or writes. If the apply refuses with changed_paths, the list of plan files that changed, preview the move again. Read the destination and run docs_check on each affected document. A directory rename preserves page IDs, block IDs, and titles. When the display title should change, use docs_set_title."
+        }
+      ],
+      "children": []
+    },
+    "full-management-7-note": {
+      "id": "full-management-7-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A write to a file outside the plan never refuses the apply. A write to a moving file or to a file that links into the moved pages refuses it."
         }
       ],
       "children": []
@@ -264,7 +276,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Shared-store callers serialize corpus operations, while document and sidecar locks coordinate lower-level edits. Management checks the complete corpus before applying and checks draft locks on affected files. Separate service processes still do not share in-memory coordination. Finish standalone or internal editing activity before reorganizing the same corpus."
+          "insert": "Document and sidecar locks coordinate edits in the shared runtime. Management checks the read set of its plan and the draft locks on affected files before it applies. The read set is the files that the plan moves, deletes, or rewrites, plus each file that references them. Separate service processes share no in-memory locks, so the apply refuses when one of them changed a read-set file."
         }
       ],
       "children": []
