@@ -267,3 +267,12 @@ describe("prettyPrintIfJson", () => {
     expect(prettyPrintIfJson(pretty, "json")).toBe(pretty);
   });
 });
+
+describe("a wrapping code line breaks before a string literal, not inside it", () => {
+  it("keeps each string literal, quotes included, in one token that read code lines lay out as one box", () => {
+    const [line] = highlightCode('  text: [{ insert: "Run " }, { insert: " first." }],', "ts");
+    expect(line).toContain('<span class="hljs-string">&quot; first.&quot;</span>');
+    const css = readFileSync(new URL("../styles/code.css", import.meta.url), "utf8");
+    expect(css).toMatch(/\[data-code-line\] > code\.hljs \.hljs-string \{\s*display: inline-block;\s*max-width: 100%;\s*vertical-align: top;\s*text-indent: 0;\s*\}/);
+  });
+});
