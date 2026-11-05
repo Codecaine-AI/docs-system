@@ -88,6 +88,7 @@ export function useDocBundle({
      * page keeps its doc, because a new doc would reseed the editor over the draft.
      * It takes the new hash only when the doc differs from the page's doc by its
      * title alone, so an outside edit still meets the save's 409 conflict path.
+     * A failed keepDraft fetch leaves the page as it is, with no error screen.
      */
     async (options?: { showLoading?: boolean; keepDraft?: boolean }) => {
       const seq = ++loadSeqRef.current;
@@ -110,6 +111,9 @@ export function useDocBundle({
         setError(null);
       } catch (loadError) {
         if (seq !== loadSeqRef.current) return;
+        // A keepDraft refresh follows a write that already landed: on failure the page
+        // stays as it is, so the editor and any draft stay mounted.
+        if (options?.keepDraft) return;
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");
       } finally {
         if (seq === loadSeqRef.current) {
