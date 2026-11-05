@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction, RefObject } from "react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import type { AnnotationsDocument } from "@codecaine-ai/docs-model/annotations-schema";
 import type { PlannotatorSelection } from "@codecaine-ai/docs-viewer/plannotator";
@@ -82,8 +82,10 @@ export function useDocBundle({
   const expectedHashRef = useMemo(() => ({ current: undefined as string | undefined }), [path]);
   const pathRef = useRef(path);
   pathRef.current = path;
-  /** The server title a skipped or failed keepDraft refresh left out of the bundle, or null. */
-  const pendingTitleRef = useRef<string | null>(null);
+  /** The server title a skipped or failed keepDraft refresh left out of the bundle, or null.
+   * State, not a ref: a failed refresh while the editor is clean still schedules the retry. */
+  const [pendingTitle, setPendingTitle] = useState<string | null>(null);
+  const retryingRef = useRef(false);
   const fetchBundle = useCallback(
     /**
      * `keepDraft`: when the editor holds unsaved edits as the bundle arrives, the
@@ -109,11 +111,12 @@ export function useDocBundle({
           const fetchedTitle = (payload.doc as { title?: string } | null)?.title;
           const ownTitle = options.submittedTitle === undefined || fetchedTitle === options.submittedTitle;
           if (live.doc && ownTitle && sameExceptTitle(payload.doc, live.doc)) expectedHashRef.current = payload.doc_hash;
-          pendingTitleRef.current = fetchedTitle ?? null;
+          setPendingTitle(fetchedTitle ?? null);
           return;
         }
         expectedHashRef.current = payload.doc_hash;
         setBundle({ doc: payload.doc as DocDocument, hash: payload.doc_hash });
+        setPendingTitle(null);
         setAnnotations(payload.annotations ?? { schemaVersion: 1, annotations: [] });
         setAnnotationsHash(payload.annotations_hash);
         setError(null);
@@ -122,7 +125,7 @@ export function useDocBundle({
         // A keepDraft refresh follows a write that already landed: on failure the page
         // stays as it is, so the editor and any draft stay mounted.
         if (options?.keepDraft) {
-          pendingTitleRef.current = options.submittedTitle ?? null;
+          setPendingTitle(options.submittedTitle ?? null);
           return;
         }
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");
@@ -174,12 +177,17 @@ export function useDocBundle({
   // Once the editor is clean, a title that a keepDraft refresh left out comes in.
   // A body save reply that already carries it clears the wait without a refetch.
   useEffect(() => {
-    const pending = pendingTitleRef.current;
-    if (pending === null || (mode === "edit" && saveState !== "saved")) return;
-    pendingTitleRef.current = null;
-    // The retry keeps a draft too: body edits can start again while it runs.
-    if (bundle?.doc?.title !== pending) void fetchBundle({ keepDraft: true, submittedTitle: pending });
-  }, [mode, saveState, bundle, fetchBundle]);
+    if (pendingTitle === null || (mode === "edit" && saveState !== "saved")) return;
+    if (bundle?.doc?.title === pendingTitle) {
+      setPendingTitle(null);
+      return;
+    }
+    if (retryingRef.current) return;
+    retryingRef.current = true;
+    // The retry keeps a draft too: body edits can start again while it runs. A failed
+    // retry sets the same pending title, so it does not loop.
+    void fetchBundle({ keepDraft: true, submittedTitle: pendingTitle }).finally(() => { retryingRef.current = false; });
+  }, [pendingTitle, mode, saveState, bundle, fetchBundle]);
 
   useEffect(() => {
     if (isStatic) return;
@@ -192,7 +200,8 @@ export function useDocBundle({
       // precondition (409 -> stale banner + reload) owns conflicts.
       const canRefresh = currentMode !== "edit" || currentSaveState === "saved";
       if (event.path === openPath || event.path === "") {
-        if (canRefresh) void fetchBundleRef.current();
+        // keepDraft: body edits can start between this check and the reply.
+        if (canRefresh) void fetchBundleRef.current({ keepDraft: true });
         flash(event.changedIds);
         return;
       }
