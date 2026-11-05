@@ -99,7 +99,7 @@ function AnnotatedCodeLine({
  * (`data-notes-below`), so the code gets the full panel width. Without
  * layout (static markup) the notes stay stacked at the top of their column.
  */
-function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines: readonly number[]) {
+function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines: readonly number[], code: string) {
   const key = firstLines.join(",");
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -115,7 +115,9 @@ function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines:
       if (aside.getBoundingClientRect().top >= pre.getBoundingClientRect().bottom - 1) return;
       const rows = Array.from(pre.querySelectorAll<HTMLElement>("[data-code-line]"));
       const heights = rows.map((row) => row.getBoundingClientRect().height);
-      const lineHeight = Math.min(...heights);
+      // One line's height comes from the computed line height, so a block whose every line wraps still counts as wrapped.
+      const computed = Number.parseFloat(getComputedStyle(rows[0] ?? pre).lineHeight);
+      const lineHeight = Number.isFinite(computed) && computed > 0 ? computed : Math.min(...heights);
       if (heights.some((height) => height > lineHeight * 1.5)) {
         body.setAttribute("data-notes-below", "true");
         aside.setAttribute("data-notes-below", "true");
@@ -139,7 +141,7 @@ function useNotePlacement(sectionRef: RefObject<HTMLElement | null>, firstLines:
     });
     observer.observe(section);
     return () => observer.disconnect();
-  }, [sectionRef, key]);
+  }, [sectionRef, key, code]);
 }
 
 /**
@@ -205,7 +207,7 @@ export function AnnotatedCodeBlock({
     () => annotations.map((annotation) => Math.min(...expandLineRange(annotation.lines, lines.length), lines.length)),
     [annotations, lines.length],
   );
-  useNotePlacement(sectionRef, firstLines);
+  useNotePlacement(sectionRef, firstLines, displayCode);
   const pre = (
     <pre className={CODE_ANNOTATED_PRE_CLASSES}>
       {lines.map((line, index) => {

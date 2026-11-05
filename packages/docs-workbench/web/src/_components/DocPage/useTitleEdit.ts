@@ -5,7 +5,9 @@ import { setDocTitle } from "../../data/api";
 /**
  * Commits an edit of the page H1 as doc.json's title. The bundle folder, and
  * so the URL, keeps its name. Enter or blur commits, Escape reverts, and a
- * failed save restores the title the page loaded.
+ * failed save restores the title the page loaded. While the body editor holds
+ * unsaved edits, the title stays as loaded: the refresh after a title save
+ * would reseed the editor over the draft.
  */
 export function useTitleEdit({
   path,
@@ -15,6 +17,7 @@ export function useTitleEdit({
   expectedHashRef,
   fetchBundle,
   setPaneError,
+  liveStateRef,
 }: {
   path: string;
   title: string;
@@ -23,6 +26,7 @@ export function useTitleEdit({
   expectedHashRef: { current: string | undefined };
   fetchBundle: () => Promise<void>;
   setPaneError: Dispatch<SetStateAction<string | null>>;
+  liveStateRef: { current: { mode: string; saveState: string } };
 }) {
   const commitTitleEdit = useCallback(async () => {
     const el = titleRef.current;
@@ -36,6 +40,12 @@ export function useTitleEdit({
     const hash = expectedHashRef.current;
     if (!next || next === title || !hash) {
       el.textContent = title;
+      return;
+    }
+    const live = liveStateRef.current;
+    if (live.mode === "edit" && live.saveState !== "saved") {
+      el.textContent = title;
+      setPaneError("Title not saved: the page has unsaved edits. Edit the title again after they save.");
       return;
     }
     try {

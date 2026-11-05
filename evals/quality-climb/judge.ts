@@ -93,8 +93,9 @@ const sol: Adapter = async (prompt, packet, workDir) => {
   const reply = join(workDir, "sol-reply.txt");
   await writeFile(schema, JSON.stringify(JudgeReplySchema));
   await run(["codex", "exec", "-m", "gpt-6.1-sol", "-c", 'model_reasoning_effort="high"', "--enable", "fast_mode",
-    "-s", "read-only", "--skip-git-repo-check", "-C", REPO, "--output-schema", schema, "-o", reply, `--image=${packet.png}`, "-"],
-  { cwd: REPO, stdin: prompt, workDir, env: { CODEX_HOME: await codexJudgeHome() } });
+    "-s", "read-only", "--skip-git-repo-check", "-C", workDir, "--output-schema", schema, "-o", reply, `--image=${packet.png}`, "-"],
+  // The judge starts in its own work dir, so repo files such as the gate target are not in its working tree.
+  { cwd: workDir, stdin: prompt, workDir, env: { CODEX_HOME: await codexJudgeHome() } });
   return readFile(reply, "utf8");
 };
 

@@ -103,7 +103,11 @@ const opBlockIds = (ops: readonly DocOp[] = []): string[] =>
 function writtenView(before: DocDocument | null, after: DocDocument, named: Iterable<string>): { doc: DocDocument; doc_omitted_blocks?: number } {
   if (!before) return { doc: after };
   const keep = new Set([after.root, ...touchedBlockIds(before, after, named)]);
-  for (const block of Object.values(after.blocks)) if (block.children?.some((child) => keep.has(child))) keep.add(block.id);
+  // A parent stays when it holds a kept block, or when its children changed: a delete or move leaves the old parent changed.
+  const sameChildren = (a: readonly string[] = [], b: readonly string[] = []) => a.length === b.length && a.every((id, i) => id === b[i]);
+  for (const block of Object.values(after.blocks)) {
+    if (block.children?.some((child) => keep.has(child)) || !sameChildren(before.blocks[block.id]?.children, block.children)) keep.add(block.id);
+  }
   const omitted = Object.keys(after.blocks).length - keep.size;
   if (omitted === 0) return { doc: after };
   const blocks = Object.fromEntries(Object.entries(after.blocks).filter(([id]) => keep.has(id)));

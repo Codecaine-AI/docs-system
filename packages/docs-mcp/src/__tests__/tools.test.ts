@@ -397,3 +397,15 @@ describe("codecaine.docs.json exclude, read from disk", () => {
       .toMatchObject({ ok: true });
   });
 });
+
+test("a write result keeps the parent of a block it deletes, with the parent's new children", async () => {
+  const listed = await call("docs_apply_ops", { path: "page", expected_hash: (await read()).hash, ops: [
+    { type: "insertBlock", blockId: "li", parentId: "root", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Parent item." }] },
+    { type: "insertBlock", blockId: "li-a", parentId: "li", index: 0, blockType: "list-item", props: {}, text: [{ insert: "First child." }] },
+    { type: "insertBlock", blockId: "li-b", parentId: "li", index: 1, blockType: "list-item", props: {}, text: [{ insert: "Second child." }] },
+  ] });
+  expect(listed.ok).toBe(true);
+  const deleted = await call("docs_apply_ops", { path: "page", expected_hash: listed.hash, ops: [{ type: "deleteBlock", blockId: "li-b" }] });
+  expect(deleted.ok).toBe(true);
+  expect(deleted.doc.blocks.li?.children).toEqual(["li-a"]);
+});

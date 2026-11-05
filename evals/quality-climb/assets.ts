@@ -20,6 +20,7 @@ export const publishable = (briefs: RoundBrief[], set: string) => briefs.filter(
 if (import.meta.main) {
   const { values: opt } = parseArgs({ options: { round: { type: "string" }, set: { type: "string", default: "climb" } } });
   if (!opt.round) throw new Error("Pass --round <n>.");
+  if (opt.set !== "climb" && opt.set !== "held-out") throw new Error(`--set must be one of: climb, held-out. Got: ${opt.set}`);
   const roundDir = join(REPO, ".tmp/quality-climb", `round-${opt.round}`, opt.set!);
   const pages = publishable(loadBriefs(), opt.set!).map((b) => ({ from: join(roundDir, assetName(b).replace(/\.png$/, ""), "page.png"), to: `round-${opt.round}/${assetName(b)}` }));
   const missing = pages.filter((p) => !existsSync(p.from));

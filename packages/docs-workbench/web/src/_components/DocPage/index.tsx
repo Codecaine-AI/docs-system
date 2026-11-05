@@ -187,6 +187,7 @@ export function DocPage({
     expectedHashRef,
     fetchBundle,
     setPaneError,
+    liveStateRef,
   });
   const { handleApplyOps, handleReloadDoc } = useDocSave({
     path,
