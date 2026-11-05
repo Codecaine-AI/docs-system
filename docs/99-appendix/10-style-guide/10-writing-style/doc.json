@@ -20,6 +20,7 @@
         "b-sg-ws-match-source-p",
         "b-sg-ws-match-source-lists",
         "b-sg-ws-match-source-absolutes",
+        "b-sg-ws-match-source-path",
         "b-sg-ws-match-source-code",
         "writing-b-writing-write-sentences-to-the-r-1",
         "writing-b-writing-use-plain-words-and-the-2",
@@ -325,7 +326,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these three faults against the source before you finish a page."
+          "insert": "A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these four faults against the source before you finish a page."
         }
       ],
       "children": []
@@ -488,6 +489,78 @@
       "text": [
         {
           "insert": "Write \"every\", \"all\", \"only\", \"never\", \"nothing\", or \"always\" when a line of the source proves it. Otherwise name the condition, as in \"every existing file\" or \"the planning checks\"."
+        }
+      ],
+      "children": []
+    },
+    "b-sg-ws-match-source-path": {
+      "id": "b-sg-ws-match-source-path",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A choice the page offers holds through every later step the reader runs. Before you offer an option, a fix, or a partial path, follow it through each later step on the page."
+        }
+      ],
+      "children": [
+        "sg-ws-path-option",
+        "sg-ws-path-exception"
+      ]
+    },
+    "sg-ws-path-option": {
+      "id": "sg-ws-path-option",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say what each later step does when the reader takes the choice. Write \""
+        },
+        {
+          "insert": "lint",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " checks every package, so after "
+        },
+        {
+          "insert": "build --only api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " it reports "
+        },
+        {
+          "insert": "web",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as stale\", not only \"Pass "
+        },
+        {
+          "insert": "--only",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to build fewer packages\"."
+        }
+      ],
+      "children": []
+    },
+    "sg-ws-path-exception": {
+      "id": "sg-ws-path-exception",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A rule that keeps, removes, or allows a set names each case the source treats another way. Write \"keeps every other key except a legacy entry it wrote\", not \"keeps every other key\", when the source removes that entry."
         }
       ],
       "children": []
