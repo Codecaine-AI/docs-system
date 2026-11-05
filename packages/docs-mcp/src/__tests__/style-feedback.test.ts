@@ -296,6 +296,17 @@ describe("claims to check", () => {
     expect(written.next).toContain("Make every claim and style fix in one docs_apply_ops batch");
   });
 
+  test("a write lists a callout's title with its body claims, so a title its body narrows gets checked", async () => {
+    const ops = [{ type: "insertBlock", blockId: "warn", parentId: "root", index: 3, blockType: "callout", props: { tone: "warning", title: "Refusals stop the install before any write" }, text: [
+      { insert: "Each refusal below leaves all files unchanged. A file that changes after the plan stops the install, and files written before it stay written." },
+    ] }];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.claims_to_check).toEqual([
+      'Callout title "Refusals stop the install before any write" holds for every case its body names.',
+      "Each refusal below leaves all files unchanged.",
+    ]);
+  });
+
   test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {
     const sentences = Array.from({ length: 25 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
     const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: `Saves take a lock. ${sentences.join(" ")}` }, task);

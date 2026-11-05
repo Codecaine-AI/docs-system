@@ -74,7 +74,12 @@ function fieldClaims(fields: unknown): string[] {
 const CLAIM_ROWS: Readonly<Record<string, (block: Block) => string[]>> = {
   paragraph: (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
   "list-item": (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
-  callout: (block) => sentences(markedSpans(block.text)).filter(isProseClaim),
+  // A callout title sums up its whole body, so it is a claim with or without a trigger word. Round 7 brief 2 titled a
+  // warning "Refusals stop the install before any write" over a body that named a refusal after a write.
+  callout: (block) => [
+    ...(str(block.props.title) ? [`Callout title "${str(block.props.title)}" holds for every case its body names.`] : []),
+    ...sentences(markedSpans(block.text)).filter(isProseClaim),
+  ],
   pseudocode: (block) => blockText(block).split("\n").map((line) => line.trim()).filter((line) => line && isCodeClaim(line)),
   "call-stack": (block) => outlineRows(block.props.frames, "frames").flatMap((frame) => {
     const text = str(frame.text);
