@@ -267,9 +267,9 @@ describe("claims to check", () => {
   });
 
   test("a write lists the sentences that say what code returns, refuses, or skips, and counts the ones past the cap", async () => {
-    const sentences = Array.from({ length: 13 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
+    const sentences = Array.from({ length: 25 }, (_, i) => `Route ${i} returns 400 for a bad path.`);
     const written = await call("docs_write_text", { path: "page", blockId: "body", expected_hash: await hash(), markdown: `Saves take a lock. ${sentences.join(" ")}` }, task);
-    expect(written.claims_to_check).toEqual(sentences.slice(0, 12));
+    expect(written.claims_to_check).toEqual(sentences.slice(0, 24));
     expect(written.claims_omitted).toBe(1);
     expect(written.next).toContain("read its whole body for each early return");
     expect(written.next).toContain("guard for a missing value, check for a repeated value");
@@ -294,6 +294,45 @@ describe("claims to check", () => {
       "cs: ops.filter((op) => ACTION_REGISTRY.get(op.action)) (finds forwarded actions)",
       "cs: expectedHash !== loaded.docHash",
       "pc: width = layout.width ?? \"text\"",
+    ]);
+  });
+
+  test("a write lists the table rows, tree nodes, file notes, and stack notes that state a set or a behavior", async () => {
+    const ops = [
+      { type: "insertBlock", blockId: "tbl", parentId: "root", index: 3, blockType: "structured-table", props: { columns: ["Case", "Fix"], rows: [
+        ["A symlink target", "Replace the link with a copy"],
+        [[{ insert: "List " }, { insert: "react", attributes: { code: true } }, { insert: " in peers" }], "never in dependencies"],
+        ["Each block has at most one parent", "Remove the second reference"],
+      ] } },
+      { type: "insertBlock", blockId: "ct", parentId: "root", index: 4, blockType: "component-tree", props: { nodes: [
+        { text: "<DocBlockRenderer />", nodes: [
+          { text: "root is missing", kind: "branch", comment: "renders null" },
+          { text: "<Lane />", comment: "one lane per root child" },
+        ] },
+      ] } },
+      { type: "insertBlock", blockId: "ft", parentId: "root", index: 5, blockType: "file-tree", props: { entries: [
+        { path: "src/", note: "Sources" },
+        { path: "src/agent-schema", note: "The only path docs-model may import" },
+      ] } },
+      { type: "insertBlock", blockId: "st", parentId: "root", index: 6, blockType: "stack", props: {
+        nodes: [
+          { name: "Apps", detail: "Also import docs-server", children: [{ name: "docs-cli", detail: "CLI binary" }] },
+          { name: "Model", children: [{ name: "docs-model", detail: "Never imports React" }] },
+        ],
+        boundaries: [{ after: "Apps", rule: "Model code never imports app code" }],
+      } },
+    ];
+    const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops }, task);
+    expect(written.ok).toBe(true);
+    // A row, node, or note with no set word, behavior word, or condition is not a claim. A layer's note always is.
+    expect(written.claims_to_check).toEqual([
+      "tbl: List react in peers | never in dependencies",
+      "tbl: Each block has at most one parent | Remove the second reference",
+      "ct: root is missing (renders null)",
+      "ft: src/agent-schema (The only path docs-model may import)",
+      "st: Apps: Also import docs-server",
+      "st: docs-model: Never imports React",
+      "st: rule after Apps: Model code never imports app code",
     ]);
   });
 });

@@ -3,8 +3,12 @@ import type { DocDocument } from "@codecaine-ai/docs-model";
 
 type Block = DocDocument["blocks"][string];
 
-/** Words that claim a whole set. Match the Source asks the writer to check each one against the source. */
-const ABSOLUTE_WORD = /\b(?:every|all|only|never|always|nothing)\b/i;
+/**
+ * Words that claim a whole set or a bound. Match the Source asks the writer to check each one against the source.
+ * Round 6c judges found overclaims behind "each" (brief 1 "Each type's state schema checks it", brief 5 "Each
+ * dependency ... points to a lower layer") and "at most" (brief 1 "Each block has at most one parent").
+ */
+const ABSOLUTE_WORD = /\b(?:every|each|all|any|only|never|always|nothing|none|at (?:most|least))\b/i;
 /**
  * Words that state what code does on a path: a result, a refusal, or a branch. The round 3b and 4
  * judges found most wrong facts here, where a writer read a function's main path and missed an
@@ -18,16 +22,23 @@ const BEHAVIOR_WORD = /\b(?:returns?|throws?|rejects?|refuses?|fails?|answers?|s
  */
 const CONDITION_CODE = /=>|&&|\|\||[!=]==?|\?\?|\?\.|\b(?:if|else|filter|find|some|switch|case|catch)\b/;
 
-export const CLAIMS_LIMIT = 12;
+/**
+ * Claims one write result lists. Round 6 brief 2 cut a wrong sentence at the old cap of 12. With table, tree, and
+ * stack rows, a page-making write on the round 6 climb pages holds 17 to 36 claims.
+ */
+export const CLAIMS_LIMIT = 24;
 export const CLAIMS_NEXT = "Before docs_check, check each sentence and block row in claims_to_check: find the function that does it, and read its whole body for each early return, thrown error, guard for a missing value, check for a repeated value, and branch for another mode, client, or input. A code row keeps every condition and guard of the line it condenses. Where a branch differs or no line proves the whole set, name the function, name the condition, or narrow the claim in your next write, as Match the Source says. docs_check never lists or fails on them.";
 
 const blockText = (block: Block | undefined) => (block?.text ?? []).map((span) => span.insert).join("");
 const sentences = (text: string) => text.split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter(Boolean);
 const isProseClaim = (sentence: string) => ABSOLUTE_WORD.test(sentence) || BEHAVIOR_WORD.test(sentence);
-const isCodeClaim = (line: string) => CONDITION_CODE.test(line) || isProseClaim(line);
+/** A "for each" loop header claims no set, so it alone never makes a code row a claim. */
+const isCodeClaim = (line: string) => CONDITION_CODE.test(line) || isProseClaim(line.replace(/\bfor each\b/gi, ""));
 const record = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const list = (value: unknown): Record<string, unknown>[] => Array.isArray(value) ? value.map(record) : [];
 const str = (value: unknown) => typeof value === "string" ? value.trim() : "";
+/** A table cell as plain text: a string, or a span list as the rich-text blocks keep it. */
+const cellText = (cell: unknown) => Array.isArray(cell) ? list(cell).map((span) => typeof span.insert === "string" ? span.insert : "").join("").trim() : str(cell);
 
 /** Each row of an outline tree (call-stack frames, process-outline steps), depth first. */
 function outlineRows(rows: unknown, childKey: string): Record<string, unknown>[] {
@@ -58,6 +69,27 @@ const CLAIM_ROWS: Readonly<Record<string, (block: Block) => string[]>> = {
   }),
   "process-outline": (block) => outlineRows(block.props.steps, "steps").flatMap((step) => sentences(str(step.text)).filter(isProseClaim)),
   "state-shape": (block) => [...sentences(str(block.props.description)).filter(isProseClaim), ...fieldClaims(block.props.fields)],
+  // A row is one fact. Round 6 judges found a dropped condition in table cells whose prose twin was right
+  // (brief 2 refuse-table, brief 5 tests-table, brief 6 rules-table).
+  "structured-table": (block) => (Array.isArray(block.props.rows) ? block.props.rows : []).flatMap((row) => {
+    const text = (Array.isArray(row) ? row : []).map(cellText).filter(Boolean).join(" | ");
+    return isProseClaim(text) ? [text] : [];
+  }),
+  // A component-tree node is checked like a call-stack row: a branch, a node that renders on a condition, or a comment that claims.
+  "component-tree": (block) => outlineRows(block.props.nodes, "nodes").flatMap((node) => {
+    const text = str(node.text);
+    const comment = str(node.comment);
+    return node.kind === "branch" || isCodeClaim(text) || isProseClaim(comment) ? [comment ? `${text} (${comment})` : text] : [];
+  }),
+  "file-tree": (block) => list(block.props.entries).flatMap((entry) => isProseClaim(str(entry.note)) ? [`${str(entry.path)} (${str(entry.note)})`] : []),
+  // A layer's note holds for each package in it, so it is a claim with or without a trigger word. So is each boundary rule.
+  stack: (block) => [
+    ...outlineRows(block.props.nodes, "children").flatMap((node) => {
+      const detail = str(node.detail);
+      return detail && (list(node.children).length > 0 || isProseClaim(detail)) ? [`${str(node.name)}: ${detail}`] : [];
+    }),
+    ...list(block.props.boundaries).flatMap((boundary) => str(boundary.rule) ? [`rule after ${str(boundary.after)}: ${str(boundary.rule)}`] : []),
+  ],
   "interaction-surface": (block) => list(block.props.operations).flatMap((operation) => [
     ...sentences(str(operation.description)).filter(isProseClaim).map((s) => `${str(operation.name)}: ${s}`),
     ...fieldClaims(operation.params).map((s) => `${str(operation.name)} ${s}`),
