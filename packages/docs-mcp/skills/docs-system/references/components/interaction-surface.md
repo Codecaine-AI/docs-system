@@ -1,6 +1,6 @@
 # interaction-surface
 
-Generated from Docs System sources. Snapshot: `sha256:3b6bf2dbf1f3de6a8eb4bdc2f6d3219a46b597af9f20d2713843481ea4360766`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:5661fbb036dd9909949ad219c5c64a78042b1933a3e18da7fb0d17db4949d087`. Refresh the installation to regenerate these files.
 
 Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Each operation is one collapsed row that shows its name, return type and kind. Hovering its name shows the purpose, and opening it shows Parameters and Returns cards. Pair it with State Shape. Use Sequence when the question concerns ordering between participants. Write each operation to these rules. (1) Name it by the call a caller writes, receiver.method, such as DraftLockStore.acquire. For one action of a reducer that takes a tagged union, name the operation by its real call with the type literal, such as docPeekReducer(state, { type: "open" }). Its params are state and action, with the action fields nested under action and type typed as its literal. Set returns to the state the reducer returns. (2) Set kind on every operation. Query is only for an operation that changes nothing. An operation that creates, renews, deletes or prunes anything, even expired entries as a side effect, is an action. Event is a notification delivered to a listener: document its callback payload apart from the subscription return value. (3) List every parameter the signature takes in params, with its type, required: false when optional, and nested fields. Describe each parameter whose name and type do not tell a caller what to pass. (4) Give every operation an exampleCall: real code that calls it with literal values and uses no variable it does not set. For a reducer action, call the reducer with a concrete state and action object. Pass every argument that fixes the result, such as a now date. (5) Name each param and returned field by its real key, and nest fields only under an object type. For an object return, use returnShape with recursive fields and an example that is the exact result of that exampleCall. Keep returns for the type name or a primitive type. For a union keyed on one field, set returns to the union, type the key field with its literal values (true | false), and start each branch-only field description with its branch, such as Only when ok is true. (6) When the examples of one surface share state, write them as one scenario in call order, and state the starting state in the prose above the block. (7) In descriptions, state each rule, limit and refusal itself, never only the name of an internal helper that checks it. Give each refusal, including a guard on the mode or environment such as a read-only check, and each side effect in the description of every operation that has it. Omit text that only repeats a name or type.
 
@@ -171,7 +171,7 @@ Three actions maintain the `operations` array. The surface below documents itsel
 **interaction-surface operation actions**
 
 ```
-[action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape) -> InteractionSurfacePatch  # Rejects duplicate operation names.
+[action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape, exampleCall?: string) -> InteractionSurfacePatch  # Rejects duplicate operation names.
   name: string
   description?: string
   params?: array
@@ -180,6 +180,7 @@ Three actions maintain the `operations` array. The surface below documents itsel
   returnShape?: ReturnShape
     fields: Field[]
     example?: string
+  exampleCall?: string  # One real call with literal values. An empty string is dropped.
   Example call:
     interaction-surface.addOperation({
       name: "file-tree.removeEntry",
@@ -214,7 +215,16 @@ Three actions maintain the `operations` array. The surface below documents itsel
         }
       ]
     }
-[action] interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place; null clears description, params, returns, returnShape, or kind.
+[action] interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place. Null clears description, params, returns, returnShape, exampleCall, or kind.
+  name: string
+  patch: object
+    name?: string  # New operation name.
+    description?: string | null
+    params?: Field[] | null
+    returns?: string | null
+    returnShape?: ReturnShape | null
+    exampleCall?: string | null  # One real call with literal values. Null removes it.
+    kind?: "action" | "query" | "event" | null
   Example call:
     interaction-surface.updateOperation({
       name: "file-tree.removeEntry",
