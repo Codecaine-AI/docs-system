@@ -71,6 +71,7 @@ function AnnotatedCodeLine({
       )}
     >
       <span
+        data-code-gutter-wrap
         className={cn(
           CODE_GUTTER_CLASSES,
           CODE_GUTTER_LINE_CLASSES,

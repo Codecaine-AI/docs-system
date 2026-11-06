@@ -171,12 +171,15 @@ export const CODE_GUTTER_MARK_START_CLASSES = "after:top-[3px] after:border-t-2 
 export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:border-b-2 after:rounded-bl-[var(--ds-radius-base)]";
 
 /**
- * READ surface: a gutter cell whose line wraps. A quiet wrap arrow sits under
- * the number on the first continuation row, so a reader sees one soft-wrapped
- * line, not new lines. The cell clips it, so a line that does not wrap shows none.
+ * READ surface: the gutter cell of every line. A quiet wrap arrow sits under
+ * the number on each continuation row of a wrapped line, so a reader sees one
+ * soft-wrapped line, not new lines. The arrows themselves are the cell's
+ * ::before content in styles/code.css ([data-code-gutter-wrap]), one per row;
+ * the cell clips the ones a line does not need, so a line that does not wrap
+ * shows none.
  */
 export const CODE_GUTTER_WRAP_CLASSES =
-  "overflow-hidden before:absolute before:right-[var(--docs-code-gutter-pad-x,12px)] before:top-[var(--docs-code-line-height,21px)] before:font-sans before:content-['↪'] before:opacity-70";
+  "overflow-hidden before:absolute before:right-[var(--docs-code-gutter-pad-x,12px)] before:top-[var(--docs-code-line-height,21px)] before:font-sans before:opacity-70";
 
 /**
  * Gutter line of the LIT (hovered, focused or pinned) pair: accent number,
