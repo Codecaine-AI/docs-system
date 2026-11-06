@@ -228,7 +228,8 @@ describe("structured table", () => {
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("max-w-[var(--ds-layout-lane-text)]");
     expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
-    expect(TABLE_PROSE_FLOOR_CLASS).toBe(`min-w-[${m.proseFloorCh}ch]`);
+    expect(TABLE_PROSE_FLOOR_CLASS).toBe("min-w-[calc(var(--ds-layout-lane-text)/2)]");
+    expect(m.proseFloorCh * 2).toBe(m.proseMeasureCh);
     expect(PROSE_FLOOR_CH).toBe(m.proseFloorCh);
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
     expect(WHOLE_CHIP_MAX_CHARS).toBe(m.wholeChipMaxChars);

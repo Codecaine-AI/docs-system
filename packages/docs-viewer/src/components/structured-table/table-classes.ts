@@ -63,11 +63,12 @@ export const TABLE_COLUMN_FIT_CLASSES = {
 export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min-w-min";
 
 /**
- * The prose column's floor (column-layout.ts PROSE_FLOOR_CH), on the same
+ * The prose column's floor, half the prose measure: 30ch at stock
+ * (column-layout.ts PROSE_FLOOR_CH). It sits on the same
  * block as the measure: a box's min-content width is the larger of its
  * min-width and its longest word, so the floor never cuts a word.
  */
-export const TABLE_PROSE_FLOOR_CLASS = "min-w-[30ch]";
+export const TABLE_PROSE_FLOOR_CLASS = "min-w-[calc(var(--ds-layout-lane-text)/2)]";
 
 /**
  * The pinned first column (th and td): sticky at the frame's left edge,
@@ -96,7 +97,7 @@ export const TABLE_HEAD_CLASSES =
  * its own token is set.
  */
 export const TABLE_HEADER_CELL_TEXT_CLASSES =
-  "min-w-15 align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,#1f1f1f)] text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
+  "min-w-15 align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,var(--ds-color-code-chip-ink))] text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
 
 export const TABLE_ROW_HOVER_CLASSES =
   "transition-colors hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]";
@@ -128,7 +129,7 @@ export const TABLE_ROW_RULE_CLASSES =
  * identifiers alone overflow it).
  */
 export const TABLE_BODY_CELL_TEXT_CLASSES = [
-  "align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,#1f1f1f)] text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
+  "align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,var(--ds-color-code-chip-ink))] text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
   "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
   "data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)] data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
   "data-[cell-kind]:[--docs-inline-code-bg:transparent] data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor] data-[cell-kind]:[--docs-inline-code-pad-x:0] data-[cell-kind]:[--docs-inline-code-pad-y:0] data-[cell-kind]:[--docs-inline-code-text-size:1] data-[cell-kind]:[--docs-inline-code-border-width:0px]",
