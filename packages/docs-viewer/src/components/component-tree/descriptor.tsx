@@ -4,6 +4,7 @@ import type { DocBlockDescriptor } from "../../render/block-registry";
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
 import { STRUCTURAL_OPS, blockAttrs, el, invalidBlockPlaceholder } from "../../render/descriptor-helpers";
 import { OutlineRows } from "../outline-rows/OutlineRows";
+import { COMPONENT_TREE_CSS } from "./style";
 
 const LABEL = "Component Tree";
 
@@ -22,6 +23,7 @@ export const descriptors: DocBlockDescriptor[] = [
       return el(
         "div",
         { key: block.id, ...blockAttrs(block) },
+        el("style", null, COMPONENT_TREE_CSS),
         createElement(OutlineRows, { id: block.id, blockType: "component-tree", rows: readComponentTree(block), flavor: "component" }),
         ctx.renderChildren(block),
       );

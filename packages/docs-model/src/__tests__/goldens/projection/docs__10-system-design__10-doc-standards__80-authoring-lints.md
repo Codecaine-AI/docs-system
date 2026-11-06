@@ -178,6 +178,12 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - pseudocode.code-syntax flags an operator such as === or ??, an object literal, or an index such as [part.name] in a pseudocode line, outside its strings and comment. The message gives the plain words for each one, such as "does not equal" for !==. docs_check fails until the task fixes it.
 
+  - `component-tree.bare-ellipsis` flags a component or hook row with a `…` outside braces and quotes, such as `<Pane settings={settings} …>`.
+
+    - The row reads as broken JSX. The writer drops those props with no marker and writes an omitted value as `{…}`.
+
+    - It is a warning with no enforcement phase, so it never blocks a save or `docs_check`.
+
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 - **Layout Warnings**

@@ -2,6 +2,7 @@ import { processOutlinePhaseTitleCaseRule, processOutlineRootRule } from '../com
 import { interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
 import { codeLintRules } from '../components/code/lint';
 import { pseudocodeCodeSyntaxRule } from "../components/pseudocode/lint";
+import { componentTreeBareEllipsisRule } from '../components/component-tree/lint';
 import type { DocDocument } from "../doc-schema";
 import { writingRules } from "../writing/rules";
 import { pageStructureRules } from "../page-structure/rules";
@@ -19,6 +20,7 @@ export const lintRules = [
   interactionSurfaceReturnsProseRule,
   ...codeLintRules,
   pseudocodeCodeSyntaxRule,
+  componentTreeBareEllipsisRule,
   bundleRelativeSrcRule,
   ...layoutRules,
 ];
