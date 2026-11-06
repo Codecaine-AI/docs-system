@@ -168,8 +168,11 @@ function branchText(text: string): string {
   return text.replace(/^\?\s*/, "");
 }
 
-/** A call-stack branch that repeats its body: a for, while or do loop, or an array iteration call. */
-const LOOP_BRANCH = /^(?:for|while|do)\b|\.(?:map|flatMap|forEach|filter|reduce|some|every)\(/;
+/**
+ * A call-stack branch that repeats its body: a for, while or do loop, or a row whose leading expression is a
+ * map, flatMap or forEach call. A predicate such as `!jobs.every(…)` or `items.some(…)` stays a condition.
+ */
+const LOOP_BRANCH = /^(?:(?:for|while|do)\b|(?:await\s+)?[\w$.]+\.(?:map|flatMap|forEach)\()/;
 
 /** Tabler "repeat" (MIT): a call-stack loop row leads with it instead of the condition "?". */
 const LOOP_ICON = (

@@ -100,16 +100,18 @@ describe("call-stack rows", () => {
     expect(note?.textContent).toBe("skipped when !judgeUp, a ` stays");
     expect([...(note?.querySelectorAll("code") ?? [])].map((code) => code.textContent)).toEqual(["!judgeUp"]);
   });
-  it("leads a loop branch with the loop mark and a condition branch with ?", () => {
+  it("leads a loop branch with the loop mark, and a condition or an array predicate guard with ?", () => {
     const wrapper = renderBlock("call-stack", {
       frames: [
         { text: "for (const block of blocks)", kind: "branch", frames: [{ text: "check(block)" }] },
         { text: "jobs.map(async (job) => …)", kind: "branch" },
         { text: "!result.ok", kind: "branch" },
+        { text: "!jobs.every((job) => job.ok)", kind: "branch", frames: [{ text: "return failure(job)" }] },
+        { text: "items.some((item) => item.stale)", kind: "branch" },
       ],
     });
     const marks = [...(wrapper?.querySelectorAll("[data-branch-mark]") ?? [])].map((mark) => mark.getAttribute("data-branch-mark"));
-    expect(marks).toEqual(["loop", "loop", "condition"]);
+    expect(marks).toEqual(["loop", "loop", "condition", "condition", "condition"]);
   });
 });
 
