@@ -222,6 +222,56 @@ export const judgmentRules: readonly JudgmentRule[] = [
     question: "Does the pair `lead` and `bullets` fail to read as prose? It fails when `lead` is a bare label or fragment instead of a complete sentence, or when it does not introduce what `bullets` say.",
     fix: "Make the lead a complete sentence that introduces the bullets. Make each bullet a complete sentence that follows from it.",
   },
+  {
+    // The rich-text quality climb's judges (Muse, Fable and Opus) most often marked a callout down for a second,
+    // unrelated sentence after its message, or for a label weaker or stronger than the message.
+    id: "judgment.callout-message",
+    kind: "choice",
+    appliesTo: ["callout"],
+    threshold: 0.6,
+    gateThreshold: 0.85,
+    gate: true,
+    problem: "Callout does not carry one message that fits its label.",
+    state: (doc, id) => {
+      const block = doc.blocks[id]!;
+      const props = block.props as { tone?: string; kind?: string; title?: string };
+      return {
+        heading: nearestHeading(doc, id) ?? "",
+        label: props.kind || props.tone || "info",
+        title: props.title ?? "",
+        body: [textOf(doc, id), ...(block.children ?? []).map((child) => textOf(doc, child))].filter(Boolean).join("\n"),
+      };
+    },
+    question: "What does the documentation callout tell the reader? `label` is its printed label, such as warning, info or decision, `title` its optional title and `body` its text.",
+    options: [
+      { label: "one_message", description: "One message whose force fits the label. A second sentence, if any, gives the reason, the exception, or the action for that same message." },
+      { label: "two_messages", description: "Two separate messages, such as a warning followed by an unrelated fact or tip.",
+        problem: "Callout carries a second message.", fix: "Keep the message that fits the label in the callout. Move the other sentence into the prose before or after the callout." },
+      { label: "label_mismatch", description: "A message whose force does not fit the label, such as a plain fact under a warning label or a refusal the reader must avoid under an info label.",
+        problem: "Callout label does not fit its message.", fix: "Set tone to fit the message: warning or risk for what can go wrong, decision for a choice made, success for a result, and info for a neutral fact." },
+    ],
+  },
+  {
+    // Sibling items that mix an instruction with a description, or one short clause with a run of conditions,
+    // were the climb judges' most common list-form finding. Advisory: it reports and never fails docs_check.
+    id: "judgment.sibling-form",
+    kind: "noul",
+    appliesTo: ["list-item"],
+    threshold: 0.7,
+    gate: false,
+    problem: "Sibling list items differ in form or detail.",
+    select: (doc, id) => {
+      const run = listRun(doc, id);
+      return run[0] === id && run.length >= 2 && !run.some((item) => isTaskItem(doc, item));
+    },
+    anchors: (doc, id) => {
+      const run = doc.blocks[id]?.type === "list-item" ? listRun(doc, id) : [];
+      return run.length ? [run[0]!] : [];
+    },
+    state: (doc, id) => ({ heading: nearestHeading(doc, id) ?? "", lead: textOf(doc, leadOf(doc, id)), items: bulletTexts(doc, listRun(doc, id)) }),
+    question: "Do the sibling list items `items` differ in form or level of detail, so a reader must reread them: some are instructions and others descriptions, or some are one short clause while others add conditions, exceptions or a second sentence?",
+    fix: "Give every item the same form, all instructions or all statements, and the same depth: one sentence each, with extra detail moved into sub-bullets or the prose after the list.",
+  },
 ];
 
 /** Collapse whitespace, mark literal spans, and cap the evidence at EXCERPT_CHARS characters on a whole word. */

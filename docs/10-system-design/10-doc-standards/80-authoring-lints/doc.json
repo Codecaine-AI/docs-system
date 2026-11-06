@@ -819,7 +819,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Judgment Rules findings at 0.85 or higher on blocks the task changed also enter "
+          "insert": "Findings from gated Judgment Rules at 0.85 or higher on blocks the task changed also enter "
         },
         {
           "insert": "style_gate",
@@ -1679,7 +1679,9 @@
       "children": [
         "lint-judgment-ids-packed",
         "lint-judgment-ids-flat",
-        "lint-judgment-ids-join"
+        "lint-judgment-ids-join",
+        "lint-judgment-ids-callout",
+        "lint-judgment-ids-siblings"
       ]
     },
     "lint-judgment-ids-packed": {
@@ -1733,6 +1735,49 @@
       ],
       "children": []
     },
+    "lint-judgment-ids-callout": {
+      "id": "lint-judgment-ids-callout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.callout-message",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is gated and asks whether a callout carries one message whose force fits its printed label. It reports a second, unrelated message, and a label that does not fit the message, such as a plain fact under a warning label."
+        }
+      ],
+      "children": []
+    },
+    "lint-judgment-ids-siblings": {
+      "id": "lint-judgment-ids-siblings",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.sibling-form",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " asks whether sibling list items differ in form or detail, such as an instruction next to a description, or a short clause next to an item with conditions. It is advisory, never fails "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and skips checklists."
+        }
+      ],
+      "children": []
+    },
     "lint-judgment-thresholds": {
       "id": "lint-judgment-thresholds",
       "type": "list-item",
@@ -1756,7 +1801,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test."
+          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, 0.6 for callout-message, and 0.7 for sibling-form."
         }
       ],
       "children": []
@@ -1782,7 +1827,7 @@
           }
         },
         {
-          "insert": " blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block."
+          "insert": " blocks on a gated rule only at 0.85 or higher. A finding the task's baseline already had on the same block does not block."
         }
       ],
       "children": []
