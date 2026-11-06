@@ -26,30 +26,44 @@
         "cat-table",
         "stage-lead",
         "stage-table",
+        "stage-lane",
         "guard-lead",
         "g1",
         "g2",
         "g3",
         "h-lane",
         "lane-lead",
+        "lane-list",
         "lane-files",
         "lane-crit-lead",
         "lane-crit-shape",
         "lane-gate",
         "lane-guard",
+        "lane-muse",
         "lane-steps-lead",
         "ls1",
         "ls2",
         "ls3",
         "ls4",
+        "ls5",
+        "lane-preview",
         "h-res",
+        "res-h-page",
         "res-lead",
         "res-table",
         "res-find-lead",
         "f1",
         "f2",
         "f3",
-        "res-pr"
+        "res-pr",
+        "res-h-lanes",
+        "res-lanes-lead",
+        "res-lanes-table",
+        "res-lanes-find-lead",
+        "rl-g1",
+        "rl-g2",
+        "res-combined",
+        "res-lanes-pr"
       ]
     },
     "intro": {
@@ -450,6 +464,35 @@
       },
       "children": []
     },
+    "stage-lane": {
+      "id": "stage-lane",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane round sends "
+        },
+        {
+          "insert": "lane-judge-brief.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " instead of "
+        },
+        {
+          "insert": "judge-brief.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with the base criteria and the lane's own criteria as its rubric. Climb One Component describes that rubric."
+        }
+      ],
+      "children": []
+    },
     "guard-lead": {
       "id": "guard-lead",
       "type": "paragraph",
@@ -591,7 +634,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A lane climbs one block type at a time, such as "
+          "insert": "A lane climbs one block type on its own, such as "
         },
         {
           "insert": "state-shape",
@@ -627,7 +670,36 @@
           }
         },
         {
-          "insert": ". The 12 lanes are rich-text, code, pseudocode, file-tree, file-explorer, call-stack, component-tree, state-shape, interaction-surface, structured-table, process-outline and stack. The rich-text lane scores paragraphs, headings, list items and callouts."
+          "insert": ". Each of the 12 lanes has 4 climb briefs and 8 held-out briefs. The rich-text lane scores paragraphs, headings, list items and callouts, and every other lane scores its own block type."
+        }
+      ],
+      "children": []
+    },
+    "lane-list": {
+      "id": "lane-list",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 12 lanes are rich-text, code, pseudocode, file-tree, file-explorer, call-stack, component-tree, state-shape, interaction-surface, structured-table, process-outline and stack. "
+        },
+        {
+          "insert": "LANES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists them."
         }
       ],
       "children": []
@@ -647,7 +719,7 @@
           },
           {
             "path": "evals/quality-climb/lanes/<type>/criteria.json",
-            "note": "The lane's own criteria. Without it, the lane scores the base criteria only"
+            "note": "The lane's own 4 to 7 criteria, from the lane's council. Without the file, the lane scores the base criteria only"
           },
           {
             "path": "evals/quality-climb/lanes.ts",
@@ -760,7 +832,63 @@
           }
         },
         {
-          "insert": " picks the counting judges in the stage table of Categories and Judges. A lane round keeps the 3 guards and adds a page-categories guard. That guard fails when a judge's page-category mean on a set falls more than 0.5 below the baseline round's."
+          "insert": " picks the counting judges in the stage table of Categories and Judges. A lane round keeps the 3 guards and adds a page-categories guard, "
+        },
+        {
+          "insert": "categoryGuard",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "gate.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". That guard fails when a judge's page-category mean on a set falls more than 0.5 below the baseline round's, or is not a number."
+        }
+      ],
+      "children": []
+    },
+    "lane-muse": {
+      "id": "lane-muse",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ford took Muse Wonder out of the lane pass decision after the 12 lanes ran. "
+        },
+        {
+          "insert": "STAGES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "gate.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " still names Muse at stages 2 and 3. To leave Muse out of a stage 3 round, also pass "
+        },
+        {
+          "insert": "--judges sol,opus,fable --counting sol,opus,fable",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -771,7 +899,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A lane PR runs 4 commands from the repo root, in this order."
+          "insert": "A lane PR runs 5 steps from the repo root, in this order. Each round number is an example."
         }
       ],
       "children": []
@@ -784,7 +912,7 @@
       },
       "text": [
         {
-          "insert": "Run the lane's baseline round at stage 1."
+          "insert": "Run the lane's baseline round on both sets at stage 3."
         }
       ],
       "children": [
@@ -799,7 +927,7 @@
       },
       "text": [
         {
-          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 0 --stage 1"
+          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 0 --stage 3"
         }
       ],
       "children": []
@@ -812,7 +940,16 @@
       },
       "text": [
         {
-          "insert": "After a viewer-only change, re-render and score the baseline round's pages with no new write."
+          "insert": "Run each climb round on the climb set. After a writer change, write the pages again, or after a viewer-only change, re-render the last round's pages with "
+        },
+        {
+          "insert": "--frozen-from",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": [
@@ -827,7 +964,7 @@
       },
       "text": [
         {
-          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 1 --stage 1 \\\n  --frozen-from .tmp/quality-climb/lanes/state-shape/round-0"
+          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 1 --stage 1 \\\n  --set climb\nbun evals/quality-climb/round.ts --lane state-shape --round 2 --stage 1 \\\n  --set climb --frozen-from .tmp/quality-climb/lanes/state-shape/round-1"
         }
       ],
       "children": []
@@ -840,7 +977,7 @@
       },
       "text": [
         {
-          "insert": "Write one before and after image per climb page, plus one full-page pair."
+          "insert": "After the last climb round, score round 0's pages on both sets under the final viewer. This same-page round has no new write, so the change it shows comes from the viewer alone."
         }
       ],
       "children": [
@@ -855,7 +992,7 @@
       },
       "text": [
         {
-          "insert": "bun evals/quality-climb/compare.ts --lane state-shape \\\n  --before .tmp/quality-climb/lanes/state-shape/round-0 \\\n  --after .tmp/quality-climb/lanes/state-shape/round-1"
+          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 11 --stage 3 \\\n  --frozen-from .tmp/quality-climb/lanes/state-shape/round-0"
         }
       ],
       "children": []
@@ -868,22 +1005,97 @@
       },
       "text": [
         {
-          "insert": "Push the images to the quality-climb-assets branch and print the markdown section for the PR body."
+          "insert": "Write one before and after image per climb page, plus one full-page pair. "
+        },
+        {
+          "insert": "compare.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " never compares held-out pages."
         }
       ],
       "children": [
-        "ls4c"
+        "ls4c2"
       ]
     },
-    "ls4c": {
-      "id": "ls4c",
+    "ls4c2": {
+      "id": "ls4c2",
       "type": "code",
       "props": {
         "language": "bash"
       },
       "text": [
         {
-          "insert": "bun evals/quality-climb/assets.ts \\\n  --compare .tmp/quality-climb/lanes/state-shape/round-1/compare-round-0"
+          "insert": "bun evals/quality-climb/compare.ts --lane state-shape \\\n  --before .tmp/quality-climb/lanes/state-shape/round-0 \\\n  --after .tmp/quality-climb/lanes/state-shape/round-11"
+        }
+      ],
+      "children": []
+    },
+    "ls5": {
+      "id": "ls5",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Push the images to the quality-climb-assets branch and print the markdown section for the PR body."
+        }
+      ],
+      "children": [
+        "ls5c"
+      ]
+    },
+    "ls5c": {
+      "id": "ls5c",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/assets.ts \\\n  --compare .tmp/quality-climb/lanes/state-shape/round-11/compare-round-0"
+        }
+      ],
+      "children": []
+    },
+    "lane-preview": {
+      "id": "lane-preview",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Three more options help you look at a viewer change before you spend judge tokens. "
+        },
+        {
+          "insert": "--render-only",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes and renders the pages, then stops before the tests, the judges and the gate. "
+        },
+        {
+          "insert": "--expand",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " opens every disclosure, such as each interaction-surface operation row, before the screenshot. "
+        },
+        {
+          "insert": "--system-root <path>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders with another Docs System checkout, while the harness, the briefs and the judges stay this worktree's."
         }
       ],
       "children": []
@@ -897,6 +1109,19 @@
       "text": [
         {
           "insert": "Results"
+        }
+      ],
+      "children": []
+    },
+    "res-h-page": {
+      "id": "res-h-page",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Whole-Page Climb"
         }
       ],
       "children": []
@@ -1156,6 +1381,372 @@
           "insert": "docs-system PR #23",
           "attributes": {
             "link": "https://github.com/Codecaine-AI/docs-system/pull/23"
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "res-h-lanes": {
+      "id": "res-h-lanes",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Per-Component Lanes"
+        }
+      ],
+      "children": []
+    },
+    "res-lanes-lead": {
+      "id": "res-lanes-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 12 lanes ran in November 2026, and none reached the 9.5 gate. Each cell is the held-out mean over Sol, Opus and Fable and the lane's criteria, on the lane's 8 held-out pages. Same page is round 0's pages under the lane's final viewer, and new write is the lane's last round with new writes."
+        }
+      ],
+      "children": []
+    },
+    "res-lanes-table": {
+      "id": "res-lanes-table",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Lane",
+          "PR",
+          "Round 0",
+          "Same page",
+          "New write"
+        ],
+        "rows": [
+          [
+            "code",
+            "#30",
+            "8.98",
+            "Not run",
+            "9.17"
+          ],
+          [
+            "rich-text",
+            "#31",
+            "9.31",
+            "Not run",
+            "9.38"
+          ],
+          [
+            "file-tree",
+            "#32",
+            "9.22",
+            "9.34",
+            "9.35"
+          ],
+          [
+            "pseudocode",
+            "#33",
+            "9.14",
+            "Not run",
+            "9.53"
+          ],
+          [
+            "file-explorer",
+            "#34",
+            "9.30",
+            "Not run",
+            "9.49"
+          ],
+          [
+            "component-tree",
+            "#35",
+            "8.79",
+            "8.92",
+            "Not run"
+          ],
+          [
+            "call-stack",
+            "#36",
+            "8.16",
+            "8.61",
+            "9.10"
+          ],
+          [
+            "state-shape",
+            "#37",
+            "8.95",
+            "9.15",
+            "Not run"
+          ],
+          [
+            "structured-table",
+            "#38",
+            "8.68",
+            "8.66",
+            "Not run"
+          ],
+          [
+            "interaction-surface",
+            "#39",
+            "8.65",
+            "8.93",
+            "9.18"
+          ],
+          [
+            "process-outline",
+            "#40",
+            "8.95",
+            "8.92",
+            "9.22"
+          ],
+          [
+            "stack",
+            "#41",
+            "8.80",
+            "8.76",
+            "Not run"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "res-lanes-find-lead": {
+      "id": "res-lanes-find-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A viewer change alone moved held-out pages by 0.45 or less, and the judges missed what Ford's review changed."
+        }
+      ],
+      "children": []
+    },
+    "rl-g1": {
+      "id": "rl-g1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The scores",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "rl1",
+        "rl1b",
+        "rl2",
+        "rl3"
+      ]
+    },
+    "rl1": {
+      "id": "rl1",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "On the same pages, call-stack gained 0.45 and interaction-surface gained 0.28."
+        }
+      ],
+      "children": []
+    },
+    "rl1b": {
+      "id": "rl1b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Structured-table, process-outline and stack moved by less than 0.05 on the same pages."
+        }
+      ],
+      "children": []
+    },
+    "rl2": {
+      "id": "rl2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "A new-write gain, such as call-stack from 8.16 to 9.10, mixes the writer guidance change with writer noise."
+        }
+      ],
+      "children": []
+    },
+    "rl3": {
+      "id": "rl3",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "In late rounds, judge noise and judges that disagree set the limit, such as Sol and Muse Wonder asking for opposite component-tree fixes on 2 criteria."
+        }
+      ],
+      "children": []
+    },
+    "rl-g2": {
+      "id": "rl-g2",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Outside the scores",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "rl4",
+        "rl5",
+        "rl5b",
+        "rl5c"
+      ]
+    },
+    "rl4": {
+      "id": "rl4",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The file-tree lane set "
+        },
+        {
+          "insert": "--docs-file-tree-guide-fg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to "
+        },
+        {
+          "insert": "var(--docs-muted)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the file explorer reads that variable too, so one lane changed another block."
+        }
+      ],
+      "children": []
+    },
+    "rl5": {
+      "id": "rl5",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "In pseudocode, Ford's review added step verbs in the call color through "
+        },
+        {
+          "insert": "--docs-pseudo-verb-fg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "rl5b": {
+      "id": "rl5b",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "In interaction-surface, Ford's review made each open operation a nested list."
+        }
+      ],
+      "children": []
+    },
+    "rl5c": {
+      "id": "rl5c",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "No judge scored the 2 final viewers that Ford's review changed."
+        }
+      ],
+      "children": []
+    },
+    "res-combined": {
+      "id": "res-combined",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A combined branch, "
+        },
+        {
+          "insert": "quality-climb-combined",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " at "
+        },
+        {
+          "insert": "0249be73",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", merged all 12 lanes and scored each lane's held-out pages again. No lane fell more than 0.12 on any judge. The largest page-category drop was 0.41, under the 0.5 limit of "
+        },
+        {
+          "insert": "categoryGuard",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "res-lanes-pr": {
+      "id": "res-lanes-pr",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each lane's changes and per-judge scores are in docs-system PRs #30 to #41. The lane harness is in "
+        },
+        {
+          "insert": "docs-system PR #29",
+          "attributes": {
+            "link": "https://github.com/Codecaine-AI/docs-system/pull/29"
           }
         },
         {
