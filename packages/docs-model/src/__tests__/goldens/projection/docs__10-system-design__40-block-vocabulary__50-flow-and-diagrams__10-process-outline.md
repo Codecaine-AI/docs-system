@@ -75,7 +75,7 @@ Process-outline notation is the block's plain-text form: `serializeProcessOutlin
 
   - A `>` line is a clarification note on the step above it, not a step of its own.
 
-  - Consecutive `>` lines group into one note block, and each line renders as its own `//` aside.
+  - Consecutive `>` lines group into one note block, and each line renders as its own aside behind a dash.
 
 - Blank lines are ignored.
 
@@ -101,17 +101,35 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
 - Prose lives in notes
 
-  - Keep each supporting note bite-sized: one useful fact about the step. Explain a constraint, reason, or expected result without repeating the step label. Split separate facts into separate note bullets.
+  - Keep each supporting note to one useful fact about its step. A note gives a reason, a limit or an expected result, and never repeats the step.
+
+  - A note never states an action that the code takes, such as a write, a skip or a report entry. That action is a step.
+
+  - Put a note directly under the step it explains. A note about a step with substeps is that step's first child, not a line after its last substep.
 
   - Notes are prose. Notes never have children: a note that wants substructure is a step.
 
-- Branches are steps
+- Branches hold their actions
 
-  - A branch or a failure path is its own step, never a trailing clause on the step it hangs off.
+  - Write a branch as a parent step that opens with its trigger: `If`, `When`, `Otherwise`, `Unless` or `On failure`. Nest every action that the trigger governs under it.
 
-- Loops name their exit
+  - Give each outcome its own branch step with its own trigger, such as "When every step succeeds" beside "When a step throws". Never show two exclusive outcomes as two steps in a row.
 
-  - A loop leads with `Repeat`, `While`, or `For each`, and names its exit with `until`.
+  - A step that runs only sometimes names its trigger in its own text or sits under its branch step. Never leave the trigger to a note.
+
+- Loops hold their body
+
+  - Write a loop as a parent step that opens with `For each`, `While` or `Repeat`. Nest every step that repeats under it, and keep each step that runs once outside it.
+
+  - Name what ends the loop: the collection after `For each`, the condition after `While`, or the exit after `until` in a `Repeat` step.
+
+  - A phase that repeats opens its title with the loop keyword, such as "For Each Kept File". A note that says a phase repeats does not make it a loop.
+
+- Match the source
+
+  - Take each step, trigger, count and order from the source files. Check each condition in the code before you write it as a trigger.
+
+  - Write a step for each early return, throw or skip that changes the path. Leave out a path that the source does not have.
 
 - Backticks are the only chip syntax
 
@@ -136,6 +154,23 @@ After
      > the worktree keeps tentative evidence off the authoritative map
      -> Run the full build
      -> Retry the item once when the build fails
+```
+
+A loop holds the steps that repeat, and each branch holds the steps that its trigger governs:
+
+```process-outline
+Drain One Epoch
+     -> For Each Ready Item in the Epoch
+          -> Spawn a `Worker` in an isolated worktree
+          -> Run the full build
+          -> When the build passes
+               -> Move the item to its authoritative lane
+          -> When the build fails
+               > the failed worktree never changes the map
+               -> Retry the item once
+               -> Mark the item blocked when the retry fails
+     -> Close the Epoch
+          -> Write the epoch report
 ```
 
 ## State Schema
@@ -286,9 +321,9 @@ process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  #
 
 - Hierarchy by weight
 
-  - The root title and each phase, a first-level step with substeps, render in ink at weight 600. Nested steps render at weight 400, and phases with substeps sit 16px apart.
+  - The root title and each phase, a first-level step with substeps, render in ink at weight 600. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400.
 
-  - `Repeat`, `While`, and `For each` at the start of a segment and `until` anywhere in it render as loop keywords at weight 500. They use the VS Code control colour, `#AF00DB` in Light+ and `#C586C0` in Dark+.
+  - A loop opener (`Repeat`, `While`, `For each`) or a branch opener (`If`, `When`, `Otherwise`, `Unless`, `On failure`) at the start of a step renders as a keyword in any case. So does `until` inside a `Repeat` step.
 
   - Backticks render typed code chips, and a multi-word span stays one chip. `chipKind` in `packages/docs-viewer/src/components/typed-chip.ts` picks the kind, and `typedChipVsCodeColorCss` colours it through `light-dark()` with Light+ and Dark+.
 
@@ -296,9 +331,9 @@ process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  #
 
 - Notes
 
-  - A note renders in italics behind a mono `//` marker, aligned with its sibling steps. Notes use the VS Code comment colour, `#008000` in Light+ and `#6A9955` in Dark+.
+  - A note renders in muted italics behind a dash, at the indent of its sibling steps. The dash sits where an elbow would be, so a note never reads as a step.
 
-  - Consecutive note siblings group into one block, and each note stays its own `//` line.
+  - Consecutive note siblings group into one block, and each note stays its own line.
 
   - Notes have their own text size and line height. They remain visually subordinate to action lines and visible by default.
 

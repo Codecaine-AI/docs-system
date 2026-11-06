@@ -814,6 +814,28 @@
       ],
       "children": []
     },
+    "po-wr-notes-action": {
+      "id": "po-wr-notes-action",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note never states an action that the code takes, such as a write, a skip or a report entry. That action is a step."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-notes-place": {
+      "id": "po-wr-notes-place",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put a note directly under the step it explains. A note about a step with substeps is that step's first child, not a line after its last substep."
+        }
+      ],
+      "children": []
+    },
     "b-90-process-outline-wr-notes-2": {
       "id": "b-90-process-outline-wr-notes-2",
       "type": "list-item",
@@ -896,6 +918,28 @@
       ],
       "children": []
     },
+    "po-wr-branch-outcomes": {
+      "id": "po-wr-branch-outcomes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each outcome its own branch step with its own trigger, such as \"When every step succeeds\" beside \"When a step throws\". Never show two exclusive outcomes as two steps in a row."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-trigger": {
+      "id": "po-wr-branch-trigger",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A step that runs only sometimes names its trigger in its own text or sits under its branch step. Never leave the trigger to a note."
+        }
+      ],
+      "children": []
+    },
     "b-90-process-outline-wr-loops": {
       "id": "b-90-process-outline-wr-loops",
       "type": "list-item",
@@ -945,6 +989,100 @@
         },
         {
           "insert": ". Nest every step that repeats under it, and keep each step that runs once outside it."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-exit": {
+      "id": "po-wr-loops-exit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name what ends the loop: the collection after "
+        },
+        {
+          "insert": "For each",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the condition after "
+        },
+        {
+          "insert": "While",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or the exit after "
+        },
+        {
+          "insert": "until",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a "
+        },
+        {
+          "insert": "Repeat",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " step."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-phase": {
+      "id": "po-wr-loops-phase",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A phase that repeats opens its title with the loop keyword, such as \"For Each Kept File\". A note that says a phase repeats does not make it a loop."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source": {
+      "id": "po-wr-source",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Match the source"
+        }
+      ],
+      "children": [
+        "po-wr-source-1",
+        "po-wr-source-2"
+      ]
+    },
+    "po-wr-source-1": {
+      "id": "po-wr-source-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Take each step, trigger, count and order from the source files. Check each condition in the code before you write it as a trigger."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-2": {
+      "id": "po-wr-source-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a step for each early return, throw or skip that changes the path. Leave out a path that the source does not have."
         }
       ],
       "children": []
@@ -1057,6 +1195,73 @@
               },
               {
                 "text": "Retry the item once when the build fails"
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "po-wr-loop-example-intro": {
+      "id": "po-wr-loop-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A loop holds the steps that repeat, and each branch holds the steps that its trigger governs:"
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loop-example": {
+      "id": "po-wr-loop-example",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Drain One Epoch",
+            "steps": [
+              {
+                "text": "For Each Ready Item in the Epoch",
+                "steps": [
+                  {
+                    "text": "Spawn a `Worker` in an isolated worktree"
+                  },
+                  {
+                    "text": "Run the full build"
+                  },
+                  {
+                    "text": "When the build passes",
+                    "steps": [
+                      {
+                        "text": "Move the item to its authoritative lane"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "When the build fails",
+                    "steps": [
+                      {
+                        "text": "the failed worktree never changes the map",
+                        "kind": "note"
+                      },
+                      {
+                        "text": "Retry the item once"
+                      },
+                      {
+                        "text": "Mark the item blocked when the retry fails"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "text": "Close the Epoch",
+                "steps": [
+                  {
+                    "text": "Write the epoch report"
+                  }
+                ]
               }
             ]
           }
@@ -2875,211 +3080,6 @@
           "insert": "Structural operations insert, update, delete, or move the block. splitBlock and mergeBlocks do not apply because this block carries no delta text."
         }
       ],
-      "children": []
-    },
-    "po-wr-notes-action": {
-      "id": "po-wr-notes-action",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "A note never states an action that the code takes, such as a write, a skip or a report entry. That action is a step."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-notes-place": {
-      "id": "po-wr-notes-place",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Put a note directly under the step it explains. A note about a step with substeps is that step's first child, not a line after its last substep."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-branch-outcomes": {
-      "id": "po-wr-branch-outcomes",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Give each outcome its own branch step with its own trigger, such as \"When every step succeeds\" beside \"When a step throws\". Never show two exclusive outcomes as two steps in a row."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-branch-trigger": {
-      "id": "po-wr-branch-trigger",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "A step that runs only sometimes names its trigger in its own text or sits under its branch step. Never leave the trigger to a note."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-loops-exit": {
-      "id": "po-wr-loops-exit",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Name what ends the loop: the collection after "
-        },
-        {
-          "insert": "For each",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", the condition after "
-        },
-        {
-          "insert": "While",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", or the exit after "
-        },
-        {
-          "insert": "until",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in a "
-        },
-        {
-          "insert": "Repeat",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " step."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-loops-phase": {
-      "id": "po-wr-loops-phase",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "A phase that repeats opens its title with the loop keyword, such as \"For Each Kept File\". A note that says a phase repeats does not make it a loop."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-source-1": {
-      "id": "po-wr-source-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Take each step, trigger, count and order from the source files. Check each condition in the code before you write it as a trigger."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-source-2": {
-      "id": "po-wr-source-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Write a step for each early return, throw or skip that changes the path. Leave out a path that the source does not have."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-source": {
-      "id": "po-wr-source",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Match the source"
-        }
-      ],
-      "children": [
-        "po-wr-source-1",
-        "po-wr-source-2"
-      ]
-    },
-    "po-wr-loop-example-intro": {
-      "id": "po-wr-loop-example-intro",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A loop holds the steps that repeat, and each branch holds the steps that its trigger governs:"
-        }
-      ],
-      "children": []
-    },
-    "po-wr-loop-example": {
-      "id": "po-wr-loop-example",
-      "type": "process-outline",
-      "props": {
-        "steps": [
-          {
-            "text": "Drain One Epoch",
-            "steps": [
-              {
-                "text": "For Each Ready Item in the Epoch",
-                "steps": [
-                  {
-                    "text": "Spawn a `Worker` in an isolated worktree"
-                  },
-                  {
-                    "text": "Run the full build"
-                  },
-                  {
-                    "text": "When the build passes",
-                    "steps": [
-                      {
-                        "text": "Move the item to its authoritative lane"
-                      }
-                    ]
-                  },
-                  {
-                    "text": "When the build fails",
-                    "steps": [
-                      {
-                        "text": "the failed worktree never changes the map",
-                        "kind": "note"
-                      },
-                      {
-                        "text": "Retry the item once"
-                      },
-                      {
-                        "text": "Mark the item blocked when the retry fails"
-                      }
-                    ]
-                  }
-                ]
-              },
-              {
-                "text": "Close the Epoch",
-                "steps": [
-                  {
-                    "text": "Write the epoch report"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
       "children": []
     }
   }
