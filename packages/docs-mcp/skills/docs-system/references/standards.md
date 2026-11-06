@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -18,7 +18,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: paragraph, heading, list-item, callout, divider, image, image-grid, video, html, app-embed
 
-  Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+  Use paragraphs for explanation, headings for hierarchy, numbered lists for steps or any order, bullets for parallel facts with a code block or callout nested under the item it belongs to, and a callout for one fact in one or two sentences, titled only when the title adds a fact the body lacks. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
   Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -30,7 +30,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 
-  Example: Show the real validation function and annotate the branch that rejects an invalid write.
+  Example: Show the real validation function, verbatim, with each cut marked by a comment line, and annotate the branch that rejects an invalid write with why it rejects it and what the caller must do.
 
   Details: 10-system-design/40-block-vocabulary/20-code/10-code-block
 
@@ -38,7 +38,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: file-tree
 
-  Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Give a top-level folder a color to set its group apart.
+  Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Use colors only to set 2 or more groups apart, and say what each color marks.
 
   Example: Show the service entry point, skills directory, and generated references with a note for each.
 
@@ -58,7 +58,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: interaction-surface
 
-  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Action changes state, Query reads state, and Event describes observation or notification. Each operation is one collapsed row. Hovering its name shows the kind and purpose, and opening it shows Parameters and Returns cards. Use returnShape with recursive fields and a JSON example for known object returns; keep returns for its name or a primitive type. Add exampleCall with the code text of one real example invocation (authored values, never invented). Document callback payloads separately from subscription return values. Describe only non-obvious constraints or behavior. Pair it with State Shape. Use Sequence when the question concerns ordering between participants.
+  Use Interaction Surface to describe the actions, queries, and events available on a state or system, including parameters and return values. Each operation is one collapsed row that shows its name, return type and kind. Hovering its name shows the purpose, and opening it shows Parameters and Returns cards. Pair it with State Shape. Use Sequence when the question concerns ordering between participants. Write each operation to these rules. (1) Name it by the call a caller writes, receiver.method, such as DraftLockStore.acquire. For one action of a reducer that takes a tagged union, name the operation by its real call with the type literal, such as docPeekReducer(state, { type: "open" }). Its params are state and action, with the action fields nested under action and type typed as its literal. Set returns to the state the reducer returns. (2) Set kind on every operation. Query is only for an operation that changes nothing. An operation that creates, renews, deletes or prunes anything, even expired entries as a side effect, is an action. Event is a notification delivered to a listener: document its callback payload apart from the subscription return value. (3) List every parameter the signature takes in params, with its type, required: false when optional, and nested fields. Describe each parameter whose name and type do not tell a caller what to pass. (4) Give every operation an exampleCall: real code that calls it with literal values and uses no variable it does not set. For a reducer action, call the reducer with a concrete state and action object. Pass every argument that fixes the result, such as a now date. (5) Name each param and returned field by its real key, and nest fields only under an object type. For an object return, use returnShape with recursive fields and an example that is the exact result of that exampleCall. Keep returns for the type name or a primitive type. For a union keyed on one field, set returns to the union, type the key field with its literal values (true | false), and start each branch-only field description with its branch, such as Only when ok is true. (6) When the examples of one surface share state, write them as one scenario in call order, and state the starting state in the prose above the block. (7) In descriptions, state each rule, limit and refusal itself, never only the name of an internal helper that checks it. Give each refusal, including a guard on the mode or environment such as a read-only check, and each side effect in the description of every operation that has it. Omit text that only repeats a name or type.
 
   Example: Document openDocument, applyOperations, and checkDocument with their parameters and results.
 
@@ -68,7 +68,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: state-shape
 
-  Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it.
+  Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it. Give every field a description, and make each one add a fact that its name, type and optional marker do not say: a format or unit, a constraint, a default, what an omitted or null value means, or which code sets or reads it. For example, describe retryAfterMs as "Wait before the next try, in milliseconds. 0 retries at once.", not "The retry delay". Start a description with its fact, not with a phrase that only names the field again, such as "Free text for the row." or "Time the service started". When the source gives no such fact, say what the field holds in words that the name does not already use. When a type is a named alias of a few values, such as a color or status type, list the allowed values in the description. Every fact in a description must be one the source states. Put a code name or a literal value in a description in backticks, such as `daemonFetch` or `""`, so it renders as code. Copy each type as the source writes it, with readonly, null and undefined kept. Mark each optional field with required: false. The block prints a legend that says which fields are required, so the prose around it does not repeat that. Keep each made-up example value short enough for one line of the example pane, about 30 characters, such as a 12-character token or a three-part path. Copy a real value from the source as it is. Make the JSON example a real instance: every required field, each nested object and array filled in, and no key the field tree does not list.
 
   Example: Define an edit task with its project, revision, and status, then show one valid task instance.
 
@@ -98,7 +98,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: process-outline
 
-  Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace. Phases are short Title Case labels, and so is the root title. Substeps are sentence case actions.
+  Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace. Phases are short Title Case labels, and so is the root title. Substeps are sentence case actions. A loop or a branch is a parent step that opens with its keyword (For each, While, If, When, On failure) and holds every step it governs. A path that returns early is its own branch step, never the step before the main path. A note gives a reason, a limit or a result, never an action.
 
   Example: Outline discovery, guidance loading, editing, validation, and completion, with failure notes where needed.
 
@@ -108,7 +108,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: stack
 
-  Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
+  Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Draw a uses arrow when a source shows or states that the node imports or calls its next sibling, such as an import line or a call in a function body. A type that a layer only takes as a parameter is not a call. When the sources state a rule but no import or call, such as a path check that a value must pass, draw no arrow and write the rule as a boundary. Give each line between two sibling layers a boundary when the sources hold a rule for it. A boundary states a restriction or a required interface, such as "docs-viewer never imports host-app code" or "data enters only through `DocsClient`". It never describes what a layer outputs. Put each rule beneath the layer whose code enforces it. Name the check, the function that runs it, and what a refused value becomes. Name each exception the source makes, such as the tools that skip the check. A rule never only names a kind of check, such as "Lexical checks". Give each detail a fact that the name, the arrow label and the rule do not state. Write it as segments split by ` · `: the layer's file path first when it has one, then the exports that the layer above calls. A badge is one role word that is not in the name, such as `pure` or `host`. Put a file path in the detail, never in the badge. Wrap each code name in a detail or a rule in backticks, such as `checkDocsPath`, so the stack sets it in the code face. Give a leaf a color only when the page says what the color marks. When a layer also imports or calls a layer further down, say so in its detail and in the prose next to the stack. Keep the layer count in the prose equal to the nodes the stack draws. Use Canvas instead when the picture needs free placement or arbitrary edges.
 
   Example: Show the package layering: host apps above the docs framework, docs-model nested as the pure layer, and the import rule between each layer.
 
@@ -118,7 +118,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: call-stack
 
-  Use Call Stack to show which function calls which on one code path, with the file and line each frame lives at. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
+  Use Call Stack to show which function calls which on one code path, with the file and line where each call is written. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
 
   Example: Trace docs_apply_ops from the tool handler down to the atomic file write, marking the frames this change added.
 
@@ -128,7 +128,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: component-tree
 
-  Use Component Tree to show which component renders which, and the hooks each one calls. Write each node as JSX or a hook call. Use Call Stack for plain function calls.
+  Use Component Tree to show which component renders which. Write each row as a rendered JSX element or a branch. Add a hook row only when the page is about that hook, and never for useMemo or useCallback. Name other hooks in prose or pseudocode. Use Call Stack for plain function calls.
 
   Example: Show the doc page render tree from DocPage down to the code block, marking the hook this change added.
 
@@ -138,7 +138,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: pseudocode
 
-  Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
+  Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Write each step in plain words, such as equals, is empty, and, or, and "add 1 to", never ===, &&, ??, ?., += or an object literal. Start each step with its control word, such as if, skip, return or leave, or with an action verb the viewer colors: set, add, append, insert, remove, delete, replace, move, push, pop, sort, split, join, mark, record, read, write, parse, build, create, update, call, check or make. Keep a line to about 70 characters. Keep the source's function and field names and its order of branches, loops, calls, and returns. Give each trailing // comment a reason in about 40 characters. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
 
   Example: Sketch how the renderer builds header rows, marking the line this change removes.
 
@@ -148,7 +148,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
   Block types: file-explorer
 
-  Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a badge per changed file. Use File Tree for a plain tree listing of a layout.
+  Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a +, −, ~ or > gutter glyph per changed file. Use File Tree for a plain tree listing of a layout.
 
   Example: Show the files the file-tree refactor added, modified and renamed, with a note on the two that matter.
 
@@ -273,9 +273,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
     │   ├── 10-structure/  # children start at 10
     │   ├── 20-numbering/  # siblings continue 20-, 30-, 40-…
     │   └── 25-new-standard/  # ← a mid-gap insertion lands here; nothing renumbers (hypothetical)
-    └── 40-block-vocabulary/
-        └── 10-text-and-media/
-            └── 10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
+    └── 40-block-vocabulary/10-text-and-media/10-rich-text/  # the named deviation: type pages run 10–17 dense, one family as a unit
     20-agents/  # participating agents and their definitions
     30-implementation/  # the current code: design mapping and implementation choices
     ```
@@ -763,7 +761,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - page-structure/rules.ts registers rule folders with checks and tests derived from Structure.
 
-      - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, and label-colon openers.
+      - The rules inspect the opening paragraph and its length, heading levels and Title Case, and image alt text. They also inspect list nesting, list length, list-item sentences, label-colon openers, lone label bullets, and numbered lists that a block splits.
 
     - **Layout Rules**
 
@@ -819,7 +817,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - Write results list up to 5 `style_findings` that the write introduced or that sit on blocks it touched. `style_gate_open` counts the gated violations the task still has open on the page.
 
-      - Judgment Rules findings at 0.85 or higher on blocks the task changed also enter `style_gate`.
+      - Findings from gated Judgment Rules at 0.85 or higher on blocks the task changed also enter `style_gate`.
 
     - **Required Repairs**
 
@@ -837,9 +835,11 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
     The executable catalog is the source for exact applicability and exclusions. These checks cover only part of the corpus guidance.
 
-    - **Writing Error**
+    - **Writing Errors**
 
       - writing.no-em-dash flags em dashes in authored prose and descriptive metadata. It enforces completion and respects the writing exclusions above.
+
+      - `writing.literal-backticks` flags a backtick pair in the plain text of a paragraph, heading, list item, or callout, because the reader sees delta text as typed. The fix is a span with the code mark, which `docs_write_text` makes from markdown.
 
     - **Writing Warnings**
 
@@ -850,6 +850,8 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
       - writing.semicolon flags a semicolon in authored prose. Semicolons in code spans, URLs, and HTML entities are literal and do not count.
 
       - writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought.
+
+      - `writing.mixed-literal-marks` flags a sentence that puts one literal in code and another of 3 words or fewer in double quotes, such as one that replaces `in order to` with `"to"`. When a task adds such a sentence, `docs_check` with its `task_id` fails until the task gives both literals the code mark.
 
     - **Page Structure Warnings**
 
@@ -877,6 +879,14 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - structure.label-colon-opener flags text that opens with a short label and a colon, or a short lead-in that ends in a colon. A plain label has up to three words and a bold label up to five.
 
+      - structure.lone-label-parent flags label bullets that stand in for headings. It flags a list whose only bullet is a short label over 2 or more list items, and a list of 2 or more label groups with no lead paragraph before it. The items move up under the lead, or each label becomes an h3 heading.
+
+      - structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as "1.", so the block moves into the children of the step above it.
+
+        - `structure.sequence-bullets` flags a bullet run whose later item opens with an order word, such as "Then read" after "Start with". The run becomes a numbered list. docs_check fails until the task fixes it.
+
+        - `structure.split-bullet-list` flags a code block or callout between two bullets under one parent. The block moves into the children of the bullet above it, so the list stays whole.
+
     - **Component and Asset Checks**
 
       - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
@@ -893,11 +903,43 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
         - Each warning names the step field, such as `props.steps[0].steps[1].text`, and its suggestion carries the Title Case text.
 
+      - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
+
+      - `structure.callout-focus` flags a callout title that opens with its tone word, such as "Decided:" under the Decision label, and a title whose topic words mostly repeat the body's first sentence. It also flags a callout body of more than 2 sentences. docs_check fails until the task fixes it.
+
+      - code.language flags a code block with no language.
+
+        - The page shows such a block as plain text with no language label.
+
+        - Set the language to the file's language, or to text for plain output.
+
+        - docs_check fails until the task fixes it.
+
+      - code.annotation-range flags a code annotation whose lines key does not parse, covers no line, or reaches past the listing's last line. The reader cannot pair such a note with its code. docs_check fails until the task fixes it.
+
+      - pseudocode.code-syntax flags an operator such as === or ??, an object literal, or an index such as [part.name] in a pseudocode line, outside its strings and comment. The message gives the plain words for each one, such as "does not equal" for !==. docs_check fails until the task fixes it.
+
+      - `component-tree.bare-ellipsis` flags a component or hook row with a `…` outside braces and quotes, such as `<Pane settings={settings} …>`.
+
+        - The row reads as broken JSX. The writer drops those props with no marker and writes an omitted value as `{…}`.
+
+        - It is a warning with no enforcement phase, so it never blocks a save or `docs_check`.
+
+      - interaction-surface.example-missing flags an operation with no exampleCall, and a returnShape that lists fields but has no example. docs_check fails until the task adds them.
+
+      - interaction-surface.field-shape flags a param or returned field whose name has a space or a colon outside quotes, such as "open: true". It also flags nested fields under a primitive or literal type. docs_check fails until the task fixes them.
+
+      - `stack.badge-repeats-name` flags a stack node whose badge holds only words of the node name, such as `host` on "Host app". The badge draws as the card's role word, so it must name a role that the name does not state.
+
       - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
     - **Layout Warnings**
 
-      - `layout.code-line-width` flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column.
+      - `layout.code-line-width` flags a code line wider than the code panel shows.
+
+        - The read page wraps such a line, and the edit panel scrolls it sideways.
+
+        - At stock settings the panel shows 118 columns, with or without notes, because notes move under their lines when the code needs the width.
 
         - The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns.
 
@@ -921,11 +963,13 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - `judgment.join-test` asks whether a paragraph and the list right after it fail to read as prose.
 
+      - `judgment.callout-message` is gated and asks whether a callout carries one message whose force fits its printed label. It reports a second, unrelated message, and a label that does not fit the message, such as a plain fact under a warning label.
+
     - **Thresholds**
 
-      - Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test.
+      - Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, and 0.6 for callout-message.
 
-      - `docs_check` with `task_id` blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block.
+      - `docs_check` with `task_id` blocks on a gated rule only at 0.85 or higher. A finding the task's baseline already had on the same block does not block.
 
     - **Failure and the Kill Switch**
 
@@ -957,6 +1001,10 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - The first sentence of a doc or section states the thing itself. No setup, no "the idea here is".
 
+      - A lead sentence states a fact that its list supports. Never write a lead that only says a list follows, such as "These rules apply."
+
+      - An opening that names the page's sections names them in the order the headings use. Leave the sections out when the headings already show them.
+
     - One idea per sentence, one topic per block.
 
       - A plain lead sentence plus fact bullets beats a paragraph of prose.
@@ -969,7 +1017,11 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - Start at the answer. Stop when it is stated.
 
-      - Tangents move to their own home and get a link, not a sidebar.
+      - Write only what the page's task asks for. A tangent or a related task, such as undoing or maintaining what the page sets up, moves to its own page and gets a link.
+
+      - Cut a section, a sentence, or a rule that the task does not ask for, even when it is true. A list never repeats a step that the page already gives.
+
+        - Read every branch, then write the ones the reader can hit or must act on: an error they can see, an option they can pass, a limit they can reach. A retry count, a fallback id format, a helper's internal steps, or a plugin list stays in the source unless the task asks how the code works inside.
 
     - Assume no memory.
 
@@ -978,6 +1030,52 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
     - Present-state prose.
 
       - A finished doc describes what exists now. No change-log voice ("now", "previously", "no longer") unless the doc is explicitly about migration history.
+
+    ## Match the Source
+
+    A reader acts on what the page says, so each claim must hold in the code or document it describes. Check these five faults against the source before you finish a page.
+
+    - A list of rules, routes, status codes, error causes, options, or files names every item the source has, and a complete list never calls itself partial.
+
+      - Read each file before you say what it holds, even when only an import names it.
+
+      - Leave items out only when the task does not ask for the whole set. Then say how many you leave out and name the file that holds them.
+
+    - A claim says only what the code checks. Before you write a guarantee, a failure result, or a cause, find the line that makes it true.
+
+      - A guarantee names the check behind it. Write "loadConfig rejects a file with an unknown key", not "loadConfig keeps the config valid", when no check covers the other fields.
+
+      - A claim about what code does names the function that does it, in inline code. When the reader reaches that code through a command, such as doctor or install, name the command, not the function behind it.
+
+        - Before you write the claim, read that function's whole body. An early return, a thrown error, a guard for a missing value, a check for a repeated value, or a branch for another mode can change the claim.
+
+        - A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses. A call-stack row writes `layout?.width` for a missing layout, and a pseudocode line writes "the width of the layout, if there is one".
+
+        - A fix you tell the reader to make passes every check in the code that refused.
+
+      - A failure result names the failures it covers. Write "A save that fails the hash check leaves the file unchanged", not "A failed save leaves the file unchanged", when a later step can fail after the write.
+
+      - A status or error names every cause that sets it. Write "A cache miss means the key was never set, expired, or was evicted", not "A cache miss means the key expired".
+
+      - Write "every", "all", "only", "never", "nothing", or "always" when a line of the source proves it. Otherwise name the condition, as in "every existing file" or "the planning checks".
+
+    - A choice the page offers holds through every later step the reader runs. Before you offer an option, a fix, or a partial path, follow it through each later step on the page.
+
+      - Say what each later step does when the reader takes the choice. Write "`lint` checks every package, so after `build --only api` it reports `web` as stale", not only "Pass `--only` to build fewer packages".
+
+      - A rule that keeps, removes, or allows a set names each case the source treats another way. Write "keeps every other key except a legacy entry it wrote", not "keeps every other key", when the source removes that entry.
+
+    - A condition, exception, or option you add leaves each sentence it changes with one reading. Add it by rewriting the sentence, not by appending a clause or a step.
+
+      - Rewrite the title, heading, or lead that the exception narrows, so it still holds. Title a warning "Validation errors write nothing", not "Errors write nothing", when its body names an error after the write.
+
+      - Give each result its own condition. Write "`load` returns null when the file is missing, and `parse` throws when it is empty", not "When the file is missing or empty, `load` returns null and `parse` throws".
+
+      - Write an alternative with "or", in the step it replaces. Write "Run `deploy`, or for a dry run, run `deploy --plan`", not a step "Run `deploy`" followed by "For a dry run, pass `--plan` first".
+
+    - A code example runs as written when a reader copies it. Two commands in one block never write the same file, and each placeholder is marked as a placeholder.
+
+      - Put a command in a code block only when the reader runs it and no other block on the page shows it. Show each command once: a code block never repeats the commands that a process outline, a numbered step, or a table on the page already shows whole.
 
     ## Write Sentences to the Reader
 
@@ -1046,6 +1144,10 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
       - Use "start" consistently instead of alternating with "initiate". Avoid ambiguous words ending in "-ing" when a direct verb is clearer.
 
       - Avoid idioms, Latin abbreviations, and figurative language. Preserve precise technical terms and literal code syntax.
+
+      - Define each term where the page first uses it, in plain words or with a link. A phrase you build from a code name is a term too. Write "the retry budget, the number of retries left before `send` gives up", not only "the retry budget", for `retryBudget`.
+
+      - Name the unit that a count, a length, or an offset uses in the code. JavaScript `length` and `slice` count UTF-16 code units, so write "UTF-16 code units" there, not "characters".
 
     ## Use Punctuation and Formatting Deliberately
 
@@ -1219,7 +1321,7 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
     - **Separate the Lead From Its Gloss**
 
-      - Put a bold label, a link, or a short phrase in the parent bullet. Put supporting facts in sub-bullets.
+      - Put a bold label, a link, or a short phrase in a parent bullet that has 3 or more facts in sub-bullets. Write 1 or 2 facts as plain bullets, and name a section of the page with a heading, not a bullet.
 
       - Nest a second independent idea instead of packing the line. Never split one thought into fragments to manufacture nesting.
 
@@ -1227,9 +1329,19 @@ Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d
 
       - Writing before a table or state-shape orients the reader. Bullets that restate its rows are duplication that will drift.
 
+      - A structured block draws only what the source does. A step that returns early is a branch, an arrow is a real import or call, and a count in the prose equals the count in the block.
+
     - **Number Sequential Actions**
 
-      - Use a numbered list for multi-step work, with one bounded action per step.
+      - Use a numbered list for multi-step work, with one bounded action per step through the last action.
+
+        - A child item of a step adds detail to that step only. A later action, such as the closing call, is the next numbered step.
+
+        - Bullets that open with order words, such as "Start with" and "Then", are a sequence. Number them.
+
+      - A code block, note, or callout that belongs to a step is a child of that step. It renders inside the step, and the next step keeps its number. Between two steps, it restarts the numbering at 1.
+
+      - A numbered procedure holds only the steps of its one task, in order. A step that applies only after a later change, such as a rebuild or an undo, goes after the procedure under its own heading.
 
       - Lists cap at about five items. Split or rank longer lists.
 

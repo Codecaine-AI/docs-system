@@ -1,8 +1,8 @@
 # rich-text
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
 
-Use paragraphs for explanation, headings for hierarchy, lists for steps or parallel facts, and callouts for a distinct note. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
+Use paragraphs for explanation, headings for hierarchy, numbered lists for steps or any order, bullets for parallel facts with a code block or callout nested under the item it belongs to, and a callout for one fact in one or two sentences, titled only when the title adds a fact the body lacks. Use a checklist, list items with checked set, to track open and done work, such as an install checklist or a release checklist. Do not use it for plain facts or for steps nobody ticks off. Tick an item with docs_list_item_set_checked. Use images and video when the visual evidence matters. Use image-grid for ordered image comparisons: images contain src, heading?, alt?, caption?; columns is auto or 1 to 4. Rows grow with the image count. This component accepts images only, not text columns. Use html for a self-contained HTML/CSS diagram or interactive artifact; supply title and html props, inline styles and data assets. Scripts require allowScripts=true and stay in an opaque-origin sandbox with fetch and external subresources blocked. Use app-embed for a live view of an app a codebase declares: supply app, plus view, params, title, height (240 to 2000, default 480) and a poster image as needed. The host resolves the reference to a URL, the reader presses Start, and the app runs in a sandboxed iframe. Hosts without the app show an unavailable note. Use code for examples readers should read instead of execute. Use typed components for state, operations, tables, and diagrams.
 
 Example: Introduce the retry policy in prose, list the recovery steps, and link to the operation definition.
 
@@ -26,7 +26,11 @@ When creating or revising a worked component example, show the relevant state sh
 
 - callout
 
-  - Toned admonition with a tone icon, a printed label, and an optional title. `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants currently render the same rail note.
+  - Toned admonition with a tone icon, a printed label, and an optional title.
+
+    - `props.tone` accepts only `info` (default), `decision`, `risk`, `warning`, or `success`.
+
+    - `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants render the same rail note.
 
 - divider
 
@@ -169,7 +173,7 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 The rich-text types have one typed action, `list-item.setChecked`, which sets a list item's task state. Task state is the exception to the rule that scalar props change through `updateBlock`, because agents look for a named verb to tick a box. The action returns a props patch, so `updateBlock` with `props.checked` has the same result. Every other rich-text edit uses the generic block ops and delta text edits.
 
 ```
-list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
+[action] list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
   checked: boolean  # A true value marks the task done (- [x]), and false marks it open (- [ ]).
   Example call:
     list-item.setChecked({

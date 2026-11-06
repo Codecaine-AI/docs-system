@@ -1,6 +1,6 @@
 # sequence
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
 
 Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior. Verify the sequence against source or trace evidence.
 
@@ -74,9 +74,9 @@ Three actions are lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_
 **sequence forwarded patch operations**
 
 ```
-sequence.setProgram(program: string) -> forwarded to the sequence authority  # Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.
-sequence.setStyle(style: SequenceStylePatch) -> forwarded to the sequence authority  # Deep-merge visual style one level: element groups (surface, participant, lifeline, message, activation, fragment, note) merge per-field; null clears a field or a whole group; omitted fields are preserved.
-sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set the document title without changing structure or style.
+[action] sequence.setProgram(program: string) -> forwarded to the sequence authority  # Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.
+[action] sequence.setStyle(style: SequenceStylePatch) -> forwarded to the sequence authority  # Deep-merge visual style one level: element groups (surface, participant, lifeline, message, activation, fragment, note) merge per-field; null clears a field or a whole group; omitted fields are preserved.
+[action] sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set the document title without changing structure or style.
 ```
 
 `applySequenceOperations` in the engine gives each verb its semantics:
