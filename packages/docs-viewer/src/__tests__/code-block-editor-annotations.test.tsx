@@ -37,7 +37,7 @@ function hasClasses(element: Element, classes: string): boolean {
 }
 
 /** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bar. */
-const RESTING_MARK = "after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
+const RESTING_MARK = "after:border-[color:var(--docs-code-annotation-accent,#0b6e99)]/65";
 
 describe("parseCodeAnnotations", () => {
   it("accepts well-formed entries and preserves optional labels", () => {
