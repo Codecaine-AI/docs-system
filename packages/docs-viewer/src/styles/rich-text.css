@@ -22,12 +22,13 @@
 }
 
 /*
- * A callout inside a list item sits one small step from the item text above
- * it and from the next item below it, so the list keeps its rhythm. At the
- * page level it keeps --docs-callout-margin.
+ * A callout inside a list item sits one small step below the item text, and
+ * the item's own margin spaces it from the next item, so the gap above the
+ * callout matches the gap below it. At the page level it keeps
+ * --docs-callout-margin.
  */
 .docs-markdown [role="listitem"] [data-docs-block-type="callout"] {
-  margin-block: var(--ds-space-2);
+  margin-block: var(--ds-space-2) 0;
 }
 
 /*
