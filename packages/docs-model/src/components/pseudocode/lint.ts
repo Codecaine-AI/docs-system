@@ -53,22 +53,20 @@ export const pseudocodeCodeSyntaxRule: LintRule = {
       if (block.type !== "pseudocode") return [];
       const diff = block.props.diff === true;
       const text = (block.text ?? []).map((span) => span.insert).join("");
-      const hits = text.split("\n").flatMap((raw, index) => {
+      // One finding per line, with the line's text as its evidence: the baseline matches each line on its own, so a
+      // task that adds a flagged line to a block that already has some still fails docs_check.
+      return text.split("\n").flatMap((raw, index) => {
         const line = diff ? raw.slice(1) : raw;
         const found = pseudocodeSyntaxIn(line);
-        return found.length ? [{ number: index + 1, line: line.trim(), found }] : [];
+        if (found.length === 0) return [];
+        const fixes = CODE_SYNTAX.filter((s) => found.includes(s.label)).map((s) => `Write ${s.label} as ${s.words}.`).join(" ");
+        return [{
+          blockId: block.id,
+          field: "text",
+          evidence: line.trim(),
+          message: `Line ${index + 1} uses source-language syntax, so a reader must know the source language to follow the step. ${fixes}`,
+        }];
       });
-      if (hits.length === 0) return [];
-      const labels = [...new Set(hits.flatMap((h) => h.found))];
-      const fixes = CODE_SYNTAX.filter((s) => labels.includes(s.label)).map((s) => `Write ${s.label} as ${s.words}.`).join(" ");
-      const numbers = hits.map((h) => h.number);
-      const where = numbers.length === 1 ? `Line ${numbers[0]} uses` : `Lines ${numbers.slice(0, -1).join(", ")} and ${numbers.at(-1)} use`;
-      return [{
-        blockId: block.id,
-        field: "text",
-        evidence: hits.slice(0, 3).map((h) => `line ${h.number}: ${h.line}`).join(" | "),
-        message: `${where} source-language syntax, so a reader must know the source language to follow the steps. ${fixes}`,
-      }];
     });
   },
 };
