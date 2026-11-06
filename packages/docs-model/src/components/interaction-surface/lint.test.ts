@@ -38,3 +38,21 @@ test("flags an operation with no exampleCall, and returned fields with no exampl
     { name: "store.clear", exampleCall: "store.clear()", returnShape: { fields: [] } },
   )).toEqual(["props.operations[1].exampleCall", "props.operations[2].returnShape.example"]);
 });
+
+const shapes = (fields: Record<string, unknown>[]) => lintDocument(document(paragraph("intro", "The reducer takes these actions."), {
+  id: "surface", type: "interaction-surface", props: { operations: [{ name: "reduce", exampleCall: "reduce(s, a)", returnShape: { fields, example: "{}" } }] }, children: [],
+}), { phase: "complete" }).findings.filter((finding) => finding.ruleId === "interaction-surface.field-shape").map((finding) => finding.field);
+
+test("flags a made-up branch field and fields nested under a primitive or literal type", () => {
+  expect(shapes([
+    { name: "open: true", fields: [{ name: "ref", type: "SpectreRef" }] },
+    { name: "unchanged state", type: "DocPeekState" },
+    { name: "ok", type: "true", fields: [{ name: "lock", type: "DraftLockInfo" }] },
+    { name: "load", type: "object", fields: [{ name: "status", type: "\"loaded\" | \"error\"" }, { name: "\"content-type\"", type: "string" }] },
+    { name: "items[]", type: "Item[]", fields: [{ name: "id", type: "string" }] },
+  ])).toEqual([
+    "props.operations[0].returnShape.fields[0].name",
+    "props.operations[0].returnShape.fields[1].name",
+    "props.operations[0].returnShape.fields[2].fields",
+  ]);
+});
