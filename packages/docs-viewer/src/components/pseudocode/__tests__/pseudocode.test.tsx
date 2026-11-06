@@ -37,13 +37,13 @@ const PSEUDO = [
 ].join("\n");
 
 describe("pseudocode block", () => {
-  it("hangs a wrapped line's continuation 2ch past that line's own indent", () => {
+  it("hangs a wrapped line's continuation 4ch past that line's own indent, twice the nesting step", () => {
     renderPseudocode("render(block)\n    return lane div(data-doc-lane = docBlockLaneName(layout), class = classes(layout))");
     const rows = [...document.querySelectorAll<HTMLElement>(".docs-pseudo-row")];
     // Each row carries its indent, so its wrapped text hangs under its own code, not at the left edge.
     expect(rows.map((row) => row.style.getPropertyValue("--docs-pseudo-indent"))).toEqual(["0ch", "4ch"]);
     const css = readFileSync(new URL("../../../styles/code.css", import.meta.url), "utf8");
-    expect(css).toContain("--docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));");
+    expect(css).toContain("--docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-pseudo-continuation, 4ch));");
     expect(css).toContain("padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));\n  text-indent: calc(-1 * var(--docs-pseudo-hang));");
   });
 

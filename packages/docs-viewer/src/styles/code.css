@@ -298,7 +298,7 @@
 }
 
 .docs-pseudo-row {
-  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
+  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-pseudo-continuation, 4ch));
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -316,9 +316,10 @@
 }
 
 /*
- * A line longer than the code column wraps, and its continuation hangs 2ch
- * past the line's own indent (--docs-pseudo-indent, set per row), so a reader
- * sees one statement, not a new line at the left edge.
+ * A line longer than the code column wraps, and its continuation hangs 4ch
+ * past the line's own indent (--docs-pseudo-indent, set per row): twice the
+ * 2-space nesting step, so a reader sees one statement, not a nested step or
+ * a new line at the left edge.
  */
 .docs-pseudo-code {
   min-width: 0;
@@ -333,8 +334,13 @@
   padding-right: var(--docs-code-pad-x, var(--ds-space-3));
 }
 
-/* The comment column keeps the .hljs-comment color and font style. */
+/*
+ * The comment column keeps the .hljs-comment hue and font style, mixed a
+ * quarter of the way toward the code text so a comment's reason reads as
+ * easily as its step.
+ */
 .docs-pseudo-comment {
+  color: color-mix(in srgb, var(--syntax-comment, var(--docs-text-tertiary)) 75%, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))));
   min-width: 0;
   padding: 0 var(--docs-code-pad-x, var(--ds-space-3)) 0 4ch;
   white-space: pre-wrap;
