@@ -77,6 +77,10 @@ test("a saved lane reply is reused only while the criteria ids and questions are
   const { [criteria[0]!.id]: _dropped, ...rest } = scored.criteria;
   await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify({ ...scored, criteria: rest }));
   expect(await cachedLaneReply(dir, "fake", 1, criteria)).toBeNull();
+  // A reply that lacks a page category fails the lane reply schema, so it is judged again.
+  const { accuracy: _noCategory, ...categories } = scored.categories;
+  await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify({ ...scored, categories }));
+  expect(await cachedLaneReply(dir, "fake", 1, criteria)).toBeNull();
   // A reply saved before the hash existed is judged again.
   await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify(scored));
   await rm(criteriaFile(dir, "fake", 1));

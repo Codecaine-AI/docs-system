@@ -271,6 +271,12 @@ describe("lane gate", () => {
     expect(gate(round(7.79), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb" }, { set: "held-out" }] });
   });
 
+  test("the page-category guard fails a category whose mean is not a number", () => {
+    const baseline = gate(both("sol"), ["sol"]).scores;
+    const broken = both("sol").map((p) => ({ ...p, samples: p.samples.map((s) => ({ ...s, categories: { ...s.categories, craft: undefined as unknown as number } })) }));
+    expect(gate(broken, ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb", text: "sol climb craft: mean is not a number" }, { set: "held-out" }] });
+  });
+
   test("the page-category guard fails a drop of 0.50625 over 8 two-sample pages, which rounding to hundredths would hide", () => {
     // Baseline page medians: seven 9.0 and one 9.1, mean 9.0125. Current: seven 8.5 and one 8.55 (median of 8.5 and 8.6), mean 8.50625.
     const page = (set: BriefSet, id: number, structure: [number, number]): LanePageScore => ({

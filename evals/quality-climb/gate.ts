@@ -271,7 +271,10 @@ export function categoryGuard(current: LaneScores, baseline: LaneScores | null):
     for (const c of PAGE_CATEGORIES) {
       // A float tolerance, not rounding: 8.3 - 7.8 is 0.5000000000000009 and must pass, but a mean can hold more than
       // two decimals (9.0125 - 8.50625 = 0.50625), and rounding would hide that excess drop.
-      const drop = before.categories[c].mean - now.categories[c].mean;
+      const [was, is] = [before.categories[c].mean, now.categories[c].mean];
+      // NaN fails every comparison, so a category no sample scored would pass the drop check below.
+      if (!Number.isFinite(was) || !Number.isFinite(is)) { items.push({ set, text: `${judge} ${set} ${c}: mean is not a number` }); continue; }
+      const drop = was - is;
       if (drop > CATEGORY_DROP + DROP_TOLERANCE) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
     }
   }

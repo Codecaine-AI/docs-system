@@ -288,13 +288,16 @@ export async function judgeLanePage(judge: string, packet: LanePacket, pageDir: 
 
 /**
  * A saved lane reply, or null when it must be judged again: no score file, a criteria hash that is missing or names
- * other ids or questions, or scores for other criterion ids than `criteria`.
+ * other ids or questions, a reply that fails the lane reply schema, or scores for other criterion ids than `criteria`.
  */
 export async function cachedLaneReply(pageDir: string, judge: string, sample: number, criteria: Criterion[]): Promise<LaneReply | null> {
   const file = scoreFile(pageDir, judge, sample);
   const hash = await readFile(criteriaFile(pageDir, judge, sample), "utf8").catch(() => null);
   if (!existsSync(file) || hash !== criteriaHash(criteria)) return null;
-  const reply = JSON.parse(await readFile(file, "utf8")) as LaneReply;
+  // The full reply schema, not only the criterion ids: a reply that lacks a category would give a NaN category mean.
+  const parsed = parseLaneReply(await readFile(file, "utf8"), criteria);
+  if (!parsed.ok) return null;
+  const reply = parsed.reply;
   const scored = Object.keys(reply.criteria ?? {}).sort();
   const ids = criteria.map((c) => c.id).sort();
   return scored.length === ids.length && scored.every((id, i) => id === ids[i]) ? reply : null;
