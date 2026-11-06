@@ -249,7 +249,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Say each fallback that an input can reach in words, such as \"add 1 to the count for the name, which starts at 0\" or \"the usage of the result, or an empty usage when the result or its usage is missing\". Leave out only a fallback that no input reaches, such as a default start for a regex match."
+          "insert": "Say each fallback that an input can reach in words, such as \"add 1 to the count for the name, which starts at 0\". Leave out only a fallback that no input reaches, such as a default start for a regex match."
         }
       ],
       "children": []
@@ -373,7 +373,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep a line to about 70 characters, so it does not wrap. Split a long condition into a named step, such as \"quoted = the word is inside quotes\"."
+          "insert": "Keep a step to about 70 characters by splitting a long condition into a named step, such as \"set quoted to whether the word is inside quotes\". Never continue one step on the next line, because an indented line reads as a nested step."
         }
       ],
       "children": []
