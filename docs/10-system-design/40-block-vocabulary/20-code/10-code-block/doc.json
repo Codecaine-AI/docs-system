@@ -281,7 +281,32 @@
           }
         },
         {
-          "insert": ". Two parts of a file must never touch without a cut marker."
+          "insert": "."
+        }
+      ],
+      "children": [
+        "b-code-write-scope-b-1",
+        "b-code-write-scope-b-2"
+      ]
+    },
+    "b-code-write-scope-b-1": {
+      "id": "b-code-write-scope-b-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Two parts of a file must never touch without a cut marker."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-scope-b-2": {
+      "id": "b-code-write-scope-b-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A format with no comment syntax, such as JSON, has no cut marker. Show each part you need as its own code block."
         }
       ],
       "children": []

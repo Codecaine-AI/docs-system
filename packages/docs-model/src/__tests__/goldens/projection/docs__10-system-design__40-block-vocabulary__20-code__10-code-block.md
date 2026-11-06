@@ -18,7 +18,11 @@ A listing is evidence. A reader checks each line against the source file and eac
 
   - Cut each whole function, handler or branch that no note and no sentence on the page uses. Never cut inside a statement, and keep the opening and closing lines of each construct you show.
 
-  - Mark each cut with one comment line in the listing's language at the place of the cut, such as `// ... 64 lines: issuePath and schemaIssues`. Two parts of a file must never touch without a cut marker.
+  - Mark each cut with one comment line in the listing's language at the place of the cut, such as `// ... 64 lines: issuePath and schemaIssues`.
+
+    - Two parts of a file must never touch without a cut marker.
+
+    - A format with no comment syntax, such as JSON, has no cut marker. Show each part you need as its own code block.
 
   - A line wider than about 95 columns wraps in the panel, so cut each long line the point does not need, such as a doc comment that no note discusses.
 

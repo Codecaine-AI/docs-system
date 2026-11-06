@@ -694,6 +694,12 @@
                     "description": "JSON instance of the returned object."
                   }
                 ]
+              },
+              {
+                "name": "exampleCall",
+                "type": "string",
+                "required": false,
+                "description": "Code text of one real call with literal values, shown beside the parameters of an open row. An empty string is dropped. The interaction-surface lint flags an operation without one."
               }
             ]
           }
@@ -976,6 +982,12 @@
                     "required": false
                   }
                 ]
+              },
+              {
+                "name": "exampleCall",
+                "type": "string",
+                "required": false,
+                "description": "One real call with literal values. Leave it out or pass a nonempty string, because the action refuses an empty one."
               }
             ],
             "returns": "InteractionSurfacePatch",
@@ -1020,7 +1032,7 @@
           },
           {
             "name": "interaction-surface.updateOperation",
-            "description": "Renames in place; null clears description, params, returns, returnShape, or kind.",
+            "description": "Renames in place. Null clears description, params, returns, returnShape, exampleCall, or kind.",
             "params": [
               {
                 "name": "name",
@@ -1030,7 +1042,46 @@
               {
                 "name": "patch",
                 "type": "object",
-                "required": true
+                "required": true,
+                "fields": [
+                  {
+                    "name": "name",
+                    "type": "string",
+                    "required": false,
+                    "description": "New operation name."
+                  },
+                  {
+                    "name": "description",
+                    "type": "string | null",
+                    "required": false
+                  },
+                  {
+                    "name": "params",
+                    "type": "Field[] | null",
+                    "required": false
+                  },
+                  {
+                    "name": "returns",
+                    "type": "string | null",
+                    "required": false
+                  },
+                  {
+                    "name": "returnShape",
+                    "type": "ReturnShape | null",
+                    "required": false
+                  },
+                  {
+                    "name": "exampleCall",
+                    "type": "string | null",
+                    "required": false,
+                    "description": "One real call with literal values. Null removes it."
+                  },
+                  {
+                    "name": "kind",
+                    "type": "\"action\" | \"query\" | \"event\" | null",
+                    "required": false
+                  }
+                ]
               }
             ],
             "returns": "InteractionSurfacePatch",

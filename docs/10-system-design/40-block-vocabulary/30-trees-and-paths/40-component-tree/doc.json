@@ -138,12 +138,12 @@
           {
             "text": "<OutlineRows id={id} rows={rows} flavor={flavor}>",
             "comment": "one panel of code rows",
-            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:249",
+            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:333",
             "nodes": [
               {
                 "text": "<TreeHead icon={head.icon} title={head.title} />",
                 "comment": "family tile and block title",
-                "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:270"
+                "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:355"
               },
               {
                 "text": "flat.length === 0",
@@ -152,7 +152,7 @@
                   {
                     "text": "<div className=\"docs-tree__empty\">",
                     "comment": "the (no rows) line",
-                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:281"
+                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:366"
                   }
                 ]
               },
@@ -163,7 +163,7 @@
                   {
                     "text": "<div className=\"docs-tree__row\">",
                     "comment": "one per row, depth first",
-                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:287",
+                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:372",
                     "nodes": [
                       {
                         "text": "diff",
@@ -173,23 +173,23 @@
                           {
                             "text": "<TreeMark change={row.change} />",
                             "comment": "the +, − or ~ gutter glyph",
-                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:298"
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:383"
                           }
                         ]
                       },
                       {
                         "text": "<TreeGuides guides={guides} />",
                         "comment": "elbow and pipe guides",
-                        "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:303"
+                        "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:388"
                       },
                       {
                         "text": "branch",
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__if\">",
+                            "text": "<BranchMark text={branchText(row.text)} flavor={flavor} />",
                             "comment": "the ? before a condition",
-                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:307"
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:392"
                           }
                         ]
                       },
@@ -200,7 +200,7 @@
                           {
                             "text": "<span className=\"docs-tree__note\">",
                             "comment": "the comment beside or under the code",
-                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:315"
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:400"
                           }
                         ]
                       },
@@ -211,7 +211,7 @@
                           {
                             "text": "<span className=\"docs-tree__src\">",
                             "comment": "the file and line chip",
-                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:317"
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:402"
                           }
                         ]
                       }
@@ -610,7 +610,7 @@
           "insert": "Give the root row the source of its own definition, such as "
         },
         {
-          "insert": "OutlineRows.tsx:249",
+          "insert": "OutlineRows.tsx:333",
           "attributes": {
             "code": true
           }

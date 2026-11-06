@@ -1,8 +1,8 @@
 # state-shape
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
 
-Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it.
+Use State Shape to define persisted or in-memory state, its nested fields, optionality, and meaning. Include a JSON example instance and a defining source reference. Describe state before the Interaction Surface that changes or queries it. Give every field a description, and make each one add a fact that its name, type and optional marker do not say: a format or unit, a constraint, a default, what an omitted or null value means, or which code sets or reads it. For example, describe retryAfterMs as "Wait before the next try, in milliseconds. 0 retries at once.", not "The retry delay". Start a description with its fact, not with a phrase that only names the field again, such as "Free text for the row." or "Time the service started". When the source gives no such fact, say what the field holds in words that the name does not already use. When a type is a named alias of a few values, such as a color or status type, list the allowed values in the description. Every fact in a description must be one the source states. Put a code name or a literal value in a description in backticks, such as `daemonFetch` or `""`, so it renders as code. Copy each type as the source writes it, with readonly, null and undefined kept. Mark each optional field with required: false. The block prints a legend that says which fields are required, so the prose around it does not repeat that. Keep each made-up example value short enough for one line of the example pane, about 30 characters, such as a 12-character token or a three-part path. Copy a real value from the source as it is. Make the JSON example a real instance: every required field, each nested object and array filled in, and no key the field tree does not list. For a map keyed by ids, such as blocks keyed by block id, list one field named for the key in angle brackets, such as <blockId>, and fill the example with real ids.
 
 Example: Define an edit task with its project, revision, and status, then show one valid task instance.
 
@@ -49,7 +49,7 @@ Starting with the TableTheme field definition above, call state-shape.addField w
 **Edit the Field Definition**
 
 ```
-state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatch  # Rejects duplicate sibling names; omitted path and index append at the root.
+[action] state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatch  # Rejects duplicate sibling names; omitted path and index append at the root.
   field: Field
     name: string  # Unique among siblings.
     type?: string
@@ -238,7 +238,7 @@ Four actions instantiate the Typed actions contract element. Params validate aga
 **state-shape, actions**
 
 ```
-state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatchPatch  # Insert a field ({ name, type?, required?, description?, fields? }) under the parent named by path; index defaults to the end.
+[action] state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatchPatch  # Insert a field ({ name, type?, required?, description?, fields? }) under the parent named by path; index defaults to the end.
   field: Field  # The field to insert.
     name: string
     type?: string
@@ -254,7 +254,7 @@ state-shape.addField(field: Field, path?: string, index?: integer) -> StateShape
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPatch  # Patch the field at path (rename via patch.name; null clears type/required/description; patch.fields replaces the subtree, null removes it).
+[action] state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPatch  # Patch the field at path (rename via patch.name; null clears type/required/description; patch.fields replaces the subtree, null removes it).
   path: string  # Dot-path of the field to patch, e.g. "operations.params".
   patch: object  # Partial field; patch.name renames, null clears.
     name?: string  # Rename; must stay unique among siblings.
@@ -269,7 +269,7 @@ state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPat
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove the field at path, together with its entire subtree.
+[action] state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove the field at path, together with its entire subtree.
   path: string  # Dot-path of the field to remove, e.g. "operations.params".
   Returns StateShapeFieldsPatchPatch:
     fields: Field[]  # The complete replacement field list, not only the added field.
@@ -278,7 +278,7 @@ state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove th
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSON example instance rendered beside the field tree (example must parse as JSON; null clears it).
+[action] state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSON example instance rendered beside the field tree (example must parse as JSON; null clears it).
   example: string | null  # JSON text of an example instance of this shape; null clears the example.
   Returns StateShapePatch:
     example?: string  # JSON text of an example instance of this shape; renders as the linked example pane.
@@ -286,25 +286,29 @@ state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSO
 
 ## Doc Renderer
 
-StateShapeBlock renders one dark code panel with a header, a field ledger, and an Example pane. The whole panel is a code surface, so it stays dark on both the light and the dark page and takes the code theme's colors, as Code Colors From Your Editor describes. The ledger and the Example pane split 44/56 when the block is at least 560px wide. The ledger keeps at least 360px and the Example pane at least 260px, and a narrower block stacks them. Both panes have 16px of inner padding and render as follows:
+`StateShapeBlock` renders one dark code panel with a header, a field ledger, and an Example pane. The panel is a code surface, so it stays dark on both the light and the dark page. It takes the code theme's colors, as Code Colors From Your Editor describes. At 560px wide or more, the ledger and the Example pane sit side by side, and each pane has 16px of inner padding.
 
 - Tree pane
 
   - The header shows the shape name in monospace and, at the right, the source as `file#Symbol`. Hover or keyboard focus on the source opens the full `path#Symbol` in a tooltip.
 
-  - Every field row shows only a name and a type. The name takes the key color with a punctuation-colored `?` when the field is optional, and the type takes the type color.
+  - Every field row shows a name, a type, and the field's description when it has one. The name takes the key color with a punctuation-colored `?` right after it when the field is optional, and a legend above the rows says which fields are required.
 
   - Nested fields hang off their parent with the file tree's elbow connectors, a tee for a middle child and an end for the last child.
 
-  - Every field ledger uses one 24ch name column, so type columns line up across blocks. A long name wraps inside that column, also at `_`.
+  - The name column fits the longest name at its depth, from 10ch to the 24ch of `--docs-shape-name-width`. The ledger takes the theme's column split, 52% by default, plus 8% when `exampleIsShort` finds an example far shorter than the ledger and no wider than 36 columns.
 
 - Example pane
 
-  - The example pretty-prints through the shared `printJsonLines` canon: line numbers, zebra stripes.
+  - The example pretty-prints through the shared `printJsonLines` canon with no line numbers. An object or array folds onto one line when that line fits in 42 columns.
 
   - JSON token toning is deterministic, a tiny line tokenizer over the canonical print, no highlight.js.
 
-  - A long line soft-wraps with a hanging indent instead of scrolling.
+  - A long line soft-wraps instead of scrolling, and each key stays on the line of its value.
+
+  - A path value whose parts are 32 characters or shorter breaks only after a `/`.
+
+  - A wrapped string value with no space continues under the first character inside its opening quote.
 
 - Cross-linking
 
@@ -322,7 +326,7 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
 - Descriptions
 
-  - A field name with a description carries a dotted underline. The description opens as a tooltip under the name after a 450 ms hover dwell, or at once on keyboard focus.
+  - A field's description prints beside its type at a ledger width of 600px or more, and under the type below that. Each backtick span in a description renders as inline code.
 
   - Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description.
 

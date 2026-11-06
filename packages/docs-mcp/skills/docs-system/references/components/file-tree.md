@@ -1,8 +1,8 @@
 # file-tree
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
 
-Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Give a top-level folder a color to set its group apart.
+Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Use colors only to set 2 or more groups apart, and say what each color marks.
 
 Example: Show the service entry point, skills directory, and generated references with a note for each.
 
@@ -21,17 +21,13 @@ To show the files a change touches as editor sidebar rows with a badge per chang
 A live instance: a refactor slice of this block's own source folder.
 
 ```
-  packages/
-  └── docs-model/
-      └── src/
-          └── components/
-              └── file-tree/
-                  ├── actions/
-+                 │   └── update-entry.ts
-~                 ├── agent-view.ts  # tree drawing
->                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
-                  ├── manifest.ts
-                  └── state.ts  # entry schema + tolerant read
+  packages/docs-model/src/components/file-tree/
+  ├── actions/
++ │   └── update-entry.ts
+~ ├── agent-view.ts  # tree drawing
+> ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
+  ├── manifest.ts
+  └── state.ts  # entry schema + tolerant read
 ```
 
 ## State Schema
@@ -104,7 +100,7 @@ Three actions are the type's whole custom write surface.
 **file-tree entry actions**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> FileTreePatch  # Append a path entry (optional note, change marker, and color) to the file tree.
+[action] file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> FileTreePatch  # Append a path entry (optional note, change marker, and color) to the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
@@ -112,7 +108,7 @@ file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" 
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
       color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
-file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
+[action] file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
@@ -120,7 +116,7 @@ file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with th
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
       color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
-file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from/color, or rename it via newPath (in place).
+[action] file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from/color, or rename it via newPath (in place).
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
@@ -134,13 +130,15 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a monospace panel with a File tree head. Each node is one row, and thin guide lines join each row to its parent folder. An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
-  - Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing "/".
+  - Directories sort first at every level, then names in ascending codepoint order. Directory names render semibold with a trailing "/".
 
   - The order matches the agent render exactly, so the two surfaces agree by design.
+
+  - A folder with no note, change or color merges into its only child folder, so a chain such as `packages/docs-model/src/` draws as one row. The agent render merges by the same rule.
 
 - Change markers
 

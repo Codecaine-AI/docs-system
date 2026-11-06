@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93",
+  "snapshotId": "sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -39,17 +39,17 @@
     },
     {
       "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
-      "sha256": "0f2d7dbc24a721c0b52e4af21c203803c9c8b43109f707dbbd3f886912aa91e7",
+      "sha256": "ae63eab36d26f90cd292b37cf66628a8271a1ad7c08d4b8a3d42db8e5e52430e",
       "kind": "standard"
     },
     {
       "path": "docs/99-appendix/10-style-guide/10-writing-style/doc.json",
-      "sha256": "e78e5e2569fe0b4d8fb6d825d182c0efe0db88fec9ef7248c6beb92cf9e17ed8",
+      "sha256": "a534db9a44203e87d9978e8c524dba3244d922bce54ca122e58d355d5d20cce2",
       "kind": "style"
     },
     {
       "path": "docs/99-appendix/10-style-guide/20-structure/doc.json",
-      "sha256": "8cc82d819d539956ba99ef5d5f3b82edaf372a87add27eeeaf124b4eb37db19c",
+      "sha256": "a966c4fde05bea3b721a54fdbecc961732c566721aef1766b2c57e1cba3e8a02",
       "kind": "style"
     },
     {
@@ -59,32 +59,32 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/doc.json",
-      "sha256": "f013bc9b1b6c33c235dd9bd0481e1891157625825aece7afe5e883ba2e1bab92",
+      "sha256": "9461817dc742705a3ba5264cb175cd69dc63741c6902972a09a6264e120a9bb3",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/10-code-block/doc.json",
-      "sha256": "8b21f0d75d11b6e7d59db70d876ed2d397ca1cd11f250e5f7b1b2cc3f18acdd2",
+      "sha256": "e332a2c5657164b53cc5f137067140cf04e6fd109170035a78af510cc2dde19e",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/10-file-tree/doc.json",
-      "sha256": "22b9a77f235ffa411dfe06f58d44fe9f6341229ef9bc5f5da85db65b18180280",
+      "sha256": "c0cf46298f24f86259e510f69dae2fcc687c46328bd74338b75e97fc382f86e3",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/30-structured-table/doc.json",
-      "sha256": "39109a3806ed5e0962224ac2727042e2708659670ddc111fd4fc3e541b06e2da",
+      "sha256": "9546ebe90169d5f8b3b0bc81aef053e5932a627a6db72439469d9851b746fab6",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface/doc.json",
-      "sha256": "10c76aec0c50bc8bb5cfd79b33aca565a21b5753e77d9284e22e67dc08f234f7",
+      "sha256": "2a656d650a80387cad40577fb9ced834b3a98ae1fc34cbc6ec35f949e9764c1a",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape/doc.json",
-      "sha256": "c9d198e653d957b534f3b1e363cbb261c5d597780e251392b8c401fab3b3637a",
+      "sha256": "5d288105d7eff0f19048e482c631405b365907a9d98e148ffbffc141703ba4be",
       "kind": "component-doc"
     },
     {
@@ -99,32 +99,32 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/10-process-outline/doc.json",
-      "sha256": "92df0fb956b49123260980323dbd4472ddb23767e894fed859fb0d8fbde68cd1",
+      "sha256": "d83a359e22aecc9c20bec0ff86eb2778ffc2ea9e4a6f82fca2c79417e6b7bf64",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/50-flow-and-diagrams/30-stack/doc.json",
-      "sha256": "5f1ef32de44c9429661a301baa68b8b856769229c1cf360fe88ed135ad9e1237",
+      "sha256": "ee3811047ed147052160d8f91e6b8be86a1697cd448e995074d733b0f10ef330",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack/doc.json",
-      "sha256": "827b694a3f389882ec0477b256f953ecfbb166115a89e7faa53243a43f9d8a67",
+      "sha256": "f538ebb635bb6d7f69b086c6603b0ae72f4bdcac553516c7dee480e50d90a0fa",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree/doc.json",
-      "sha256": "960da3aef82aad050e0af023ad068539e9adb0a579dc1d1f5560cb67b2397dee",
+      "sha256": "1c702fa6804056590ccb45a9ff4fb856badda6de3baf4f47fc733014aaad58ab",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/20-pseudocode/doc.json",
-      "sha256": "42ceb4f4086a6c9f9bd88a9be5cbb4002ad4663581de867a0788773296663cc8",
+      "sha256": "98393d754490ae196fce7e004a03eef478a57d8ae741f77210d07a1b3d3c60c9",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer/doc.json",
-      "sha256": "44b4e10b986ecc26df1b97c19428a8cf37b3b8f1675961abfc12bc7d3533d388",
+      "sha256": "23f6e5188c015dbea82d966f3e2500d063f98521c0a0e73a6f44fa228a86644e",
       "kind": "component-doc"
     },
     {
@@ -139,22 +139,22 @@
     },
     {
       "path": "packages/docs-model/src/project-markdown.ts",
-      "sha256": "627066517b8d1d30cfb011de8bd94d9858beeb84cd24c6f6fcc251f228a9ce10",
+      "sha256": "378204d7b21f5c50b3f9bbc643233f6ed2144ab81873881586049ef725a60fa0",
       "kind": "renderer"
     },
     {
       "path": "packages/docs-model/src/components/rich-text/manifest.ts",
-      "sha256": "588b0dadf8a5a99a989c23747cd7e687f75af2ede62c688751f0b21e4ea6c1d4",
+      "sha256": "0977213ca950401f49933af19cda0ea15a0f761d70012d8c68744208ad06816a",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/code/manifest.ts",
-      "sha256": "c5ede09349075714091b1e7ecc7b6f708f80411a46507434e3381c5ede92dcd8",
+      "sha256": "6e473da2c15662ed9394a202828251f7260cb1808cbc0a0805b6850f1a2ae46b",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/file-tree/manifest.ts",
-      "sha256": "b7b33e0536eb4cdb14445e87afb17ac0141d5353fbc72a3d6a5b7962ad936c0b",
+      "sha256": "fda2ae81cdfadfd91a272fd2e43840d3864154bdd29446aba96a678ee5e9c13e",
       "kind": "component-manifest"
     },
     {
@@ -164,12 +164,12 @@
     },
     {
       "path": "packages/docs-model/src/components/interaction-surface/manifest.ts",
-      "sha256": "a1757fee29914be9b8de04cc0c5edcdd48f80a205ae6145bc07b67bcf46fd480",
+      "sha256": "5cc8ffbd3464f9119124695cd5f25e6d137803e42b4988f0ded288a532b0c21e",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/state-shape/manifest.ts",
-      "sha256": "53a98b65aab9ef34d660d2cb4df857665ff871fd909f08b8769e6dd625980a9f",
+      "sha256": "0293153c39a3a2878b43bafeece7593ef46ce8c9f97461d600d020514bb5c11d",
       "kind": "component-manifest"
     },
     {
@@ -184,32 +184,32 @@
     },
     {
       "path": "packages/docs-model/src/components/process-outline/manifest.ts",
-      "sha256": "e8dd10edeb729cad7bcc0d976242e2f7718c61d3dbd17e2dfef49075c4343359",
+      "sha256": "5e7e1d82a803030a8a791d01f607eac7a67b6f91cc97392c1ab117ef780c7ab7",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/stack/manifest.ts",
-      "sha256": "fc16267529ac51fc55db5d12457acf276d1837502e0cd6e8a844a1ef46239db8",
+      "sha256": "205822c51a3e6141fcb54dcf4f0de223a30218b4b2321e443aeccbf23a9a254a",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/call-stack/manifest.ts",
-      "sha256": "31a65bfdecf4bb13ea72ad881de8d132895088abd6996f2c7f57deb8661f719e",
+      "sha256": "f3cbd8bd0f1d8737f2ac10db1459cae6c4f6e40eb2a821f127d20bb30e3a4344",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/component-tree/manifest.ts",
-      "sha256": "9fc7f6647a79c51b5fcbe490475da9b4fc5f354f8edb30dc804f42070ae7ac36",
+      "sha256": "17a6ae293efdca9b0b91ba1d60a21d0a297fa099f99b923d26eb80701fc334cd",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/pseudocode/manifest.ts",
-      "sha256": "49ec4fe02ddb5bdd960fba40c3990c260ed48162e8e91b6a0a38ecdec10da178",
+      "sha256": "660a6e8f245ba72114b157814fa048d2a049a5e67519e7fa61715dd64c24da60",
       "kind": "component-manifest"
     },
     {
       "path": "packages/docs-model/src/components/file-explorer/manifest.ts",
-      "sha256": "bac1611d170b818c0d9b8afc75ed07d13e14f192631ab614c530ddccf402fadf",
+      "sha256": "387d1099d22dd1badb4daa6e4d582bb06600c201287f2664b8e86e275d08ebb9",
       "kind": "component-manifest"
     },
     {

@@ -856,7 +856,7 @@
                 "name": "source",
                 "type": "string",
                 "required": false,
-                "description": "The line where the caller writes this call, condition or exit, \"path:line\". A frame marked added has none."
+                "description": "The line where the caller writes this call, condition or exit, \"path:line\". A proposed frame, for code that does not exist yet, has none."
               },
               {
                 "name": "frames",

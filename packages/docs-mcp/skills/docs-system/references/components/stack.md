@@ -1,8 +1,8 @@
 # stack
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
 
-Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Use Canvas instead when the picture needs free placement or arbitrary edges.
+Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. Draw a uses arrow when a source shows or states that the node imports or calls its next sibling, such as an import line or a call in a function body. A type that a layer only takes as a parameter is not a call. When the sources state a rule but no import or call, such as a path check that a value must pass, draw no arrow and write the rule as a boundary. Give each line between two sibling layers a boundary when the sources hold a rule for it. A boundary states a restriction or a required interface, such as "docs-viewer never imports host-app code" or "data enters only through `DocsClient`". It never describes what a layer outputs. Put each rule beneath the layer whose code enforces it. Name the check, the function that runs it, and what a refused value becomes. Name each exception the source makes, such as the tools that skip the check. A rule never only names a kind of check, such as "Lexical checks". Give each detail a fact that the name, the arrow label and the rule do not state. Write it as segments split by ` · `: the layer's file path first when it has one, then the exports that the layer above calls. A badge is one role word that is not in the name, such as `pure` or `host`. Put a file path in the detail, never in the badge. Wrap each code name in a detail or a rule in backticks, such as `checkDocsPath`, so the stack sets it in the code face. Give a leaf a color only when the page says what the color marks. When a layer also imports or calls a layer further down, say so in its detail and in the prose next to the stack. Keep the layer count in the prose equal to the nodes the stack draws. Use Canvas instead when the picture needs free placement or arbitrary edges.
 
 Example: Show the package layering: host apps above the docs framework, docs-model nested as the pure layer, and the import rule between each layer.
 
@@ -90,10 +90,11 @@ Six actions edit the tree and its boundary lines by node name. Each action is al
   - A duplicate name, a `uses` arrow with no next sibling, or a boundary after a missing node is refused.
 
 ```
-stack.addNode(node: StackNode, parent?: string, index?: integer) -> Props patch with the changed nodes, boundaries, or both  # Insert a node with any children at the top level or under the named parent. Index defaults to the end. Names must stay unique across the stack.
+[action] stack.addNode(node: StackNode, parent?: string, index?: integer) -> Props patch with the changed nodes, boundaries, or both  # Insert a node with any children at the top level or under the named parent. Index defaults to the end. Names must stay unique across the stack.
+  node: StackNode
   parent?: string  # Name of the parent node. Omit to insert at the top level.
   index?: integer  # Insert position among the parent's children. Default end.
-stack.updateNode(name: string, patch: object) -> Props patch with the changed nodes, boundaries, or both  # Patch the named node's own fields and leave its children alone. patch.name renames it and repoints any boundary after it.
+[action] stack.updateNode(name: string, patch: object) -> Props patch with the changed nodes, boundaries, or both  # Patch the named node's own fields and leave its children alone. patch.name renames it and repoints any boundary after it.
   name: string  # Name of the node to patch.
   patch: object  # Partial node. Null clears detail, badge, color, uses, or columns.
     name?: string  # New name. Must stay unique.
@@ -102,16 +103,16 @@ stack.updateNode(name: string, patch: object) -> Props patch with the changed no
     color?: "gray" | "blue" | "green" | "orange" | "yellow" | "red" | "purple" | "pink" | null  # Container tint or leaf badge color. Null clears.
     uses?: true | string | null  # true draws an unlabeled arrow to the next sibling, a string labels it, null removes it.
     columns?: 2 | null  # 2 lays children in two columns. Null clears.
-stack.removeNode(name: string) -> Props patch with the changed nodes, boundaries, or both  # Remove the named node with its whole subtree, and every boundary that follows a removed node.
+[action] stack.removeNode(name: string) -> Props patch with the changed nodes, boundaries, or both  # Remove the named node with its whole subtree, and every boundary that follows a removed node.
   name: string  # Name of the node to remove.
-stack.moveNode(name: string, parent?: string | null, index?: integer) -> Props patch with the changed nodes, boundaries, or both  # Move the named node with its subtree under another parent or to the top level, at an index resolved after the node is detached. Boundaries move with it.
+[action] stack.moveNode(name: string, parent?: string | null, index?: integer) -> Props patch with the changed nodes, boundaries, or both  # Move the named node with its subtree under another parent or to the top level, at an index resolved after the node is detached. Boundaries move with it.
   name: string  # Name of the node to move.
   parent?: string | null  # New parent's name. Null moves to the top level. Omit to stay under the current parent.
   index?: integer  # Insert position among the destination's children after detaching. Default end.
-stack.setBoundary(after: string, rule: string) -> Props patch with the changed nodes, boundaries, or both  # Draw or replace the dashed boundary line beneath the named node, labeled with the rule enforced there. Upserts by `after`.
+[action] stack.setBoundary(after: string, rule: string) -> Props patch with the changed nodes, boundaries, or both  # Draw or replace the dashed boundary line beneath the named node, labeled with the rule enforced there. Upserts by `after`.
   after: string  # Name of the node the line sits beneath.
   rule: string  # The rule enforced at this line.
-stack.removeBoundary(after: string) -> Props patch with the changed nodes, boundaries, or both  # Remove the boundary line beneath the named node.
+[action] stack.removeBoundary(after: string) -> Props patch with the changed nodes, boundaries, or both  # Remove the boundary line beneath the named node.
   after: string  # Name of the node whose boundary line to remove.
 ```
 
@@ -121,17 +122,21 @@ stack.removeBoundary(after: string) -> Props patch with the changed nodes, bound
 
 - A node with children renders as a section with a tinted fill, a 1px frame in its layer colour, and a title chip pinned top-left in uppercase code font. Its detail shows only as the header's hover title.
 
-- A leaf renders as a card with its name, then its detail as plain text in the body colour. Prose segments join with commas, and path segments sit one per line.
+- A leaf renders as a card with its name, then its detail. A name that is prose, such as "Docs server route", draws in the sans face, and any other name draws in code font.
 
-  - A card's role draws a 3px left edge in the node colour, or else the layer colour. The role also shows as a small lowercase code-font word at the right of the name row and as the card's hover title.
+  - A card's role draws a 3px left edge in the node colour, or else the layer colour. The role also shows as a small code-font word in the case it was written, at the right of the name row and as the card's hover title.
 
-- A uses arrow is a thin stem with an arrowhead, and a string `uses` value labels it in code font.
+  - A detail that is not a path joins its segments with commas in the body face. In a path detail, each bare path segment gets its own muted code-font line, and the other segments join with commas on one line below.
 
-  - A boundary draws a short dash, the rule sentence in bold ink, and a dash to the right edge. Next to a crossing arrow, the line starts just right of the arrow, so the two never overlap.
+  - A backtick span in a detail or a rule, such as ``checkDocsPath``, draws in code font without its backticks.
+
+- A uses arrow is a 1.5px stem with an arrowhead. A string `uses` value labels the arrow with a code-font tag beside the stem.
+
+  - A boundary draws a 1.5px dashed line across the stack, with the rule sentence beneath it in the body face. Next to a crossing arrow, the line and the rule start just right of the arrow, so the two never overlap.
 
 - `columns: 2` lays a container's children in a two-column grid. Arrows and boundaries inside it span both columns.
 
-The `layout.stack-detail-fit` warning flags a leaf detail that needs a second line at stock theme settings. A prose detail wraps at 60ch of 13.5px Inter, 506.25px, and each path segment wraps at 60ch of 12px IBM Plex Mono, 432px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in Authoring Lints, the warning never blocks a save.
+The `layout.stack-detail-fit` warning flags a leaf detail line that needs a second line at stock theme settings. A body-face line wraps at 60ch of 13.5px Inter, 506.25px, and each path line wraps at 60ch of 13px IBM Plex Mono, 468px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in Authoring Lints, the warning never blocks a save.
 
 ## Agent Renderer
 

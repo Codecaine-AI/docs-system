@@ -1,10 +1,10 @@
 # code
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
 
 Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 
-Example: Show the real validation function and annotate the branch that rejects an invalid write.
+Example: Show the real validation function, verbatim, with each cut marked by a comment line, and annotate the branch that rejects an invalid write with why it rejects it and what the caller must do.
 
 Canonical document: `10-system-design/40-block-vocabulary/20-code/10-code-block`.
 
@@ -13,6 +13,54 @@ The code component owns a single block type, `code`: the language-tagged block f
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source; identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
 In the documentation doctrine the type is the source-evidence surface. state-shape blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source.
+
+## Write a Listing
+
+A listing is evidence. A reader checks each line against the source file and each note against the lines it covers, so a listing passes both checks only when it follows these five rules.
+
+1. Copy each line verbatim.
+
+  - Keep the source's whitespace, names, comments and line breaks. Never reflow, shorten or retype a line, even a long or minified one.
+
+  - Name the file and its line numbers in the sentence before the block, such as "lines 10 to 27 of `briefs.ts`".
+
+2. Show only the lines that prove the page's point.
+
+  - Cut each whole function, handler or branch that no note and no sentence on the page uses. Never cut inside a statement, and keep the opening and closing lines of each construct you show.
+
+  - Mark each cut with one comment line in the listing's language at the place of the cut, such as `// ... 64 lines: issuePath and schemaIssues`.
+
+    - Two parts of a file must never touch without a cut marker.
+
+    - A format with no comment syntax, such as JSON, has no cut marker. Show each part you need as its own code block.
+
+  - A line wider than about 95 columns wraps in the panel, so cut each long line the point does not need, such as a doc comment that no note discusses.
+
+  - Keep a long line verbatim when the point needs it.
+
+3. Give each note a fact that its lines do not show.
+
+  - State a reason, a constraint, a consequence, or what a caller must do. Never retell the covered lines or repeat their comments.
+
+  - Test each note. If a reader gets the same fact from the covered lines alone, rewrite the note or delete it.
+
+  - Take each reason from the source files, such as a comment, a caller or a test. Never guess a reason, and write always, never or only when a line proves it.
+
+    - Count the cases in the source before you write a number, most or every. Read every throw and return of a function before you say how it fails.
+
+  - For `if (!root) throw new Error(...)`, the note "Throws when the root is missing" retells the line. The note "Every tree reader calls this first, so a broken root pointer fails here and not inside a render" adds the consequence.
+
+4. Make each range cover exactly the lines its note discusses.
+
+  - A note about one statement covers only that statement's lines. Leave out blank lines and comment lines unless the note discusses them.
+
+  - A note about a whole function covers it from its signature to its closing brace. If a note names a line, such as the return, put that line in the range.
+
+  - Give the note a short label that names the job of its lines. A label such as "Merge" goes on the line that merges.
+
+  - Count lines from 1 in the listing as written, cut markers included. Check every range again after you edit the listing.
+
+5. Set `language` to the file's language, such as `typescript`, `toml` or `json`, so the header label and the token colors match the file.
 
 ## Example
 
@@ -115,13 +163,13 @@ The component registers exactly two typed actions, both built with `defineCompon
 **code annotation actions**
 
 ```
-code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
+[action] code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
       lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
       label?: string  # Short heading on the note.
       note: string  # The annotation body.
-code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
+[action] code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
       lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
@@ -169,19 +217,19 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
   - One absolute layer sits behind the code column. Its gradient period is two 21px lines, aligned to line 1 by construction.
 
-- Notes aside.
+- Notes.
 
-  - A 280px column inside the dark panel sits beside the code when the block is at least 760px wide, and under the code when narrower. Its surface mixes the code background 6% toward white, and the code/notes hairline separates it from the code.
+  - The notes sit in a 280px column inside the dark panel when the block is at least 760px wide and its widest line fits beside them. Otherwise each note sits in its own row under the last line it explains.
 
-  - Each note shows a head row with the `L#` line chip and the bold title, then its text below in smaller muted sans, 13px by default.
+  - Each note shows a head row with the L# line chip and the bold title, then its text below in the panel ink, 13px by default.
 
-  - Notes stack from the top with the first aligned to line 1. A faint hairline at half the internal code rule's opacity splits consecutive notes.
+  - In the column, each note starts level with the first line it explains. In a row, the note sits on the lighter notes surface with an accent rule on its left edge.
 
   - Each note's title attribute names its lines.
 
 - Design principle: one surface, one accent, interaction reveals the rest.
 
-  - At rest, an annotated range shows only the 2px accent bar plus accent line numbers. The tint appears when its pair is lit.
+  - At rest, an annotated range shows only a bracket in the accent between the number and the code, with a cap on its first and last line. The tint appears when its pair is lit.
 
 ### The 21px Line
 
@@ -189,17 +237,19 @@ Three surfaces share one shell: the plain read surface, the annotated read surfa
 
   - The zebra gradient period, the gutter row height, and every annotation overlay's top and height resolve from that one variable, so they cannot drift apart.
 
-- Soft wrap is off on every surface.
+- The edit surface never wraps a line, and the read surface wraps a long line.
 
   - The edit surface forces `white-space: pre` on its content node. Wrapping would break every line-geometry computation.
 
+  - The read surface wraps a long line under its own number. The wrapped text hangs 2 columns past the line's indent, and a wrap arrow marks the first wrapped row in the gutter.
+
 ### Line Width
 
-Code never wraps on screen, so the `layout.code-line-width` warning flags a line wider than the panel shows before it scrolls sideways. PDF export wraps code instead. Like every layout rule in Authoring Lints, the warning never blocks a save.
+The read surface wraps a line wider than the panel, and the edit surface scrolls it sideways. The `layout.code-line-width` warning flags such a line. PDF export wraps code too. Like every layout rule in Authoring Lints, the warning never blocks a save.
 
 - **Visible columns**
 
-  - At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, or 82 beside a notes column.
+  - At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, with or without notes. When the widest line does not fit beside the notes column, the notes move under their lines.
 
   - A code block nested under a paragraph shows 78 columns, and one inside a list item shows 75.
 

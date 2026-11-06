@@ -1,6 +1,6 @@
 # canvas
 
-Generated from Docs System sources. Snapshot: `sha256:03a359d2768a14cad70949542d1f84d939888248189f6df559f368b277ad6b93`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 
@@ -64,11 +64,11 @@ The family's five actions are lifted at module load from `CANVAS_AGENT_PATCH_OPE
 **canvas forwarded patch operations**
 
 ```
-canvas.addObject(object: CanvasObject) -> forwarded to the canvas authority  # Add a fully specified canvas object at its provided geometry; a section requires a nonblank title and known tint.
-canvas.updateObject(objectId: string, patch: object) -> forwarded to the canvas authority  # Update an existing canvas object by ID, shallow-merging fields and deep-merging style fields; a resulting section requires a nonblank title and known tint.
-canvas.addConnection(connection: CanvasConnection) -> forwarded to the canvas authority  # Add a canvas connection with explicit endpoint object IDs and optional routing metadata.
-canvas.addAnnotation(annotation: CanvasAnnotation) -> forwarded to the canvas authority  # Add an annotation targeting a canvas object, connection, or region.
-canvas.fitContainerToChildren(containerId: string, padding?: number) -> forwarded to the canvas authority  # Resize a container to enclose its current child objects with optional padding.
+[action] canvas.addObject(object: CanvasObject) -> forwarded to the canvas authority  # Add a fully specified canvas object at its provided geometry; a section requires a nonblank title and known tint.
+[action] canvas.updateObject(objectId: string, patch: object) -> forwarded to the canvas authority  # Update an existing canvas object by ID, shallow-merging fields and deep-merging style fields; a resulting section requires a nonblank title and known tint.
+[action] canvas.addConnection(connection: CanvasConnection) -> forwarded to the canvas authority  # Add a canvas connection with explicit endpoint object IDs and optional routing metadata.
+[action] canvas.addAnnotation(annotation: CanvasAnnotation) -> forwarded to the canvas authority  # Add an annotation targeting a canvas object, connection, or region.
+[action] canvas.fitContainerToChildren(containerId: string, padding?: number) -> forwarded to the canvas authority  # Resize a container to enclose its current child objects with optional padding.
 ```
 
 ## Doc Renderer
