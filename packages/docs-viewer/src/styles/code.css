@@ -274,8 +274,8 @@
 
 /*
  * Pseudocode block (components/pseudocode/descriptor.tsx). The same dark
- * panel and header strip as the code block, and the code block's metric
- * tokens (text size, line height, gutter, padding). One grid row per source
+ * panel and header strip as the code block, and the code block's line
+ * height, gutter and padding, with text one step larger. One grid row per source
  * line: line number, an optional diff sign, the code, and the trailing
  * comment in one aligned column (colored by the code theme's comment role).
  * The code column shrinks to the panel and wraps, and the comment column
@@ -289,7 +289,8 @@
   grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, max-content) minmax(16ch, 1fr);
   padding-top: var(--docs-code-pad-top, var(--ds-space-3));
   padding-bottom: var(--docs-code-pad-bottom, var(--ds-space-3));
-  font-size: var(--docs-code-text-size, var(--ds-font-size-code));
+  /* Pseudocode is read like prose, so its text is one step larger than a code listing's. */
+  font-size: var(--docs-pseudo-text-size, var(--ds-font-size-ui-lg));
   line-height: var(--docs-code-line-height, var(--ds-line-height-code));
 }
 
@@ -338,7 +339,7 @@
 .docs-pseudo-code {
   background-image: repeating-linear-gradient(
     to right,
-    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 16%, transparent) 0 1px,
+    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 28%, transparent) 0 1px,
     transparent 1px 2ch
   );
   background-repeat: no-repeat;
