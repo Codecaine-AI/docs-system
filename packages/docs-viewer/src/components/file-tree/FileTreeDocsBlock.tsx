@@ -115,6 +115,20 @@ export const FILE_TREE_VARS = treeVars({
     "color-mix(in srgb,var(--docs-file-tree-renamed-tint,var(--docs-c-yellow-solid,#dfab01)) calc(var(--docs-file-tree-change-tint,8) * 1%),transparent)",
 });
 
+/**
+ * File-tree-only look on top of the shared rows (the file explorer keeps its
+ * own): folders draw semibold, as `tree -C` bolds directories, so a folder
+ * reads as one before its trailing "/"; and the guides take the faint text
+ * ink instead of the softer shared guide, so each row traces to its parent on
+ * the dark code panel. A colored group's own guide color still wins on its rows.
+ */
+export const FILE_TREE_CSS = `
+.docs-tree[data-tree-kind="file-tree"] > .docs-tree__rows {
+  --tr-folder-weight: var(--ds-font-weight-semibold);
+  --tr-guide: color-mix(in srgb, var(--docs-faint, #9b9a97) 80%, var(--tr-border, #e6e5e3));
+}
+`;
+
 /** The struck old path of a rename, relative to the new name's folder (full path in the title). */
 export function RenamedFrom({ node }: { node: FileTreeNode }) {
   if (node.change !== "renamed" || !node.from) return null;
@@ -184,6 +198,7 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
         data-source-id={data.id}
       >
         <TreeStyle />
+        <style>{FILE_TREE_CSS}</style>
         {/* A code surface: paths are machine-checkable, so the tree reads as a
             code panel (dark in both page modes under Code panels "dark"). */}
         <figure className="docs-tree" data-tree-kind="file-tree" data-code-surface="true" style={FILE_TREE_VARS}>
