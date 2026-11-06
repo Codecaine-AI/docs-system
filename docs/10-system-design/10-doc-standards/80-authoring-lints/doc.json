@@ -1680,8 +1680,7 @@
         "lint-judgment-ids-packed",
         "lint-judgment-ids-flat",
         "lint-judgment-ids-join",
-        "lint-judgment-ids-callout",
-        "lint-judgment-ids-siblings"
+        "lint-judgment-ids-callout"
       ]
     },
     "lint-judgment-ids-packed": {
@@ -1752,32 +1751,6 @@
       ],
       "children": []
     },
-    "lint-judgment-ids-siblings": {
-      "id": "lint-judgment-ids-siblings",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "judgment.sibling-form",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " asks whether sibling list items differ in form or detail, such as an instruction next to a description, or a short clause next to an item with conditions. It is advisory, never fails "
-        },
-        {
-          "insert": "docs_check",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and skips checklists."
-        }
-      ],
-      "children": []
-    },
     "lint-judgment-thresholds": {
       "id": "lint-judgment-thresholds",
       "type": "list-item",
@@ -1801,7 +1774,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, 0.6 for callout-message, and 0.7 for sibling-form."
+          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, and 0.6 for callout-message."
         }
       ],
       "children": []

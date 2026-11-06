@@ -251,27 +251,6 @@ export const judgmentRules: readonly JudgmentRule[] = [
         problem: "Callout label does not fit its message.", fix: "Set tone to fit the message: warning or risk for what can go wrong, decision for a choice made, success for a result, and info for a neutral fact." },
     ],
   },
-  {
-    // Sibling items that mix an instruction with a description, or one short clause with a run of conditions,
-    // were the climb judges' most common list-form finding. Advisory: it reports and never fails docs_check.
-    id: "judgment.sibling-form",
-    kind: "noul",
-    appliesTo: ["list-item"],
-    threshold: 0.7,
-    gate: false,
-    problem: "Sibling list items differ in form or detail.",
-    select: (doc, id) => {
-      const run = listRun(doc, id);
-      return run[0] === id && run.length >= 2 && !run.some((item) => isTaskItem(doc, item));
-    },
-    anchors: (doc, id) => {
-      const run = doc.blocks[id]?.type === "list-item" ? listRun(doc, id) : [];
-      return run.length ? [run[0]!] : [];
-    },
-    state: (doc, id) => ({ heading: nearestHeading(doc, id) ?? "", lead: textOf(doc, leadOf(doc, id)), items: bulletTexts(doc, listRun(doc, id)) }),
-    question: "Do the sibling list items `items` differ in form or level of detail, so a reader must reread them: some are instructions and others descriptions, or some are one short clause while others add conditions, exceptions or a second sentence?",
-    fix: "Give every item the same form, all instructions or all statements, and the same depth: one sentence each, with extra detail moved into sub-bullets or the prose after the list.",
-  },
 ];
 
 /** Collapse whitespace, mark literal spans, and cap the evidence at EXCERPT_CHARS characters on a whole word. */

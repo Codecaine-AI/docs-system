@@ -35,10 +35,3 @@ test("callout-message judges each callout with its label, title and nested body 
   });
 });
 
-test("sibling-form judges a list once, from its first item, and skips checklists", () => {
-  const siblings = rule("judgment.sibling-form");
-  const list = page(block("a", "list-item", "Start with src/types.ts."), block("b", "list-item", "The sweep function runs every tier."));
-  expect(ruleTargets(siblings, list, ["b"])).toEqual(["a"]);
-  const tasks = page(block("a", "list-item", "Install Bun.", { checked: false }), block("b", "list-item", "Run the check.", { checked: false }));
-  expect(ruleTargets(siblings, tasks, ["a", "b"])).toEqual([]);
-});
