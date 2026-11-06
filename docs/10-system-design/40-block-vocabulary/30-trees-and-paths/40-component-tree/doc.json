@@ -136,7 +136,7 @@
       "props": {
         "nodes": [
           {
-            "text": "<OutlineRows id={id} rows={rows} flavor={flavor} …>",
+            "text": "<OutlineRows id={id} rows={rows} flavor={flavor}>",
             "comment": "one panel of code rows",
             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:249",
             "nodes": [
@@ -148,7 +148,6 @@
               {
                 "text": "flat.length === 0",
                 "kind": "branch",
-                "comment": "the block has no rows",
                 "nodes": [
                   {
                     "text": "<div className=\"docs-tree__empty\">",
@@ -162,7 +161,7 @@
                 "kind": "branch",
                 "nodes": [
                   {
-                    "text": "<div className=\"docs-tree__row\" …>",
+                    "text": "<div className=\"docs-tree__row\">",
                     "comment": "one per row, depth first",
                     "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:287",
                     "nodes": [
@@ -199,7 +198,7 @@
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__note\" …>",
+                            "text": "<span className=\"docs-tree__note\">",
                             "comment": "the comment beside or under the code",
                             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:315"
                           }
@@ -210,7 +209,7 @@
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__src\" …>",
+                            "text": "<span className=\"docs-tree__src\">",
                             "comment": "the file and line chip",
                             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:317"
                           }
@@ -266,7 +265,8 @@
         "ct-rows-g1-1",
         "ct-rows-g1-2",
         "ct-rows-g1-3",
-        "ct-rows-g1-4"
+        "ct-rows-g1-4",
+        "ct-rows-g1-5"
       ]
     },
     "ct-rows-g1-1": {
@@ -295,7 +295,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep the props that pass data, children or a render callback to a row in the tree. Write "
+          "insert": "Keep at most 3 props on a row, the ones that pass data, children or a render callback to a row in the tree. Drop the other props with no marker, because a bare "
         },
         {
           "insert": "…",
@@ -304,25 +304,7 @@
           }
         },
         {
-          "insert": " before the closing "
-        },
-        {
-          "insert": ">",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or "
-        },
-        {
-          "insert": "/>",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when you drop other props."
+          "insert": " is not valid JSX."
         }
       ],
       "children": []
@@ -333,7 +315,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a conditional or long prop value as "
+          "insert": "Write a conditional, long or utility-class prop value as "
         },
         {
           "insert": "{…}",
@@ -342,7 +324,34 @@
           }
         },
         {
-          "insert": ", never as one of its arms."
+          "insert": ", such as "
+        },
+        {
+          "insert": "className={…}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for "
+        },
+        {
+          "insert": "p-3 text-ui-lg",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Keep a class name that names the part, such as "
+        },
+        {
+          "insert": "docs-tree__note",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -363,6 +372,17 @@
         },
         {
           "insert": ", under the component that calls the callback. Keep that prop on the parent row."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1-5": {
+      "id": "ct-rows-g1-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Draw a child that reaches the tree by 2 paths, such as a provider slot and a render callback, under each parent that creates it. Give each copy the source line of its own path."
         }
       ],
       "children": []
@@ -412,7 +432,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write the last arm as "
+          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write each later test in a chain as "
+        },
+        {
+          "insert": "else if",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " plus its condition, and the last arm as "
         },
         {
           "insert": "else",
@@ -548,16 +577,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep one root per tree. Expand a component that renders in 2 places under the first place, and give the other row the comment "
-        },
-        {
-          "insert": "same rows as above",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "Keep one root per tree. Expand a component under every place that renders it, each copy with the props that place passes."
         }
       ],
       "children": []
@@ -577,7 +597,8 @@
       "children": [
         "ct-rows-g4-1",
         "ct-rows-g4-2",
-        "ct-rows-g4-3"
+        "ct-rows-g4-3",
+        "ct-rows-g4-4"
       ]
     },
     "ct-rows-g4-1": {
@@ -626,7 +647,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a comment as what the row draws, or which case a branch covers, in a few words. Leave out a comment that repeats the row's name or props, narrates event handlers, or gives only a package name."
+          "insert": "Write a component comment as what the row draws, such as its regions or controls, never only its position. Leave out a comment that repeats the row's name or props, narrates event handlers, or gives only a package name."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g4-4": {
+      "id": "ct-rows-g4-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give a branch row a comment only when it adds a fact its condition does not state, such as what the user did to reach that case."
         }
       ],
       "children": []

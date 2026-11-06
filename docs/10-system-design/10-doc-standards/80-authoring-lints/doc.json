@@ -1349,6 +1349,7 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "component-tree-bare-ellipsis-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1454,6 +1455,84 @@
       "text": [
         {
           "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "component-tree-bare-ellipsis-lint": {
+      "id": "component-tree-bare-ellipsis-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "component-tree.bare-ellipsis",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a component or hook row with a "
+        },
+        {
+          "insert": "…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " outside braces and quotes, such as "
+        },
+        {
+          "insert": "<Pane settings={settings} …>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "component-tree-bare-ellipsis-fix",
+        "component-tree-bare-ellipsis-phase"
+      ]
+    },
+    "component-tree-bare-ellipsis-fix": {
+      "id": "component-tree-bare-ellipsis-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The row reads as broken JSX. The writer drops those props with no marker and writes an omitted value as "
+        },
+        {
+          "insert": "{…}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "component-tree-bare-ellipsis-phase": {
+      "id": "component-tree-bare-ellipsis-phase",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It is a warning with no enforcement phase, so it never blocks a save or "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
