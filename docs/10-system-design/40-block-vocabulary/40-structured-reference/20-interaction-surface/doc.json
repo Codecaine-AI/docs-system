@@ -381,16 +381,25 @@
       "props": {},
       "text": [
         {
-          "insert": "For a union keyed on one field, type that field with its literal values, such as "
+          "insert": "For a result with more than one shape, set "
         },
         {
-          "insert": "true | false",
+          "insert": "returns",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "."
+          "insert": " to the union type and give "
+        },
+        {
+          "insert": "returnShape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " one top-level field per branch."
         }
       ],
       "children": [
@@ -403,7 +412,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Start the description of each field that only one branch has with that branch, such as \"Only when ok is true.\""
+          "insert": "Name each branch field by its key and value, such as "
+        },
+        {
+          "insert": "ok: true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", leave its type empty, and nest that branch's fields under it."
         }
       ],
       "children": []
@@ -1643,7 +1661,50 @@
       "props": {},
       "text": [
         {
-          "insert": "Described or nested parameters add indented field lines beneath the signature. A returnShape adds a named Returns section, recursive fields, and the supplied example. Full operation names remain searchable."
+          "insert": "Once any parameter has a description or nested fields, every parameter adds an indented field line beneath the signature."
+        }
+      ],
+      "children": [
+        "agentr-detail-returns",
+        "agentr-detail-callform"
+      ]
+    },
+    "agentr-detail-returns": {
+      "id": "agentr-detail-returns",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "returnShape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " adds a named Returns section, recursive fields, and the supplied example."
+        }
+      ],
+      "children": []
+    },
+    "agentr-detail-callform": {
+      "id": "agentr-detail-callform",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A name that is already a call, such as "
+        },
+        {
+          "insert": "docPeekReducer(state, { type: \"open\" })",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", prints as written and always lists its parameters as lines."
         }
       ],
       "children": []
