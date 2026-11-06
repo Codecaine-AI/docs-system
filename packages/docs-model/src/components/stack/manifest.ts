@@ -11,7 +11,7 @@ export const manifest: ComponentManifest = {
     whenToUse:
       "Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. " +
       "Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. " +
-      "Draw a uses arrow when the sources show or state that the node imports or calls its next sibling. " +
+      "Draw a uses arrow when a source shows or states that the node imports or calls its next sibling, such as an import line or a call in a function body. A type that a layer only takes as a parameter is not a call. " +
       "When the sources state a rule but no import or call, such as a path check that a value must pass, draw no arrow and write the rule as a boundary. " +
       "Give each line between two sibling layers a boundary when the sources hold a rule for it. " +
       "A boundary states a restriction or a required interface, such as \"docs-viewer never imports host-app code\" or \"data enters only through `DocsClient`\". It never describes what a layer outputs. " +
