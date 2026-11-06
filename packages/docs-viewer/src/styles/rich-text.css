@@ -13,12 +13,18 @@
  * grid and narrower than the --docs-inline-code-pad-x default, so a comma or
  * period after it sits close to its text, not one space away. Table chips
  * keep the knob's pad, which the table-fit layout metrics measure.
+ *
+ * Prose chips also take one ink, the inline-code ink, whatever kind
+ * components/typed-chip.ts guesses for their text. In a sentence, a red path
+ * beside a navy name and a gray command read as three kinds of mark. Table
+ * cells and typed blocks keep the per-kind colors.
  */
 .docs-markdown :is([data-doc-block="paragraph"], [data-doc-block="heading"], [data-doc-block="list-item"], [data-callout-body]) code[data-chip-kind] {
   display: inline-block;
   max-width: 100%;
   vertical-align: baseline;
   padding-inline: var(--ds-space-1);
+  --docs-chip-kind-fg: var(--docs-inline-code-fg, var(--ds-light-color-text-ink));
 }
 
 /*
