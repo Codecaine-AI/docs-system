@@ -1,10 +1,10 @@
-/* Shared list markers for the Docs editor and static renderer. Markers are
-   secondary ink (--docs-list-marker-fg, muted by default, so a bullet still
-   clears 3:1); ordered numbers are mono, right-aligned in the hanging
+/* Shared list markers for the Docs editor and static renderer. Markers take
+   --docs-list-marker-fg, the body ink by default, so a small bullet still
+   reads at a glance. Ordered numbers are mono, right-aligned in the hanging
    gutter. */
 .docs-markdown [data-doc-list-marker] {
   font-family: var(--docs-font-numeric, inherit);
-  color: var(--docs-list-marker-fg, var(--ds-light-color-text-muted));
+  color: var(--docs-list-marker-fg, var(--ds-light-color-text-body));
   display: flex;
   align-items: center;
   justify-content: center;

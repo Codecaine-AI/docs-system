@@ -1,4 +1,4 @@
-import { inlineCodeChipProps } from "./delta-spans";
+import { CHIP_GLUE_PUNCTUATION, inlineCodeChipProps } from "./delta-spans";
 import { chipNeedsPieces, chipPieces } from "../components/mono-breaks";
 
 /** The slice of the hast shape this pass reads and writes (no @types/hast dependency). */
@@ -31,15 +31,26 @@ function chipChildren(text: string): HastNode[] {
   });
 }
 
+const isChip = (node: HastNode, parent: HastNode | null) => node.type === "element" && node.tagName === "code" && parent?.tagName !== "pre";
+
 function visit(node: HastNode, parent: HastNode | null): void {
-  if (node.type === "element" && node.tagName === "code" && parent?.tagName !== "pre") {
+  if (isChip(node, parent)) {
     const text = hastText(node);
     const { className, "data-chip-kind": kind } = inlineCodeChipProps(text);
     node.properties = { ...node.properties, className: className.split(" "), dataChipKind: kind };
     if (chipNeedsPieces(text)) node.children = chipChildren(text);
     return;
   }
-  for (const child of node.children ?? []) visit(child, node);
+  const children = node.children ?? [];
+  for (const child of children) visit(child, node);
+  // A chip and the punctuation that starts the text after it share one nowrap span (delta-spans.tsx CHIP_GLUE_PUNCTUATION).
+  for (let i = 0; i < children.length - 1; i++) {
+    const next = children[i + 1]!;
+    const glue = isChip(children[i]!, node) && next.type === "text" ? CHIP_GLUE_PUNCTUATION.exec(next.value ?? "")?.[0] : undefined;
+    if (!glue) continue;
+    next.value = next.value!.slice(glue.length);
+    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", style: "white-space:nowrap" }, children: [children[i]!, { type: "text", value: glue }] };
+  }
 }
 
 /**

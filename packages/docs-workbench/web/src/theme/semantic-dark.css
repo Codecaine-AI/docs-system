@@ -95,7 +95,7 @@
   --docs-heading-h1-size: 1.875;
   --docs-heading-h2-size: 1.25;
   --docs-heading-h3-size: 1;
-  --docs-list-marker-fg: var(--docs-muted);
+  --docs-list-marker-fg: var(--docs-text);
   --docs-list-item-fg: var(--docs-text);
   --docs-list-item-gap: var(--ds-space-1);
   /* Task-item checkbox: the open box outline follows the marker ink (3:1),
