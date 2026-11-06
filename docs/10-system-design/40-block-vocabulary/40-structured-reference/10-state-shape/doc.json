@@ -1314,7 +1314,13 @@
       "props": {},
       "text": [
         {
-          "insert": "StateShapeBlock renders one dark code panel with a header, a field ledger, and an Example pane. The whole panel is a code surface, so it stays dark on both the light and the dark page and takes the code theme's colors, as "
+          "insert": "StateShapeBlock",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders one dark code panel with a header, a field ledger, and an Example pane. The panel is a code surface, so it stays dark on both the light and the dark page. It takes the code theme's colors, as "
         },
         {
           "insert": "Code Colors From Your Editor",
@@ -1326,7 +1332,7 @@
           }
         },
         {
-          "insert": " describes. The ledger and the Example pane split 44/56 when the block is at least 560px wide. The ledger keeps at least 360px and the Example pane at least 260px, and a narrower block stacks them. Both panes have 16px of inner padding and render as follows:"
+          "insert": " describes. At 560px wide or more, the ledger and the Example pane sit side by side, and each pane has 16px of inner padding."
         }
       ],
       "children": []
@@ -1382,7 +1388,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field row shows only a name and a type. The name takes the key color with a punctuation-colored "
+          "insert": "Every field row shows a name, a type, and the field's description when it has one. The name takes the key color with a punctuation-colored "
         },
         {
           "insert": "?",
@@ -1391,7 +1397,7 @@
           }
         },
         {
-          "insert": " when the field is optional, and the type takes the type color."
+          "insert": " right after it when the field is optional, and a legend above the rows says which fields are required."
         }
       ],
       "children": []
@@ -1413,16 +1419,25 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field ledger uses one 24ch name column, so type columns line up across blocks. A long name wraps inside that column, also at "
+          "insert": "The name column fits the longest name at its depth, from 10ch to the 24ch of "
         },
         {
-          "insert": "_",
+          "insert": "--docs-shape-name-width",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "."
+          "insert": ". The ledger takes the theme's column split, 52% by default, plus 8% when "
+        },
+        {
+          "insert": "exampleIsShort",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " finds an example far shorter than the ledger and no wider than 36 columns."
         }
       ],
       "children": []
@@ -1439,7 +1454,9 @@
       "children": [
         "b-25-state-shape-dr-example-1",
         "b-25-state-shape-dr-example-2",
-        "b-25-state-shape-dr-example-3"
+        "b-25-state-shape-dr-example-3",
+        "b-25-state-shape-dr-example-4",
+        "b-25-state-shape-dr-example-5"
       ]
     },
     "b-25-state-shape-dr-example-1": {
@@ -1457,7 +1474,7 @@
           }
         },
         {
-          "insert": " canon: line numbers, zebra stripes."
+          "insert": " canon with no line numbers. An object or array folds onto one line when that line fits in 42 columns."
         }
       ],
       "children": []
@@ -1479,7 +1496,38 @@
       "props": {},
       "text": [
         {
-          "insert": "A long line soft-wraps with a hanging indent instead of scrolling."
+          "insert": "A long line soft-wraps instead of scrolling, and each key stays on the line of its value."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-example-4": {
+      "id": "b-25-state-shape-dr-example-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A path value whose parts are 32 characters or shorter breaks only after a "
+        },
+        {
+          "insert": "/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-example-5": {
+      "id": "b-25-state-shape-dr-example-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A wrapped string value with no space continues under the first character inside its opening quote."
         }
       ],
       "children": []
@@ -1612,7 +1660,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A field's description prints on the page beside its type. When the ledger is 600px wide or more, it sits in a third column. When the ledger is narrower, it sits under the type."
+          "insert": "A field's description prints beside its type at a ledger width of 600px or more, and under the type below that. Each backtick span in a description renders as inline code."
         }
       ],
       "children": []
