@@ -192,6 +192,27 @@ const OUTLINE_ROWS_VARS = treeVars({
   "--tr-syn-bracket": "var(--docs-outline-rows-bracket-fg,color-mix(in srgb,var(--syntax-punctuation,#d4d4d4) 60%,transparent))",
 });
 
+/*
+ * Call-stack only, on top of the shared trees row CSS (tree-rows.tsx), so the
+ * other tree blocks keep their layout:
+ * - A long frame wraps inside the panel with a hanging indent instead of
+ *   running past its right edge.
+ * - With notes below, the source stays on the frame's own code line, and the
+ *   comment takes the line under it, so every file:line sits beside its call.
+ */
+const CALL_STACK_CSS = `
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.docs-tree[data-tree-kind="call-stack"] :is(.docs-tree__path, .docs-tree__src) {
+  line-height: calc(var(--tr-row, 28px) - 2 * var(--ds-space-1)); padding-block: var(--ds-space-1);
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path {
+  padding-left: calc(var(--depth, 0) * var(--tr-indent) + 2ch); text-indent: -2ch;
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / src; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 1; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__note { grid-column: path / end; }
+`;
+
 const FLAVOR_HEAD = {
   "call-stack": { icon: TREE_ICONS.stack, title: "Call stack" },
   component: { icon: TREE_ICONS.components, title: "Component tree" },
@@ -218,6 +239,7 @@ export function OutlineRows({
   return (
     <section className="not-prose my-4 w-full" data-docs-block-type={blockType} data-source-id={id}>
       <TreeStyle />
+      {flavor === "call-stack" ? <style>{CALL_STACK_CSS}</style> : null}
       <figure className="docs-tree" data-tree-kind={blockType} data-outline-flavor={flavor} data-code-surface="true" style={OUTLINE_ROWS_VARS}>
         <TreeHead icon={head.icon} title={head.title} />
         <div
