@@ -265,7 +265,8 @@
         "ct-rows-g1-1",
         "ct-rows-g1-2",
         "ct-rows-g1-3",
-        "ct-rows-g1-5"
+        "ct-rows-g1-5",
+        "ct-rows-g1-6"
       ]
     },
     "ct-rows-g1-1": {
@@ -379,16 +380,45 @@
       "props": {},
       "text": [
         {
-          "insert": "A component that a slot prop or a render prop supplies is not a mounted child. Write it as a row of that prop under the component that receives the prop, such as "
+          "insert": "Draw a component that a slot prop or a render prop supplies as its own JSX row, such as "
         },
         {
-          "insert": "renderCanvas={(input) => <ProxyCanvas input={input} />}",
+          "insert": "<ProxyCanvas input={input} />",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", and say in the comment where it renders."
+          "insert": ", never as a prop row. Put it under the row that renders the prop's result, such as the "
+        },
+        {
+          "insert": "div",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " that renders "
+        },
+        {
+          "insert": "{body}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and name the prop in its comment."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1-6": {
+      "id": "ct-rows-g1-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When a slot's result renders outside the tree, put its row under the component that receives the slot prop. Say in the comment that the slot supplies it and where it renders."
         }
       ],
       "children": []
