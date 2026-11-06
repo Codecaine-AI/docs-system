@@ -22,6 +22,7 @@ import {
   colorAttrs,
   colorScope,
   colorSeams,
+  compactFileTree,
   relativeFromPath,
   sortFileTreeNodes,
   type FileTreeEntry,
@@ -172,7 +173,7 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;
     const { roots } = buildFileTree(data.entries);
-    const rows = flattenFileTree(roots.values(), [], undefined, []);
+    const rows = flattenFileTree(compactFileTree(roots).values(), [], undefined, []);
     const diff = hasChange(rows);
     const seams = colorSeams(rows.map((row) => row.scope));
     return (

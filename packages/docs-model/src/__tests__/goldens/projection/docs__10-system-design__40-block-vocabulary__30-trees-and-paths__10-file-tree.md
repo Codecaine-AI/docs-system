@@ -11,17 +11,13 @@ To show the files a change touches as editor sidebar rows with a badge per chang
 A live instance: a refactor slice of this block's own source folder.
 
 ```
-  packages/
-  └── docs-model/
-      └── src/
-          └── components/
-              └── file-tree/
-                  ├── actions/
-+                 │   └── update-entry.ts
-~                 ├── agent-view.ts  # tree drawing
->                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
-                  ├── manifest.ts
-                  └── state.ts  # entry schema + tolerant read
+  packages/docs-model/src/components/file-tree/
+  ├── actions/
++ │   └── update-entry.ts
+~ ├── agent-view.ts  # tree drawing
+> ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
+  ├── manifest.ts
+  └── state.ts  # entry schema + tolerant read
 ```
 
 ## State Schema

@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "../../../render/block-registry";
 import { TREE_ROWS_CSS } from "../../outline-rows/tree-rows";
+import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { descriptors } from "../descriptor";
 
 const RENDER_CTX: DocBlockRenderContext = {
@@ -123,5 +124,38 @@ describe("file tree group color", () => {
     expect(active()).toEqual([false, true, true, false, false]);
     fireEvent.mouseLeave(document.querySelector(".docs-tree__rows")!);
     expect(active()).toEqual([false, false, false, false, false]);
+  });
+});
+
+describe("file tree compact folders", () => {
+  const names = () => treeRows().map((row) => row.querySelector(".docs-tree__name")?.textContent);
+
+  it("draws a chain of single-child folders as one row, in the order the agent projection prints", () => {
+    const entries = [
+      { path: "packages/docs-model/src/a.ts" },
+      { path: "packages/docs-model/src/b.ts" },
+      { path: "a-b/c.ts" },
+      { path: "a/x/d.ts" },
+    ];
+    renderTree(entries);
+    expect(names()).toEqual(["a/x/", "d.ts", "a-b/", "c.ts", "packages/docs-model/src/", "a.ts", "b.ts"]);
+    const doc = {
+      schemaVersion: 1, id: "d", title: "T", root: "r",
+      blocks: { r: { id: "r", type: "paragraph", props: {}, children: ["t"] }, t: { id: "t", type: "file-tree", props: { entries }, children: [] } },
+    } as unknown as Parameters<typeof projectToMarkdown>[0];
+    const fence = projectToMarkdown(doc).split("```")[1]!;
+    const text = fence.trim().split("\n").map((line) => line.replace(/^[│├└─ ]+/, ""));
+    expect(text).toEqual(names());
+  });
+
+  it("keeps a folder that carries a note, change or color on its own row", () => {
+    renderTree([
+      { path: "noted/", note: "why" },
+      { path: "noted/inner/x.ts" },
+      { path: "colored/", color: "blue" },
+      { path: "colored/inner/y.ts" },
+      { path: "moved/added/", change: "added" },
+    ]);
+    expect(names()).toEqual(["colored/", "inner/", "y.ts", "moved/", "added/", "noted/", "inner/", "x.ts"]);
   });
 });
