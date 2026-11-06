@@ -3,10 +3,11 @@ import type { OutlineRow } from "../shared/outline-rows";
 import { readComponentTree } from "./state";
 
 /**
- * True when a row holds an ellipsis outside braces and quotes, such as `<Pane a={a} …>`, where it stands
- * for dropped props. Inside braces it is a value (`{…}`) or a spread (`{...props}`), which is valid JSX.
+ * True when a row's opening tag holds an ellipsis outside braces and quotes, such as `<Pane a={a} …>`, where it
+ * stands for dropped props. Inside braces it is a value (`{…}`) or a spread (`{...props}`), and after the tag's
+ * closing `>` it is child text (`<div>Loading…</div>`): both are valid JSX.
  */
-export function hasBareEllipsis(text: string): boolean {
+function hasBareEllipsis(text: string): boolean {
   let depth = 0;
   let quote: string | null = null;
   for (let i = 0; i < text.length; i++) {
@@ -15,6 +16,7 @@ export function hasBareEllipsis(text: string): boolean {
     if (char === '"' || char === "'" || char === "`") quote = char;
     else if (char === "{") depth++;
     else if (char === "}") depth = Math.max(0, depth - 1);
+    else if (depth === 0 && char === ">") return false;
     else if (depth === 0 && (char === "…" || text.startsWith("...", i))) return true;
   }
   return false;
