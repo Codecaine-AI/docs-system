@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useId, useMemo, type CSSProperties, type ReactNode } from "react";
 import { Braces } from "lucide-react";
 import { printJsonLines, type Field } from "@codecaine-ai/docs-model";
 import { DescribedName } from "../described-name";
@@ -47,6 +47,7 @@ export const STATE_SHAPE_STYLE = `
 @container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-shape-grid][data-has-example] [data-shape-example-pane]{border-top:0;border-left:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}}
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
+[data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1-5) var(--docs-shape-pad-x,16px) var(--ds-space-1);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 var(--docs-shape-rule-width,1px) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
 `;
@@ -126,6 +127,21 @@ function jsonTokenKind(token: string, rest: string): JsonTokenKind {
   if (token.length === 1 && "{}[],:".includes(token)) return "punct";
   return "number";
 }
+/** A string value with no space that this many characters or fewer separate at each `/` reads as a path. */
+const PATH_SEGMENT_MAX = 32;
+
+/**
+ * A path-like string value (no space, a `/`, every part short) as nowrap parts with a break after each `/`, so a
+ * soft-wrapped path breaks between folders and never inside a name such as `docs-mcp`. Any other string is
+ * returned whole and wraps as before.
+ */
+function pathSegments(token: string): ReactNode {
+  if (/\s/.test(token) || !token.includes("/")) return token;
+  const parts = token.split(/(?<=\/)/);
+  if (parts.some((part) => part.length > PATH_SEGMENT_MAX)) return token;
+  return parts.map((part, index) => <Fragment key={index}>{index > 0 && <wbr />}<span data-json-seg="">{part}</span></Fragment>);
+}
+
 export function jsonLineTokens(line: string): ReactNode[] {
   const output: ReactNode[] = [];
   let cursor = 0;
@@ -134,7 +150,7 @@ export function jsonLineTokens(line: string): ReactNode[] {
     if (index > cursor) output.push(line.slice(cursor, index));
     const token = match[0];
     const kind = jsonTokenKind(token, line.slice(index + token.length));
-    output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{token}</span>);
+    output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{kind === "string" ? pathSegments(token) : token}</span>);
     cursor = index + token.length;
   }
   if (cursor < line.length) output.push(line.slice(cursor));

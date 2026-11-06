@@ -537,4 +537,12 @@ describe("StateShapeBlock — optionality legend and path wrapping", () => {
     expect(legend()?.getAttribute("data-shape-legend")).toBe("optional");
     expect(legend()?.textContent).toBe("? marks an optional field. Every other field is required.");
   });
+
+  it("breaks a path value only after a slash, and leaves prose strings whole", () => {
+    render(<StateShapeBlock id="path" fields={[{ name: "root", type: "string" }, { name: "note", type: "string" }]} example={JSON.stringify({ root: "packages/docs-mcp/src", note: "a and/or b" })} />);
+    const [root, note] = Array.from(document.querySelectorAll('[data-json-token="string"]'));
+    expect(Array.from(root!.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(['"packages/', "docs-mcp/", 'src"']);
+    expect(root!.querySelectorAll("wbr")).toHaveLength(2);
+    expect(note!.querySelector("[data-json-seg]")).toBeNull();
+  });
 });
