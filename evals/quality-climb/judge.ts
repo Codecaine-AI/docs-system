@@ -257,7 +257,31 @@ export async function judgePage(judge: string, packet: Packet, pageDir: string, 
   return judgeWith(judge, packet, pageDir, sample, await judgePrompt(packet), JudgeReplySchema, (text) => parseJudgeReply(text, ids));
 }
 
-/** Scores the lane's blocks on a page against each criterion, and the page's 8 categories as a guard. */
+/** The hash of the criteria ids and questions a lane reply was scored against. */
+export const criteriaHash = (criteria: Criterion[]) => createHash("sha256").update(JSON.stringify(criteria.map((c) => [c.id, c.question]))).digest("hex");
+/** The file beside a lane score file that holds the criteriaHash it was scored against. */
+export const criteriaFile = (pageDir: string, judge: string, sample: number) => join(pageDir, "scores", `${judge}.${sample}.criteria`);
+
+/**
+ * Scores the lane's blocks on a page against each criterion, and the page's 8 categories as a guard. Saves the
+ * criteria hash beside the score file, so cachedLaneReply reuses the reply only while the criteria stay the same.
+ */
 export async function judgeLanePage(judge: string, packet: LanePacket, pageDir: string, sample = 1): Promise<LaneReply> {
-  return judgeWith(judge, packet, pageDir, sample, await laneJudgePrompt(packet), laneReplySchema(packet.criteria), (text) => parseLaneReply(text, packet.criteria));
+  const reply = await judgeWith(judge, packet, pageDir, sample, await laneJudgePrompt(packet), laneReplySchema(packet.criteria), (text) => parseLaneReply(text, packet.criteria));
+  await writeFile(criteriaFile(pageDir, judge, sample), criteriaHash(packet.criteria));
+  return reply;
+}
+
+/**
+ * A saved lane reply, or null when it must be judged again: no score file, a criteria hash that is missing or names
+ * other ids or questions, or scores for other criterion ids than `criteria`.
+ */
+export async function cachedLaneReply(pageDir: string, judge: string, sample: number, criteria: Criterion[]): Promise<LaneReply | null> {
+  const file = scoreFile(pageDir, judge, sample);
+  const hash = await readFile(criteriaFile(pageDir, judge, sample), "utf8").catch(() => null);
+  if (!existsSync(file) || hash !== criteriaHash(criteria)) return null;
+  const reply = JSON.parse(await readFile(file, "utf8")) as LaneReply;
+  const scored = Object.keys(reply.criteria ?? {}).sort();
+  const ids = criteria.map((c) => c.id).sort();
+  return scored.length === ids.length && scored.every((id, i) => id === ids[i]) ? reply : null;
 }

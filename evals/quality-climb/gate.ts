@@ -291,8 +291,12 @@ export function evaluateLaneGate(pages: LanePageScore[], countingJudges: string[
       const result = laneSetScores(mine, criteriaIds);
       scores[judge][set] = result;
       for (const id of criteriaIds) {
+        // A reply scored before this criterion existed lacks it, and its NaN mean would never compare below TARGET.
+        const unscored = mine.filter((p) => p.samples.some((s) => !Number.isFinite(s.criteria[id]))).length;
         const m = result.criteria[id]!.mean;
-        if (m < TARGET) failures.push({ set, text: `${judge} ${set} ${id}: mean ${m.toFixed(2)} < ${TARGET}` });
+        if (unscored) failures.push({ set, text: `${judge} ${set} ${id}: not scored on ${unscored} of ${mine.length} pages` });
+        else if (!Number.isFinite(m)) failures.push({ set, text: `${judge} ${set} ${id}: mean is not a number` });
+        else if (m < TARGET) failures.push({ set, text: `${judge} ${set} ${id}: mean ${m.toFixed(2)} < ${TARGET}` });
       }
     }
   }

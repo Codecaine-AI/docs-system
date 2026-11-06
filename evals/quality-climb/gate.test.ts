@@ -237,6 +237,18 @@ describe("lane gate", () => {
     expect(texts(gate([lanePage("sol", "climb")], ["sol"]))).toEqual(["sol held-out: no pages scored"]);
   });
 
+  test("fails a criterion that a sample did not score, such as a reply cached before the criterion was added", () => {
+    const stale = lanePage("sol", "climb");
+    const legacy = { ...stale.samples[0]!, criteria: { accuracy: 9.6, readability: 9.6 } };
+    const climb = [{ ...stale, samples: [stale.samples[0]!, legacy, stale.samples[0]!] }, lanePage("sol", "climb", { id: 3 })];
+    const result = gate([...climb, lanePage("sol", "held-out")], ["sol"]);
+    expect(result.pass).toBe(false);
+    expect(texts(result)).toEqual(["sol climb nesting: not scored on 1 of 2 pages"]);
+    // With one sample, the missing score makes the mean NaN, which never compares below the target.
+    const lone = gate([{ ...stale, samples: [legacy] }, lanePage("sol", "held-out")], ["sol"]);
+    expect(texts(lone)).toEqual(["sol climb nesting: not scored on 1 of 1 pages"]);
+  });
+
   test("only the stage's counting judges block, so a later-stage judge below the target does not", () => {
     const pages = [...both("sol"), ...both("opus"), ...both("muse", 7)];
     expect(gate(pages, ["sol", "opus"]).pass).toBe(true);

@@ -26,7 +26,7 @@ import {
   type FailureSets, type LanePageScore, type LaneScores, type PageScore, type Stage, type WriterCost,
 } from "./gate";
 import type { Box } from "./images";
-import { judgeLanePage, judgePage, scoreFile, workDirOf, type JudgeUsage, type LanePacket, type Packet } from "./judge";
+import { cachedLaneReply, judgeLanePage, judgePage, scoreFile, workDirOf, type JudgeUsage, type LanePacket, type Packet } from "./judge";
 import { loadLane } from "./lanes";
 import { lintRules, renderPage, type LintSummary, type PageBlock } from "./render";
 import { groupOf, laneBlockTypes, type Brief, type JudgeReply, type LaneReply } from "./schema";
@@ -121,14 +121,13 @@ const checks = opt["skip-tests"] ? Promise.resolve(null) : runChecks();
 let renderChain: Promise<unknown> = Promise.resolve();
 let rebuilt = false;
 
-/** Each judge's samples of one page, read from their score files or scored now. */
-async function judged<T>(page: string, b: Brief, score: (judge: string, sample: number) => Promise<T>) {
+/** Each judge's samples of one page, from `cached` (a saved reply, or null) or scored now. */
+async function judged<T>(b: Brief, cached: (judge: string, sample: number) => Promise<T | null>, score: (judge: string, sample: number) => Promise<T>) {
   const out: { judge: string; samples: T[] }[] = [];
   for (const judge of judges) {
     const replies: T[] = [];
     for (let sample = 1; sample <= (samples[judge] ?? 1); sample++) {
-      const file = scoreFile(page, judge, sample);
-      replies.push(existsSync(file) ? await readJson<T>(file) : (log(`${name(b)}: judging with ${judge}, sample ${sample}`), await score(judge, sample)));
+      replies.push((await cached(judge, sample)) ?? (log(`${name(b)}: judging with ${judge}, sample ${sample}`), await score(judge, sample)));
     }
     out.push({ judge, samples: replies });
   }
@@ -157,10 +156,13 @@ async function runBrief(b: Brief) {
       boxes: existsSync(join(page, "boxes.json")) ? await readJson<Record<string, Box>>(join(page, "boxes.json")) : undefined,
     };
     if (lanePacket.blocks.length === 0) throw new Error(`${name(b)} has no ${lane.lane} block, so the lane judges have nothing to score.`);
-    for (const s of await judged<LaneReply>(page, b, (judge, sample) => judgeLanePage(judge, lanePacket, page, sample))) laneScores.push({ ...s, set: b.set, briefId: b.id });
+    // A saved lane reply counts only while the lane's criteria are the ones it was scored against.
+    const cached = (judge: string, sample: number) => cachedLaneReply(page, judge, sample, lane.criteria);
+    for (const s of await judged<LaneReply>(b, cached, (judge, sample) => judgeLanePage(judge, lanePacket, page, sample))) laneScores.push({ ...s, set: b.set, briefId: b.id });
   } else {
     const groups = Object.fromEntries(packet.blocks.map((block) => [block.id, groupOf(block.type)!]));
-    for (const s of await judged<JudgeReply>(page, b, (judge, sample) => judgePage(judge, packet, page, sample))) pageScores.push({ ...s, set: b.set, briefId: b.id, groups });
+    const cached = async (judge: string, sample: number) => existsSync(scoreFile(page, judge, sample)) ? readJson<JudgeReply>(scoreFile(page, judge, sample)) : null;
+    for (const s of await judged<JudgeReply>(b, cached, (judge, sample) => judgePage(judge, packet, page, sample))) pageScores.push({ ...s, set: b.set, briefId: b.id, groups });
   }
   return { pageScores, laneScores, lint: await readJson<LintSummary>(join(page, "lint.json")), metrics: await readJson<WriterMetrics>(join(page, "metrics.json")) };
 }
