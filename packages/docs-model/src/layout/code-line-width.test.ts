@@ -27,7 +27,7 @@ function documentWith(top: DocBlock[], nested: DocBlock[] = []): DocDocument {
 const check = (doc: DocDocument) => codeLineWidthRule.check({ document: doc, blocks: orderedBlocks(doc) });
 const x = (columns: number) => "x".repeat(columns);
 const message = (line: number, columns: number, fits: string) =>
-  `Line ${line} is ${columns} columns wide, but at stock theme settings the code panel fits ${fits} before it scrolls sideways.`;
+  `Line ${line} is ${columns} columns wide, but at stock theme settings the code panel fits ${fits}, so the line wraps on the page.`;
 
 describe("layout.code-line-width", () => {
   test("flags a line wider than the 118 columns a top-level code panel fits, as a non-blocking warning", () => {
@@ -38,8 +38,8 @@ describe("layout.code-line-width", () => {
       evidence: x(119),
       message: message(2, 119, "118"),
       suggestion:
-        "Wrap line 2 or shorten it by 1 column, or accept horizontal scrolling for this block. " +
-        "This is an on-screen check: PDF export wraps code instead of scrolling.",
+        "Keep a copied source line verbatim. If the page does not need the line, cut it and mark the cut with one comment line, such as `// ...`. " +
+        "Never reflow or shorten a copied line to fit.",
     }]);
     const report = lintDocument(doc, { phase: "complete" });
     expect(report.findings.filter((f) => f.ruleId === "layout.code-line-width").map((f) => f.severity)).toEqual(["warning"]);
@@ -60,7 +60,7 @@ describe("layout.code-line-width", () => {
     expect(check(document(code("c", "日".repeat(60))))).toEqual([]);
     const [finding] = check(document(code("c", "日".repeat(100))));
     expect(finding!.message).toBe(
-      "Line 1 may scroll sideways: it needs about 1,300px and at stock theme settings the code panel shows 924px, and part of that width " +
+      "Line 1 may wrap: it needs about 1,300px and at stock theme settings the code panel shows 924px, and part of that width " +
         "is text the bundled fonts lack. These widths are approximate: the bundled fonts lack 日, so the browser's fallback font sets their width.",
     );
     // Covered text that overflows on its own is still an overflow, with the estimate disclosed.
@@ -69,7 +69,7 @@ describe("layout.code-line-width", () => {
     expect(mixed!.message).toContain("These widths are approximate: the bundled fonts lack 日");
   });
 
-  test("a line within 1px of the edge may scroll", () => {
+  test("a line within 1px of the edge may wrap", () => {
     // Two list items leave 561px for code. 72 columns paint 561.61px.
     const [outer, inner, block] = [
       { id: "li1", type: "list-item", props: {}, text: [{ insert: "Outer" }], children: ["li2"] },
@@ -78,7 +78,7 @@ describe("layout.code-line-width", () => {
     ] as DocBlock[];
     expect(measureWidth(x(72), { family: "IBM Plex Mono", size: 13 }) - 561).toBeCloseTo(0.609375, 6);
     expect(check(documentWith([outer!], [inner!, block!])).map((f) => f.message)).toEqual([
-      "Line 1 is 72 columns wide and at stock theme settings the code panel fits about 71, so it may scroll sideways.",
+      "Line 1 is 72 columns wide and at stock theme settings the code panel fits about 71, so it may wrap.",
     ]);
   });
 
@@ -96,19 +96,17 @@ describe("layout.code-line-width", () => {
     expect(JSON.parse(stdout)).toEqual([`${message(1, 200, "118")} These widths are approximate: text-measure is on its table backend.`]);
   });
 
-  test("an annotated block fits 82 columns beside its notes column", () => {
+  test("an annotated block fits the same 118 columns, since its notes move under the lines when the code needs the width", () => {
     const annotations = [{ lines: "1", note: "Why this line matters." }];
-    expect(check(document(code("c", x(82), { annotations })))).toEqual([]);
-    expect(check(document(code("c", x(83), { annotations }))).map((f) => f.message)).toEqual([
-      message(1, 83, "82 beside its notes column"),
-    ]);
+    expect(check(document(code("c", x(118), { annotations })))).toEqual([]);
+    expect(check(document(code("c", x(119), { annotations }))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
   });
 
   test("a code block nested in a list item lays out in the text lane, 75 columns", () => {
     // 74 columns fit clearly, 75 exactly (585px of 585px, within 1px, so it may scroll), 76 do not.
     const [item, nested] = listItem("li", [code("c", [x(74), x(75), x(76)].join("\n"))]) as [DocBlock, DocBlock];
     expect(check(documentWith([item], [nested])).map((f) => f.message)).toEqual([
-      "Line 2 is 75 columns wide and at stock theme settings the code panel fits about 75, so it may scroll sideways.",
+      "Line 2 is 75 columns wide and at stock theme settings the code panel fits about 75, so it may wrap.",
       message(3, 76, "75"),
     ]);
   });

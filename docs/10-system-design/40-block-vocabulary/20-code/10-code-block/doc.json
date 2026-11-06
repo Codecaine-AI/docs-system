@@ -12,6 +12,13 @@
         "b-14-code-lead-2",
         "component-worked-example-rule",
         "b-codefam-doctrine",
+        "b-code-write-h",
+        "b-code-write-lead",
+        "b-code-write-verbatim",
+        "b-code-write-scope",
+        "b-code-write-value",
+        "b-code-write-range",
+        "b-code-write-lang",
         "b-14-code-example-h",
         "b-14-code-example-intro",
         "b-14-code-example-block",
@@ -155,6 +162,306 @@
         },
         {
           "insert": " blocks carry state examples, and code blocks carry the evidence: annotated listings of the defining source."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-h": {
+      "id": "b-code-write-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write a Listing"
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-lead": {
+      "id": "b-code-write-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A listing is evidence. A reader checks each line against the source file and each note against the lines it covers, so a listing passes both checks only when it follows these five rules."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-verbatim": {
+      "id": "b-code-write-verbatim",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Copy each line verbatim."
+        }
+      ],
+      "children": [
+        "b-code-write-verbatim-a",
+        "b-code-write-verbatim-b"
+      ]
+    },
+    "b-code-write-verbatim-a": {
+      "id": "b-code-write-verbatim-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the source's whitespace, names, comments and line breaks. Never reflow, shorten or retype a line, even a long or minified one."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-verbatim-b": {
+      "id": "b-code-write-verbatim-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name the file and its line numbers in the sentence before the block, such as \"lines 10 to 27 of "
+        },
+        {
+          "insert": "briefs.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "\"."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-scope": {
+      "id": "b-code-write-scope",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Show only the lines that prove the page's point."
+        }
+      ],
+      "children": [
+        "b-code-write-scope-a",
+        "b-code-write-scope-b",
+        "b-code-write-scope-c",
+        "b-code-write-scope-d"
+      ]
+    },
+    "b-code-write-scope-a": {
+      "id": "b-code-write-scope-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cut each whole function, handler or branch that no note and no sentence on the page uses. Never cut inside a statement, and keep the opening and closing lines of each construct you show."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-scope-b": {
+      "id": "b-code-write-scope-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mark each cut with one comment line in the listing's language at the place of the cut, such as "
+        },
+        {
+          "insert": "// ... 64 lines: issuePath and schemaIssues",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Two parts of a file must never touch without a cut marker."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-scope-c": {
+      "id": "b-code-write-scope-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A line wider than about 95 columns wraps in the panel, so cut a long line that the point does not need."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-scope-d": {
+      "id": "b-code-write-scope-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a long line verbatim when the point needs it."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-value": {
+      "id": "b-code-write-value",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Give each note a fact that its lines do not show."
+        }
+      ],
+      "children": [
+        "b-code-write-value-a",
+        "b-code-write-value-b",
+        "b-code-write-value-c"
+      ]
+    },
+    "b-code-write-value-a": {
+      "id": "b-code-write-value-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "State a reason, a constraint, a consequence, or what a caller must do. Never retell the covered lines or repeat their comments."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-value-b": {
+      "id": "b-code-write-value-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Test each note. If a reader gets the same fact from the covered lines alone, rewrite the note or delete it."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-value-c": {
+      "id": "b-code-write-value-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For "
+        },
+        {
+          "insert": "if (!root) throw new Error(...)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the note \"Throws when the root is missing\" retells the line. The note \"Every tree reader calls this first, so a broken root pointer fails here and not inside a render\" adds the consequence."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-range": {
+      "id": "b-code-write-range",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Make each range cover exactly the lines its note discusses."
+        }
+      ],
+      "children": [
+        "b-code-write-range-a",
+        "b-code-write-range-b",
+        "b-code-write-range-c"
+      ]
+    },
+    "b-code-write-range-a": {
+      "id": "b-code-write-range-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-range-b": {
+      "id": "b-code-write-range-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give the note a short label that names the job of its lines. A label such as \"Merge\" goes on the line that merges."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-range-c": {
+      "id": "b-code-write-range-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Count lines from 1 in the listing as written, cut markers included. Check every range again after you edit the listing."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-lang": {
+      "id": "b-code-write-lang",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the file's language, such as "
+        },
+        {
+          "insert": "typescript",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "toml",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the header label and the token colors match the file."
         }
       ],
       "children": []
@@ -1012,7 +1319,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes aside."
+          "insert": "Notes."
         }
       ],
       "children": [
@@ -1028,7 +1335,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A 280px column inside the dark panel sits beside the code when the block is at least 760px wide, and under the code when narrower. Its surface mixes the code background 6% toward white, and the code/notes hairline separates it from the code."
+          "insert": "The notes sit in a 280px column inside the dark panel when the block is at least 760px wide and its widest line fits beside them. Otherwise each note sits in its own row under the last line it explains."
         }
       ],
       "children": []
@@ -1039,16 +1346,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each note shows a head row with the "
-        },
-        {
-          "insert": "L#",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " line chip and the bold title, then its text below in smaller muted sans, 13px by default."
+          "insert": "Each note shows a head row with the L# line chip and the bold title, then its text below in the panel ink, 13px by default."
         }
       ],
       "children": []
@@ -1059,7 +1357,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Notes stack from the top with the first aligned to line 1. A faint hairline at half the internal code rule's opacity splits consecutive notes."
+          "insert": "In the column, each note starts level with the first line it explains. In a row, the note sits on the lighter notes surface with an accent rule on its left edge."
         }
       ],
       "children": []
@@ -1094,7 +1392,7 @@
       "props": {},
       "text": [
         {
-          "insert": "At rest, an annotated range shows only the 2px accent bar plus accent line numbers. The tint appears when its pair is lit."
+          "insert": "At rest, an annotated range shows only a bracket in the accent between the number and the code, with a cap on its first and last line. The tint appears when its pair is lit."
         }
       ],
       "children": []
@@ -1157,11 +1455,12 @@
       "props": {},
       "text": [
         {
-          "insert": "Soft wrap is off on every surface."
+          "insert": "The edit surface never wraps a line, and the read surface wraps a long line."
         }
       ],
       "children": [
-        "b-codefam-20px-2a"
+        "b-codefam-20px-2a",
+        "b-codefam-20px-2b"
       ]
     },
     "b-codefam-20px-2a": {
@@ -1180,6 +1479,17 @@
         },
         {
           "insert": " on its content node. Wrapping would break every line-geometry computation."
+        }
+      ],
+      "children": []
+    },
+    "b-codefam-20px-2b": {
+      "id": "b-codefam-20px-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The read surface wraps a long line under its own number. The wrapped text hangs 2 columns past the line's indent, and a wrap arrow marks the first wrapped row in the gutter."
         }
       ],
       "children": []
@@ -1203,7 +1513,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Code never wraps on screen, so the "
+          "insert": "The read surface wraps a line wider than the panel, and the edit surface scrolls it sideways. The "
         },
         {
           "insert": "layout.code-line-width",
@@ -1212,7 +1522,7 @@
           }
         },
         {
-          "insert": " warning flags a line wider than the panel shows before it scrolls sideways. PDF export wraps code instead. Like every layout rule in "
+          "insert": " warning flags such a line. PDF export wraps code too. Like every layout rule in "
         },
         {
           "insert": "Authoring Lints",
@@ -1252,7 +1562,7 @@
       "props": {},
       "text": [
         {
-          "insert": "At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, or 82 beside a notes column."
+          "insert": "At stock theme settings a top-level block shows 118 columns of 13px IBM Plex Mono, with or without notes. When the widest line does not fit beside the notes column, the notes move under their lines."
         }
       ],
       "children": []
