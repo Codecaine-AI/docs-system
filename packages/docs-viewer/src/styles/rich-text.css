@@ -61,3 +61,22 @@
   padding-inline: 0;
   --docs-chip-kind-fg: currentColor;
 }
+
+/*
+ * A bullet label parent, such as "Owns" over the items a package owns, is a
+ * label for the list under it, not an item of a list (list-markers.css sets
+ * it in 600 ink). It drops its bullet, so the label sits flush with the
+ * prose and its items hang below it with their own markers. Those items take
+ * the first-level disc, because the label is not a list level of its own.
+ * A parent whose text ends a sentence states a fact and keeps its bullet.
+ */
+.docs-markdown [role="listitem"][data-doc-bullet="true"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > [data-doc-list-marker] {
+  display: none;
+}
+.docs-markdown [role="listitem"][data-doc-bullet="true"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > div > div > [data-doc-bullet="true"] > [data-doc-list-marker]::before {
+  width: var(--docs-list-disc-size, var(--ds-space-1-5));
+  height: var(--docs-list-disc-size, var(--ds-space-1-5));
+  border: 0;
+  border-radius: var(--ds-radius-pill);
+  background: currentColor;
+}
