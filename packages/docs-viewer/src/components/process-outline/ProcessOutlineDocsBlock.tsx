@@ -56,7 +56,7 @@ const PROCESS_OUTLINE_CSS = `
   --po-stroke: var(--docs-process-outline-stroke, 1.5px);
   --po-pad-y: var(--docs-process-outline-pad-y, 12px);
   --po-pad-x: var(--docs-process-outline-pad-x, 12px);
-  --po-note-inset: var(--docs-process-outline-note-inset, 0px);
+  --po-note-inset: var(--docs-process-outline-note-inset, 12px);
   --po-note-rule-gap: var(--docs-process-outline-note-rule-gap, 0px);
   /* the rail hangs 7px in from the parent's text, under its first letters (the
      root rail under the tile); each elbow's tick stops arrow-gap short of the text */
@@ -108,16 +108,20 @@ const PROCESS_OUTLINE_CSS = `
 .docs-process-outline__node>.docs-process-outline__line { font-weight:var(--docs-process-outline-step-weight, 400); }
 /* a phase (first level, with substeps) reads in ink at the branch weight, so each phase group starts strong;
    depth below that reads from indent only */
-.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 600); }
+.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 700); }
 .docs-process-outline__node--deep>.docs-process-outline__line { color:var(--docs-process-outline-deep-ink, #2a2a2a); }
+/* a nested group (a step below the phases with at least one step child; notes alone do not make a group) reads at the
+   group weight, between a phase and a leaf */
+.docs-process-outline__children .docs-process-outline__node:not(.docs-process-outline__node--depth-one):has(> .docs-process-outline__children > .docs-process-outline__node:not(.docs-process-outline__node--note))>.docs-process-outline__line { font-weight:var(--docs-process-outline-group-weight, 500); }
 .docs-process-outline__children {
   --po-gap: var(--po-row-gap);
   position:relative; display:flex; flex-direction:column; gap:var(--po-gap);
   margin-left:var(--po-rail-x); padding-top:var(--po-gap); padding-left:calc(var(--po-indent) - var(--po-rail-x));
 }
-/* the root's children are the panel body; phases breathe, but only when they have substeps */
+/* the root's children are the panel body; phases breathe, but only when they have substeps. The right side keeps one
+   more space step, so the longest step never seems to touch the frame */
 .docs-process-outline__node--root>.docs-process-outline__children {
-  margin-left:0; padding:var(--po-pad-y) var(--po-pad-x) calc(var(--po-pad-y) + var(--ds-space-1)) calc(var(--po-pad-x) + var(--po-indent));
+  margin-left:0; padding:var(--po-pad-y) calc(var(--po-pad-x) + var(--ds-space-3)) calc(var(--po-pad-y) + var(--ds-space-1)) calc(var(--po-pad-x) + var(--po-indent));
 }
 .docs-process-outline__node--root>.docs-process-outline__children:has(> .docs-process-outline__node > .docs-process-outline__children) { --po-gap: var(--po-branch-gap); }
 .docs-process-outline__children>.docs-process-outline__node { position:relative; }
@@ -152,7 +156,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
   font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
 }
-/* notes: italic muted asides at the step indent, a dash where an elbow would be */
+/* notes: italic muted asides one inset in from the step indent, so a note hangs under the step above it */
 .docs-process-outline__note-card {
   --po-line:var(--po-note-line); display:block; max-width:var(--ds-layout-lane-text); margin-left:var(--po-note-inset);
   border:var(--docs-process-outline-note-border-width, 0px) solid var(--docs-process-outline-note-border, #e6e5e3);
@@ -170,6 +174,8 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   line-height:var(--po-line); white-space:nowrap; user-select:none;
 }
 .docs-process-outline__flow>.docs-process-outline__node--note { padding-left:var(--ds-space-3); }
+/* a note sits closer to the step above it than to the step below, so it reads as that step's aside */
+.docs-process-outline__children>.docs-process-outline__node--note { margin-top:calc(-1 * min(var(--po-gap), var(--po-row-gap))); }
 .docs-process-outline__children>.docs-process-outline__node--note::before,
 .docs-process-outline__children>.docs-process-outline__node--note>.docs-process-outline__line::before { display:none; }
 .docs-process-outline [data-process-outline-step-editing="true"] { border-radius:var(--radius, 2px); outline:var(--docs-process-outline-focus-ring, 1px) solid var(--docs-focus-ring, #0078df); outline-offset:var(--ds-focus-ring-offset); }
@@ -186,7 +192,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
     --po-root-gap: min(var(--ds-space-3), var(--docs-process-outline-root-gap, 12px));
     --po-pad-y: min(10px, var(--docs-process-outline-pad-y, 12px));
     --po-pad-x: min(var(--ds-space-2), var(--docs-process-outline-pad-x, 12px));
-    --po-note-inset: min(var(--ds-space-0-5), var(--docs-process-outline-note-inset, 0px));
+    --po-note-inset: min(var(--ds-space-0-5), var(--docs-process-outline-note-inset, 12px));
     --po-note-rule-gap: min(var(--ds-space-1-5), var(--docs-process-outline-note-rule-gap, 0px));
   }
   .docs-process-outline__line { max-width:100%; }
@@ -201,9 +207,10 @@ function injectProcessOutlineStyles(): void {
   const style = document.createElement("style"); style.id = STYLE_ID; style.textContent = PROCESS_OUTLINE_CSS; document.head.appendChild(style);
 }
 
-// A loop keyword counts only where it opens the step, and `until` only inside a Repeat step:
-// "Wait until the version lands" is prose, not control flow.
-const OPENING_KEYWORD = /^(Repeat|While|For each)\b/g;
+// A control keyword counts only where it opens the step: a loop (Repeat, While, For each) or a branch trigger
+// (If, When, Otherwise, Unless, On failure), in any case so a Title Case phase such as "For Each Brief" matches.
+// `until` counts only inside a Repeat step: "Wait until the version lands" is prose, not control flow.
+const OPENING_KEYWORD = /^(Repeat|While|For each|If|When|Otherwise|Unless|On failure)\b/gi;
 const UNTIL_KEYWORD = /\buntil\b/g;
 function renderPlainText(text: string, segmentIndex: number, repeatStep: boolean): ReactNode[] {
   const output: ReactNode[] = []; let cursor = 0;
@@ -217,7 +224,7 @@ function renderPlainText(text: string, segmentIndex: number, repeatStep: boolean
   if (cursor < text.length) output.push(text.slice(cursor)); return output;
 }
 function renderText(text: string): ReactNode[] {
-  const repeatStep = /^Repeat\b/.test(text);
+  const repeatStep = /^Repeat\b/i.test(text);
   return text.split("`").map((segment,index) => index % 2
     ? <span key={index} className="docs-process-outline__code" data-process-outline-code="true" data-chip-kind={chipKind(segment)}>{chipBreaks(segment)}</span>
     : <span key={index}>{renderPlainText(segment,index,repeatStep)}</span>);

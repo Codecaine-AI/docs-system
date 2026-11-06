@@ -1,0 +1,8 @@
+[
+  { "id": "action-units", "group": "Writing", "question": "Is each step one concrete, verb-first action, with independent actions split into their own steps?" },
+  { "id": "branch-scope", "group": "Writing", "question": "Is each conditional or failure path its own step that states its trigger and holds the actions it governs?" },
+  { "id": "loop-boundaries", "group": "Writing", "question": "Does each loop show which steps repeat and name the condition or collection that ends the repetition?" },
+  { "id": "note-contribution", "group": "Writing", "question": "Does each note add one constraint, reason or expected result, without repeating its step or hiding another action?" },
+  { "id": "parent-traceability", "group": "Look", "question": "Can the reader follow each step's rail and indent to its parent, across wrapped lines and notes, with each elbow reaching its step?" },
+  { "id": "note-attachment", "group": "Look", "question": "Can the reader tell phases, substeps and notes apart, and see which step each note explains?" }
+]
