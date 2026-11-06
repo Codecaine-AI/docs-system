@@ -298,6 +298,7 @@
 }
 
 .docs-pseudo-row {
+  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -320,7 +321,6 @@
  * sees one statement, not a new line at the left edge.
  */
 .docs-pseudo-code {
-  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
   min-width: 0;
   padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));
   text-indent: calc(-1 * var(--docs-pseudo-hang));
@@ -344,7 +344,9 @@
  * Comments below (PseudocodeGrid data-notes="below"): a comment wraps beside
  * its line, or the rows overflow the panel. The comment column goes away,
  * each code line takes the full width, and its comment takes a second line
- * under it at the line's indent.
+ * under it. The comment hangs 2ch past the line's indent, like a wrapped
+ * continuation, so it reads as part of the line above and not as a header
+ * of the line below.
  */
 .docs-pseudo-grid[data-notes="below"] {
   grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, 1fr);
@@ -362,11 +364,11 @@
 .docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment {
   grid-row: 2;
   grid-column: -2 / -1;
-  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-indent, 0ch));
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));
 }
 
 .docs-pseudo-grid[data-notes="below"][data-pseudo-diff] .docs-pseudo-comment {
-  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-hang));
 }
 
 /*
@@ -389,6 +391,11 @@
   text-align: center;
   font-weight: var(--ds-font-weight-semibold);
   user-select: none;
+}
+
+/* A -> arrow reads as "then", so it takes the control-word color. */
+.docs-pseudo-grid .hljs-operator {
+  color: var(--syntax-control, var(--syntax-keyword, var(--syntax-key)));
 }
 
 .docs-pseudo-row[data-code-diff="add"] {
