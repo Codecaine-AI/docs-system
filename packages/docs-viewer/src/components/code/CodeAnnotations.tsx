@@ -152,9 +152,11 @@ function useNotePlacement(
   const key = firstLines.join(",");
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    const pre = section?.querySelector<HTMLElement>("pre");
-    if (!section || !pre) return;
+    if (!section) return;
     const decide = () => {
+      // Moving the notes re-renders the listing, so read the current <pre> on each run, never a detached one.
+      const pre = section.querySelector<HTMLElement>("pre");
+      if (!pre) return;
       const width = section.getBoundingClientRect().width;
       const furniture = resolvedWidth(section, "calc(var(--docs-code-notes-width,280px) + var(--docs-code-gutter-width,40px) + 2 * var(--docs-code-pad-x,12px) + 2px)");
       const fits = width >= NOTES_BESIDE_MIN_PX && resolvedWidth(pre, "", lineTexts) <= width - furniture;
