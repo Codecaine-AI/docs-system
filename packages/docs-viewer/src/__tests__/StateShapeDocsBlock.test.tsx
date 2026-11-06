@@ -565,6 +565,13 @@ describe("StateShapeBlock — code in descriptions", () => {
     expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}');
   });
 
+  it("breaks a long code path in a description only after a slash", () => {
+    render(<StateShapeBlock id="long" fields={[{ name: "sources", type: "string[]", description: "Paths such as `packages/docs-model/src/doc-schema.ts`." }]} />);
+    const code = document.querySelector('[data-note-code="long"]')!;
+    expect(Array.from(code.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(["packages/", "docs-model/", "src/", "doc-schema.ts"]);
+    expect(code.textContent).toBe("packages/docs-model/src/doc-schema.ts");
+  });
+
   it("prints a description with no backticks as plain text", () => {
     render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
     expect(document.querySelector("[data-note-code]")).toBeNull();

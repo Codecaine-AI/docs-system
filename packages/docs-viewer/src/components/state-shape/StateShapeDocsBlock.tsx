@@ -290,7 +290,13 @@ const NOTE_CODE_NOWRAP_MAX = 32;
 export function noteWithCode(description: string): ReactNode {
   const parts = description.split(/`([^`]+)`/);
   if (parts.length === 1) return description;
-  return parts.map((part, index) => index % 2 === 1 ? <code key={index} data-note-code={part.length > NOTE_CODE_NOWRAP_MAX ? "long" : ""}>{part}</code> : part);
+  return parts.map((part, index) => {
+    if (index % 2 === 0) return part;
+    if (part.length <= NOTE_CODE_NOWRAP_MAX) return <code key={index} data-note-code="">{part}</code>;
+    // A long path breaks only after a /, like an example path; other long code may break anywhere.
+    const segments = /\s/.test(part) || !part.includes("/") ? null : part.split(/(?<=\/)/);
+    return <code key={index} data-note-code="long">{segments ? segments.map((segment, at) => <Fragment key={at}>{at > 0 && <wbr />}<span data-json-seg="">{segment}</span></Fragment>) : part}</code>;
+  });
 }
 
 /**
