@@ -1449,6 +1449,7 @@
         "code-annotation-range-lint",
         "pseudocode-code-syntax-lint",
         "component-tree-bare-ellipsis-lint",
+        "interaction-surface-example-missing-lint",
         "770899b7-1a12-406f-b788-2216bf20f25c",
         "bundle-relative-src-lint"
       ]
@@ -1734,6 +1735,19 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "interaction-surface-example-missing-lint": {
+      "id": "interaction-surface-example-missing-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "interaction-surface.example-missing flags an operation with no exampleCall, and a returnShape that lists fields but has no example. docs_check fails until the task adds them."
         }
       ],
       "children": []

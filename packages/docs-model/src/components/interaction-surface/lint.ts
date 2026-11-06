@@ -61,3 +61,37 @@ export const interactionSurfaceReturnsProseRule: LintRule = {
     });
   },
 };
+
+/**
+ * Every operation needs an exampleCall, and a returnShape with fields needs its example. In rounds 0 to 4 of the
+ * interaction-surface quality climb, every judge flagged operations with no example call or no return example
+ * (brief 199 had none on any operation), although the guidance asked for both.
+ */
+export const interactionSurfaceExampleMissingRule: LintRule = {
+  id: "interaction-surface.example-missing",
+  docsPath: "10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface",
+  severity: "warning",
+  enforcement: [],
+  applicability: "Each operation of an Interaction Surface block, and each returnShape that lists fields.",
+  exclusions: ["A returnShape with no fields, such as the result of a void call"],
+  suggestion: "Add an exampleCall: real code that calls the operation with literal values. For a returnShape with fields, add an example that is the exact result of that call.",
+  check({ blocks }) {
+    return blocks.flatMap((block) => {
+      if (block.type !== "interaction-surface" || !Array.isArray(block.props.operations)) return [];
+      return block.props.operations.flatMap((operation: unknown, index: number) => {
+        if (!operation || typeof operation !== "object") return [];
+        const { name, exampleCall, returnShape } = operation as { name?: unknown; exampleCall?: unknown; returnShape?: { fields?: unknown; example?: unknown } };
+        const label = typeof name === "string" && name ? name : `operation ${index + 1}`;
+        const findings = [];
+        if (typeof exampleCall !== "string" || !exampleCall.trim()) {
+          findings.push({ blockId: block.id, field: `props.operations[${index}].exampleCall`, evidence: label, message: `${label} has no exampleCall. Give it one real call with literal values.` });
+        }
+        const fields = returnShape && typeof returnShape === "object" && Array.isArray(returnShape.fields) ? returnShape.fields : [];
+        if (fields.length > 0 && (typeof returnShape!.example !== "string" || !returnShape!.example.trim())) {
+          findings.push({ blockId: block.id, field: `props.operations[${index}].returnShape.example`, evidence: label, message: `${label} lists returned fields but no return example. Give the exact result of its exampleCall.` });
+        }
+        return findings;
+      });
+    });
+  },
+};
