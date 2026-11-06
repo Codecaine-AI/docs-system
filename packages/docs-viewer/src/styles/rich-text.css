@@ -1,0 +1,16 @@
+/* Rich-text read surface: paragraphs, headings, list items and callout
+   bodies. Shared by the workbench and docs-publish, like list-markers.css. */
+
+/*
+ * Inline code chips in prose stay whole. A chip that fits on one line moves
+ * to the next line as one piece, so a path such as
+ * `docs/10-system-design/10-doc-standards` never shows as two pills. Only a
+ * chip wider than its whole line wraps, between the nowrap pieces that
+ * chipBreaks cuts (components/mono-breaks.tsx). Table cells and other typed
+ * blocks keep the inline chip, which wraps after a `/` to fit narrow columns.
+ */
+.docs-markdown :is([data-doc-block="paragraph"], [data-doc-block="heading"], [data-doc-block="list-item"], [data-callout-body]) code[data-chip-kind] {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: baseline;
+}

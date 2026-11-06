@@ -16,6 +16,7 @@
 @import "./theme/style-rail.css";
 
 @import "../../../docs-viewer/src/styles/list-markers.css";
+@import "../../../docs-viewer/src/styles/rich-text.css";
 @import "../../../docs-viewer/src/styles/code.css";
 @import "../../../docs-viewer/src/styles/image-grid.css";
 @import "../../../docs-viewer/src/styles/image-viewer.css";
