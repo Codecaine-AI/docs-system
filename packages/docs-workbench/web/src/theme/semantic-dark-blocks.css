@@ -134,6 +134,7 @@
   --docs-process-outline-root-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-weight: var(--ds-font-weight-semibold);
   --docs-process-outline-branch-weight: var(--ds-font-weight-semibold);
+  --docs-process-outline-group-weight: var(--ds-font-weight-medium);
   --docs-process-outline-step-weight: var(--ds-font-weight-regular);
   --docs-process-outline-empty-text-size: var(--ds-font-size-ui-xs);
   --docs-process-outline-note-text-size: var(--ds-font-size-ui-md);

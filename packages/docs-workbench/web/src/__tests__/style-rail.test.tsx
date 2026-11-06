@@ -3949,6 +3949,7 @@ describe("style rail process-outline tokens", () => {
   const NUMBERS: Record<string, [string, number, number, number, number]> = {
     rootWeight: ["root-weight", 300, 900, 50, 600],
     branchWeight: ["branch-weight", 300, 900, 50, 600],
+    groupWeight: ["group-weight", 300, 900, 50, 500],
     stepWeight: ["step-weight", 300, 900, 50, 400],
     keywordWeight: ["keyword-weight", 300, 900, 50, 500],
     noteAccent: ["note-accent", 0, 100, 5, 0],
