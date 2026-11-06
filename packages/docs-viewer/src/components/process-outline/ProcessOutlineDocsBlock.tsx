@@ -173,6 +173,8 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   line-height:var(--po-line); white-space:nowrap; user-select:none;
 }
 .docs-process-outline__flow>.docs-process-outline__node--note { padding-left:var(--ds-space-3); }
+/* a note sits closer to the step above it than to the step below, so it reads as that step's aside */
+.docs-process-outline__children>.docs-process-outline__node--note { margin-top:calc(-1 * min(var(--po-gap), var(--po-row-gap))); }
 .docs-process-outline__children>.docs-process-outline__node--note::before,
 .docs-process-outline__children>.docs-process-outline__node--note>.docs-process-outline__line::before { display:none; }
 .docs-process-outline [data-process-outline-step-editing="true"] { border-radius:var(--radius, 2px); outline:var(--docs-process-outline-focus-ring, 1px) solid var(--docs-focus-ring, #0078df); outline-offset:var(--ds-focus-ring-offset); }
