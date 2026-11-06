@@ -216,7 +216,6 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   cycle5: "Depth 5 color",
   cycle6: "Depth 6 color",
   keywordFg: "Loop keyword",
-  traceDot: "Trace dot",
   keywordWeight: "Loop keyword weight",
   noteBg: "Note background",
   noteBorder: "Note border",

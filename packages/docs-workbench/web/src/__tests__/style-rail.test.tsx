@@ -3969,7 +3969,6 @@ describe("style rail process-outline tokens", () => {
     cycle5: "cycle-5",
     cycle6: "cycle-6",
     keywordFg: "keyword-fg",
-    traceDot: "trace-dot",
     noteFg: "note-fg",
     noteRule: "note-rule",
     noteBullet: "note-bullet",

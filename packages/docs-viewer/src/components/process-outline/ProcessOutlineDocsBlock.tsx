@@ -61,7 +61,6 @@ const PROCESS_OUTLINE_CSS = `
   /* the rail hangs 7px in from the parent's text, under its first letters (the
      root rail under the tile); each elbow's tick stops arrow-gap short of the text */
   --po-rail-x: 7px;
-  --po-trace-dot: var(--ds-space-1-5, 6px);
   --po-gap: var(--po-row-gap);
   /* shrink to content, cap at the lane: steps wrap at a 60ch prose measure */
   width:fit-content; max-width:100%; min-width:0;
@@ -140,11 +139,6 @@ const PROCESS_OUTLINE_CSS = `
 /* the first phase hangs from the head rule */
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::before { top:calc(-1 * var(--po-pad-y)); height:calc(var(--po-pad-y) + var(--po-line)/2 + var(--po-stroke)/2); }
 .docs-process-outline__node--root>.docs-process-outline__children>.docs-process-outline__node:first-child::after { top:calc(-1 * var(--po-pad-y)); }
-/* trace: a trace-marked step ends its elbow in a dot at the step's first line (the => of the notation) */
-.docs-process-outline__children>.docs-process-outline__node[data-process-outline-trace="true"]>.docs-process-outline__line::after {
-  position:absolute; top:calc(var(--po-line)/2 - var(--po-trace-dot)/2); left:calc(-1 * var(--po-arrow-gap) - var(--po-trace-dot));
-  width:var(--po-trace-dot); height:var(--po-trace-dot); border-radius:50%; background:var(--docs-process-outline-trace-dot, #1f1f1f); content:"";
-}
 /* loop keywords: control flow (the syntax control color, VS Code Light+ / Dark+) at a medium weight (coloured OR bold, not both) */
 .docs-process-outline__keyword { color:var(--docs-process-outline-keyword-fg, #af00db); font-weight:var(--docs-process-outline-keyword-weight, 500); }
 /* typed chips: one soft neutral chip, the text colour says what the code is */
