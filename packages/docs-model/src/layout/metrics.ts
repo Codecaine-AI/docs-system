@@ -329,7 +329,8 @@ export function stackDetailRawSegments(detail: string): string[] {
  */
 export function stackDetailLayout(detail: string): { text: string; path: boolean }[] {
   const segments = stackDetailSegments(detail);
-  if (chipKind(detail) !== "path") return [{ text: segments.join(STACK_METRICS.proseDetailJoiner), path: false }];
+  // Backticks mark code spans, so a detail wrapped in them is not a quoted string.
+  if (chipKind(detail.replace(/`/g, "")) !== "path") return [{ text: segments.join(STACK_METRICS.proseDetailJoiner), path: false }];
   const isPath = (segment: string) => !/\s/.test(segment) && chipKind(segment) === "path";
   const rest = segments.filter((segment) => !isPath(segment));
   return [

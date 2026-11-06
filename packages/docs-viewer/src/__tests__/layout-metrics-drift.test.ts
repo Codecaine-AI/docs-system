@@ -380,10 +380,11 @@ describe("stack", () => {
     "src/rules/index.ts · rulesFrom · also imports profile types",
     "`packages/docs-viewer`, `DocsClientProvider` · `DocBlockRenderer`",
     "Write resolvers, then `checkDocsPath`",
+    "`packages/docs-viewer/src/client.tsx` · `DocBlockRenderer` · `DocPeekPanel`",
   ])("the model reads %p as path or prose exactly as the stack renders it", (detail) => {
     const { container } = render(createElement(StackBlock, { nodes: [{ name: "Leaf", detail }], boundaries: [] }));
     const rendered = container.querySelector("[data-stack-detail]")!;
-    const path = modelChipKind(detail) === "path";
+    const path = modelChipKind(detail.replace(/`/g, "")) === "path";
     expect(rendered.hasAttribute("data-mono")).toBe(path);
     if (path) {
       expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => ({ text: line.textContent, path: !line.hasAttribute("data-prose") })))

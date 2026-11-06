@@ -73,7 +73,7 @@ const STACK_STYLE = `
 [data-stack-arrow]{position:absolute;top:0;bottom:0;left:var(--stack-arrow-x);border-left:var(--ds-border-width-ring) solid var(--stack-arrow)}
 [data-stack-arrow]::after{position:absolute;bottom:1px;left:-4.5px;box-sizing:content-box;width:6px;height:6px;border-right:var(--ds-border-width-ring) solid var(--stack-arrow);border-bottom:var(--ds-border-width-ring) solid var(--stack-arrow);transform:rotate(45deg);content:""}
 [data-stack-uses][data-continues] [data-stack-arrow]::after{display:none}
-[data-stack-uses-label]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.3;color:color-mix(in srgb,var(--stack-muted) 40%,var(--stack-text));overflow-wrap:normal}
+[data-stack-uses-label]{position:relative;margin:var(--ds-space-0-5) 0 var(--ds-space-0-5) calc(-1 * var(--ds-space-4));padding:0 var(--ds-space-1-5);font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.5;color:color-mix(in srgb,var(--stack-muted) 40%,var(--stack-text));background:var(--stack-card);border:var(--ds-border-width-hairline) solid color-mix(in srgb,var(--stack-arrow) 45%,transparent);border-radius:var(--stack-radius);overflow-wrap:normal}
 [data-stack-boundary]{display:flex;flex-direction:column;row-gap:var(--ds-space-1-5);padding:var(--ds-space-2) 0 var(--ds-space-3)}
 [data-stack-dash]{height:0;border-top:var(--ds-border-width-hairline) dashed var(--stack-boundary)}
 [data-stack-boundary][data-crossed] [data-stack-dash]{margin-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
@@ -108,7 +108,8 @@ const detailSegments = (detail: string) =>
  */
 function StackDetail({ detail }: { detail: string }) {
   const segments = detailSegments(detail);
-  if (chipKind(detail) !== "path") return <div data-stack-detail="">{codeWords(segments.join(", "))}</div>;
+  // Backticks mark code spans, so a detail wrapped in them is not a quoted string.
+  if (chipKind(detail.replace(/`/g, "")) !== "path") return <div data-stack-detail="">{codeWords(segments.join(", "))}</div>;
   const isPath = (segment: string) => !/\s/.test(segment) && chipKind(segment.replace(/`/g, "")) === "path";
   const rest = segments.filter((segment) => !isPath(segment));
   return (
