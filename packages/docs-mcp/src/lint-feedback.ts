@@ -30,6 +30,7 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "interaction-surface.returns-prose": { gate: true },
   "code.language": { gate: true },
   "code.annotation-range": { gate: true },
+  "pseudocode.code-syntax": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },
 };

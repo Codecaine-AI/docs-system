@@ -176,6 +176,8 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - code.annotation-range flags a code annotation whose lines key does not parse, covers no line, or reaches past the listing's last line. The reader cannot pair such a note with its code. docs_check fails until the task fixes it.
 
+  - pseudocode.code-syntax flags an operator such as === or ??, an object literal, or an index such as [part.name] in a pseudocode line, outside its strings and comment. The message gives the plain words for each one, such as "does not equal" for !==. docs_check fails until the task fixes it.
+
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 - **Layout Warnings**
