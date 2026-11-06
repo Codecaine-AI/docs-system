@@ -110,8 +110,9 @@ const PROCESS_OUTLINE_CSS = `
    depth below that reads from indent only */
 .docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 600); }
 .docs-process-outline__node--deep>.docs-process-outline__line { color:var(--docs-process-outline-deep-ink, #2a2a2a); }
-/* a nested group (a step below the phases that has its own substeps) reads at the group weight, between a phase and a leaf */
-.docs-process-outline__children .docs-process-outline__node:not(.docs-process-outline__node--depth-one):has(> .docs-process-outline__children)>.docs-process-outline__line { font-weight:var(--docs-process-outline-group-weight, 500); }
+/* a nested group (a step below the phases with at least one step child; notes alone do not make a group) reads at the
+   group weight, between a phase and a leaf */
+.docs-process-outline__children .docs-process-outline__node:not(.docs-process-outline__node--depth-one):has(> .docs-process-outline__children > .docs-process-outline__node:not(.docs-process-outline__node--note))>.docs-process-outline__line { font-weight:var(--docs-process-outline-group-weight, 500); }
 .docs-process-outline__children {
   --po-gap: var(--po-row-gap);
   position:relative; display:flex; flex-direction:column; gap:var(--po-gap);
