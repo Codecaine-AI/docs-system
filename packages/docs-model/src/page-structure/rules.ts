@@ -13,6 +13,7 @@ import { loneLabelParentRule } from "./lone-label-parent";
 import { splitOrderedListRule } from "./split-ordered-list";
 import { calloutFocusRule } from "./callout-focus";
 import { sequenceBulletsRule } from "./sequence-bullets";
+import { splitBulletListRule } from "./split-bullet-list";
 export const pageStructureRules: LintRule[] = [
   openingParagraphRule,
   titleHeadingRule,
@@ -28,4 +29,5 @@ export const pageStructureRules: LintRule[] = [
   splitOrderedListRule,
   calloutFocusRule,
   sequenceBulletsRule,
+  splitBulletListRule,
 ];

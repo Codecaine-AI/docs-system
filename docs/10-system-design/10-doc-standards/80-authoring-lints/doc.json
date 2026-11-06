@@ -1332,7 +1332,8 @@
         }
       ],
       "children": [
-        "structure-sequence-bullets-lint"
+        "structure-sequence-bullets-lint",
+        "structure-split-bullet-list-lint"
       ]
     },
     "structure-sequence-bullets-lint": {
@@ -1350,6 +1351,23 @@
         },
         {
           "insert": " flags a bullet run whose later item opens with an order word, such as \"Then read\" after \"Start with\". The run becomes a numbered list. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "structure-split-bullet-list-lint": {
+      "id": "structure-split-bullet-list-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "structure.split-bullet-list",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a code block or callout between two bullets under one parent. The block moves into the children of the bullet above it, so the list stays whole."
         }
       ],
       "children": []
