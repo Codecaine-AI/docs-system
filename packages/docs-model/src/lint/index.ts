@@ -3,6 +3,7 @@ import { interactionSurfaceExampleMissingRule, interactionSurfaceFieldShapeRule,
 import { codeLintRules } from '../components/code/lint';
 import { pseudocodeCodeSyntaxRule } from "../components/pseudocode/lint";
 import { componentTreeBareEllipsisRule } from '../components/component-tree/lint';
+import { stackBadgeRepeatsNameRule } from '../components/stack/lint';
 import type { DocDocument } from "../doc-schema";
 import { writingRules } from "../writing/rules";
 import { pageStructureRules } from "../page-structure/rules";
@@ -23,6 +24,7 @@ export const lintRules = [
   componentTreeBareEllipsisRule,
   interactionSurfaceExampleMissingRule,
   interactionSurfaceFieldShapeRule,
+  stackBadgeRepeatsNameRule,
   bundleRelativeSrcRule,
   ...layoutRules,
 ];

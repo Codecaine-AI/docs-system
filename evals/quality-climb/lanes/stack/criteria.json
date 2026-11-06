@@ -1,0 +1,8 @@
+[
+  { "id": "layer-structure", "group": "Meaning", "question": "Do node order and nesting match the layers the source files define, with containment kept distinct from dependency and peer layers at the same depth?" },
+  { "id": "boundary-rule", "group": "Meaning", "question": "Does each dashed line state the specific restriction or required interface that the code enforces at that transition, with its direction and any exception the sources support?" },
+  { "id": "arrow-claims", "group": "Meaning", "question": "Does each uses arrow stand for a source-confirmed import or call from its node into the next sibling, with no arrow where the code only states a rule?" },
+  { "id": "node-information", "group": "Writing", "question": "Does each detail and badge add a responsibility, interface, path or role that the name, the parent and the boundary rules do not already state?" },
+  { "id": "prose-agreement", "group": "Writing", "question": "Where the page prose names or counts layers, does it match the stack at the same depth, and does it state the dependencies that next-sibling arrows cannot show?" },
+  { "id": "visual-grammar", "group": "Look", "question": "In the PNG, can the reader tell containers, leaf cards, uses arrows and dashed rule lines apart at a glance, and see which nodes each arrow joins and which transition each rule governs?" }
+]

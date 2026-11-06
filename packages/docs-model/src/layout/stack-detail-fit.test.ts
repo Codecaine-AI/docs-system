@@ -11,8 +11,8 @@ import { stackDetailFitRule, stackDetailLines } from "./stack-detail-fit";
 
 /**
  * Stock caps, checked in Chromium 153 with the bundled faces: a prose detail
- * wraps at 60ch of 13.5px Inter (506.25px), a path segment at 60ch of 12px
- * IBM Plex Mono (432px).
+ * wraps at 60ch of 13.5px Inter (506.25px), a path segment at 60ch of 13px
+ * IBM Plex Mono (468px).
  */
 
 const stack = (nodes: StackNode[]): DocBlock => ({ id: "s", type: "stack", props: { nodes, boundaries: [] }, children: [] });
@@ -74,13 +74,46 @@ describe("layout.stack-detail-fit", () => {
   test("each path segment gets its own line and wraps at 60ch of the code face", () => {
     const long = "packages/docs-model/src/layout/a-very-long-module-name-for-the-layout.ts";
     const detail = `${long} · src/short.ts`;
-    const needed = measureWidth(long, codeFont(12));
+    const needed = measureWidth(long, codeFont(13));
     expect(needed).toBeGreaterThan(STACK_PATH_DETAIL_MAX_PX + 1);
     expect(check(stack([{ name: "Files", detail }]))).toEqual([expect.objectContaining({
       field: "props.nodes[0].detail",
       evidence: long,
-      message: `The path "${long.slice(0, 49)}…" in the detail of "Files" needs ${px(needed)} on one line, but at stock theme settings path details wrap at 432px, so it wraps to 2 lines.`,
+      message: `The path "${long.slice(0, 49)}…" in the detail of "Files" needs ${px(needed)} on one line, but at stock theme settings path details wrap at 468px, so it wraps to 2 lines.`,
     })]);
+  });
+
+  test("the body line of a path detail wraps at the path cap, since both lines share the code-face parent", () => {
+    const tail = textNear(490, 5);
+    const block = stack([{ name: "Leaf", detail: `\`src/a.ts\` · ${tail}` }]);
+    expect(stackDetailLines(block, 1100).map((line) => [line.path, line.availablePx])).toEqual([[true, 468], [false, 468]]);
+    expect(check(block).map((finding) => finding.message)).toEqual([expect.stringContaining("wrap at 468px")]);
+  });
+
+  test("a code span wider than its card overflows sideways, since a code span never breaks", () => {
+    const span = "createInteractionServiceForEveryWorkspaceRoot";
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `calls \`${span}\` first` }, { name: "Other" }] }, { name: "Side" }] }]);
+    const [finding] = check(block);
+    expect(finding!.message).toContain(`("${span.slice(0, 39)}…")`);
+    expect(finding!.message).toEndWith("so it overflows sideways.");
+  });
+
+  test("code spans that cannot share a line each take a line of their own", () => {
+    // The nested card is 221px wide, and each span takes over half of it in 13px code font.
+    const spans = ["readStackNodeList", "writeStackRuleSet", "checkStackPathNow"];
+    expect(spans.every((span) => measureWidth(span, codeFont(13)) > 221 / 2 && measureWidth(span, codeFont(13)) < 221)).toBe(true);
+    const detail = spans.map((span) => `\`${span}\``).join(" ");
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail }, { name: "Other" }] }, { name: "Side" }] }]);
+    expect(check(block)[0]!.message).toEndWith("so it wraps to 3 lines.");
+  });
+
+  test("a long plain word beside a code span breaks anywhere and runs on over several lines", () => {
+    const word = "a".repeat(100);
+    const run = measureWidth("run", codeFont(13)) + measureWidth(" ", prose) + width(word);
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `\`run\` ${word}` }, { name: "Other" }] }, { name: "Side" }] }]);
+    const card = stackDetailLines(block, 1100)[0]!.availablePx;
+    expect(check(block)[0]!.message).toEndWith(`so it wraps to ${Math.ceil(run / card)} lines.`);
+    expect(Math.ceil(run / card)).toBeGreaterThan(2);
   });
 
   test("two-column containers can leave a card narrower than the cap", () => {
@@ -99,10 +132,10 @@ describe("layout.stack-detail-fit", () => {
     // monoBreaks gives a trailing separator no <wbr>, so the renderer keeps all 81 glyphs on one line.
     const detail = `${"x".repeat(80)}/`;
     const [finding] = check(stack([{ name: "Leaf", detail }]));
-    expect(measureWidth(detail, codeFont(12))).toBe(583.203125);
+    expect(measureWidth(detail, codeFont(13))).toBe(631.8125);
     expect(finding!.message).toBe(
-      `The path "${"x".repeat(49)}…" in the detail of "Leaf" has no break point within 583px, but at stock theme settings path details wrap ` +
-        "at 432px, so it overflows sideways.",
+      `The path "${"x".repeat(49)}…" in the detail of "Leaf" has no break point within 632px, but at stock theme settings path details wrap ` +
+        "at 468px, so it overflows sideways.",
     );
   });
 

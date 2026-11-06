@@ -1451,6 +1451,7 @@
         "component-tree-bare-ellipsis-lint",
         "interaction-surface-example-missing-lint",
         "interaction-surface-field-shape-lint",
+        "770899b7-1a12-406f-b788-2216bf20f25c",
         "bundle-relative-src-lint"
       ]
     },
@@ -1761,6 +1762,32 @@
       "text": [
         {
           "insert": "interaction-surface.field-shape flags a param or returned field whose name has a space or a colon outside quotes, such as \"open: true\". It also flags nested fields under a primitive or literal type. docs_check fails until the task fixes them."
+        }
+      ],
+      "children": []
+    },
+    "770899b7-1a12-406f-b788-2216bf20f25c": {
+      "id": "770899b7-1a12-406f-b788-2216bf20f25c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "stack.badge-repeats-name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a stack node whose badge holds only words of the node name, such as "
+        },
+        {
+          "insert": "host",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on \"Host app\". The badge draws as the card's role word, so it must name a role that the name does not state."
         }
       ],
       "children": []
