@@ -123,7 +123,8 @@ export const FILE_TREE_VARS = treeVars({
  * the dark code panel. A colored group's own guide color still wins on its rows.
  * A note is a one-line label, so it runs to the panel's right edge instead of
  * wrapping at the shared 60ch prose measure; only a note longer than the
- * panel wraps.
+ * panel wraps. A `code` span in a note draws in the code font at the row
+ * ink, so identifiers and paths stand apart from the note's words.
  */
 export const FILE_TREE_CSS = `
 .docs-tree[data-tree-kind="file-tree"] > .docs-tree__rows {
@@ -131,7 +132,24 @@ export const FILE_TREE_CSS = `
   --tr-guide: var(--docs-muted, #666562);
 }
 .docs-tree[data-tree-kind="file-tree"] .docs-tree__note { max-width: none; }
+.docs-tree__note-code {
+  font-family: var(--tr-mono); font-size: 0.92em;
+  color: var(--tr-ink, #1f1f1f);
+}
 `;
+
+/** A note's text with each backtick-quoted run as a code span, the way inline code reads in markdown. */
+export function NoteText({ note }: { note: string }) {
+  const parts = note.split(/`([^`]+)`/);
+  if (parts.length === 1) return <>{note}</>;
+  return (
+    <>
+      {parts.map((part, index) =>
+        index % 2 === 1 ? <code key={index} className="docs-tree__note-code">{part}</code> : part,
+      )}
+    </>
+  );
+}
 
 /** The struck old path of a rename, relative to the new name's folder (full path in the title). */
 export function RenamedFrom({ node }: { node: FileTreeNode }) {
@@ -173,7 +191,7 @@ function FileTreeRowView({ row, diff, seam }: { row: FileTreeRow; diff: boolean;
           {node.isDir && "/"}
         </span>
       </span>
-      {node.note && <span className="docs-tree__note">{node.note}</span>}
+      {node.note && <span className="docs-tree__note"><NoteText note={node.note} /></span>}
     </div>
   );
 }
@@ -186,7 +204,7 @@ export class FileTreeDocsBlock extends DocsMdxBlock<FileTreeData> {
   readonly agentDescription =
     "A `tree`-command-style file/module tree with a diff story, rendered from typed props: { entries: Array<{ path: string (\"/\"-separated, no leading \"./\"; a trailing \"/\" marks an explicit directory); note?: string; change?: \"added\"|\"removed\"|\"modified\"|\"renamed\"; from?: string (old path, for renamed); color?: " +
     DOCS_COLORS.map((color) => `"${color}"`).join("|") +
-    " }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders in one aligned muted column after the names; `change` adds a +/−/~/> gutter glyph and a soft row tint; renamed entries render `from → name` with the old path struck through and shown relative to the new name's folder. Derived directories carry no change state — only explicit entries do. A directory's `color` tints its name and washes its whole subtree (a descendant's own color overrides; a file's color covers its row only); a change tint wins on its row.";
+    " }> }. Directories are derived from path prefixes and sort before files (then alphabetical); `note` renders in one aligned muted column after the names, with each `backtick` run in the code font; `change` adds a +/−/~/> gutter glyph and a soft row tint; renamed entries render `from → name` with the old path struck through and shown relative to the new name's folder. Derived directories carry no change state — only explicit entries do. A directory's `color` tints its name and washes its whole subtree (a descendant's own color overrides; a file's color covers its row only); a change tint wins on its row.";
 
   render(block: DocsMdxParsedBlock<FileTreeData>) {
     const { data } = block;

@@ -159,3 +159,13 @@ describe("file tree compact folders", () => {
     expect(names()).toEqual(["colored/", "inner/", "y.ts", "moved/", "added/", "noted/", "inner/", "x.ts"]);
   });
 });
+
+describe("file tree notes", () => {
+  it("draws each backtick-quoted run of a note in the code font and keeps the rest as text", () => {
+    renderTree([{ path: "briefs.ts", note: "Exports `loadBriefs`, read by `round.ts`" }, { path: "plain.ts", note: "No code here" }]);
+    const notes = Array.from(document.querySelectorAll(".docs-tree__note"));
+    expect(notes.map((note) => note.textContent)).toEqual(["Exports loadBriefs, read by round.ts", "No code here"]);
+    expect(Array.from(notes[0]!.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["loadBriefs", "round.ts"]);
+    expect(notes[1]!.querySelector("code")).toBeNull();
+  });
+});
