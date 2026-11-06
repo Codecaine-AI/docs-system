@@ -250,7 +250,7 @@ export const TABLE_METRICS = {
   /** Prose and wrap columns wrap their text at this many ch of the cell font. */
   proseMeasureCh: 60,
   /** A text column whose longest body cell is over this many characters wraps. */
-  wrapThresholdChars: 40,
+  wrapThresholdChars: 24,
 } as const;
 
 /** The prose measure in px at the stock cell size: 506.25. */

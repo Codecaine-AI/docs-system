@@ -24,8 +24,13 @@ import {
  */
 export type TableColumnFit = "fit" | "prose" | "wrap";
 
-/** A text column whose longest body cell is under this many characters stays on one line. */
-export const WRAP_THRESHOLD = 40;
+/**
+ * A text column whose longest body cell is over this many characters wraps.
+ * A short-label column stays on one line; a column of phrases wraps, so the
+ * browser shares the lane between it and the prose column instead of giving
+ * the prose column only what the one-line columns leave over.
+ */
+export const WRAP_THRESHOLD = 24;
 
 export function tableColumnFits(
   rows: readonly (readonly TableCell[])[],

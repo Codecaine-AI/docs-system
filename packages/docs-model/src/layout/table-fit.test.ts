@@ -54,12 +54,12 @@ describe("layout.table-fit on screen", () => {
   });
 
   test("fit columns that never wrap past the 1,100px lane make the table scroll, as a warning that never blocks", () => {
-    const sentence = "Short text column under forty characters";
-    const block = table("t", ["One", "Two", "Three", "Four", "Five", "Six"], [[sentence, sentence, sentence, sentence, sentence, sentence]]);
+    const sentence = "Short text under 24 char";
+    const block = table("t", ["One", "Two", "Three", "Four", "Five", "Six", "Seven"], [[sentence, sentence, sentence, sentence, sentence, sentence, sentence]]);
     const { minPx } = structuredTableWidths(block, 688)!;
     expect(minPx).toBeGreaterThan(1101);
     const [finding] = check(document(block));
-    expect(finding).toMatchObject({ blockId: "t", field: "props.columns", evidence: "One | Two | Three | Four | Five | Six" });
+    expect(finding).toMatchObject({ blockId: "t", field: "props.columns", evidence: "One | Two | Three | Four | Five | Six | Seven" });
     expect(finding!.message).toStartWith(`The table needs at least ${px(minPx)} but has 1,100px at stock theme settings, so it scrolls sideways on screen.`);
     expect(finding!.message).toContain(`"Two" at ${px(measureWidth(sentence, { family: "Inter", size: 13.5 }) + 24)}, where row 1 never wraps`);
     expect(finding!.message).not.toContain("approximate");
@@ -152,10 +152,10 @@ describe("layout.table-fit in PDF export", () => {
   });
 
   test("in a fit column a bold run stays on one line in print", () => {
-    const bold = { insert: "Unbreakable bold label text", attributes: { bold: true as const } };
+    const bold = { insert: "Unbreakable bold label", attributes: { bold: true as const } };
     // Column E holds the longest text, so it is the prose column and C is a fit column.
     const block = table("t", ["A", "B", "C", "D", "E"], [["a", "b", [bold], "d", "A longer sentence that makes this the prose column."]]);
     const [finding] = check(document(block));
-    expect(finding!.message).toContain('"Unbreakable bold label text" in row 1 of "C" cannot wrap');
+    expect(finding!.message).toContain('"Unbreakable bold label" in row 1 of "C" cannot wrap');
   });
 });
