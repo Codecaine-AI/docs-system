@@ -91,7 +91,12 @@ function colorAttr(node: StackNode, isGroup: boolean): string | undefined {
 const hoverTitle = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(" — ") || undefined;
 
 /** Detail segments are stored ` · `-separated; the shape never draws them as a dotted list. */
-const detailSegments = (detail: string) => detail.split(/\s+·\s+/).filter(Boolean);
+/** A leading bare path written with a comma (`packages/docs-viewer, DocsClientProvider`) is a segment of its own. */
+const detailSegments = (detail: string) =>
+  detail.split(/\s+·\s+/).filter(Boolean).flatMap((segment) => {
+    const lead = /^(`?[^\s`,]+`?),\s+(\S.*)$/.exec(segment);
+    return lead && chipKind(lead[1]!.replace(/`/g, "")) === "path" ? [lead[1]!, lead[2]!] : [segment];
+  });
 
 /**
  * A leaf's detail. A detail that is not a path joins its segments with ", " on

@@ -308,7 +308,18 @@ export const STACK_PATH_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * monoColumnPx
  * without the backticks that mark a code span.
  */
 export function stackDetailSegments(detail: string): string[] {
-  return detail.split(/\s+·\s+/).filter(Boolean).map((segment) => segment.replace(/`/g, ""));
+  return stackDetailRawSegments(detail).map((segment) => segment.replace(/`/g, ""));
+}
+
+/**
+ * A detail's segments with their backticks: split on a middle dot with whitespace on both sides, and a leading
+ * bare path written with a comma (`packages/docs-viewer, DocsClientProvider`) split off as its own segment.
+ */
+export function stackDetailRawSegments(detail: string): string[] {
+  return detail.split(/\s+·\s+/).filter(Boolean).flatMap((segment) => {
+    const lead = /^(`?[^\s`,]+`?),\s+(\S.*)$/.exec(segment);
+    return lead && chipKind(lead[1]!.replace(/`/g, "")) === "path" ? [lead[1]!, lead[2]!] : [segment];
+  });
 }
 
 /**

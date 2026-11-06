@@ -378,6 +378,8 @@ describe("stack", () => {
     "`startMcp` runs `ensureDaemon` · forwards calls",
     "`node:fs/promises` calls on the checked path",
     "src/rules/index.ts · rulesFrom · also imports profile types",
+    "`packages/docs-viewer`, `DocsClientProvider` · `DocBlockRenderer`",
+    "Write resolvers, then `checkDocsPath`",
   ])("the model reads %p as path or prose exactly as the stack renders it", (detail) => {
     const { container } = render(createElement(StackBlock, { nodes: [{ name: "Leaf", detail }], boundaries: [] }));
     const rendered = container.querySelector("[data-stack-detail]")!;
