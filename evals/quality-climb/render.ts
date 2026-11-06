@@ -60,8 +60,12 @@ export async function lintPage(docJson: string, rules: { root: string; label: st
   return { rules: rules.label, ...JSON.parse(out.stdout.toString()) };
 }
 
-/** Screenshots the page's scroller to `png` and returns the box of each block in PNG pixels, keyed by block id. */
-async function screenshot(siteDir: string, slug: string, png: string): Promise<Record<string, Box>> {
+/**
+ * Screenshots the page's scroller to `png` and returns the box of each block in PNG pixels, keyed by block id.
+ * `expand` opens every <details> disclosure (such as each interaction-surface operation row) with transitions off
+ * before the screenshot, so the PNG and the boxes show the open state. The page's own default stays closed.
+ */
+export async function screenshot(siteDir: string, slug: string, png: string, expand = false): Promise<Record<string, Box>> {
   const { chromium } = await import("playwright");
   const server = Bun.serve({ port: 0, hostname: "127.0.0.1", async fetch(request) {
     const path = decodeURIComponent(new URL(request.url).pathname);
@@ -77,6 +81,10 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<R
     await page.goto(`http://127.0.0.1:${server.port}/#/${slug}`, { waitUntil: "networkidle" });
     await page.waitForSelector("[data-docs-scroller] [data-block-id]", { timeout: 30_000 });
     await page.evaluate(() => document.fonts.ready);
+    if (expand) {
+      await page.addStyleTag({ content: "*,*::before,*::after,::details-content{transition:none!important;animation:none!important}" });
+      await page.evaluate(() => { for (const details of document.querySelectorAll("[data-docs-scroller] details")) (details as HTMLDetailsElement).open = true; });
+    }
     // The page scrolls inside the workbench scroller: grow the window until the scroller shows all of it.
     for (let i = 0; i < 4; i++) {
       const hidden = await page.evaluate(() => { const s = document.querySelector<HTMLElement>("[data-docs-scroller]")!; return s.scrollHeight - s.clientHeight; });
@@ -103,9 +111,9 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<R
 
 /**
  * Renders the brief's page in `pageDir` to page.png, page.md, blocks.json, boxes.json (each block's place in the PNG) and lint.json. `rebuild` rebuilds the viewer SPA first.
- * `systemRoot` is the Docs System checkout that exports the page (this worktree by default).
+ * `systemRoot` is the Docs System checkout that exports the page (this worktree by default). `expand` opens every disclosure first.
  */
-export async function renderPage(brief: Brief, pageDir: string, rules: { root: string; label: string }, rebuild: boolean, systemRoot = REPO) {
+export async function renderPage(brief: Brief, pageDir: string, rules: { root: string; label: string }, rebuild: boolean, systemRoot = REPO, expand = false) {
   const siteDir = join(pageDir, "site");
   const emptyThemes = join(pageDir, "no-global-theme");
   await mkdir(emptyThemes, { recursive: true });
@@ -119,7 +127,7 @@ export async function renderPage(brief: Brief, pageDir: string, rules: { root: s
   await writeFile(join(pageDir, "blocks.json"), JSON.stringify(pageBlocks(doc), null, 2));
   const lint = await lintPage(docJson, rules);
   await writeFile(join(pageDir, "lint.json"), JSON.stringify(lint, null, 2));
-  const boxes = await screenshot(siteDir, brief.slug, join(pageDir, "page.png"));
+  const boxes = await screenshot(siteDir, brief.slug, join(pageDir, "page.png"), expand);
   await writeFile(join(pageDir, "boxes.json"), JSON.stringify(boxes, null, 2));
   return { png: join(pageDir, "page.png"), lint };
 }

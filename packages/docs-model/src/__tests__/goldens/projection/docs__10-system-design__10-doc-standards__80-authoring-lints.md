@@ -184,6 +184,10 @@ The executable catalog is the source for exact applicability and exclusions. The
 
     - It is a warning with no enforcement phase, so it never blocks a save or `docs_check`.
 
+  - interaction-surface.example-missing flags an operation with no exampleCall, and a returnShape that lists fields but has no example. docs_check fails until the task adds them.
+
+  - interaction-surface.field-shape flags a param or returned field whose name has a space or a colon outside quotes, such as "open: true". It also flags nested fields under a primitive or literal type. docs_check fails until the task fixes them.
+
   - `stack.badge-repeats-name` flags a stack node whose badge holds only words of the node name, such as `host` on "Host app". The badge draws as the card's role word, so it must name a role that the name does not state.
 
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.

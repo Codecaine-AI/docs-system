@@ -4,6 +4,32 @@ When creating or revising a worked component example, show the relevant state sh
 
 Descriptions should add non-obvious information about operations, parameters, and returned fields. Omit text that only expands a name, repeats a type, or says an ID is an identifier. Keep constraints, defaults, side effects, failure behavior, lifecycle rules, and other facts the signature does not express. Follow the State Shape description rule. Do not invent details to fill missing descriptions.
 
+## Write Each Operation
+
+Each operation gives a caller its whole contract: its real name, its kind, every parameter, and an example that runs as written.
+
+- Name an operation by the call that a caller writes, `receiver.method`, such as `DraftLockStore.acquire`.
+
+  - For one action of a reducer that takes a tagged union, name the operation by its real call with the type literal, such as `docPeekReducer(state, { type: "open" })`. The row then prints the name as written, with no `(…)` after it.
+
+- Set `kind` on every operation.
+
+  - An operation that creates, renews, deletes, or prunes anything is an action, even when it deletes expired entries only as a side effect.
+
+- Describe each parameter whose name and type do not tell a caller what to pass.
+
+- Give every operation an `exampleCall` with literal values and no variable that the call does not set.
+
+  - Pass each argument that fixes the result, such as a `now` date.
+
+- For an object return, make `returnShape.example` the exact result of that `exampleCall`.
+
+  - When the examples of one surface share state, write them as one scenario in call order.
+
+- For a union keyed on one field, keep the fields flat and type that field with its literal values, such as `true | false`.
+
+  - Start the description of each field that only one branch has with that branch, such as "Only when ok is true."
+
 ## Example
 
 This example starts with one file-tree entry. Adding src/config.ts returns the complete entries props patch. Removing src/index.ts from the same starting state returns an empty entries list. Each example starts independently from FileTreeState.
@@ -31,7 +57,7 @@ entries: FileTreeEntry[]  # Paths are unique; array order controls document orde
 **file-tree entry operations**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed") -> FileTreeEntriesPatch  # Duplicate paths are rejected. Returns the props patch, not the action success envelope.
+[action] file-tree.addEntry(path: string, note?: string, change?: "added" | "removed" | "modified" | "renamed") -> FileTreeEntriesPatch  # Duplicate paths are rejected. Returns the props patch, not the action success envelope.
   path: string  # /-separated path, no leading "./"; a trailing "/" marks an explicit directory.
   note?: string  # Short annotation rendered after the path.
   change?: "added" | "removed" | "modified" | "renamed"  # Change marker rendered as a badge.
@@ -58,7 +84,7 @@ file-tree.addEntry(path: string, note?: string, change?: "added" | "removed" | "
         }
       ]
     }
-file-tree.removeEntry(path: string) -> FileTreeEntriesPatch  # Removes only the exact matching path. Returns the props patch.
+[action] file-tree.removeEntry(path: string) -> FileTreeEntriesPatch  # Removes only the exact matching path. Returns the props patch.
   path: string  # Exact path of the entry to remove.
   Example call:
     file-tree.removeEntry({
@@ -134,7 +160,12 @@ Three actions maintain the `operations` array. The surface below documents itsel
 **interaction-surface operation actions**
 
 ```
-interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape) -> InteractionSurfacePatch  # Rejects duplicate operation names.
+[action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape) -> InteractionSurfacePatch  # Rejects duplicate operation names.
+  name: string
+  description?: string
+  params?: array
+  returns?: string
+  kind?: string
   returnShape?: ReturnShape
     fields: Field[]
     example?: string
@@ -172,7 +203,7 @@ interaction-surface.addOperation(name: string, description?: string, params?: ar
         }
       ]
     }
-interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place; null clears description, params, returns, returnShape, or kind.
+[action] interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place; null clears description, params, returns, returnShape, or kind.
   Example call:
     interaction-surface.updateOperation({
       name: "file-tree.removeEntry",
@@ -206,7 +237,7 @@ interaction-surface.updateOperation(name: string, patch: object) -> InteractionS
         }
       ]
     }
-interaction-surface.removeOperation(name: string) -> InteractionSurfacePatch  # Remove the operation with the given name from the surface.
+[action] interaction-surface.removeOperation(name: string) -> InteractionSurfacePatch  # Remove the operation with the given name from the surface.
   Example call:
     interaction-surface.removeOperation({
       name: "file-tree.removeEntry",
@@ -243,7 +274,11 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
 - Operations sit as rows in one dark panel under the surface title, in authored order.
 
-- A closed row is one line, `receiver.method(…) → ReturnType`. Hovering or focusing the operation name opens a tooltip with the Action, Query, or Event badge and the operation purpose.
+- A closed row shows `receiver.method(…) → ReturnType` and ends in a kind chip with the kind icon and the word action, query, or event.
+
+  - A return type too long for the row wraps under the name.
+
+  - Hovering or focusing the operation name opens a tooltip with the kind badge and the operation purpose.
 
 - An open operation shows a Parameters card and a Returns card. Each card lists fields on the left and shows code on the right, the authored `exampleCall` or the example return object.
 
@@ -277,9 +312,17 @@ In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`
 
 The markdown render is an optional `**<title>**` bold line, then a bare fence with one signature line per operation, in document order.
 
-- The signature line is `[kind] name(param: type, optional?: type) -> returns  # description`, the `[kind]` prefix only for query and event, the `-> returns` and `# description` tails only when present.
+- The signature line is `[kind] name(param: type, optional?: type) -> returns  # description`.
 
-- Described or nested parameters add indented field lines beneath the signature. A returnShape adds a named Returns section, recursive fields, and the supplied example. Full operation names remain searchable.
+  - Every line has the `[kind]` prefix, and an operation with no kind prints `[action]`.
+
+  - The `-> returns` and `# description` tails print only when present.
+
+- Once any parameter has a description or nested fields, every parameter adds an indented field line beneath the signature.
+
+  - A `returnShape` adds a named Returns section, recursive fields, and the supplied example.
+
+  - A name that is already a call, such as `docPeekReducer(state, { type: "open" })`, prints as written and always lists its parameters as lines.
 
 - Operation names remain fully dotted in the agent projection. Human-readable card headings do not change stored operation identities.
 
@@ -432,6 +475,6 @@ DocsChangeEvent is the callback payload, not the subscription return object. The
 
 Approved in Variator on 2026-09-15 from Tapered Tree List, revision 13c3f549-e558-4eec-b1bc-144d8a3d86ee. Apply d72f0fe6-cbdd-48a4-9b63-4dba3fb2c19a used a real Kernel agent and passed 40 exact visual comparisons. The component design/approval.json package keeps the original feedback, scoped decisions, revisions, and events. Earlier all-amber headers and blue Query styling are historical, superseded choices.
 
-Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name, so neither takes space on screen.
+Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name. On 2026-11-06 the kind came back to the closed row as a chip, because a reader of a static page could not tell an action from a query.
 
-Reuse the State Shape field ledger, typography, and thin separators. One-line closed rows, the kind and purpose tooltip, and separate Parameters and Returns cards with list and code side by side are Interaction Surface decisions.
+Reuse the State Shape field ledger, typography, and thin separators. Closed rows with a kind chip, the purpose tooltip, and separate Parameters and Returns cards with list and code side by side are Interaction Surface decisions.

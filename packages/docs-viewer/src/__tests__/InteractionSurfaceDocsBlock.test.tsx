@@ -185,13 +185,13 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(summary.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("draws each line as chevron and described name with the elided tail; the kind and purpose live in the name's tooltip", () => {
+  it("draws each line as chevron, described name with the elided tail, and a visible kind chip; the purpose lives in the name's tooltip", () => {
     render(<InteractionSurfaceBlock id="surface-rows" operations={OPERATIONS} />);
     for (const [name, kind] of [["table.walk", "query"], ["table.put", "action"], ["table.changed", "event"], ["table.unbadged", "action"]] as const) {
       const summary = summaryOf(name);
       expect(opRow(name)?.getAttribute("data-operation-kind")).toBe(kind);
       expect(summary.querySelector("[data-disclosure-chevron]")?.getAttribute("aria-hidden")).toBe("true");
-      // No visible badge or purpose line anywhere outside the tooltip.
+      // No badge or purpose line in the open body: the kind shows on the row's chip.
       expect(opRow(name)!.querySelector("[data-operation-body] [data-operation-kind-badge]")).toBeNull();
       expect(opRow(name)!.querySelector("[data-operation-intro]")).toBeNull();
       // The name is a described name whose tooltip leads with the kind badge.
@@ -203,19 +203,21 @@ describe("InteractionSurfaceBlock — operation rows", () => {
       // Inside the summary (already one tab stop) the name adds no second one.
       expect(target.hasAttribute("tabindex")).toBe(false);
       expect(target.hasAttribute("aria-describedby")).toBe(false);
-      // The kind still reaches assistive tech while closed: the summary is
-      // labelled by its name (with tail) and the visually hidden kind word.
-      const kindEl = summary.querySelector("[data-operation-sr]") as HTMLElement;
+      // The closed row shows the kind as a chip at the row end, and the
+      // summary is labelled by its name (with tail) and that chip.
+      const kindEl = summary.querySelector("[data-op-kind-chip]") as HTMLElement;
+      expect(kindEl.getAttribute("data-op-kind-chip")).toBe(kind);
       expect(kindEl.textContent).toBe(kind);
+      expect(kindEl.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
       expect(summary.getAttribute("aria-labelledby")).toBe(`${nameEl.id} ${kindEl.id}`);
     }
     expect(summaryOf("table.walk").querySelector("[data-operation-tail]")?.textContent).toBe("(…) → Row[]");
-    expect(summaryOf("table.walk").querySelector("[data-operation-returns]")?.getAttribute("title")).toBe("Row[]");
     expect(summaryOf("table.changed").querySelector("[data-operation-tail]")?.textContent).toBe("() → () => void");
     expect(summaryOf("table.unbadged").querySelector("[data-operation-tail]")?.textContent).toBe("()");
     const css = sheet();
-    expect(css).toContain("white-space:pre");
-    expect(css).toContain("[data-operation-returns]{min-width:0;overflow:hidden;text-overflow:ellipsis}");
+    // A long return type wraps under the name with a hanging indent; nothing truncates it.
+    expect(css).toContain("text-indent:calc(-1 * var(--ds-space-4));white-space:normal;overflow-wrap:anywhere");
+    expect(css).not.toContain("text-overflow:ellipsis");
     // Keyboard: focusing the summary shows the tooltip; hover uses the shared dwell.
     expect(css).toContain("[data-operation-line]:focus-visible [data-description-tip]{opacity:1;visibility:visible");
     expect(css).toContain("transition-delay:var(--docs-tip-delay,450ms)");
@@ -232,6 +234,8 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(signatureTail({ name: "a.b" })).toBe("()");
     expect(signatureTail({ name: "a.b", returns: "R" })).toBe("() → R");
     expect(signatureTail({ name: "a.b", params: [{ name: "x", type: "string" }, { name: "y", required: false }], returns: "R" })).toBe("(…) → R");
+    // A call-form name already shows its arguments: the tail is the return type alone.
+    expect(signatureTail({ name: 'reduce(state, { type: "open" })', params: [{ name: "state" }], returns: "S" })).toBe(" → S");
   });
 
   it("gives every param a shared ledger row with its type, the description as a name tooltip", () => {
@@ -272,18 +276,29 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     // Neither params, example call, nor returns: an empty body, no cards.
     expect(opRow("table.unbadged")?.querySelector("[data-op-cards]")).toBeNull();
     const css = sheet();
-    // Full panel width (no side inset), so the ledger columns line up with a
-    // State Shape's; 12px apart and 12px above the next operation.
-    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-3);padding:0 0 var(--ds-space-3)}");
-    // Raised a step toward ink, ruled top and bottom only (the panel frames the sides).
-    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,");
-    expect(css).toContain("border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}");
+    // Nested list: the block is one framed panel, and an open operation lifts
+    // in place to a lighter framed surface, with no page-background gap.
+    expect(css).toContain('[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);');
+    expect(css).toContain("[data-operations-list]{display:flex;flex-direction:column;padding:var(--op-list-inset)}");
+    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-block:var(--ds-space-1);background:var(--op-raise-bg);box-shadow:inset 0 0 0 var(--op-rule-w) var(--op-edge)}");
+    expect(css).not.toContain("--op-gap");
+    // Parameters and Returns are framed cards on the panel tone, inset 12px on
+    // both sides of the open operation, and the Returns head opens with an arrow.
+    expect(css).toContain("--op-zone-inset:var(--ds-space-3);");
+    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-2);padding:0 var(--op-zone-inset) var(--op-zone-inset)}");
+    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-bg);border:var(--op-rule-w) solid var(--op-edge);border-radius:var(--op-radius)}");
+    expect(css).toContain('[data-op-card="returns"]>[data-op-card-head]::before{content:"→" / "";');
     // The head bar is a sans heading in ink.
     expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
     // List beside code at the shared 44/56 split once the CARD (the size
     // container) is 560px; the code pane keeps at least 260px. Stacking is
-    // the narrow-screen last resort only.
-    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}");
+    // the narrow-screen last resort only. The insets come out of the list
+    // column, which pays them from spacing (pad, gap, right padding) and 4px
+    // of the name column, so the code pane and the type column keep their width.
+    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)}");
+    expect(css).toContain("--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));");
+    expect(css).toContain("[data-op-list]{min-width:0;padding:var(--ds-space-0-5) 0 var(--ds-space-1-5);--fl-pad-x:var(--ds-space-3)}");
+    expect(css).toContain("[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-1)}");
   });
 
   it("links param rows to the example-call lines that set them: hover lights both sides, click pins, Escape clears", () => {
@@ -374,7 +389,9 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("real dotted name");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as one-line rows");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as rows");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("kind chip");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("never truncated");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("open on click, Enter, or Space");
   });
 });
@@ -397,12 +414,14 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
   it("maps its knobs onto the panel, the line, and the shared ledger locals", () => {
     const css = renderSurface();
     for (const declaration of [
-      // Panel frame.
-      "background:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)))",
-      "border:var(--docs-interaction-border-width,1px) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
-      "border-radius:var(--docs-interaction-radius,var(--radius,2px))",
+      // Panel frame, drawn on the head and each operation.
+      "--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)))",
+      "--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
+      "--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge)",
+      "--op-radius:var(--docs-interaction-radius,var(--radius,2px))",
+      "background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);",
       "--op-pad-x:var(--docs-interaction-pad-x,16px)",
-      "--fl-name-w:var(--docs-shape-name-width,24ch)",
+      "--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1))",
       "--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)))",
       "--op-rule-w:var(--docs-interaction-rule-width,1px)",
       // Title in the head.
@@ -414,7 +433,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       '[data-operation-name] [data-sig-token="name"]{color:var(--docs-interaction-header-fg,var(--syntax-function,',
       "font-size:var(--docs-interaction-desc-text-size,13.5px);line-height:var(--docs-interaction-desc-line-height,20px)",
       // Card head bars.
-      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--op-pad-x);",
+      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--ds-space-3);",
       "font-size:var(--docs-interaction-column-head-text-size,13px)",
       "color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))",
       // Ledger locals: this block's knob first, State Shape behind it.
@@ -428,13 +447,13 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)))",
       "--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)))",
       // The kind badge reads the role tokens: text, line, and soft fill.
-      '[data-operation-kind-badge="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
+      '[data-operation-kind-badge="query"],[data-op-kind-chip="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
       "font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium)",
       // Focus ring and hover on the line.
       "[data-disclosure]>summary:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}",
       "[data-disclosure]>summary:hover{background:var(--docs-hover,",
       // List beside code at the shared split.
-      "grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)",
+      "grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)",
     ]) {
       expect([declaration, css.includes(declaration)]).toEqual([declaration, true]);
     }

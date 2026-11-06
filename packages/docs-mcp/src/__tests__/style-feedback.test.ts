@@ -179,7 +179,7 @@ describe("docs_check style gate", () => {
   });
 
   test("a condition written as an operation's returns fails docs_check until it moves into the description", async () => {
-    const surface = (returns: string, description?: string) => ({ operations: [{ name: "POST /api/undo", returns, ...(description ? { description } : {}) }] });
+    const surface = (returns: string, description?: string) => ({ operations: [{ name: "POST /api/undo", returns, exampleCall: 'await fetch("/api/undo", { method: "POST" })', ...(description ? { description } : {}) }] });
     const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
       { type: "insertBlock", blockId: "surface", parentId: "root", index: 3, blockType: "interaction-surface", props: surface("{ ok: true, doc, hash } for a doc patch. A canvas patch returns its own fields.") },
     ] }, task);

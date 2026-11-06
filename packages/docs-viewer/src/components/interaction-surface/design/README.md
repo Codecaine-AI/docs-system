@@ -11,6 +11,7 @@ The user approved the current design on September 15, 2026. The canonical compon
 - Parameter and returned-field descriptions render as the State Shape description tooltip (dotted underline, 450 ms hover dwell or keyboard focus, inline in print). The operation purpose paragraph stays inline in the card header. Approved 2026-09-24.
 - Ground examples in actual source. A callback event payload is separate from a subscription's unsubscribe return value.
 - Operation cards are native disclosures, collapsed by default. The summary row holds a chevron, a kind icon (`Zap` for Action, `Search` for Query, `Radio` for Event), and the name. The kind badge and the param count were dropped from the row; the icon's tooltip names the kind. The purpose shows when the card is open. Requested 2026-09-30.
+- The block is one framed panel, a nested list: closed rows sit 4px inside the frame as one tight list split by thin rules. An open operation lifts in place to a lighter framed surface, with no page-background gap between operations. Inside it, Parameters and Returns are two framed cards on the panel tone, inset 12px from both sides, and the Returns head opens with an arrow (→). The ledger pays for the insets from its spacing, never from the code pane, so no type, name or example line wraps that did not wrap before. Ford chose this layout over the card-and-gap layout on 2026-11-06.
 
 ## Decision Authority
 

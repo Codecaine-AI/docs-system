@@ -90,7 +90,7 @@ Three actions are the type's whole custom write surface.
 **file-tree entry actions**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> FileTreePatch  # Append a path entry (optional note, change marker, and color) to the file tree.
+[action] file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink") -> FileTreePatch  # Append a path entry (optional note, change marker, and color) to the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
@@ -98,7 +98,7 @@ file-tree.addEntry(path: string, note?: string, change?: string, color?: "gray" 
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
       color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
-file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
+[action] file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with the given path from the file tree.
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.
@@ -106,7 +106,7 @@ file-tree.removeEntry(path: string) -> FileTreePatch  # Remove the entry with th
       change?: "added" | "removed" | "modified" | "renamed"  # Diff marker for the entry.
       from?: string  # Previous path, used with change: "renamed".
       color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink"  # Group color for the entry.
-file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from/color, or rename it via newPath (in place).
+[action] file-tree.updateEntry(path: string, note?: string | null, change?: string | null, from?: string | null, color?: "gray" | "red" | "orange" | "yellow" | "green" | "teal" | "blue" | "violet" | "pink" | null, newPath?: string) -> FileTreePatch  # Patch an entry's note/change/from/color, or rename it via newPath (in place).
   Returns FileTreePatch:
     entries: FileTreeEntry[]  # Flat list of path entries; the rendered tree derives from path prefixes.
       path: string  # /-separated, no leading "./"; a trailing "/" marks an explicit directory.

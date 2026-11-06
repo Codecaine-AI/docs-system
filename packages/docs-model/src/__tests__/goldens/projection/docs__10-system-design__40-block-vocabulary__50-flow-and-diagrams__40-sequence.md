@@ -64,9 +64,9 @@ Three actions are lifted at module load from the engine's `SEQUENCE_AGENT_PATCH_
 **sequence forwarded patch operations**
 
 ```
-sequence.setProgram(program: string) -> forwarded to the sequence authority  # Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.
-sequence.setStyle(style: SequenceStylePatch) -> forwarded to the sequence authority  # Deep-merge visual style one level: element groups (surface, participant, lifeline, message, activation, fragment, note) merge per-field; null clears a field or a whole group; omitted fields are preserved.
-sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set the document title without changing structure or style.
+[action] sequence.setProgram(program: string) -> forwarded to the sequence authority  # Replace diagram structure with a complete whole-program rewrite: every participant and item, never a patch. Styling never appears in the program.
+[action] sequence.setStyle(style: SequenceStylePatch) -> forwarded to the sequence authority  # Deep-merge visual style one level: element groups (surface, participant, lifeline, message, activation, fragment, note) merge per-field; null clears a field or a whole group; omitted fields are preserved.
+[action] sequence.setTitle(title: string) -> forwarded to the sequence authority  # Set the document title without changing structure or style.
 ```
 
 `applySequenceOperations` in the engine gives each verb its semantics:
