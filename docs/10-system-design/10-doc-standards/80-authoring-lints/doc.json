@@ -819,7 +819,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Judgment Rules findings at 0.85 or higher on blocks the task changed also enter "
+          "insert": "Findings from gated Judgment Rules at 0.85 or higher on blocks the task changed also enter "
         },
         {
           "insert": "style_gate",
@@ -1025,7 +1025,8 @@
         "b-80-authoring-lints-writing-filler-flags-in-36",
         "b-80-authoring-lints-writing-dense-paragraph-37",
         "writing-semicolon-lint",
-        "writing-sentence-length-lint"
+        "writing-sentence-length-lint",
+        "writing-mixed-literal-marks-lint"
       ]
     },
     "b-80-authoring-lints-writing-filler-flags-in-36": {
@@ -1112,6 +1113,61 @@
       "text": [
         {
           "insert": "writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought."
+        }
+      ],
+      "children": []
+    },
+    "writing-mixed-literal-marks-lint": {
+      "id": "writing-mixed-literal-marks-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.mixed-literal-marks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a sentence that puts one literal in code and another of 3 words or fewer in double quotes, such as one that replaces "
+        },
+        {
+          "insert": "in order to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "\"to\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". When a task adds such a sentence, "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with its "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails until the task gives both literals the code mark."
         }
       ],
       "children": []
@@ -1331,6 +1387,45 @@
           "insert": "structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as \"1.\", so the block moves into the children of the step above it."
         }
       ],
+      "children": [
+        "structure-sequence-bullets-lint",
+        "structure-split-bullet-list-lint"
+      ]
+    },
+    "structure-sequence-bullets-lint": {
+      "id": "structure-sequence-bullets-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.sequence-bullets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a bullet run whose later item opens with an order word, such as \"Then read\" after \"Start with\". The run becomes a numbered list. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "structure-split-bullet-list-lint": {
+      "id": "structure-split-bullet-list-lint",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "structure.split-bullet-list",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a code block or callout between two bullets under one parent. The block moves into the children of the bullet above it, so the list stays whole."
+        }
+      ],
       "children": []
     },
     "component-lints": {
@@ -1349,6 +1444,7 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "structure-callout-focus-lint",
         "code-language-lint",
         "code-annotation-range-lint",
         "bundle-relative-src-lint"
@@ -1456,6 +1552,25 @@
       "text": [
         {
           "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "structure-callout-focus-lint": {
+      "id": "structure-callout-focus-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.callout-focus",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a callout title that opens with its tone word, such as \"Decided:\" under the Decision label, and a title whose topic words mostly repeat the body's first sentence. It also flags a callout body of more than 2 sentences. docs_check fails until the task fixes it."
         }
       ],
       "children": []
@@ -1715,7 +1830,8 @@
       "children": [
         "lint-judgment-ids-packed",
         "lint-judgment-ids-flat",
-        "lint-judgment-ids-join"
+        "lint-judgment-ids-join",
+        "lint-judgment-ids-callout"
       ]
     },
     "lint-judgment-ids-packed": {
@@ -1769,6 +1885,23 @@
       ],
       "children": []
     },
+    "lint-judgment-ids-callout": {
+      "id": "lint-judgment-ids-callout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "judgment.callout-message",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is gated and asks whether a callout carries one message whose force fits its printed label. It reports a second, unrelated message, and a label that does not fit the message, such as a plain fact under a warning label."
+        }
+      ],
+      "children": []
+    },
     "lint-judgment-thresholds": {
       "id": "lint-judgment-thresholds",
       "type": "list-item",
@@ -1792,7 +1925,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test."
+          "insert": "Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, and 0.6 for callout-message."
         }
       ],
       "children": []
@@ -1818,7 +1951,7 @@
           }
         },
         {
-          "insert": " blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block."
+          "insert": " blocks on a gated rule only at 0.85 or higher. A finding the task's baseline already had on the same block does not block."
         }
       ],
       "children": []

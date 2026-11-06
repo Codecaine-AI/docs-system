@@ -194,7 +194,32 @@
       "props": {},
       "text": [
         {
-          "insert": "Use a numbered list for multi-step work, with one bounded action per step."
+          "insert": "Use a numbered list for multi-step work, with one bounded action per step through the last action."
+        }
+      ],
+      "children": [
+        "shape-detail-3-0-child",
+        "shape-detail-3-0-order-words"
+      ]
+    },
+    "shape-detail-3-0-child": {
+      "id": "shape-detail-3-0-child",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A child item of a step adds detail to that step only. A later action, such as the closing call, is the next numbered step."
+        }
+      ],
+      "children": []
+    },
+    "shape-detail-3-0-order-words": {
+      "id": "shape-detail-3-0-order-words",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Bullets that open with order words, such as \"Start with\" and \"Then\", are a sequence. Number them."
         }
       ],
       "children": []
