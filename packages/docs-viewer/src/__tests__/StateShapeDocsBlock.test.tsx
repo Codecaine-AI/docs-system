@@ -555,7 +555,7 @@ describe("StateShapeBlock — code in descriptions", () => {
   it("keeps a short code span on one line and lets a long one wrap", () => {
     render(<StateShapeBlock id="wrap" fields={[{ name: "token", type: "string", description: "Sent as `Authorization: Bearer <token>` or `" + "x".repeat(40) + "`." }]} />);
     expect(Array.from(document.querySelectorAll("[data-note-code]")).map((n) => n.getAttribute("data-note-code"))).toEqual(["", "long"]);
-    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap}');
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}');
   });
 
   it("prints a description with no backticks as plain text", () => {
