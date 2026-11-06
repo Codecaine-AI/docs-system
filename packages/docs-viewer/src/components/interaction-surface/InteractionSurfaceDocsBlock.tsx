@@ -137,13 +137,14 @@ export function signatureTail(operation: InteractionSurfaceOperation): string {
 
 /**
  * {@link signatureTail} as role-tagged tokens, the same roles as the signature
- * pane. A return type too long for the line wraps under the name with a
- * hanging indent, so the closed row always shows the whole type.
+ * pane. The arrow and return type are one box: when they do not fit after the
+ * name, the box moves to the next line and wraps inside itself, so a long
+ * union stays aligned under its arrow and the row always shows the whole type.
  */
 function SignatureTailTokens({ operation }: { operation: InteractionSurfaceOperation }) {
   return <span data-operation-tail="true">
     {!isCallFormName(operation.name) && <span data-operation-params="true"><PunctToken text="(" />{operation.params?.length ? <span data-sig-token="elided">{ELIDED_PARAMS}</span> : null}<PunctToken text=")" /></span>}
-    {operation.returns && <span data-sig-token="returns" data-operation-returns="true"> {RETURNS_ARROW} <TypeToken text={operation.returns} /></span>}
+    {operation.returns && <>{" "}<span data-sig-token="returns" data-operation-returns="true">{RETURNS_ARROW} <TypeToken text={operation.returns} /></span></>}
   </span>;
 }
 
@@ -186,6 +187,7 @@ const SURFACE_STYLE = `
 [data-operation-tip-purpose]{display:block}
 [data-operation-tail]{font-weight:var(--ds-font-weight-regular)}
 [data-operation-params]{white-space:nowrap}
+[data-operation-returns]{display:inline-block;box-sizing:border-box;max-width:100%;vertical-align:top;padding-left:2ch;text-indent:-2ch}
 [data-op-kind-chip]{display:inline-flex;align-items:center;gap:var(--ds-space-1);flex:none;margin-left:auto;padding:0 var(--ds-space-1-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium);line-height:1.4;color:var(--op-kind);border:var(--ds-border-width-hairline) solid var(--op-kind-line);border-radius:var(--radius,2px);background:color-mix(in srgb,var(--op-kind-soft) 14%,transparent)}
 [data-op-kind-chip] svg{width:var(--ds-space-3);height:var(--ds-space-3);flex:none}
 [data-operation-name] [data-sig-token="elided"]{color:var(--docs-muted,#666562)}
