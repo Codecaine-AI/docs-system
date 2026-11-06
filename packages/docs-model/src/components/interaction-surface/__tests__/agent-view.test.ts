@@ -11,10 +11,10 @@ describe("interaction-surface component agent view", () => {
   it("projects the fixture byte-for-byte", () => {
     expect(interactionSurfaceAgentView(fixtureBlock, { listDepth: 0, listIndex: 0 })).toBe(
       "**File-tree block surface**\n\n```\n" +
-        "file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
+        "[action] file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
         "  path: string  # /-separated path\n" +
-        "file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
-        "file-tree.removeEntry(path: string)\n```",
+        "[action] file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
+        "[action] file-tree.removeEntry(path: string)\n```",
     );
   });
 
@@ -37,7 +37,7 @@ describe("interaction-surface component agent view", () => {
       children: [],
     };
     expect(interactionSurfaceAgentView(block, { listDepth: 0, listIndex: 0 })).toBe(
-      "```\ndocs.load(path: string, fresh?: boolean) -> DocDocument\n```",
+      "```\n[action] docs.load(path: string, fresh?: boolean) -> DocDocument\n```",
     );
   });
 
@@ -77,7 +77,7 @@ describe("interaction-surface component agent view", () => {
     };
     expect(interactionSurfaceAgentView(block, { listDepth: 0, listIndex: 0 })).toBe(
       "```\n" +
-        "state-shape.addField(field: Field, path?: string, index?: number) -> props patch  # Insert a field under the parent named by path\n" +
+        "[action] state-shape.addField(field: Field, path?: string, index?: number) -> props patch  # Insert a field under the parent named by path\n" +
         "  field: Field\n" +
         "    name: string\n" +
         "    required?: boolean  # false = optional\n" +

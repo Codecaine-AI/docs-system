@@ -39,7 +39,7 @@ Starting with the TableTheme field definition above, call state-shape.addField w
 **Edit the Field Definition**
 
 ```
-state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatch  # Rejects duplicate sibling names; omitted path and index append at the root.
+[action] state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatch  # Rejects duplicate sibling names; omitted path and index append at the root.
   field: Field
     name: string  # Unique among siblings.
     type?: string
@@ -228,7 +228,7 @@ Four actions instantiate the Typed actions contract element. Params validate aga
 **state-shape, actions**
 
 ```
-state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatchPatch  # Insert a field ({ name, type?, required?, description?, fields? }) under the parent named by path; index defaults to the end.
+[action] state-shape.addField(field: Field, path?: string, index?: integer) -> StateShapeFieldsPatchPatch  # Insert a field ({ name, type?, required?, description?, fields? }) under the parent named by path; index defaults to the end.
   field: Field  # The field to insert.
     name: string
     type?: string
@@ -244,7 +244,7 @@ state-shape.addField(field: Field, path?: string, index?: integer) -> StateShape
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPatch  # Patch the field at path (rename via patch.name; null clears type/required/description; patch.fields replaces the subtree, null removes it).
+[action] state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPatch  # Patch the field at path (rename via patch.name; null clears type/required/description; patch.fields replaces the subtree, null removes it).
   path: string  # Dot-path of the field to patch, e.g. "operations.params".
   patch: object  # Partial field; patch.name renames, null clears.
     name?: string  # Rename; must stay unique among siblings.
@@ -259,7 +259,7 @@ state-shape.updateField(path: string, patch: object) -> StateShapeFieldsPatchPat
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove the field at path, together with its entire subtree.
+[action] state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove the field at path, together with its entire subtree.
   path: string  # Dot-path of the field to remove, e.g. "operations.params".
   Returns StateShapeFieldsPatchPatch:
     fields: Field[]  # The complete replacement field list, not only the added field.
@@ -268,7 +268,7 @@ state-shape.removeField(path: string) -> StateShapeFieldsPatchPatch  # Remove th
       required?: boolean  # Omitted means required.
       description?: string
       fields?: Field[]  # Recurses with the same field contract.
-state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSON example instance rendered beside the field tree (example must parse as JSON; null clears it).
+[action] state-shape.setExample(example: string | null) -> StateShapePatch  # Set the JSON example instance rendered beside the field tree (example must parse as JSON; null clears it).
   example: string | null  # JSON text of an example instance of this shape; null clears the example.
   Returns StateShapePatch:
     example?: string  # JSON text of an example instance of this shape; renders as the linked example pane.

@@ -112,10 +112,10 @@ describe("projectToMarkdown — the sample fixture", () => {
     expect(markdown).toContain(
       "**File-tree block surface**\n\n" +
         "```\n" +
-        "file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
+        "[action] file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
         "  path: string  # /-separated path\n" +
-        "file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
-        "file-tree.removeEntry(path: string)\n" +
+        "[action] file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
+        "[action] file-tree.removeEntry(path: string)\n" +
         "```",
     );
   });
@@ -245,17 +245,19 @@ describe("projectToMarkdown — interaction-surface signatures", () => {
     );
   }
 
-  it("prefixes [kind] only for query/event operations; actions render bare", () => {
+  it("prefixes [kind] on every operation; an operation without a kind is an action", () => {
     const md = projectToMarkdown(
       surfaceDoc([
         { name: "state.reset", kind: "action" },
+        { name: "state.clear" },
         { name: "state.snapshot", kind: "query", returns: "State" },
         { name: "state.changed", kind: "event", description: "Fires after every applied op" },
       ]),
     );
     expect(md).toContain(
       "```\n" +
-        "state.reset()\n" +
+        "[action] state.reset()\n" +
+        "[action] state.clear()\n" +
         "[query] state.snapshot() -> State\n" +
         "[event] state.changed()  # Fires after every applied op\n" +
         "```",
