@@ -99,6 +99,12 @@ describe("pseudocode block", () => {
     expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "then", "stop"]]);
   });
 
+  it("marks a function header line that opens an indented body, and only that line", () => {
+    renderPseudocode(["parseTranscript(jsonl)", "  count = 0", "  record(line)", "", "helper(x)"].join("\n"));
+    const rows = [...document.querySelectorAll(".docs-pseudo-row")];
+    expect(rows.map((row) => row.hasAttribute("data-pseudo-header"))).toEqual([true, false, false, false, false]);
+  });
+
   it("colors a method call as a call, not as a property", () => {
     const [row] = renderPseudocode("event = JSON.parse(line)");
     expect(row!.html).toContain('JSON.<span class="hljs-title function_">parse</span>(line)');

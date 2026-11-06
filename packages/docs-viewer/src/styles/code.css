@@ -329,6 +329,32 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Indent guides: one faint vertical rule per 2ch nesting step, under the
+ * first character of the step that owns the level, drawn only across the
+ * line's own indent. Rows stack, so the rules of a loop body join into one
+ * line from the loop's first step to its last.
+ */
+.docs-pseudo-code {
+  background-image: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 16%, transparent) 0 1px,
+    transparent 1px 2ch
+  );
+  background-repeat: no-repeat;
+  background-position: calc(var(--docs-code-pad-x, var(--ds-space-3)) + 0.5ch) 0;
+  background-size: var(--docs-pseudo-indent, 0ch) 100%;
+}
+
+.docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
+  background-position: calc(var(--ds-space-1) + 0.5ch) 0;
+}
+
+/* A function header line, such as parseTranscript(jsonl), opens its body in a heavier weight. */
+.docs-pseudo-row[data-pseudo-header] .docs-pseudo-code {
+  font-weight: var(--ds-font-weight-semibold);
+}
+
 .docs-pseudo-row:not(:has(.docs-pseudo-comment)) .docs-pseudo-code {
   grid-column: span 2;
   padding-right: var(--docs-code-pad-x, var(--ds-space-3));

@@ -33,7 +33,8 @@ export function pseudoGrammar(hljs: HLJSApi): Language {
     aliases: ["pseudocode"],
     keywords: {
       keyword: [...PSEUDO_CONTROL_WORDS, "let", "def"],
-      literal: ["true", "false", "null", "nil", "none"],
+      // "none" and "nil" stay plain: writers use them as English, as in "when usage has none".
+      literal: ["true", "false", "null"],
     },
     contains: [
       hljs.C_LINE_COMMENT_MODE,
