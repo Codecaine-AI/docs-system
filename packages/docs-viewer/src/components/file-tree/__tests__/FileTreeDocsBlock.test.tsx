@@ -128,7 +128,7 @@ describe("file tree group color", () => {
 });
 
 describe("file tree compact folders", () => {
-  const names = () => treeRows().map((row) => row.querySelector(".docs-tree__name")?.textContent);
+  const names = () => treeRows().map((row) => row.querySelector(".docs-tree__name")?.textContent ?? "");
 
   it("draws a chain of single-child folders as one row, in the order the agent projection prints", () => {
     const entries = [
