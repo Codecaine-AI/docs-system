@@ -443,7 +443,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses, such as "
+          "insert": "A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses. A call-stack row writes "
         },
         {
           "insert": "layout?.width",
@@ -452,7 +452,7 @@
           }
         },
         {
-          "insert": " for a layout that can be missing."
+          "insert": " for a missing layout, and a pseudocode line writes \"the width of the layout, if there is one\"."
         }
       ],
       "children": []

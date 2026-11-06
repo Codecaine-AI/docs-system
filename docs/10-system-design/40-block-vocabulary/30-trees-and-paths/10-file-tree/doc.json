@@ -1013,52 +1013,7 @@
           }
         },
         {
-          "insert": " draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a "
-        },
-        {
-          "insert": ".",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " root line, then one row per node with "
-        },
-        {
-          "insert": "tree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "-style guides ("
-        },
-        {
-          "insert": "├──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "└──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "│",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "). An empty "
+          "insert": " draws the block on the doc surface, in reader and editor alike, as a monospace panel with a File tree head. Each node is one row, and thin guide lines join each row to its parent folder. An empty "
         },
         {
           "insert": "entries",
@@ -1104,7 +1059,8 @@
       ],
       "children": [
         "b-ftfam-docr-order-1",
-        "b-ftfam-docr-order-2"
+        "b-ftfam-docr-order-2",
+        "b-ftfam-docr-order-3"
       ]
     },
     "b-ftfam-docr-order-1": {
@@ -1113,7 +1069,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing \"/\"."
+          "insert": "Directories sort first at every level, then names in ascending codepoint order. Directory names render semibold with a trailing \"/\"."
         }
       ],
       "children": []
@@ -1125,6 +1081,26 @@
       "text": [
         {
           "insert": "The order matches the agent render exactly, so the two surfaces agree by design."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-order-3": {
+      "id": "b-ftfam-docr-order-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A folder with no note, change or color merges into its only child folder, so a chain such as "
+        },
+        {
+          "insert": "packages/docs-model/src/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws as one row. The agent render merges by the same rule."
         }
       ],
       "children": []

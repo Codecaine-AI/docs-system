@@ -74,8 +74,8 @@ describe("layout findings", () => {
     expect(written.ok).toBe(true);
     expect(written.style_findings.shown).toContainEqual({
       block: "wide-code", rule: "layout.code-line-width",
-      problem: expect.stringMatching(/^Line 1 is 130 columns wide, but at stock theme settings the code panel fits 118 before it scrolls sideways\./),
-      fix: expect.stringContaining("PDF export wraps code instead of scrolling"),
+      problem: expect.stringMatching(/^Line 1 is 130 columns wide, but at stock theme settings the code panel fits 118, so the line wraps on the page\./),
+      fix: expect.stringContaining("Never reflow or shorten a copied line to fit."),
     });
     const read = await call("docs_read", { path: "page" });
     const finding = read.lint.findings.find((f: any) => f.ruleId === "layout.code-line-width");

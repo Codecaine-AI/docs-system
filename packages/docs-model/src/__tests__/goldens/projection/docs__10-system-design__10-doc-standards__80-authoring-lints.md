@@ -76,7 +76,7 @@ Every registered rule has a stable ID, a corpus docsPath, a severity, enforcemen
 
   - Write results list up to 5 `style_findings` that the write introduced or that sit on blocks it touched. `style_gate_open` counts the gated violations the task still has open on the page.
 
-  - Judgment Rules findings at 0.85 or higher on blocks the task changed also enter `style_gate`.
+  - Findings from gated Judgment Rules at 0.85 or higher on blocks the task changed also enter `style_gate`.
 
 - **Required Repairs**
 
@@ -110,6 +110,8 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought.
 
+  - `writing.mixed-literal-marks` flags a sentence that puts one literal in code and another of 3 words or fewer in double quotes, such as one that replaces `in order to` with `"to"`. When a task adds such a sentence, `docs_check` with its `task_id` fails until the task gives both literals the code mark.
+
 - **Page Structure Warnings**
 
   - structure.opening-paragraph requires a nonempty opening paragraph after an optional initial H1. structure.opening-length checks its length.
@@ -140,6 +142,10 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as "1.", so the block moves into the children of the step above it.
 
+    - `structure.sequence-bullets` flags a bullet run whose later item opens with an order word, such as "Then read" after "Start with". The run becomes a numbered list. docs_check fails until the task fixes it.
+
+    - `structure.split-bullet-list` flags a code block or callout between two bullets under one parent. The block moves into the children of the bullet above it, so the list stays whole.
+
 - **Component and Asset Checks**
 
   - process-outline.single-parent requires one named, non-note root with at least one action child in every completed Process Outline.
@@ -158,6 +164,20 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
 
+  - `structure.callout-focus` flags a callout title that opens with its tone word, such as "Decided:" under the Decision label, and a title whose topic words mostly repeat the body's first sentence. It also flags a callout body of more than 2 sentences. docs_check fails until the task fixes it.
+
+  - code.language flags a code block with no language.
+
+    - The page shows such a block as plain text with no language label.
+
+    - Set the language to the file's language, or to text for plain output.
+
+    - docs_check fails until the task fixes it.
+
+  - code.annotation-range flags a code annotation whose lines key does not parse, covers no line, or reaches past the listing's last line. The reader cannot pair such a note with its code. docs_check fails until the task fixes it.
+
+  - pseudocode.code-syntax flags an operator such as === or ??, an object literal, or an index such as [part.name] in a pseudocode line, outside its strings and comment. The message gives the plain words for each one, such as "does not equal" for !==. docs_check fails until the task fixes it.
+
   - `component-tree.bare-ellipsis` flags a component or hook row with a `…` outside braces and quotes, such as `<Pane settings={settings} …>`.
 
     - The row reads as broken JSX. The writer drops those props with no marker and writes an omitted value as `{…}`.
@@ -168,7 +188,11 @@ The executable catalog is the source for exact applicability and exclusions. The
 
 - **Layout Warnings**
 
-  - `layout.code-line-width` flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column.
+  - `layout.code-line-width` flags a code line wider than the code panel shows.
+
+    - The read page wraps such a line, and the edit panel scrolls it sideways.
+
+    - At stock settings the panel shows 118 columns, with or without notes, because notes move under their lines when the code needs the width.
 
     - The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns.
 
@@ -192,11 +216,13 @@ Judgment rules are style checks that a model answers. Jev, the TypeSafe System O
 
   - `judgment.join-test` asks whether a paragraph and the list right after it fail to read as prose.
 
+  - `judgment.callout-message` is gated and asks whether a callout carries one message whose force fits its printed label. It reports a second, unrelated message, and a label that does not fit the message, such as a plain fact under a warning label.
+
 - **Thresholds**
 
-  - Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, and 0.5 for join-test.
+  - Write results report a judged finding at 0.6 for packed-bullet, 0.7 for flat-hierarchy, 0.5 for join-test, and 0.6 for callout-message.
 
-  - `docs_check` with `task_id` blocks only at 0.85 or higher. A finding the task's baseline already had on the same block does not block.
+  - `docs_check` with `task_id` blocks on a gated rule only at 0.85 or higher. A finding the task's baseline already had on the same block does not block.
 
 - **Failure and the Kill Switch**
 
