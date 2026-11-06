@@ -1,0 +1,8 @@
+[
+  { "id": "change-scope", "group": "Meaning", "question": "Does the block list exactly the files the page's topic covers, none missing and none extra, with the right change marker on each changed file?" },
+  { "id": "note-value", "group": "Writing", "question": "Do notes give each key file one short fact about its role, without restating its name, path or change marker?" },
+  { "id": "fold-visibility", "group": "Writing", "question": "If rows fold past maxRows, do visible rows still include every changed file, and does the toggle state the hidden count?" },
+  { "id": "change-signal", "group": "Look", "question": "Can the reader tell added, removed, modified, renamed and unchanged rows apart from gutter glyph and tint, not color alone?" },
+  { "id": "path-tracing", "group": "Look", "question": "Do indent, guides, twisties and folder order let the reader rebuild each file's full path, including compacted folder chains?" },
+  { "id": "rename-display", "group": "Look", "question": "Does each renamed row show the old path struck through and the new path clearly, as one file in its new folder?" }
+]
