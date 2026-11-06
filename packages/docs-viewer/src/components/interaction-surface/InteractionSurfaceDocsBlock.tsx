@@ -161,37 +161,36 @@ function domId(...parts: string[]): string {
  * State Shape knob to the shared role tokens. The ledgers are the shared
  * field ledger (../state-shape/field-ledger), mapped here onto this block's
  * knobs. The sheet is unlayered, so a value set here must be tokenized here.
- * An open operation detaches from its neighbours as its own framed card: a
- * --op-gap of page background and a full --op-frame border on each side, the
- * block itself painting no background, so a run of closed rows still reads
- * as one tight panel. Inside it, the call and the result are two steps: the
- * Parameters and Returns cards sit --op-step-gap apart on the card tone, and
- * the Returns head opens with a decorative → (hidden from assistive tech).
- * The open body sits --op-indent (24px) in from the operation's edge, so the
- * section heads and field names start under the operation name (38px: pad,
- * chevron, gap). The indent comes out of the ledger's list column, never
- * the code pane: the ledger pays it from spacing, the name-to-type gap
- * (24px to 12px), its right padding (16px to 8px) and 4px of the name
- * column, so a type, a name, or an example line that fit beside an
- * unindented ledger still fits (measured on the 24 climb and held-out pages).
+ * Nested list (Ford's pick, 2026-11-06): the block is one framed panel on
+ * --op-bg, and its operations list sits --op-list-inset (4px) inside the
+ * frame, so closed rows read as one tight list split by thin rules. An open
+ * operation lifts in place to a lighter framed surface (--op-raise-bg, an
+ * inset hairline, 4px of margin). No page background shows between
+ * operations. Inside it, the Parameters and Returns cards sit on --op-bg,
+ * framed, --op-zone-inset (12px) in from the open operation's sides and
+ * bottom, and 8px apart. The Returns head opens with a decorative → (hidden
+ * from assistive tech). The insets take --op-list-take (36px) from the row,
+ * and only the ledger's list column pays it, never the code pane: the ledger
+ * gives up its pad (16px to 12px), the name-to-type gap (24px to 12px), its
+ * right padding (16px to 4px) and 4px of the name column, so a type, a name,
+ * or an example line that fit before still fits (measured on the 24 climb
+ * and held-out pages).
  * A closed operation's body is also a zero-height clip on screen (not only
  * the ::details-content box), so geometry readers such as the workbench's
  * grain mask never see the hidden code panes as on-screen code.
  */
 const SURFACE_STYLE = `
-[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:transparent;--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge);--op-radius:var(--docs-interaction-radius,var(--radius,2px));--op-pad-x:var(--docs-interaction-pad-x,16px);--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)));--op-rule-w:var(--docs-interaction-rule-width,1px);--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)));--op-gap:var(--ds-space-5);--op-step-gap:var(--ds-space-3);--op-indent:var(--ds-space-6);--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)));--op-head-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 9%,var(--op-bg));--op-card-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,var(--op-bg));--fl-pad-x:var(--op-pad-x);--fl-row-pad:var(--docs-interaction-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--op-rule);--fl-rule-w:var(--op-rule-w);--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));--fl-indent:var(--docs-interaction-indent,16px);--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-interaction-note-name,var(--docs-shape-name,var(--syntax-key,var(--docs-syn-prop,#0d7164))));--fl-name-weight:var(--docs-interaction-note-name-weight,500);--fl-name-size:var(--docs-interaction-note-name-text-size,13px);--fl-type:var(--docs-interaction-note-type,var(--docs-shape-type,var(--syntax-type,var(--docs-syn-type,#805f01))));--fl-type-size:var(--docs-interaction-note-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--docs-muted,#666562));--fl-optional:var(--docs-shape-optional-fg,var(--docs-muted,#666562));--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)));--fl-desc-size:var(--docs-interaction-desc-text-size,13.5px)}
+[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge);--op-radius:var(--docs-interaction-radius,var(--radius,2px));--op-pad-x:var(--docs-interaction-pad-x,16px);--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)));--op-rule-w:var(--docs-interaction-rule-width,1px);--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)));--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)));--op-raise-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 7%,var(--op-bg));--op-list-inset:var(--ds-space-1);--op-zone-inset:var(--ds-space-3);--op-list-take:calc(var(--ds-space-8) + var(--ds-space-1));--fl-pad-x:var(--op-pad-x);--fl-row-pad:var(--docs-interaction-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--op-rule);--fl-rule-w:var(--op-rule-w);--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));--fl-indent:var(--docs-interaction-indent,16px);--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-interaction-note-name,var(--docs-shape-name,var(--syntax-key,var(--docs-syn-prop,#0d7164))));--fl-name-weight:var(--docs-interaction-note-name-weight,500);--fl-name-size:var(--docs-interaction-note-name-text-size,13px);--fl-type:var(--docs-interaction-note-type,var(--docs-shape-type,var(--syntax-type,var(--docs-syn-type,#805f01))));--fl-type-size:var(--docs-interaction-note-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--docs-muted,#666562));--fl-optional:var(--docs-shape-optional-fg,var(--docs-muted,#666562));--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)));--fl-desc-size:var(--docs-interaction-desc-text-size,13.5px)}
 [data-operations-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--ds-space-1-5) var(--op-pad-x);border-bottom:var(--op-rule-w) solid var(--op-rule)}
 [data-operations-title]{margin:0;min-width:0;font-size:var(--docs-interaction-title-text-size,13.5px);font-weight:var(--docs-interaction-title-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-interaction-title-fg,var(--docs-ink,#1f1f1f));overflow-wrap:anywhere}
-[data-operations-header],[data-interaction-operation]{background:var(--op-bg);border-inline:var(--op-frame)}
-[data-operations-header]{border-top:var(--op-frame);border-radius:var(--op-radius) var(--op-radius) 0 0}
+[data-operations-list]{display:flex;flex-direction:column;padding:var(--op-list-inset)}
+[data-interaction-operation]{border-radius:var(--op-radius)}
 [data-interaction-operation]+[data-interaction-operation]{border-top:var(--op-rule-w) solid var(--op-edge)}
-[data-interaction-operation]:last-child{border-bottom:var(--op-frame);border-end-start-radius:var(--op-radius);border-end-end-radius:var(--op-radius)}
-[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-top:var(--op-gap);border:var(--op-frame);border-radius:var(--op-radius)}
-[data-interaction-operation]:has(>[data-operation-disclosure][open])+[data-interaction-operation]{margin-top:var(--op-gap);border-top:var(--op-frame);border-start-start-radius:var(--op-radius);border-start-end-radius:var(--op-radius)}
-[data-interaction-operation]:has(+[data-interaction-operation]>[data-operation-disclosure][open]){border-bottom:var(--op-frame);border-end-start-radius:var(--op-radius);border-end-end-radius:var(--op-radius)}
-[data-interaction-operation]:first-child:has(>[data-operation-disclosure][open]){margin-top:0;border-top:0;border-start-start-radius:0;border-start-end-radius:0}
-[data-operation-disclosure][open]>[data-operation-line]{background:var(--op-head-bg);border-bottom:var(--op-rule-w) solid var(--op-edge)}
-[data-operation-line]{padding:0 var(--op-pad-x)}
+[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-block:var(--ds-space-1);background:var(--op-raise-bg);box-shadow:inset 0 0 0 var(--op-rule-w) var(--op-edge)}
+[data-interaction-operation]:has(>[data-operation-disclosure][open])+[data-interaction-operation]{border-top-color:transparent}
+[data-interaction-operation]:first-child:has(>[data-operation-disclosure][open]){margin-top:0}
+[data-interaction-operation]:last-child:has(>[data-operation-disclosure][open]){margin-bottom:0}
+[data-operation-line]{padding:0 calc(var(--op-pad-x) - var(--op-list-inset))}
 [data-operation-line-row]{position:relative;display:flex;align-items:flex-start;gap:var(--ds-space-2);min-height:36px;padding:var(--docs-interaction-header-pad-y,9px) 0}
 [data-operation-line-row]>[data-disclosure-chevron]{margin-top:calc((1.4em - 14px) / 2)}
 [data-operation-name]{display:block;min-width:0;flex:1 1 auto;padding-left:var(--ds-space-4);text-indent:calc(-1 * var(--ds-space-4));white-space:normal;overflow-wrap:anywhere;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-interaction-header-text-size,13px);font-weight:var(--docs-interaction-header-weight,500);line-height:1.4;color:var(--syntax-punctuation,var(--docs-code-fg,var(--docs-text,#2a2a2a)))}
@@ -219,19 +218,19 @@ const SURFACE_STYLE = `
 @media screen{[data-operation-disclosure]:not([open])>[data-operation-body]{height:0}}
 [data-operation-disclosure][open]::details-content{overflow:visible}
 [data-operation-disclosure][open]>[data-operation-body]{overflow:visible}
-[data-op-cards]{display:flex;flex-direction:column;gap:var(--op-step-gap);padding:var(--ds-space-3) 0 var(--ds-space-3) var(--op-indent)}
-[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-card-bg);border:var(--op-rule-w) solid var(--op-edge);border-inline-end:0}
+[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-2);padding:0 var(--op-zone-inset) var(--op-zone-inset)}
+[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-bg);border:var(--op-rule-w) solid var(--op-edge);border-radius:var(--op-radius)}
 [data-op-card="returns"]>[data-op-card-head]::before{content:"→" / "";margin-right:calc(-1 * var(--ds-space-1));font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-weight:var(--ds-font-weight-regular);color:var(--docs-interaction-sig-punct,var(--syntax-punctuation,var(--docs-code-fg,var(--docs-text-secondary,var(--color-text-default,inherit)))))}
-[data-op-card-head]{display:flex;align-items:baseline;gap:var(--ds-space-2);margin:0;padding:var(--docs-interaction-column-head-pad-y,8px) var(--op-pad-x);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))}
-[data-op-card-head]:not(:last-child){border-bottom:calc(2 * var(--op-rule-w)) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}
+[data-op-card-head]{display:flex;align-items:baseline;gap:var(--ds-space-2);margin:0;padding:var(--docs-interaction-column-head-pad-y,8px) var(--ds-space-3);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))}
+[data-op-card-head]:not(:last-child){border-bottom:var(--op-rule-w) solid var(--op-rule)}
 [data-op-return-type]{min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-weight:var(--ds-font-weight-regular);overflow-wrap:normal}
 [data-op-row]{display:grid;grid-template-columns:minmax(0,1fr)}
-[data-op-list]{min-width:0;padding:var(--ds-space-0-5) 0 var(--ds-space-1-5)}
-[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-2)}
+[data-op-list]{min-width:0;padding:var(--ds-space-0-5) 0 var(--ds-space-1-5);--fl-pad-x:var(--ds-space-3)}
+[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-1)}
 [data-op-code]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}
 [data-op-row]>[data-op-code]:first-child{border-top:0}
 [data-op-code] [data-code-line]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)}
-@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-indent)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-indent))) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
+@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
 @media print{[data-operation-name]>[data-described]{display:block}[data-operation-tip-kind]{display:inline-block;margin:0 var(--ds-space-2) 0 0}[data-operation-tip-purpose]{display:inline}}
 @media(prefers-reduced-motion:reduce){[data-docs-block-type="interaction-surface"] *{scroll-behavior:auto;transition-duration:.01ms}}
 `;

@@ -276,29 +276,29 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     // Neither params, example call, nor returns: an empty body, no cards.
     expect(opRow("table.unbadged")?.querySelector("[data-op-cards]")).toBeNull();
     const css = sheet();
-    // Indented under the operation line, so the cards read as its children.
-    // The call and the result are two steps a --op-step-gap apart, and the
-    // Returns head opens with a decorative arrow.
-    expect(css).toContain("--op-indent:var(--ds-space-6);");
-    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--op-step-gap);padding:var(--ds-space-3) 0 var(--ds-space-3) var(--op-indent)}");
+    // Nested list: the block is one framed panel, and an open operation lifts
+    // in place to a lighter framed surface, with no page-background gap.
+    expect(css).toContain('[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);');
+    expect(css).toContain("[data-operations-list]{display:flex;flex-direction:column;padding:var(--op-list-inset)}");
+    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-block:var(--ds-space-1);background:var(--op-raise-bg);box-shadow:inset 0 0 0 var(--op-rule-w) var(--op-edge)}");
+    expect(css).not.toContain("--op-gap");
+    // Parameters and Returns are framed cards on the panel tone, inset 12px on
+    // both sides of the open operation, and the Returns head opens with an arrow.
+    expect(css).toContain("--op-zone-inset:var(--ds-space-3);");
+    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-2);padding:0 var(--op-zone-inset) var(--op-zone-inset)}");
+    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-bg);border:var(--op-rule-w) solid var(--op-edge);border-radius:var(--op-radius)}");
     expect(css).toContain('[data-op-card="returns"]>[data-op-card-head]::before{content:"→" / "";');
-    // Raised a step toward ink, framed on three sides (the operation frames the right).
-    expect(css).toContain("--op-card-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,var(--op-bg))");
-    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-card-bg);border:var(--op-rule-w) solid var(--op-edge);border-inline-end:0}");
-    // An open operation is its own framed card a --op-gap from its neighbours,
-    // and the block paints no fill, so the gap shows the page.
-    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-top:var(--op-gap);border:var(--op-frame);border-radius:var(--op-radius)}");
-    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open])+[data-interaction-operation]{margin-top:var(--op-gap);");
     // The head bar is a sans heading in ink.
     expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
     // List beside code at the shared 44/56 split once the CARD (the size
     // container) is 560px; the code pane keeps at least 260px. Stacking is
-    // the narrow-screen last resort only. The indent comes out of the list
-    // column, which pays it from spacing (gap, right padding) and 4px of the
-    // name column, so the code pane and the type column keep their width.
-    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-indent)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-indent))) minmax(260px,1fr)}");
+    // the narrow-screen last resort only. The insets come out of the list
+    // column, which pays them from spacing (pad, gap, right padding) and 4px
+    // of the name column, so the code pane and the type column keep their width.
+    expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)}");
     expect(css).toContain("--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));");
-    expect(css).toContain("[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-2)}");
+    expect(css).toContain("[data-op-list]{min-width:0;padding:var(--ds-space-0-5) 0 var(--ds-space-1-5);--fl-pad-x:var(--ds-space-3)}");
+    expect(css).toContain("[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-1)}");
   });
 
   it("links param rows to the example-call lines that set them: hover lights both sides, click pins, Escape clears", () => {
@@ -419,7 +419,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
       "--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge)",
       "--op-radius:var(--docs-interaction-radius,var(--radius,2px))",
-      "[data-operations-header],[data-interaction-operation]{background:var(--op-bg);border-inline:var(--op-frame)}",
+      "background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);",
       "--op-pad-x:var(--docs-interaction-pad-x,16px)",
       "--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1))",
       "--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)))",
@@ -433,7 +433,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       '[data-operation-name] [data-sig-token="name"]{color:var(--docs-interaction-header-fg,var(--syntax-function,',
       "font-size:var(--docs-interaction-desc-text-size,13.5px);line-height:var(--docs-interaction-desc-line-height,20px)",
       // Card head bars.
-      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--op-pad-x);",
+      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--ds-space-3);",
       "font-size:var(--docs-interaction-column-head-text-size,13px)",
       "color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))",
       // Ledger locals: this block's knob first, State Shape behind it.
@@ -453,7 +453,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "[data-disclosure]>summary:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}",
       "[data-disclosure]>summary:hover{background:var(--docs-hover,",
       // List beside code at the shared split.
-      "grid-template-columns:minmax(min(calc(360px - var(--op-indent)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-indent))) minmax(260px,1fr)",
+      "grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)",
     ]) {
       expect([declaration, css.includes(declaration)]).toEqual([declaration, true]);
     }
