@@ -295,7 +295,25 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep at most 3 props on a row, the ones that pass data, children or a render callback to a row in the tree. Drop the other props with no marker, because a bare "
+          "insert": "Keep the props that a row below reads, such as "
+        },
+        {
+          "insert": "api={api}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when a child passes "
+        },
+        {
+          "insert": "api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on, and the props that pass children or a render callback. Drop the other props with no marker, because a bare "
         },
         {
           "insert": "…",
@@ -412,7 +430,8 @@
         "ct-rows-g2-1",
         "ct-rows-g2-2",
         "ct-rows-g2-3",
-        "ct-rows-g2-4"
+        "ct-rows-g2-4",
+        "ct-rows-g2-5"
       ]
     },
     "ct-rows-g2-1": {
@@ -441,7 +460,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write each later test in a chain as "
+          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write each later test in the chain as "
         },
         {
           "insert": "else if",
@@ -459,16 +478,7 @@
           }
         },
         {
-          "insert": ", or as "
-        },
-        {
-          "insert": "default",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in a switch."
+          "insert": "."
         }
       ],
       "children": []
@@ -490,7 +500,54 @@
       "props": {},
       "text": [
         {
-          "insert": "In a chain of 3 or more arms, keep an arm that renders nothing as a branch row with no children and the comment "
+          "insert": "Write each case of a switch as its full comparison, such as "
+        },
+        {
+          "insert": "props.selectedId === \"theme.presets\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the last arm as "
+        },
+        {
+          "insert": "default",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Never mix "
+        },
+        {
+          "insert": "else if",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "default",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in one chain."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g2-5": {
+      "id": "ct-rows-g2-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In a chain of 3 or more arms, keep an arm that renders nothing as a branch row with the comment "
         },
         {
           "insert": "renders nothing",
@@ -499,7 +556,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". Leave out a branch that can never be true at that place."
         }
       ],
       "children": []
@@ -576,7 +633,7 @@
           }
         },
         {
-          "insert": ", and move its component children up to its depth. Keep it when the page's prose names it, when it groups children into a region, or when children slot into it."
+          "insert": ", and move its component children up to its depth. Keep it only when the page's prose names it, when it groups children into a region, or when children slot into it."
         }
       ],
       "children": []
@@ -628,7 +685,8 @@
         "ct-rows-g4-1",
         "ct-rows-g4-2",
         "ct-rows-g4-3",
-        "ct-rows-g4-4"
+        "ct-rows-g4-4",
+        "ct-rows-g4-5"
       ]
     },
     "ct-rows-g4-1": {
@@ -689,6 +747,26 @@
       "text": [
         {
           "insert": "Give a branch row a comment only when it adds a fact its condition does not state, such as what the user did to reach that case."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g4-5": {
+      "id": "ct-rows-g4-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Comment every sibling row of the same kind, or none of them. Say in the comment when a "
+        },
+        {
+          "insert": "map",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders the row once per item, or which of 2 rows with the same component name it is."
         }
       ],
       "children": []
