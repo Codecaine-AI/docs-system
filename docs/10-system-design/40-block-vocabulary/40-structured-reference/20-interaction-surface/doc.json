@@ -381,25 +381,16 @@
       "props": {},
       "text": [
         {
-          "insert": "For a result with more than one shape, set "
+          "insert": "For a union keyed on one field, keep the fields flat and type that field with its literal values, such as "
         },
         {
-          "insert": "returns",
+          "insert": "true | false",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " to the union type and give "
-        },
-        {
-          "insert": "returnShape",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " one top-level field per branch."
+          "insert": "."
         }
       ],
       "children": [
@@ -412,16 +403,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Name each branch field by its key and value, such as "
-        },
-        {
-          "insert": "ok: true",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", leave its type empty, and nest that branch's fields under it."
+          "insert": "Start the description of each field that only one branch has with that branch, such as \"Only when ok is true.\""
         }
       ],
       "children": []
