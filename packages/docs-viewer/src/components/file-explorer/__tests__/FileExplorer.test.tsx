@@ -94,22 +94,28 @@ describe("file explorer", () => {
     expect(rowNames()).toContain("update-entry.ts");
   });
 
-  it("folds past maxRows and toggles between all and first rows", () => {
+  it("folds past maxRows, names the hidden count, and toggles between all and first rows", () => {
     renderBlock({ entries: ENTRIES, maxRows: 3 });
     expect(rowNames()).toHaveLength(3);
     const more = Array.from(document.querySelectorAll("button")).find((node) =>
-      node.textContent?.startsWith("Show all"),
+      node.textContent?.startsWith("Show"),
     )!;
-    expect(more.textContent).toBe("Show all 7 rows");
+    expect(more.textContent).toBe("Show 4 more rows");
     fireEvent.click(more);
     expect(rowNames()).toHaveLength(7);
     expect(more.textContent).toBe("Show first 3 rows");
   });
 
-  it("folds at 8 rows by default", () => {
-    const many = Array.from({ length: 10 }, (_, i) => ({ path: `src/file-${i}.ts` }));
+  it("shows a list whole when the fold would hide 3 rows or fewer", () => {
+    renderBlock({ entries: ENTRIES, maxRows: 4 });
+    expect(rowNames()).toHaveLength(7);
+    expect(document.querySelector("button")).toBeNull();
+  });
+
+  it("folds at 24 rows by default", () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ path: `src/file-${String(i).padStart(2, "0")}.ts` }));
     renderBlock({ entries: many });
-    expect(rowNames()).toHaveLength(8);
+    expect(rowNames()).toHaveLength(24);
   });
 
   /** Each rendered row as "name color head seam", e.g. "app/src blue head". */

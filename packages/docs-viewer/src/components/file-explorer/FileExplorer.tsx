@@ -24,7 +24,13 @@ import {
 } from "../outline-rows/tree-rows";
 
 /** Rows shown before the explorer folds when the block sets no `maxRows`. */
-export const DEFAULT_EXPLORER_MAX_ROWS = 8;
+export const DEFAULT_EXPLORER_MAX_ROWS = 24;
+/**
+ * The fewest rows a fold hides. A list that runs only this many rows past
+ * its limit shows whole, because a fold that hides a row or two saves no
+ * space and can hide a changed file the writer meant to show.
+ */
+export const MIN_FOLDED_ROWS = 4;
 
 type ExplorerRow = {
   /** Path of the row's last node: the React key and the collapse key. */
@@ -157,6 +163,11 @@ const EXPLORER_CSS = `
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color-head]:not([data-change]) .docs-tree__name { color: var(--tr-file-fg); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color-head]:not([data-change]) .docs-tree__name[data-dir] { color: var(--tr-folder-fg); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color] .docs-tree__icon { color: var(--tr-grp); }
+/* a group color also runs as a strip down the left edge of its rows, apart from the change signal */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color]::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+  width: var(--ds-border-width-rail); background: var(--tr-grp);
+}
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color]:not([data-change]) .docs-tree__icon svg { fill: color-mix(in srgb, currentColor 35%, transparent); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__icon { color: var(--tr-chg); }
 /* a changed name mixes its change hue with the row ink, so it reads clearly over its own tint */
@@ -273,7 +284,7 @@ export function FileExplorer({
   const [expanded, setExpanded] = useState(false);
   const limit = maxRows && maxRows > 0 ? maxRows : DEFAULT_EXPLORER_MAX_ROWS;
   const rows = explorerRows(roots.values(), 0, undefined, collapsed, []);
-  const folds = rows.length > limit;
+  const folds = rows.length - limit >= MIN_FOLDED_ROWS;
   const visible = folds && !expanded ? rows.slice(0, limit) : rows;
   const seams = colorSeams(visible.map((row) => row.scope));
   // The gutter belongs to the whole tree, so folding never shifts the rows.
@@ -319,7 +330,7 @@ export function FileExplorer({
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? TREE_ICONS.chevronUp : TREE_ICONS.chevronDown}
-            <span>{expanded ? `Show first ${limit} rows` : `Show all ${rows.length} rows`}</span>
+            <span>{expanded ? `Show first ${limit} rows` : `Show ${rows.length - limit} more ${rows.length - limit === 1 ? "row" : "rows"}`}</span>
           </button>
         )}
         {diff && <ChangeLegend changes={changes} />}
