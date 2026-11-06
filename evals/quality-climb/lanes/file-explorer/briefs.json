@@ -1,0 +1,134 @@
+[
+  {
+    "id": 148,
+    "set": "climb",
+    "slug": "change-set-server-files",
+    "title": "Files the Change-Set Build Touched",
+    "reader": "A server engineer who will review or extend the change-set feature and needs to see which files it added and edited",
+    "prompt": "Write a short page that shows the docs-server and docs-viewer files the change-set build touched, as an explorer with a badge on each added or modified file. Note what each new file in the changesets slice does. Explain the slice rule: the new clusters are self-contained, and each modified file outside them is only a mount point, a wire or an added type.",
+    "sources": ["CHANGESETS-DESIGN.md", "packages/docs-server/src/changesets/index.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 149,
+    "set": "climb",
+    "slug": "add-a-style-rule-files",
+    "title": "Files to Add a Style Rule",
+    "reader": "A contributor who will add a new code rule to docs-style and wants to see every file the change touches",
+    "prompt": "Write a short page that shows the files a new docs-style rule touches, as an explorer of packages/docs-style/src/. Mark the new rule folder and its index.ts as added and the rules registry as modified. Say in one paragraph why no other pipeline file needs a change.",
+    "sources": ["packages/docs-style/src/rules/index.ts", "packages/docs-style/src/types.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 150,
+    "set": "climb",
+    "slug": "background-service-files",
+    "title": "Background Service Files",
+    "reader": "An operator who will debug the macOS background service of the docs MCP",
+    "prompt": "Write a short page that shows packages/docs-mcp/src/background/ as an explorer, with a note on what each file does: the launcher, the bootstrap, the supervisor, the registry and the activation policy. Say which script builds and installs the service.",
+    "sources": ["packages/docs-mcp/src/background/supervisor.ts", "packages/docs-mcp/src/background/registry.ts", "packages/docs-mcp/src/background/activation.ts", "packages/docs-mcp/scripts/install-background.py"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 151,
+    "set": "climb",
+    "slug": "round-page-folder",
+    "title": "What a Round Writes per Page",
+    "reader": "An engineer who opens a finished quality-climb round folder and wants to know what each file is",
+    "prompt": "Write a short page that shows the files the harness writes for one page of a round, as an explorer: the scratch corpus, the MCP config, the writer transcript and metrics, the rendered site, page.png, page.md, blocks.json and lint.json. Note which stage writes each file. Explain what a metrics.failed.json file means.",
+    "sources": ["evals/quality-climb/write.ts", "evals/quality-climb/render.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 152,
+    "set": "held-out",
+    "slug": "doc-page-files",
+    "title": "Doc Page Files",
+    "reader": "A workbench contributor who must find where the doc page loads, saves and reviews a page",
+    "prompt": "Write a short page that shows the DocPage folder of the workbench as a deep explorer, with the _components, the lab folder and the hooks. Note the hooks that load the bundle, save edits, undo, and run the doc lab. Keep the notes to one short phrase each.",
+    "sources": ["packages/docs-workbench/web/src/_components/DocPage/index.tsx", "packages/docs-workbench/web/src/_components/DocPage/lab/index.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 153,
+    "set": "held-out",
+    "slug": "process-outline-viewer-files",
+    "title": "Process Outline Viewer Files",
+    "reader": "A front-end engineer who will fix a caret bug in the process outline editor",
+    "prompt": "Write a short page that shows the docs-viewer process-outline folder as an explorer. Separate the read-surface files from the editor files, and note what each editor file handles, such as caret, line hits and outline edits. Say which file a caret fix most likely touches and why.",
+    "sources": ["packages/docs-viewer/src/components/process-outline/editor-node-view.tsx", "packages/docs-viewer/src/components/process-outline/editor/caret.ts", "packages/docs-viewer/src/components/process-outline/editor/outline-edit.ts", "packages/docs-viewer/src/components/process-outline/ProcessOutlineDocsBlock.tsx"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 154,
+    "set": "held-out",
+    "slug": "layout-facts-files",
+    "title": "Layout Facts Files",
+    "reader": "A lint author who needs the layout numbers the viewer uses without rendering a page",
+    "prompt": "Write a short page that shows packages/docs-model/src/layout/ as an explorer, with a one-phrase note on each file: metrics, measuring, line breaks, table fit and the rest. Explain in one paragraph what layout facts are and who reads them.",
+    "sources": ["packages/docs-model/src/layout/metrics.ts", "packages/docs-model/src/layout/index.ts", "packages/docs-model/src/layout/rules.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 155,
+    "set": "held-out",
+    "slug": "docs-cli-files",
+    "title": "Docs CLI Files",
+    "reader": "A maintainer who wants a quick map of the small docs CLI package",
+    "prompt": "Write a short page that shows the source of packages/docs-cli as a shallow explorer: index.ts, audit.ts and the migrate folder. Note the commands each file implements. Keep the page short, because the package is small.",
+    "sources": ["packages/docs-cli/src/index.ts", "packages/docs-cli/src/audit.ts", "packages/docs-cli/src/migrate/run.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 156,
+    "set": "held-out",
+    "slug": "docs-publish-source-files",
+    "title": "Docs Publish Source Files",
+    "reader": "A publish engineer who will change one browser entry of docs-publish",
+    "prompt": "Write a short page that shows packages/docs-publish/src/ as a flat explorer with many sibling files. Group the notes by role: the Node publisher, the browser entries, search, fonts, theme and styles. Say which source files the build turns into browser scripts.",
+    "sources": ["packages/docs-publish/src/publish.tsx", "packages/docs-publish/package.json", "packages/docs-publish/build.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 157,
+    "set": "held-out",
+    "slug": "style-sweep-files",
+    "title": "Style Sweep Files",
+    "reader": "An engineer who will change how one tier of the style sweep runs",
+    "prompt": "Write a short page that shows packages/docs-style/src/sweep/ as an explorer, with a note on each file. Mark the three tier files and the file that runs every tier over a set of pages. Say in one sentence that a sweep runs in memory only.",
+    "sources": ["packages/docs-style/src/sweep/index.ts", "packages/docs-style/src/sweep/tier1.ts", "packages/docs-style/src/sweep/tier2.ts", "packages/docs-style/src/sweep/tier3.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 158,
+    "set": "held-out",
+    "slug": "workbench-data-files",
+    "title": "Workbench Data Files",
+    "reader": "A workbench contributor who will add a new call from the web app to the docs server",
+    "prompt": "Write a short page that shows packages/docs-workbench/web/src/data/ as an explorer, with the api folder and its one file per resource. Note what client.ts builds and which api files it uses. Say where a new server call goes.",
+    "sources": ["packages/docs-workbench/web/src/data/client.ts", "packages/docs-workbench/web/src/data/api/index.ts", "packages/docs-workbench/web/src/data/api/http.ts"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  },
+  {
+    "id": 159,
+    "set": "held-out",
+    "slug": "add-a-block-renderer-files",
+    "title": "Files to Add a Block Renderer",
+    "reader": "A viewer contributor who will add the renderer for a new block type",
+    "prompt": "Write a short page that shows the docs-viewer files a new block renderer touches, as an explorer. Mark the new component folder with its descriptor as added and the block registry as modified, using the pseudocode component as the model. Explain in one paragraph what a descriptor gives the registry.",
+    "sources": ["packages/docs-viewer/src/render/block-registry.ts", "packages/docs-viewer/src/components/pseudocode/descriptor.tsx"],
+    "blockTypes": ["file-explorer"],
+    "rewrites": ""
+  }
+]

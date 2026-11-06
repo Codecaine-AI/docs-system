@@ -1,0 +1,134 @@
+[
+  {
+    "id": 160,
+    "set": "climb",
+    "slug": "docs-audit-call-path",
+    "title": "The Docs Audit Call Path",
+    "reader": "A maintainer who will add a new structural check to docs audit and must find where it runs",
+    "prompt": "Write a short page that shows the call stack of one docs audit run, from the CLI command dispatch down to the per-document checks. Include the recursive directory walk, with a branch frame where a directory is a bundle or a section. Say in one paragraph where a new check that reads one doc.json goes.",
+    "sources": ["packages/docs-cli/src/audit.ts", "packages/docs-cli/src/index.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 161,
+    "set": "climb",
+    "slug": "docs-check-call-path",
+    "title": "What docs_check Calls",
+    "reader": "An engineer who will debug why docs_check with a task_id failed on a page",
+    "prompt": "Write a short page that shows the call stack of docs_check with a task_id, from the service call handler to the style gate. Show the branch frame that checks the task, the tool's own execute function, the lint call and the model-checked style gate. Explain in one sentence why a call without task_id does not block on style.",
+    "sources": ["packages/docs-mcp/src/service.ts", "packages/docs-mcp/src/tools.ts", "packages/docs-mcp/src/lint-feedback.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 162,
+    "set": "climb",
+    "slug": "writing-one-page",
+    "title": "Writing One Page",
+    "reader": "An engineer who will change how the quality-climb harness runs the page writer",
+    "prompt": "Write a short page that shows the call stack of writePage for one brief, from freezing the sources to saving the metrics. Include the scratch corpus setup, the spawned writer process and parseTranscript. Show the branch frame that saves metrics.failed.json and throws when the run failed or left no page.",
+    "sources": ["evals/quality-climb/write.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 163,
+    "set": "climb",
+    "slug": "style-sweep-call-path",
+    "title": "The Style Sweep Call Path",
+    "reader": "A docs-style engineer who will add a step between two tiers of the sweep",
+    "prompt": "Write a short page that shows the call stack of sweep over one page, through the Tier 1 lint, the Tier 2 Jev check and the Tier 3 rewrite. Show a branch frame where only deep pages go on to Tiers 2 and 3. Explain what the sweep returns and that it writes nothing to disk.",
+    "sources": ["packages/docs-style/src/sweep/index.ts", "packages/docs-style/src/sweep/tier1.ts", "packages/docs-style/src/sweep/tier2.ts", "packages/docs-style/src/sweep/tier3.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 164,
+    "set": "held-out",
+    "slug": "slash-menu-insert",
+    "title": "Inserting a Block from the Slash Menu",
+    "reader": "A viewer contributor who will add a new entry to the slash menu",
+    "prompt": "Write a short page that shows the call stack from a key press in the open slash menu to the inserted block. Include the key handler, the command's action and insertBlockOfType. Show a branch frame for an item that opens a submenu.",
+    "sources": ["packages/docs-viewer/src/editor/menus/SlashMenu.tsx"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 165,
+    "set": "held-out",
+    "slug": "workbench-save-path",
+    "title": "The Workbench Save Path",
+    "reader": "A workbench contributor who sees a save fail with a stale hash",
+    "prompt": "Write a short page with a shallow call stack of three or four frames: from the doc page save callback in useDocSave to applyDocOps and the HTTP request. Show the branch frame that handles a stale hash. Explain in one sentence where the expected hash comes from.",
+    "sources": ["packages/docs-workbench/web/src/_components/DocPage/useDocSave.ts", "packages/docs-workbench/web/src/data/api/docs.ts", "packages/docs-workbench/web/src/data/api/http.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 166,
+    "set": "held-out",
+    "slug": "publish-collection-path",
+    "title": "The Publish Collection Path",
+    "reader": "A host developer whose publish build fails on one post",
+    "prompt": "Write a short page that shows the call stack of publishCollection for one post, from the allowlisted post to its HTML and search entry. Show the branch frame that drops a draft before its content is read, and the frame that confines a file to the collection root.",
+    "sources": ["packages/docs-publish/src/publish.tsx"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 167,
+    "set": "held-out",
+    "slug": "apply-ops-path",
+    "title": "How applyOps Runs One Op",
+    "reader": "A docs-model contributor who will add a new doc op kind",
+    "prompt": "Write a short page that shows the call stack of applyOps for a document and a list of ops. Include the loop that calls applyOp for each op, the branch frames for two or three op kinds, and the frame that returns a failure. Mark the frames a new op kind would add as added.",
+    "sources": ["packages/docs-model/src/doc-ops.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 168,
+    "set": "held-out",
+    "slug": "move-doc-bundle-path",
+    "title": "Moving a Doc Bundle",
+    "reader": "An engineer who will debug a doc move that left a stale reference",
+    "prompt": "Write a short page that shows the call stack of moveDocBundle, from the move request to the rewritten references. Include the frames that build the rewrite ops for a doc and the rewrite for a canvas, with a branch frame where a source is a canvas or a doc. Say in one sentence what form a rewritten reference path takes.",
+    "sources": ["packages/docs-index/src/move-doc.ts", "packages/docs-index/src/ref-match.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 169,
+    "set": "held-out",
+    "slug": "docs-mcp-install-path",
+    "title": "The Install Command Path",
+    "reader": "A developer whose docs MCP install did not change any client file",
+    "prompt": "Write a short page that shows the call stack of the docs MCP install command, from the CLI case to the files it writes. Include installClients and plan, with a branch frame for a preview run without --write. Explain in one sentence why a preview writes nothing.",
+    "sources": ["packages/docs-mcp/src/install.ts", "packages/docs-mcp/src/cli.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 170,
+    "set": "held-out",
+    "slug": "accept-proposal-path",
+    "title": "Accepting a Proposal",
+    "reader": "A server engineer who sees stale-proposal errors when a reviewer accepts a staged edit",
+    "prompt": "Write a short page that shows the call stack of acceptBundleProposal, from the path lock down to the bundle write and the annotation update. Show each early return as a branch frame: a stale sidecar, a missing proposal, a proposal that is not staged and a stale base hash.",
+    "sources": ["packages/docs-server/src/proposal-ops.ts", "packages/docs-server/src/doc-ops.ts", "packages/docs-server/src/path-mutex.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 171,
+    "set": "held-out",
+    "slug": "rewrite-endpoint-choice",
+    "title": "Choosing a Rewrite Endpoint",
+    "reader": "An engineer whose style rewrites go to OpenRouter when they expected the gateway",
+    "prompt": "Write a short page that shows the call stack of chooseEndpoint and loadBaml for one rewrite. Show the branch frame where the gateway does not answer and the route falls back to OpenRouter. Say which environment variables each route needs.",
+    "sources": ["packages/docs-style/src/rewrite/runtime.ts", "packages/docs-style/src/rewrite/env.ts", "packages/docs-style/src/rewrite/baml.ts"],
+    "blockTypes": ["call-stack"],
+    "rewrites": ""
+  }
+]

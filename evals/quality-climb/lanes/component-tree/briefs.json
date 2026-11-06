@@ -1,0 +1,134 @@
+[
+  {
+    "id": 172,
+    "set": "climb",
+    "slug": "workbench-shell-tree",
+    "title": "The Workbench Shell",
+    "reader": "A workbench contributor who will add a panel to the app frame around the doc page",
+    "prompt": "Write a short page that shows the render tree of the workbench frame, from RouterShell through AppShell to the topbar, sidebar, section rail and inspector. Note what each component renders and where the page content slots in. Say in one sentence where a new side panel belongs.",
+    "sources": ["packages/docs-workbench/web/src/_components/RouterShell/index.tsx", "packages/docs-workbench/web/src/_components/AppShell/index.tsx", "packages/docs-workbench/web/src/_components/AppShell/_components/Sidebar/index.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 173,
+    "set": "climb",
+    "slug": "table-editor-tree",
+    "title": "The Table Editor Tree",
+    "reader": "A front-end engineer who will fix a bug in the structured-table editor and must find which component draws the broken part",
+    "prompt": "Write a short page that shows the render tree of the structured-table editor node view: the wrapper, the grid, the cells, and the overlays such as handles, the handle menu, the drop indicator and the selection overlay. Mark the rows that render only while a drag or a selection is active as branches. Note what each row draws.",
+    "sources": ["packages/docs-viewer/src/components/structured-table/editor-node-view.tsx", "packages/docs-viewer/src/components/structured-table/editor/TableGrid.tsx", "packages/docs-viewer/src/components/structured-table/editor/EditableCell.tsx", "packages/docs-viewer/src/components/structured-table/editor/HandleMenu.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 174,
+    "set": "climb",
+    "slug": "style-rail-tree",
+    "title": "The Style Rail Tree",
+    "reader": "A designer-developer who will add a control to the style rail",
+    "prompt": "Write a short page that shows the render tree of the style rail panel, from StyleRailPanel through the nav, the pane and the footer, down to the theme, layout and block panes. Show which pane renders for the selected pane id as a branch. Note where the override settings context is provided.",
+    "sources": ["packages/docs-workbench/web/src/_components/StyleRailPanel/index.tsx", "packages/docs-workbench/web/src/_components/StyleRailPanel/_components/StyleRailPane/index.tsx", "packages/docs-workbench/web/src/_components/StyleRailPanel/_components/StyleRailPane/_components/ThemePane/index.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 175,
+    "set": "climb",
+    "slug": "draft-editor-tree",
+    "title": "The Draft Editor Tree",
+    "reader": "A host developer who mounts the docs-publish draft editor and wants to know what it renders inside their container",
+    "prompt": "Write a short page that shows the render tree that mountDraftEditor puts in the host container: the draft editor host, the client provider inside it, the editor, and the canvas and sequence embeds that the provider supplies. Note which rows come from docs-publish and which from docs-viewer. Say in one sentence what the handle returned to the host controls.",
+    "sources": ["packages/docs-publish/src/editor.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 176,
+    "set": "held-out",
+    "slug": "doc-peek-tree",
+    "title": "The Doc Peek Panel",
+    "reader": "A viewer contributor who will restyle the side peek that previews a referenced doc",
+    "prompt": "Write a short page with a shallow render tree of the doc peek panel: the panel, its header buttons, the page transition and the block renderer. Note what each row draws. Explain in one paragraph how the panel gets its state.",
+    "sources": ["packages/docs-viewer/src/peek/DocPeekPanel.tsx", "packages/docs-viewer/src/peek/peek-state.ts"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 177,
+    "set": "held-out",
+    "slug": "doc-editor-tree",
+    "title": "The Doc Editor Tree",
+    "reader": "A viewer contributor who will add a new popover to the docs editor",
+    "prompt": "Write a short page that shows the render tree of DocEditor: the node-view provider, the editor content and the slash menu, mention and link popovers. Show the mention popover as a branch that renders only when the editor has a projectId. Say where a new popover row goes.",
+    "sources": ["packages/docs-viewer/src/editor/DocEditor.tsx", "packages/docs-viewer/src/editor/menus/link-editor.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 178,
+    "set": "held-out",
+    "slug": "doc-lab-tree",
+    "title": "The Doc Lab Tree",
+    "reader": "A workbench contributor who will change how agent requests appear in the doc lab",
+    "prompt": "Write a short page that shows the render tree of the doc lab, from DocLab through the glass panel to the request queue and the change-set card. Include the queue rows, record rows and reply rows inside PanelQueue. Note which package each component lives in.",
+    "sources": ["packages/docs-workbench/web/src/_components/DocPage/_components/DocLab/index.tsx", "packages/docs-viewer/src/lab/glass/GlassPanel.tsx", "packages/docs-viewer/src/lab/annotate/PanelQueue.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 179,
+    "set": "held-out",
+    "slug": "interaction-surface-tree",
+    "title": "The Interaction Surface Block",
+    "reader": "A viewer contributor who will change how an operation signature is drawn",
+    "prompt": "Write a short page that shows the deep render tree of one interaction-surface block, from the block down to the signature tokens of one operation. Include the operation row, its disclosure, the qualified name, the type and punctuation tokens, the field ledger and the code links. Note what each row draws in one short phrase.",
+    "sources": ["packages/docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx", "packages/docs-viewer/src/components/linked-panels/LinkGroup.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 180,
+    "set": "held-out",
+    "slug": "file-explorer-tree",
+    "title": "The File Explorer Block",
+    "reader": "A viewer contributor who will add a new badge to file-explorer rows",
+    "prompt": "Write a short page that shows the render tree of the file-explorer block, with the recursive node that renders a folder's children. Show the folder row and the file row as branches, and the guides, marks and renamed-from rows inside a file row. Explain in one sentence how the recursion ends.",
+    "sources": ["packages/docs-viewer/src/components/file-explorer/FileExplorer.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 181,
+    "set": "held-out",
+    "slug": "state-shape-block-tree",
+    "title": "The State Shape Block",
+    "reader": "A viewer contributor who will change how a state-shape block shows its JSON example",
+    "prompt": "Write a short page that shows the render tree of the state-shape block: the header with its name, the field ledger, the field rows and the example panel. Show the example panel as a branch that renders only when the block has an example. Note which shared components the block reuses.",
+    "sources": ["packages/docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx", "packages/docs-viewer/src/components/state-shape/field-ledger.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 182,
+    "set": "held-out",
+    "slug": "playground-tree",
+    "title": "The Block Playground",
+    "reader": "A viewer contributor who wants to try a block renderer without the full workbench",
+    "prompt": "Write a short page with a small render tree of the block playground: StrictMode, the shell with its light and dark frames, and the block renderer. Show the shell and the frame view as two branches of the same entry. List the query parameters that pick the doc, the block type and the theme.",
+    "sources": ["packages/docs-workbench/web/src/playground/main.tsx", "packages/docs-workbench/web/playground.html"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 183,
+    "set": "held-out",
+    "slug": "doc-page-tree",
+    "title": "The Doc Page Tree",
+    "reader": "A workbench contributor who will add a section under the page title",
+    "prompt": "Write a short page that shows the render tree of DocPage: the page transition, the page content with its title, alias chip and backlinks, the AI document flow and the doc lab. Show the rows that render only in one page mode as branches. Note where a new section under the title goes.",
+    "sources": ["packages/docs-workbench/web/src/_components/DocPage/index.tsx", "packages/docs-workbench/web/src/_components/DocPage/_components/DocPageContent/index.tsx", "packages/docs-workbench/web/src/_components/DocPage/_components/AiDocumentFlow/index.tsx"],
+    "blockTypes": ["component-tree"],
+    "rewrites": ""
+  }
+]

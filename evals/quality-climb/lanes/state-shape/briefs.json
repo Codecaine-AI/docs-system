@@ -1,0 +1,134 @@
+[
+  {
+    "id": 184,
+    "set": "climb",
+    "slug": "brief-shape",
+    "title": "The Brief Shape",
+    "reader": "An engineer who will write new briefs for the quality climb",
+    "prompt": "Write a short page that shows the shape of one Brief, with each field, its type and what it means. Include a JSON example of one real brief from briefs.json. Explain which fields the writer sees and which field it never sees.",
+    "sources": ["evals/quality-climb/schema.ts", "evals/quality-climb/briefs.json"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 185,
+    "set": "climb",
+    "slug": "file-tree-state",
+    "title": "File Tree Block State",
+    "reader": "An agent author who will write file-tree blocks through the docs tools",
+    "prompt": "Write a short page that shows the state of a file-tree block: the entries list and the fields of one entry, with the allowed change values. Give a JSON example with three entries, one of them marked as renamed. Say in one sentence how a folder is written as an entry.",
+    "sources": ["packages/docs-model/src/components/file-tree/state.ts", "packages/docs-model/src/components/file-tree/lib.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 186,
+    "set": "climb",
+    "slug": "replacement-entry",
+    "title": "A Replacement Entry",
+    "reader": "A style-profile editor who will add a word to the STE deny list",
+    "prompt": "Write a short page that shows the shape of one Replacement in the STE profile, with each field and what it controls. Explain the three replacement tiers. Give a JSON example of one real entry from the replacements data.",
+    "sources": ["packages/docs-style/src/profile/types.ts", "packages/docs-style/src/profile/replacements.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 187,
+    "set": "climb",
+    "slug": "daemon-state",
+    "title": "The Daemon State",
+    "reader": "An operator who opens the docs service state file to find the running service",
+    "prompt": "Write a short page that shows the DaemonState record that the docs MCP saves for its shared service: each field with its type and meaning. Give a JSON example with made-up values. Say where the file lives and how a client checks that the service is healthy.",
+    "sources": ["packages/docs-mcp/src/lifecycle.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 188,
+    "set": "held-out",
+    "slug": "writer-metrics-shape",
+    "title": "The Writer Metrics",
+    "reader": "An engineer who will compare the cost of page writers across rounds from their metrics.json files",
+    "prompt": "Write a short page that shows the shape of WriterMetrics, with the nested tokens record and the tool calls by name. Say which fields come from the final result event of the transcript and which the harness adds. Give a short JSON example with made-up numbers.",
+    "sources": ["evals/quality-climb/write.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 189,
+    "set": "held-out",
+    "slug": "style-rail-settings-shape",
+    "title": "Style Rail Settings",
+    "reader": "A workbench contributor who will add a new setting to the style rail",
+    "prompt": "Write a short page that shows the shape of the style rail settings, as a deep field tree with nested groups. Show the union types of the choice fields, such as accent family, fonts and code panel mode. Give a JSON example of part of the settings.",
+    "sources": ["packages/docs-workbench/web/src/shared/style-rail-settings/types.ts", "packages/docs-workbench/web/src/shared/style-rail-settings/defaults.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 190,
+    "set": "held-out",
+    "slug": "stack-node-shape",
+    "title": "The Stack Node",
+    "reader": "An agent author who will write stack blocks through the docs tools",
+    "prompt": "Write a short page that shows the recursive shape of a stack block: the nodes with their children, and the boundaries. Give the allowed colors and explain what uses means when it is true and when it is a string. Give a JSON example with one nested node and one boundary.",
+    "sources": ["packages/docs-model/src/components/stack/state.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 191,
+    "set": "held-out",
+    "slug": "stored-patch-shape",
+    "title": "The Stored Patch",
+    "reader": "A server engineer who will add undo for a new kind of change",
+    "prompt": "Write a short page that shows the StoredPatch shape as a union over its kinds: doc, canvas, sequence, tree, sidecars and compound, with the fields of each kind. Give a JSON example of a doc patch. Say how many patches the ledger keeps per docs root and what happens to an undo of a dropped patch.",
+    "sources": ["packages/docs-server/src/patch-ledger.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 192,
+    "set": "held-out",
+    "slug": "doc-peek-state",
+    "title": "Doc Peek State",
+    "reader": "A viewer contributor who will add a new load state to the doc peek panel",
+    "prompt": "Write a short page that shows the DocPeekState union: the closed state, and the open state with its ref, request id and load state. Expand the load state into its three statuses. Explain in one sentence why requestId goes up on every open.",
+    "sources": ["packages/docs-viewer/src/peek/peek-state.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 193,
+    "set": "held-out",
+    "slug": "docs-project-config",
+    "title": "The Docs Project Config",
+    "reader": "A product owner who is writing codecaine.docs.json for a new docs project",
+    "prompt": "Write a short page that shows the fields of a docs project config file, with which fields are optional and what each one controls. Give this repo's codecaine.docs.json as the JSON example. Say what makes an exclude glob invalid.",
+    "sources": ["packages/docs-index/src/project-policy.ts", "codecaine.docs.json"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 194,
+    "set": "held-out",
+    "slug": "published-post-shape",
+    "title": "The Published Post",
+    "reader": "A host developer who builds a blog index from the result of publishCollection",
+    "prompt": "Write a short page that shows the PostInput shape the host passes in and the PublishedPost shape it gets back. Mark the fields PublishedPost adds. Give a short JSON example of one published post with the HTML cut short.",
+    "sources": ["packages/docs-publish/src/publish.tsx"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 195,
+    "set": "held-out",
+    "slug": "migration-report-shape",
+    "title": "The Migration Report",
+    "reader": "A maintainer who will read the report of an MDX migration run",
+    "prompt": "Write a short page that shows the MigrationReport shape, with the totals and the lists of migrated, skipped and failed files. Expand one migrated file report. Give a JSON example with one migrated file and one skipped file.",
+    "sources": ["packages/docs-cli/src/migrate/run.ts"],
+    "blockTypes": ["state-shape"],
+    "rewrites": ""
+  }
+]
