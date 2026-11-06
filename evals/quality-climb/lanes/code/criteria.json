@@ -1,0 +1,8 @@
+[
+  { "id": "faithful-excerpt", "group": "Meaning", "question": "Is each listing copied verbatim from the named source file, with no paraphrased, invented or silently edited lines, and any cut marked?" },
+  { "id": "excerpt-scope", "group": "Meaning", "question": "Is each listing the smallest complete code unit that proves the brief's point, with no unrelated declarations or branches, no cut inside a construct, and no line so long that it wraps in the panel?" },
+  { "id": "annotation-range-precision", "group": "Meaning", "question": "Does each annotation's line range cover exactly the displayed lines its note describes, counted from line 1 of the listing, with no line more and no line fewer?" },
+  { "id": "annotation-added-value", "group": "Writing", "question": "Does each note add a reason, constraint, consequence or caller obligation that a reader cannot get from the covered lines or their comments alone, instead of restating the code?" },
+  { "id": "pairing-at-rest", "group": "Look", "question": "In the static PNG, can a reader match each note to its exact lines without hover, from the range chip, the gutter mark and the note's position alone, including when notes sit under the code?" },
+  { "id": "highlight-fidelity", "group": "Look", "question": "Does the header name the correct language, and does the syntax coloring parse the listing as that language with readable contrast and no plain-text fallback?" }
+]
