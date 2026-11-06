@@ -572,6 +572,11 @@ describe("StateShapeBlock — code in descriptions", () => {
     expect(code.textContent).toBe("packages/docs-model/src/doc-schema.ts");
   });
 
+  it("balances a description's last line, so no word sits alone on it", () => {
+    render(<StateShapeBlock id="pretty" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-field-token="note"]{text-wrap:pretty}');
+  });
+
   it("prints a description with no backticks as plain text", () => {
     render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
     expect(document.querySelector("[data-note-code]")).toBeNull();
