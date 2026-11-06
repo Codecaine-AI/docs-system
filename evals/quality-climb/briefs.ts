@@ -1,9 +1,11 @@
 // The brief set of a round: the repo's briefs.json, plus the briefs in the file that QUALITY_CLIMB_LOCAL_BRIEFS
 // names. Local briefs read sources from outside this public repo, so the repo never names their paths, and
-// nothing publishes a local brief's page.
-import { readFileSync } from "node:fs";
+// nothing publishes a local brief's page. Each round page folder records its brief in page.json, so assets.ts
+// knows a local page from the folder itself and not only from the environment at publish time.
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import briefsJson from "./briefs.json";
-import type { Brief } from "./schema";
+import { SETS, type Brief, type BriefSet } from "./schema";
 
 export type RoundBrief = Brief & { local?: true };
 
@@ -24,4 +26,51 @@ export function loadBriefs(localPath = process.env[LOCAL_BRIEFS_ENV]): RoundBrie
   const clash = local.filter((l) => repo.some((r) => r.id === l.id || r.slug === l.slug));
   if (clash.length) throw new Error(`${localPath}: brief ${clash.map((b) => b.id).join(", ")} repeats an id or slug in briefs.json.`);
   return checkSlugs([...repo, ...local].sort((a, b) => a.id - b.id));
+}
+
+/** What round.ts records in a page folder about the brief that made it. assets.ts publishes a page only when local is false. */
+export interface PageProvenance { briefId: number; slug: string; set: BriefSet; local: boolean }
+
+export const PROVENANCE_FILE = "page.json";
+
+export const provenanceOf = (b: RoundBrief): PageProvenance => ({ briefId: b.id, slug: b.slug, set: b.set, local: b.local === true });
+
+/**
+ * The provenance a round records for brief `b`'s page. A page copied with --frozen-from keeps its source page's
+ * provenance: a local whole-page brief can share its id and slug with a lane brief, so the current brief alone would
+ * record the copy as public. A source page with no recorded provenance is refused.
+ */
+export function pageProvenance(b: RoundBrief, frozenSource?: string, pageDir?: string): PageProvenance {
+  const own = provenanceOf(b);
+  // A resumed round keeps what the page folder already recorded: the page in it may be a local brief's copy, even
+  // when this run names no --frozen-from source.
+  const kept = pageDir && existsSync(join(pageDir, PROVENANCE_FILE)) ? readProvenance(pageDir) : null;
+  if (pageDir && existsSync(join(pageDir, PROVENANCE_FILE)) && !kept) throw new Error(`Page ${pageDir} has a page.json that records no provenance, so it could not be published safely.`);
+  let local = own.local || (kept?.local ?? false);
+  if (frozenSource) {
+    const source = readProvenance(frozenSource);
+    if (!source) throw new Error(`Frozen page ${frozenSource} has no recorded provenance, so its copy could not be published safely.`);
+    local ||= source.local;
+  }
+  return { ...own, local };
+}
+
+/** A lane round's page folder: .tmp/quality-climb/lanes/<lane>/round-<n>/<set>/<NN>-<slug>. */
+const LANE_PAGE = /(?:^|\/)\.tmp\/quality-climb\/lanes\/[^/]+\/round-[^/]+\/(climb|held-out)\/(\d+)-([^/]+)\/?$/;
+
+/** The provenance a page folder recorded, or null when it recorded none, or a page.json that is unparsable or incomplete. */
+export function readProvenance(pageDir: string): PageProvenance | null {
+  const file = join(pageDir, PROVENANCE_FILE);
+  if (existsSync(file)) {
+    // A page.json that does not parse, or parses to null, records nothing, so the page is refused, even in a lane.
+    let p: Partial<PageProvenance> | null;
+    try { p = JSON.parse(readFileSync(file, "utf8")) as Partial<PageProvenance> | null; } catch { return null; }
+    const ok = !!p && typeof p.local === "boolean" && typeof p.briefId === "number" && typeof p.slug === "string" && (SETS as readonly string[]).includes(p.set as string);
+    return ok ? (p as PageProvenance) : null;
+  }
+  // Lane rounds written before page.json existed have none. A lane's briefs come only from
+  // evals/quality-climb/lanes/<lane>/briefs.json (or another --lanes-dir in the repo), never from
+  // QUALITY_CLIMB_LOCAL_BRIEFS, so a lane page with no page.json is never local.
+  const lane = LANE_PAGE.exec(pageDir);
+  return lane ? { briefId: Number(lane[2]), slug: lane[3]!, set: lane[1] as BriefSet, local: false } : null;
 }

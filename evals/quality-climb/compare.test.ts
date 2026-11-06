@@ -30,6 +30,7 @@ async function round(root: string, name: string, color: string) {
     await renderHtml([{ html: `<body style="margin:0;background:#fff"><div style="height:600px"><div style="position:absolute;left:100px;top:200px;width:300px;height:100px;background:${color}"></div></div></body>`, png: join(dir, "page.png"), width: 500 }]);
     await writeFile(join(dir, "blocks.json"), JSON.stringify([block("shape", "state-shape")]));
     await writeFile(join(dir, "boxes.json"), JSON.stringify({ shape: { x: 100, y: 200, width: 300, height: 100 } }));
+    await writeFile(join(dir, "page.json"), JSON.stringify({ briefId: 1, slug: "page", set, local: name === "round-2" }));
   }
   return join(root, name);
 }
@@ -54,13 +55,16 @@ async function pixel(png: string, x: number, y: number): Promise<number[]> {
   }
 }
 
-test("compare puts the before crop on the left and the after crop on the right, for climb pages only", async () => {
+test("compare puts the before crop on the left and the after crop on the right, for climb pages only, with each side's provenance", async () => {
   const root = await mkdtemp(join(tmpdir(), "qc-compare-"));
   const before = await round(root, "round-1", "rgb(255,0,0)");
   const after = await round(root, "round-2", "rgb(0,0,255)");
   const out = join(root, "out");
   const manifest = await compareRounds("state-shape", before, after, out);
-  expect(manifest).toEqual({ lane: "state-shape", set: "climb", before: "round-1", after: "round-2", pages: [{ page: "01-page", image: "01-page.png", regions: 1 }], full: "full-01-page.png" });
+  expect(manifest).toEqual({ lane: "state-shape", set: "climb", before: "round-1", after: "round-2", pages: [{
+    page: "01-page", image: "01-page.png", regions: 1,
+    provenance: { before: { briefId: 1, slug: "page", set: "climb", local: false }, after: { briefId: 1, slug: "page", set: "climb", local: true } },
+  }], full: "full-01-page.png" });
   // Each crop is the 300 x 100 block with 16 px of page around it, and the 332 px columns sit 24 px apart after 16 px of padding.
   expect((await pngSize(join(out, "01-page.png"))).width).toBe(332 + 332 + 24 + 32);
   const { height } = await pngSize(join(out, "01-page.png"));

@@ -1,10 +1,10 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readlink, rm, writeFile } from "node:fs/promises";
 import { $ } from "bun";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import briefs from "./briefs.json";
-import { judgeLanePage, judgePage, judgePrompt, laneJudgePrompt, type LanePacket, type Packet } from "./judge";
+import { cachedLaneReply, criteriaFile, judgeLanePage, judgePage, judgePrompt, laneJudgePrompt, museJudgeHome, type LanePacket, type Packet } from "./judge";
 import { loadLane } from "./lanes";
 import { parseJudgeReply, parseLaneReply, PAGE_CATEGORIES, type Brief } from "./schema";
 import { REPO, SOURCE_REF, SOURCE_ROOT, docsMcpEnv, freezeSources, parseTranscript, sourcePaths } from "./write";
@@ -66,6 +66,27 @@ test("the fake lane judge saves a valid lane score file", async () => {
   expect(parseLaneReply(await readFile(join(dir, "scores/fake.1.json"), "utf8"), fixtureLane.criteria)).toEqual({ ok: true, reply: scored });
 });
 
+test("a saved lane reply is reused only while the criteria ids and questions are the ones it was scored against", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "qc-lane-cache-"));
+  const scored = await judgeLanePage("fake", lanePacket, dir);
+  const criteria = fixtureLane.criteria;
+  expect(await cachedLaneReply(dir, "fake", 1, criteria)).toEqual(scored);
+  expect(await cachedLaneReply(dir, "fake", 1, [...criteria, { id: "added-later", question: "Is it new?", group: "x" }])).toBeNull();
+  expect(await cachedLaneReply(dir, "fake", 1, criteria.map((c, i) => (i ? c : { ...c, question: `${c.question} Reworded.` })))).toBeNull();
+  expect(await cachedLaneReply(dir, "fake", 2, criteria)).toBeNull();
+  const { [criteria[0]!.id]: _dropped, ...rest } = scored.criteria;
+  await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify({ ...scored, criteria: rest }));
+  expect(await cachedLaneReply(dir, "fake", 1, criteria)).toBeNull();
+  // A reply that lacks a page category fails the lane reply schema, so it is judged again.
+  const { accuracy: _noCategory, ...categories } = scored.categories;
+  await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify({ ...scored, categories }));
+  expect(await cachedLaneReply(dir, "fake", 1, criteria)).toBeNull();
+  // A reply saved before the hash existed is judged again.
+  await writeFile(join(dir, "scores/fake.1.json"), JSON.stringify(scored));
+  await rm(criteriaFile(dir, "fake", 1));
+  expect(await cachedLaneReply(dir, "fake", 1, criteria)).toBeNull();
+});
+
 test("the judge prompt carries the brief, sources, PNG and blocks, and never a target score", async () => {
   const prompt = await judgePrompt(packet);
   expect(prompt).toContain(packet.brief.prompt);
@@ -97,6 +118,17 @@ test("writers that start at once on a fresh system root share one core layout", 
   const root = await mkdtemp(join(tmpdir(), "qc-system-"));
   const envs = await Promise.all([1, 2, 3].map((n) => docsMcpEnv(join(root, `state-${n}`), root)));
   expect(new Set(envs.map((e) => e.CODECAINE_DOCS_PACKAGE_ROOT))).toEqual(new Set([join(root, ".tmp/quality-climb/core-layout/docs-system/packages/docs-mcp")]));
+});
+
+test("muse judges that start at once share one config home and its auth link", async () => {
+  const root = await mkdtemp(join(tmpdir(), "qc-muse-"));
+  const userDir = join(root, "user/muse");
+  await mkdir(userDir, { recursive: true });
+  await writeFile(join(userDir, "auth.json"), "{}");
+  await writeFile(join(userDir, "settings.json"), JSON.stringify({ provider: "meta" }));
+  const home = join(root, "home");
+  expect(await Promise.all([1, 2, 3].map(() => museJudgeHome(home, userDir)))).toEqual([home, home, home]);
+  expect(await readlink(join(home, "muse/auth.json"))).toBe(join(userDir, "auth.json"));
 });
 
 test("the fake judge saves a valid score file for every block, one file per sample", async () => {

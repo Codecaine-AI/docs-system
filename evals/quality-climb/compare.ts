@@ -5,11 +5,13 @@
 // the left and the after render's on the right, one labeled row per block region in reading order. The first page
 // also gets full-<NN>-<slug>.png, both whole pages at half size. compare.json lists the images for assets.ts --compare.
 // Held-out pages are never compared, because a PR body is builder-facing. A round dir needs boxes.json beside each
-// page, so a round rendered before boxes.json existed needs a --frozen-from re-render first.
+// page, so a round rendered before boxes.json existed needs a --frozen-from re-render first. Each page in compare.json
+// carries the page.json provenance of its before and after folders, so assets.ts can refuse a local brief's page.
 import { existsSync, readdirSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { readProvenance, type PageProvenance } from "./briefs";
 import { fileUrl, pngSize, renderHtml, type Box } from "./images";
 import type { PageBlock } from "./render";
 import { isLane, laneBlockTypes, LANES, type Lane } from "./schema";
@@ -77,7 +79,8 @@ export interface CompareManifest {
   set: "climb";
   before: string;
   after: string;
-  pages: { page: string; image: string; regions: number }[];
+  /** provenance is each side's page.json, or null when that folder recorded none. */
+  pages: { page: string; image: string; regions: number; provenance: { before: PageProvenance | null; after: PageProvenance | null } }[];
   full: string | null;
 }
 
@@ -94,7 +97,7 @@ export async function compareRounds(lane: Lane, beforeDir: string, afterDir: str
     const size = await pngSize(png);
     const blocks = JSON.parse(await readFile(join(dir, "blocks.json"), "utf8")) as PageBlock[];
     const boxes = JSON.parse(await readFile(join(dir, "boxes.json"), "utf8")) as Record<string, Box>;
-    return { png, size, regions: laneRegions(blocks, boxes, lane, size) };
+    return { png, size, regions: laneRegions(blocks, boxes, lane, size), provenance: readProvenance(dir) };
   };
   const jobs: { html: string; png: string; width: number }[] = [];
   const manifest: CompareManifest = { lane, set: "climb", before: labels.before, after: labels.after, pages: [], full: null };
@@ -102,7 +105,7 @@ export async function compareRounds(lane: Lane, beforeDir: string, afterDir: str
     const [before, after] = await Promise.all([side(beforeDir, name), side(afterDir, name)]);
     const image = `${name}.png`;
     jobs.push({ ...pairHtml(labels, before, after), png: join(outDir, image) });
-    manifest.pages.push({ page: name, image, regions: Math.max(before.regions.length, after.regions.length) });
+    manifest.pages.push({ page: name, image, regions: Math.max(before.regions.length, after.regions.length), provenance: { before: before.provenance, after: after.provenance } });
     if (!manifest.full) {
       manifest.full = `full-${name}.png`;
       const half = (s: { size: { width: number } }) => Math.round(s.size.width / 2);

@@ -7,6 +7,8 @@ export const PAGE_FLOOR = 9;
 export const COST_LIMIT = 1.2;
 /** The most a lane round's page-category mean may fall below the baseline round's, per judge and set. */
 export const CATEGORY_DROP = 0.5;
+/** Absorbs float error in a mean difference. It is far below the smallest real step, 1/1600 of a point. */
+const DROP_TOLERANCE = 1e-9;
 
 /**
  * The judge ladder: each stage's counting judges and how many samples each takes per page. A stage adds a judge
@@ -50,7 +52,8 @@ export interface GateResult {
 
 // Scores are tenths and sample medians can be twentieths, so the mean sums whole hundredths. Summing the floats
 // would make 8 scores whose true mean is 9.5 come out 9.4999…, and the gate would fail them.
-const mean = (values: number[]) => values.reduce((a, b) => a + Math.round(b * 100), 0) / (100 * values.length);
+const hundredths = (value: number) => Math.round(value * 100);
+const mean = (values: number[]) => values.reduce((a, b) => a + hundredths(b), 0) / (100 * values.length);
 const meanMin = (values: number[]) => ({ mean: mean(values), min: Math.min(...values) });
 const median = (values: number[]) => {
   const sorted = [...values].sort((a, b) => a - b);
@@ -266,8 +269,13 @@ export function categoryGuard(current: LaneScores, baseline: LaneScores | null):
     const before = baseline[judge]?.[set];
     if (!now || !before) continue;
     for (const c of PAGE_CATEGORIES) {
-      const drop = before.categories[c].mean - now.categories[c].mean;
-      if (drop > CATEGORY_DROP) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
+      // A float tolerance, not rounding: 8.3 - 7.8 is 0.5000000000000009 and must pass, but a mean can hold more than
+      // two decimals (9.0125 - 8.50625 = 0.50625), and rounding would hide that excess drop.
+      const [was, is] = [before.categories[c].mean, now.categories[c].mean];
+      // NaN fails every comparison, so a category no sample scored would pass the drop check below.
+      if (!Number.isFinite(was) || !Number.isFinite(is)) { items.push({ set, text: `${judge} ${set} ${c}: mean is not a number` }); continue; }
+      const drop = was - is;
+      if (drop > CATEGORY_DROP + DROP_TOLERANCE) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
     }
   }
   const detail = items.length ? `${items.length} page-category mean(s) fell more than ${CATEGORY_DROP} below the baseline` : `no page-category mean fell more than ${CATEGORY_DROP} below the baseline`;
@@ -289,8 +297,12 @@ export function evaluateLaneGate(pages: LanePageScore[], countingJudges: string[
       const result = laneSetScores(mine, criteriaIds);
       scores[judge][set] = result;
       for (const id of criteriaIds) {
+        // A reply scored before this criterion existed lacks it, and its NaN mean would never compare below TARGET.
+        const unscored = mine.filter((p) => p.samples.some((s) => !Number.isFinite(s.criteria[id]))).length;
         const m = result.criteria[id]!.mean;
-        if (m < TARGET) failures.push({ set, text: `${judge} ${set} ${id}: mean ${m.toFixed(2)} < ${TARGET}` });
+        if (unscored) failures.push({ set, text: `${judge} ${set} ${id}: not scored on ${unscored} of ${mine.length} pages` });
+        else if (!Number.isFinite(m)) failures.push({ set, text: `${judge} ${set} ${id}: mean is not a number` });
+        else if (m < TARGET) failures.push({ set, text: `${judge} ${set} ${id}: mean ${m.toFixed(2)} < ${TARGET}` });
       }
     }
   }
