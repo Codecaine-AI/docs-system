@@ -179,12 +179,19 @@ describe("file explorer", () => {
     expect(document.querySelector(".docs-explorer__legend")).toBeNull();
   });
 
-  it("gives an empty folder no twisty and no toggle", () => {
+  it("gives an empty folder a closed twisty and no toggle", () => {
     renderBlock({ entries: [{ path: "out/" }, { path: "src/a.ts" }] });
     const out = Array.from(document.querySelectorAll('[role="treeitem"]')).find(
       (row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === "out",
     )!;
     expect(out.hasAttribute("aria-expanded")).toBe(false);
-    expect(out.querySelector(".docs-tree__twisty svg")).toBeNull();
+    expect(out.querySelector(".docs-tree__twisty svg")).not.toBeNull();
+  });
+
+  it("sets each backticked span of a note as code, and leaves an unpaired backtick as text", () => {
+    renderBlock({ entries: [{ path: "src/a.ts", note: "Exports `patchIds` and `undo` for the `store" }] });
+    const note = document.querySelector(".docs-tree__note")!;
+    expect(Array.from(note.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["patchIds", "undo"]);
+    expect(note.textContent).toBe("Exports patchIds and undo for the `store");
   });
 });

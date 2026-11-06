@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { FILE_TREE_VARS, RenamedFrom } from "../file-tree/FileTreeDocsBlock";
 import {
   colorAttrs,
@@ -101,6 +101,25 @@ export function rowChange(node: FileTreeNode): FileTreeChange | undefined {
   return shared;
 }
 
+/**
+ * A note's text with each `backticked` span set as code, so identifiers in a
+ * note read in the code face. An unpaired backtick stays literal text.
+ */
+export function noteSpans(note: string): ReactNode[] {
+  const parts = note.split("`");
+  if (parts.length < 3) return [note];
+  const closed = parts.length % 2 === 1 ? parts : [...parts.slice(0, -2), `${parts.at(-2)}\`${parts.at(-1)}`];
+  return closed.map((part, index) =>
+    index % 2 === 1 ? (
+      <code key={index} className="docs-explorer__code">
+        {part}
+      </code>
+    ) : (
+      part
+    ),
+  );
+}
+
 /** The change kinds in legend order. */
 const LEGEND_ORDER: readonly FileTreeChange[] = ["added", "modified", "renamed", "removed"];
 
@@ -142,6 +161,12 @@ const EXPLORER_CSS = `
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__icon { color: var(--tr-chg); }
 /* a changed name mixes its change hue with the row ink, so it reads clearly over its own tint */
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__name { color: color-mix(in srgb, var(--tr-chg-name) 55%, var(--tr-ink)); }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__name[data-dir] { font-weight: var(--ds-font-weight-semibold); }
+.docs-explorer__code {
+  font: var(--ds-font-weight-regular) 0.92em var(--tr-mono);
+  color: var(--tr-ink, #1f1f1f);
+  background: none; border: 0; padding: 0;
+}
 .docs-explorer__legend {
   display: flex; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-4);
   padding: var(--ds-space-1-5) var(--tr-pad-x, 12px);
@@ -172,7 +197,8 @@ function ExplorerRowView({
 }) {
   const { node, names } = row;
   const change = rowChange(node);
-  // An empty folder has nothing to fold, so it gets no twisty and no toggle.
+  // An empty folder has nothing to fold: it shows a closed twisty (its files
+  // are not listed) and is no toggle.
   const foldable = node.isDir && node.children.size > 0;
   const folder = foldable
     ? {
@@ -205,7 +231,7 @@ function ExplorerRowView({
       >
         <TreeGuides guides={pipeGuides(row.depth)} />
         <span className="docs-tree__twisty" aria-hidden="true">
-          {foldable ? (open ? TREE_ICONS.chevronDown : TREE_ICONS.chevronRight) : null}
+          {foldable && open ? TREE_ICONS.chevronDown : node.isDir ? TREE_ICONS.chevronRight : null}
         </span>
         <span className="docs-tree__icon" aria-hidden="true">
           {node.isDir ? TREE_ICONS.folder : TREE_ICONS.file}
@@ -220,7 +246,7 @@ function ExplorerRowView({
           ))}
         </span>
       </span>
-      {node.note && <span className="docs-tree__note">{node.note}</span>}
+      {node.note && <span className="docs-tree__note">{noteSpans(node.note)}</span>}
     </div>
   );
 }
