@@ -22,3 +22,8 @@ test("a doc reference is not a code literal, so a sentence with a reference and 
   const doc = document(para("p", [{ insert: "The " }, { insert: "Settings", attributes: { reference: { kind: "doc", path: "docs/settings" } } }, { insert: ' page calls this "automatic".' }]));
   expect(check(doc)).toEqual([]);
 });
+
+test("a structured-table cell with a coded literal and a quoted one is flagged too", () => {
+  const table: DocBlock = { id: "t", type: "structured-table", props: { columns: ["Swap"], rows: [[[{ insert: "in order to", attributes: { code: true } }, { insert: ' to "to"' }]]] }, children: [] };
+  expect(check(document(table)).map((m) => m.field)).toEqual(["props.rows[0][0]"]);
+});
