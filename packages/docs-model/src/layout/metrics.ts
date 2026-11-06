@@ -356,7 +356,7 @@ export const TREE_NOTE_MAX_PX = TREE_METRICS.noteMaxCh * sansChPx(TREE_METRICS.n
  */
 export const INLINE_MARK_METRICS = {
   codeTextEm: 0.85,
-  codePadXEm: 0.2,
+  codePadXEm: 0.35,
   codeBorderPx: 0,
 } as const;
 

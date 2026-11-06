@@ -239,7 +239,7 @@
      keeps that weight. The consumer's var() fallback is `inherit`; the rail
      knob (400 = body weight) writes the var only once it is moved. */
   --docs-inline-code-text-size: 0.85;
-  --docs-inline-code-pad-x: 0.2;
+  --docs-inline-code-pad-x: 0.35;
   --docs-inline-code-pad-y: 0.1;
   --docs-inline-code-radius: var(--radius);
   --docs-inline-code-border: var(--docs-rule);

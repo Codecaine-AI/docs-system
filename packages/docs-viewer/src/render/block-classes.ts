@@ -136,7 +136,7 @@ export const LIST_ITEM_CHILDREN_CLASSES = "";
  * keeps the chip whole on each line.
  */
 export const INLINE_CODE_CLASSES =
-  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.2)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] font-[var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] break-normal box-decoration-clone";
+  "not-prose rounded-[var(--docs-inline-code-radius,var(--radius,2px))] border-solid border-[length:var(--docs-inline-code-border-width,0px)] border-[color:var(--docs-inline-code-border,#e6e5e3)] bg-[var(--docs-inline-code-bg,#ebebe9)] px-[calc(var(--docs-inline-code-pad-x,0.35)*1em)] py-[calc(var(--docs-inline-code-pad-y,0.1)*1em)] font-mono text-[length:calc(var(--docs-inline-code-text-size,0.85)*1em)] font-[var(--docs-inline-code-weight,inherit)] text-[color:var(--docs-chip-kind-fg,var(--docs-inline-code-fg,#1f1f1f))] break-normal box-decoration-clone";
 
 /**
  * Typed inline code — per-kind text color for the chip, keyed by

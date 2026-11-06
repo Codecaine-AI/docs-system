@@ -86,7 +86,7 @@ export const chrome: Record<string, Record<string, ThemeTokenDefinition>> = {
       min: 0,
       max: 1,
       step: 0.05,
-      defaultValue: 0.2,
+      defaultValue: 0.35,
     },
     padY: {
       vars: ["--docs-inline-code-pad-y"],
