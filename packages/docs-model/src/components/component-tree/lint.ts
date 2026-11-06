@@ -3,9 +3,10 @@ import type { OutlineRow } from "../shared/outline-rows";
 import { readComponentTree } from "./state";
 
 /**
- * True when a row's opening tag holds an ellipsis outside braces and quotes, such as `<Pane a={a} …>`, where it
- * stands for dropped props. Inside braces it is a value (`{…}`) or a spread (`{...props}`), and after the tag's
- * closing `>` it is child text (`<div>Loading…</div>`): both are valid JSX.
+ * True when a row's opening tag holds an ellipsis outside braces, parentheses, brackets and quotes, such as
+ * `<Pane a={a} …>`, where it stands for dropped props. Inside them it is a value (`{…}`) or a spread
+ * (`{...props}`, `useFoo(...args)`), and after the tag's closing `>` it is child text (`<div>Loading…</div>`):
+ * all are valid JSX.
  */
 function hasBareEllipsis(text: string): boolean {
   let depth = 0;
@@ -14,8 +15,8 @@ function hasBareEllipsis(text: string): boolean {
     const char = text[i]!;
     if (quote) { if (char === "\\") i++; else if (char === quote) quote = null; continue; }
     if (char === '"' || char === "'" || char === "`") quote = char;
-    else if (char === "{") depth++;
-    else if (char === "}") depth = Math.max(0, depth - 1);
+    else if ("{([".includes(char)) depth++;
+    else if ("})]".includes(char)) depth = Math.max(0, depth - 1);
     else if (depth === 0 && char === ">") return false;
     else if (depth === 0 && (char === "…" || text.startsWith("...", i))) return true;
   }
@@ -38,7 +39,7 @@ export const componentTreeBareEllipsisRule: LintRule = {
   severity: "warning",
   enforcement: [],
   applicability: "The text of each component and hook row in a Component Tree block.",
-  exclusions: ["An omitted value written as {…}", "A spread such as {...props}", "An ellipsis inside a string", "A branch row"],
+  exclusions: ["An omitted value written as {…}", "A spread such as {...props}", "A spread argument such as useFoo(...args)", "Child text after the opening tag, such as <div>Loading…</div>", "An ellipsis inside a string", "A branch row"],
   suggestion: "Drop the props that do not explain composition with no marker, such as <Pane settings={settings}>. Write an omitted value as {…}.",
   check({ blocks }) {
     return blocks.flatMap((block) => {

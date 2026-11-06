@@ -21,12 +21,13 @@ describe("component-tree", () => {
     );
   });
 
-  it("warns on a row that marks dropped props with a bare ellipsis, and not on an omitted value, a spread or child text", () => {
+  it("warns on a row that marks dropped props with a bare ellipsis, and not on an omitted value, a spread, a spread argument or child text", () => {
     const rows = [
       { text: "<StyleRailPanel settings={settings} …>", nodes: [{ text: "<Pane id={id} ... />" }, { text: "else …", kind: "branch" }] },
       { text: "<Row left={…} {...props} />" },
       { text: '<Label text="Loading…" />' },
       { text: "<div className={…}>Loading tree...</div>" },
+      { text: "useFoo(...args)", kind: "hook" },
     ];
     const doc: DocDocument = {
       schemaVersion: 1, id: "doc-ct", title: "Tree", root: "root",
