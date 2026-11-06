@@ -115,13 +115,17 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Give each outcome its own branch step with its own trigger, such as "When every step succeeds" beside "When a step throws". Never show two exclusive outcomes as two steps in a row.
 
-  - A step that runs only sometimes names its trigger in its own text or sits under its branch step. Never leave the trigger to a note.
+  - Give every trigger its own branch step, even when it governs one action. Never fold a trigger into an action step, such as "Throw when no brief matches", or into a note.
+
+  - End a failure branch with a step that says where the path goes next: return, stop, or go to the next item.
+
+  - Fold routine checks that end the same way into one branch step, such as "If a read or a status check fails".
 
 - Loops hold their body
 
   - Write a loop as a parent step that opens with `For each`, `While` or `Repeat`. Nest every step that repeats under it, and keep each step that runs once outside it.
 
-  - Name what ends the loop: the collection after `For each`, the condition after `While`, or the exit after `until` in a `Repeat` step.
+  - Name what ends the loop: the collection after `For each`, the condition after `While`, or the exit after `until` in a `Repeat` step. For a numeric range, name both ends and say whether the last one is included.
 
   - A phase that repeats opens its title with the loop keyword, such as "For Each Kept File". A note that says a phase repeats does not make it a loop.
 
@@ -129,7 +133,9 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Take each step, trigger, count and order from the source files. Check each condition in the code before you write it as a trigger.
 
-  - Write a step for each early return, throw or skip that changes the path. Leave out a path that the source does not have.
+  - Nest a step that runs only after an earlier condition under that condition's branch.
+
+  - Keep the outline at the level the reader works at. Name the operations that the brief asks for, and leave out helper calls, bookkeeping and logging.
 
 - Backticks are the only chip syntax
 
@@ -168,7 +174,9 @@ Drain One Epoch
           -> When the build fails
                > the failed worktree never changes the map
                -> Retry the item once
-               -> Mark the item blocked when the retry fails
+               -> If the retry fails
+                    -> Mark the item blocked
+                    -> Go to the next item
      -> Close the Epoch
           -> Write the epoch report
 ```

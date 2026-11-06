@@ -859,7 +859,9 @@
       "children": [
         "b-90-process-outline-wr-branch-1",
         "po-wr-branch-outcomes",
-        "po-wr-branch-trigger"
+        "po-wr-branch-trigger",
+        "po-wr-branch-end",
+        "po-wr-branch-fold"
       ]
     },
     "b-90-process-outline-wr-branch-1": {
@@ -935,7 +937,29 @@
       "props": {},
       "text": [
         {
-          "insert": "A step that runs only sometimes names its trigger in its own text or sits under its branch step. Never leave the trigger to a note."
+          "insert": "Give every trigger its own branch step, even when it governs one action. Never fold a trigger into an action step, such as \"Throw when no brief matches\", or into a note."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-end": {
+      "id": "po-wr-branch-end",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "End a failure branch with a step that says where the path goes next: return, stop, or go to the next item."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-fold": {
+      "id": "po-wr-branch-fold",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fold routine checks that end the same way into one branch step, such as \"If a read or a status check fails\"."
         }
       ],
       "children": []
@@ -1035,7 +1059,7 @@
           }
         },
         {
-          "insert": " step."
+          "insert": " step. For a numeric range, name both ends and say whether the last one is included."
         }
       ],
       "children": []
@@ -1062,7 +1086,8 @@
       ],
       "children": [
         "po-wr-source-1",
-        "po-wr-source-2"
+        "po-wr-source-2",
+        "po-wr-source-level"
       ]
     },
     "po-wr-source-1": {
@@ -1082,7 +1107,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a step for each early return, throw or skip that changes the path. Leave out a path that the source does not have."
+          "insert": "Nest a step that runs only after an earlier condition under that condition's branch."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-level": {
+      "id": "po-wr-source-level",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the outline at the level the reader works at. Name the operations that the brief asks for, and leave out helper calls, bookkeeping and logging."
         }
       ],
       "children": []
@@ -1249,7 +1285,15 @@
                         "text": "Retry the item once"
                       },
                       {
-                        "text": "Mark the item blocked when the retry fails"
+                        "text": "If the retry fails",
+                        "steps": [
+                          {
+                            "text": "Mark the item blocked"
+                          },
+                          {
+                            "text": "Go to the next item"
+                          }
+                        ]
                       }
                     ]
                   }
