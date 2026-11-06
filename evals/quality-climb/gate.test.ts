@@ -252,6 +252,13 @@ describe("lane gate", () => {
     expect(gate(dropped, ["sol"]).guards.at(-1)).toMatchObject({ pass: true, detail: "baseline recorded" });
   });
 
+  test("the page-category guard passes a drop of exactly 0.5, though its float difference is just over, and fails 0.51", () => {
+    const round = (structure: number) => [lanePage("sol", "climb", { categories: { structure } }), lanePage("sol", "held-out", { categories: { structure } })];
+    const baseline = gate(round(8.3), ["sol"]).scores;
+    expect(gate(round(7.8), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: true });
+    expect(gate(round(7.79), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb" }, { set: "held-out" }] });
+  });
+
   test("the builder report holds held-out scores only, never held-out pages, findings or guard items", () => {
     const baseline = gate(both("sol"), ["sol"]).scores;
     const pages = [lanePage("sol", "climb", { finding: "climb finding" }), lanePage("sol", "held-out", { id: 7, score: 9.0, finding: "secret held-out finding", categories: { craft: 7 } })];

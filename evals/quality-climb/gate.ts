@@ -50,7 +50,8 @@ export interface GateResult {
 
 // Scores are tenths and sample medians can be twentieths, so the mean sums whole hundredths. Summing the floats
 // would make 8 scores whose true mean is 9.5 come out 9.4999…, and the gate would fail them.
-const mean = (values: number[]) => values.reduce((a, b) => a + Math.round(b * 100), 0) / (100 * values.length);
+const hundredths = (value: number) => Math.round(value * 100);
+const mean = (values: number[]) => values.reduce((a, b) => a + hundredths(b), 0) / (100 * values.length);
 const meanMin = (values: number[]) => ({ mean: mean(values), min: Math.min(...values) });
 const median = (values: number[]) => {
   const sorted = [...values].sort((a, b) => a - b);
@@ -266,8 +267,9 @@ export function categoryGuard(current: LaneScores, baseline: LaneScores | null):
     const before = baseline[judge]?.[set];
     if (!now || !before) continue;
     for (const c of PAGE_CATEGORIES) {
-      const drop = before.categories[c].mean - now.categories[c].mean;
-      if (drop > CATEGORY_DROP) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
+      // In whole hundredths, as `mean` sums them: 8.3 - 7.8 is 0.5000000000000009 in floats, and an exact 0.5 must pass.
+      const drop = hundredths(before.categories[c].mean) - hundredths(now.categories[c].mean);
+      if (drop > hundredths(CATEGORY_DROP)) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
     }
   }
   const detail = items.length ? `${items.length} page-category mean(s) fell more than ${CATEGORY_DROP} below the baseline` : `no page-category mean fell more than ${CATEGORY_DROP} below the baseline`;
