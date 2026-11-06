@@ -153,12 +153,13 @@
   --docs-process-outline-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-root-weight: var(--ds-font-weight-semibold);
-  --docs-process-outline-branch-weight: var(--ds-font-weight-semibold);
+  --docs-process-outline-branch-weight: var(--ds-font-weight-bold);
+  --docs-process-outline-group-weight: var(--ds-font-weight-medium);
   --docs-process-outline-step-weight: var(--ds-font-weight-regular);
   --docs-process-outline-empty-text-size: var(--ds-font-size-ui-xs);
   --docs-process-outline-note-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-note-line-height: var(--ds-line-height-code);
-  --docs-process-outline-note-inset: var(--ds-space-0);
+  --docs-process-outline-note-inset: var(--ds-space-3);
   --docs-process-outline-note-border-width: var(--ds-border-width-none);
   --docs-process-outline-note-rule-width: var(--ds-border-width-none);
   --docs-process-outline-note-pad-y: var(--ds-space-0-5);

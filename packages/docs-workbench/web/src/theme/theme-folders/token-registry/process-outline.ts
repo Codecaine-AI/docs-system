@@ -164,7 +164,15 @@ export const processOutline: Record<string, Record<string, ThemeTokenDefinition>
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: dsNumber("font.weight.semibold", ""),
+      defaultValue: dsNumber("font.weight.bold", ""),
+    },
+    groupWeight: {
+      vars: ["--docs-process-outline-group-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: dsNumber("font.weight.medium", ""),
     },
     stepWeight: {
       vars: ["--docs-process-outline-step-weight"],
@@ -216,7 +224,7 @@ export const processOutline: Record<string, Record<string, ThemeTokenDefinition>
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: dsNumber("space.0", "px"),
+      defaultValue: dsNumber("space.3", "px"),
     },
     noteBorderWidth: {
       vars: ["--docs-process-outline-note-border-width"],

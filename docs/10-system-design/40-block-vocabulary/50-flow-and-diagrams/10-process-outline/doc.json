@@ -37,11 +37,14 @@
         "b-90-process-outline-wr-notes",
         "b-90-process-outline-wr-branch",
         "b-90-process-outline-wr-loops",
+        "po-wr-source",
         "b-90-process-outline-wr-chips",
         "b-90-process-outline-wr-split",
         "b-90-process-outline-wr-example-intro",
         "b-90-process-outline-wr-example-block",
         "po-writing-after-separate",
+        "po-wr-loop-example-intro",
+        "po-wr-loop-example",
         "b-90-process-outline-state-h",
         "b-90-process-outline-state-intro",
         "b-90-process-outline-state-shape",
@@ -631,16 +634,7 @@
           }
         },
         {
-          "insert": " lines group into one note block, and each line renders as its own "
-        },
-        {
-          "insert": "//",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " aside."
+          "insert": " lines group into one note block, and each line renders as its own aside behind a dash."
         }
       ],
       "children": []
@@ -747,6 +741,7 @@
       ],
       "children": [
         "b-90-process-outline-wr-steps-1",
+        "po-wr-steps-and",
         "b-90-process-outline-wr-steps-2",
         "b-90-process-outline-wr-steps-case"
       ]
@@ -758,6 +753,17 @@
       "text": [
         {
           "insert": "Write one short action or idea per arrow line, usually ten words or fewer. Use present tense and a concrete verb. Split multiple sentences or independent actions into separate steps."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-steps-and": {
+      "id": "po-wr-steps-and",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never join two verbs with \"and\" in one step. \"Sort the paths and take one lock per path\" is two steps."
         }
       ],
       "children": []
@@ -804,6 +810,8 @@
       ],
       "children": [
         "b-90-process-outline-wr-notes-1",
+        "po-wr-notes-action",
+        "po-wr-notes-place",
         "b-90-process-outline-wr-notes-2"
       ]
     },
@@ -813,7 +821,29 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep each supporting note bite-sized: one useful fact about the step. Explain a constraint, reason, or expected result without repeating the step label. Split separate facts into separate note bullets."
+          "insert": "Keep each supporting note to one useful fact about its step. A note gives a reason, a limit or an expected result, and never repeats the step."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-notes-action": {
+      "id": "po-wr-notes-action",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note never states an action that the code takes, such as a write, a skip or a report entry. That action is a step."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-notes-place": {
+      "id": "po-wr-notes-place",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put a note directly under the step it explains. A note about a step with substeps is that step's first child, not a line after its last substep."
         }
       ],
       "children": []
@@ -835,11 +865,15 @@
       "props": {},
       "text": [
         {
-          "insert": "Branches are steps"
+          "insert": "Branches hold their actions"
         }
       ],
       "children": [
-        "b-90-process-outline-wr-branch-1"
+        "b-90-process-outline-wr-branch-1",
+        "po-wr-branch-outcomes",
+        "po-wr-branch-trigger",
+        "po-wr-branch-end",
+        "po-wr-branch-fold"
       ]
     },
     "b-90-process-outline-wr-branch-1": {
@@ -848,7 +882,96 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch or a failure path is its own step, never a trailing clause on the step it hangs off."
+          "insert": "Write a branch as a parent step that opens with its trigger: "
+        },
+        {
+          "insert": "If",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "When",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Otherwise",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Unless",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "On failure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Nest every action that the trigger governs under it."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-outcomes": {
+      "id": "po-wr-branch-outcomes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each outcome its own branch step with its own trigger, such as \"When every step succeeds\" beside \"When a step throws\". Never show two exclusive outcomes as two steps in a row."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-trigger": {
+      "id": "po-wr-branch-trigger",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every trigger its own branch step, even when it governs one action. Never fold a trigger into an action step, such as \"Throw when no brief matches\", or into a note."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-end": {
+      "id": "po-wr-branch-end",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "End a failure branch with a step that says where the path goes next: return, stop, or go to the next item. Leave that step out when the action already ends the path, such as a throw."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-branch-fold": {
+      "id": "po-wr-branch-fold",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name what fails in a failure trigger, such as \"If judgePage throws\", never a bare \"On failure\". Fold routine checks that end the same way into one branch, such as \"If a read or a status check fails\"."
         }
       ],
       "children": []
@@ -859,11 +982,15 @@
       "props": {},
       "text": [
         {
-          "insert": "Loops name their exit"
+          "insert": "Loops hold their body"
         }
       ],
       "children": [
-        "b-90-process-outline-wr-loops-1"
+        "b-90-process-outline-wr-loops-1",
+        "po-wr-loops-exit",
+        "po-wr-loops-collection",
+        "po-wr-loops-scope",
+        "po-wr-loops-phase"
       ]
     },
     "b-90-process-outline-wr-loops-1": {
@@ -872,10 +999,10 @@
       "props": {},
       "text": [
         {
-          "insert": "A loop leads with "
+          "insert": "Write a loop as a parent step that opens with "
         },
         {
-          "insert": "Repeat",
+          "insert": "For each",
           "attributes": {
             "code": true
           }
@@ -890,7 +1017,27 @@
           }
         },
         {
-          "insert": ", or "
+          "insert": " or "
+        },
+        {
+          "insert": "Repeat",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Nest every step that repeats under it, and keep each step that runs once outside it."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-exit": {
+      "id": "po-wr-loops-exit",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name what ends the loop: the collection after "
         },
         {
           "insert": "For each",
@@ -899,7 +1046,16 @@
           }
         },
         {
-          "insert": ", and names its exit with "
+          "insert": ", the condition after "
+        },
+        {
+          "insert": "While",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or the exit after "
         },
         {
           "insert": "until",
@@ -908,7 +1064,121 @@
           }
         },
         {
-          "insert": "."
+          "insert": " in a "
+        },
+        {
+          "insert": "Repeat",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " step. For a numeric range, name both ends and say whether the last one is included."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-collection": {
+      "id": "po-wr-loops-collection",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name the collection with every filter that the code applies, such as \"each file with a test that fails now and passed in the baseline\"."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-scope": {
+      "id": "po-wr-loops-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put every step that works on one item, such as \"the page\", inside the loop that names that item. When the code loops over the items twice, show two loops."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-phase": {
+      "id": "po-wr-loops-phase",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A phase that repeats opens its title with the loop keyword, such as \"For Each Kept File\". A note that says a phase repeats does not make it a loop."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source": {
+      "id": "po-wr-source",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Match the source"
+        }
+      ],
+      "children": [
+        "po-wr-source-1",
+        "po-wr-source-2",
+        "po-wr-source-level",
+        "po-wr-source-qualify",
+        "po-wr-source-short"
+      ]
+    },
+    "po-wr-source-1": {
+      "id": "po-wr-source-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Take each step, trigger, count and order from the source files. Check each condition in the code before you write it as a trigger."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-2": {
+      "id": "po-wr-source-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nest a step that runs only after an earlier condition under that condition's branch."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-level": {
+      "id": "po-wr-source-level",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the outline at the level the reader works at. Name the operations that the brief asks for, and leave out helper calls, bookkeeping and logging."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-qualify": {
+      "id": "po-wr-source-qualify",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say which paths produce a result that only some paths produce, such as a field that only an entry failure sets."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-source-short": {
+      "id": "po-wr-source-short",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the brief asks for a short page, keep the outline to about 30 lines, with one step per operation."
         }
       ],
       "children": []
@@ -1021,6 +1291,81 @@
               },
               {
                 "text": "Retry the item once when the build fails"
+              }
+            ]
+          }
+        ]
+      },
+      "children": []
+    },
+    "po-wr-loop-example-intro": {
+      "id": "po-wr-loop-example-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A loop holds the steps that repeat, and each branch holds the steps that its trigger governs:"
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loop-example": {
+      "id": "po-wr-loop-example",
+      "type": "process-outline",
+      "props": {
+        "steps": [
+          {
+            "text": "Drain One Epoch",
+            "steps": [
+              {
+                "text": "For Each Ready Item in the Epoch",
+                "steps": [
+                  {
+                    "text": "Spawn a `Worker` in an isolated worktree"
+                  },
+                  {
+                    "text": "Run the full build"
+                  },
+                  {
+                    "text": "When the build passes",
+                    "steps": [
+                      {
+                        "text": "Move the item to its authoritative lane"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "When the build fails",
+                    "steps": [
+                      {
+                        "text": "the failed worktree never changes the map",
+                        "kind": "note"
+                      },
+                      {
+                        "text": "Retry the item once"
+                      },
+                      {
+                        "text": "If the retry fails",
+                        "steps": [
+                          {
+                            "text": "Mark the item blocked"
+                          },
+                          {
+                            "text": "Go to the next item"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "text": "Close the Epoch",
+                "steps": [
+                  {
+                    "text": "Write the epoch report"
+                  }
+                ]
               }
             ]
           }
@@ -1999,7 +2344,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The root title and each phase, a first-level step with substeps, render in ink at weight 600. Nested steps render at weight 400, and phases with substeps sit 16px apart."
+          "insert": "The root title renders in ink at weight 600, and each phase, a first-level step with substeps, at weight 700. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400."
         }
       ],
       "children": []
@@ -2009,6 +2354,9 @@
       "type": "list-item",
       "props": {},
       "text": [
+        {
+          "insert": "A loop opener ("
+        },
         {
           "insert": "Repeat",
           "attributes": {
@@ -2025,7 +2373,7 @@
           }
         },
         {
-          "insert": ", and "
+          "insert": ", "
         },
         {
           "insert": "For each",
@@ -2034,7 +2382,52 @@
           }
         },
         {
-          "insert": " at the start of a segment and "
+          "insert": ") or a branch opener ("
+        },
+        {
+          "insert": "If",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "When",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Otherwise",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "Unless",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "On failure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ") at the start of a step renders as a keyword in any case. So does "
         },
         {
           "insert": "until",
@@ -2043,25 +2436,16 @@
           }
         },
         {
-          "insert": " anywhere in it render as loop keywords at weight 500. They use the VS Code control colour, "
+          "insert": " inside a "
         },
         {
-          "insert": "#AF00DB",
+          "insert": "Repeat",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " in Light+ and "
-        },
-        {
-          "insert": "#C586C0",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in Dark+."
+          "insert": " step."
         }
       ],
       "children": []
@@ -2163,34 +2547,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A note renders in italics behind a mono "
-        },
-        {
-          "insert": "//",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " marker, aligned with its sibling steps. Notes use the VS Code comment colour, "
-        },
-        {
-          "insert": "#008000",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in Light+ and "
-        },
-        {
-          "insert": "#6A9955",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in Dark+."
+          "insert": "A note renders in muted italics behind a dash, at the indent of its sibling steps. The dash sits where an elbow would be, so a note never reads as a step."
         }
       ],
       "children": []
@@ -2201,16 +2558,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Consecutive note siblings group into one block, and each note stays its own "
-        },
-        {
-          "insert": "//",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " line."
+          "insert": "Consecutive note siblings group into one block, and each note stays its own line."
         }
       ],
       "children": []
