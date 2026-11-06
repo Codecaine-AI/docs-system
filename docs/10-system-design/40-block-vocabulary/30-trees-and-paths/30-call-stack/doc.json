@@ -273,6 +273,7 @@
         "cs-rules-g1-5",
         "cs-rules-g1-1",
         "cs-rules-g1-4",
+        "cs-rules-g1-6",
         "cs-rules-g1-3"
       ]
     },
@@ -282,7 +283,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The stack starts at the entry frame the reader searches for and stops at the frame where the reader's task ends. Logging, timing, and bookkeeping calls on the way stay out."
+          "insert": "The stack starts at the entry frame the reader searches for and stops at the frame where the reader's task ends. A stack on a short page holds about 10 to 20 frames, and logging, timing, and bookkeeping calls stay out."
         }
       ],
       "children": []
@@ -305,6 +306,53 @@
       "text": [
         {
           "insert": "A call inside another call's arguments runs first, in the same caller, so it is an earlier sibling and never a child."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g1-6": {
+      "id": "cs-rules-g1-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A callback that calls a named function shows that function as its own frame. Under "
+        },
+        {
+          "insert": "judgeSlot(() => tier2(page))",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the frames of "
+        },
+        {
+          "insert": "tier2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "'s body nest under a "
+        },
+        {
+          "insert": "tier2(page)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " frame, not under "
+        },
+        {
+          "insert": "judgeSlot",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -496,7 +544,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch frame tests a condition that the source tests. One call with a conditional argument stays one frame and never becomes two branches."
+          "insert": "A branch frame tests a condition that the source tests. One call with a conditional argument, such as "
+        },
+        {
+          "insert": "writeFile(failed ? failedPath : path, …)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", stays one frame and never becomes two branches."
         }
       ],
       "children": []
@@ -507,7 +564,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch that the stated path cannot reach stays out of the stack."
+          "insert": "A guard or a "
+        },
+        {
+          "insert": "catch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block is in the stack only when the reader's task can reach it and needs it. Generic error handling around the path, such as argument validation and reply wrapping, stays out, and the text before the block names what it leaves out."
         }
       ],
       "children": []
@@ -634,7 +700,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. It says only what this frame's own body does, and it names the condition of a step that runs only sometimes."
+          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. It says only what this frame's own body does, and a step that runs only sometimes keeps its condition, as in \"up to one judge call\"."
         }
       ],
       "children": []
