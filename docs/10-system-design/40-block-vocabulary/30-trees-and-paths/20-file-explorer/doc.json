@@ -38,6 +38,7 @@
         "fx-doc-5",
         "fx-doc-color",
         "fx-doc-change",
+        "fx-doc-notes",
         "fx-h-agent",
         "fx-agent"
       ]
@@ -307,7 +308,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Never give a group green, red, or yellow, because they read as change colors."
+          "insert": "Give two groups hues far apart, such as blue and pink, and never green, red, or yellow, because they read as change colors."
         }
       ],
       "children": []
@@ -406,7 +407,8 @@
         "fx-w-notes-1",
         "fx-w-notes-2",
         "fx-w-notes-3",
-        "fx-w-notes-4"
+        "fx-w-notes-4",
+        "fx-w-notes-5"
       ]
     },
     "fx-w-notes-1": {
@@ -415,7 +417,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give a note one fact about the file's role in about 10 words, so it fits on one line."
+          "insert": "Give a note one fact about what the file does when the system runs, in about 10 words, so it fits on one line. Where the build copies the file is not its role."
         }
       ],
       "children": []
@@ -467,6 +469,26 @@
       "text": [
         {
           "insert": "Give every new file a note when some new files have notes."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-notes-5": {
+      "id": "fx-w-notes-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put each identifier in a note in backticks, such as "
+        },
+        {
+          "insert": "`patchIds`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so it renders in the code face."
         }
       ],
       "children": []
@@ -1131,6 +1153,17 @@
         },
         {
           "insert": " when every file under it has that change. A key under the rows lists each change the block holds, as its glyph and its word."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-notes": {
+      "id": "fx-doc-notes",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note wraps in one aligned column, and each backticked span in it renders in the code face. An empty folder shows a closed twisty, because the block lists none of its files."
         }
       ],
       "children": []
