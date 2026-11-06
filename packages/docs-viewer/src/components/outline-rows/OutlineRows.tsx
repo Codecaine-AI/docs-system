@@ -168,6 +168,30 @@ function branchText(text: string): string {
   return text.replace(/^\?\s*/, "");
 }
 
+/** A call-stack branch that repeats its body: a for, while or do loop, or an array iteration call. */
+const LOOP_BRANCH = /^(?:for|while|do)\b|\.(?:map|flatMap|forEach|filter|reduce|some|every)\(/;
+
+/** Tabler "repeat" (MIT): a call-stack loop row leads with it instead of the condition "?". */
+const LOOP_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3" />
+    <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3" />
+  </svg>
+);
+
+/** The mark that leads a branch row: a loop icon for a call-stack loop, else the condition "?". */
+function BranchMark({ text, flavor }: { text: string; flavor: OutlineRowsFlavor }) {
+  if (flavor === "call-stack" && LOOP_BRANCH.test(text)) {
+    return (
+      <span className="docs-tree__if docs-tree__loop" data-branch-mark="loop">
+        {LOOP_ICON}
+        <span className="docs-tree__sr">loop</span>
+      </span>
+    );
+  }
+  return <span className="docs-tree__if" data-branch-mark="condition">?</span>;
+}
+
 /**
  * The outline-rows knobs (`--docs-outline-rows-*`) mapped onto the trees row
  * system's `--tr-*` variables; each falls back to the shared role token, then
@@ -218,6 +242,9 @@ const OUTLINE_ROWS_VARS = treeVars({
  *   comment takes the whole line under it, so every file:line sits beside its
  *   call and a comment does not wrap at half the panel.
  * - A `backtick` span in a comment is set in the code font (renderComment).
+ * - A wrapped frame's later lines indent two depth steps, so they never line up
+ *   with a child frame, and the code keeps a gap before the source column.
+ * - A loop branch leads with a repeat icon, not the condition "?" (BranchMark).
  */
 const CALL_STACK_CSS = `
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__code { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -225,7 +252,11 @@ const CALL_STACK_CSS = `
   line-height: calc(var(--tr-row, 28px) - 2 * var(--ds-space-1)); padding-block: var(--ds-space-1);
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path {
-  padding-left: calc(var(--depth, 0) * var(--tr-indent) + var(--ds-space-4)); text-indent: calc(-1 * var(--ds-space-4));
+  padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent)); text-indent: calc(-2 * var(--tr-indent));
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__path { padding-right: var(--ds-space-4); }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__loop svg {
+  display: inline-block; width: var(--ds-space-3); height: var(--ds-space-3); vertical-align: -1px; stroke-width: 2.25;
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / src; }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 1; }
@@ -301,7 +332,7 @@ export function OutlineRows({
                     <code className="docs-tree__code">
                       {branch ? (
                         <>
-                          <span className="docs-tree__if">?</span>
+                          <BranchMark text={branchText(row.text)} flavor={flavor} />
                           {renderCode(branchText(row.text), flavor)}
                         </>
                       ) : (
