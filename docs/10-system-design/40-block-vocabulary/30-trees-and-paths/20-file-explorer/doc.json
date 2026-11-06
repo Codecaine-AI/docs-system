@@ -309,7 +309,7 @@
           }
         },
         {
-          "insert": " only on a group that the prose names, and say in the prose what each color marks."
+          "insert": " only on a group that the prose names, and say in the prose what each color marks. Color is a second cue, so when the brief asks for the group, such as the stage that writes a file, also name it in each note."
         }
       ],
       "children": []
@@ -429,7 +429,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give a note one fact about what the file does when the system runs, in about 10 words, so it fits on one line. Where the build copies the file is not its role."
+          "insert": "Give a note one fact about what the file does, in about 10 words, so it fits on one line. Where a build or an installer copies the file is not what it does."
         }
       ],
       "children": []
@@ -440,7 +440,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Never restate the file name, the path, or the change in a note, as \"The bootstrap.\" or \"Unchanged.\" does."
+          "insert": "Never restate the file name, the path, or the change in a note, and never point to another row with \"same\" or \"above\"."
         }
       ],
       "children": []
