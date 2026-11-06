@@ -32,6 +32,8 @@ A listing is evidence. A reader checks each line against the source file and eac
 
   - Take each reason from the source files, such as a comment, a caller or a test. Never guess a reason, and write always, never or only when a line proves it.
 
+    - Count the cases in the source before you write a number, most or every. Read every throw and return of a function before you say how it fails.
+
   - For `if (!root) throw new Error(...)`, the note "Throws when the root is missing" retells the line. The note "Every tree reader calls this first, so a broken root pointer fails here and not inside a render" adds the consequence.
 
 4. Make each range cover exactly the lines its note discusses.

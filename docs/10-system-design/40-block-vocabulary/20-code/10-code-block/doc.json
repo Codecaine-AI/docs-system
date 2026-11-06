@@ -357,6 +357,19 @@
           "insert": "Take each reason from the source files, such as a comment, a caller or a test. Never guess a reason, and write always, never or only when a line proves it."
         }
       ],
+      "children": [
+        "b-code-write-value-d1"
+      ]
+    },
+    "b-code-write-value-d1": {
+      "id": "b-code-write-value-d1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Count the cases in the source before you write a number, most or every. Read every throw and return of a function before you say how it fails."
+        }
+      ],
       "children": []
     },
     "b-code-write-value-c": {
