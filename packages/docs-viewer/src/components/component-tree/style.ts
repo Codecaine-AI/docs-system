@@ -6,8 +6,9 @@
  * When the rows do not fit beside their comments (data-notes="below"):
  * - each source chip stays on its row's code line, in one column, whether the
  *   row has a comment or not;
- * - the code stops at the chip column and wraps under itself with a hanging
- *   indent, so a long JSX row never runs into its chip or scrolls sideways;
+ * - the code stops at the chip column and wraps under itself with a 4ch
+ *   hanging indent, deeper than the comment's child indent, so a wrapped prop
+ *   never reads as the comment line and never runs into its chip;
  * - the comment takes the second line at the child indent.
  */
 const TREE = '.docs-tree[data-tree-kind="component-tree"]';
@@ -20,7 +21,7 @@ ${BELOW} .docs-tree__row > .docs-tree__src { grid-row: 1; align-self: start; }
 ${BELOW} .docs-tree__row > .docs-tree__note { grid-column: path / end; }
 ${BELOW} .docs-tree__code {
   display: inline-block; max-width: 100%; box-sizing: border-box;
-  padding-left: 2ch; text-indent: -2ch;
+  padding-left: 4ch; text-indent: -4ch;
   white-space: pre-wrap; overflow-wrap: break-word;
 }
 /* a prop never splits across lines (topLevelWords in OutlineRows.tsx) */
