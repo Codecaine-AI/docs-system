@@ -1449,6 +1449,8 @@
         "code-annotation-range-lint",
         "pseudocode-code-syntax-lint",
         "component-tree-bare-ellipsis-lint",
+        "interaction-surface-example-missing-lint",
+        "interaction-surface-field-shape-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1733,6 +1735,32 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "interaction-surface-example-missing-lint": {
+      "id": "interaction-surface-example-missing-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "interaction-surface.example-missing flags an operation with no exampleCall, and a returnShape that lists fields but has no example. docs_check fails until the task adds them."
+        }
+      ],
+      "children": []
+    },
+    "interaction-surface-field-shape-lint": {
+      "id": "interaction-surface-field-shape-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "interaction-surface.field-shape flags a param or returned field whose name has a space or a colon outside quotes, such as \"open: true\". It also flags nested fields under a primitive or literal type. docs_check fails until the task fixes them."
         }
       ],
       "children": []

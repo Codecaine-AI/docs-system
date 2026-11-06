@@ -115,30 +115,30 @@ Everything that changes a document is one of seven ops. Every successful apply r
 **DocOp kernel**
 
 ```
-insertBlock(blockId: string, parentId: string, index: number, blockType: DocBlockType, props: object, text?: DeltaSpan[]) -> { doc, inverse: DocOp[] }  # Insert a fresh non-colliding block under parentId at index.
+[action] insertBlock(blockId: string, parentId: string, index: number, blockType: DocBlockType, props: object, text?: DeltaSpan[]) -> { doc, inverse: DocOp[] }  # Insert a fresh non-colliding block under parentId at index.
   blockId: string  # Stable id for the new block.
   parentId: string  # Existing parent block id.
   index: number  # Position within the parent's children.
   blockType: DocBlockType  # One of the 14 canonical block types.
   props: object  # Initial typed props.
   text?: DeltaSpan[]  # Optional initial rich text.
-updateBlock(blockId: string, props?: object, text?: DeltaSpan[] | null) -> { doc, inverse: DocOp[] }  # Shallow-merge props and/or replace text while preserving the block id.
+[action] updateBlock(blockId: string, props?: object, text?: DeltaSpan[] | null) -> { doc, inverse: DocOp[] }  # Shallow-merge props and/or replace text while preserving the block id.
   blockId: string  # Target block id.
   props?: object  # Patch; a key set to undefined removes that prop.
   text?: DeltaSpan[] | null  # Replacement text; null clears text.
-deleteBlock(blockId: string, mode?: "subtree" | "reparent") -> { doc, inverse: DocOp[] }  # Delete a block as a subtree, or splice its children into the parent.
+[action] deleteBlock(blockId: string, mode?: "subtree" | "reparent") -> { doc, inverse: DocOp[] }  # Delete a block as a subtree, or splice its children into the parent.
   blockId: string  # Target block id.
   mode?: "subtree" | "reparent"  # subtree is the default; reparent splices children into the former slot.
-moveBlock(blockId: string, toParentId: string, toIndex: number) -> { doc, inverse: DocOp[] }  # Move a block under toParentId at toIndex, checking cycles.
+[action] moveBlock(blockId: string, toParentId: string, toIndex: number) -> { doc, inverse: DocOp[] }  # Move a block under toParentId at toIndex, checking cycles.
   blockId: string  # Block being moved.
   toParentId: string  # Destination parent id.
   toIndex: number  # Destination child index after detach.
-splitBlock(blockId: string, offset: number) -> { doc, inverse: DocOp[] }  # Split a block's delta text at a character offset; the new sibling gets a fresh id.
+[action] splitBlock(blockId: string, offset: number) -> { doc, inverse: DocOp[] }  # Split a block's delta text at a character offset; the new sibling gets a fresh id.
   blockId: string  # Text block to split.
   offset: number  # Character offset in [0, textLength].
-mergeBlocks(blockIds: string[]) -> { doc, inverse: DocOp[] }  # Merge two or more contiguous siblings in document order into a fresh block.
+[action] mergeBlocks(blockIds: string[]) -> { doc, inverse: DocOp[] }  # Merge two or more contiguous siblings in document order into a fresh block.
   blockIds: string[]  # The contiguous sibling ids to merge.
-componentAction(blockId: string, action: string, params: object) -> { doc, inverse: DocOp[] }  # Resolve a named typed action and apply its validated result through updateBlock.
+[action] componentAction(blockId: string, action: string, params: object) -> { doc, inverse: DocOp[] }  # Resolve a named typed action and apply its validated result through updateBlock.
   blockId: string  # Target block id.
   action: string  # Registry key in the form <blockType>.<verb>.
   params: object  # Action-specific params validated by the action.

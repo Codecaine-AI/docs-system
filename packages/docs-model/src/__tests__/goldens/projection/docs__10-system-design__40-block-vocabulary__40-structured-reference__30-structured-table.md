@@ -96,20 +96,20 @@ Five verbs cover the grid and form the family's whole agent write surface for ce
 **structured-table row and column actions**
 
 ```
-structured-table.addRow(cells: string[], index?: number) -> StructuredTablePatch  # Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.
+[action] structured-table.addRow(cells: string[], index?: number) -> StructuredTablePatch  # Insert a row (cells are inline markdown, padded/truncated to the column count); index defaults to the end.
   Returns StructuredTablePatch:
     rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
-structured-table.removeRow(index: number) -> StructuredTablePatch  # Remove the row at the given index.
+[action] structured-table.removeRow(index: number) -> StructuredTablePatch  # Remove the row at the given index.
   Returns StructuredTablePatch:
     rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
-structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> StructuredTablePatch  # Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).
+[action] structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> StructuredTablePatch  # Set one cell to inline markdown, addressing the column by name (column) or position (columnIndex).
   Returns StructuredTablePatch:
     rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
-structured-table.addColumn(name: string, index?: number, fill?: string) -> StructuredTablePatch  # Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.
+[action] structured-table.addColumn(name: string, index?: number, fill?: string) -> StructuredTablePatch  # Insert a column (default at the end), extending every row with the fill value; name and fill are inline markdown.
   Returns StructuredTablePatch:
     columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
     rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).
-structured-table.removeColumn(column?: string, columnIndex?: number) -> StructuredTablePatch  # Remove a column by name (column) or position (columnIndex), shrinking every row.
+[action] structured-table.removeColumn(column?: string, columnIndex?: number) -> StructuredTablePatch  # Remove a column by name (column) or position (columnIndex), shrinking every row.
   Returns StructuredTablePatch:
     columns: TableCell[]  # Header cells in order. A TableCell is a plain string or a span array whose closed mark set is bold/italic/strike/code/link.
     rows: TableCell[][]  # One cell array per row; actions normalize each row to the column count. An unmarked cell stores as the plain string (canonical).

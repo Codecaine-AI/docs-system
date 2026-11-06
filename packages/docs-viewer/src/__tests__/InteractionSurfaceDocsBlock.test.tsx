@@ -185,13 +185,13 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(summary.getAttribute("aria-expanded")).toBe("false");
   });
 
-  it("draws each line as chevron and described name with the elided tail; the kind and purpose live in the name's tooltip", () => {
+  it("draws each line as chevron, described name with the elided tail, and a visible kind chip; the purpose lives in the name's tooltip", () => {
     render(<InteractionSurfaceBlock id="surface-rows" operations={OPERATIONS} />);
     for (const [name, kind] of [["table.walk", "query"], ["table.put", "action"], ["table.changed", "event"], ["table.unbadged", "action"]] as const) {
       const summary = summaryOf(name);
       expect(opRow(name)?.getAttribute("data-operation-kind")).toBe(kind);
       expect(summary.querySelector("[data-disclosure-chevron]")?.getAttribute("aria-hidden")).toBe("true");
-      // No visible badge or purpose line anywhere outside the tooltip.
+      // No badge or purpose line in the open body: the kind shows on the row's chip.
       expect(opRow(name)!.querySelector("[data-operation-body] [data-operation-kind-badge]")).toBeNull();
       expect(opRow(name)!.querySelector("[data-operation-intro]")).toBeNull();
       // The name is a described name whose tooltip leads with the kind badge.
@@ -203,19 +203,21 @@ describe("InteractionSurfaceBlock — operation rows", () => {
       // Inside the summary (already one tab stop) the name adds no second one.
       expect(target.hasAttribute("tabindex")).toBe(false);
       expect(target.hasAttribute("aria-describedby")).toBe(false);
-      // The kind still reaches assistive tech while closed: the summary is
-      // labelled by its name (with tail) and the visually hidden kind word.
-      const kindEl = summary.querySelector("[data-operation-sr]") as HTMLElement;
+      // The closed row shows the kind as a chip at the row end, and the
+      // summary is labelled by its name (with tail) and that chip.
+      const kindEl = summary.querySelector("[data-op-kind-chip]") as HTMLElement;
+      expect(kindEl.getAttribute("data-op-kind-chip")).toBe(kind);
       expect(kindEl.textContent).toBe(kind);
+      expect(kindEl.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
       expect(summary.getAttribute("aria-labelledby")).toBe(`${nameEl.id} ${kindEl.id}`);
     }
     expect(summaryOf("table.walk").querySelector("[data-operation-tail]")?.textContent).toBe("(…) → Row[]");
-    expect(summaryOf("table.walk").querySelector("[data-operation-returns]")?.getAttribute("title")).toBe("Row[]");
     expect(summaryOf("table.changed").querySelector("[data-operation-tail]")?.textContent).toBe("() → () => void");
     expect(summaryOf("table.unbadged").querySelector("[data-operation-tail]")?.textContent).toBe("()");
     const css = sheet();
-    expect(css).toContain("white-space:pre");
-    expect(css).toContain("[data-operation-returns]{min-width:0;overflow:hidden;text-overflow:ellipsis}");
+    // A long return type wraps under the name with a hanging indent; nothing truncates it.
+    expect(css).toContain("text-indent:calc(-1 * var(--ds-space-4));white-space:normal;overflow-wrap:anywhere");
+    expect(css).not.toContain("text-overflow:ellipsis");
     // Keyboard: focusing the summary shows the tooltip; hover uses the shared dwell.
     expect(css).toContain("[data-operation-line]:focus-visible [data-description-tip]{opacity:1;visibility:visible");
     expect(css).toContain("transition-delay:var(--docs-tip-delay,450ms)");
@@ -232,6 +234,8 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(signatureTail({ name: "a.b" })).toBe("()");
     expect(signatureTail({ name: "a.b", returns: "R" })).toBe("() → R");
     expect(signatureTail({ name: "a.b", params: [{ name: "x", type: "string" }, { name: "y", required: false }], returns: "R" })).toBe("(…) → R");
+    // A call-form name already shows its arguments: the tail is the return type alone.
+    expect(signatureTail({ name: 'reduce(state, { type: "open" })', params: [{ name: "state" }], returns: "S" })).toBe(" → S");
   });
 
   it("gives every param a shared ledger row with its type, the description as a name tooltip", () => {
@@ -374,7 +378,9 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("real dotted name");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as one-line rows");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as rows");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("kind chip");
+    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("never truncated");
     expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("open on click, Enter, or Space");
   });
 });
@@ -428,7 +434,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)))",
       "--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)))",
       // The kind badge reads the role tokens: text, line, and soft fill.
-      '[data-operation-kind-badge="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
+      '[data-operation-kind-badge="query"],[data-op-kind-chip="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
       "font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium)",
       // Focus ring and hover on the line.
       "[data-disclosure]>summary:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}",

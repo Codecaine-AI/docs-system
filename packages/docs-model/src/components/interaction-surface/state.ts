@@ -28,6 +28,14 @@ export type InteractionSurfaceOperation = {
   kind?: InteractionSurfaceKind;
 };
 
+/**
+ * True when an operation's name is already a call, such as `docPeekReducer(state, { type: "open" })` for one action
+ * of a reducer that takes a tagged union. Renderers print such a name as written and add no parameter list of their own.
+ */
+export function isCallFormName(name: string): boolean {
+  return /\)\s*$/.test(name) && name.includes("(");
+}
+
 export const InteractionSurfaceParamSchema = FieldSchema;
 
 export const InteractionSurfaceReturnShapeSchema = Type.Object({

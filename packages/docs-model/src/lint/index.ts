@@ -1,5 +1,5 @@
 import { processOutlinePhaseTitleCaseRule, processOutlineRootRule } from '../components/process-outline/lint';
-import { interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
+import { interactionSurfaceExampleMissingRule, interactionSurfaceFieldShapeRule, interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
 import { codeLintRules } from '../components/code/lint';
 import { pseudocodeCodeSyntaxRule } from "../components/pseudocode/lint";
 import { componentTreeBareEllipsisRule } from '../components/component-tree/lint';
@@ -21,6 +21,8 @@ export const lintRules = [
   ...codeLintRules,
   pseudocodeCodeSyntaxRule,
   componentTreeBareEllipsisRule,
+  interactionSurfaceExampleMissingRule,
+  interactionSurfaceFieldShapeRule,
   bundleRelativeSrcRule,
   ...layoutRules,
 ];

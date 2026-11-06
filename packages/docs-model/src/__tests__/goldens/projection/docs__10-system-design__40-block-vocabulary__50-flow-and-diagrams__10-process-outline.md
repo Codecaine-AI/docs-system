@@ -196,7 +196,7 @@ Five actions instantiate the Typed actions contract element:
 **process-outline, actions**
 
 ```
-process-outline.setSteps(steps: ProcessOutlineStep[]) -> ProcessOutlinePatch  # Bulk replace: swap the entire ordered step tree for the given steps, parse process-outline notation with parseProcessOutline to build the tree from text.
+[action] process-outline.setSteps(steps: ProcessOutlineStep[]) -> ProcessOutlinePatch  # Bulk replace: swap the entire ordered step tree for the given steps, parse process-outline notation with parseProcessOutline to build the tree from text.
   steps: ProcessOutlineStep[]  # Complete replacement step tree; an empty array empties the process outline.
   Returns ProcessOutlinePatch:
     steps: ProcessOutlineStep[]  # Recursive step tree, the block's entire state.
@@ -204,7 +204,7 @@ process-outline.setSteps(steps: ProcessOutlineStep[]) -> ProcessOutlinePatch  # 
       kind?: "step" | "note"  # "note" marks a clarification leaf; omitted reads as "step".
       trace?: boolean  # Marks a step corresponding to a real trace event. Notes cannot carry this flag.
       steps?: ProcessOutlineStep[]  # Nested substeps; notes never carry them.
-process-outline.insertStep(path: number[], text: string, kind?: "step" | "note", trace?: boolean) -> ProcessOutlinePatch  # Insert a step at an index path: the last element is the insert position among the addressed sibling list.
+[action] process-outline.insertStep(path: number[], text: string, kind?: "step" | "note", trace?: boolean) -> ProcessOutlinePatch  # Insert a step at an index path: the last element is the insert position among the addressed sibling list.
   path: number[]  # Index path; [i] inserts at position i among the roots, [a, ..., i] at position i under the step addressed by the prefix.
   text: string  # Step text; backticks mark code values.
   kind?: "step" | "note"  # Step kind; "note" is a clarification leaf. Default "step".
@@ -215,7 +215,7 @@ process-outline.insertStep(path: number[], text: string, kind?: "step" | "note",
       kind?: "step" | "note"  # "note" marks a clarification leaf; omitted reads as "step".
       trace?: boolean  # Marks a step corresponding to a real trace event. Notes cannot carry this flag.
       steps?: ProcessOutlineStep[]  # Nested substeps; notes never carry them.
-process-outline.setStepText(path: number[], text: string, trace?: boolean) -> ProcessOutlinePatch  # Replace the text of the step at an index path.
+[action] process-outline.setStepText(path: number[], text: string, trace?: boolean) -> ProcessOutlinePatch  # Replace the text of the step at an index path.
   path: number[]  # Index path of the step, e.g. [0, 2] for the third child of the first root.
   text: string  # Replacement step text; backticks mark code values.
   trace?: boolean  # Set or clear the trace mark. Omit to preserve it. Notes cannot be trace-marked.
@@ -225,7 +225,7 @@ process-outline.setStepText(path: number[], text: string, trace?: boolean) -> Pr
       kind?: "step" | "note"  # "note" marks a clarification leaf; omitted reads as "step".
       trace?: boolean  # Marks a step corresponding to a real trace event. Notes cannot carry this flag.
       steps?: ProcessOutlineStep[]  # Nested substeps; notes never carry them.
-process-outline.removeStep(path: number[]) -> ProcessOutlinePatch  # Remove the step at an index path, together with its entire subtree.
+[action] process-outline.removeStep(path: number[]) -> ProcessOutlinePatch  # Remove the step at an index path, together with its entire subtree.
   path: number[]  # Index path of the step to remove, e.g. [0, 2].
   Returns ProcessOutlinePatch:
     steps: ProcessOutlineStep[]  # Recursive step tree, the block's entire state.
@@ -233,7 +233,7 @@ process-outline.removeStep(path: number[]) -> ProcessOutlinePatch  # Remove the 
       kind?: "step" | "note"  # "note" marks a clarification leaf; omitted reads as "step".
       trace?: boolean  # Marks a step corresponding to a real trace event. Notes cannot carry this flag.
       steps?: ProcessOutlineStep[]  # Nested substeps; notes never carry them.
-process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  # Move the step at from (with its subtree) to the insert position to, to is interpreted against the tree after the step is removed.
+[action] process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  # Move the step at from (with its subtree) to the insert position to, to is interpreted against the tree after the step is removed.
   from: number[]  # Index path of the step to move.
   to: number[]  # Insertion index path (last element = insert position), resolved after the step is detached.
   Returns ProcessOutlinePatch:

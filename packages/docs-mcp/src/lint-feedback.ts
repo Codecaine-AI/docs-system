@@ -31,6 +31,8 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "code.language": { gate: true },
   "code.annotation-range": { gate: true },
   "pseudocode.code-syntax": { gate: true },
+  "interaction-surface.example-missing": { gate: true },
+  "interaction-surface.field-shape": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },
 };

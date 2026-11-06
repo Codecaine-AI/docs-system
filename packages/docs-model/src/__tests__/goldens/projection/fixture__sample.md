@@ -46,10 +46,12 @@ Stable ids are a system invariant.
 **File-tree block surface**
 
 ```
-file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree
+[action] file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree
   path: string  # /-separated path
-file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath
-file-tree.removeEntry(path: string)
+  note?: string
+  change?: string
+[action] file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath
+[action] file-tree.removeEntry(path: string)
 ```
 
 **InteractionSurfaceOperation** — packages/docs-model/src/components/interaction-surface/state.ts#InteractionSurfaceOperation
