@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:5661fbb036dd9909949ad219c5c64a78042b1933a3e18da7fb0d17db4949d087",
+  "snapshotId": "sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -79,7 +79,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface/doc.json",
-      "sha256": "8ac2a282fc34959927eb58ac7c4ee3314bcc5209baae67a9ae4876c0587695b8",
+      "sha256": "2a656d650a80387cad40577fb9ced834b3a98ae1fc34cbc6ec35f949e9764c1a",
       "kind": "component-doc"
     },
     {

@@ -987,7 +987,7 @@
                 "name": "exampleCall",
                 "type": "string",
                 "required": false,
-                "description": "One real call with literal values. An empty string is dropped."
+                "description": "One real call with literal values. Leave it out or pass a nonempty string, because the action refuses an empty one."
               }
             ],
             "returns": "InteractionSurfacePatch",
