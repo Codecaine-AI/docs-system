@@ -155,28 +155,36 @@ export const CODE_GUTTER_LINE_CLASSES =
   "h-[var(--docs-code-line-height,21px)] pr-[var(--docs-code-gutter-pad-x,12px)] text-right text-[length:var(--docs-code-gutter-text-size,12px)] leading-[var(--docs-code-line-height,21px)] tabular-nums text-[color:var(--docs-code-gutter-fg,#888784)]";
 
 /**
- * Gutter line covered by an annotation, AT REST: one quiet 2px mark centered
- * in the gutter's right padding, the accent at 65% (3:1 against the panel).
- * The number keeps the gutter color. The first and last line of each run
- * inset the mark 3px (CODE_GUTTER_MARK_START/END_CLASSES), so two adjacent
- * annotations read as two marks.
+ * Gutter line covered by an annotation, AT REST: one quiet bracket between
+ * the number and the code, the accent at 65% (3:1 against the panel). The
+ * number keeps the gutter color. The first and last line of each run draw the
+ * bracket's caps (CODE_GUTTER_MARK_START/END_CLASSES), so two adjacent
+ * annotations read as two brackets, not one bar.
  */
 export const CODE_GUTTER_LINE_ANNOTATED_CLASSES =
-  "after:pointer-events-none after:absolute after:top-0 after:bottom-0 after:right-[calc(var(--docs-code-gutter-pad-x,12px)/2-1px)] after:w-0.5 after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
+  "after:pointer-events-none after:absolute after:top-0 after:bottom-0 after:right-[calc(var(--docs-code-gutter-pad-x,12px)/4)] after:w-[calc(var(--docs-code-gutter-pad-x,12px)/2)] after:border-0 after:border-solid after:border-l-2 after:border-[color:var(--docs-code-annotation-accent,#0b6e99)]/65";
 
-/** First line of an annotated run: the mark starts 3px below the line top. */
-export const CODE_GUTTER_MARK_START_CLASSES = "after:top-[3px] after:rounded-t-[var(--ds-radius-base)]";
+/** First line of an annotated run: the bracket's top cap, 3px below the line top. */
+export const CODE_GUTTER_MARK_START_CLASSES = "after:top-[3px] after:border-t-2 after:rounded-tl-[var(--ds-radius-base)]";
 
-/** Last line of an annotated run: the mark stops 3px above the line bottom. */
-export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:rounded-b-[var(--ds-radius-base)]";
+/** Last line of an annotated run: the bracket's bottom cap, 3px above the line bottom. */
+export const CODE_GUTTER_MARK_END_CLASSES = "after:bottom-[3px] after:border-b-2 after:rounded-bl-[var(--ds-radius-base)]";
+
+/**
+ * READ surface: a gutter cell whose line wraps. A quiet wrap arrow sits under
+ * the number on the first continuation row, so a reader sees one soft-wrapped
+ * line, not new lines. The cell clips it, so a line that does not wrap shows none.
+ */
+export const CODE_GUTTER_WRAP_CLASSES =
+  "overflow-hidden before:absolute before:right-[var(--docs-code-gutter-pad-x,12px)] before:top-[var(--docs-code-line-height,21px)] before:font-sans before:content-['↪'] before:opacity-70";
 
 /**
  * Gutter line of the LIT (hovered, focused or pinned) pair: accent number,
- * full-accent mark, and the line tint layered as a background IMAGE so the
+ * full-accent bracket, and the line tint layered as a background IMAGE so the
  * sticky cell's opaque background-color stays under horizontal scroll.
  */
 export const CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES =
-  "font-semibold text-[color:var(--docs-code-annotation-accent,#0b6e99)] after:bg-[color:var(--docs-code-annotation-accent,#0b6e99)] bg-linear-to-b from-[var(--docs-code-annotation-accent,#0b6e99)]/12 to-[var(--docs-code-annotation-accent,#0b6e99)]/12";
+  "font-semibold text-[color:var(--docs-code-annotation-accent,#0b6e99)] after:border-[color:var(--docs-code-annotation-accent,#0b6e99)] bg-linear-to-b from-[var(--docs-code-annotation-accent,#0b6e99)]/12 to-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
 /**
  * Zebra striping: ONE absolute layer behind the code column whose gradient
@@ -268,9 +276,8 @@ export const CODE_NOTES_ASIDE_CLASSES =
 export const CODE_NOTE_CLASSES =
   "block w-full min-w-0 cursor-pointer rounded-[var(--radius,2px)] px-2 py-2 text-left font-sans transition-colors focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-[color:var(--docs-focus-ring,#0078df)]";
 
-/** The LIT note: the line tint (accent at 12%) behind it, and its body steps up to the panel ink. */
-export const CODE_NOTE_LIT_CLASSES =
-  "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12 [&_[data-note-body]]:text-[color:var(--docs-ink,#d4d4d4)]";
+/** The LIT note: the line tint (accent at 12%) behind it. */
+export const CODE_NOTE_LIT_CLASSES = "bg-[var(--docs-code-annotation-accent,#0b6e99)]/12";
 
 /** A note's head row: the range chip and the title, on one code-line-high row. */
 export const CODE_NOTE_HEAD_CLASSES =
@@ -283,6 +290,22 @@ export const CODE_NOTE_CHIP_CLASSES = "mr-0 flex-none";
 export const CODE_NOTE_LABEL_CLASSES =
   "min-w-0 text-[length:calc(var(--docs-code-note-text-size,13px)+1px)] font-semibold text-[color:var(--docs-ink,#d4d4d4)]";
 
-/** A note's body, on its own lines under the head: smaller sans in the panel's muted ink. */
+/** A note's body, on its own lines under the head: sans in the panel ink, so it reads as well as the code. */
 export const CODE_NOTE_BODY_CLASSES =
-  "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-muted,#9d9d9d)] transition-colors";
+  "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-ink,#d4d4d4)] transition-colors";
+
+/**
+ * READ surface, notes inline: the row under an annotated range's last line
+ * that holds its note. It keeps the line grid (an empty sticky gutter cell,
+ * then the note), so the bracket above leads straight into the note.
+ */
+export const CODE_INLINE_NOTE_ROW_CLASSES =
+  "grid grid-cols-[var(--docs-code-gutter-width,40px)_1fr] whitespace-normal select-none";
+
+/**
+ * The note box in an inline row: the notes surface (the code bg 6% toward
+ * white), a left rule in the annotation accent like the gutter bracket, and the
+ * code's own horizontal padding.
+ */
+export const CODE_INLINE_NOTE_CLASSES =
+  "mx-[var(--docs-code-pad-x,12px)] my-1.5 grid gap-1 rounded-[var(--radius,2px)] border-0 border-solid border-l-2 border-[color:var(--docs-code-annotation-accent,#0b6e99)]/65 bg-[color:var(--docs-code-notes-bg,color-mix(in_srgb,var(--docs-code-block-bg,#1e1e1e)_94%,#ffffff))] font-sans";
