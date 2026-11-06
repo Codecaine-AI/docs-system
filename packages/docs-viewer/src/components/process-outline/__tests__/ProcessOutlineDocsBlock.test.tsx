@@ -172,7 +172,7 @@ describe("ProcessOutlineDocsBlock", () => {
     const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
 
     expect(css).toMatch(
-      /\.docs-process-outline__node--depth-one:has\(> \.docs-process-outline__children\)>\.docs-process-outline__line \{ color:var\(--po-title\); font-weight:var\(--docs-process-outline-branch-weight, 600\); \}/,
+      /\.docs-process-outline__node--depth-one:has\(> \.docs-process-outline__children\)>\.docs-process-outline__line \{ color:var\(--po-title\); font-weight:var\(--docs-process-outline-branch-weight, 700\); \}/,
     );
     expect(css).toContain("--po-branch-gap: var(--docs-process-outline-branch-gap, 16px);");
     // Phases with substeps take the branch gap between them.
@@ -205,10 +205,14 @@ describe("ProcessOutlineDocsBlock", () => {
     expect(container.textContent).not.toContain("=>");
   });
 
-  it("colours a loop keyword only where it opens the step, and until only in a Repeat step", () => {
-    const steps = parseProcessOutline("Run\n  -> Wait until the version lands\n  -> While `x` runs, poll\n  -> Poll while it runs");
-    render(<ProcessOutlineDocsBlock id="process-outline-keywords" steps={steps} />);
-    expect(Array.from(document.querySelectorAll("[data-process-outline-keyword]")).map((node) => node.textContent)).toEqual(["While"]);
+  it.each([
+    ["a loop opener only where it opens the step", "Run\n  -> Wait until the version lands\n  -> While `x` runs, poll\n  -> Poll while it runs", ["While"]],
+    ["branch openers that open a step", "Run\n  -> If the build fails\n  -> When a step throws\n  -> Otherwise\n  -> Unless --skip-tests is set\n  -> On failure", ["If", "When", "Otherwise", "Unless", "On failure"]],
+    ["a branch word inside a step as prose", "Run\n  -> Retry when the build fails\n  -> Stop if the lock is held", []],
+    ["a Title Case loop phase and its until", "Run\n  -> For Each Kept File\n       -> Read it\n  -> REPEAT the poll until it lands", ["For Each", "REPEAT", "until"]],
+  ])("colours %s", (_case, notation, keywords) => {
+    render(<ProcessOutlineDocsBlock id="process-outline-keywords" steps={parseProcessOutline(notation)} />);
+    expect(Array.from(document.querySelectorAll("[data-process-outline-keyword]")).map((node) => node.textContent)).toEqual(keywords);
   });
 
   it("tints a selected line in its own depth colour, per line, never as a block wash", () => {

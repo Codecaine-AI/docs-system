@@ -74,8 +74,8 @@ describe("layout findings", () => {
     expect(written.ok).toBe(true);
     expect(written.style_findings.shown).toContainEqual({
       block: "wide-code", rule: "layout.code-line-width",
-      problem: expect.stringMatching(/^Line 1 is 130 columns wide, but at stock theme settings the code panel fits 118 before it scrolls sideways\./),
-      fix: expect.stringContaining("PDF export wraps code instead of scrolling"),
+      problem: expect.stringMatching(/^Line 1 is 130 columns wide, but at stock theme settings the code panel fits 118, so the line wraps on the page\./),
+      fix: expect.stringContaining("Never reflow or shorten a copied line to fit."),
     });
     const read = await call("docs_read", { path: "page" });
     const finding = read.lint.findings.find((f: any) => f.ruleId === "layout.code-line-width");
@@ -87,11 +87,12 @@ describe("layout findings", () => {
   });
 
   test("a table too wide for its lane and a stack detail that wraps are reported on write and read, and never fail docs_check", async () => {
-    const sentence = "Short text column under forty characters";
+    // Cells stay under the 24-character wrap threshold, so they never wrap and the table cannot shrink to fit.
+    const sentence = "Short cell, never wraps";
     const detail = "parses every stored document on load · validates the schema of each block · projects Markdown for agents";
     const written = await call("docs_apply_ops", { path: "page", expected_hash: await hash(), ops: [
       { type: "insertBlock", blockId: "wide-table", parentId: "root", index: 3, blockType: "structured-table",
-        props: { columns: ["One", "Two", "Three", "Four", "Five", "Six"], rows: [[sentence, sentence, sentence, sentence, sentence, sentence]] } },
+        props: { columns: ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"], rows: [Array(8).fill(sentence)] } },
       { type: "insertBlock", blockId: "layers", parentId: "root", index: 4, blockType: "stack",
         props: { nodes: [{ name: "Model", detail }], boundaries: [] } },
     ] }, task);

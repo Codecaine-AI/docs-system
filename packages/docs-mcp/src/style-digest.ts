@@ -9,7 +9,7 @@ export const STYLE_DIGEST: readonly string[] = [
   "Use periods, not semicolons or em dashes. Never open a block with a label and a colon, such as \"Kernel changes:\".",
   "Show a shape in its typed block, not in bullets: fields in state-shape, folders in file-tree, an execution path in process-outline, connections in canvas, call order in sequence. Keep plain facts and reader steps as lists.",
   "Keep table cells to short facts. Put explanation in bullets near the table, and never restate its rows.",
-  "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice. Write only what the task asks for, not internals the reader never meets. An opening names sections only in heading order.",
+  "Lead with the fact. Use real numbers, paths, and names. No preamble, recap, or change-log voice. Write only what the task asks for, not internals the reader never meets. Keep to the size the brief asks for, such as a short page or one sentence per item. An opening names sections only in heading order.",
   "Each section stands alone. Define or link each term at first use, even one taken from code.",
   "Fix the style_findings in write results as you go. docs_check with task_id fails on those marked blocks_check.",
 ];

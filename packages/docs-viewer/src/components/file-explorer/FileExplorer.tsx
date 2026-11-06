@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent, type ReactNode } from "react";
 import { FILE_TREE_VARS, RenamedFrom } from "../file-tree/FileTreeDocsBlock";
 import {
   colorAttrs,
   colorScope,
   colorSeams,
   sortFileTreeNodes,
+  type FileTreeChange,
   type FileTreeNode,
   type TreeColorScope,
 } from "../file-tree/tree-model";
 import {
+  TREE_CHANGE_GLYPH,
   TREE_ICONS,
   TreeGuides,
   TreeHead,
@@ -22,7 +24,13 @@ import {
 } from "../outline-rows/tree-rows";
 
 /** Rows shown before the explorer folds when the block sets no `maxRows`. */
-export const DEFAULT_EXPLORER_MAX_ROWS = 8;
+export const DEFAULT_EXPLORER_MAX_ROWS = 24;
+/**
+ * The fewest rows a fold hides. A list that runs only this many rows past
+ * its limit shows whole, because a fold that hides a row or two saves no
+ * space and can hide a changed file the writer meant to show.
+ */
+export const MIN_FOLDED_ROWS = 4;
 
 type ExplorerRow = {
   /** Path of the row's last node: the React key and the collapse key. */
@@ -54,6 +62,7 @@ function compactChain(node: FileTreeNode): { names: string[]; last: FileTreeNode
   return { names, last };
 }
 
+/** The visible rows, top to bottom: folders first, chains compacted, collapsed folders closed. */
 function explorerRows(
   nodes: Iterable<FileTreeNode>,
   depth: number,
@@ -74,13 +83,131 @@ function explorerRows(
   return out;
 }
 
-function treeHasChange(nodes: Iterable<FileTreeNode>): boolean {
-  for (const node of nodes) {
-    if (node.change || treeHasChange(node.children.values())) return true;
+/**
+ * The change marks under a folder, at any depth: each file's change (or none),
+ * and each sub-folder's own change when it has one.
+ */
+function* marksUnder(node: FileTreeNode): Generator<FileTreeChange | undefined> {
+  for (const child of node.children.values()) {
+    if (child.isDir) {
+      if (child.change) yield child.change;
+      yield* marksUnder(child);
+    } else yield child.change;
   }
-  return false;
 }
 
+/**
+ * The change a row shows: its own, or for a folder with none, "added" or
+ * "removed" when every file under it, and every sub-folder that sets its own
+ * change, carries that one change. A new folder of new files is itself new, so
+ * its row never reads as a pre-existing band between added rows.
+ */
+export function rowChange(node: FileTreeNode): FileTreeChange | undefined {
+  if (node.change || !node.isDir) return node.change;
+  let shared: FileTreeChange | undefined;
+  for (const mark of marksUnder(node)) {
+    if (mark !== "added" && mark !== "removed") return undefined;
+    if (shared && shared !== mark) return undefined;
+    shared = mark;
+  }
+  return shared;
+}
+
+/**
+ * A note's text with each `backticked` span set as code, so identifiers in a
+ * note read in the code face. An unpaired backtick stays literal text.
+ */
+export function noteSpans(note: string): ReactNode[] {
+  const parts = note.split("`");
+  if (parts.length < 3) return [note];
+  const closed = parts.length % 2 === 1 ? parts : [...parts.slice(0, -2), `${parts.at(-2)}\`${parts.at(-1)}`];
+  return closed.map((part, index) =>
+    index % 2 === 1 ? (
+      <code key={index} className="docs-explorer__code">
+        {part}
+      </code>
+    ) : (
+      part
+    ),
+  );
+}
+
+/** The change kinds in legend order. */
+const LEGEND_ORDER: readonly FileTreeChange[] = ["added", "modified", "renamed", "removed"];
+
+/** Every change kind the tree holds, so the key and the gutter belong to the whole tree. */
+function changesIn(nodes: Iterable<FileTreeNode>, found: Set<FileTreeChange>): Set<FileTreeChange> {
+  for (const node of nodes) {
+    if (node.change) found.add(node.change);
+    changesIn(node.children.values(), found);
+  }
+  return found;
+}
+
+/**
+ * The key under the rows: each change kind the tree holds, as its gutter
+ * glyph and its word, so the glyphs read without color or prior knowledge.
+ */
+function ChangeLegend({ changes }: { changes: ReadonlySet<FileTreeChange> }) {
+  return (
+    <div className="docs-explorer__legend" aria-hidden="true">
+      {LEGEND_ORDER.filter((change) => changes.has(change)).map((change) => (
+        <span key={change} className="docs-explorer__key" data-change={change}>
+          <span className="docs-explorer__glyph">{TREE_CHANGE_GLYPH[change]}</span>
+          {change}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * The explorer's own rules over the shared row sheet, scoped to its kind.
+ * A group color marks the icons of its band, and names keep the neutral ink,
+ * so a colored name never reads as a change.
+ */
+const EXPLORER_CSS = `
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color-head]:not([data-change]) .docs-tree__name { color: var(--tr-file-fg); }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color-head]:not([data-change]) .docs-tree__name[data-dir] { color: var(--tr-folder-fg); }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color] .docs-tree__icon { color: var(--tr-grp); }
+/* a group color also runs as a strip down the left edge of its rows, apart from the change signal */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color]::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0;
+  width: var(--ds-border-width-rail); background: var(--tr-grp);
+}
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color]:not([data-change]) .docs-tree__icon svg { fill: color-mix(in srgb, currentColor 35%, transparent); }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__icon { color: var(--tr-chg); }
+/* a changed name mixes its change hue with the row ink, so it reads clearly over its own tint */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__name { color: color-mix(in srgb, var(--tr-chg-name) 55%, var(--tr-ink)); }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__name[data-dir] { font-weight: var(--ds-font-weight-semibold); }
+/* a wrapped note balances its lines, so no word sits alone on the last one */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__note {
+  text-wrap: pretty;
+  padding-left: var(--ds-space-4);
+  /* notes sit nearer the name ink than the shared muted note color, so they hold up on the dark panel */
+  color: color-mix(in srgb, var(--tr-note-fg, #666562) 75%, var(--tr-ink, #1f1f1f));
+}
+.docs-explorer__code {
+  font: var(--ds-font-weight-regular) 0.92em var(--tr-mono);
+  color: inherit;
+  background: none; border: 0; padding: 0;
+}
+.docs-explorer__legend {
+  display: flex; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-4);
+  padding: var(--ds-space-1-5) var(--tr-pad-x, 12px);
+  border-top: var(--tr-border-width, 1px) solid var(--docs-rule-soft, #efeeec);
+  font: var(--ds-font-weight-regular) var(--ds-font-size-ui-xs) / var(--ds-line-height-tight) var(--tr-mono);
+  color: var(--tr-muted, #666562);
+}
+.docs-explorer__key { display: inline-flex; align-items: baseline; gap: var(--ds-space-1-5); }
+.docs-explorer__glyph { font-weight: var(--ds-font-weight-medium); }
+.docs-explorer__key[data-change="added"] .docs-explorer__glyph { color: var(--tr-added-fg); }
+.docs-explorer__key[data-change="removed"] .docs-explorer__glyph { color: var(--tr-removed-fg); }
+.docs-explorer__key[data-change="modified"] .docs-explorer__glyph { color: var(--tr-modified-fg); }
+.docs-explorer__key[data-change="renamed"] .docs-explorer__glyph { color: var(--tr-renamed-fg); }
+`;
+
+/** One row: gutter glyph, guides, twisty, icon, name or compacted chain, and note. */
 function ExplorerRowView({
   row,
   diff,
@@ -95,7 +222,10 @@ function ExplorerRowView({
   onToggle: (path: string) => void;
 }) {
   const { node, names } = row;
-  const folder = node.isDir
+  const change = rowChange(node);
+  // An empty folder has nothing to fold, so it gets no twisty and no toggle.
+  const foldable = node.isDir && node.children.size > 0;
+  const folder = foldable
     ? {
         tabIndex: 0,
         "aria-expanded": open,
@@ -115,18 +245,18 @@ function ExplorerRowView({
       aria-level={row.depth + 1}
       data-docs-file-tree-entry={node.entryPath ?? (node.isDir ? `${node.path}/` : node.path)}
       data-docs-file-tree-change={node.change}
-      data-change={node.change}
+      data-change={change}
       {...colorAttrs(row.scope, row.head, seam)}
       {...folder}
     >
-      {diff && <TreeMark change={node.change} />}
+      {diff && <TreeMark change={change} />}
       <span
         className={node.note ? "docs-tree__path" : "docs-tree__path docs-tree__path--span"}
         style={depthStyle(row.depth)}
       >
         <TreeGuides guides={pipeGuides(row.depth)} />
         <span className="docs-tree__twisty" aria-hidden="true">
-          {node.isDir ? (open ? TREE_ICONS.chevronDown : TREE_ICONS.chevronRight) : null}
+          {foldable ? (open ? TREE_ICONS.chevronDown : TREE_ICONS.chevronRight) : null}
         </span>
         <span className="docs-tree__icon" aria-hidden="true">
           {node.isDir ? TREE_ICONS.folder : TREE_ICONS.file}
@@ -141,7 +271,7 @@ function ExplorerRowView({
           ))}
         </span>
       </span>
-      {node.note && <span className="docs-tree__note">{node.note}</span>}
+      {node.note && <span className="docs-tree__note">{noteSpans(node.note)}</span>}
     </div>
   );
 }
@@ -168,11 +298,12 @@ export function FileExplorer({
   const [expanded, setExpanded] = useState(false);
   const limit = maxRows && maxRows > 0 ? maxRows : DEFAULT_EXPLORER_MAX_ROWS;
   const rows = explorerRows(roots.values(), 0, undefined, collapsed, []);
-  const folds = rows.length > limit;
+  const folds = rows.length - limit >= MIN_FOLDED_ROWS;
   const visible = folds && !expanded ? rows.slice(0, limit) : rows;
   const seams = colorSeams(visible.map((row) => row.scope));
   // The gutter belongs to the whole tree, so folding never shifts the rows.
-  const diff = treeHasChange(roots.values());
+  const changes = changesIn(roots.values(), new Set());
+  const diff = changes.size > 0;
 
   const toggle = (path: string) =>
     setCollapsed((previous) => {
@@ -185,6 +316,7 @@ export function FileExplorer({
   return (
     <>
       <TreeStyle />
+      <style>{EXPLORER_CSS}</style>
       <figure className="docs-tree" data-tree-kind="file-explorer" data-docs-file-explorer="" data-code-surface="true" style={FILE_TREE_VARS}>
         {title ? <TreeHead icon={TREE_ICONS.folder} title={title} /> : null}
         <div className="docs-tree__rows" onMouseOver={onColorGroupHover} onMouseLeave={onColorGroupHover} role="tree" aria-label={title ?? "Files"} data-diff={diff ? "" : undefined}>
@@ -212,9 +344,10 @@ export function FileExplorer({
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? TREE_ICONS.chevronUp : TREE_ICONS.chevronDown}
-            <span>{expanded ? `Show first ${limit} rows` : `Show all ${rows.length} rows`}</span>
+            <span>{expanded ? `Show first ${limit} rows` : `Show ${rows.length - limit} more ${rows.length - limit === 1 ? "row" : "rows"}`}</span>
           </button>
         )}
+        {diff && <ChangeLegend changes={changes} />}
       </figure>
     </>
   );

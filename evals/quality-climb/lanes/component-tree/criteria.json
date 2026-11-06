@@ -1,0 +1,8 @@
+[
+  {"id": "render-nesting", "group": "Meaning", "question": "Is every row nested under the component or branch that renders or calls it in the source, with siblings in the order the source renders them, and no sibling drawn as a child or child as a sibling?"},
+  {"id": "branch-conditions", "group": "Meaning", "question": "Does every conditional render inside the tree's scope appear as a ? branch row whose text is the source's real condition, with each arm of an if/else or ternary as its own branch, only that arm's rows under it, and no unconditional render shown as a branch?"},
+  {"id": "scope-and-depth", "group": "Meaning", "question": "Does the tree start at the root the brief names, expand each path to the leaves the brief asks for, and stop before subtrees, intrinsic wrappers and hooks the brief does not ask about?"},
+  {"id": "source-to-render-site", "group": "Meaning", "question": "Does the source on each component and hook row point to the line in its parent that renders or calls it, with the root pointing to its own definition?"},
+  {"id": "row-code-form", "group": "Writing", "question": "Is each component row real JSX, such as <Name prop={value} />, and each hook row a call such as useX(), with props kept only where they explain composition, an ellipsis where a value is omitted, and no prose, pseudo-syntax or invented name in the row text?"},
+  {"id": "comment-value", "group": "Writing", "question": "Does each comment say what its row draws or decides for the reader, in a few words the row's code does not already give, with a comment on each row whose purpose the name alone does not show and none that repeats the name or narrates implementation steps?"}
+]

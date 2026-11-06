@@ -119,6 +119,36 @@ export function buildFileTree(entries: FileTreeEntry[]): {
 }
 
 /**
+ * A folder merges into its only child when the child is a folder with no
+ * change and the folder carries no note, change or color of its own. The
+ * agent projection (docs-model `projectFileTree`) merges by the same rule.
+ */
+function mergesIntoChild(node: FileTreeNode): FileTreeNode | undefined {
+  if (!node.isDir || node.children.size !== 1) return undefined;
+  if (node.note !== undefined || node.change !== undefined || node.color !== undefined) return undefined;
+  const [child] = node.children.values();
+  return child && child.isDir && child.change === undefined ? child : undefined;
+}
+
+/**
+ * Compact folders: each chain of single-child folders becomes one row named
+ * by the joined path (`packages/docs-model/src/`), the way an editor's
+ * compact-folders view draws it. The merged row takes the deepest folder's
+ * path, note, color and children.
+ */
+export function compactFileTree(nodes: Map<string, FileTreeNode>): Map<string, FileTreeNode> {
+  const out = new Map<string, FileTreeNode>();
+  for (const node of nodes.values()) {
+    let merged = node;
+    for (let child = mergesIntoChild(merged); child; child = mergesIntoChild(merged)) {
+      merged = { ...child, name: `${merged.name}/${child.name}` };
+    }
+    out.set(merged.name, { ...merged, children: compactFileTree(merged.children) });
+  }
+  return out;
+}
+
+/**
  * The old path of a rename as seen from the new name's folder: a rename in
  * place shows the old basename (`render.ts`), a move shows the way back
  * (`../waterfall/lib.ts`). Both paths are root-relative.
@@ -144,9 +174,11 @@ export function relativeFromPath(from: string, to: string): string {
  * so the read surface and the agent projection agree on ordering.
  */
 export function sortFileTreeNodes(nodes: Iterable<FileTreeNode>): FileTreeNode[] {
+  // A compacted row sorts by its first folder, as the projection sorts the folder before it merges.
+  const key = (node: FileTreeNode) => node.name.split("/")[0]!;
   return Array.from(nodes).sort((a, b) => {
     if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
-    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    return key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0;
   });
 }
 

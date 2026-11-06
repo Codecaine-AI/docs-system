@@ -237,6 +237,7 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   rootTextSize: "Root text size",
   rootWeight: "Root weight",
   branchWeight: "Sublayer 1 weight",
+  groupWeight: "Nested group weight",
   stepWeight: "Sublayer weight",
   emptyTextSize: "Empty text size",
   noteTextSize: "Note text size",

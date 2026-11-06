@@ -2743,7 +2743,7 @@ describe("style rail file-tree tokens", () => {
     },
   } as const;
   const FILE_TREE_NUMBERS = {
-    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
+    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 600 },
     fileWeight: { cssVar: "--docs-file-tree-file-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
     changeTint: { cssVar: "--docs-file-tree-change-tint", min: 0, max: 100, step: 1, defaultValue: 8 },
   } as const;
@@ -3934,7 +3934,7 @@ describe("style rail process-outline tokens", () => {
     emptyTextSize: ["empty-text-size", 12, 18, 0.5, 12],
     noteTextSize: ["note-text-size", 12, 18, 0.5, 13.5],
     noteLineHeight: ["note-line-height", 12, 32, 1, 21],
-    noteInset: ["note-inset", 0, 40, 1, 0],
+    noteInset: ["note-inset", 0, 40, 1, 12],
     noteBorderWidth: ["note-border-width", 0, 4, 0.5, 0],
     noteRuleWidth: ["note-rule-width", 0, 6, 0.5, 0],
     notePadY: ["note-pad-y", 0, 16, 1, 2],
@@ -3948,7 +3948,8 @@ describe("style rail process-outline tokens", () => {
   /** Weights and unitless percentage strengths: key -> [var suffix, min, max, step, default]. */
   const NUMBERS: Record<string, [string, number, number, number, number]> = {
     rootWeight: ["root-weight", 300, 900, 50, 600],
-    branchWeight: ["branch-weight", 300, 900, 50, 600],
+    branchWeight: ["branch-weight", 300, 900, 50, 700],
+    groupWeight: ["group-weight", 300, 900, 50, 500],
     stepWeight: ["step-weight", 300, 900, 50, 400],
     keywordWeight: ["keyword-weight", 300, 900, 50, 500],
     noteAccent: ["note-accent", 0, 100, 5, 0],
@@ -4596,7 +4597,7 @@ describe("style rail rich-text block tokens", () => {
           fallback: RADIUS_FALLBACK,
         },
         padX: { cssVar: "--docs-callout-pad-x", min: 0, max: 40, step: 1, defaultValue: 14 },
-        padY: { cssVar: "--docs-callout-pad-y", min: 0, max: 32, step: 1, defaultValue: 2 },
+        padY: { cssVar: "--docs-callout-pad-y", min: 0, max: 32, step: 1, defaultValue: 12 },
         titleTextSize: {
           cssVar: "--docs-callout-title-text-size",
           min: 10,
@@ -4653,19 +4654,19 @@ describe("style rail rich-text block tokens", () => {
     "--docs-callout-fg": ["var(--docs-text)", "#2a2a2a"],
     "--docs-callout-border": ["var(--docs-rule)", "#e6e5e3"],
     "--docs-callout-info-accent": ["var(--docs-tone-info)", "#0b6e99"],
-    "--docs-callout-info-tint": ["transparent", "transparent"],
+    "--docs-callout-info-tint": ["var(--docs-tone-info-soft)", "#ddebf1"],
     "--docs-callout-info-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-decision-accent": ["var(--docs-tone-decision)", "#6940a5"],
-    "--docs-callout-decision-tint": ["transparent", "transparent"],
+    "--docs-callout-decision-tint": ["var(--docs-tone-decision-soft)", "#eae4f2"],
     "--docs-callout-decision-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-warning-accent": ["var(--docs-tone-warning)", "#9a5b00"],
-    "--docs-callout-warning-tint": ["transparent", "transparent"],
+    "--docs-callout-warning-tint": ["var(--docs-tone-warning-soft)", "#fbf3db"],
     "--docs-callout-warning-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-risk-accent": ["var(--docs-tone-risk)", "#c62121"],
-    "--docs-callout-risk-tint": ["transparent", "transparent"],
+    "--docs-callout-risk-tint": ["var(--docs-tone-risk-soft)", "#fbe4e4"],
     "--docs-callout-risk-title-fg": ["var(--docs-ink)", "#1f1f1f"],
     "--docs-callout-success-accent": ["var(--docs-tone-success)", "#26744f"],
-    "--docs-callout-success-tint": ["transparent", "transparent"],
+    "--docs-callout-success-tint": ["var(--docs-tone-success-soft)", "#e2efe6"],
     "--docs-callout-success-title-fg": ["var(--docs-ink)", "#1f1f1f"],
   };
   const LABELS: Record<string, string> = {
