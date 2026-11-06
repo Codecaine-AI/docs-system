@@ -197,7 +197,7 @@
           }
         },
         {
-          "insert": " accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can add a fill or a frame to every variant with the tint and hairline knobs."
+          "insert": " accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can clear the fill or add a frame to every variant with the tint and hairline knobs."
         }
       ],
       "children": []
@@ -266,7 +266,7 @@
       },
       "text": [
         {
-          "insert": "Set the tint and hairline knobs in the theme to add a fill or a frame to every callout."
+          "insert": "Set the tint and hairline knobs in the theme to change the fill or add a frame on every callout."
         }
       ],
       "children": []
@@ -467,7 +467,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default."
+          "insert": "Every callout is one rail note: a 3px left rail in the tone color over the tone's soft fill, with no frame by default."
         }
       ],
       "children": []
@@ -964,7 +964,7 @@
           [
             "<tone>Tint",
             "--docs-callout-<tone>-tint",
-            "Fill behind the note, transparent by default"
+            "Fill behind the note, the tone's soft color by default"
           ],
           [
             "<tone>TitleFg",
@@ -994,7 +994,7 @@
           [
             "padY",
             "--docs-callout-pad-y",
-            "Vertical padding, 2px by default"
+            "Vertical padding, 12px by default"
           ],
           [
             "titleTextSize",
