@@ -95,3 +95,51 @@ export const interactionSurfaceExampleMissingRule: LintRule = {
     });
   },
 };
+
+const PRIMITIVE_TYPE = /^(?:string|number|boolean|bigint|true|false|null|undefined|void|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*')(?:\s*\|\s*(?:string|number|boolean|bigint|true|false|null|undefined|-?\d+(?:\.\d+)?|"[^"]*"|'[^']*'))*$/;
+
+/**
+ * A param or returned field is one key of the object a caller passes or gets back. Rounds 4 and 5 of the
+ * interaction-surface quality climb wrote union branches as made-up fields, such as `open: true` with the
+ * branch's fields nested under it and `unchanged state: DocPeekState`, and every judge read them as wrong shapes.
+ * The rule flags a field name with a space or a colon outside quotes, and nested fields under a primitive or
+ * literal type, which has no fields.
+ */
+export const interactionSurfaceFieldShapeRule: LintRule = {
+  id: "interaction-surface.field-shape",
+  docsPath: "10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface",
+  severity: "warning",
+  enforcement: [],
+  applicability: "Each param and returned field of an Interaction Surface operation, at every depth.",
+  exclusions: ["A quoted key, such as \"content-type\""],
+  suggestion: "Name each field by its real key and nest fields only under an object type. For a result with more than one shape, keep its fields flat, type the key field with its literal values, and start each branch-only field description with its branch, such as Only when ok is true.",
+  check({ blocks }) {
+    type RawField = { name?: unknown; type?: unknown; fields?: unknown };
+    const walk = (fields: unknown, path: string): { field: string; evidence: string; message: string }[] => {
+      if (!Array.isArray(fields)) return [];
+      return fields.flatMap((raw: unknown, index: number) => {
+        if (!raw || typeof raw !== "object") return [];
+        const { name, type, fields: nested } = raw as RawField;
+        const at = `${path}[${index}]`;
+        const out: { field: string; evidence: string; message: string }[] = [];
+        if (typeof name === "string" && /[\s:]/.test(name.replace(/"[^"]*"|'[^']*'/g, ""))) {
+          out.push({ field: `${at}.name`, evidence: name, message: `The field name "${name}" is not a key. Name the field by its real key.` });
+        }
+        if (Array.isArray(nested) && nested.length > 0 && typeof type === "string" && PRIMITIVE_TYPE.test(type.trim())) {
+          out.push({ field: `${at}.fields`, evidence: `${String(name)}: ${type}`, message: `${String(name)} has type ${type}, which has no fields, but lists nested fields.` });
+        }
+        return [...out, ...walk(nested, `${at}.fields`)];
+      });
+    };
+    return blocks.flatMap((block) => {
+      if (block.type !== "interaction-surface" || !Array.isArray(block.props.operations)) return [];
+      return block.props.operations.flatMap((operation: unknown, index: number) => {
+        if (!operation || typeof operation !== "object") return [];
+        const { params, returnShape } = operation as { params?: unknown; returnShape?: { fields?: unknown } };
+        const base = `props.operations[${index}]`;
+        return [...walk(params, `${base}.params`), ...walk(returnShape && typeof returnShape === "object" ? returnShape.fields : undefined, `${base}.returnShape.fields`)]
+          .map((finding) => ({ blockId: block.id, ...finding }));
+      });
+    });
+  },
+};
