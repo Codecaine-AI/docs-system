@@ -66,7 +66,7 @@ const STACK_STYLE = `
 [data-stack-detail][data-mono]>[data-stack-detail-line]:not([data-prose]){color:var(--stack-muted)}
 [data-stack-detail-line][data-prose]{font-family:var(--stack-sans);font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui)}
 [data-stack-name][data-prose]{font-family:var(--stack-sans)}
-[data-stack-code]{font-family:var(--stack-mono);font-size:.9em;white-space:nowrap}
+[data-stack-code]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);white-space:nowrap}
 [data-stack-nowrap]{white-space:nowrap}
 [data-stack-uses],[data-stack-boundary]{position:relative;min-width:0}
 [data-stack-uses]{display:flex;align-items:center;min-height:var(--ds-space-5);padding-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}

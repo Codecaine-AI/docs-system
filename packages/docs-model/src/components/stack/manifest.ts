@@ -15,8 +15,8 @@ export const manifest: ComponentManifest = {
       "When the sources state a rule but no import or call, such as a path check that a value must pass, draw no arrow and write the rule as a boundary. " +
       "Give each line between two sibling layers a boundary when the sources hold a rule for it. " +
       "A boundary states a restriction or a required interface, such as \"docs-viewer never imports host-app code\" or \"data enters only through `DocsClient`\". It never describes what a layer outputs. " +
-      "Put each rule beneath the layer whose code enforces it. Name the check, the function that runs it, and what a refused value becomes. A rule never only names a kind of check, such as \"Lexical checks\". " +
-      "Give each detail a fact that the name, the arrow label and the rule do not state. Start it with the layer's file path when it has one, then name the exports that the layer above calls. " +
+      "Put each rule beneath the layer whose code enforces it. Name the check, the function that runs it, and what a refused value becomes. Name each exception the source makes, such as the tools that skip the check. A rule never only names a kind of check, such as \"Lexical checks\". " +
+      "Give each detail a fact that the name, the arrow label and the rule do not state. Write it as segments split by ` · `: the layer's file path first when it has one, then the exports that the layer above calls. " +
       "A badge is one role word that is not in the name, such as `pure` or `host`. Put a file path in the detail, never in the badge. " +
       "Wrap each code name in a detail or a rule in backticks, such as `checkDocsPath`, so the stack sets it in the code face. " +
       "Give a leaf a color only when the page says what the color marks. " +
