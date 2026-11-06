@@ -83,6 +83,21 @@ describe("layout.stack-detail-fit", () => {
     })]);
   });
 
+  test("the body line of a path detail wraps at the path cap, since both lines share the code-face parent", () => {
+    const tail = textNear(490, 5);
+    const block = stack([{ name: "Leaf", detail: `\`src/a.ts\` · ${tail}` }]);
+    expect(stackDetailLines(block, 1100).map((line) => [line.path, line.availablePx])).toEqual([[true, 468], [false, 468]]);
+    expect(check(block).map((finding) => finding.message)).toEqual([expect.stringContaining("wrap at 468px")]);
+  });
+
+  test("a code span wider than its card overflows sideways, since a code span never breaks", () => {
+    const span = "createInteractionServiceForEveryWorkspaceRoot";
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `calls \`${span}\` first` }, { name: "Other" }] }, { name: "Side" }] }]);
+    const [finding] = check(block);
+    expect(finding!.message).toContain(`("${span.slice(0, 39)}…")`);
+    expect(finding!.message).toEndWith("so it overflows sideways.");
+  });
+
   test("two-column containers can leave a card narrower than the cap", () => {
     // Wide lane 1100px, less 26px per container frame, halved per two-column body, less the card's 26px.
     const inner = (1100 - 26 - 12) / 2;

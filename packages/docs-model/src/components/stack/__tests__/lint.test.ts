@@ -15,6 +15,9 @@ describe("stack.badge-repeats-name", () => {
     ["docs-model", "docs model", true],
     ["docs-model", "pure", false],
     ["Docs-root chokepoint", "safe-path.ts", false],
+    ["Réacteur", "acteur", false],
+    ["Сервер документов", "сервер", true],
+    ["文档 服务", "文档", true],
   ])("a node named %p with badge %p is flagged: %p", (name, badge, flagged) => {
     expect(badgeFindings([{ name, badge }])).toEqual(flagged ? ["props.nodes[0].badge"] : []);
   });

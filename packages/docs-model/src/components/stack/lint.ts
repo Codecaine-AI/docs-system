@@ -1,7 +1,7 @@
 import type { LintRule } from "../../lint/types";
 import { readStack, type StackNode } from "./state";
 
-const words = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+const words = (text: string) => text.toLocaleLowerCase().split(/[^\p{L}\p{N}]+/u).filter(Boolean);
 
 /** True when every word of the badge is already a word of the node name, such as `host` on "Host app". */
 export function badgeRepeatsName(node: StackNode): boolean {

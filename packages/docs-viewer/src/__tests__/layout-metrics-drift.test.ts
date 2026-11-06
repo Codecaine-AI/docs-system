@@ -352,6 +352,7 @@ describe("stack", () => {
       "font-weight": `${m.nameWeight}`,
     });
     expect(declarations(css, "[data-stack-role]")["font-size"]).toBe(`${m.roleFontSizePx}px`);
+    expect(declarations(css, "[data-stack-code]")["font-size"]).toBe(`${m.codeSpanFontSizePx}px`);
     expect(declarations(css, "[data-stack-box]")).toMatchObject({
       padding: `${m.boxPadYPx}px ${m.boxPadXPx}px`,
       border: expect.stringMatching(new RegExp(`^${m.boxBorderPx}px solid `)),
@@ -388,7 +389,7 @@ describe("stack", () => {
     expect(rendered.hasAttribute("data-mono")).toBe(path);
     if (path) {
       expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => ({ text: line.textContent, path: !line.hasAttribute("data-prose") })))
-        .toEqual(stackDetailLayout(detail));
+        .toEqual(stackDetailLayout(detail).map(({ text, path }) => ({ text, path })));
     } else {
       expect(rendered.textContent).toBe(stackDetailSegments(detail).join(m.proseDetailJoiner));
     }

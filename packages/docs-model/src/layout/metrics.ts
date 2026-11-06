@@ -278,6 +278,8 @@ export const STACK_METRICS = {
   detailMaxCh: 60,
   pathDetailFontSizePx: 13,
   pathDetailLineHeight: 1.6,
+  /** A backtick code span in a body line or a rule: code font at 13px. */
+  codeSpanFontSizePx: 13,
   /** Leaf name: code font (sans when it is prose), weight 600. */
   nameFontSizePx: 14,
   nameWeight: 600,
@@ -325,17 +327,23 @@ export function stackDetailRawSegments(detail: string): string[] {
 /**
  * The lines a stack leaf detail draws. A detail that is not a path joins its segments with ", " on one line.
  * In a path detail, each bare path segment (no space, such as `src/rules/index.ts`) gets its own code-face
- * line, and the other segments join with ", " on one line after them, in the body face.
+ * line, and the other segments join with ", " on one line after them, in the body face. `text` is what the
+ * line shows, and `raw` keeps the backticks that mark its code spans.
  */
-export function stackDetailLayout(detail: string): { text: string; path: boolean }[] {
-  const segments = stackDetailSegments(detail);
+export function stackDetailLayout(detail: string): { text: string; raw: string; path: boolean }[] {
+  const segments = stackDetailRawSegments(detail);
+  const strip = (text: string) => text.replace(/`/g, "");
+  const joined = (list: string[]) => {
+    const raw = list.join(STACK_METRICS.proseDetailJoiner);
+    return { text: strip(raw), raw, path: false };
+  };
   // Backticks mark code spans, so a detail wrapped in them is not a quoted string.
-  if (chipKind(detail.replace(/`/g, "")) !== "path") return [{ text: segments.join(STACK_METRICS.proseDetailJoiner), path: false }];
-  const isPath = (segment: string) => !/\s/.test(segment) && chipKind(segment) === "path";
+  if (chipKind(strip(detail)) !== "path") return [joined(segments)];
+  const isPath = (segment: string) => !/\s/.test(segment) && chipKind(strip(segment)) === "path";
   const rest = segments.filter((segment) => !isPath(segment));
   return [
-    ...segments.filter(isPath).map((text) => ({ text, path: true })),
-    ...(rest.length > 0 ? [{ text: rest.join(STACK_METRICS.proseDetailJoiner), path: false }] : []),
+    ...segments.filter(isPath).map((segment) => ({ text: strip(segment), raw: segment, path: true })),
+    ...(rest.length > 0 ? [joined(rest)] : []),
   ];
 }
 
