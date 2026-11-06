@@ -251,6 +251,8 @@ export const TABLE_METRICS = {
   proseMeasureCh: 60,
   /** A text column whose longest body cell is over this many characters wraps. */
   wrapThresholdChars: 24,
+  /** On screen, a code chip in a cell up to this many characters long never breaks, not even at a space. */
+  wholeChipMaxChars: 40,
 } as const;
 
 /** The prose measure in px at the stock cell size: 506.25. */

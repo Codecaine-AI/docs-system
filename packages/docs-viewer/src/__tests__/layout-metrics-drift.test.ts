@@ -60,7 +60,7 @@ import {
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_WRAPPER_CLASSES,
 } from "../components/structured-table/table-classes";
-import { WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
+import { WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
 import { tableCellKinds } from "../components/structured-table/cell-kind";
 import { liftBacktickCode } from "../components/structured-table/cell-code";
 import { chipKind } from "../components/typed-chip";
@@ -228,6 +228,7 @@ describe("structured table", () => {
     expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
+    expect(WHOLE_CHIP_MAX_CHARS).toBe(m.wholeChipMaxChars);
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("whitespace-nowrap");
     // Print CSS resets white-space on th/td only, so every inline element in a fit column stays nowrap in a PDF.
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("**:whitespace-nowrap");

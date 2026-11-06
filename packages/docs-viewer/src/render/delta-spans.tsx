@@ -13,6 +13,9 @@ import {
 import { chipKind } from "../components/typed-chip";
 import { chipBreaks } from "../components/mono-breaks";
 
+/** A whole chip stays on one line on screen. Print CSS wraps code anywhere, so print lets it wrap. */
+const WHOLE_CHIP_CLASSES = "whitespace-nowrap print:whitespace-normal";
+
 /**
  * The class string and `data-chip-kind` for one inline code chip holding
  * `text` — shared by every renderer that emits a chip (delta spans here, the
@@ -42,15 +45,23 @@ export function inlineCodeChipProps(text: string): { className: string; "data-ch
  * underlined, a doc reference is a sans link on a dotted underline, and a
  * source reference is a mono link on a hairline rule.
  */
-export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
+export function renderDeltaSpans(
+  text: DeltaSpan[] | undefined,
+  options?: { wholeChipMaxChars?: number },
+): ReactNode {
   if (!text || text.length === 0) return null;
   return text.map((span, index) => {
     let node: ReactNode = span.insert;
     const attrs = span.attributes;
     if (attrs) {
       if (attrs.code) {
-        // Pieces, so the chip never breaks mid-token (mono-breaks.tsx chipBreaks).
-        node = <code {...inlineCodeChipProps(span.insert)}>{chipBreaks(span.insert)}</code>;
+        const chip = inlineCodeChipProps(span.insert);
+        // A chip up to `wholeChipMaxChars` long never breaks on screen, not even at its spaces
+        // (structured-table cells). Any other chip renders as pieces, so it never breaks mid-token
+        // (mono-breaks.tsx chipBreaks).
+        node = options?.wholeChipMaxChars !== undefined && span.insert.length <= options.wholeChipMaxChars
+          ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{span.insert}</code>
+          : <code {...chip}>{chipBreaks(span.insert)}</code>;
       }
       if (attrs.bold) node = <strong>{node}</strong>;
       if (attrs.italic) node = <em>{node}</em>;

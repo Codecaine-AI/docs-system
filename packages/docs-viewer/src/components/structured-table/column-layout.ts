@@ -32,6 +32,9 @@ export type TableColumnFit = "fit" | "prose" | "wrap";
  */
 export const WRAP_THRESHOLD = 24;
 
+/** A code chip in a cell up to this many characters long never breaks on screen (cell-render.tsx). */
+export const WHOLE_CHIP_MAX_CHARS = 40;
+
 export function tableColumnFits(
   rows: readonly (readonly TableCell[])[],
   columnCount: number,

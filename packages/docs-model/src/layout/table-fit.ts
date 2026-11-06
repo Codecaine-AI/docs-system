@@ -23,8 +23,9 @@ import { liftBacktickCode, tableCellKinds, tableColumnFits, type TableCellKind, 
  *
  * On screen the table uses automatic layout. A column never gets narrower
  * than its widest cell's unbreakable content. A fit column or an identifier
- * cell never wraps its text, so the whole text counts, though a code chip
- * still breaks at its `<wbr>`. A prose or wrap column breaks between words,
+ * cell never wraps its text, so the whole text counts, though a long code
+ * chip still breaks at its `<wbr>`. A chip of up to wholeChipMaxChars
+ * characters never breaks. A prose or wrap column breaks between words,
  * so its longest word or code piece counts. When those minimums add up to
  * more than the table's width, the frame scrolls sideways.
  *
@@ -95,11 +96,12 @@ function chipOn(sizePx: number, identifier: boolean): InlineContext["chip"] {
 
 /** How a cell paints on screen: its font, its chips, and whether it wraps. */
 function screenContext(row: TableCellRow, kind: TableCellKind | undefined, fit: TableColumnFit): InlineContext {
+  const whole = { wholeChipMaxChars: m.wholeChipMaxChars };
   if (row === "header") {
-    return { font: sansFont(m.headerFontSizePx, m.headerWeight), chip: chipOn(m.headerFontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+    return { ...whole, font: sansFont(m.headerFontSizePx, m.headerWeight), chip: chipOn(m.headerFontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
   }
-  if (kind) return { font: codeFont(m.identifierFontSizePx), chip: chipOn(m.identifierFontSizePx, true), wrap: "nowrap" };
-  return { font: sansFont(m.fontSizePx, m.bodyWeight), chip: chipOn(m.fontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+  if (kind) return { ...whole, font: codeFont(m.identifierFontSizePx), chip: chipOn(m.identifierFontSizePx, true), wrap: "nowrap" };
+  return { ...whole, font: sansFont(m.fontSizePx, m.bodyWeight), chip: chipOn(m.fontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
 }
 
 /** How a cell paints in PDF export: print CSS wraps cells anywhere and sets code to 9pt. */

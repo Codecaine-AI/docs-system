@@ -109,8 +109,8 @@ describe("layout.table-fit on screen", () => {
     expect(check(document(block))[0]!.message).toContain("scrolls sideways on screen");
   });
 
-  test("a code span breaks only between its pieces, each padded on both sides", () => {
-    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src"), { insert: " for the reader." }]]]);
+  test("a code span over 40 characters breaks only between its pieces, each padded on both sides", () => {
+    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src/components"), { insert: " for the reader." }]]]);
     const { columns } = structuredTableWidths(block, 688)!;
     const chip = 13.5 * 0.85;
     // The chip breaks at the <wbr> after its first piece, so that piece carries a third padding (Chromium's min-content).
@@ -118,8 +118,13 @@ describe("layout.table-fit on screen", () => {
     expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(chip)) + 3 * chip * 0.35, 6);
   });
 
-  test("identifier cells never wrap their text, but a path still breaks at its pieces", () => {
-    const block = table("t", ["Path", "Notes"], [[[code("packages/docs-viewer/src/components")], "x"], [[code("headerRuleWidthTokenWithALongName")], "y"]]);
+  test("a code span of up to 40 characters never breaks, not even at a space", () => {
+    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "Pass " }, code("--root <path>"), { insert: " to export another folder of docs." }]]]);
+    expect(structuredTableWidths(block, 688)!.columns[1]!.widest.measured.text).toBe("--root <path>");
+  });
+
+  test("identifier cells never wrap their text, but a path over 40 characters still breaks at its pieces", () => {
+    const block = table("t", ["Path", "Notes"], [[[code("packages/docs-viewer/src/components/structured")], "x"], [[code("headerRuleWidthTokenWithALongName")], "y"]]);
     const { columns } = structuredTableWidths(block, 688)!;
     expect(columns[0]!.widest.identifier).toBe(true);
     expect(columns[0]!.widest.measured.text).toBe("headerRuleWidthTokenWithALongName");
