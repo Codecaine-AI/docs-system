@@ -338,7 +338,8 @@ describe("StateShapeBlock — plain reference panel", () => {
       "--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))",
       "--fl-type-string:var(--syntax-string,#ce9178)",
       "--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562))",
-      "--fl-name-w:var(--docs-shape-name-width,24ch)",
+      // The name column fits the longest name, capped by the shared knob.
+      "--fl-name-w:min(var(--docs-shape-name-width,24ch),var(--shape-name-fit,24ch))",
       "--fl-pad-x:var(--docs-shape-pad-x,16px)",
       "--fl-row-min-h:var(--docs-shape-row-min-height,28px)",
       "--fl-indent:var(--docs-shape-indent,16px)",
@@ -496,5 +497,28 @@ describe("state-shape descriptor", () => {
     render(<>{node}</>);
     expect(document.querySelector("[data-shape-tree]")).not.toBeNull();
     expect(document.querySelector("[data-shape-example]")).toBeNull();
+  });
+});
+
+describe("StateShapeBlock — name column fit", () => {
+  const shapeStyle = (fields: Field[]) => {
+    render(<StateShapeBlock id="fit" name="Fit" fields={fields} />);
+    return (document.querySelector('[data-docs-block-type="state-shape"]') as HTMLElement).style.getPropertyValue("--shape-name-fit");
+  };
+
+  it("gives short names a narrow column, so the type and description get the space", () => {
+    expect(shapeStyle([{ name: "id", type: "number" }, { name: "url", type: "string" }])).toBe("10ch");
+  });
+
+  it("widens the column for a long or nested name, up to the shared 24ch column", () => {
+    expect(shapeStyle([{ name: "entries", type: "Entry[]", fields: [{ name: "packageRoot", type: "string", required: false }] }])).toBe("16ch");
+    cleanup();
+    expect(shapeStyle([{ name: "aVeryLongFieldNameThatPassesTheCap", type: "string" }])).toBe("24ch");
+  });
+
+  it("keeps a string literal of a union type on one line", () => {
+    render(<StateShapeBlock id="lit" fields={[{ name: "set", type: '"climb" | "held-out"' }]} />);
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}');
+    expect(Array.from(document.querySelectorAll('[data-type-tok="string"]')).map((n) => n.textContent)).toEqual(['"climb"', '"held-out"']);
   });
 });

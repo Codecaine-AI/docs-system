@@ -32,7 +32,7 @@ export type StateShapeSourceProps = { path: string; symbol?: string };
  * ledger (./field-ledger) reads the `--fl-*` locals mapped here.
  */
 export const STATE_SHAPE_STYLE = `
-[data-docs-block-type="state-shape"]{container-type:inline-size;margin:var(--ds-space-4) 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:var(--docs-shape-name-width,24ch);--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
+[data-docs-block-type="state-shape"]{container-type:inline-size;margin:var(--ds-space-4) 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:min(var(--docs-shape-name-width,24ch),var(--shape-name-fit,24ch));--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
 [data-shape-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--docs-shape-header-pad-y,6px) var(--docs-shape-pad-x,16px);background:var(--docs-shape-header-bg,var(--docs-panel,#f8f8f7));border-bottom:var(--docs-shape-header-rule-width,1px) solid var(--docs-shape-header-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-name]{margin:0;min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-shape-header-text-size,13px);font-weight:var(--docs-shape-header-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-shape-header-fg,var(--docs-ink,#1f1f1f));overflow-wrap:normal}
 [data-shape-header]>[data-described]{margin-left:auto;min-width:0}
@@ -46,6 +46,7 @@ export const STATE_SHAPE_STYLE = `
 [data-shape-example-pane]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}
 @container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-shape-grid][data-has-example] [data-shape-example-pane]{border-top:0;border-left:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}}
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
+[data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 `;
 
 /**
@@ -185,6 +186,21 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   return { rows, exampleLines };
 }
 
+/** The name column never shrinks below this many ch, and never grows past the shared ledger's 24ch. */
+const NAME_FIT_MIN_CH = 10;
+const NAME_FIT_MAX_CH = 24;
+/** One nesting step (--docs-shape-indent, 16px) in ch of the 13px mono name font, rounded up. */
+const INDENT_CH = 2.2;
+
+/**
+ * The name column width, in ch, that holds the longest name at its depth with its `?`: a shape with short names
+ * gives the type and description that space instead of an empty 24ch column.
+ */
+export function fitNameColumn(rows: readonly Pick<FieldLedgerRow, "field" | "depth">[]): number {
+  const widest = rows.reduce((max, { field, depth }) => Math.max(max, field.name.length + (field.required === false ? 1.5 : 0) + depth * INDENT_CH), 0);
+  return Math.min(NAME_FIT_MAX_CH, Math.max(NAME_FIT_MIN_CH, Math.ceil(widest + 1)));
+}
+
 const SHAPE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + STATE_SHAPE_STYLE;
 
 export function StateShapeBlock({ id, name, description, source, fields, example }: { id: string; name?: string; description?: string; source?: StateShapeSourceProps; fields: Field[]; example?: string }) {
@@ -194,7 +210,8 @@ export function StateShapeBlock({ id, name, description, source, fields, example
   const sourceShort = source ? `${source.path.slice(source.path.lastIndexOf("/") + 1)}${source.symbol ? `#${source.symbol}` : ""}` : undefined;
   const sourceTipId = useId();
   const label = name ?? sourceRef ?? "State shape";
-  return <section className="not-prose w-full min-w-0" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef} data-code-surface="true">
+  const nameFit = { "--shape-name-fit": `${fitNameColumn(model.rows)}ch` } as CSSProperties;
+  return <section className="not-prose w-full min-w-0" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef} data-code-surface="true" style={nameFit}>
     <style>{SHAPE_SHEET}</style>
     {(name || sourceRef) && <header data-shape-header="true">
       <span data-ref-tile aria-hidden="true"><Braces aria-hidden="true" data-shape-icon="true" /></span>
