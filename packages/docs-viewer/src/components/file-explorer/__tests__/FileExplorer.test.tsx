@@ -56,7 +56,8 @@ describe("file explorer", () => {
     const marks = Array.from(document.querySelectorAll('[role="treeitem"]')).map(
       (row) => row.querySelector(".docs-tree__mark")?.textContent,
     );
-    expect(marks).toEqual(["", "", "+added", "~modified", ">renamed", "", ""]);
+    // actions/ holds only added files, so it is a new folder and shows "+" too.
+    expect(marks).toEqual(["", "+added", "+added", "~modified", ">renamed", "", ""]);
     for (const badge of ["A", "M", "R"]) {
       expect(Array.from(document.querySelectorAll('[role="treeitem"] span')).some((node) => node.textContent === badge)).toBe(false);
     }
@@ -149,5 +150,41 @@ describe("file explorer", () => {
     expect(colorRows()).toEqual(["p blue head", "f blue", "d.ts pink head seam", "r.ts blue seam"]);
     fireEvent.click(folderRow("f"));
     expect(colorRows()).toEqual(["p blue head", "f blue", "r.ts blue"]);
+  });
+
+  it("marks a folder new only when every file under it is new", () => {
+    renderBlock({
+      entries: [
+        { path: "src/fresh/a.ts", change: "added" },
+        { path: "src/fresh/deep/b.ts", change: "added" },
+        { path: "src/mixed/c.ts", change: "added" },
+        { path: "src/mixed/d.ts" },
+      ],
+    });
+    const changeOf = (name: string) =>
+      Array.from(document.querySelectorAll('[role="treeitem"]'))
+        .find((row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === name)
+        ?.getAttribute("data-change");
+    expect(changeOf("fresh")).toBe("added");
+    expect(changeOf("deep")).toBe("added");
+    expect(changeOf("mixed")).toBeNull();
+  });
+
+  it("keys each change kind the tree holds under the rows, and shows no key without a change", () => {
+    renderBlock({ entries: ENTRIES });
+    const keys = Array.from(document.querySelectorAll(".docs-explorer__key")).map((key) => key.textContent);
+    expect(keys).toEqual(["+added", "~modified", ">renamed"]);
+    cleanup();
+    renderBlock({ entries: [{ path: "src/a.ts" }] });
+    expect(document.querySelector(".docs-explorer__legend")).toBeNull();
+  });
+
+  it("gives an empty folder no twisty and no toggle", () => {
+    renderBlock({ entries: [{ path: "out/" }, { path: "src/a.ts" }] });
+    const out = Array.from(document.querySelectorAll('[role="treeitem"]')).find(
+      (row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === "out",
+    )!;
+    expect(out.hasAttribute("aria-expanded")).toBe(false);
+    expect(out.querySelector(".docs-tree__twisty svg")).toBeNull();
   });
 });
