@@ -29,3 +29,12 @@
 .docs-markdown [role="listitem"] [data-docs-block-type="callout"] {
   margin-block: var(--ds-space-2);
 }
+
+/*
+ * A chip in a heading takes the heading's own size, so a heading that is a
+ * package or file name, such as `docs-model`, still reads as a heading and
+ * not as a small inline name.
+ */
+.docs-markdown [data-doc-block="heading"] :is(h1, h2, h3, h4, h5, h6) code[data-chip-kind] {
+  font-size: 1em;
+}

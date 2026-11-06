@@ -45,29 +45,39 @@ export function inlineCodeChipProps(text: string): { className: string; "data-ch
 export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
   if (!text || text.length === 0) return null;
   const spans = text.map((span) => ({ ...span }));
-  return spans.map((span, index) => {
-    const node = markedSpan(span);
-    // Punctuation right after a chip stays on the chip's line (see CHIP_GLUE_PUNCTUATION).
+  // Punctuation next to a chip stays on the chip's line (see CHIP_GLUE_BEFORE and CHIP_GLUE_AFTER).
+  // In reading order, so punctuation between two chips goes to one of them only.
+  const glue = spans.map((span, index) => {
+    if (!span.attributes?.code) return null;
+    const prev = spans[index - 1];
     const next = spans[index + 1];
-    const glue = span.attributes?.code && next && !next.attributes?.code ? CHIP_GLUE_PUNCTUATION.exec(next.insert)?.[0] : undefined;
-    if (!glue || !next) return <Fragment key={index}>{node}</Fragment>;
-    next.insert = next.insert.slice(glue.length);
+    const before = prev && !prev.attributes?.code ? CHIP_GLUE_BEFORE.exec(prev.insert)?.[0] ?? "" : "";
+    const after = next && !next.attributes?.code ? CHIP_GLUE_AFTER.exec(next.insert)?.[0] ?? "" : "";
+    if (before) prev!.insert = prev!.insert.slice(0, -before.length);
+    if (after) next!.insert = next!.insert.slice(after.length);
+    return before || after ? { before, after, prev, next } : null;
+  });
+  return spans.map((span, index) => {
+    const g = glue[index];
+    if (!g) return <Fragment key={index}>{markedSpan(span)}</Fragment>;
     return (
       <span key={index} data-chip-glue="true" className="whitespace-nowrap">
-        {node}
-        {markedSpan({ ...next, insert: glue })}
+        {g.before && markedSpan({ ...g.prev!, insert: g.before })}
+        {markedSpan(span)}
+        {g.after && markedSpan({ ...g.next!, insert: g.after })}
       </span>
     );
   });
 }
 
 /**
- * Punctuation that closes the text before it. A prose chip is an inline-block that moves whole to the next
- * line (styles/rich-text.css), and a browser may break before the comma or period after an inline-block. The
- * renderers wrap a chip and this leading punctuation of the text after it in one nowrap span, so a line never
- * starts with ". The" or ", which".
+ * Punctuation that a chip keeps on its own line. A prose chip is an inline-block that moves whole to the next
+ * line (styles/rich-text.css), and a browser may break between an inline-block and the punctuation beside it.
+ * The renderers wrap a chip, an opening bracket or quote right before it, and closing punctuation right after
+ * it in one nowrap span, so a line never ends with "(" or starts with ". The".
  */
-export const CHIP_GLUE_PUNCTUATION = /^[.,;:!?)\]}"'\u2019\u201d]+/;
+export const CHIP_GLUE_BEFORE = /[(\[{"'\u2018\u201c]+$/;
+export const CHIP_GLUE_AFTER = /^[.,;:!?)\]}"'\u2019\u201d]+/;
 
 /** One span with its marks applied, code innermost. */
 function markedSpan(span: DeltaSpan): ReactNode {

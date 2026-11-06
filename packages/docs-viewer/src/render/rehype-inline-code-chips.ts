@@ -1,4 +1,4 @@
-import { CHIP_GLUE_PUNCTUATION, inlineCodeChipProps } from "./delta-spans";
+import { CHIP_GLUE_AFTER, CHIP_GLUE_BEFORE, inlineCodeChipProps } from "./delta-spans";
 import { chipNeedsPieces, chipPieces } from "../components/mono-breaks";
 
 /** The slice of the hast shape this pass reads and writes (no @types/hast dependency). */
@@ -43,13 +43,18 @@ function visit(node: HastNode, parent: HastNode | null): void {
   }
   const children = node.children ?? [];
   for (const child of children) visit(child, node);
-  // A chip and the punctuation that starts the text after it share one nowrap span (delta-spans.tsx CHIP_GLUE_PUNCTUATION).
-  for (let i = 0; i < children.length - 1; i++) {
-    const next = children[i + 1]!;
-    const glue = isChip(children[i]!, node) && next.type === "text" ? CHIP_GLUE_PUNCTUATION.exec(next.value ?? "")?.[0] : undefined;
-    if (!glue) continue;
-    next.value = next.value!.slice(glue.length);
-    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", style: "white-space:nowrap" }, children: [children[i]!, { type: "text", value: glue }] };
+  // A chip and the punctuation beside it share one nowrap span (delta-spans.tsx CHIP_GLUE_BEFORE and CHIP_GLUE_AFTER).
+  for (let i = 0; i < children.length; i++) {
+    if (!isChip(children[i]!, node)) continue;
+    const prev = children[i - 1];
+    const next = children[i + 1];
+    const before = prev?.type === "text" ? CHIP_GLUE_BEFORE.exec(prev.value ?? "")?.[0] ?? "" : "";
+    const after = next?.type === "text" ? CHIP_GLUE_AFTER.exec(next.value ?? "")?.[0] ?? "" : "";
+    if (!before && !after) continue;
+    if (before) prev!.value = prev!.value!.slice(0, -before.length);
+    if (after) next!.value = next!.value!.slice(after.length);
+    const parts: HastNode[] = [...(before ? [{ type: "text", value: before }] : []), children[i]!, ...(after ? [{ type: "text", value: after }] : [])];
+    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", style: "white-space:nowrap" }, children: parts };
   }
 }
 
