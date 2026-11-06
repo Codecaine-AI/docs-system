@@ -382,7 +382,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Draw a child that reaches the tree by 2 paths, such as a provider slot and a render callback, under each parent that creates it. Give each copy the source line of its own path."
+          "insert": "Draw a component that a provider supplies through a slot prop, such as "
+        },
+        {
+          "insert": "canvasEmbed={…}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", under that provider's row, with the slot's line as its source. Draw a component that a render callback creates under the component that calls the callback."
         }
       ],
       "children": []
@@ -510,7 +519,8 @@
       "children": [
         "ct-rows-g3-1",
         "ct-rows-g3-2",
-        "ct-rows-g3-3"
+        "ct-rows-g3-3",
+        "ct-rows-g3-4"
       ]
     },
     "ct-rows-g3-1": {
@@ -519,7 +529,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Start the tree at the root the brief names, and stop at the leaves it names."
+          "insert": "Start the tree at the root the brief names, and stop at the leaves it names. Keep one root per tree."
         }
       ],
       "children": []
@@ -566,7 +576,7 @@
           }
         },
         {
-          "insert": ", and move its component children up to its depth. Keep it when the brief names the part it draws, or when children slot into it."
+          "insert": ", and move its component children up to its depth. Keep it when the page's prose names it, when it groups children into a region, or when children slot into it."
         }
       ],
       "children": []
@@ -577,7 +587,27 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep one root per tree. Expand a component under every place that renders it, each copy with the props that place passes."
+          "insert": "Expand a component that renders in 2 places under the first place only. At the other place, keep its row and say in its comment how it differs, such as "
+        },
+        {
+          "insert": "same cell, with no placeholder",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g3-4": {
+      "id": "ct-rows-g3-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave out a child component's own loading and error arms unless the brief asks for them."
         }
       ],
       "children": []
