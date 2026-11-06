@@ -976,6 +976,8 @@
       "children": [
         "b-90-process-outline-wr-loops-1",
         "po-wr-loops-exit",
+        "po-wr-loops-collection",
+        "po-wr-loops-scope",
         "po-wr-loops-phase"
       ]
     },
@@ -1060,6 +1062,28 @@
         },
         {
           "insert": " step. For a numeric range, name both ends and say whether the last one is included."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-collection": {
+      "id": "po-wr-loops-collection",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name the collection with every filter that the code applies, such as \"each file with a test that fails now and passed in the baseline\"."
+        }
+      ],
+      "children": []
+    },
+    "po-wr-loops-scope": {
+      "id": "po-wr-loops-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put every step that works on one item, such as \"the page\", inside the loop that names that item. When the code loops over the items twice, show two loops."
         }
       ],
       "children": []

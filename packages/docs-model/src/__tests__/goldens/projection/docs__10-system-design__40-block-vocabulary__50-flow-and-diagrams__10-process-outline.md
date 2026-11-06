@@ -127,6 +127,10 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Name what ends the loop: the collection after `For each`, the condition after `While`, or the exit after `until` in a `Repeat` step. For a numeric range, name both ends and say whether the last one is included.
 
+  - Name the collection with every filter that the code applies, such as "each file with a test that fails now and passed in the baseline".
+
+  - Put every step that works on one item, such as "the page", inside the loop that names that item. When the code loops over the items twice, show two loops.
+
   - A phase that repeats opens its title with the loop keyword, such as "For Each Kept File". A note that says a phase repeats does not make it a loop.
 
 - Match the source
