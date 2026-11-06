@@ -3934,7 +3934,7 @@ describe("style rail process-outline tokens", () => {
     emptyTextSize: ["empty-text-size", 12, 18, 0.5, 12],
     noteTextSize: ["note-text-size", 12, 18, 0.5, 13.5],
     noteLineHeight: ["note-line-height", 12, 32, 1, 21],
-    noteInset: ["note-inset", 0, 40, 1, 0],
+    noteInset: ["note-inset", 0, 40, 1, 12],
     noteBorderWidth: ["note-border-width", 0, 4, 0.5, 0],
     noteRuleWidth: ["note-rule-width", 0, 6, 0.5, 0],
     notePadY: ["note-pad-y", 0, 16, 1, 2],

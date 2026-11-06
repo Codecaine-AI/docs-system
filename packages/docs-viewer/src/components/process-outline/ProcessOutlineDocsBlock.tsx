@@ -56,7 +56,7 @@ const PROCESS_OUTLINE_CSS = `
   --po-stroke: var(--docs-process-outline-stroke, 1.5px);
   --po-pad-y: var(--docs-process-outline-pad-y, 12px);
   --po-pad-x: var(--docs-process-outline-pad-x, 12px);
-  --po-note-inset: var(--docs-process-outline-note-inset, 0px);
+  --po-note-inset: var(--docs-process-outline-note-inset, 12px);
   --po-note-rule-gap: var(--docs-process-outline-note-rule-gap, 0px);
   /* the rail hangs 7px in from the parent's text, under its first letters (the
      root rail under the tile); each elbow's tick stops arrow-gap short of the text */
@@ -155,7 +155,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
   font-family:var(--docs-font-code, ui-monospace, "SF Mono", Menlo, monospace);
   font-size:max(var(--ds-font-size-ui-xs),var(--docs-process-outline-trace-text-size, 12px)); font-weight:var(--ds-font-weight-regular); line-height:1;
 }
-/* notes: italic muted asides at the step indent, a dash where an elbow would be */
+/* notes: italic muted asides one inset in from the step indent, so a note hangs under the step above it */
 .docs-process-outline__note-card {
   --po-line:var(--po-note-line); display:block; max-width:var(--ds-layout-lane-text); margin-left:var(--po-note-inset);
   border:var(--docs-process-outline-note-border-width, 0px) solid var(--docs-process-outline-note-border, #e6e5e3);
@@ -189,7 +189,7 @@ ${typedChipVsCodeColorCss(".docs-process-outline__code")}
     --po-root-gap: min(var(--ds-space-3), var(--docs-process-outline-root-gap, 12px));
     --po-pad-y: min(10px, var(--docs-process-outline-pad-y, 12px));
     --po-pad-x: min(var(--ds-space-2), var(--docs-process-outline-pad-x, 12px));
-    --po-note-inset: min(var(--ds-space-0-5), var(--docs-process-outline-note-inset, 0px));
+    --po-note-inset: min(var(--ds-space-0-5), var(--docs-process-outline-note-inset, 12px));
     --po-note-rule-gap: min(var(--ds-space-1-5), var(--docs-process-outline-note-rule-gap, 0px));
   }
   .docs-process-outline__line { max-width:100%; }

@@ -224,7 +224,7 @@ export const processOutline: Record<string, Record<string, ThemeTokenDefinition>
       max: 40,
       step: 1,
       unit: "px",
-      defaultValue: dsNumber("space.0", "px"),
+      defaultValue: dsNumber("space.3", "px"),
     },
     noteBorderWidth: {
       vars: ["--docs-process-outline-note-border-width"],

@@ -159,7 +159,7 @@
   --docs-process-outline-empty-text-size: var(--ds-font-size-ui-xs);
   --docs-process-outline-note-text-size: var(--ds-font-size-ui-md);
   --docs-process-outline-note-line-height: var(--ds-line-height-code);
-  --docs-process-outline-note-inset: var(--ds-space-0);
+  --docs-process-outline-note-inset: var(--ds-space-3);
   --docs-process-outline-note-border-width: var(--ds-border-width-none);
   --docs-process-outline-note-rule-width: var(--ds-border-width-none);
   --docs-process-outline-note-pad-y: var(--ds-space-0-5);
