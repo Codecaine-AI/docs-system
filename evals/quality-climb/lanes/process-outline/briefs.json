@@ -1,0 +1,134 @@
+[
+  {
+    "id": 220,
+    "set": "climb",
+    "slug": "one-round-steps",
+    "title": "The Steps of a Round",
+    "reader": "An engineer who runs a quality-climb round and wants to know what happens between start and the report",
+    "prompt": "Write a short page that gives the steps of one quality-climb round as an outline, with sub-steps for what happens to each brief. Include the round lock, the repo checks that run alongside, the baseline writer costs, the gate and the files written at the end. Say in one sentence which step a rerun can skip.",
+    "sources": ["evals/quality-climb/round.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 221,
+    "set": "climb",
+    "slug": "mdx-migration-run",
+    "title": "Running the MDX Migration",
+    "reader": "A maintainer who will migrate an old MDX docs tree and wants to know what the run does to each file",
+    "prompt": "Write a short page that gives the steps of runMigration as an outline. Include the walk of source files, the twins it skips, and for each file the bundle folder choice, the conversion, the asset copy and the report entry. Say clearly that the run is not destructive by default.",
+    "sources": ["packages/docs-cli/src/migrate/run.ts", "packages/docs-cli/src/migrate/mdx-to-doc.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 222,
+    "set": "climb",
+    "slug": "style-sweep-steps",
+    "title": "The Style Sweep Steps",
+    "reader": "A docs-style engineer who will change the order of the sweep tiers",
+    "prompt": "Write a short page that gives the steps of one style sweep as a nested outline. Put Tier 1 and the autofixes as the steps every page goes through, and Tiers 2 and 3 with their sub-steps for the deep pages. Include the meaning check that each autofix and rewrite must pass when a verifier is set.",
+    "sources": ["packages/docs-style/src/sweep/index.ts", "packages/docs-style/src/sweep/autofix.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 223,
+    "set": "climb",
+    "slug": "change-set-accept",
+    "title": "Accepting a Change-Set",
+    "reader": "A reviewer who presses Accept on a multi-doc change-set and wants to know what happens to each doc",
+    "prompt": "Write a short page that gives the change-set accept protocol as an outline: the ordered path locks, each entry's accept, the tree ops, the rollback on failure and the final record. Put the rollback steps as sub-steps of the failure case. Say in one sentence how a single undo reverts the whole change-set.",
+    "sources": ["packages/docs-server/src/changesets/changeset-ops.ts", "CHANGESETS-DESIGN.md"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 224,
+    "set": "held-out",
+    "slug": "move-doc-steps",
+    "title": "Moving a Doc",
+    "reader": "A docs maintainer whose doc move reported failures and who wants to know what was already done",
+    "prompt": "Write a short page that gives the steps of moving a doc bundle as an outline: the folder move first, then each inbound source rewritten one at a time. Show the doc and canvas rewrites as sub-steps. Warn that a later failure does not roll back the move, and say what the reader runs next.",
+    "sources": ["packages/docs-index/src/move-doc.ts"],
+    "blockTypes": ["process-outline", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 225,
+    "set": "held-out",
+    "slug": "theme-boot-steps",
+    "title": "How the Workbench Picks a Theme",
+    "reader": "A theme designer whose repo theme does not show in the workbench",
+    "prompt": "Write a short page that gives the steps the workbench takes to resolve a theme id at boot, as a short outline of four to six steps. Include the repo folder first, the built-in fallback and the base chain. State the v1 limit on repo themes that base on other repo themes.",
+    "sources": ["packages/docs-workbench/web/src/_lib/theme-boot.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 226,
+    "set": "held-out",
+    "slug": "publish-build-steps",
+    "title": "The Publish Build Steps",
+    "reader": "A release engineer who will run the docs-publish build on a CI machine",
+    "prompt": "Write a short page that gives the docs-publish build as a flat outline of its steps in order, from clearing dist/ to writing provenance.json. Name the output of each step. Say which steps need packages from the docs-workbench folder.",
+    "sources": ["packages/docs-publish/build.ts", "packages/docs-publish/src/bundle.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 227,
+    "set": "held-out",
+    "slug": "electron-startup",
+    "title": "Desktop App Startup",
+    "reader": "A developer whose Docs Workbench desktop app shows a startup error",
+    "prompt": "Write a short page that gives the startup of the Electron app as an outline: read the options, start the docs server, wait for it, and open the window. Put dev mode and the failure case as branches with their own sub-steps. Give the default ports.",
+    "sources": ["packages/docs-workbench/electron/main.cjs"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 228,
+    "set": "held-out",
+    "slug": "block-paste-steps",
+    "title": "Pasting a Run of Blocks",
+    "reader": "A viewer contributor who will fix a paste bug in the docs editor",
+    "prompt": "Write a short page that gives the steps of block-aware paste as an outline. Start with the bug it fixes, then give how the plugin decides a slice is a run of doc blocks and how it inserts them at the top level. Note the cases it leaves to the default paste.",
+    "sources": ["packages/docs-viewer/src/editor/input/block-paste.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 229,
+    "set": "held-out",
+    "slug": "static-export-steps",
+    "title": "The Static Export",
+    "reader": "A site owner who will publish the workbench as a static site",
+    "prompt": "Write a short page that gives the steps of docs-cli export as an outline, from building the SPA in static mode to writing each output folder. Name what each data folder holds. Say in one sentence which module guards every write to the output folder.",
+    "sources": ["packages/docs-workbench/src/export.ts", "packages/docs-workbench/src/spa.ts"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 230,
+    "set": "held-out",
+    "slug": "codebase-interview",
+    "title": "The Codebase Interview",
+    "reader": "A tech lead who will be interviewed by an agent about one section of the codebase",
+    "prompt": "Write a short page that gives the codebase interview as a deep outline of its six phases, with sub-steps and the sections of the report the agent writes. Say what the developer is asked to do in each phase. Keep the report sections as nested steps under the capture phase.",
+    "sources": ["packages/framework/30-workflows/40-interview-codebase.md"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  },
+  {
+    "id": 231,
+    "set": "held-out",
+    "slug": "background-install-steps",
+    "title": "Installing the Background Service",
+    "reader": "An operator who will install the docs background service on a new Mac",
+    "prompt": "Write a short page that gives the steps of the background service installer as an outline: the config it writes, the build of the supervisor, the app bundle and its signing, and the launch agent. Put the files each step writes as sub-steps. Say how to point it at another workspace.",
+    "sources": ["packages/docs-mcp/scripts/install-background.py"],
+    "blockTypes": ["process-outline"],
+    "rewrites": ""
+  }
+]

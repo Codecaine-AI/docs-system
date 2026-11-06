@@ -30,6 +30,18 @@
         "g1",
         "g2",
         "g3",
+        "h-lane",
+        "lane-lead",
+        "lane-files",
+        "lane-crit-lead",
+        "lane-crit-shape",
+        "lane-gate",
+        "lane-guard",
+        "lane-steps-lead",
+        "ls1",
+        "ls2",
+        "ls3",
+        "ls4",
         "h-res",
         "res-lead",
         "res-table",
@@ -253,7 +265,7 @@
           },
           {
             "path": "evals/quality-climb/render.ts",
-            "note": "Export, PNG, markdown, blocks and lint for one page"
+            "note": "Export, PNG, markdown, blocks, block boxes and lint for one page"
           },
           {
             "path": "evals/quality-climb/judge.ts",
@@ -261,11 +273,11 @@
           },
           {
             "path": "evals/quality-climb/judge-brief.md",
-            "note": "What each score from 1 to 10 means"
+            "note": "What each score from 1.0 to 10.0 means"
           },
           {
             "path": "evals/quality-climb/gate.ts",
-            "note": "The gate and the guards"
+            "note": "The gate, the guards and the judge ladder"
           },
           {
             "path": "evals/quality-climb/assets.ts",
@@ -343,7 +355,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each judge scores every page from 1 to 10 in 8 categories. Each judge also scores each block, and the gate averages those scores in 13 block-type groups."
+          "insert": "Each judge scores every page from 1.0 to 10.0, in steps of 0.1, in 8 categories. Each judge also scores each block, and the gate averages those scores in 13 block-type groups."
         }
       ],
       "children": []
@@ -428,7 +440,7 @@
           ],
           [
             "2",
-            "Stage 1 judges and Muse Wonder 1.0"
+            "Stage 1 judges and Muse Wonder Full 1.0"
           ],
           [
             "3",
@@ -556,6 +568,322 @@
       "text": [
         {
           "insert": "It fails when the writer's mean tokens per page pass 120% of the baseline round."
+        }
+      ],
+      "children": []
+    },
+    "h-lane": {
+      "id": "h-lane",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Climb One Component"
+        }
+      ],
+      "children": []
+    },
+    "lane-lead": {
+      "id": "lane-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane climbs one block type at a time, such as "
+        },
+        {
+          "insert": "state-shape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". With "
+        },
+        {
+          "insert": "--lane <type>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "round.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " takes its briefs and criteria from the lane's folder and writes to "
+        },
+        {
+          "insert": ".tmp/quality-climb/lanes/<type>/round-<n>/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The 12 lanes are rich-text, code, pseudocode, file-tree, file-explorer, call-stack, component-tree, state-shape, interaction-surface, structured-table, process-outline and stack. The rich-text lane scores paragraphs, headings, list items and callouts."
+        }
+      ],
+      "children": []
+    },
+    "lane-files": {
+      "id": "lane-files",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "evals/quality-climb/lanes/base-criteria.json",
+            "note": "The 6 criteria that every lane scores"
+          },
+          {
+            "path": "evals/quality-climb/lanes/<type>/briefs.json",
+            "note": "The lane's briefs, each in the climb set or the held-out set"
+          },
+          {
+            "path": "evals/quality-climb/lanes/<type>/criteria.json",
+            "note": "The lane's own criteria. Without it, the lane scores the base criteria only"
+          },
+          {
+            "path": "evals/quality-climb/lanes.ts",
+            "note": "Loads a lane's briefs and its base plus lane criteria"
+          },
+          {
+            "path": "evals/quality-climb/lane-judge-brief.md",
+            "note": "What a lane judge scores, and the score anchors"
+          },
+          {
+            "path": "evals/quality-climb/compare.ts",
+            "note": "Before and after images of a lane's blocks"
+          },
+          {
+            "path": "evals/quality-climb/fixtures/lanes/state-shape/",
+            "note": "A test lane with 2 briefs and 2 lane criteria"
+          }
+        ]
+      },
+      "children": []
+    },
+    "lane-crit-lead": {
+      "id": "lane-crit-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each criterion in a criteria file has 3 fields. "
+        },
+        {
+          "insert": "loadLane",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " refuses a criterion that lacks one, and an id that the base and lane files both use."
+        }
+      ],
+      "children": []
+    },
+    "lane-crit-shape": {
+      "id": "lane-crit-shape",
+      "type": "state-shape",
+      "props": {
+        "example": "{\"id\": \"field-types\", \"group\": \"State shape\", \"question\": \"Does each field show its type, and does the block mark each optional field?\"}",
+        "fields": [
+          {
+            "name": "id",
+            "type": "string",
+            "description": "Lowercase words and digits joined by single hyphens"
+          },
+          {
+            "name": "question",
+            "type": "string",
+            "description": "The one question that the judge scores"
+          },
+          {
+            "name": "group",
+            "type": "string",
+            "description": "A label such as Meaning, Writing or Look, which tells the judge which input to use"
+          }
+        ],
+        "name": "Criterion",
+        "source": {
+          "path": "evals/quality-climb/schema.ts",
+          "symbol": "CriterionSchema"
+        }
+      },
+      "children": []
+    },
+    "lane-gate": {
+      "id": "lane-gate",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane judge gives each criterion one score over all of the lane's blocks on a page, and scores the 8 page categories as a guard. A criterion's score is the median of a judge's samples of a page, then the mean over the pages of a set. A lane passes only when every counting judge gives a mean of 9.5 or more on every criterion, on both the climb set and the held-out set."
+        }
+      ],
+      "children": []
+    },
+    "lane-guard": {
+      "id": "lane-guard",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "--stage 1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "2",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "3",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " picks the counting judges in the stage table of Categories and Judges. A lane round keeps the 3 guards and adds a page-categories guard. That guard fails when a judge's page-category mean on a set falls more than 0.5 below the baseline round's."
+        }
+      ],
+      "children": []
+    },
+    "lane-steps-lead": {
+      "id": "lane-steps-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A lane PR runs 4 commands from the repo root, in this order."
+        }
+      ],
+      "children": []
+    },
+    "ls1": {
+      "id": "ls1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Run the lane's baseline round at stage 1."
+        }
+      ],
+      "children": [
+        "ls1c"
+      ]
+    },
+    "ls1c": {
+      "id": "ls1c",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 0 --stage 1"
+        }
+      ],
+      "children": []
+    },
+    "ls2": {
+      "id": "ls2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "After a viewer-only change, re-render and score the baseline round's pages with no new write."
+        }
+      ],
+      "children": [
+        "ls2c"
+      ]
+    },
+    "ls2c": {
+      "id": "ls2c",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 1 --stage 1 \\\n  --frozen-from .tmp/quality-climb/lanes/state-shape/round-0"
+        }
+      ],
+      "children": []
+    },
+    "ls3": {
+      "id": "ls3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Write one before and after image per climb page, plus one full-page pair."
+        }
+      ],
+      "children": [
+        "ls3c"
+      ]
+    },
+    "ls3c": {
+      "id": "ls3c",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/compare.ts --lane state-shape \\\n  --before .tmp/quality-climb/lanes/state-shape/round-0 \\\n  --after .tmp/quality-climb/lanes/state-shape/round-1"
+        }
+      ],
+      "children": []
+    },
+    "ls4": {
+      "id": "ls4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Push the images to the quality-climb-assets branch and print the markdown section for the PR body."
+        }
+      ],
+      "children": [
+        "ls4c"
+      ]
+    },
+    "ls4c": {
+      "id": "ls4c",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun evals/quality-climb/assets.ts \\\n  --compare .tmp/quality-climb/lanes/state-shape/round-1/compare-round-0"
         }
       ],
       "children": []

@@ -1,10 +1,25 @@
 // Pure gate rules of the quality climb: category and block-group means, the page floor, the guards,
 // and the builder-facing report that never shows held-out pages or findings.
-import { BLOCK_GROUPS, PAGE_CATEGORIES, SETS, type BlockGroup, type BriefSet, type JudgeReply, type PageCategory } from "./schema";
+import { BLOCK_GROUPS, PAGE_CATEGORIES, SETS, type BlockGroup, type BriefSet, type JudgeReply, type LaneReply, type PageCategory } from "./schema";
 
 export const TARGET = 9.5;
 export const PAGE_FLOOR = 9;
 export const COST_LIMIT = 1.2;
+/** The most a lane round's page-category mean may fall below the baseline round's, per judge and set. */
+export const CATEGORY_DROP = 0.5;
+/** Absorbs float error in a mean difference. It is far below the smallest real step, 1/1600 of a point. */
+const DROP_TOLERANCE = 1e-9;
+
+/**
+ * The judge ladder: each stage's counting judges and how many samples each takes per page. A stage adds a judge
+ * only when the one before it passes. The gate reads the median of a judge's samples.
+ */
+export const STAGES = {
+  1: { sol: 3, opus: 1 },
+  2: { sol: 3, opus: 1, muse: 3 },
+  3: { sol: 3, opus: 1, muse: 3, fable: 1 },
+} as const satisfies Record<number, Record<string, number>>;
+export type Stage = keyof typeof STAGES;
 
 /**
  * One judge's scores of one page: one reply per sample, in sample order. The gate reads only their median.
@@ -23,7 +38,7 @@ export type MergedFinding = JudgeReply["findings"][number] & { samples: number }
 export interface GateItem { set: BriefSet | null; text: string }
 export interface WriterCost { set: BriefSet; briefId: number; toolCalls: number; tokens: number }
 /** `detail` never names a page. Page-level details go in `items`, each with its set. */
-export interface GuardResult { name: "tests" | "lint" | "writer-cost"; pass: boolean; detail: string; items: GateItem[] }
+export interface GuardResult { name: "tests" | "lint" | "writer-cost" | "page-categories"; pass: boolean; detail: string; items: GateItem[] }
 export interface SetScores {
   categories: Record<PageCategory, { mean: number; min: number }>;
   groups: Partial<Record<BlockGroup, { mean: number; blocks: number }>>;
@@ -35,7 +50,11 @@ export interface GateResult {
   guards: GuardResult[];
 }
 
-const mean = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
+// Scores are tenths and sample medians can be twentieths, so the mean sums whole hundredths. Summing the floats
+// would make 8 scores whose true mean is 9.5 come out 9.4999…, and the gate would fail them.
+const hundredths = (value: number) => Math.round(value * 100);
+const mean = (values: number[]) => values.reduce((a, b) => a + hundredths(b), 0) / (100 * values.length);
+const meanMin = (values: number[]) => ({ mean: mean(values), min: Math.min(...values) });
 const median = (values: number[]) => {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = sorted.length >> 1;
@@ -55,7 +74,7 @@ const SEVERITY = { high: 0, medium: 1, low: 2 } as const;
  * Each target (a category or a block id) once, with the count of samples that named it. Its severity and text
  * are those of its most severe finding, the earliest sample first. Most samples first, then most severe.
  */
-export function mergeFindings(samples: JudgeReply[]): MergedFinding[] {
+export function mergeFindings(samples: { findings: JudgeReply["findings"] }[]): MergedFinding[] {
   const byTarget = new Map<string, MergedFinding>();
   samples.forEach((sample, i) => {
     for (const target of new Set(sample.findings.map((f) => f.target))) {
@@ -205,6 +224,105 @@ export function builderReport(gate: GateResult, pages: PageScore[]) {
     scores: gate.scores,
     climbPages: pages.filter((p) => p.set === "climb").map((p) => ({
       judge: p.judge, briefId: p.briefId, samples: p.samples.length, categories: pageMedian(p.samples).categories, findings: mergeFindings(p.samples),
+    })),
+  };
+}
+
+/** One lane judge's scores of one page: one reply per sample, in sample order. The gate reads only their median. */
+export interface LanePageScore { judge: string; set: BriefSet; briefId: number; samples: LaneReply[] }
+export interface LaneSetScores {
+  criteria: Record<string, { mean: number; min: number }>;
+  categories: Record<PageCategory, { mean: number; min: number }>;
+  pages: number;
+}
+export type LaneScores = Record<string, Partial<Record<BriefSet, LaneSetScores>>>;
+export interface LaneGateResult { pass: boolean; failures: GateItem[]; scores: LaneScores; guards: GuardResult[] }
+
+/** The median over a page's samples of each criterion score and each category score. */
+export function lanePageMedian(samples: LaneReply[], criteriaIds: string[]) {
+  return {
+    criteria: Object.fromEntries(criteriaIds.map((id) => [id, median(samples.map((s) => s.criteria[id]!))])),
+    categories: Object.fromEntries(PAGE_CATEGORIES.map((c) => [c, median(samples.map((s) => s.categories[c]))])) as Record<PageCategory, number>,
+  };
+}
+
+/** One lane judge's scores over one set: for each criterion and category, the mean and lowest of the page medians. */
+export function laneSetScores(pages: LanePageScore[], criteriaIds: string[]): LaneSetScores {
+  const medians = pages.map((p) => lanePageMedian(p.samples, criteriaIds));
+  return {
+    criteria: Object.fromEntries(criteriaIds.map((id) => [id, meanMin(medians.map((m) => m.criteria[id]!))])),
+    categories: Object.fromEntries(PAGE_CATEGORIES.map((c) => [c, meanMin(medians.map((m) => m.categories[c]))])) as LaneSetScores["categories"],
+    pages: pages.length,
+  };
+}
+
+/**
+ * Page-category guard of a lane round: a lane may not buy its criteria with the rest of the page. It fails when a
+ * judge's mean in a category on a set falls more than CATEGORY_DROP below the baseline round's. A judge or set the
+ * baseline did not score is not compared. With no baseline, it passes and this round's scores become the baseline.
+ */
+export function categoryGuard(current: LaneScores, baseline: LaneScores | null): GuardResult {
+  if (!baseline) return { name: "page-categories", pass: true, detail: "baseline recorded", items: [] };
+  const items: GateItem[] = [];
+  for (const [judge, sets] of Object.entries(current)) for (const set of SETS) {
+    const now = sets[set];
+    const before = baseline[judge]?.[set];
+    if (!now || !before) continue;
+    for (const c of PAGE_CATEGORIES) {
+      // A float tolerance, not rounding: 8.3 - 7.8 is 0.5000000000000009 and must pass, but a mean can hold more than
+      // two decimals (9.0125 - 8.50625 = 0.50625), and rounding would hide that excess drop.
+      const [was, is] = [before.categories[c].mean, now.categories[c].mean];
+      // NaN fails every comparison, so a category no sample scored would pass the drop check below.
+      if (!Number.isFinite(was) || !Number.isFinite(is)) { items.push({ set, text: `${judge} ${set} ${c}: mean is not a number` }); continue; }
+      const drop = was - is;
+      if (drop > CATEGORY_DROP + DROP_TOLERANCE) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
+    }
+  }
+  const detail = items.length ? `${items.length} page-category mean(s) fell more than ${CATEGORY_DROP} below the baseline` : `no page-category mean fell more than ${CATEGORY_DROP} below the baseline`;
+  return { name: "page-categories", pass: items.length === 0, detail, items };
+}
+
+/**
+ * The lane gate passes only when every counting judge gives a mean of TARGET or more on every criterion, on both
+ * the climb set and the held-out set, and every guard passes. The page-category guard joins `guards` here.
+ */
+export function evaluateLaneGate(pages: LanePageScore[], countingJudges: string[], criteriaIds: string[], guards: GuardResult[], baseline: LaneScores | null): LaneGateResult {
+  const failures: GateItem[] = [];
+  const scores: LaneScores = {};
+  for (const judge of countingJudges) {
+    scores[judge] = {};
+    for (const set of SETS) {
+      const mine = pages.filter((p) => p.judge === judge && p.set === set);
+      if (mine.length === 0) { failures.push({ set, text: `${judge} ${set}: no pages scored` }); continue; }
+      const result = laneSetScores(mine, criteriaIds);
+      scores[judge][set] = result;
+      for (const id of criteriaIds) {
+        // A reply scored before this criterion existed lacks it, and its NaN mean would never compare below TARGET.
+        const unscored = mine.filter((p) => p.samples.some((s) => !Number.isFinite(s.criteria[id]))).length;
+        const m = result.criteria[id]!.mean;
+        if (unscored) failures.push({ set, text: `${judge} ${set} ${id}: not scored on ${unscored} of ${mine.length} pages` });
+        else if (!Number.isFinite(m)) failures.push({ set, text: `${judge} ${set} ${id}: mean is not a number` });
+        else if (m < TARGET) failures.push({ set, text: `${judge} ${set} ${id}: mean ${m.toFixed(2)} < ${TARGET}` });
+      }
+    }
+  }
+  const all = [...guards, categoryGuard(scores, baseline)];
+  for (const guard of all) if (!guard.pass) failures.push({ set: null, text: `guard ${guard.name}: ${guard.detail}` });
+  return { pass: failures.length === 0, failures, scores, guards: all };
+}
+
+/** The lane report the builder reads: held-out scores and counts only, as builderReport does for a whole-page round. */
+export function laneBuilderReport(gate: LaneGateResult, pages: LanePageScore[], criteriaIds: string[]) {
+  const shown = (items: GateItem[]) => items.filter((i) => i.set !== "held-out").map((i) => i.text);
+  const heldOut = (items: GateItem[]) => items.filter((i) => i.set === "held-out").length;
+  return {
+    pass: gate.pass,
+    guards: gate.guards.map((g) => ({ name: g.name, pass: g.pass, detail: g.detail, items: shown(g.items), heldOutItems: heldOut(g.items) })),
+    failures: shown(gate.failures),
+    heldOutFailures: heldOut(gate.failures),
+    scores: gate.scores,
+    climbPages: pages.filter((p) => p.set === "climb").map((p) => ({
+      judge: p.judge, briefId: p.briefId, samples: p.samples.length, ...lanePageMedian(p.samples, criteriaIds), findings: mergeFindings(p.samples),
     })),
   };
 }

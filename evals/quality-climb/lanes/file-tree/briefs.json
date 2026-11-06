@@ -1,0 +1,134 @@
+[
+  {
+    "id": 136,
+    "set": "climb",
+    "slug": "component-folder-anatomy",
+    "title": "Component Folder Anatomy",
+    "reader": "A docs-model contributor who will add a new component and wants to copy the folder layout of an existing one",
+    "prompt": "Write a short page that shows how one docs-model component folder is laid out. Show packages/docs-model/src/components/ as a tree with two or three full component folders, such as stack and state-shape with their actions/ subfolders, and note what each file holds. Explain in one paragraph how index.ts registers every component.",
+    "sources": ["packages/docs-model/src/components/index.ts", "packages/docs-model/src/components/types.ts"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 137,
+    "set": "climb",
+    "slug": "docs-skill-bundle",
+    "title": "The Docs Skill Bundle",
+    "reader": "An agent operator who wants to know which files the installed docs-system skill gives an agent",
+    "prompt": "Write a short page that shows the files of the docs-system skill bundle in packages/docs-mcp/skills/docs-system/ as a tree. Include each component reference file under references/components/, and note what SKILL.md, components.md and standards.md each hold. Say in one sentence when an agent loads a component reference file.",
+    "sources": ["packages/docs-mcp/skills/docs-system/SKILL.md", "packages/docs-mcp/skills/docs-system/references/components.md"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 138,
+    "set": "climb",
+    "slug": "quality-climb-files",
+    "title": "Quality Climb Files",
+    "reader": "An engineer who will change one stage of the quality-climb harness and must find the right file",
+    "prompt": "Write a short page that shows the evals/quality-climb/ folder as a flat tree with a one-line note on each file. Say which file runs a whole round and which files hold the writer, the renderer and the gate. Give the command that runs one round.",
+    "sources": ["evals/quality-climb/round.ts", "evals/quality-climb/render.ts", "evals/quality-climb/judge.ts", "evals/quality-climb/gate.ts"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 139,
+    "set": "climb",
+    "slug": "style-rule-folders",
+    "title": "Style Rule Folders",
+    "reader": "A contributor who will add a new style rule to docs-style",
+    "prompt": "Write a short page that shows packages/docs-style/src/rules/ as a tree: one folder per rule and the registry index.ts. Note the rule folders that hold more than index.ts. Explain the two steps to add a rule and why the order in the registry matters.",
+    "sources": ["packages/docs-style/src/rules/index.ts", "packages/docs-style/README.md"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 140,
+    "set": "held-out",
+    "slug": "style-rail-panel-files",
+    "title": "Style Rail Panel Files",
+    "reader": "A workbench contributor who must find the file for one row of the style rail",
+    "prompt": "Write a short page that shows the StyleRailPanel folder as a deep tree, down to the panes inside ThemePane and LayoutPane. Note what the top-level files index.tsx, nav.ts and overrides.ts hold. Explain the _components naming rule that the tree follows.",
+    "sources": ["packages/docs-workbench/web/src/_components/StyleRailPanel/index.tsx", "packages/docs-workbench/web/src/_components/StyleRailPanel/nav.ts", "packages/docs-workbench/web/src/_components/StyleRailPanel/overrides.ts"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 141,
+    "set": "held-out",
+    "slug": "docs-publish-dist",
+    "title": "What the Publish Build Writes",
+    "reader": "A host developer who will serve the built docs-publish files from their own site",
+    "prompt": "Write a short page that shows the dist/ folder that the docs-publish build writes as a tree. Note what each entry is for, including the Node publisher, the browser scripts, the styles folder, the fonts and provenance.json. Warn that the styles folder must be served as a whole.",
+    "sources": ["packages/docs-publish/build.ts", "packages/docs-publish/README.md", "packages/docs-publish/src/bundle.ts"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 142,
+    "set": "held-out",
+    "slug": "one-doc-bundle",
+    "title": "One Doc Bundle on Disk",
+    "reader": "A new contributor who opened a docs folder and does not know which files belong to the page",
+    "prompt": "Write a short page that shows one doc bundle folder on disk as a shallow tree: doc.json, the annotations and proposals sidecars, and the assets folder. Note what each file holds and which ones are optional. Explain how a bundle differs from a section folder.",
+    "sources": ["packages/docs-server/src/bundle.ts", "packages/docs-server/src/proposal-ops.ts", "packages/docs-index/src/subtree-guard.ts", "packages/docs-cli/src/audit.ts"],
+    "blockTypes": ["file-tree", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 143,
+    "set": "held-out",
+    "slug": "implementation-layer-changes",
+    "title": "Implementation Layer Changes",
+    "reader": "A reviewer who must approve the proposed changes to the doc standards folder",
+    "prompt": "Write a short page that shows the proposed changes to docs/10-system-design/10-doc-standards/ as a tree with change markers. Mark the new 60-implementation-layer folder as added and the edited docs as modified, and note what each change does. Say in one paragraph what the implementation layer records.",
+    "sources": ["docs/.drafts/implementation-layer-proposal.md"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 144,
+    "set": "held-out",
+    "slug": "mdx-to-bundle-layout",
+    "title": "From MDX Files to Bundles",
+    "reader": "A maintainer who will run the MDX migration on an old docs tree and wants to know where each file lands",
+    "prompt": "Write a short page that shows where the migration puts each converted file. Show an example section before migration and after it as two trees, with an index.mdx folder doc and two numbered sibling .mdx files. Mark the new bundle folders and doc.json files with change markers, and explain how local assets are copied.",
+    "sources": ["packages/docs-cli/src/migrate/run.ts"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 145,
+    "set": "held-out",
+    "slug": "docs-corpus-layers",
+    "title": "The Four Docs Layers",
+    "reader": "A product owner who is setting up a docs corpus for a new project",
+    "prompt": "Write a short page that shows the top-level folders of a docs corpus as a tree, with a note on what each layer holds. Explain that each doc is a folder with a doc.json file, and how the number prefixes set the reading order.",
+    "sources": ["packages/framework/SKILL.md", "packages/docs-mcp/skills/docs-system/references/standards.md"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 146,
+    "set": "held-out",
+    "slug": "theme-folder",
+    "title": "A Theme Folder",
+    "reader": "A designer who will make a new docs theme by copying the default one",
+    "prompt": "Write a short page that shows the themes/default folder as a tree: theme.json and the components folder with its files. Note what theme.json holds and what a component file overrides. Explain how a theme names a base theme and how the chain is resolved.",
+    "sources": ["packages/docs-workbench/web/src/theme/theme-folders/definition.ts", "packages/docs-workbench/web/src/theme/theme-folders/types.ts", "themes/default/theme.json"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  },
+  {
+    "id": 147,
+    "set": "held-out",
+    "slug": "docs-viewer-source-map",
+    "title": "Docs Viewer Source Map",
+    "reader": "A front-end engineer who joins the docs-viewer team and wants a map of its source folders",
+    "prompt": "Write a short page that maps the top-level folders of packages/docs-viewer/src/ as a tree, with a note on what each one owns: render, editor, peek, annotate, components and the client seam. Explain in one paragraph what a host must provide through the client.",
+    "sources": ["packages/docs-viewer/src/index.ts", "VIEWER-HOST-SEPARATION.md"],
+    "blockTypes": ["file-tree"],
+    "rewrites": ""
+  }
+]

@@ -1,0 +1,134 @@
+[
+  {
+    "id": 208,
+    "set": "climb",
+    "slug": "make-targets",
+    "title": "Make Targets",
+    "reader": "A new contributor who wants to know which make command to run to test, serve or launch the docs system",
+    "prompt": "Write a short page with a table of the make targets in the repo Makefile. Give each target, what it does and the ports it uses, in that column order. Add one sentence that says which target runs the typecheck and the full test suite together.",
+    "sources": ["Makefile"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 209,
+    "set": "climb",
+    "slug": "install-targets",
+    "title": "What the Installer Writes",
+    "reader": "A developer who wants to know which of their client files the docs MCP installer changes",
+    "prompt": "Write a short page with a table of the files the docs MCP installer plans for each client: Codex, Claude Code and Pi. Give the client, the file path, the kind of file (config, skill or extension) and what the file adds. Say in one sentence how the installer protects unrelated client settings.",
+    "sources": ["packages/docs-mcp/src/install.ts", "packages/docs-mcp/README.md"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 210,
+    "set": "climb",
+    "slug": "docs-cli-commands",
+    "title": "Docs CLI Commands",
+    "reader": "A maintainer who needs a quick reference of the docs CLI commands",
+    "prompt": "Write a short reference page with a table of the docs CLI commands: the command, its arguments and options, and what it does. Mark which commands run the layout lints. Add a warning that migrate with --retire-twins deletes files and say which flags it needs.",
+    "sources": ["packages/docs-cli/src/index.ts"],
+    "blockTypes": ["structured-table", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 211,
+    "set": "climb",
+    "slug": "round-options",
+    "title": "Round Options",
+    "reader": "An engineer who will start a quality-climb round from the command line",
+    "prompt": "Write a short page with a table of the command-line options of round.ts. Give the option, its value form, its default and what it changes. Give one full example command under the table.",
+    "sources": ["evals/quality-climb/round.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 212,
+    "set": "held-out",
+    "slug": "callout-tones",
+    "title": "Callout Tones",
+    "reader": "A docs author who must pick the right tone for a callout",
+    "prompt": "Write a short page with a small table of the five callout tones. Give the tone, its icon and the label the reader sees. Add a second small table of the four visual variants and say which one a callout without a variant uses. Explain in one sentence how the kind field changes the printed label.",
+    "sources": ["packages/docs-model/src/components/rich-text/state.ts", "packages/docs-viewer/src/components/rich-text/CalloutDocsBlock.tsx"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 213,
+    "set": "held-out",
+    "slug": "table-theme-tokens",
+    "title": "Table Theme Tokens",
+    "reader": "A theme designer who will restyle structured tables",
+    "prompt": "Write a short page with a long table of the theme tokens for structured tables. Give the token key, its CSS variable, its kind, its range or unit and its default. Say in one paragraph which tokens follow another token by default.",
+    "sources": ["packages/docs-workbench/web/src/theme/theme-folders/token-registry/structured-table.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 214,
+    "set": "held-out",
+    "slug": "editor-key-bindings",
+    "title": "Editor Key Bindings",
+    "reader": "A docs author who wants to know what each special key does in the docs editor",
+    "prompt": "Write a short page with a table of the special keys the docs editor binds. Give the key, where it applies, such as a code block, a list item or a task item, and what it does there. Use one row for each key and place.",
+    "sources": ["packages/docs-viewer/src/editor/input/keymap.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 215,
+    "set": "held-out",
+    "slug": "replacement-samples",
+    "title": "Sample Word Replacements",
+    "reader": "A writer who wants to see the kind of words the STE profile replaces",
+    "prompt": "Write a short page with a wide table of eight sample rows from the STE replacement list, at least two of each tier. Give the word or phrase, its replacement, the tier, the part of speech when set, the category and the origin. Explain the three tiers in one short list under the table.",
+    "sources": ["packages/docs-style/src/profile/replacements.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 216,
+    "set": "held-out",
+    "slug": "published-block-behavior",
+    "title": "Blocks on a Published Page",
+    "reader": "A host developer who must know what each special block needs on a published page",
+    "prompt": "Write a short page with a table of how special blocks behave on a published page: canvas, sequence, image-grid, video, html and app-embed. Give the block, what the reader sees and what the host must provide. Add one sentence on the blocks that fail the build.",
+    "sources": ["packages/docs-publish/README.md"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 217,
+    "set": "held-out",
+    "slug": "path-refusals",
+    "title": "Docs Path Refusals",
+    "reader": "A server engineer who sees a 403 or 400 from a docs write and wants to know the cause",
+    "prompt": "Write a short page with a table of the reasons the docs path check refuses a path. Give the reason, its HTTP status, the error text and a path that causes it. Say which status wins when two refusals apply.",
+    "sources": ["packages/docs-index/src/safe-path.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 218,
+    "set": "held-out",
+    "slug": "ste-limits",
+    "title": "STE Profile Limits",
+    "reader": "A writer whose page was flagged for long sentences and paragraphs",
+    "prompt": "Write a short page with a small table of the numeric limits of the STE profile. Give the limit, its value, the STE rule it comes from and what it counts. Say in one sentence which two limits apply to rewrites and not to the writer.",
+    "sources": ["packages/docs-style/src/profile/index.ts", "packages/docs-style/src/profile/types.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  },
+  {
+    "id": 219,
+    "set": "held-out",
+    "slug": "review-routes",
+    "title": "Review Routes",
+    "reader": "A client developer who will call the docs server review routes directly",
+    "prompt": "Write a short page with a table of the docs server routes for proposals and change-sets. Give the method, the path, what it returns on success and its error statuses. Explain the difference between a proposal and a change-set in two sentences.",
+    "sources": ["packages/docs-server/src/routes.ts"],
+    "blockTypes": ["structured-table"],
+    "rewrites": ""
+  }
+]

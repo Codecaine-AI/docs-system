@@ -1,7 +1,7 @@
 // The fixed writer: one Claude Code run per brief (Opus 5.5, medium effort) that writes one new page
 // in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files as of SOURCE_REF.
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { $ } from "bun";
@@ -67,10 +67,10 @@ export async function docsMcpEnv(stateDir: string, root = REPO): Promise<Record<
 }
 
 /**
- * The round 0 commit. Writers and judges read every repo source from it, so the climb's own commits never
- * change what a brief describes. It shares the lint-ref snapshot folder.
+ * The commit writers and judges read every repo source from (main when the lane climb started, which holds evals/).
+ * Climb commits never change what a brief describes. It shares the lint-ref snapshot folder.
  */
-export const SOURCE_REF = "8003057f06cdadef049ee61ec8817ee943ee4198";
+export const SOURCE_REF = "ef186cd44825c69e19eab505ab7b3bcc3dad7f03";
 export const SOURCE_ROOT = join(REPO, ".tmp/quality-climb/lint-rules", SOURCE_REF);
 
 /** Every source as an absolute path. Repo sources are relative to the repo root at SOURCE_REF. Absolute sources stay as they are. */
@@ -171,4 +171,19 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   await writeFile(join(pageDir, failed ? "metrics.failed.json" : "metrics.json"), JSON.stringify(metrics, null, 2));
   if (failed) throw new Error(`Writer failed for brief ${brief.id} (exit ${exitCode}, page ${existsSync(pagePath(pageDir, brief)) ? "partial" : "missing"}). See ${join(pageDir, "writer.jsonl")}.`);
   return metrics;
+}
+
+/**
+ * Copies the page that a finished earlier round wrote in `fromDir` into `pageDir`, so this checkout's viewer
+ * re-renders it with no new write. The corpus's themes link points at `systemRoot`'s themes, not the old checkout's.
+ * metrics.json comes last, because it marks a finished write.
+ */
+export async function copyWrittenPage(brief: Brief, fromDir: string, pageDir: string, systemRoot = REPO): Promise<void> {
+  if (!existsSync(join(fromDir, "metrics.json")) || !existsSync(pagePath(fromDir, brief))) throw new Error(`No finished page for brief ${brief.id} in ${fromDir}.`);
+  const corpus = join(pageDir, "corpus");
+  await rm(corpus, { recursive: true, force: true });
+  await cp(join(fromDir, "corpus"), corpus, { recursive: true, verbatimSymlinks: true, filter: (src) => src !== join(fromDir, "corpus/themes") });
+  await symlink(join(systemRoot, "themes"), join(corpus, "themes"));
+  await writeFile(join(pageDir, "frozen-from.json"), JSON.stringify({ from: fromDir }, null, 2));
+  await copyFile(join(fromDir, "metrics.json"), join(pageDir, "metrics.json"));
 }

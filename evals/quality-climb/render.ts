@@ -7,6 +7,7 @@ import { join, resolve, sep } from "node:path";
 import { $ } from "bun";
 import type { DocDocument } from "../../packages/docs-model/src/doc-schema";
 import type { LintReport } from "../../packages/docs-model/src/lint";
+import type { Box } from "./images";
 import { groupOf, type BlockGroup, type Brief } from "./schema";
 import { REPO, pagePath } from "./write";
 
@@ -59,7 +60,8 @@ export async function lintPage(docJson: string, rules: { root: string; label: st
   return { rules: rules.label, ...JSON.parse(out.stdout.toString()) };
 }
 
-async function screenshot(siteDir: string, slug: string, png: string): Promise<void> {
+/** Screenshots the page's scroller to `png` and returns the box of each block in PNG pixels, keyed by block id. */
+async function screenshot(siteDir: string, slug: string, png: string): Promise<Record<string, Box>> {
   const { chromium } = await import("playwright");
   const server = Bun.serve({ port: 0, hostname: "127.0.0.1", async fetch(request) {
     const path = decodeURIComponent(new URL(request.url).pathname);
@@ -83,6 +85,16 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<v
       await page.waitForTimeout(300);
     }
     await page.locator("[data-docs-scroller]").screenshot({ path: png });
+    return await page.evaluate(() => {
+      const scroller = document.querySelector<HTMLElement>("[data-docs-scroller]")!;
+      const origin = scroller.getBoundingClientRect();
+      const boxes: Record<string, { x: number; y: number; width: number; height: number }> = {};
+      for (const el of scroller.querySelectorAll<HTMLElement>("[data-block-id]")) {
+        const r = el.getBoundingClientRect();
+        if (r.width && r.height) boxes[el.dataset.blockId!] ??= { x: r.left - origin.left, y: r.top - origin.top + scroller.scrollTop, width: r.width, height: r.height };
+      }
+      return boxes;
+    });
   } finally {
     await browser.close();
     server.stop(true);
@@ -90,7 +102,7 @@ async function screenshot(siteDir: string, slug: string, png: string): Promise<v
 }
 
 /**
- * Renders the brief's page in `pageDir` to page.png, page.md, blocks.json and lint.json. `rebuild` rebuilds the viewer SPA first.
+ * Renders the brief's page in `pageDir` to page.png, page.md, blocks.json, boxes.json (each block's place in the PNG) and lint.json. `rebuild` rebuilds the viewer SPA first.
  * `systemRoot` is the Docs System checkout that exports the page (this worktree by default).
  */
 export async function renderPage(brief: Brief, pageDir: string, rules: { root: string; label: string }, rebuild: boolean, systemRoot = REPO) {
@@ -107,7 +119,8 @@ export async function renderPage(brief: Brief, pageDir: string, rules: { root: s
   await writeFile(join(pageDir, "blocks.json"), JSON.stringify(pageBlocks(doc), null, 2));
   const lint = await lintPage(docJson, rules);
   await writeFile(join(pageDir, "lint.json"), JSON.stringify(lint, null, 2));
-  await screenshot(siteDir, brief.slug, join(pageDir, "page.png"));
+  const boxes = await screenshot(siteDir, brief.slug, join(pageDir, "page.png"));
+  await writeFile(join(pageDir, "boxes.json"), JSON.stringify(boxes, null, 2));
   return { png: join(pageDir, "page.png"), lint };
 }
 

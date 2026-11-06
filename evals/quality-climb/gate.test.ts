@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { builderReport, costGuard, evaluateGate, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type PageScore, type WriterCost } from "./gate";
+import { builderReport, costGuard, evaluateGate, evaluateLaneGate, laneBuilderReport, lintGuard, parseTestLog, parseTypeErrors, testsGuard, type GuardResult, type LanePageScore, type PageScore, type WriterCost } from "./gate";
 import { BLOCK_GROUPS, PAGE_CATEGORIES, type BriefSet, type JudgeReply, type PageCategory } from "./schema";
 
 const okGuards: GuardResult[] = [
@@ -194,5 +194,114 @@ describe("builderReport", () => {
     expect(report.guards.find((g) => g.name === "writer-cost")).toMatchObject({ pass: false, items: [], heldOutItems: 1 });
     expect(report.heldOutFailures).toBe(1);
     expect(report.scores.sol!["held-out"]!.categories.accuracy.mean).toBe(10);
+  });
+});
+
+describe("lane gate", () => {
+  const criteria = ["accuracy", "readability", "nesting"];
+  /** One lane page, every criterion and category `score` in each sample unless overridden. */
+  function lanePage(judge: string, set: BriefSet, over: { id?: number; score?: number; criteria?: Record<string, number>[]; categories?: Partial<Record<PageCategory, number>>; finding?: string } = {}): LanePageScore {
+    const { id: briefId = set === "climb" ? 1 : 2, score = 9.6 } = over;
+    const sample = (c: Record<string, number> = {}) => ({
+      criteria: { ...Object.fromEntries(criteria.map((id) => [id, score])), ...c },
+      categories: { ...Object.fromEntries(PAGE_CATEGORIES.map((c) => [c, 9])), ...over.categories } as Record<PageCategory, number>,
+      findings: over.finding ? [{ target: "nesting", severity: "high" as const, finding: over.finding }] : [],
+    });
+    return { judge, set, briefId, samples: (over.criteria ?? [{}]).map(sample) };
+  }
+  const both = (judge: string, score = 9.6) => [lanePage(judge, "climb", { score }), lanePage(judge, "held-out", { score })];
+  const gate = (pages: LanePageScore[], counting: string[], baseline: Parameters<typeof evaluateLaneGate>[4] = null) => evaluateLaneGate(pages, counting, criteria, okGuards, baseline);
+
+  test("passes when every counting judge gives 9.5 or more on every criterion on both sets", () => {
+    expect(gate([...both("sol"), ...both("opus", 9.5)], ["sol", "opus"]).pass).toBe(true);
+  });
+
+  test("a criterion score is the median of a page's samples, then the mean over the set's pages", () => {
+    const climb = [lanePage("sol", "climb", { criteria: [{ nesting: 9.9 }, { nesting: 8.0 }, { nesting: 9.7 }] }), lanePage("sol", "climb", { id: 3, criteria: [{ nesting: 9.1 }] })];
+    const result = gate([...climb, lanePage("sol", "held-out")], ["sol"]);
+    expect(result.scores.sol!.climb!.criteria.nesting!.mean).toBeCloseTo(9.4);
+    expect(result.scores.sol!.climb!.criteria.nesting!.min).toBe(9.1);
+    expect(texts(result)).toEqual(["sol climb nesting: mean 9.40 < 9.5"]);
+  });
+
+  test("passes a criterion whose page scores average exactly 9.5, though their float sum falls just short", () => {
+    const scores = [9.6, 9.9, 9.9, 10, 9.1, 8.8, 9.6, 9.1];
+    const climb = scores.map((nesting, i) => lanePage("sol", "climb", { id: 10 + i, criteria: [{ nesting }] }));
+    const result = gate([...climb, lanePage("sol", "held-out")], ["sol"]);
+    expect(result.scores.sol!.climb!.criteria.nesting!.mean).toBe(9.5);
+    expect(result.pass).toBe(true);
+  });
+
+  test("fails on the held-out set alone, and on a set no counting judge scored", () => {
+    expect(texts(gate([lanePage("sol", "climb"), lanePage("sol", "held-out", { score: 9.4 })], ["sol"]))).toEqual(criteria.map((c) => `sol held-out ${c}: mean 9.40 < 9.5`));
+    expect(texts(gate([lanePage("sol", "climb")], ["sol"]))).toEqual(["sol held-out: no pages scored"]);
+  });
+
+  test("fails a criterion that a sample did not score, such as a reply cached before the criterion was added", () => {
+    const stale = lanePage("sol", "climb");
+    const legacy = { ...stale.samples[0]!, criteria: { accuracy: 9.6, readability: 9.6 } };
+    const climb = [{ ...stale, samples: [stale.samples[0]!, legacy, stale.samples[0]!] }, lanePage("sol", "climb", { id: 3 })];
+    const result = gate([...climb, lanePage("sol", "held-out")], ["sol"]);
+    expect(result.pass).toBe(false);
+    expect(texts(result)).toEqual(["sol climb nesting: not scored on 1 of 2 pages"]);
+    // With one sample, the missing score makes the mean NaN, which never compares below the target.
+    const lone = gate([{ ...stale, samples: [legacy] }, lanePage("sol", "held-out")], ["sol"]);
+    expect(texts(lone)).toEqual(["sol climb nesting: not scored on 1 of 1 pages"]);
+  });
+
+  test("only the stage's counting judges block, so a later-stage judge below the target does not", () => {
+    const pages = [...both("sol"), ...both("opus"), ...both("muse", 7)];
+    expect(gate(pages, ["sol", "opus"]).pass).toBe(true);
+    expect(gate(pages, ["sol", "opus", "muse"]).pass).toBe(false);
+  });
+
+  test("the page-category guard fails when a category falls more than 0.5 below the baseline, and records the first round", () => {
+    const baseline = gate(both("sol"), ["sol"]).scores;
+    const dropped = [lanePage("sol", "climb", { categories: { structure: 8.4 } }), lanePage("sol", "held-out")];
+    const result = gate(dropped, ["sol"], baseline);
+    expect(result.guards.find((g) => g.name === "page-categories")).toMatchObject({ pass: false, items: [{ set: "climb", text: "sol climb structure: mean 8.40, baseline 9.00" }] });
+    expect(gate([lanePage("sol", "climb", { categories: { structure: 8.6 } }), lanePage("sol", "held-out")], ["sol"], baseline).pass).toBe(true);
+    expect(gate(dropped, ["sol"]).guards.at(-1)).toMatchObject({ pass: true, detail: "baseline recorded" });
+  });
+
+  test("the page-category guard passes a drop of exactly 0.5, though its float difference is just over, and fails 0.51", () => {
+    const round = (structure: number) => [lanePage("sol", "climb", { categories: { structure } }), lanePage("sol", "held-out", { categories: { structure } })];
+    const baseline = gate(round(8.3), ["sol"]).scores;
+    expect(gate(round(7.8), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: true });
+    expect(gate(round(7.79), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb" }, { set: "held-out" }] });
+  });
+
+  test("the page-category guard fails a category whose mean is not a number", () => {
+    const baseline = gate(both("sol"), ["sol"]).scores;
+    const broken = both("sol").map((p) => ({ ...p, samples: p.samples.map((s) => ({ ...s, categories: { ...s.categories, craft: undefined as unknown as number } })) }));
+    expect(gate(broken, ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb", text: "sol climb craft: mean is not a number" }, { set: "held-out" }] });
+  });
+
+  test("the page-category guard fails a drop of 0.50625 over 8 two-sample pages, which rounding to hundredths would hide", () => {
+    // Baseline page medians: seven 9.0 and one 9.1, mean 9.0125. Current: seven 8.5 and one 8.55 (median of 8.5 and 8.6), mean 8.50625.
+    const page = (set: BriefSet, id: number, structure: [number, number]): LanePageScore => ({
+      ...lanePage("sol", set, { id }),
+      samples: structure.map((s) => lanePage("sol", set, { id, categories: { structure: s } }).samples[0]!),
+    });
+    const round = (first: [number, number], rest: [number, number]) =>
+      (["climb", "held-out"] as const).flatMap((set) => Array.from({ length: 8 }, (_, i) => page(set, (set === "climb" ? 10 : 30) + i, i === 0 ? first : rest)));
+    const baseline = gate(round([9.1, 9.1], [9.0, 9.0]), ["sol"]).scores;
+    expect(baseline.sol!.climb!.categories.structure.mean).toBe(9.0125);
+    const now = gate(round([8.5, 8.6], [8.5, 8.5]), ["sol"], baseline);
+    expect(now.scores.sol!.climb!.categories.structure.mean).toBe(8.50625);
+    expect(now.guards.at(-1)).toMatchObject({ name: "page-categories", pass: false });
+  });
+
+  test("the builder report holds held-out scores only, never held-out pages, findings or guard items", () => {
+    const baseline = gate(both("sol"), ["sol"]).scores;
+    const pages = [lanePage("sol", "climb", { finding: "climb finding" }), lanePage("sol", "held-out", { id: 7, score: 9.0, finding: "secret held-out finding", categories: { craft: 7 } })];
+    const report = laneBuilderReport(gate(pages, ["sol"], baseline), pages, criteria);
+    const text = JSON.stringify(report);
+    expect(report.scores.sol!["held-out"]!.criteria.nesting!.mean).toBe(9);
+    expect(report.climbPages.map((p) => p.briefId)).toEqual([1]);
+    expect(report.climbPages[0]!.findings.map((f) => f.finding)).toEqual(["climb finding"]);
+    expect(report.guards.find((g) => g.name === "page-categories")).toMatchObject({ pass: false, items: [], heldOutItems: 1 });
+    expect(report.heldOutFailures).toBe(3);
+    for (const leak of ["secret held-out finding", "held-out nesting", "held-out craft", '"briefId":7']) expect(text).not.toContain(leak);
   });
 });

@@ -1,0 +1,134 @@
+[
+  {
+    "id": 232,
+    "set": "climb",
+    "slug": "viewer-host-layers",
+    "title": "Viewer and Host Layers",
+    "reader": "A contributor who will embed the docs viewer in a new host app",
+    "prompt": "Write a short page that shows the layers from the host at the top through docs-viewer to docs-model at the bottom. State the rule at each boundary: what the viewer never does and what the model never holds. Explain in one paragraph that data crosses into the viewer only through the DocsClient interface.",
+    "sources": ["VIEWER-HOST-SEPARATION.md", "packages/docs-viewer/src/client.tsx"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 233,
+    "set": "climb",
+    "slug": "docs-mcp-connection-layers",
+    "title": "Docs MCP Connection Layers",
+    "reader": "An engineer who will debug a coding agent that cannot reach the docs tools",
+    "prompt": "Write a short page that shows the layers a docs tool call passes through: the agent client, the stdio MCP server, the shared loopback service, and the docs store on disk. State the rule at the boundary to the service: a 127.0.0.1 address and a bearer token. Say which layer starts the service when it is not running.",
+    "sources": ["packages/docs-mcp/src/mcp.ts", "packages/docs-mcp/src/lifecycle.ts", "packages/docs-mcp/src/service.ts", "packages/docs-mcp/README.md"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 234,
+    "set": "climb",
+    "slug": "path-confinement-layers",
+    "title": "Path Confinement Layers",
+    "reader": "A server engineer who will add a new route that writes a file under the docs root",
+    "prompt": "Write a short page that shows the layers between a docs server route and the file system: the route, the confine helpers, the docs-root chokepoint in docs-index, and the disk. State the rule at each boundary, such as lexical path checks above and the real-path check at the chokepoint. Say what a refused path resolves to.",
+    "sources": ["packages/docs-server/src/confine.ts", "packages/docs-index/src/safe-path.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 235,
+    "set": "climb",
+    "slug": "style-rule-layers",
+    "title": "Style Rule Layers",
+    "reader": "A docs-style contributor who wants to know which layer may read the STE profile data",
+    "prompt": "Write a short page that shows the layers of a style rule from the profile data at the bottom to the lint engine at the top: the data files, the profile index, the rule folders, the rule registry and the LintRule adapter. State the rule that rules read the profile only through the profile index. Say what toLintRule changes.",
+    "sources": ["packages/docs-style/src/rules/index.ts", "packages/docs-style/src/profile/types.ts", "packages/docs-model/src/lint/types.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 236,
+    "set": "held-out",
+    "slug": "theme-token-layers",
+    "title": "Theme Token Layers",
+    "reader": "A theme designer who changed a palette color and does not see it on a block",
+    "prompt": "Write a short page that shows the three token layers of the workbench theme: the raw palette, the shared role tokens and each component's own knobs. State the rule at each line, such as the faint tokens being for guides and gutters only and never for text. Explain in one sentence how one role token gives light, dark and code-panel values.",
+    "sources": ["packages/docs-workbench/web/src/theme/semantic-roles.css", "packages/docs-workbench/web/src/theme/notion-palette.css"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 237,
+    "set": "held-out",
+    "slug": "workbench-serve-layers",
+    "title": "Workbench Serve Layers",
+    "reader": "A developer who will run the workbench against the installed background service",
+    "prompt": "Write a short page that shows the layers of docs serve: the CLI or the desktop app, the workbench server, the docs server routes and store, and the docs index. Show the central service as a side node that serve connects to when it is installed. State the rule that the workbench connects to it without a reverse package dependency.",
+    "sources": ["packages/docs-workbench/src/server.ts", "packages/docs-workbench/src/run-serve.ts", "packages/docs-workbench/src/central-service.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 238,
+    "set": "held-out",
+    "slug": "harness-layers",
+    "title": "Quality Climb Harness Layers",
+    "reader": "An engineer who will change what a builder sees after a quality-climb round",
+    "prompt": "Write a short page that shows the layers of the quality-climb harness: the round runner at the top, the write, render and page-review stages below it, and the pure gate rules at the bottom. State the rule at the line between the gate and the builder report: the report never shows held-out pages or findings.",
+    "sources": ["evals/quality-climb/gate.ts", "evals/quality-climb/round.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 239,
+    "set": "held-out",
+    "slug": "publish-layers",
+    "title": "Publish Layers",
+    "reader": "A host developer who wants to know what runs on their published pages",
+    "prompt": "Write a short page that shows the layers of a published docs page: the host page shell, docs-publish, the viewer's block renderer and the docs model. State the rules at the boundaries: no local API URLs are embedded, and deployed pages never load the editor. Say what the host owns.",
+    "sources": ["packages/docs-publish/README.md", "packages/docs-publish/src/publish.tsx"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 240,
+    "set": "held-out",
+    "slug": "component-model-layers",
+    "title": "Component Model Layers",
+    "reader": "A docs-model contributor who will add a component and wants to know what the registry checks",
+    "prompt": "Write a short page that shows the layers of a docs-model component: the doc schema at the bottom, the component's state, actions and agent view, and the component registry at the top. State the rule the registry enforces at load. Show the actions of one component as nodes in two columns.",
+    "sources": ["packages/docs-model/src/components/index.ts", "packages/docs-model/src/components/checks.ts", "packages/docs-model/src/components/define.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 241,
+    "set": "held-out",
+    "slug": "rewrite-guardrail-layers",
+    "title": "Rewrite Guardrail Layers",
+    "reader": "A docs-style engineer who will add a new paid check to the rewrite guardrails",
+    "prompt": "Write a short page that shows the layers a Tier 3 rewrite passes before it is staged: span protection, the twelve cheap checks, the fact check, and the meaning verifier. State the rule at each line: a paid check runs only when everything before it passed, and a check that could not run never accepts. Say where a new paid check goes.",
+    "sources": ["packages/docs-style/src/guardrails/index.ts", "packages/docs-style/src/rewrite/protect.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 242,
+    "set": "held-out",
+    "slug": "background-process-layers",
+    "title": "Background Process Layers",
+    "reader": "An operator who will debug which process of the docs background service crashed",
+    "prompt": "Write a short page that shows the process layers of the docs background service: the launch agent, the native launcher, the bootstrap loop, the supervisor and the runtimes it runs. Show the viewer dev server as a side node. State the rule the bootstrap follows when the current build fails to start.",
+    "sources": ["packages/docs-mcp/src/background/bootstrap.mjs", "packages/docs-mcp/src/background/launcher.c", "packages/docs-mcp/src/background/supervisor.ts", "packages/docs-mcp/src/background/viewer.mjs"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  },
+  {
+    "id": 243,
+    "set": "held-out",
+    "slug": "text-measure-layers",
+    "title": "Text Measure Layers",
+    "reader": "A lint author who sees findings marked approximate",
+    "prompt": "Write a short page that shows the layers between a linting docs CLI command and the text width it measures: the command, the layout lints, the inline measure, and text-measure with its HarfBuzz and approximate backends. State the rule when HarfBuzz does not load. List the commands that load it.",
+    "sources": ["packages/docs-model/src/layout/inline-measure.ts", "packages/docs-cli/src/index.ts"],
+    "blockTypes": ["stack"],
+    "rewrites": ""
+  }
+]

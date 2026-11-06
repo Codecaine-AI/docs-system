@@ -13,7 +13,7 @@ The packet below this brief gives you four things.
 
 ## Score the Page
 
-Score each of the 8 categories with a whole number from 1 to 10. Each category has one question.
+Score each of the 8 categories from 1.0 to 10.0, with one decimal. Each category has one question.
 
 | Group | Category | The question |
 |---|---|---|
@@ -31,7 +31,7 @@ A fact that the page leaves out counts under `coverage`, not under `accuracy`.
 
 Use the source files for the Meaning group. Use the markdown for the Writing group. Use only the PNG for the Look group.
 
-Use the whole scale. Each whole number has one meaning.
+Use the whole scale. Each whole number below is an anchor with one meaning.
 
 - 10: The page has no fault worth fixing.
 - 9: The page has only small faults that a careful reader notices on a second read.
@@ -44,11 +44,13 @@ Use the whole scale. Each whole number has one meaning.
 - 2: The page fails its reader in most places.
 - 1: The page fails its reader in every place.
 
-A score must agree with your findings. A category with no finding of `medium` or `high` severity scores 9 or 10. A finding on a block counts for the category that it is about.
+Give a score between two anchors when the page sits between them. A 9.4 is nearer to 9 than to 10: it has small faults, and fewer or smaller ones than a 9.0. Use the decimal to rank pages that share an anchor, and never more than one decimal.
+
+A score must agree with your findings. A category with no finding of `medium` or `high` severity scores 9.0 or more. A finding on a block counts for the category that it is about.
 
 ## Score Each Block
 
-The packet lists each block on the page that you must score, by id and type. Give each listed block one whole number from 1 to 10. Score the text inside the block and how it renders in the PNG. Score every listed block once, and no other id.
+The packet lists each block on the page that you must score, by id and type. Give each listed block one score from 1.0 to 10.0, with one decimal, on the same anchors. Score the text inside the block and how it renders in the PNG. Score every listed block once, and no other id.
 
 - Rich text is the `paragraph`, `heading` and `list-item` blocks.
 - The other block types are `callout`, `code`, `structured-table`, `file-tree`, `interaction-surface`, `state-shape`, `process-outline`, `stack`, `call-stack`, `component-tree`, `pseudocode` and `file-explorer`.
@@ -68,10 +70,10 @@ Reply with one JSON object and nothing else: no prose and no code fence.
 ```json
 {
   "categories": {
-    "accuracy": 8, "coverage": 8, "scope": 8, "clarity": 8,
-    "structure": 8, "block-choice": 8, "hierarchy": 8, "craft": 8
+    "accuracy": 8.2, "coverage": 8.2, "scope": 8.2, "clarity": 8.2,
+    "structure": 8.2, "block-choice": 8.2, "hierarchy": 8.2, "craft": 8.2
   },
-  "blocks": [{ "id": "block-id", "score": 8 }],
+  "blocks": [{ "id": "block-id", "score": 8.2 }],
   "findings": [{ "target": "accuracy", "severity": "high", "finding": "The page says X, but src/a.ts does Y." }]
 }
 ```
