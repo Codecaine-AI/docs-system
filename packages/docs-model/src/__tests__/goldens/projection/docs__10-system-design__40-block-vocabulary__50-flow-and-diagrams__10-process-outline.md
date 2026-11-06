@@ -95,6 +95,8 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Write one short action or idea per arrow line, usually ten words or fewer. Use present tense and a concrete verb. Split multiple sentences or independent actions into separate steps.
 
+  - Never join two verbs with "and" in one step. "Sort the paths and take one lock per path" is two steps.
+
   - Move explanations into notes. Keep conditions that change whether an action occurs explicit in the step or its parent.
 
   - Write the root title and each phase as a short Title Case label, and keep substeps as sentence-case actions. The `process-outline.phase-title-case` lint enforces this.
@@ -117,9 +119,9 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - Give every trigger its own branch step, even when it governs one action. Never fold a trigger into an action step, such as "Throw when no brief matches", or into a note.
 
-  - End a failure branch with a step that says where the path goes next: return, stop, or go to the next item.
+  - End a failure branch with a step that says where the path goes next: return, stop, or go to the next item. Leave that step out when the action already ends the path, such as a throw.
 
-  - Fold routine checks that end the same way into one branch step, such as "If a read or a status check fails".
+  - Name what fails in a failure trigger, such as "If judgePage throws", never a bare "On failure". Fold routine checks that end the same way into one branch, such as "If a read or a status check fails".
 
 - Loops hold their body
 
@@ -140,6 +142,10 @@ The process-outline.single-parent lint enforces this authoring structure at comp
   - Nest a step that runs only after an earlier condition under that condition's branch.
 
   - Keep the outline at the level the reader works at. Name the operations that the brief asks for, and leave out helper calls, bookkeeping and logging.
+
+  - Say which paths produce a result that only some paths produce, such as a field that only an entry failure sets.
+
+  - When the brief asks for a short page, keep the outline to about 30 lines, with one step per operation.
 
 - Backticks are the only chip syntax
 
