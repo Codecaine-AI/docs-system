@@ -8,7 +8,7 @@ import { FileTreeEntrySchema } from "../file-tree/state";
 export const FileExplorerState = Type.Object(
   {
     entries: Type.Array(FileTreeEntrySchema),
-    title: Type.Optional(Type.String({ description: "Header title; no header without it." })),
+    title: Type.Optional(Type.String({ description: "Header title: what the files are, never the root folder path. No header without it." })),
     maxRows: Type.Optional(Type.Integer({ minimum: 1, description: "Rows shown before folding (default 8)." })),
   },
   { additionalProperties: false },

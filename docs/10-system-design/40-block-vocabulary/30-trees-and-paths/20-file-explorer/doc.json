@@ -13,6 +13,12 @@
         "fx-h-example",
         "fx-example-lead",
         "fx-example",
+        "fx-h-write",
+        "fx-write-lead",
+        "fx-w-rows",
+        "fx-w-marks",
+        "fx-w-title",
+        "fx-w-notes",
         "fx-h-state",
         "fx-state-lead",
         "fx-state-shape",
@@ -31,6 +37,7 @@
         "fx-doc-4",
         "fx-doc-5",
         "fx-doc-color",
+        "fx-doc-change",
         "fx-h-agent",
         "fx-agent"
       ]
@@ -50,7 +57,7 @@
           }
         },
         {
-          "insert": ", which draws flat path entries as IDE-style sidebar rows. It draws them with collapsible folders and a badge per changed file. Use it to show the files a change touches. "
+          "insert": ", which draws flat path entries as IDE-style sidebar rows. Folders collapse, and each changed file gets a gutter glyph, with a key under the rows that names each glyph. Use it to show the files a change touches. "
         },
         {
           "insert": "File Tree",
@@ -116,12 +123,12 @@
         "entries": [
           {
             "path": "packages/docs-model/src/components/file-tree/state.ts",
-            "note": "entry schema + tolerant read"
+            "note": "Entry schema and tolerant read"
           },
           {
             "path": "packages/docs-model/src/components/file-tree/agent-view.ts",
             "change": "modified",
-            "note": "tree drawing"
+            "note": "Draws the fenced tree for agents"
           },
           {
             "path": "packages/docs-model/src/components/file-tree/actions/update-entry.ts",
@@ -138,6 +145,330 @@
         ],
         "title": "File-tree refactor slice"
       },
+      "children": []
+    },
+    "fx-h-write": {
+      "id": "fx-h-write",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write the Entries"
+        }
+      ],
+      "children": []
+    },
+    "fx-write-lead": {
+      "id": "fx-write-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An explorer reads well when its rows match the change the page describes and each note adds a fact the row cannot show."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-rows": {
+      "id": "fx-w-rows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rows",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-w-rows-1",
+        "fx-w-rows-2",
+        "fx-w-rows-3"
+      ]
+    },
+    "fx-w-rows-1": {
+      "id": "fx-w-rows-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "List each file the change touches."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-rows-2": {
+      "id": "fx-w-rows-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Add an unchanged file only when the prose names it, and give it a note that says why it is there."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-rows-3": {
+      "id": "fx-w-rows-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say in the lead that the explorer leaves the other files of the folder out."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-marks": {
+      "id": "fx-w-marks",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Change and Color",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-w-marks-1",
+        "fx-w-marks-2",
+        "fx-w-marks-3",
+        "fx-w-marks-4"
+      ]
+    },
+    "fx-w-marks-1": {
+      "id": "fx-w-marks-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only for a real change in the change the page describes."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-marks-2": {
+      "id": "fx-w-marks-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A stage, an owner, or a key file is never a change, so a page about a folder with no change sets no "
+        },
+        {
+          "insert": "change",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-marks-3": {
+      "id": "fx-w-marks-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "color",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only on a group that the prose names, and say in the prose what each color marks."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-marks-4": {
+      "id": "fx-w-marks-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never give a group green, red, or yellow, because they read as change colors."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-title": {
+      "id": "fx-w-title",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Title and Fold",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-w-title-1",
+        "fx-w-title-2",
+        "fx-w-title-3"
+      ]
+    },
+    "fx-w-title-1": {
+      "id": "fx-w-title-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name what the files are in "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", such as \"Files the change-set build touched\"."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-title-2": {
+      "id": "fx-w-title-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never repeat the root folder path in "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", because the first row shows it."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-title-3": {
+      "id": "fx-w-title-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "maxRows",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to the row count when the explorer has more than 8 rows, so no changed file folds out of view."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-notes": {
+      "id": "fx-w-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "fx-w-notes-1",
+        "fx-w-notes-2",
+        "fx-w-notes-3",
+        "fx-w-notes-4"
+      ]
+    },
+    "fx-w-notes-1": {
+      "id": "fx-w-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give a note one fact about the file's role in about 10 words, so it fits on one line."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-notes-2": {
+      "id": "fx-w-notes-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never restate the file name, the path, or the change in a note, as \"The bootstrap.\" or \"Unchanged.\" does."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-notes-3": {
+      "id": "fx-w-notes-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never open a note with "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", because "
+        },
+        {
+          "insert": "+",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the added glyph. Write \"Adds 5 routes\", not \"+5 routes\"."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-notes-4": {
+      "id": "fx-w-notes-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every new file a note when some new files have notes."
+        }
+      ],
       "children": []
     },
     "fx-h-state": {
@@ -198,13 +529,13 @@
                 "name": "note",
                 "type": "string",
                 "required": false,
-                "description": "One muted line after the name."
+                "description": "One fact about the file's role, in about 10 words. Never restates the name, path, or change."
               },
               {
                 "name": "change",
                 "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
                 "required": false,
-                "description": "Colors the name and adds an A, D, M, or R badge."
+                "description": "A real change in the change the page shows. Adds a +, −, ~, or > gutter glyph, a row tint, and a key entry."
               },
               {
                 "name": "from",
@@ -216,7 +547,7 @@
                 "name": "color",
                 "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
                 "required": false,
-                "description": "Group color from the docs color roster. It gives each top-level folder its own color. Any other value fails validation."
+                "description": "Group color from the docs color roster. It tints and fills the icons of the row and its subtree. Any other value fails validation."
               }
             ]
           },
@@ -458,13 +789,13 @@
                 "name": "note",
                 "type": "string",
                 "required": false,
-                "description": "Short annotation rendered after the path."
+                "description": "One fact about the file's role, in about 10 words. Never restate the name, path, or change."
               },
               {
                 "name": "change",
                 "type": "\"added\" | \"removed\" | \"modified\" | \"renamed\"",
                 "required": false,
-                "description": "Change marker for the entry."
+                "description": "A real change in the change the page shows. Never a stage, an owner, or a key file."
               },
               {
                 "name": "color",
@@ -752,7 +1083,7 @@
           }
         },
         {
-          "insert": " covers that row and every row beneath it. A descendant's own "
+          "insert": " tints and fills the icon of that row and of every row beneath it, and the names keep their ink. A descendant's own "
         },
         {
           "insert": "color",
@@ -771,6 +1102,35 @@
         },
         {
           "insert": " covers only that row."
+        }
+      ],
+      "children": []
+    },
+    "fx-doc-change": {
+      "id": "fx-doc-change",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A changed row shows its gutter glyph, a soft row tint, and its change color on the name and icon. A folder with no change of its own shows "
+        },
+        {
+          "insert": "added",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "removed",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when every file under it has that change. A key under the rows lists each change the block holds, as its glyph and its word."
         }
       ],
       "children": []

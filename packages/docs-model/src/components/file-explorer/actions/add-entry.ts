@@ -17,7 +17,7 @@ export const addEntry = defineComponentAction({
       minLength: 1,
       description: '/-separated path, no leading "./"; a trailing "/" marks an explicit directory.',
     }),
-    note: Type.Optional(Type.String({ description: "Short annotation rendered after the path." })),
+    note: Type.Optional(Type.String({ description: "One fact about the file's role, in about 10 words. Never restate the name, path or change, and never open with +." })),
     change: Type.Optional(
       Type.Union(
         [
@@ -26,7 +26,7 @@ export const addEntry = defineComponentAction({
           Type.Literal("modified"),
           Type.Literal("renamed"),
         ],
-        { description: 'Change marker: "added" | "removed" | "modified" | "renamed".' },
+        { description: 'A real change in the change the page shows: "added" | "removed" | "modified" | "renamed". Never a stage, an owner or a key file.' },
       ),
     ),
     color: Type.Optional(
