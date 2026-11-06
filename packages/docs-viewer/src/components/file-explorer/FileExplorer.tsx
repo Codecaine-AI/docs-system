@@ -62,6 +62,7 @@ function compactChain(node: FileTreeNode): { names: string[]; last: FileTreeNode
   return { names, last };
 }
 
+/** The visible rows, top to bottom: folders first, chains compacted, collapsed folders closed. */
 function explorerRows(
   nodes: Iterable<FileTreeNode>,
   depth: number,
@@ -134,6 +135,7 @@ export function noteSpans(note: string): ReactNode[] {
 /** The change kinds in legend order. */
 const LEGEND_ORDER: readonly FileTreeChange[] = ["added", "modified", "renamed", "removed"];
 
+/** Every change kind the tree holds, so the key and the gutter belong to the whole tree. */
 function changesIn(nodes: Iterable<FileTreeNode>, found: Set<FileTreeChange>): Set<FileTreeChange> {
   for (const node of nodes) {
     if (node.change) found.add(node.change);
@@ -205,6 +207,7 @@ const EXPLORER_CSS = `
 .docs-explorer__key[data-change="renamed"] .docs-explorer__glyph { color: var(--tr-renamed-fg); }
 `;
 
+/** One row: gutter glyph, guides, twisty, icon, name or compacted chain, and note. */
 function ExplorerRowView({
   row,
   diff,
