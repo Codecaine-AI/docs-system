@@ -523,3 +523,18 @@ describe("StateShapeBlock — name column fit", () => {
     expect(Array.from(document.querySelectorAll('[data-type-tok="string"]')).map((n) => n.textContent)).toEqual(['"climb"', '"held-out"']);
   });
 });
+
+describe("StateShapeBlock — optionality legend and path wrapping", () => {
+  const legend = () => document.querySelector("[data-shape-legend]");
+
+  it("says every field is required when no field is optional", () => {
+    render(<StateShapeBlock id="req" fields={[{ name: "url", type: "string" }, { name: "pid", type: "number" }]} />);
+    expect(legend()?.textContent).toBe("Every field is required.");
+  });
+
+  it("explains the ? marker when a nested field is optional", () => {
+    render(<StateShapeBlock id="opt" fields={[{ name: "source", type: "object", fields: [{ name: "symbol", type: "string", required: false }] }]} />);
+    expect(legend()?.getAttribute("data-shape-legend")).toBe("optional");
+    expect(legend()?.textContent).toBe("? marks an optional field. Every other field is required.");
+  });
+});
