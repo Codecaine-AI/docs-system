@@ -117,13 +117,16 @@ function widestColumns(code: string): number {
   return widest;
 }
 
-/** The px width of a CSS length expression, such as a token with its fallback, resolved inside `host`. */
-function resolvedWidth(host: HTMLElement, expression: string, text = ""): number {
+/** The px width of `texts` set in `host`'s font with spaces kept, the widest one, or of a CSS length expression with no text. */
+function resolvedWidth(host: HTMLElement, expression: string, texts: readonly string[] = []): number {
   const probe = document.createElement("span");
-  probe.style.cssText = `position:absolute;visibility:hidden;white-space:pre;${text ? "" : `width:${expression};`}`;
-  probe.textContent = text;
+  probe.style.cssText = `position:absolute;visibility:hidden;white-space:pre;${texts.length ? "" : `width:${expression};`}`;
   host.appendChild(probe);
-  const width = probe.getBoundingClientRect().width;
+  let width = texts.length ? 0 : probe.getBoundingClientRect().width;
+  for (const text of texts) {
+    probe.textContent = text;
+    width = Math.max(width, probe.getBoundingClientRect().width);
+  }
   probe.remove();
   return width;
 }
@@ -131,8 +134,9 @@ function resolvedWidth(host: HTMLElement, expression: string, text = ""): number
 /**
  * Chooses where the notes of a read code block sit, once it has laid out and
  * again when its width changes. The notes sit beside the code only when the
- * block is at least NOTES_BESIDE_MIN_PX wide and its widest line fits the code
- * column left beside them. Otherwise each note sits under the last line it
+ * block is at least NOTES_BESIDE_MIN_PX wide and its widest line, measured as
+ * the code font paints it (so wide CJK characters count as wide), fits the
+ * code column left beside them. Otherwise each note sits under the last line it
  * explains, so a reader never matches a note to lines a screen away. Beside the
  * code, each note starts level with the first line it explains, or just under
  * the note above it.
@@ -140,6 +144,7 @@ function resolvedWidth(host: HTMLElement, expression: string, text = ""): number
 function useNotePlacement(
   sectionRef: RefObject<HTMLElement | null>,
   firstLines: readonly number[],
+  lineTexts: readonly string[],
   columns: number,
   content: string,
 ): NotePlacement {
@@ -151,9 +156,8 @@ function useNotePlacement(
     if (!section || !pre) return;
     const decide = () => {
       const width = section.getBoundingClientRect().width;
-      const columnWidth = resolvedWidth(pre, "", "0".repeat(64)) / 64;
       const furniture = resolvedWidth(section, "calc(var(--docs-code-notes-width,280px) + var(--docs-code-gutter-width,40px) + 2 * var(--docs-code-pad-x,12px) + 2px)");
-      const fits = width >= NOTES_BESIDE_MIN_PX && columnWidth > 0 && columns * columnWidth <= width - furniture;
+      const fits = width >= NOTES_BESIDE_MIN_PX && resolvedWidth(pre, "", lineTexts) <= width - furniture;
       setPlacement(fits ? "beside" : "inline");
     };
     decide();
@@ -167,7 +171,7 @@ function useNotePlacement(
     });
     observer.observe(section);
     return () => observer.disconnect();
-  }, [sectionRef, columns]);
+  }, [sectionRef, lineTexts]);
   useLayoutEffect(() => {
     const aside = sectionRef.current?.querySelector<HTMLElement>("[data-code-notes]");
     const pre = sectionRef.current?.querySelector<HTMLElement>("pre");
@@ -251,8 +255,10 @@ export function AnnotatedCodeBlock({
     [annotations, lines.length],
   );
   const columns = useMemo(() => widestColumns(displayCode), [displayCode]);
+  // A tab paints as 4 spaces at most, so the measured width never comes out short.
+  const lineTexts = useMemo(() => displayCode.split("\n").map((line) => line.replaceAll("\t", "    ")), [displayCode]);
   // Placement runs again when the code or a note changes.
-  const placement = useNotePlacement(sectionRef, firstLines, columns, `${displayCode}\u0000${JSON.stringify(annotations)}`);
+  const placement = useNotePlacement(sectionRef, firstLines, lineTexts, columns, `${displayCode}\u0000${JSON.stringify(annotations)}`);
   /**
    * Inline placement: the notes under each line, in note order. A note sits
    * under the last line of its range, and a note whose range covers no line

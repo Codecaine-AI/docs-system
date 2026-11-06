@@ -36,3 +36,10 @@ test("both rules are warnings that never block a completed page", () => {
   expect(report.findings.filter((finding) => finding.ruleId.startsWith("code.")).map((finding) => finding.severity)).toEqual(["warning", "warning"]);
   expect(report.blocking).toEqual([]);
 });
+
+test("a JSON note counts the lines the viewer shows after it pretty-prints one-line JSON", () => {
+  const doc = document(paragraph("intro", "The config."), {
+    id: "json", type: "code", props: { language: "json", annotations: [{ lines: "2", note: "The only key." }] }, text: [{ insert: '{"a":1}' }], children: [],
+  });
+  expect(lintDocument(doc, { phase: "complete" }).findings.filter((finding) => finding.ruleId === "code.annotation-range")).toEqual([]);
+});
