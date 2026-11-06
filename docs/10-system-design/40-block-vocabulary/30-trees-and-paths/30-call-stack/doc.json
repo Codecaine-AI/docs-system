@@ -16,6 +16,7 @@
         "cs-h-rules",
         "cs-rules-lead",
         "cs-rules-g1",
+        "cs-rules-g3",
         "cs-rules-g2",
         "cs-h-state",
         "cs-state-lead",
@@ -270,7 +271,7 @@
       ],
       "children": [
         "cs-rules-g1-1",
-        "cs-rules-g1-2",
+        "cs-rules-g1-4",
         "cs-rules-g1-3"
       ]
     },
@@ -280,10 +281,61 @@
       "props": {},
       "text": [
         {
-          "insert": "A frame's children are the calls that its own body makes, in source order. A call inside another call's arguments runs first in the same caller, so it is an earlier sibling."
+          "insert": "A frame's children are the calls that its own body makes, in source order."
         }
       ],
       "children": []
+    },
+    "cs-rules-g1-4": {
+      "id": "cs-rules-g1-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A call inside another call's arguments runs first, in the same caller, so it is an earlier sibling and never a child."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g1-3": {
+      "id": "cs-rules-g1-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A frame's text is the call as the source writes it, with only arguments shortened to "
+        },
+        {
+          "insert": "…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Two calls or two checks never share one frame."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g3": {
+      "id": "cs-rules-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Control flow shows as branch frames",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-rules-g1-2",
+        "cs-rules-g3-2",
+        "cs-rules-g3-3",
+        "cs-rules-g3-4",
+        "cs-rules-g3-5"
+      ]
     },
     "cs-rules-g1-2": {
       "id": "cs-rules-g1-2",
@@ -323,22 +375,127 @@
       ],
       "children": []
     },
-    "cs-rules-g1-3": {
-      "id": "cs-rules-g1-3",
+    "cs-rules-g3-2": {
+      "id": "cs-rules-g3-2",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "A frame's text is the call as the source writes it, with only arguments shortened to "
+          "insert": "A loop, a "
         },
         {
-          "insert": "…",
+          "insert": "try",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". Two calls or two checks never share one frame."
+          "insert": " block, and a "
+        },
+        {
+          "insert": "catch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block are "
+        },
+        {
+          "insert": "branch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " frames too, such as "
+        },
+        {
+          "insert": "for (const block of blocks)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "catch (error)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The calls inside them nest under that frame, so a reader sees what repeats and what runs only on an error."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g3-3": {
+      "id": "cs-rules-g3-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch frame always holds the frames that its condition gates. For the "
+        },
+        {
+          "insert": "else",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " arm of an "
+        },
+        {
+          "insert": "if",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or a ternary, write the negated condition, such as "
+        },
+        {
+          "insert": "baseline !== undefined",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for "
+        },
+        {
+          "insert": "baseline === undefined ? undefined : styleGate(…)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g3-4": {
+      "id": "cs-rules-g3-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch frame tests a condition that the source tests. One call with a conditional argument stays one frame and never becomes two branches."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g3-5": {
+      "id": "cs-rules-g3-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A branch that the stated path cannot reach stays out of the stack."
         }
       ],
       "children": []
@@ -359,7 +516,8 @@
         "cs-rules-g2-1",
         "cs-rules-g2-2",
         "cs-rules-g2-4",
-        "cs-rules-g2-3"
+        "cs-rules-g2-3",
+        "cs-rules-g2-5"
       ]
     },
     "cs-rules-g2-1": {
@@ -397,7 +555,16 @@
           }
         },
         {
-          "insert": " or "
+          "insert": " row has no "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", but a "
         },
         {
           "insert": "throw",
@@ -406,10 +573,10 @@
           }
         },
         {
-          "insert": " row is an exit, not a call, so it has no "
+          "insert": " row cites the line of its "
         },
         {
-          "insert": "source",
+          "insert": "throw",
           "attributes": {
             "code": true
           }
@@ -455,7 +622,27 @@
       "props": {},
       "text": [
         {
-          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. A frame with nothing to add has no comment."
+          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. It says only what this frame's own body does, and it names the condition of a step that runs only sometimes."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2-5": {
+      "id": "cs-rules-g2-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Code inside a comment goes between backticks, such as "
+        },
+        {
+          "insert": "`!judgeUp`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and renders in the code font."
         }
       ],
       "children": []
@@ -557,13 +744,13 @@
                 "name": "kind",
                 "type": "\"call\" | \"branch\"",
                 "required": false,
-                "description": "\"call\" is the default. A branch is a condition row that may own frames."
+                "description": "\"call\" is the default. A branch is a condition, loop, try or catch row that may own frames."
               },
               {
                 "name": "comment",
                 "type": "string",
                 "required": false,
-                "description": "Short note in the aligned comment column."
+                "description": "Short note in the aligned comment column. Code goes between backticks."
               },
               {
                 "name": "change",
@@ -575,7 +762,7 @@
                 "name": "source",
                 "type": "string",
                 "required": false,
-                "description": "The line where the caller writes this call or condition, \"path:line\". A `return` or `throw` row, and a frame marked added, has none."
+                "description": "The line where the caller writes this call or condition, \"path:line\". A `return` row and a frame marked added have none."
               },
               {
                 "name": "frames",
@@ -1173,6 +1360,19 @@
         },
         {
           "insert": " column at the right edge. When the comments do not fit beside the code, each comment moves under its frame, and the source stays on the frame's line."
+        }
+      ],
+      "children": [
+        "cs-doc-3a"
+      ]
+    },
+    "cs-doc-3a": {
+      "id": "cs-doc-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A backtick span in a comment renders in the code font."
         }
       ],
       "children": []
