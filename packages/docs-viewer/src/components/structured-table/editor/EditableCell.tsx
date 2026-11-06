@@ -12,6 +12,8 @@ import { DocCode, DocItalic, DocStrike } from "../../rich-text/editor-marks";
 import type { PMNode } from "../../../editor/core/convert";
 import { pmDocToTableCell, tableCellEquals, tableCellSpans, tableCellToPMDoc } from "../cell-content";
 import { renderTableCell } from "../cell-render";
+import { WHOLE_CHIP_MAX_CHARS } from "../column-layout";
+import { WHOLE_CHIP_CLASSES, applyWholeChips } from "../../mono-breaks";
 import { TABLE_CELL_MIN_HEIGHT_CLASS } from "../table-classes";
 
 export type CellNavigation = "next" | "previous" | "down";
@@ -158,6 +160,8 @@ export function renderStaticCellInto(element: HTMLElement, value: TableCell) {
     trailing.className = "ProseMirror-trailingBreak";
     paragraph.appendChild(trailing);
   }
+  // The read cell's code rule (cell-render.tsx): a short chip stays whole and breaks only at a list separator.
+  applyWholeChips(fragment, WHOLE_CHIP_MAX_CHARS);
   element.replaceChildren(fragment);
 }
 
@@ -283,7 +287,9 @@ function buildCellExtensions(handlers: RefObject<CellHandlers | null>) {
       underline: false,
       undoRedo: false,
     }),
-    DocCode.configure({ HTMLAttributes: { class: INLINE_CODE_CLASSES } }),
+    // Live code runs never break, like a read cell's short chip. A mark cannot see its text's length,
+    // so the live editor does not split list chips at a separator; the idle cell does (renderStaticCellInto).
+    DocCode.configure({ HTMLAttributes: { class: `${INLINE_CODE_CLASSES} ${WHOLE_CHIP_CLASSES}` } }),
     DocItalic,
     DocStrike,
     cellKeymap(handlers),

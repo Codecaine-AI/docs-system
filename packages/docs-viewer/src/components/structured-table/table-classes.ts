@@ -67,9 +67,11 @@ export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min
  * The prose column's floor, half the prose measure: 30ch at stock
  * (column-layout.ts PROSE_FLOOR_CH). It sits on the same
  * block as the measure: a box's min-content width is the larger of its
- * min-width and its longest word, so the floor never cuts a word.
+ * min-width and its longest word, so the floor never cuts a word. Print
+ * drops it: PDF export gives every column an equal share (fixed layout),
+ * and a 30ch block would run into the next column.
  */
-export const TABLE_PROSE_FLOOR_CLASS = "min-w-[calc(var(--ds-layout-lane-text)/2)]";
+export const TABLE_PROSE_FLOOR_CLASS = "min-w-[calc(var(--ds-layout-lane-text)/2)] print:min-w-0";
 
 /**
  * A wrap column's measure: half the prose measure (30ch at stock). The

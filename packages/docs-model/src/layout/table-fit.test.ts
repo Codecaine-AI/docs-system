@@ -159,6 +159,13 @@ describe("layout.table-fit in PDF export", () => {
     expect(check(document(block))).toEqual([]);
   });
 
+  test("a short list chip and the prose column's floor both wrap in print, so neither runs into the next column", () => {
+    const prose = "A sentence long enough to make this column the prose column of the table.";
+    const block = table("t", ["A", "B", "C", "D", "E"], [["a", "b", [{ insert: "Use " }, code("aVeryLongCamelCaseIdentifier,short")], "d", prose]]);
+    expect(structuredTableWidths(block, 688)!.columns[4]!.fit).toBe("prose");
+    expect(structuredTableWidths(block, 688)!.pdfOverflows).toEqual([]);
+  });
+
   test("in a fit column a bold run stays on one line in print", () => {
     const bold = { insert: "Unbreakable bold label", attributes: { bold: true as const } };
     // Column E holds the longest text, so it is the prose column and C is a fit column.

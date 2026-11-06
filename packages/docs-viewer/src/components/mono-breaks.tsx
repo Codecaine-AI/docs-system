@@ -116,6 +116,13 @@ export function listChipPieces(text: string): string[] {
   return text.split(/(?<=[^\s,|][,|])(?=[^,|])/);
 }
 
+/**
+ * A whole chip and each of its list pieces stay on one line on screen. Print
+ * CSS wraps code anywhere, so print resets them (a class, not an inline
+ * style, which print rules could not override).
+ */
+export const WHOLE_CHIP_CLASSES = "whitespace-nowrap print:whitespace-normal";
+
 /** `listChipPieces` as React: nowrap pieces with a `<wbr>` between two pieces. Chromium breaks at a `<wbr>` even under nowrap. */
 export function listChipBreaks(text: string): ReactNode {
   const pieces = listChipPieces(text);
@@ -123,7 +130,31 @@ export function listChipBreaks(text: string): ReactNode {
   return pieces.map((piece, index) => (
     <Fragment key={index}>
       {index > 0 && <wbr />}
-      <span data-chip-piece="" style={NOWRAP}>{piece}</span>
+      <span data-chip-piece="" className={WHOLE_CHIP_CLASSES}>{piece}</span>
     </Fragment>
   ));
+}
+
+/**
+ * Applies the whole-chip rule to every `<code>` already in `root` (DOM, not
+ * React): a chip up to `maxChars` long gets WHOLE_CHIP_CLASSES and its list
+ * pieces, as listChipBreaks renders it. The editor grid's idle cells use it,
+ * so a table wraps its code the same in edit mode as in read mode.
+ */
+export function applyWholeChips(root: ParentNode, maxChars: number): void {
+  for (const code of Array.from(root.querySelectorAll("code"))) {
+    const text = code.textContent ?? "";
+    if (text.length > maxChars || code.children.length > 0) continue;
+    code.classList.add(...WHOLE_CHIP_CLASSES.split(" "));
+    const pieces = listChipPieces(text);
+    if (pieces.length === 1) continue;
+    const document = code.ownerDocument;
+    code.replaceChildren(...pieces.flatMap((piece, index) => {
+      const span = document.createElement("span");
+      span.setAttribute("data-chip-piece", "");
+      span.className = WHOLE_CHIP_CLASSES;
+      span.textContent = piece;
+      return index > 0 ? [document.createElement("wbr"), span] : [span];
+    }));
+  }
 }

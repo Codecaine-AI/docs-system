@@ -11,10 +11,7 @@ import {
   SOURCE_REFERENCE_CLASSES,
 } from "./block-classes";
 import { chipKind } from "../components/typed-chip";
-import { chipBreaks, listChipBreaks } from "../components/mono-breaks";
-
-/** A whole chip breaks on screen only at its list pieces. Print CSS wraps code anywhere, so print lets it wrap. */
-const WHOLE_CHIP_CLASSES = "whitespace-nowrap print:whitespace-normal";
+import { WHOLE_CHIP_CLASSES, chipBreaks, listChipBreaks } from "../components/mono-breaks";
 
 /**
  * The class string and `data-chip-kind` for one inline code chip holding
