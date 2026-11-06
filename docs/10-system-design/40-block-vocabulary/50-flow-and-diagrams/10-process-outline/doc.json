@@ -38,7 +38,6 @@
         "b-90-process-outline-wr-branch",
         "b-90-process-outline-wr-loops",
         "po-wr-source",
-        "po-wr-hidden",
         "b-90-process-outline-wr-chips",
         "b-90-process-outline-wr-split",
         "b-90-process-outline-wr-example-intro",
@@ -1180,78 +1179,6 @@
       "text": [
         {
           "insert": "When the brief asks for a short page, keep the outline to about 30 lines, with one step per operation."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-hidden": {
-      "id": "po-wr-hidden",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Show what the code hides"
-        }
-      ],
-      "children": [
-        "po-wr-hidden-check",
-        "po-wr-hidden-fail",
-        "po-wr-hidden-best",
-        "po-wr-hidden-filter",
-        "po-wr-hidden-parallel"
-      ]
-    },
-    "po-wr-hidden-check": {
-      "id": "po-wr-hidden-check",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Show each check that the brief names as its own step, even when the code runs it inside a call. Give the check its failure branch."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-hidden-fail": {
-      "id": "po-wr-hidden-fail",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Give each step that can fail its failure branch, or put the steps under one group step that a single failure branch covers."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-hidden-best": {
-      "id": "po-wr-hidden-best",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Mark a best-effort step whose failure does not stop the process, and say what records the failure."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-hidden-filter": {
-      "id": "po-wr-hidden-filter",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Name the filter of any step that picks items, the same as for a loop, such as \"Copy each file that a src attribute names\"."
-        }
-      ],
-      "children": []
-    },
-    "po-wr-hidden-parallel": {
-      "id": "po-wr-hidden-parallel",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Say when the items of a loop run at once, and name the step that still runs one item at a time."
         }
       ],
       "children": []

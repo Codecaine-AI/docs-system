@@ -147,18 +147,6 @@ The process-outline.single-parent lint enforces this authoring structure at comp
 
   - When the brief asks for a short page, keep the outline to about 30 lines, with one step per operation.
 
-- Show what the code hides
-
-  - Show each check that the brief names as its own step, even when the code runs it inside a call. Give the check its failure branch.
-
-  - Give each step that can fail its failure branch, or put the steps under one group step that a single failure branch covers.
-
-  - Mark a best-effort step whose failure does not stop the process, and say what records the failure.
-
-  - Name the filter of any step that picks items, the same as for a loop, such as "Copy each file that a src attribute names".
-
-  - Say when the items of a loop run at once, and name the step that still runs one item at a time.
-
 - Backticks are the only chip syntax
 
   - Use backticks for code identifiers and actors such as Worker or Operator. A chip's text colour follows what the code is, and one chip can hold several words.
