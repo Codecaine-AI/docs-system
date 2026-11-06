@@ -11,17 +11,13 @@ To show the files a change touches as editor sidebar rows with a badge per chang
 A live instance: a refactor slice of this block's own source folder.
 
 ```
-  packages/
-  └── docs-model/
-      └── src/
-          └── components/
-              └── file-tree/
-                  ├── actions/
-+                 │   └── update-entry.ts
-~                 ├── agent-view.ts  # tree drawing
->                 ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
-                  ├── manifest.ts
-                  └── state.ts  # entry schema + tolerant read
+  packages/docs-model/src/components/file-tree/
+  ├── actions/
++ │   └── update-entry.ts
+~ ├── agent-view.ts  # tree drawing
+> ├── packages/docs-model/src/components/file-tree/render.ts -> lib.ts
+  ├── manifest.ts
+  └── state.ts  # entry schema + tolerant read
 ```
 
 ## State Schema
@@ -124,13 +120,15 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a monospace panel with a File tree head. Each node is one row, and thin guide lines join each row to its parent folder. An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
-  - Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing "/".
+  - Directories sort first at every level, then names in ascending codepoint order. Directory names render semibold with a trailing "/".
 
   - The order matches the agent render exactly, so the two surfaces agree by design.
+
+  - A folder with no note, change or color merges into its only child folder, so a chain such as `packages/docs-model/src/` draws as one row. The agent render merges by the same rule.
 
 - Change markers
 

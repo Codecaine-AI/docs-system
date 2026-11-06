@@ -27,6 +27,7 @@ import {
   CODE_NOTES_ASIDE_CLASSES,
   CODE_NOTE_BODY_CLASSES,
   CODE_NOTE_CHIP_CLASSES,
+  CODE_NOTE_CODE_CLASSES,
   CODE_NOTE_CLASSES,
   CODE_NOTE_HEAD_CLASSES,
   CODE_NOTE_LABEL_CLASSES,
@@ -164,6 +165,18 @@ export function CodeBlockHeader({
   );
 }
 
+/** A note's code span this short stays on one row, so a chip never splits in two. */
+const NOTE_CODE_NOWRAP_CHARS = 32;
+
+/** A note's text with each `backtick span` as inline code, the way the agent view's markdown shows it. */
+function noteText(note: string): ReactNode[] {
+  return note.split(/`([^`\n]+)`/).map((part, index) =>
+    index % 2 === 1 ? (
+      <code key={index} className={cn(CODE_NOTE_CODE_CLASSES, part.length <= NOTE_CODE_NOWRAP_CHARS && "whitespace-nowrap")}>{part}</code>
+    ) : part,
+  );
+}
+
 /**
  * One note, stacked: the head row holds its `L3–5` range chip and the bold
  * title (when present); the note text sits on its own lines below. The whole note is the control
@@ -174,7 +187,7 @@ export function CodeBlockHeader({
  * Lit: the note takes the line tint, its body steps up to the panel ink and
  * the chip takes the link color.
  */
-function CodeNoteRow({
+export function CodeNoteRow({
   annotation,
   index,
   isActive,
@@ -208,7 +221,7 @@ function CodeNoteRow({
         <RangeChip lines={annotation.lines} lit={lit} className={CODE_NOTE_CHIP_CLASSES} />
         {annotation.label && <span className={CODE_NOTE_LABEL_CLASSES} data-note-title>{annotation.label} </span>}
       </span>
-      <span className={CODE_NOTE_BODY_CLASSES} data-note-body>{annotation.note}</span>
+      <span className={CODE_NOTE_BODY_CLASSES} data-note-body>{noteText(annotation.note)}</span>
     </button>
   );
 }

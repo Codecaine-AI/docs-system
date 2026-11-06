@@ -5,6 +5,7 @@ import { denseParagraphRule } from "./dense-paragraph";
 import { semicolonRule } from "./semicolon";
 import { sentenceLengthRule } from "./sentence-length";
 import { literalBackticksRule } from "./literal-backticks";
+import { mixedLiteralMarksRule } from "./mixed-literal-marks";
 export const writingRules: LintRule[] = [
   noEmDashRule,
   fillerRule,
@@ -12,4 +13,5 @@ export const writingRules: LintRule[] = [
   semicolonRule,
   sentenceLengthRule,
   literalBackticksRule,
+  mixedLiteralMarksRule,
 ];

@@ -10,9 +10,9 @@ export const setAnnotation = defineComponentAction({
   blockType: "code",
   description: 'Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").',
   params: Type.Object({
-    lines: Type.String({ minLength: 1, description: 'Line range key, e.g. "1" or "4-9".' }),
-    note: Type.String({ minLength: 1, description: "Annotation body." }),
-    label: Type.Optional(Type.String({ description: "Optional short label." })),
+    lines: Type.String({ minLength: 1, description: 'Line range key, e.g. "1" or "4-9", counted from 1 in the listing. Cover exactly the lines the note discusses.' }),
+    note: Type.String({ minLength: 1, description: "The reason, constraint, consequence or caller obligation that the covered lines do not show. Never restate the code or its comments." }),
+    label: Type.Optional(Type.String({ description: "Optional short label that names the job of the covered lines." })),
   }),
   apply(block, { lines, note, label }) {
     const annotation: CodeAnnotation = { lines, note };

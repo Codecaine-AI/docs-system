@@ -1,5 +1,6 @@
 import { processOutlinePhaseTitleCaseRule, processOutlineRootRule } from '../components/process-outline/lint';
 import { interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
+import { codeLintRules } from '../components/code/lint';
 import { pseudocodeCodeSyntaxRule } from "../components/pseudocode/lint";
 import type { DocDocument } from "../doc-schema";
 import { writingRules } from "../writing/rules";
@@ -16,6 +17,7 @@ export const lintRules = [
   processOutlineRootRule,
   processOutlinePhaseTitleCaseRule,
   interactionSurfaceReturnsProseRule,
+  ...codeLintRules,
   pseudocodeCodeSyntaxRule,
   bundleRelativeSrcRule,
   ...layoutRules,
