@@ -182,7 +182,7 @@ const EXPLORER_CSS = `
 }
 .docs-explorer__code {
   font: var(--ds-font-weight-regular) 0.92em var(--tr-mono);
-  color: var(--tr-ink, #1f1f1f);
+  color: inherit;
   background: none; border: 0; padding: 0;
 }
 .docs-explorer__legend {
