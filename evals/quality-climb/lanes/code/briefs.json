@@ -1,0 +1,134 @@
+[
+  {
+    "id": 112,
+    "set": "climb",
+    "slug": "load-briefs",
+    "title": "Loading Briefs",
+    "reader": "An engineer who will add a private brief file to a quality-climb round",
+    "prompt": "Write a short page that shows how a round loads its briefs. Show loadBriefs and the slug check as a real code listing, and annotate the lines that merge the local file, refuse a repeated id or slug, and sort by id. Explain in one paragraph what the QUALITY_CLIMB_LOCAL_BRIEFS variable does.",
+    "sources": ["evals/quality-climb/briefs.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 113,
+    "set": "climb",
+    "slug": "component-action-names",
+    "title": "Component Action Names",
+    "reader": "A developer who will define a new component action in docs-model and got an error about the action name",
+    "prompt": "Write a short page about defineComponentAction and how params are checked. Show defineComponentAction and checkParams as one code listing, and annotate the name check and the schema check. Explain the blockType.verb rule and how valueErrorMessage names the allowed values for a wrong enum value.",
+    "sources": ["packages/docs-model/src/components/define.ts", "packages/docs-model/src/components/types.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 114,
+    "set": "climb",
+    "slug": "mcp-stdio-bridge",
+    "title": "The MCP Stdio Bridge",
+    "reader": "An engineer who will debug why a coding agent sees no docs tools",
+    "prompt": "Write a short page that explains how the stdio MCP server forwards calls to the shared docs service. Show the key part of startMcp as a code listing, with annotations on ensureDaemon, the /rpc call, the /tools list and the roots refresh. Say in one sentence what the INSTRUCTIONS text is for.",
+    "sources": ["packages/docs-mcp/src/mcp.ts", "packages/docs-mcp/src/lifecycle.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 115,
+    "set": "climb",
+    "slug": "anatomy-of-a-style-rule",
+    "title": "Anatomy of a Style Rule",
+    "reader": "A contributor who will add a judge-only style rule to docs-style",
+    "prompt": "Write a short page that walks through the one-instruction rule as a worked example of a style rule that the Jev model checks with a yes/no question. Show the rule object as a code listing and annotate id, layer, rewrite, the select and state functions, the question and the threshold. Explain why the rule asks about each sentence and not the whole block.",
+    "sources": ["packages/docs-style/src/rules/one-instruction/index.ts", "packages/docs-style/src/types.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 116,
+    "set": "held-out",
+    "slug": "heading-block-renderer",
+    "title": "The Heading Renderer",
+    "reader": "A front-end engineer who found a heading saved with a string level and wants to know why",
+    "prompt": "Write a short page about the heading block in the docs viewer. Show the DocHeading node and headingDescriptor as a code listing. Annotate the level fallback to 2, the null sentinel for an absent level, and the clipboard rule that encodes the level as the tag name. Explain the bug that the tag-name rule prevents.",
+    "sources": ["packages/docs-viewer/src/components/rich-text/heading.tsx"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 117,
+    "set": "held-out",
+    "slug": "docs-theme-head",
+    "title": "The Theme Head",
+    "reader": "A host developer who publishes docs pages and must make them look like the workbench read view",
+    "prompt": "Write a short page about docsThemeHead. Show the function and its return type as a code listing, with annotations on the build-time theme chain, the optional theme input, the error for an invalid input and the two returned fields. Then show a short TypeScript usage example that puts the result in a page head.",
+    "sources": ["packages/docs-publish/src/theme-head.ts", "packages/docs-publish/README.md"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 118,
+    "set": "held-out",
+    "slug": "hash-routes",
+    "title": "Workbench Hash Routes",
+    "reader": "A workbench contributor who wants to know why an old 00-overview link opens its parent page",
+    "prompt": "Write a short page about how the workbench reads a page path from the URL hash. Show collapseOverviewPath, readHashPath and normalizeLegacyOverviewHash in one code listing. Annotate the overview-collapse loop, the decode fallback and the replaceState call, and explain why replaceState cannot start a navigation loop.",
+    "sources": ["packages/docs-workbench/web/src/_lib/hash-route.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 119,
+    "set": "held-out",
+    "slug": "docs-change-events",
+    "title": "Docs Change Events",
+    "reader": "A server engineer who will add a new listener for docs change events",
+    "prompt": "Write a short page about the in-process docs change events. Show the DocsChangeEvent type and the publish and subscribe functions as one code listing, with annotations on the per-project listener set and the cleanup in the unsubscribe function. State the limits the file gives: no broker, no persistence and no cross-process fan-out.",
+    "sources": ["packages/docs-server/src/docs-events.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 120,
+    "set": "held-out",
+    "slug": "test-preloads",
+    "title": "Test Preloads",
+    "reader": "A contributor whose bun test run behaves differently from a plain bun script",
+    "prompt": "Write a short page that shows the repo test setup. Show the [test] section of bunfig.toml as a TOML listing and the happy-dom preload as a TypeScript listing. Annotate each preload with what it does and say why the action-log preload loads first.",
+    "sources": ["bunfig.toml", "happydom.ts", "action-log-preload.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 121,
+    "set": "held-out",
+    "slug": "rewrite-model-clients",
+    "title": "Rewrite Model Clients",
+    "reader": "An engineer who will change which models the Tier 3 rewrite uses",
+    "prompt": "Write a short page about the BAML clients for the Tier 3 rewrite. Show the retry policy and the fast client as a BAML listing, with annotations on the retry strategy, the gateway base URL, the key variable, the response format and the finish_reason allow-list. Explain why the file has no fallback client.",
+    "sources": ["packages/docs-style/baml_src/clients.baml", "packages/docs-style/src/rewrite/baml.ts"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 122,
+    "set": "held-out",
+    "slug": "background-installer-paths",
+    "title": "Background Installer Paths",
+    "reader": "An operator who must find where the docs background service installer puts its files on macOS",
+    "prompt": "Write a short page about the paths the background service installer uses. Show the path constants at the top of install-background.py as a Python listing and annotate each one with what lives there. Say what the --port and --workspace options set and their defaults.",
+    "sources": ["packages/docs-mcp/scripts/install-background.py"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  },
+  {
+    "id": 123,
+    "set": "held-out",
+    "slug": "list-marker-styles",
+    "title": "List Marker Styles",
+    "reader": "A designer who will change how bullet and number markers look in the docs viewer",
+    "prompt": "Write a short page about the CSS that draws list markers in the docs viewer. Show the rules for bullets, numbers and checkboxes as a CSS listing, with annotations on the selectors and custom properties that set marker shape, color and spacing. Say which tokens a theme can change without editing this file.",
+    "sources": ["packages/docs-viewer/src/styles/list-markers.css"],
+    "blockTypes": ["code"],
+    "rewrites": ""
+  }
+]

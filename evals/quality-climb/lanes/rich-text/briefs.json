@@ -1,0 +1,134 @@
+[
+  {
+    "id": 100,
+    "set": "climb",
+    "slug": "docs-mcp-daily-use",
+    "title": "Daily Use of the Docs MCP",
+    "reader": "A developer whose coding agent already has the docs MCP installed and who wants to know the order of calls for one edit",
+    "prompt": "Write a short page that tells the reader the order of docs MCP calls for one edit, from docs_discover to docs_end. Give the five daily steps as a numbered list, with one sentence on what each call returns or checks. Add a warning that the service refuses content writes until the task reads docs_guidance topic style, and say that read tools work without a task.",
+    "sources": ["packages/docs-mcp/README.md"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 101,
+    "set": "climb",
+    "slug": "viewer-or-host",
+    "title": "Viewer or Host",
+    "reader": "A contributor who is about to add a feature and must decide if it goes in docs-viewer or docs-workbench",
+    "prompt": "Write a short decision page that states the one rule for placing a feature in docs-viewer or in the workbench host. Give what each of docs-model, docs-viewer and docs-workbench owns and never owns as short lists under headings. Explain that logic crosses the boundary only through the DocsClient interface, and record the rule as a decision.",
+    "sources": ["VIEWER-HOST-SEPARATION.md", "packages/docs-viewer/src/client.tsx"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 102,
+    "set": "climb",
+    "slug": "docs-style-overview",
+    "title": "Docs Style Overview",
+    "reader": "An engineer who has never opened the docs-style package and needs a one-screen orientation",
+    "prompt": "Write a short overview page for the docs-style package. Say what the package checks and which pages define its rules, then give each of the five pipeline stages, from the Tier 1 lint to the guardrails, as one list item with what it does. Tell the reader where to start reading the code, and say clearly that a sweep changes nothing on disk.",
+    "sources": ["packages/docs-style/README.md", "packages/docs-style/src/sweep/index.ts"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 103,
+    "set": "climb",
+    "slug": "navigate-the-docs",
+    "title": "Navigate the Docs",
+    "reader": "A coding agent that is new to a Docs System corpus and must find the right page before it reads code",
+    "prompt": "Write a short how-to page that teaches the SCAN, SKIM and READ method for reading a docs corpus. Give the two CLI commands to read docs, the entry point for each kind of question, and what to do at each of the three levels. Warn the reader never to read doc.json directly.",
+    "sources": ["packages/framework/10-cookbook/10-navigate.md"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 104,
+    "set": "held-out",
+    "slug": "change-sets-explained",
+    "title": "Change-Sets Explained",
+    "reader": "A product reviewer who knows git pull requests but has not seen the docs lab review loop",
+    "prompt": "Write a short concept page that explains a multi-doc change-set as a pull request for docs. Explain the git-like layers of the review loop, then give the accept protocol as a numbered list, including what happens on a failure. State the key design decision that a change-set is a grouping record and an acceptance protocol, not a new mutation path.",
+    "sources": ["CHANGESETS-DESIGN.md", "packages/docs-server/src/changesets/changeset-ops.ts"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 105,
+    "set": "held-out",
+    "slug": "draft-editor-host-checklist",
+    "title": "Draft Editor Host Checklist",
+    "reader": "A web developer who will mount the docs draft editor inside their own site",
+    "prompt": "Write a checklist page for a host that mounts the draft editor with mountDraftEditor. Give each thing the host must supply or load as one checklist item: the CSS files, the same-origin api proxy and the optional appEmbeds host. Explain what reload, flush and destroy do in one short paragraph each, and warn that deployed pages never load this entry.",
+    "sources": ["packages/docs-publish/README.md", "packages/docs-publish/src/editor.tsx"],
+    "blockTypes": ["rich-text"],
+    "rewrites": ""
+  },
+  {
+    "id": 106,
+    "set": "held-out",
+    "slug": "docs-skill-editor-rules",
+    "title": "Editor Rules for Agents",
+    "reader": "An agent operator who wants a one-screen summary of the rules the docs-system skill gives an editing agent",
+    "prompt": "Write a quick-reference page of the editor workflow that the docs-system skill gives an agent. Give the five workflow steps as a numbered list with nested items for the Canvas and Sequence rule, the edit-in-place rule and the refused-twice rule. Add one short section on when to reply to a request and when to resolve it.",
+    "sources": ["packages/docs-mcp/skills/docs-system/SKILL.md"],
+    "blockTypes": ["rich-text"],
+    "rewrites": ""
+  },
+  {
+    "id": 107,
+    "set": "held-out",
+    "slug": "pdf-export-limits",
+    "title": "PDF Export Limits",
+    "reader": "A support engineer who must explain to a user why a PDF export from the workbench was refused",
+    "prompt": "Write a short troubleshooting page about PDF export in the workbench. Explain that the export prints offline with no author scripts, network, cookies or local files. Give each refusal the export handler returns as its own warning, with its cause and what the user can do.",
+    "sources": ["packages/docs-workbench/src/pdf-export.ts"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 108,
+    "set": "held-out",
+    "slug": "title-case-rule",
+    "title": "The Title Case Rule",
+    "reader": "A writer whose page headings were flagged for Title Case and who wants to know what the check accepts",
+    "prompt": "Write a short page that explains the Title Case check for page titles and headings. List which minor words stay lowercase and when they do not, and which words the check skips, such as code spans, versions and acronyms. Give two or three example headings that pass and fail, as prose or a list.",
+    "sources": ["packages/docs-model/src/writing/title-case.ts", "packages/docs-model/src/page-structure/heading-title-case/index.ts"],
+    "blockTypes": ["rich-text"],
+    "rewrites": ""
+  },
+  {
+    "id": 109,
+    "set": "held-out",
+    "slug": "mdx-migration-notes",
+    "title": "MDX Migration Notes",
+    "reader": "A maintainer who will convert an old MDX docs tree to doc.json bundles",
+    "prompt": "Write a short page that explains what the MDX converter does with one source file. Say what becomes doc meta, which prose becomes which block types, and what happens to recognized component tags. Tell the reader that the converter returns warnings with the document, and put the advice to read them in a callout.",
+    "sources": ["packages/docs-cli/src/migrate/mdx-to-doc.ts"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 110,
+    "set": "held-out",
+    "slug": "quality-climb-writer",
+    "title": "The Quality Climb Writer",
+    "reader": "An engineer who wants to know what the fixed page writer of the quality climb can see and touch",
+    "prompt": "Write a short page that explains the fixed writer of the quality climb. Say which model and effort it runs, what scratch corpus it writes into, which tools it may use and which files it may read. Explain what metrics.json and metrics.failed.json mean, and warn that a retry first removes any partial page.",
+    "sources": ["evals/quality-climb/write.ts"],
+    "blockTypes": ["rich-text", "callout"],
+    "rewrites": ""
+  },
+  {
+    "id": 111,
+    "set": "held-out",
+    "slug": "embed-a-video",
+    "title": "Embed a Video",
+    "reader": "A docs author who wants to add a YouTube, Vimeo or Loom video or a local video file to a page",
+    "prompt": "Write a short how-to page for adding a video block in the docs editor. Explain the two ways a video block appears: paste or drop a provider URL, or drop a video file. Say that there is no slash-menu entry, and say what happens when a provider URL is pasted over a selected word.",
+    "sources": ["packages/docs-viewer/src/editor/input/video-embed.ts", "packages/docs-viewer/src/components/rich-text/VideoDocsBlock.tsx"],
+    "blockTypes": ["rich-text"],
+    "rewrites": ""
+  }
+]

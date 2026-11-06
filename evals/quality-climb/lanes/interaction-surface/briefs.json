@@ -1,0 +1,134 @@
+[
+  {
+    "id": 196,
+    "set": "climb",
+    "slug": "file-tree-actions",
+    "title": "File Tree Actions",
+    "reader": "An agent author who will edit file-tree blocks one entry at a time",
+    "prompt": "Write a short page that lists the three file-tree component actions: addEntry, updateEntry and removeEntry. Give each one its params with types, what it changes in the block state and when it refuses. Say in one sentence what an action returns.",
+    "sources": ["packages/docs-model/src/components/file-tree/actions/add-entry.ts", "packages/docs-model/src/components/file-tree/actions/update-entry.ts", "packages/docs-model/src/components/file-tree/actions/remove-entry.ts", "packages/docs-model/src/components/types.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 197,
+    "set": "climb",
+    "slug": "draft-lock-store",
+    "title": "The Draft Lock Store",
+    "reader": "A server engineer who will make a new editing surface take a draft lock",
+    "prompt": "Write a short page that lists the operations of DraftLockStore: forRoot, activeCount, acquire, heartbeat, release and checkForMutation. Give each one its signature and what it returns, including the result of an acquire when another session holds the lock. Show the lock key and lock info shapes, and state the default time-to-live.",
+    "sources": ["packages/docs-server/src/draft-locks.ts"],
+    "blockTypes": ["interaction-surface", "state-shape"],
+    "rewrites": ""
+  },
+  {
+    "id": 198,
+    "set": "climb",
+    "slug": "doc-peek-actions",
+    "title": "Doc Peek Actions",
+    "reader": "A viewer contributor who will add a new way to open the doc peek panel",
+    "prompt": "Write a short page that lists the actions the doc peek reducer accepts: open, close, load-success and load-error. Give each action its fields and the state it produces, including what open does when a panel is already open and why a late load result for another ref is ignored. Say what useDocPeek gives a component.",
+    "sources": ["packages/docs-viewer/src/peek/peek-state.ts", "packages/docs-viewer/src/peek/use-doc-peek.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 199,
+    "set": "climb",
+    "slug": "proposal-client-calls",
+    "title": "Proposal Client Calls",
+    "reader": "A workbench contributor who will add a review button that accepts a staged proposal",
+    "prompt": "Write a short page that lists the workbench client operations on staged proposals: listProposals, stageProposal, acceptProposal and rejectProposal. Give each one its signature and its response shape. Explain in one sentence what the stale flag on a listed proposal means.",
+    "sources": ["packages/docs-workbench/web/src/data/api/proposals.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 200,
+    "set": "held-out",
+    "slug": "structured-table-actions",
+    "title": "Structured Table Actions",
+    "reader": "An agent author who will edit structured tables cell by cell",
+    "prompt": "Write a short page that lists three structured-table actions: addColumn, removeColumn and updateCell. Give each one its params, what it changes and when it refuses. Show the state of a small table before and after one updateCell.",
+    "sources": ["packages/docs-model/src/components/structured-table/actions/add-column.ts", "packages/docs-model/src/components/structured-table/actions/update-cell.ts", "packages/docs-model/src/components/structured-table/actions/remove-column.ts", "packages/docs-model/src/components/structured-table/state.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 201,
+    "set": "held-out",
+    "slug": "subtree-guard-operations",
+    "title": "Subtree Guard Operations",
+    "reader": "An engineer who will add a new whole-folder operation to the docs tree, such as a folder delete",
+    "prompt": "Write a short page that lists the three operations of the subtree guard: isDocsOwnedFileName, isRecordFilePath and guardWholeFolderOperation. Give each one its signature and result. Explain the findings a refused folder operation reports.",
+    "sources": ["packages/docs-index/src/subtree-guard.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 202,
+    "set": "held-out",
+    "slug": "change-event-operations",
+    "title": "Change Event Operations",
+    "reader": "A server engineer who will stream docs change events to a new client",
+    "prompt": "Write a short page with a small surface of two operations: publishDocsChangeEvent and subscribeToDocsChangeEvents. Give each one its signature and what it does, and the event it carries. Say which HTTP route uses the subscribe operation.",
+    "sources": ["packages/docs-server/src/docs-events.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 203,
+    "set": "held-out",
+    "slug": "tier-three-rewrite-operations",
+    "title": "Tier 3 Rewrite Operations",
+    "reader": "A docs-style engineer who will call the Tier 3 rewrite from a new tool",
+    "prompt": "Write a short page that lists the Tier 3 rewrite operations: isTrigger, planRewrites, planRequest, runRewrite, reuseRewrite and applyRewrites. Give each one its signature and what it returns. Explain in one sentence when a rewrite is retried on the strong model.",
+    "sources": ["packages/docs-style/src/sweep/tier3.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 204,
+    "set": "held-out",
+    "slug": "docs-publish-api",
+    "title": "The Docs Publish API",
+    "reader": "A host developer who will build a blog from a docs collection",
+    "prompt": "Write a short page that lists the public operations of docs-publish for a host: publishCollection, docsThemeHead, search and mountDraftEditor. Give each one its signature and its result. Say which ones run at build time in Node and which run in the browser.",
+    "sources": ["packages/docs-publish/README.md", "packages/docs-publish/src/publish.tsx", "packages/docs-publish/src/search.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 205,
+    "set": "held-out",
+    "slug": "render-operations",
+    "title": "Page Render Operations",
+    "reader": "An engineer who will change how the quality-climb harness renders a written page",
+    "prompt": "Write a short page that lists the operations of the harness render module: pageBlocks, lintRules, lintPage and renderPage. Give each one its signature and what it returns. Explain in one sentence why lintRules can unpack the rules of an older git ref.",
+    "sources": ["evals/quality-climb/render.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 206,
+    "set": "held-out",
+    "slug": "request-queue-operations",
+    "title": "Request Queue Operations",
+    "reader": "A viewer contributor who will change how open requests are ordered in the lab panel",
+    "prompt": "Write a short page that lists the pure request queue operations: isDisposedStatus, requestDisposition, requestBlockId, buildRequestQueue, queuePositionLabel and pipelineSummary. Give each one its signature and result. Show the shape of the queue model that buildRequestQueue returns.",
+    "sources": ["packages/docs-viewer/src/lab/session/request-queue.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  },
+  {
+    "id": 207,
+    "set": "held-out",
+    "slug": "service-registry-operations",
+    "title": "Service Registry Operations",
+    "reader": "An operator who will debug why the background service does not route a project URL",
+    "prompt": "Write a short page that lists the operations of the background service registry: readRegistry, writeRegistry, mergeDiscovery, projectRoute and localBrowserRequest. Give each one its signature and result. Show the Registry record as a small shape.",
+    "sources": ["packages/docs-mcp/src/background/registry.ts"],
+    "blockTypes": ["interaction-surface"],
+    "rewrites": ""
+  }
+]

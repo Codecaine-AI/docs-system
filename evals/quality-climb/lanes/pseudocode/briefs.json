@@ -1,0 +1,134 @@
+[
+  {
+    "id": 124,
+    "set": "climb",
+    "slug": "doc-reference-matching",
+    "title": "Doc Reference Matching",
+    "reader": "An engineer who will change how the docs index decides that two doc references name the same page",
+    "prompt": "Write a short page that explains how a stored doc reference path is matched to a bundle. Give normalizeDocRefPath and sameDocRef as pseudocode: strip the docs/ prefix, strip the bundle suffix or .md extension, and collapse a retired trailing 00-overview. Say what the canonical stored form is and that source references are not matched this way.",
+    "sources": ["packages/docs-index/src/ref-match.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 125,
+    "set": "climb",
+    "slug": "condition-clause-finder",
+    "title": "Finding a Late Condition",
+    "reader": "A style-rule author who wants to know which condition clauses the condition-first rule moves",
+    "prompt": "Write a short page that explains how the condition-first rule finds a condition clause that follows a command. Give the search as pseudocode, with the condition words and each skip the file lists: phrases with no subject and verb, clauses with a pronoun, asked questions and times. Explain in one sentence why the word once is not a condition word.",
+    "sources": ["packages/docs-style/src/rules/condition-first/clause.ts", "packages/docs-style/src/rules/condition-first/index.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 126,
+    "set": "climb",
+    "slug": "transcript-parse",
+    "title": "Reading a Writer Transcript",
+    "reader": "An engineer who sees wrong tool-call counts in a writer's metrics.json",
+    "prompt": "Write a short page that explains parseTranscript as pseudocode: read each line of the stream-json transcript, skip lines that do not parse, count tool calls by name, and keep the final result event. Then show how the token total is summed and when the run counts as an error.",
+    "sources": ["evals/quality-climb/write.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 127,
+    "set": "climb",
+    "slug": "table-cell-backticks",
+    "title": "Backticks in Table Cells",
+    "reader": "A docs-model contributor who will change how table cells written with backticks are typed for layout lints",
+    "prompt": "Write a short page that explains liftBacktickCode as pseudocode: how a plain-string cell with backtick pairs becomes a span cell with code spans. Then say why this file copies the viewer's logic and which test fails when the two copies drift apart.",
+    "sources": ["packages/docs-model/src/layout/table-columns.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 128,
+    "set": "held-out",
+    "slug": "path-lock-queue",
+    "title": "The Path Lock Queue",
+    "reader": "A server engineer who will add a new read-check-write operation to the docs server",
+    "prompt": "Write a short page that explains withPathLock as pseudocode in fewer than ten lines: the per-path tail, waiting on the prior tail, and why one failed critical section does not poison the ones behind it. Say in one sentence why the path is made canonical first, and what the lock does not cover.",
+    "sources": ["packages/docs-server/src/path-mutex.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 129,
+    "set": "held-out",
+    "slug": "runtime-activation-backoff",
+    "title": "Runtime Activation Backoff",
+    "reader": "An operator who sees the docs background service refuse to swap to a new runtime",
+    "prompt": "Write a short page that explains when the background service may replace its runtime and how it backs off after a refusal. Give canActivate and the backoff object as pseudocode, with the delays from 1 second to the 60 second cap. Explain in one sentence what the log-once helper does.",
+    "sources": ["packages/docs-mcp/src/background/activation-policy.ts", "packages/docs-mcp/src/background/supervisor.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 130,
+    "set": "held-out",
+    "slug": "sidebar-current-item",
+    "title": "Which Sidebar Item Is Current",
+    "reader": "A workbench contributor who is fixing a sidebar where the wrong item is highlighted",
+    "prompt": "Write a short page that explains how resolveNav picks the one sidebar item that matches the page. Give the match as pseudocode: an exact href match first, else the longest href that is a path prefix. Then explain the difference between current and active and which attribute each one sets.",
+    "sources": ["packages/docs-workbench/web/src/_components/AppShell/_components/Sidebar/utils.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 131,
+    "set": "held-out",
+    "slug": "passive-voice-detect",
+    "title": "Detecting Passive Voice",
+    "reader": "A writer who wants to know why some passive sentences are flagged and others are not",
+    "prompt": "Write a short page that explains which passive sentences the passive-voice rule flags. Give the detect step as pseudocode over the sentences of a block, keeping only a passive with a by phrase or a passive in an instruction. Give one example sentence for each kept case, and say why an agentless passive is left alone.",
+    "sources": ["packages/docs-style/src/rules/passive-voice/index.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 132,
+    "set": "held-out",
+    "slug": "docs-audit-walk",
+    "title": "The Docs Audit Walk",
+    "reader": "A maintainer whose docs audit run failed with an E-code and who wants to know what the audit checks",
+    "prompt": "Write a short page that explains the docs audit walk as pseudocode with nested branches: how each directory is classified as a bundle or a section, which entries inside a bundle are skipped, and where each E and W check runs. Say which findings make the CLI exit 1.",
+    "sources": ["packages/docs-cli/src/audit.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 133,
+    "set": "held-out",
+    "slug": "font-weight-match",
+    "title": "Matching a Font Weight",
+    "reader": "A publish engineer who sees diagram text paint in an unexpected weight",
+    "prompt": "Write a short page that explains matchWeight, the CSS Fonts rule for picking a bundled weight. Give it as pseudocode with its three cases: a desired weight from 400 to 500, a weight below 400, and a weight above 500. Then list the bundled weights of Inter and IBM Plex Mono.",
+    "sources": ["packages/docs-publish/src/svg-fonts.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 134,
+    "set": "held-out",
+    "slug": "pseudocode-line-split",
+    "title": "How a Pseudocode Line Splits",
+    "reader": "A viewer contributor who will change how pseudocode lines are highlighted",
+    "prompt": "Write a short page that explains how the viewer splits each pseudocode line before it draws it. Give renderPseudoLines as pseudocode: read the diff mark only when props.diff is true, split off the trailing comment, and highlight the code part. List the word classes the grammar highlights.",
+    "sources": ["packages/docs-viewer/src/components/pseudocode/pseudo.ts", "packages/docs-viewer/src/components/pseudocode/highlight.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  },
+  {
+    "id": 135,
+    "set": "held-out",
+    "slug": "where-text-may-wrap",
+    "title": "Where Text May Wrap",
+    "reader": "A layout-lint author who must find the widest unbreakable run in a table cell",
+    "prompt": "Write a short page that explains how the line-break model decides if text may wrap between two characters. Give the decision as pseudocode built from the file's rules for hyphens, slashes, dashes, brackets and CJK. Give two or three example strings with where each one may break.",
+    "sources": ["packages/docs-model/src/layout/line-breaks.ts"],
+    "blockTypes": ["pseudocode"],
+    "rewrites": ""
+  }
+]
