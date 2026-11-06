@@ -48,8 +48,8 @@ export function pseudoGrammar(hljs: HLJSApi): Language {
         scope: "title.function",
         match: /\b(?!(?:if|while|for|return|each|not|and|or|in|is)\b)[A-Za-z_][\w]*(?=\()/,
       },
-      // `.name` after a name or a closing bracket, never after a range's `..`. A `.name(` is a call, above.
-      { scope: "property", match: /(?<=[\w)\]]\.)[A-Za-z_]\w*(?![\w(])/ },
+      // `.name` or `?.name` after a name or a closing bracket, never after a range's `..`. A `.name(` is a call, above.
+      { scope: "property", match: /(?<=[\w)\]]\??\.)[A-Za-z_]\w*(?![\w(])/ },
     ],
   };
 }
