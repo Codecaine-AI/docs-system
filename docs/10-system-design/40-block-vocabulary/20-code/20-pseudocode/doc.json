@@ -249,16 +249,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Say a fallback for a missing value in words, such as \"the usage of the result, or 0 when the result has no usage\", not "
-        },
-        {
-          "insert": "result?.usage ?? 0",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Leave out a fallback that only satisfies the type checker, such as a default start for a regex match that always has one."
+          "insert": "Say each fallback that an input can reach in words, such as \"add 1 to the count for the name, which starts at 0\" or \"the usage of the result, or an empty usage when the result or its usage is missing\". Leave out only a fallback that no input reaches, such as a default start for a regex match."
         }
       ],
       "children": []
