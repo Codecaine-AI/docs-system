@@ -11,6 +11,7 @@ The user approved the current design on September 15, 2026. The canonical compon
 - Parameter and returned-field descriptions render as the State Shape description tooltip (dotted underline, 450 ms hover dwell or keyboard focus, inline in print). The operation purpose paragraph stays inline in the card header. Approved 2026-09-24.
 - Ground examples in actual source. A callback event payload is separate from a subscription's unsubscribe return value.
 - Operation cards are native disclosures, collapsed by default. The summary row holds a chevron, a kind icon (`Zap` for Action, `Search` for Query, `Radio` for Event), and the name. The kind badge and the param count were dropped from the row; the icon's tooltip names the kind. The purpose shows when the card is open. Requested 2026-09-30.
+- An open operation is its own framed card, apart from its neighbours by a gap of page background. Closed rows stay one tight panel. Inside an open operation, the Parameters and Returns cards are two steps apart, and the Returns head opens with an arrow (→). Requested 2026-11-06.
 
 ## Decision Authority
 

@@ -277,11 +277,17 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(opRow("table.unbadged")?.querySelector("[data-op-cards]")).toBeNull();
     const css = sheet();
     // Full panel width (no side inset), so the ledger columns line up with a
-    // State Shape's; 12px apart and 12px above the next operation.
-    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--ds-space-3);padding:0 0 var(--ds-space-3)}");
-    // Raised a step toward ink, ruled top and bottom only (the panel frames the sides).
-    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,");
-    expect(css).toContain("border-block:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}");
+    // State Shape's. The call and the result are two steps a --op-step-gap
+    // apart, and the Returns head opens with a decorative arrow.
+    expect(css).toContain("[data-op-cards]{display:flex;flex-direction:column;gap:var(--op-step-gap);padding:var(--ds-space-3) 0;background:var(--op-card-bg)}");
+    expect(css).toContain('[data-op-card="returns"]>[data-op-card-head]::before{content:"→" / "";');
+    // Raised a step toward ink, ruled top and bottom only (the operation frames the sides).
+    expect(css).toContain("--op-card-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 5%,var(--op-bg))");
+    expect(css).toContain("[data-op-card]{min-width:0;container-type:inline-size;background:var(--op-card-bg);border-block:var(--op-rule-w) solid var(--op-edge)}");
+    // An open operation is its own framed card a --op-gap from its neighbours,
+    // and the block paints no fill, so the gap shows the page.
+    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open]){margin-top:var(--op-gap);border:var(--op-frame);border-radius:var(--op-radius)}");
+    expect(css).toContain("[data-interaction-operation]:has(>[data-operation-disclosure][open])+[data-interaction-operation]{margin-top:var(--op-gap);");
     // The head bar is a sans heading in ink.
     expect(css).toContain("font-size:var(--docs-interaction-column-head-text-size,13px);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))");
     // List beside code at the shared 44/56 split once the CARD (the size
@@ -403,10 +409,12 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
   it("maps its knobs onto the panel, the line, and the shared ledger locals", () => {
     const css = renderSurface();
     for (const declaration of [
-      // Panel frame.
-      "background:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)))",
-      "border:var(--docs-interaction-border-width,1px) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
-      "border-radius:var(--docs-interaction-radius,var(--radius,2px))",
+      // Panel frame, drawn on the head and each operation.
+      "--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)))",
+      "--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
+      "--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge)",
+      "--op-radius:var(--docs-interaction-radius,var(--radius,2px))",
+      "[data-operations-header],[data-interaction-operation]{background:var(--op-bg);border-inline:var(--op-frame)}",
       "--op-pad-x:var(--docs-interaction-pad-x,16px)",
       "--fl-name-w:var(--docs-shape-name-width,24ch)",
       "--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)))",
