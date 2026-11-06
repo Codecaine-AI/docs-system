@@ -573,6 +573,15 @@ describe("StateShapeBlock — code in descriptions", () => {
     expect(code.textContent).toBe("packages/docs-model/src/doc-schema.ts");
   });
 
+  it("lets a path part wider than the column wrap inside itself, so it never runs past the block", () => {
+    const longName = "a-file-name-far-wider-than-a-narrow-description-column.ts";
+    render(<StateShapeBlock id="narrow" fields={[{ name: "file", type: "string", description: `Lives at \`src/${longName}\`.` }]} />);
+    const parts = Array.from(document.querySelectorAll('[data-note-code="long"] [data-json-seg]')).map((n) => n.textContent);
+    expect(parts).toEqual(["src/", longName]);
+    // Each part is an inline-block capped at the line width, so a too-long part breaks anywhere instead of overflowing.
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}');
+  });
+
   it("balances a description's last line, so no word sits alone on it", () => {
     render(<StateShapeBlock id="pretty" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
     expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}');

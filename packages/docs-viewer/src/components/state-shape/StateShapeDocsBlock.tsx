@@ -48,7 +48,7 @@ export const STATE_SHAPE_STYLE = `
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 @container (min-width:560px){[data-shape-grid][data-has-example][data-example-short]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),calc(var(--docs-pane-split,44%) + 8%)) minmax(260px,1fr)}}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
-[data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
+[data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}
 [data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}[data-docs-block-type="state-shape"] [data-json-glue]{white-space:nowrap}[data-docs-block-type="state-shape"] [data-field-token="optional"]{margin-left:0}[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}
 [data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1) var(--docs-shape-pad-x,16px) var(--ds-space-1-5);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 calc(-1 * var(--docs-shape-rule-width,1px)) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
@@ -134,9 +134,9 @@ function jsonTokenKind(token: string, rest: string): JsonTokenKind {
 const PATH_SEGMENT_MAX = 32;
 
 /**
- * A path-like string value (no space, a `/`, every part short) as nowrap parts with a break after each `/`, so a
- * soft-wrapped path breaks between folders and never inside a name such as `docs-mcp`. Any other string is
- * returned whole and wraps as before.
+ * A path-like string value (no space, a `/`, every part short) as one inline-block per part with a break after each
+ * `/`, so a soft-wrapped path breaks between folders and not inside a name such as `docs-mcp`. A part wider than the
+ * whole line still wraps inside itself, so nothing runs past the pane. Any other string is returned whole.
  */
 function pathSegments(token: string): ReactNode {
   if (/\s/.test(token) || !token.includes("/")) return token;
