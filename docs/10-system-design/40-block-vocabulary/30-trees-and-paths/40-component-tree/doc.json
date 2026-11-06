@@ -150,8 +150,8 @@
                 "kind": "branch",
                 "nodes": [
                   {
-                    "text": "<div className=\"docs-tree__empty\">",
-                    "comment": "the (no rows) line",
+                    "text": "<div className=\"docs-tree__empty\">(no rows)</div>",
+                    "comment": "the line an empty block shows",
                     "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:281"
                   }
                 ]
@@ -187,8 +187,8 @@
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__if\">",
-                            "comment": "the ? before a condition",
+                            "text": "<span className=\"docs-tree__if\">?</span>",
+                            "comment": "the mark before a condition",
                             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:307"
                           }
                         ]
@@ -198,7 +198,7 @@
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__note\">",
+                            "text": "<span className=\"docs-tree__note\">{row.comment}</span>",
                             "comment": "the comment beside or under the code",
                             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:315"
                           }
@@ -209,7 +209,7 @@
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<span className=\"docs-tree__src\">",
+                            "text": "<span className=\"docs-tree__src\" title={row.source} />",
                             "comment": "the file and line chip",
                             "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:317"
                           }
@@ -266,7 +266,8 @@
         "ct-rows-g1-2",
         "ct-rows-g1-3",
         "ct-rows-g1-4",
-        "ct-rows-g1-5"
+        "ct-rows-g1-5",
+        "ct-rows-g1-6"
       ]
     },
     "ct-rows-g1-1": {
@@ -284,7 +285,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". Write a row that has child rows as an opening tag, and a leaf row as a self-closing tag."
         }
       ],
       "children": []
@@ -387,6 +388,26 @@
       ],
       "children": []
     },
+    "ct-rows-g1-6": {
+      "id": "ct-rows-g1-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write an intrinsic leaf that shows text with that text and its closing tag, such as "
+        },
+        {
+          "insert": "<div className={…}>Loading tree...</div>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
     "ct-rows-g2": {
       "id": "ct-rows-g2",
       "type": "list-item",
@@ -412,7 +433,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a branch row's text as the source's own condition, such as "
+          "insert": "Write a branch row's text as the source's own condition, not a paraphrase. Write a switch case as its full comparison, such as "
         },
         {
           "insert": "props.selectedId === \"theme.presets\"",
@@ -421,7 +442,16 @@
           }
         },
         {
-          "insert": ", not a paraphrase."
+          "insert": ", never as a bare "
+        },
+        {
+          "insert": "case",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
