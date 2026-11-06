@@ -275,12 +275,12 @@ export const STACK_METRICS = {
   detailFontSizePx: 13.5,
   detailLineHeight: 1.5,
   detailMaxCh: 60,
-  pathDetailFontSizePx: 12,
+  pathDetailFontSizePx: 13,
   pathDetailLineHeight: 1.6,
   /** Leaf name: code font (sans when it is prose), weight 600. */
   nameFontSizePx: 14,
   nameWeight: 600,
-  roleFontSizePx: 12,
+  roleFontSizePx: 13,
   /** Leaf card padding. A card with a role keeps 10px on the left beside its 3px edge. */
   boxPadXPx: 12,
   boxPadYPx: 10,
@@ -299,7 +299,7 @@ export const STACK_METRICS = {
 
 /** The prose detail cap in px at the stock size: 506.25. */
 export const STACK_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * sansChPx(STACK_METRICS.detailFontSizePx);
-/** The path detail cap in px: 60ch of the code font at 12px, 432. */
+/** The path detail cap in px: 60ch of the code font at 13px, 468. */
 export const STACK_PATH_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * monoColumnPx(STACK_METRICS.pathDetailFontSizePx);
 
 /** A stack detail's segments, split the way the viewer splits them: on a middle dot with whitespace on both sides. */

@@ -22,9 +22,9 @@ export const STACK_AGENT_DESCRIPTION =
  * draws the shape: a node's role is a 3px left edge in its colour plus a
  * muted mono word at the name row's right end, in the case it was written
  * (and the hover title). A prose name or detail segment sets in the sans
- * face, and a code word inside prose (`startMcp`, `doc.json`) in the mono. A boundary is a dashed line with the rule as text, never colour
- * alone; next to a crossing arrow the line starts just right of it, so the
- * two never overlap.
+ * face, and a code word inside prose (`startMcp`, `doc.json`) in the mono. A boundary is a dashed line across the stack with the rule as text
+ * beneath it, never colour alone; next to a crossing arrow the line and the
+ * text start just right of it, so the two never overlap.
  *
  * Every value reads a --docs-stack-* token, then the role token, then the
  * light literal, so the block renders the light theme without the workbench
@@ -58,11 +58,11 @@ const STACK_STYLE = `
 [data-stack-box]{min-width:0;padding:10px var(--ds-space-3);background:var(--stack-card);border:var(--ds-border-width-hairline) solid color-mix(in srgb,var(--stack-layer,var(--stack-muted)) 55%,transparent);border-radius:var(--stack-radius)}
 [data-stack-box][data-role]{padding-left:10px;border-left:var(--ds-border-width-rail) solid var(--stack-c,var(--stack-muted))}
 [data-stack-head-row]{display:flex;align-items:baseline;justify-content:space-between;column-gap:var(--ds-space-4);min-width:0}
-[data-stack-role]{flex:none;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-regular);line-height:1.4;color:color-mix(in srgb,var(--stack-muted) 50%,var(--stack-text))}
+[data-stack-role]{flex:none;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);font-weight:var(--ds-font-weight-regular);line-height:1.4;color:color-mix(in srgb,var(--stack-muted) 50%,var(--stack-text))}
 [data-stack-name]{min-width:0;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-lg);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--stack-ink);overflow-wrap:normal}
 [data-stack-detail]{max-width:var(--ds-layout-lane-text);margin-top:var(--ds-space-0-5);font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui);color:var(--stack-text);overflow-wrap:anywhere}
 [data-stack-detail-line]{display:block}
-[data-stack-detail][data-mono]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);line-height:1.6;overflow-wrap:normal}
+[data-stack-detail][data-mono]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.6;overflow-wrap:normal}
 [data-stack-detail-line][data-prose],[data-stack-name][data-prose]{font-family:var(--stack-sans)}
 [data-stack-code]{font-family:var(--stack-mono);font-size:.9em}
 [data-stack-uses],[data-stack-boundary]{position:relative;min-width:0}
@@ -71,12 +71,10 @@ const STACK_STYLE = `
 [data-stack-arrow]::after{position:absolute;bottom:1px;left:-4.5px;box-sizing:content-box;width:6px;height:6px;border-right:var(--ds-border-width-ring) solid var(--stack-arrow);border-bottom:var(--ds-border-width-ring) solid var(--stack-arrow);transform:rotate(45deg);content:""}
 [data-stack-uses][data-continues] [data-stack-arrow]::after{display:none}
 [data-stack-uses-label]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.3;color:color-mix(in srgb,var(--stack-muted) 40%,var(--stack-text));overflow-wrap:normal}
-[data-stack-boundary]{display:flex;align-items:center;min-height:44px;padding:var(--ds-space-1) 0}
+[data-stack-boundary]{display:flex;flex-direction:column;row-gap:var(--ds-space-1-5);padding:var(--ds-space-2) 0 var(--ds-space-3)}
 [data-stack-dash]{height:0;border-top:var(--ds-border-width-hairline) dashed var(--stack-boundary)}
-[data-stack-dash="lead"]{flex:0 0 calc(var(--stack-arrow-x) * 2)}
-[data-stack-boundary][data-crossed] [data-stack-dash="lead"]{flex-basis:var(--ds-space-6);margin-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
-[data-stack-dash="tail"]{flex:1 1 auto;min-width:var(--ds-space-6)}
-[data-stack-rule]{margin:0 var(--ds-space-3);font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-medium);line-height:1.3;color:var(--stack-ink)}
+[data-stack-boundary][data-crossed] [data-stack-dash]{margin-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
+[data-stack-rule]{margin:0 0 0 calc(var(--stack-arrow-x) + var(--ds-space-2));font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-medium);line-height:1.3;color:var(--stack-ink)}
 `;
 
 type StackProps = { nodes: StackNode[]; boundaries: StackBoundary[] };
@@ -112,7 +110,7 @@ function StackDetail({ detail }: { detail: string }) {
 }
 
 /** A segment or name with a space that is not itself code (`also imports profile types`, `Docs server route`). */
-const isProse = (text: string) => /\s/.test(text.trim()) && chipKind(text) === "other";
+const isProse = (text: string) => /\s/.test(text.trim()) && !(["string", "call"] as string[]).includes(chipKind(text));
 
 /** A word that reads as code in prose: a camelCase or multi-hump PascalCase name, a call, or a path. */
 const CODE_WORD = /^(?:[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*|[A-Z][a-z0-9]+[A-Z][A-Za-z0-9]*|[\w$.-]*\w\(.*\)|[\w@.-]*\/[\w@./{},*-]*|[\w-]+\.(?:ts|tsx|js|json|md|css))$/;
@@ -202,10 +200,9 @@ export function StackBlock({ nodes, boundaries }: StackProps) {
           {rule !== undefined && (
             <div data-stack-boundary="" data-crossed={crossed ? "" : undefined} role="separator" aria-label={rule}>
               {crossed && <span data-stack-arrow="" aria-hidden="true" />}
-              {/* A crossing arrow keeps clear space: the line starts just right of it. */}
-              <span data-stack-dash="lead" />
-              <span data-stack-rule="">{rule}</span>
-              <span data-stack-dash="tail" />
+              {/* A crossing arrow keeps clear space: the line and its rule start just right of it. */}
+              <span data-stack-dash="" />
+              <span data-stack-rule="">{codeWords(rule)}</span>
             </div>
           )}
         </Fragment>
