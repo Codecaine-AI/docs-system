@@ -28,6 +28,8 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "structure.split-bullet-list": { gate: true },
   "writing.mixed-literal-marks": { gate: true },
   "interaction-surface.returns-prose": { gate: true },
+  "code.language": { gate: true },
+  "code.annotation-range": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },
 };

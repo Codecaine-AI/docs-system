@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AnnotatedCodeBlock } from "../components/code/CodeAnnotations";
 import {
   CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
@@ -41,8 +41,35 @@ function hasClasses(element: Element, classes: string): boolean {
   return classes.split(" ").every((token) => element.classList.contains(token));
 }
 
-/** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bar. */
-const RESTING_MARK = "after:bg-[var(--docs-code-annotation-accent,#0b6e99)]/65";
+/** The resting gutter mark: the annotation accent at 65%, drawn as an ::after bracket. */
+const RESTING_MARK = "after:border-[color:var(--docs-code-annotation-accent,#0b6e99)]/65";
+
+/**
+ * Lays the next render out as a block `blockWidth` px wide with 7.8 px code
+ * columns and 360 px of notes and gutter furniture, since happy-dom has no
+ * layout. Returns the restore function.
+ */
+function stubLayout(blockWidth: number) {
+  const original = HTMLElement.prototype.getBoundingClientRect;
+  HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
+    // The block section, a line probe (text at 7.8 px a character, 13 px for a CJK one), then the furniture probe (a width, no text).
+    // A detached element has no layout, so it measures 0, as in a browser.
+    const probe = this.style.visibility === "hidden";
+    const width = !this.isConnected
+      ? 0
+      : this.hasAttribute("data-code-annotations")
+      ? blockWidth
+      : probe && this.textContent
+        ? [...this.textContent].reduce((sum, char) => sum + (/[\u3000-\u9fff]/.test(char) ? 13 : 7.8), 0)
+        : probe
+          ? 360
+          : 0;
+    return { x: 0, y: 0, top: 0, left: 0, bottom: 0, right: width, width, height: 0, toJSON: () => ({}) } as DOMRect;
+  };
+  return () => {
+    HTMLElement.prototype.getBoundingClientRect = original;
+  };
+}
 
 describe("AnnotatedCodeBlock", () => {
   it("renders code with line numbers and note rows that open with their L#–# range chip", () => {
@@ -113,7 +140,9 @@ describe("AnnotatedCodeBlock", () => {
   });
 
   it("lays the notes column inside the dark panel, beside the code, in a 760px size-container grid", () => {
+    const restore = stubLayout(900);
     const { container } = renderBlock([{ lines: "1", note: "Setup." }]);
+    restore();
 
     const section = container.querySelector('[data-code-annotations="code-1"]')!;
     const layout = section.querySelector(":scope > [data-code-layout]")!;
@@ -145,6 +174,64 @@ describe("AnnotatedCodeBlock", () => {
     // No notes header, no "Notes" label.
     expect(container.querySelector("[data-code-notes-header]")).toBeNull();
     expect(screen.queryByText("Notes")).toBeNull();
+  });
+
+  it("puts each note under the last line it explains when the code cannot sit beside the notes", () => {
+    const longLine = `const message = "${"x".repeat(90)}";`;
+    // 50 CJK characters fit 60 columns but paint about 650 px, wider than the 540 px left beside the notes.
+    const wideLine = `// ${"日".repeat(50)}`;
+    for (const [blockWidth, code] of [
+      [600, CODE],
+      [900, [longLine, ...CODE.split("\n").slice(1)].join("\n")],
+      [900, [wideLine, ...CODE.split("\n").slice(1)].join("\n")],
+    ] as const) {
+      const restore = stubLayout(blockWidth);
+      const { container } = renderBlock([
+        { lines: "2-3", label: "Sum", note: "Adds the inputs." },
+        { lines: "4", note: "Prints the result." },
+      ], code);
+      restore();
+
+      // No notes column: the notes ride in the listing, under their lines.
+      expect(container.querySelector("[data-code-notes]")).toBeNull();
+      const pre = container.querySelector("pre")!;
+      const order = Array.from(pre.children).map((row) =>
+        row.getAttribute("data-code-line") ?? `note after ${row.getAttribute("data-code-note-row")}: ${row.textContent}`,
+      );
+      expect(order).toEqual(["1", "2", "3", "note after 3: L2–3Sum Adds the inputs.", "4", "note after 4: L4Prints the result."]);
+      cleanup();
+    }
+  });
+
+  it("keeps the notes under their lines after a resize when the code still cannot sit beside them", () => {
+    const callbacks: Array<() => void> = [];
+    const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(callback: () => void) { callbacks.push(callback); }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    } as unknown as typeof ResizeObserver;
+    let restore = stubLayout(900);
+    try {
+      const { container } = renderBlock([{ lines: "1", note: "Wide." }], [`// ${"日".repeat(50)}`, ...CODE.split("\n").slice(1)].join("\n"));
+      expect(container.querySelector("[data-code-notes]")).toBeNull();
+      restore();
+      restore = stubLayout(910);
+      act(() => { for (const callback of callbacks) callback(); });
+      expect(container.querySelector("[data-code-notes]")).toBeNull();
+      expect(container.querySelector('[data-code-note-row="1"]')).toBeTruthy();
+    } finally {
+      restore();
+      globalThis.ResizeObserver = original;
+    }
+  });
+
+  it("shows a backtick span in a note as inline code, without the backticks", () => {
+    const { container } = renderBlock([{ lines: "4", note: "Prints `c` through `console.log`." }]);
+    const body = container.querySelector("[data-note-body]")!;
+    expect(body.textContent).toBe("Prints c through console.log.");
+    expect(Array.from(body.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["c", "console.log"]);
   });
 
   it("renders notes as plain buttons at rest — no dividers, card border, background, or ring — and never stripes them", () => {
@@ -310,7 +397,9 @@ describe("AnnotatedCodeBlock", () => {
   });
 
   it("reads the same code tokens as the plain and edit surfaces", () => {
+    const restore = stubLayout(900);
     const { container } = renderBlock([{ lines: "1-2", label: "Setup", note: "Declares." }]);
+    restore();
     const cls = (selector: string) => container.querySelector(selector)!.className;
 
     // Frame: token border/radius.

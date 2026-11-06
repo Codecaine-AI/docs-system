@@ -27,6 +27,18 @@
 }
 
 /*
+ * The read code block's wrap arrows (components/code/classes.ts
+ * CODE_GUTTER_WRAP_CLASSES places them): one arrow per continuation row of a
+ * wrapped line, on the code line height. The gutter cell clips the arrows a
+ * line does not need. Twelve rows cover a line that wraps 12 times.
+ */
+[data-code-line] > [data-code-gutter-wrap]::before {
+  content: "\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA\A\21AA";
+  white-space: pre;
+  line-height: var(--docs-code-line-height, 21px);
+}
+
+/*
  * Syntax highlighting — theme-token colors over hljs classes, emitted by BOTH
  * rehype-highlight (markdown-projected fenced code) and docs-viewer's
  * components/code/highlight.ts (the read surface's `code` block, annotated
@@ -108,20 +120,6 @@
   color: var(--syntax-string, var(--color-text-green, #448361));
   font-style: var(--syntax-string-font-style, normal);
   font-weight: var(--syntax-string-font-weight, inherit);
-}
-
-/*
- * A wrapping code line breaks before a string literal, not inside it, so a
- * line never ends on a lone quote that reads as cut off. The string is one
- * inline box that moves to the next visual line whole; a string wider than
- * the line still wraps inside its own box. Only read code lines (hljs cells
- * in [data-code-line]) do this.
- */
-[data-code-line] > code.hljs .hljs-string {
-  display: inline-block;
-  max-width: 100%;
-  vertical-align: top;
-  text-indent: 0;
 }
 
 /* Interpolated code inside template strings is code again, not string. */
