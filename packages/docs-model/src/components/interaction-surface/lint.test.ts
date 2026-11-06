@@ -25,3 +25,16 @@ test("is a warning that never blocks a draft or a completed page", () => {
   expect(report.findings.find((finding) => finding.ruleId === "interaction-surface.returns-prose")?.severity).toBe("warning");
   expect(report.blocking).toEqual([]);
 });
+
+const examples = (...operations: Record<string, unknown>[]) => lintDocument(document(paragraph("intro", "The store takes these calls."), {
+  id: "surface", type: "interaction-surface", props: { operations }, children: [],
+}), { phase: "complete" }).findings.filter((finding) => finding.ruleId === "interaction-surface.example-missing").map((finding) => finding.field);
+
+test("flags an operation with no exampleCall, and returned fields with no example", () => {
+  expect(examples(
+    { name: "store.get", exampleCall: "store.get(\"a\")", returnShape: { fields: [{ name: "value", type: "string" }], example: "{ \"value\": \"x\" }" } },
+    { name: "store.put", returns: "void" },
+    { name: "store.list", exampleCall: "store.list()", returnShape: { fields: [{ name: "keys", type: "string[]" }] } },
+    { name: "store.clear", exampleCall: "store.clear()", returnShape: { fields: [] } },
+  )).toEqual(["props.operations[1].exampleCall", "props.operations[2].returnShape.example"]);
+});

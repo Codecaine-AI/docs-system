@@ -1,5 +1,5 @@
 import { processOutlinePhaseTitleCaseRule, processOutlineRootRule } from '../components/process-outline/lint';
-import { interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
+import { interactionSurfaceExampleMissingRule, interactionSurfaceReturnsProseRule } from '../components/interaction-surface/lint';
 import type { DocDocument } from "../doc-schema";
 import { writingRules } from "../writing/rules";
 import { pageStructureRules } from "../page-structure/rules";
@@ -15,6 +15,7 @@ export const lintRules = [
   processOutlineRootRule,
   processOutlinePhaseTitleCaseRule,
   interactionSurfaceReturnsProseRule,
+  interactionSurfaceExampleMissingRule,
   bundleRelativeSrcRule,
   ...layoutRules,
 ];

@@ -158,6 +158,8 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
 
+  - interaction-surface.example-missing flags an operation with no exampleCall, and a returnShape that lists fields but has no example. docs_check fails until the task adds them.
+
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 - **Layout Warnings**
