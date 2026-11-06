@@ -48,7 +48,7 @@ export const STATE_SHAPE_STYLE = `
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
-[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));overflow-wrap:anywhere}
+[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1-5) var(--docs-shape-pad-x,16px) var(--ds-space-1);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 var(--docs-shape-rule-width,1px) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
 `;
@@ -230,12 +230,16 @@ const SHAPE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + 
 
 /**
  * A field description with each `backtick` span set as inline code, so a code name, an empty string `""` or a
- * separator such as `" | "` reads as a literal value and not as prose. The backticks themselves are not shown.
+ * separator such as `" | "` reads as a literal value and not as prose. The backticks themselves are not shown. A short
+ * span never breaks inside itself, so `docs-model` or `Authorization: Bearer <token>` stays whole.
  */
+/** A code span this many characters or shorter stays on one line; a longer one may break anywhere. */
+const NOTE_CODE_NOWRAP_MAX = 32;
+
 export function noteWithCode(description: string): ReactNode {
   const parts = description.split(/`([^`]+)`/);
   if (parts.length === 1) return description;
-  return parts.map((part, index) => index % 2 === 1 ? <code key={index} data-note-code="">{part}</code> : part);
+  return parts.map((part, index) => index % 2 === 1 ? <code key={index} data-note-code={part.length > NOTE_CODE_NOWRAP_MAX ? "long" : ""}>{part}</code> : part);
 }
 
 /**

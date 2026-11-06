@@ -546,6 +546,12 @@ describe("StateShapeBlock — code in descriptions", () => {
     expect(note.textContent).toBe('What to write. "" deletes the word; daemonFetch reads it.');
   });
 
+  it("keeps a short code span on one line and lets a long one wrap", () => {
+    render(<StateShapeBlock id="wrap" fields={[{ name: "token", type: "string", description: "Sent as `Authorization: Bearer <token>` or `" + "x".repeat(40) + "`." }]} />);
+    expect(Array.from(document.querySelectorAll("[data-note-code]")).map((n) => n.getAttribute("data-note-code"))).toEqual(["", "long"]);
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap}');
+  });
+
   it("prints a description with no backticks as plain text", () => {
     render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
     expect(document.querySelector("[data-note-code]")).toBeNull();
