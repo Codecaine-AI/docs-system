@@ -18,14 +18,20 @@ import {
  * - `"prose"`: the ONE column that absorbs the width left over and wraps,
  *   between words only, at a 60ch line measure — the text column with the
  *   longest average body text.
- * - `"wrap"`: a second long text column (some cell longer than
- *   WRAP_THRESHOLD characters). It wraps at the same measure rather than
- *   pushing one very long line, but it is not the column the table flexes.
+ * - `"text"`: a second sentence column, whose average body text is at
+ *   least TEXT_COLUMN_SHARE of the prose column's. It wraps at the same 60ch
+ *   measure, so two sentence columns share the lane evenly.
+ * - `"wrap"`: any other long text column (some cell longer than
+ *   WRAP_THRESHOLD characters), such as a run of flags. It wraps at half the
+ *   measure, so it leaves the spare width to the prose column.
  *
  * The read block and the editor grid both feed this the same cell kinds, so
  * a table sizes identically at rest on both surfaces.
  */
-export type TableColumnFit = "fit" | "prose" | "wrap";
+export type TableColumnFit = "fit" | "prose" | "text" | "wrap";
+
+/** A long text column whose average body text is at least this share of the prose column's is a second sentence column. */
+export const TEXT_COLUMN_SHARE = 0.8;
 
 /**
  * A text column whose longest body cell is over this many characters wraps.
@@ -73,7 +79,8 @@ export function tableColumnFits(
 
   return columns.map((column, index) => {
     if (index === prose) return "prose";
-    return column.longest > WRAP_THRESHOLD ? "wrap" : "fit";
+    if (column.longest <= WRAP_THRESHOLD) return "fit";
+    return prose !== -1 && column.average >= TEXT_COLUMN_SHARE * columns[prose].average ? "text" : "wrap";
   });
 }
 
@@ -97,10 +104,12 @@ export function columnCellClasses(
 
 /**
  * The classes of the block around a body cell's content: the prose measure
- * for a prose or wrap column, plus the floor for the prose column. Undefined
+ * for a prose or text column, half of it for a wrap column, plus the floor
+ * for the prose column. Undefined
  * for a fit column, whose content needs no block.
  */
 export function proseMeasureClass(fit: TableColumnFit | undefined): string | undefined {
   if (fit === "prose") return `${TABLE_PROSE_MEASURE_CLASS} ${TABLE_PROSE_FLOOR_CLASS}`;
+  if (fit === "text") return TABLE_PROSE_MEASURE_CLASS;
   return fit === "wrap" ? TABLE_WRAP_MEASURE_CLASS : undefined;
 }

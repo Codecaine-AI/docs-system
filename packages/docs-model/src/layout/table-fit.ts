@@ -147,8 +147,8 @@ export function structuredTableWidths(block: DocBlock, pdfAvailablePx: number): 
       const min = screen.widest;
       if (!widest || min.width > widest.measured.width) widest = { row, column, measured: min, wraps, identifier: kind !== undefined };
       minCovered = Math.max(minCovered, min.coveredWidth);
-      // A wrapping body cell sits in its column's measure: 60ch in the prose column, 30ch in a wrap column. A wrapping header does not.
-      const measure = fit === "prose" ? TABLE_PROSE_MEASURE_PX : TABLE_PROSE_FLOOR_PX;
+      // A wrapping body cell sits in its column's measure: 60ch in a prose or text column, 30ch in a wrap column. A wrapping header does not.
+      const measure = fit === "prose" || fit === "text" ? TABLE_PROSE_MEASURE_PX : TABLE_PROSE_FLOOR_PX;
       const measured = wraps && row !== "header" ? Math.min(screen.natural.width, measure) : screen.natural.width;
       preferred = Math.max(preferred, min.width, measured);
       const print = measureInline(spans, pdfContext(row, kind, fit)).widest;

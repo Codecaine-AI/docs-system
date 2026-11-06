@@ -108,9 +108,10 @@ export function tableCellKinds(
 /**
  * How a column sizes. `"fit"`: on one line, never wraps. `"prose"`: the one
  * column that wraps at the prose measure and takes the width left over.
- * `"wrap"`: another long text column that wraps at the same measure.
+ * `"text"`: a second sentence column that wraps at the same measure.
+ * `"wrap"`: another long text column that wraps at half the measure.
  */
-export type TableColumnFit = "fit" | "prose" | "wrap";
+export type TableColumnFit = "fit" | "prose" | "text" | "wrap";
 
 /** A text column whose longest body cell is over this many characters wraps. */
 export const WRAP_THRESHOLD = TABLE_METRICS.wrapThresholdChars;
@@ -138,6 +139,7 @@ export function tableColumnFits(
   });
   return columns.map((column, index) => {
     if (index === prose) return "prose";
-    return column.longest > WRAP_THRESHOLD ? "wrap" : "fit";
+    if (column.longest <= WRAP_THRESHOLD) return "fit";
+    return prose !== -1 && column.average >= TABLE_METRICS.textColumnShare * columns[prose]!.average ? "text" : "wrap";
   });
 }

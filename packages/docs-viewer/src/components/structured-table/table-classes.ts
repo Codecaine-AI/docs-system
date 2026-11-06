@@ -50,6 +50,7 @@ export const TABLE_ELEMENT_CLASSES =
 export const TABLE_COLUMN_FIT_CLASSES = {
   fit: "whitespace-nowrap **:whitespace-nowrap",
   prose: "",
+  text: "",
   wrap: "",
 } as const;
 

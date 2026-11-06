@@ -63,7 +63,7 @@ import {
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_WRAPPER_CLASSES,
 } from "../components/structured-table/table-classes";
-import { PROSE_FLOOR_CH, WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
+import { PROSE_FLOOR_CH, TEXT_COLUMN_SHARE, WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
 import { tableCellKinds } from "../components/structured-table/cell-kind";
 import { liftBacktickCode } from "../components/structured-table/cell-code";
 import { chipKind } from "../components/typed-chip";
@@ -234,6 +234,7 @@ describe("structured table", () => {
     expect(TABLE_WRAP_MEASURE_CLASS.split(" ")).toContain("max-w-[calc(var(--ds-layout-lane-text)/2)]");
     expect(m.proseFloorCh * 2).toBe(m.proseMeasureCh);
     expect(PROSE_FLOOR_CH).toBe(m.proseFloorCh);
+    expect(TEXT_COLUMN_SHARE).toBe(m.textColumnShare);
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
     expect(WHOLE_CHIP_MAX_CHARS).toBe(m.wholeChipMaxChars);
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("whitespace-nowrap");

@@ -251,6 +251,8 @@ export const TABLE_METRICS = {
   proseMeasureCh: 60,
   /** The prose column is never narrower than this many ch. A table whose longest text cell is this short has no prose column. */
   proseFloorCh: 30,
+  /** A long text column whose average body text is at least this share of the prose column's wraps at the full prose measure. */
+  textColumnShare: 0.8,
   /** A text column whose longest body cell is over this many characters wraps. */
   wrapThresholdChars: 24,
   /** On screen, a code chip in a cell up to this many characters long never breaks, not even at a space. */

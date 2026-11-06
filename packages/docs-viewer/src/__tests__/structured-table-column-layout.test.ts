@@ -36,7 +36,13 @@ describe("tableColumnFits", () => {
   });
 
   it("breaks ties toward the leftmost column", () => {
-    expect(fits([["alpha beta gamma delta epsilon zeta", "zeta epsilon delta gamma beta alpha"]])).toEqual(["prose", "wrap"]);
+    expect(fits([["alpha beta gamma delta epsilon zeta", "zeta epsilon delta gamma beta alpha"]])).toEqual(["prose", "text"]);
+  });
+
+  it("lets a second sentence column wrap at the full measure, and a run of short values at half of it", () => {
+    const sentence = "A static image of the board, drawn at build time";
+    expect(fits([["a", sentence, `${sentence}.`]])).toEqual(["fit", "text", "prose"]);
+    expect(fits([["a", "--root <path> --port <port>", `${sentence} from its sidecar file.`]])).toEqual(["fit", "wrap", "prose"]);
   });
 
   it("gives a table whose text cells are all 30 characters or shorter no prose column", () => {
