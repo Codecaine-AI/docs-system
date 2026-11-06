@@ -1,6 +1,6 @@
 import { activeBackend, measureWidth, uncoveredChars, type FontSpec } from "@codecaine-ai/text-measure";
 import type { DeltaSpan } from "../doc-schema";
-import { chipNeedsPieces, chipPieces } from "./chips";
+import { chipNeedsPieces, chipPieces, listChipPieces } from "./chips";
 import { breakBetween } from "./line-breaks";
 import { DOCS_DEFAULT_FONTS, bolderWeight, codeFont } from "./metrics";
 
@@ -34,6 +34,8 @@ export interface InlineContext {
    * `overflow-wrap: normal` utility. Pieces stay whole: each is a nowrap span.
    */
   chipWrapsAnywhere?: boolean;
+  /** A chip up to this many characters long renders as nowrap list pieces (chips.ts listChipPieces), breaking only after a `,` or `|` (structured-table cells on screen). */
+  wholeChipMaxChars?: number;
 }
 
 /** A width and what it rests on. */
@@ -124,6 +126,10 @@ function layoutGlyphs(spans: readonly DeltaSpan[], context: InlineContext): Glyp
     if (attributes.code) {
       const font = codeFont(context.chip.sizePx, weight);
       const chip = chips++;
+      if (context.wholeChipMaxChars !== undefined && span.insert.length <= context.wholeChipMaxChars) {
+        listChipPieces(span.insert).forEach((piece, index) => push(piece, { font, chip, group: groups++, wbrBefore: index > 0, anywhere: false }));
+        continue;
+      }
       // A chip renders its text as plain text when no word in it can break, else as nowrap pieces with a <wbr> between two adjacent pieces.
       const plain = !chipNeedsPieces(span.insert);
       let previousWord = false;

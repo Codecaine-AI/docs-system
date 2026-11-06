@@ -59,6 +59,15 @@ function isPartCodeCell(cell: TableCell): boolean {
   return typeof cell !== "string" && cell.some((span) => span.attributes?.code === true) && !isWholeCodeCell(cell);
 }
 
+/**
+ * A plain-string cell that is one capitalized word or a dash, such as "None",
+ * "Off", "Yes" or "—": a not-applicable marker or a plain answer, never an
+ * identifier, so it stays sans even in an identifier column.
+ */
+function isPlainWord(cell: TableCell): boolean {
+  return typeof cell === "string" && /^(?:[A-Z][a-z]+|[-–—])$/.test(cell.trim());
+}
+
 function singleToken(cell: TableCell): string | null {
   if (typeof cell !== "string") return null;
   const text = cell.trim();
@@ -90,6 +99,7 @@ export function tableCellKinds(
       if (!qualified) return undefined;
       const cell = row[column] ?? "";
       if (!isWholeCodeCell(cell) && singleToken(cell) === null) return undefined;
+      if (isPlainWord(cell)) return undefined;
       return column === 0 ? "key" : "mono";
     }),
   );
@@ -98,9 +108,10 @@ export function tableCellKinds(
 /**
  * How a column sizes. `"fit"`: on one line, never wraps. `"prose"`: the one
  * column that wraps at the prose measure and takes the width left over.
- * `"wrap"`: another long text column that wraps at the same measure.
+ * `"text"`: a second sentence column that wraps at the same measure.
+ * `"wrap"`: another long text column that wraps at half the measure.
  */
-export type TableColumnFit = "fit" | "prose" | "wrap";
+export type TableColumnFit = "fit" | "prose" | "text" | "wrap";
 
 /** A text column whose longest body cell is over this many characters wraps. */
 export const WRAP_THRESHOLD = TABLE_METRICS.wrapThresholdChars;
@@ -123,11 +134,12 @@ export function tableColumnFits(
   });
   let prose = -1;
   columns.forEach((column, index) => {
-    if (column.code || column.average === 0) return;
+    if (column.code || column.average === 0 || column.longest <= TABLE_METRICS.proseFloorCh) return;
     if (prose === -1 || column.average > columns[prose]!.average) prose = index;
   });
   return columns.map((column, index) => {
     if (index === prose) return "prose";
-    return column.longest > WRAP_THRESHOLD ? "wrap" : "fit";
+    if (column.longest <= WRAP_THRESHOLD) return "fit";
+    return prose !== -1 && column.average >= TABLE_METRICS.textColumnShare * columns[prose]!.average ? "text" : "wrap";
   });
 }

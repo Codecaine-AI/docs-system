@@ -20,6 +20,7 @@ import {
   chipKind as modelChipKind,
   chipNeedsPieces as modelChipNeedsPieces,
   chipPieces as modelChipPieces,
+  listChipPieces as modelListChipPieces,
   codeDisplayText,
   codeHasNotes,
   liftBacktickCode as modelLiftBacktickCode,
@@ -56,15 +57,17 @@ import {
   TABLE_COLUMN_RULE_CLASSES,
   TABLE_ELEMENT_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
+  TABLE_PROSE_FLOOR_CLASS,
+  TABLE_WRAP_MEASURE_CLASS,
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_WRAPPER_CLASSES,
 } from "../components/structured-table/table-classes";
-import { WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
+import { PROSE_FLOOR_CH, TEXT_COLUMN_SHARE, WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
 import { tableCellKinds } from "../components/structured-table/cell-kind";
 import { liftBacktickCode } from "../components/structured-table/cell-code";
 import { chipKind } from "../components/typed-chip";
-import { chipNeedsPieces, chipPieces, monoBreaks } from "../components/mono-breaks";
+import { chipNeedsPieces, chipPieces, listChipPieces, monoBreaks } from "../components/mono-breaks";
 import { INLINE_CODE_CLASSES } from "../render/block-classes";
 import { renderDeltaSpans } from "../render/delta-spans";
 import { StackBlock } from "../components/stack/StackDocsBlock";
@@ -227,14 +230,22 @@ describe("structured table", () => {
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("max-w-[var(--ds-layout-lane-text)]");
     expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
+    expect(TABLE_PROSE_FLOOR_CLASS.split(" ")).toContain("min-w-[calc(var(--ds-layout-lane-text)/2)]");
+    expect(TABLE_WRAP_MEASURE_CLASS.split(" ")).toContain("max-w-[calc(var(--ds-layout-lane-text)/2)]");
+    expect(m.proseFloorCh * 2).toBe(m.proseMeasureCh);
+    expect(PROSE_FLOOR_CH).toBe(m.proseFloorCh);
+    expect(TEXT_COLUMN_SHARE).toBe(m.textColumnShare);
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
+    expect(WHOLE_CHIP_MAX_CHARS).toBe(m.wholeChipMaxChars);
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("whitespace-nowrap");
     // Print CSS resets white-space on th/td only, so every inline element in a fit column stays nowrap in a PDF.
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("**:whitespace-nowrap");
     expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:**:whitespace-nowrap");
     // An identifier cell zeroes the chip: no padding, the cell's own size.
-    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:[--docs-inline-code-pad-x:0]");
-    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:[--docs-inline-code-text-size:1]");
+    // Inline code in every cell is unpadded mono at the identifier size (table-fit.ts SCREEN_CODE).
+    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("[--docs-inline-code-pad-x:0]");
+    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(`[&_code]:text-[length:calc(var(--docs-table-font-size,${m.fontSizePx}px)-${m.fontSizePx - m.identifierFontSizePx}px)]`);
+    expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain("[--docs-inline-code-pad-x:0]");
   });
 
   test("an inline code chip's size, padding and border equal INLINE_MARK_METRICS", () => {
@@ -296,12 +307,14 @@ describe("inline code chips (docs-model layout/chips.ts)", () => {
     "headerRuleWidth", "verification.json", "foo_bar", "./path/to/file.ts", "camelCaseIdentifierThatIsVeryLong", "a/b c/d",
     "\"quoted\"", "1.5px", "true", "fn()", "editor.setContent", "useState", "Type", "some text with spaces", "brand-huggingface",
     "costEstimate?", "CORE_HARNESS_PROMPT_EDITOR_MODEL", "<kernel root>/pi-sessions", "calc(var(--x))", "@scope/pkg",
+    "climb|held-out|all", "<judge>=<count>,<judge>=<count>", "a, b", "x||y", ",lead", "--root <path>",
   ];
 
   test.each(texts)("both copies type and cut %p alike", (text) => {
     expect(modelChipKind(text)).toBe(chipKind(text));
     expect(modelChipPieces(text)).toEqual(chipPieces(text));
     expect(modelChipNeedsPieces(text)).toBe(chipNeedsPieces(text));
+    expect(modelListChipPieces(text)).toEqual(listChipPieces(text));
   });
 
   test.each(texts.filter((text) => text.trim()))("a chip of %p renders the pieces and breaks the lint measures", (text) => {
