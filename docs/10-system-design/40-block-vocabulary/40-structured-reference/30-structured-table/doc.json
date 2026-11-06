@@ -1084,7 +1084,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Other long columns wrap at 30ch, so the prose column gets the spare width."
+          "insert": "A second sentence column also wraps at 60ch. Other long columns wrap at 30ch, so the prose column gets the spare width."
         }
       ],
       "children": []
