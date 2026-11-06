@@ -48,6 +48,7 @@ export const STATE_SHAPE_STYLE = `
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
+[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}
 [data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1) var(--docs-shape-pad-x,16px) var(--ds-space-1-5);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 calc(-1 * var(--docs-shape-rule-width,1px)) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
@@ -143,19 +144,49 @@ function pathSegments(token: string): ReactNode {
   return parts.map((part, index) => <Fragment key={index}>{index > 0 && <wbr />}<span data-json-seg="">{part}</span></Fragment>);
 }
 
+/** The kinds of token that end a `"key": value` pair on one line (a `{` or `[` opens a nested block instead). */
+const PAIR_VALUE_KINDS: ReadonlySet<JsonTokenKind> = new Set(["string", "number", "boolean", "null"]);
+
+/**
+ * One example line as role-tagged token spans. A `"key": value` pair is wrapped in one `data-json-pair` span that
+ * never breaks between the key and the start of its value, so a long value wraps inside itself and never drops
+ * whole onto the next visual line, away from its key.
+ */
 export function jsonLineTokens(line: string): ReactNode[] {
   const output: ReactNode[] = [];
+  const kinds: (JsonTokenKind | null)[] = [];
   let cursor = 0;
   for (const match of line.matchAll(JSON_LEXEME_PATTERN)) {
     const index = match.index ?? 0;
-    if (index > cursor) output.push(line.slice(cursor, index));
+    if (index > cursor) { output.push(line.slice(cursor, index)); kinds.push(null); }
     const token = match[0];
     const kind = jsonTokenKind(token, line.slice(index + token.length));
     output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{kind === "string" ? pathSegments(token) : token}</span>);
+    kinds.push(kind);
     cursor = index + token.length;
   }
-  if (cursor < line.length) output.push(line.slice(cursor));
-  return output;
+  if (cursor < line.length) { output.push(line.slice(cursor)); kinds.push(null); }
+  const key = kinds.indexOf("key");
+  // After the key come its ":" and a space; the value is the next token.
+  const value = kinds.findIndex((kind, index) => index > key + 1 && kind !== null);
+  if (key < 0 || value < 0 || !PAIR_VALUE_KINDS.has(kinds[value]!)) return output;
+  // The pair takes the line's indent too, so the line cannot break between its indent and its key.
+  const start = key === 1 && kinds[0] === null ? 0 : key;
+  return [...output.slice(0, start), <span key="pair" data-json-pair="">{output.slice(start, value + 1)}</span>, ...output.slice(value + 1)];
+}
+
+/** Continuation lines of a wrapped string value hang this far at most, so a deep key still leaves room to wrap. */
+const VALUE_HANG_MAX = 26;
+
+/**
+ * The hanging indent of one example line. A `"key": "value"` line whose value has no space (a path, a token, an
+ * id) hangs its continuation lines under the first character inside the value's opening quote, so the wrapped
+ * value reads as one string. Any other line, prose strings included, hangs 2ch past its own indent, so a long
+ * sentence keeps the pane's width.
+ */
+export function exampleHang(line: string): number {
+  const pair = /^(\s*"(?:[^"\\]|\\.)*":\s*)"[^\s"]*"?,?$/.exec(line);
+  return pair && pair[1]!.length <= VALUE_HANG_MAX ? pair[1]!.length - 1 : leadingColumns(line);
 }
 
 /**
@@ -199,7 +230,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
         if (chain[0] !== path) chain.unshift(path);
       }
     }
-    exampleLines = lines.map((line, index) => ({ content: hangingLine(leadingColumns(line), jsonLineTokens(line)), linkKey: keysByLine[index] }));
+    exampleLines = lines.map((line, index) => ({ content: hangingLine(exampleHang(line), jsonLineTokens(line)), linkKey: keysByLine[index] }));
   }
   const rows = flat.map(({ field, depth, path }) => ({
     path,

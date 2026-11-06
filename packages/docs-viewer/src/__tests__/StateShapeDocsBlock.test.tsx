@@ -7,6 +7,7 @@ import {
   STATE_SHAPE_LABEL,
   StateShapeBlock,
   buildShapeModel,
+  exampleHang,
   classifyTypeText,
   splitTypeUnion,
 } from "../components/state-shape/StateShapeDocsBlock";
@@ -317,7 +318,10 @@ describe("StateShapeBlock — plain reference panel", () => {
     const hangs = Array.from(region.querySelectorAll("[data-code-line] > [data-line-text] > [data-hang]")) as HTMLElement[];
     expect(hangs.length).toBe(region.querySelectorAll("[data-code-line]").length);
     expect(hangs[0]?.style.getPropertyValue("--hang")).toBe("0ch");
-    expect(hangs[1]?.style.getPropertyValue("--hang")).toBe("2ch");
+    // Line 2 is "name": "StateShapeState", a value with no space, so it hangs under the value's first character.
+    expect(hangs[1]?.style.getPropertyValue("--hang")).toBe("9ch");
+    // Line 3 opens the source object, so it hangs 2ch past its own indent.
+    expect(hangs[2]?.style.getPropertyValue("--hang")).toBe("2ch");
   });
 
   it("keeps an example far taller than its ledger beside the fields", () => {
@@ -561,5 +565,21 @@ describe("StateShapeBlock — code in descriptions", () => {
   it("prints a description with no backticks as plain text", () => {
     render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
     expect(document.querySelector("[data-note-code]")).toBeNull();
+  });
+});
+
+describe("StateShapeBlock — wrapped example values", () => {
+  it("hangs a wrapped path or token under its value, and a prose string under its key", () => {
+    expect(exampleHang('  "token": "3f9c2a7e5b1d4c8f",')).toBe(10);
+    expect(exampleHang('  "packageRoot": "/Users/alex/code/docs-mcp"')).toBe(16);
+    expect(exampleHang('  "reader": "An engineer who will write code",')).toBe(2);
+    expect(exampleHang("  {")).toBe(2);
+  });
+
+  it("keeps a key and the start of its value on one visual line, indent included", () => {
+    render(<StateShapeBlock id="pair" fields={[{ name: "token", type: "string" }, { name: "pos", type: "object" }]} example={JSON.stringify({ token: "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a", pos: { x: 1 } })} />);
+    const pairs = Array.from(document.querySelectorAll("[data-json-pair]"));
+    expect(pairs[0]!.textContent).toBe('  "token": "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a"');
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}');
   });
 });
