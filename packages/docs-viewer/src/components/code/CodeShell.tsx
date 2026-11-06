@@ -174,7 +174,7 @@ export function CodeBlockHeader({
  * Lit: the note takes the line tint, its body steps up to the panel ink and
  * the chip takes the link color.
  */
-function CodeNoteRow({
+export function CodeNoteRow({
   annotation,
   index,
   isActive,
