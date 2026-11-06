@@ -21,13 +21,15 @@ describe("pseudocode.code-syntax", () => {
       "  input = u.input_tokens ?? 0",
       "  if part.type === \"tool_use\" -> byName[part.name] += 1",
       "  push { insert: match[1] }",
+      "  add 1 to byName[part.name]",
     ].join("\n"));
     expect(rest).toEqual([]);
     expect(finding!.blockId).toBe("p");
-    expect(finding!.message).toStartWith("Lines 2, 3 and 4 use source-language syntax");
+    expect(finding!.message).toStartWith("Lines 2, 3, 4 and 5 use source-language syntax");
     expect(finding!.message).toContain("Write ?? as \"or 0 when the value is missing\".");
     expect(finding!.message).toContain("Write ==, ===, != or !== as equals or does not equal.");
     expect(finding!.message).toContain("Write an object literal as");
+    expect(finding!.message).toContain("Write an index such as [0] or [part.name] as");
   });
 
   it("passes plain steps, calls, arrows, fields, strings and comments", () => {

@@ -11,7 +11,7 @@ const CODE_SYNTAX: readonly { pattern: RegExp; label: string; words: string }[] 
   { pattern: /\?\./, label: "?.", words: "\"if there is one\"" },
   { pattern: /[+\-*/]=|\+\+/, label: "+=, -= or ++", words: "\"add 1 to the count\"" },
   { pattern: /\{\s*[A-Za-z_]\w*\s*:/, label: "an object literal", words: "\"a span with the text and the code attribute\"" },
-  { pattern: /[\w\]]\[\d+\]/, label: "a numeric index such as [0]", words: "\"the first capture group\"" },
+  { pattern: /[\w\]]\[[^\]\s][^\]]*\]/, label: "an index such as [0] or [part.name]", words: "\"the first capture group\" or \"the count for part.name in byName\"" },
   { pattern: /;\s*$/, label: "a trailing ;", words: "the step alone" },
 ];
 
@@ -47,7 +47,7 @@ export const pseudocodeCodeSyntaxRule: LintRule = {
   enforcement: [],
   applicability: "Each line of a pseudocode block, outside its double-quoted strings and its trailing // comment.",
   exclusions: ["Text inside a double-quoted string or a // comment", "Calls, -> arrows and .field access, which the viewer highlights"],
-  suggestion: "Say the step in plain words: equals and does not equal for === and !==, and and or for && and ||, \"or 0 when the value is missing\" for ??, and \"add 1 to\" for += 1. Name a field or a list in words, not as an object literal or a [0] index.",
+  suggestion: "Say the step in plain words: equals and does not equal for === and !==, and and or for && and ||, \"or 0 when the value is missing\" for ??, and \"add 1 to\" for += 1. Name a field or a list in words, not as an object literal or an index such as [0] or [part.name].",
   check({ blocks }) {
     return blocks.flatMap((block) => {
       if (block.type !== "pseudocode") return [];

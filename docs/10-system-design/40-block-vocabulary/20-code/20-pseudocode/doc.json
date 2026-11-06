@@ -350,7 +350,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Say what a stop ends, such as \"leave the loop\" or \"return path\", never a bare \"stop\"."
+          "insert": "Start a control step with its control word, such as \"skip the candidate\" or \"return path\", so the viewer colors it. Say what a stop ends, such as \"leave the loop\", never a bare \"stop\"."
         }
       ],
       "children": []

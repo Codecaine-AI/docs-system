@@ -1467,7 +1467,7 @@
       },
       "text": [
         {
-          "insert": "pseudocode.code-syntax flags a pseudocode line that uses source-language syntax outside its strings and comment, such as ==, ===, &&, ??, ?., +=, an object literal, or a [0] index. The message gives the plain words for each one, such as \"is not\" for !==. docs_check fails until the task fixes it."
+          "insert": "pseudocode.code-syntax flags an operator such as === or ??, an object literal, or an index such as [part.name] in a pseudocode line, outside its strings and comment. The message gives the plain words for each one, such as \"does not equal\" for !==. docs_check fails until the task fixes it."
         }
       ],
       "children": []
