@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { AnnotatedCodeBlock } from "../components/code/CodeAnnotations";
 import {
   CODE_GUTTER_LINE_ANNOTATED_LIT_CLASSES,
@@ -53,8 +53,11 @@ function stubLayout(blockWidth: number) {
   const original = HTMLElement.prototype.getBoundingClientRect;
   HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
     // The block section, a line probe (text at 7.8 px a character, 13 px for a CJK one), then the furniture probe (a width, no text).
+    // A detached element has no layout, so it measures 0, as in a browser.
     const probe = this.style.visibility === "hidden";
-    const width = this.hasAttribute("data-code-annotations")
+    const width = !this.isConnected
+      ? 0
+      : this.hasAttribute("data-code-annotations")
       ? blockWidth
       : probe && this.textContent
         ? [...this.textContent].reduce((sum, char) => sum + (/[\u3000-\u9fff]/.test(char) ? 13 : 7.8), 0)
@@ -197,6 +200,30 @@ describe("AnnotatedCodeBlock", () => {
       );
       expect(order).toEqual(["1", "2", "3", "note after 3: L2–3Sum Adds the inputs.", "4", "note after 4: L4Prints the result."]);
       cleanup();
+    }
+  });
+
+  it("keeps the notes under their lines after a resize when the code still cannot sit beside them", () => {
+    const callbacks: Array<() => void> = [];
+    const original = globalThis.ResizeObserver;
+    globalThis.ResizeObserver = class {
+      constructor(callback: () => void) { callbacks.push(callback); }
+      observe() {}
+      disconnect() {}
+      unobserve() {}
+    } as unknown as typeof ResizeObserver;
+    let restore = stubLayout(900);
+    try {
+      const { container } = renderBlock([{ lines: "1", note: "Wide." }], [`// ${"日".repeat(50)}`, ...CODE.split("\n").slice(1)].join("\n"));
+      expect(container.querySelector("[data-code-notes]")).toBeNull();
+      restore();
+      restore = stubLayout(910);
+      act(() => { for (const callback of callbacks) callback(); });
+      expect(container.querySelector("[data-code-notes]")).toBeNull();
+      expect(container.querySelector('[data-code-note-row="1"]')).toBeTruthy();
+    } finally {
+      restore();
+      globalThis.ResizeObserver = original;
     }
   });
 
