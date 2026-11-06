@@ -22,14 +22,40 @@ function escapeHtml(text: string): string {
     .replace(/'/g, "&#x27;");
 }
 
-/** One code fragment to escaped token HTML; control words gain `hljs-control`. */
+/**
+ * Keeps a keyword's color only where it starts a statement: the first word of
+ * the line, the word after a `->` or `=>` arrow, or the word right after
+ * another kept keyword (`else if`, `for each`), and a `then` or `do` on a line
+ * that starts with a kept keyword (`if x then stop`). Anywhere else the word is
+ * plain English, as in "the count for part.name" or "or 0 if missing", and
+ * it stays plain text. Control words gain `hljs-control`.
+ */
+function statementKeywords(html: string): string {
+  let before = "";
+  let afterKept = false;
+  let opensWithKeyword = false;
+  return html.replace(/<span class="hljs-keyword">([^<]*)<\/span>|<[^>]*>|[^<]+/g, (token, word: string | undefined) => {
+    if (word === undefined) {
+      if (!token.startsWith("<")) {
+        before += token;
+        if (token.trim()) afterKept = false;
+      }
+      return token;
+    }
+    const lead = before.trimEnd();
+    const keep = afterKept || lead === "" || lead.endsWith("-&gt;") || lead.endsWith("=&gt;") || (opensWithKeyword && (word === "then" || word === "do"));
+    if (lead === "" && keep) opensWithKeyword = true;
+    before += word;
+    afterKept = keep;
+    if (!keep) return word;
+    return CONTROL.has(word) ? `<span class="hljs-keyword hljs-control">${word}</span>` : token;
+  });
+}
+
+/** One code fragment to escaped token HTML, with keywords colored only where they start a statement. */
 function highlightFragment(fragment: string): string {
   try {
-    return highlighter
-      .highlight(fragment, { language: PSEUDO_LANGUAGE, ignoreIllegals: true })
-      .value.replace(/<span class="hljs-keyword">([^<]*)<\/span>/g, (span, word: string) =>
-        CONTROL.has(word) ? `<span class="hljs-keyword hljs-control">${word}</span>` : span,
-      );
+    return statementKeywords(highlighter.highlight(fragment, { language: PSEUDO_LANGUAGE, ignoreIllegals: true }).value);
   } catch {
     return escapeHtml(fragment);
   }

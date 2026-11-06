@@ -79,12 +79,24 @@ describe("pseudocode block", () => {
     ].join("\n"));
     const colored = (html: string) => [...html.matchAll(/<span class="hljs-([\w -]+)">([^<]*)<\/span>/g)].filter((m) => !m[1]!.includes("comment")).map((m) => m[2]);
     expect(colored(rows[0]!.html)).toEqual(["if", '"docs/"', "-&gt;", "stop"]);
-    expect(colored(rows[1]!.html)).toEqual(["then"]);
+    expect(colored(rows[1]!.html)).toEqual([]);
     expect(colored(rows[2]!.html)).toEqual([]);
     expect(colored(rows[3]!.html)).toEqual([]);
     // "\" is a whole string, so the text after it stays plain and the comment still splits off.
     expect(colored(rows[4]!.html)).toEqual(['"\\"', '"/"']);
     expect(rows[4]!.comment).toBe("// backslash");
+  });
+
+  it("colors a control word only where it starts a statement", () => {
+    const rows = renderPseudocode([
+      "add 1 to the count for part.name",
+      "input = the input tokens, or 0 if missing",
+      "condition words = if, unless, until",
+      "else if done -> return none",
+      "  if x then stop",
+    ].join("\n"));
+    const control = (html: string) => [...html.matchAll(/<span class="hljs-keyword hljs-control">(\w+)<\/span>/g)].map((m) => m[1]);
+    expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "then", "stop"]]);
   });
 
   it("colors a method call as a call, not as a property", () => {
