@@ -361,7 +361,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Repeat the noun in place of \"it\" or \"them\", such as \"or 0 when the match has no start\". Name both ends of \"between\", such as \"between the verb and the condition word\"."
+          "insert": "Put a word that a step tests in quotes, such as "
+        },
+        {
+          "insert": "if between opens with \"and\" or \"or\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so it never reads as part of the sentence. Repeat the noun in place of \"it\", and name both ends of \"between\"."
         }
       ],
       "children": []
