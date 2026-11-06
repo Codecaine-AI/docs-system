@@ -48,7 +48,7 @@ export const STATE_SHAPE_STYLE = `
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
-[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}
+[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}[data-docs-block-type="state-shape"] [data-json-glue]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1) var(--docs-shape-pad-x,16px) var(--ds-space-1-5);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 calc(-1 * var(--docs-shape-rule-width,1px)) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
@@ -144,6 +144,9 @@ function pathSegments(token: string): ReactNode {
   return parts.map((part, index) => <Fragment key={index}>{index > 0 && <wbr />}<span data-json-seg="">{part}</span></Fragment>);
 }
 
+/** The characters of a string value that stay on the line of its closing quote and comma. */
+const GLUE_TAIL = 3;
+
 /** The kinds of token that end a `"key": value` pair on one line (a `{` or `[` opens a nested block instead). */
 const PAIR_VALUE_KINDS: ReadonlySet<JsonTokenKind> = new Set(["string", "number", "boolean", "null"]);
 
@@ -155,23 +158,39 @@ const PAIR_VALUE_KINDS: ReadonlySet<JsonTokenKind> = new Set(["string", "number"
 export function jsonLineTokens(line: string): ReactNode[] {
   const output: ReactNode[] = [];
   const kinds: (JsonTokenKind | null)[] = [];
+  const texts: string[] = [];
   let cursor = 0;
   for (const match of line.matchAll(JSON_LEXEME_PATTERN)) {
     const index = match.index ?? 0;
-    if (index > cursor) { output.push(line.slice(cursor, index)); kinds.push(null); }
+    if (index > cursor) { output.push(line.slice(cursor, index)); kinds.push(null); texts.push(line.slice(cursor, index)); }
     const token = match[0];
     const kind = jsonTokenKind(token, line.slice(index + token.length));
     output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{kind === "string" ? pathSegments(token) : token}</span>);
     kinds.push(kind);
+    texts.push(token);
     cursor = index + token.length;
   }
-  if (cursor < line.length) { output.push(line.slice(cursor)); kinds.push(null); }
+  if (cursor < line.length) { output.push(line.slice(cursor)); kinds.push(null); texts.push(line.slice(cursor)); }
   const key = kinds.indexOf("key");
   // After the key come its ":" and a space; the value is the next token.
   const value = kinds.findIndex((kind, index) => index > key + 1 && kind !== null);
   if (key < 0 || value < 0 || !PAIR_VALUE_KINDS.has(kinds[value]!)) return output;
   // The pair takes the line's indent too, so the line cannot break between its indent and its key.
   const start = key === 1 && kinds[0] === null ? 0 : key;
+  // A string value's closing quote and the trailing comma print as one unbreakable unit, so the comma never wraps
+  // onto a line of its own.
+  const comma = kinds[value + 1] === "punct" && texts[value + 1] === ",";
+  if (kinds[value] === "string" && comma) {
+    const token = texts[value]!;
+    // The glue also takes the value's last few characters, so a wrap never leaves `",` alone on a line.
+    const body = token.slice(0, -1);
+    // A path keeps its whole last part with the quote, so the glue never splits a name such as `docs-mcp`.
+    const slash = body.lastIndexOf("/");
+    const pathLike = !/\s/.test(body) && slash > 0 && body.length - slash - 1 <= PATH_SEGMENT_MAX;
+    const cut = pathLike ? slash + 1 : Math.max(1, body.length - GLUE_TAIL);
+    output[value] = <span key="value" data-json-token="string" className={JSON_TOKEN_CLASS.string}>{pathSegments(body.slice(0, cut))}<span data-json-glue="">{body.slice(cut)}{'"'}<span data-json-token="punct" className={JSON_TOKEN_CLASS.punct}>,</span></span></span>;
+    output.splice(value + 1, 1);
+  }
   return [...output.slice(0, start), <span key="pair" data-json-pair="">{output.slice(start, value + 1)}</span>, ...output.slice(value + 1)];
 }
 
@@ -190,10 +209,11 @@ export function exampleHang(line: string): number {
 }
 
 /**
- * The widest line, in columns, that the example folds an object or array onto. The side pane shows about 48
- * columns at the 1280px page, so a folded line never soft-wraps and leaves its closing brace on a line alone.
+ * The widest line, in columns, that the example folds an object or array onto. The side pane shows about 46
+ * columns at the 1280px page (48% of an 815px block), so a folded line never soft-wraps and leaves its closing
+ * brace on a line alone.
  */
-const EXAMPLE_FOLD_COLUMNS = 40;
+const EXAMPLE_FOLD_COLUMNS = 42;
 
 function normalizeRangePath(path: string) { return path.replace(/\[\d+\]/g, "").replace(/^\.+/, ""); }
 

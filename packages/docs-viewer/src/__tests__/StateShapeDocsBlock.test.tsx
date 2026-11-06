@@ -392,19 +392,21 @@ describe("StateShapeBlock — plain reference panel", () => {
 
   it("keys example lines with their whole chain, deepest first — ancestors still light them", () => {
     renderTwoPane();
-    // Every object of this example is wider than the 40-column fold, so it prints expanded (the fixture comment).
+    // The pane folds an object onto one line only when the line fits in 42 columns, so
+    // { "name": "params", ... } is one line that keys both fields, and the longer first item stays expanded.
     expect(exampleLine(1)?.getAttribute("data-link-key")).toBeNull();
-    expect(exampleLine(17)?.getAttribute("data-link-key")).toBeNull();
+    expect(exampleLine(14)?.getAttribute("data-link-key")).toBeNull();
     expect(exampleLine(4)?.getAttribute("data-link-key")).toBe("source.path source");
     expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.name fields");
-    expect(exampleLine(14)?.getAttribute("data-link-key")).toBe("fields.required fields");
+    expect(exampleLine(10)?.getAttribute("data-link-key")).toBe("fields.required fields");
+    expect(exampleLine(12)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
     expect(exampleLine(3)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(6)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(7)?.getAttribute("data-link-key")).toBe("fields");
-    expect(exampleLine(16)?.getAttribute("data-link-key")).toBe("fields");
+    expect(exampleLine(13)?.getAttribute("data-link-key")).toBe("fields");
   });
 
-  it("folds an object that fits in 40 columns onto one line that keys every field on it", () => {
+  it("folds an object that fits in 42 columns onto one line that keys every field on it", () => {
     const fields: Field[] = [{ name: "label", type: "string" }, { name: "pos", type: "object", fields: [{ name: "x", type: "number" }, { name: "y", type: "number" }] }];
     const lines = buildShapeModel(fields, JSON.stringify({ label: "a label long enough to keep the root open", pos: { x: 1, y: 2 } })).exampleLines!;
     expect(lines).toHaveLength(4);
@@ -542,8 +544,9 @@ describe("StateShapeBlock — optionality legend and path wrapping", () => {
   it("breaks a path value only after a slash, and leaves prose strings whole", () => {
     render(<StateShapeBlock id="path" fields={[{ name: "root", type: "string" }, { name: "note", type: "string" }]} example={JSON.stringify({ root: "packages/docs-mcp/src", note: "a and/or b" })} />);
     const [root, note] = Array.from(document.querySelectorAll('[data-json-token="string"]'));
-    expect(Array.from(root!.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(['"packages/', "docs-mcp/", 'src"']);
-    expect(root!.querySelectorAll("wbr")).toHaveLength(2);
+    // The last part, src, prints with the closing quote and comma, so it never wraps alone.
+    expect(Array.from(root!.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(['"packages/', "docs-mcp/"]);
+    expect(root!.querySelector("[data-json-glue]")?.textContent).toBe('src",');
     expect(note!.querySelector("[data-json-seg]")).toBeNull();
   });
 });
@@ -579,7 +582,8 @@ describe("StateShapeBlock — wrapped example values", () => {
   it("keeps a key and the start of its value on one visual line, indent included", () => {
     render(<StateShapeBlock id="pair" fields={[{ name: "token", type: "string" }, { name: "pos", type: "object" }]} example={JSON.stringify({ token: "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a", pos: { x: 1 } })} />);
     const pairs = Array.from(document.querySelectorAll("[data-json-pair]"));
-    expect(pairs[0]!.textContent).toBe('  "token": "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a"');
+    expect(pairs[0]!.textContent).toBe('  "token": "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a",');
+    expect(pairs[0]!.querySelector("[data-json-glue]")?.textContent).toBe('e3a",');
     expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}');
   });
 });
