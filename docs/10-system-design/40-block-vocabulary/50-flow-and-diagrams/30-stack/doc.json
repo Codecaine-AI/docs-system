@@ -855,11 +855,13 @@
       "props": {},
       "text": [
         {
-          "insert": "A leaf renders as a card with its name, then its detail as plain text in the body colour. Prose segments join with commas, and path segments sit one per line."
+          "insert": "A leaf renders as a card with its name, then its detail. A name that is prose, such as \"Docs server route\", draws in the sans face, and any other name draws in code font."
         }
       ],
       "children": [
-        "stack-doc-2-role"
+        "stack-doc-2-role",
+        "stack-doc-2-detail",
+        "stack-doc-2-code"
       ]
     },
     "stack-doc-2-role": {
@@ -868,7 +870,38 @@
       "props": {},
       "text": [
         {
-          "insert": "A card's role draws a 3px left edge in the node colour, or else the layer colour. The role also shows as a small lowercase code-font word at the right of the name row and as the card's hover title."
+          "insert": "A card's role draws a 3px left edge in the node colour, or else the layer colour. The role also shows as a small code-font word in the case it was written, at the right of the name row and as the card's hover title."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-2-detail": {
+      "id": "stack-doc-2-detail",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A detail that is not a path joins its segments with commas in the body face. In a path detail, each bare path segment gets its own muted code-font line, and the other segments join with commas on one line below."
+        }
+      ],
+      "children": []
+    },
+    "stack-doc-2-code": {
+      "id": "stack-doc-2-code",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A backtick span in a detail or a rule, such as "
+        },
+        {
+          "insert": "`checkDocsPath`",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", draws in code font without its backticks."
         }
       ],
       "children": []
@@ -879,7 +912,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A uses arrow is a thin stem with an arrowhead, and a string "
+          "insert": "A uses arrow is a 1.5px stem with an arrowhead. A string "
         },
         {
           "insert": "uses",
@@ -888,7 +921,7 @@
           }
         },
         {
-          "insert": " value labels it in code font."
+          "insert": " value labels the arrow with a code-font tag beside the stem."
         }
       ],
       "children": [
@@ -901,7 +934,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A boundary draws a short dash, the rule sentence in bold ink, and a dash to the right edge. Next to a crossing arrow, the line starts just right of the arrow, so the two never overlap."
+          "insert": "A boundary draws a 1.5px dashed line across the stack, with the rule sentence beneath it in the body face. Next to a crossing arrow, the line and the rule start just right of the arrow, so the two never overlap."
         }
       ],
       "children": []
@@ -938,7 +971,7 @@
           }
         },
         {
-          "insert": " warning flags a leaf detail that needs a second line at stock theme settings. A prose detail wraps at 60ch of 13.5px Inter, 506.25px, and each path segment wraps at 60ch of 12px IBM Plex Mono, 432px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in "
+          "insert": " warning flags a leaf detail line that needs a second line at stock theme settings. A body-face line wraps at 60ch of 13.5px Inter, 506.25px, and each path line wraps at 60ch of 13px IBM Plex Mono, 468px. Inside two-column containers a card can be narrower than that cap, and then the card's width counts. Like every layout rule in "
         },
         {
           "insert": "Authoring Lints",

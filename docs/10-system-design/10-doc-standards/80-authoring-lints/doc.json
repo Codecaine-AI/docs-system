@@ -1480,7 +1480,7 @@
           }
         },
         {
-          "insert": " on \"Host app\". The badge draws as the card's role word, so it must name a role or a file that the name does not state."
+          "insert": " on \"Host app\". The badge draws as the card's role word, so it must name a role that the name does not state."
         }
       ],
       "children": []
