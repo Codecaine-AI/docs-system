@@ -14,9 +14,11 @@ A file tree tells the reader where each file lives and what it holds. Three rule
 
   - Root the tree at the folder the brief names. Both renders draw a chain of single-child folders as one row, such as `packages/docs-style/src/rules/`, so long entry paths cost no rows.
 
-  - Show each file the brief asks about inside its folder. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
+  - When the brief asks for a whole folder, show every file in it that the sources name, such as a data file that a loader reads. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
 
   - Leave out branches that the brief does not ask for. When the tree shows only part of a folder, say so in the sentence before it.
+
+  - When the sources do not show the files of a folder, say so in the sentence before the tree. Never put a guess or a different fact in their place, such as exports for files.
 
 - Notes
 
@@ -24,7 +26,9 @@ A file tree tells the reader where each file lives and what it holds. Three rule
 
   - Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case.
 
-  - Never point by position, such as "the files below". Folders sort first and then names, so a file can land above or below the files it names.
+  - Never point by position, such as "the files below" or "15th". The tree sorts folders first and then names, so give an order in a sentence after the tree.
+
+  - Keep each note to one line of about 10 words. A note is a label, not a paragraph.
 
 - Colors
 
@@ -178,7 +182,7 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 - Notes
 
-  - `note` renders in one aligned, muted sans column after the names. Each note wraps inside a 60ch cap of its 13.5px face, 506.25px in Inter including its 24px left padding, and is never truncated.
+  - `note` renders in one aligned, muted sans column after the names. A note runs to the panel's right edge, wraps only past it, and is never truncated.
 
 - In the editor
 
