@@ -378,6 +378,16 @@
   font-weight: var(--ds-font-weight-semibold);
 }
 
+/*
+ * The action verb that opens a step, such as set or remove (hljs-verb, only
+ * the pseudocode highlighter emits it). It takes the call color, a calmer hue
+ * than the control words, through a pseudocode-own variable, so a theme can
+ * move it without touching --syntax-function.
+ */
+.docs-pseudo-code .hljs-verb {
+  color: var(--docs-pseudo-verb-fg, var(--syntax-function, var(--syntax-string, var(--color-text-green, #448361))));
+}
+
 .docs-pseudo-row:not(:has(.docs-pseudo-comment)) .docs-pseudo-code {
   grid-column: span 2;
   padding-right: var(--docs-code-pad-x, var(--ds-space-3));

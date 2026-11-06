@@ -4,10 +4,11 @@
  * Two parts, both display-only (stored text and copy text are never changed):
  *  - `pseudoGrammar`: a small highlight.js grammar, registered on the
  *    pseudocode block's own highlighter instance (highlight.ts) — control words (if / else / for each /
- *    while / return), literals, calls, `.property` access, `->`, strings,
- *    numbers, and `//` comments. Plain-English words such as in, is, not,
- *    and, or, end and set stay plain text, and so does a file name such as
- *    `doc.json`, so only code roles take a color.
+ *    while / return), action verbs that start a step (set / add / remove),
+ *    literals, calls, `.property` access, `->`, strings, numbers, and `//`
+ *    comments. Plain-English words such as in, is, not, and, or and end stay
+ *    plain text, and so does a file name such as `doc.json`, so only code
+ *    roles take a color.
  *  - `renderPseudoLines`: each source line split into its highlighted code,
  *    its trailing `// …` comment (rendered in one aligned grid column that
  *    wraps inside the panel) and, when `diff` is set, the mark read from the
@@ -22,7 +23,17 @@ import type { HLJSApi, Language } from "highlight.js";
 export const PSEUDO_LANGUAGE = "pseudo";
 
 /** Control-flow words; highlight.ts tags them hljs-control (purple), like the code block's `if`. */
-export const PSEUDO_CONTROL_WORDS = ["if", "else", "for", "each", "while", "return", "break", "continue", "skip", "stop", "try", "throw", "emit", "yield", "await", "then", "until", "repeat", "do"];
+export const PSEUDO_CONTROL_WORDS = ["if", "else", "for", "each", "while", "return", "break", "continue", "skip", "stop", "try", "throw", "emit", "yield", "await", "then", "until", "repeat", "do", "leave"];
+
+/**
+ * Action verbs that start a step, such as "set parent to ..." or "remove every trailing slash". highlight.ts tags
+ * one hljs-verb only where it starts a statement and a word follows it, so "the set of names", setParent and
+ * "set = 1" stay plain. The list is the verbs climb writers start steps with, plus the guidance's own examples.
+ */
+export const PSEUDO_VERBS = [
+  "set", "add", "append", "insert", "remove", "delete", "replace", "move", "push", "pop", "sort", "split", "join",
+  "mark", "record", "read", "write", "parse", "build", "create", "update", "call", "check", "make",
+];
 
 /** File extensions that make `name.ext` a file name, which stays plain text instead of reading as `.property` access. */
 const FILE_EXTENSIONS = ["json", "jsonl", "md", "mdx", "ts", "tsx", "js", "jsx", "mjs", "css", "html", "png", "svg", "yaml", "yml", "toml", "txt", "sh", "log"];
@@ -33,6 +44,7 @@ export function pseudoGrammar(hljs: HLJSApi): Language {
     aliases: ["pseudocode"],
     keywords: {
       keyword: [...PSEUDO_CONTROL_WORDS, "let", "def"],
+      verb: PSEUDO_VERBS,
       // "none" and "nil" stay plain: writers use them as English, as in "when usage has none".
       literal: ["true", "false", "null"],
     },

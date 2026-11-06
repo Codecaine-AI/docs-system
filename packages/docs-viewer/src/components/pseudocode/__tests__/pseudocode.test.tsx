@@ -73,7 +73,7 @@ describe("pseudocode block", () => {
   it("leaves plain-English words, file names and range ends uncolored", () => {
     const rows = renderPseudocode([
       'if path starts with "docs/", in any case and not empty -> stop',
-      "add the text from word to end, then set done",
+      "the text from word to end, then done",
       "write metrics.failed.json",
       "push cell[cursor..index]",
       'path = path with every "\\" replaced by "/" // backslash',
@@ -81,8 +81,9 @@ describe("pseudocode block", () => {
     const colored = (html: string) => [...html.matchAll(/<span class="hljs-([\w -]+)">([^<]*)<\/span>/g)].filter((m) => !m[1]!.includes("comment")).map((m) => m[2]);
     expect(colored(rows[0]!.html)).toEqual(["if", '"docs/"', "-&gt;", "stop"]);
     expect(colored(rows[1]!.html)).toEqual([]);
-    expect(colored(rows[2]!.html)).toEqual([]);
-    expect(colored(rows[3]!.html)).toEqual([]);
+    // Only the opening verb takes a color: the file name and the range stay plain.
+    expect(colored(rows[2]!.html)).toEqual(["write"]);
+    expect(colored(rows[3]!.html)).toEqual(["push"]);
     // "\" is a whole string, so the text after it stays plain and the comment still splits off.
     expect(colored(rows[4]!.html)).toEqual(['"\\"', '"/"']);
     expect(rows[4]!.comment).toBe("// backslash");
@@ -98,6 +99,25 @@ describe("pseudocode block", () => {
     ].join("\n"));
     const control = (html: string) => [...html.matchAll(/<span class="hljs-keyword hljs-control">(\w+)<\/span>/g)].map((m) => m[1]);
     expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "skip"]]);
+  });
+
+  it("colors the verb that opens a step, and never a verb inside a string, comment, name or sentence", () => {
+    const rows = renderPseudocode([
+      "set parent to the path without its last part",
+      '  replace each backslash in path with "/"',
+      "    if parent is empty -> leave the loop",
+      "add the text, then remove every trailing slash",
+      "else append the span to spans",
+      'emit "set the value" // set it before the loop',
+      "setParent(path)",
+      "set = 1",
+      "the set of names",
+      "if set is empty -> return",
+    ].join("\n"));
+    const verbs = (html: string) => [...html.matchAll(/<span class="hljs-verb">(\w+)<\/span>/g)].map((m) => m[1]);
+    expect(rows.map((row) => verbs(row.html))).toEqual([["set"], ["replace"], [], ["add", "remove"], ["append"], [], [], [], [], []]);
+    expect(rows[2]!.html).toContain('<span class="hljs-keyword hljs-control">leave</span>');
+    expect(rows[6]!.html).toContain('<span class="hljs-title function_">setParent</span>');
   });
 
   it("marks a function header line that opens an indented body, and only that line", () => {
