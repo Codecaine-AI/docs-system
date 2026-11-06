@@ -151,7 +151,8 @@
                     "frames": [
                       {
                         "text": "return failure(\"Sidecar actions require …\")",
-                        "comment": "a sidecar action needs its typed component tool"
+                        "comment": "a sidecar action needs its typed component tool",
+                        "source": "packages/docs-mcp/src/tools.ts:271"
                       }
                     ]
                   },
@@ -162,6 +163,7 @@
                   },
                   {
                     "text": "store.applyDocOps(args.path, ops, args.expected_hash)",
+                    "comment": "an argument of `applied` below, so it runs first",
                     "source": "packages/docs-mcp/src/tools.ts:274",
                     "frames": [
                       {
@@ -185,7 +187,8 @@
                                 "frames": [
                                   {
                                     "text": "return { ok: false, status: 409, … }",
-                                    "comment": "stale page, the caller reloads first"
+                                    "comment": "stale page, the caller reloads first",
+                                    "source": "packages/docs-server/src/doc-ops.ts:88"
                                   }
                                 ]
                               },
@@ -205,7 +208,8 @@
                                 "frames": [
                                   {
                                     "text": "return { ok: false, status: 422, … }",
-                                    "comment": "the file on disk stays as it was"
+                                    "comment": "the file on disk stays as it was",
+                                    "source": "packages/docs-server/src/doc-ops.ts:127"
                                   }
                                 ]
                               },
@@ -221,7 +225,7 @@
                     ]
                   },
                   {
-                    "text": "applied(store, args.path, result, { ctx, … })",
+                    "text": "applied(store, args.path, …, { ctx, … })",
                     "comment": "style findings and the new hash lead the reply",
                     "source": "packages/docs-mcp/src/tools.ts:274"
                   }
@@ -305,7 +309,16 @@
       "props": {},
       "text": [
         {
-          "insert": "A call inside another call's arguments runs first, in the same caller, so it is an earlier sibling and never a child."
+          "insert": "A call inside another call's arguments runs first, in the same caller, so it is an earlier sibling and never a child. Its comment names the call that takes its result, and that outer frame shows the argument as "
+        },
+        {
+          "insert": "…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -372,7 +385,7 @@
           }
         },
         {
-          "insert": ". Two calls or two checks never share one frame."
+          "insert": " and no name or shorthand that the source does not write."
         }
       ],
       "children": []
@@ -477,16 +490,25 @@
           }
         },
         {
-          "insert": " or "
+          "insert": ". The calls of each body nest under its frame, and a "
         },
         {
-          "insert": "catch (error)",
+          "insert": "catch",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". The calls of their body nest under that frame as frames, never only in its comment."
+          "insert": " frame sits right after its "
+        },
+        {
+          "insert": "try",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " frame."
         }
       ],
       "children": []
@@ -497,7 +519,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch frame always holds the frames that its condition gates. For the "
+          "insert": "A branch frame always holds the frames that its condition gates. For an "
         },
         {
           "insert": "else",
@@ -506,34 +528,34 @@
           }
         },
         {
-          "insert": " arm of an "
+          "insert": " arm, write "
         },
         {
-          "insert": "if",
+          "insert": "else",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " or a ternary, write the negated condition, such as "
+          "insert": " and the source condition, such as "
         },
         {
-          "insert": "baseline !== undefined",
+          "insert": "else (baseline === undefined)",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " for "
+          "insert": ", and cite the line where the "
         },
         {
-          "insert": "baseline === undefined ? undefined : styleGate(…)",
+          "insert": "else",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "."
+          "insert": " arm starts."
         }
       ],
       "children": []
@@ -614,7 +636,7 @@
           }
         },
         {
-          "insert": " is the line where the caller writes the call or the condition, not the line where the callee starts. Only the top frame cites the line where its own handler starts."
+          "insert": " is the line where the caller writes the call or the condition, not the line where the callee starts. Only the top frame cites the line where its own handler starts, and the text before the block says so."
         }
       ],
       "children": []
@@ -634,16 +656,7 @@
           }
         },
         {
-          "insert": " row has no "
-        },
-        {
-          "insert": "source",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", but a "
+          "insert": " or "
         },
         {
           "insert": "throw",
@@ -652,16 +665,7 @@
           }
         },
         {
-          "insert": " row cites the line of its "
-        },
-        {
-          "insert": "throw",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": " row cites the line where it is written, like every row for code that exists."
         }
       ],
       "children": []
@@ -852,7 +856,7 @@
                 "name": "source",
                 "type": "string",
                 "required": false,
-                "description": "The line where the caller writes this call or condition, \"path:line\". A `return` row and a frame marked added have none."
+                "description": "The line where the caller writes this call, condition or exit, \"path:line\". A frame marked added has none."
               },
               {
                 "name": "frames",
