@@ -7,6 +7,7 @@ import {
   STATE_SHAPE_LABEL,
   StateShapeBlock,
   buildShapeModel,
+  exampleIsShort,
   exampleHang,
   classifyTypeText,
   splitTypeUnion,
@@ -597,5 +598,26 @@ describe("StateShapeBlock — wrapped example values", () => {
     expect(pairs[0]!.textContent).toBe('  "token": "3f9c2a7e5b1d4c8f0a6e2b9d7c5f1e3a",');
     expect(pairs[0]!.querySelector("[data-json-glue]")?.textContent).toBe('e3a",');
     expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}');
+  });
+});
+
+describe("StateShapeBlock — short example beside a long field list", () => {
+  const long = "A description long enough to wrap onto a second and a third line of the field column.";
+  const rows = Array.from({ length: 8 }, (_, i) => ({ path: `f${i}`, depth: 0, field: { name: `f${i}`, type: "string", description: long } }));
+
+  it("widens the field list when a narrow example ends far above it", () => {
+    expect(exampleIsShort(rows, 9, 30)).toBe(true);
+  });
+
+  it("keeps the split when the example is as tall as the field list, or too wide for a narrower pane", () => {
+    expect(exampleIsShort(rows, 30, 30)).toBe(false);
+    expect(exampleIsShort(rows, 9, 43)).toBe(false);
+  });
+
+  it("marks the grid so the field list takes 8% more of the block", () => {
+    const fields = rows.map((row) => row.field);
+    render(<StateShapeBlock id="short" fields={fields} example={JSON.stringify({ f0: "a" })} />);
+    expect(document.querySelector("[data-shape-grid]")?.getAttribute("data-example-short")).toBe("true");
+    expect(sheet()).toContain("calc(var(--docs-pane-split,44%) + 8%)");
   });
 });

@@ -46,6 +46,7 @@ export const STATE_SHAPE_STYLE = `
 [data-shape-example-pane]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}
 @container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-shape-grid][data-has-example] [data-shape-example-pane]{border-top:0;border-left:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}}
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
+@container (min-width:560px){[data-shape-grid][data-has-example][data-example-short]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),calc(var(--docs-pane-split,44%) + 8%)) minmax(260px,1fr)}}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}[data-docs-block-type="state-shape"] [data-json-glue]{white-space:nowrap}[data-docs-block-type="state-shape"] [data-field-token="optional"]{margin-left:0}[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}
@@ -222,6 +223,8 @@ export type ShapeModel = {
   rows: FieldLedgerRow[];
   /** The pretty-printed example, each line keyed with its field chain (deepest first); undefined without a valid example. */
   exampleLines?: LinkedCodeLine[];
+  /** The widest printed example line, in columns; undefined without a valid example. */
+  exampleColumns?: number;
 };
 
 /**
@@ -237,6 +240,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   }
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
+  let printedColumns = 0;
   if (parsed) {
     const { lines, ranges } = printJsonLines(value, { inlineWidth: EXAMPLE_FOLD_COLUMNS });
     const paths = new Set(flat.map((row) => row.path));
@@ -250,6 +254,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
         if (chain[0] !== path) chain.unshift(path);
       }
     }
+    printedColumns = lines.reduce((max, line) => Math.max(max, line.length), 0);
     exampleLines = lines.map((line, index) => ({ content: hangingLine(exampleHang(line), jsonLineTokens(line)), linkKey: keysByLine[index] }));
   }
   const rows = flat.map(({ field, depth, path }) => ({
@@ -259,7 +264,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
     ...(matched.has(path) ? { linkKey: path } : {}),
     attrs: rowAttrs?.(path, depth, field),
   }));
-  return { rows, exampleLines };
+  return { rows, exampleLines, ...(exampleLines ? { exampleColumns: printedColumns } : {}) };
 }
 
 /** The name column never shrinks below this many ch, and never grows past the shared ledger's 24ch. */
@@ -299,6 +304,23 @@ export function noteWithCode(description: string): ReactNode {
   });
 }
 
+/** Description characters that one line of the field column holds at the 1280px page. */
+const NOTE_LINE_CHARS = 42;
+/** Columns the example pane shows when the field list takes its 8% more width. */
+const NARROW_PANE_COLUMNS = 36;
+
+/**
+ * True when the example would end far above the field list and every example line still fits a narrower pane:
+ * its printed lines are fewer than 55% of the field list's estimated lines (each row's type line, its description
+ * lines, and its row padding counted as half a line), and its widest line is NARROW_PANE_COLUMNS or less. The grid
+ * then gives the field list more width, which shortens it, so the two panes end nearer together.
+ */
+export function exampleIsShort(rows: readonly FieldLedgerRow[], exampleLines: number, exampleColumns: number): boolean {
+  if (exampleColumns > NARROW_PANE_COLUMNS) return false;
+  const ledgerLines = rows.reduce((sum, { field }) => sum + 1.5 + Math.ceil((field.description?.length ?? 0) / NOTE_LINE_CHARS), 1);
+  return exampleLines < ledgerLines * 0.55;
+}
+
 /**
  * The ledger's key to optionality. A row marks only an optional field (`?`), so a shape whose fields are all
  * required shows no marker at all; the legend says which case the reader sees.
@@ -327,7 +349,7 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     </header>}
     {description && <p data-shape-description="true">{description}</p>}
     <LinkGroup>
-      <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined}>
+      <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined} data-example-short={model.exampleColumns !== undefined && model.exampleLines && exampleIsShort(model.rows, model.exampleLines.length, model.exampleColumns) ? "true" : undefined}>
         <div data-shape-tree="true">
           {fields.length > 0 ? <><OptionalityLegend rows={model.rows} /><FieldLedger rows={model.rows} inlineNotes renderNote={noteWithCode} data-shape-ledger="true" /></> : <p data-shape-empty="true">(no fields)</p>}
         </div>
