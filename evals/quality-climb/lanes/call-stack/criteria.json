@@ -1,0 +1,8 @@
+[
+  { "id": "call-topology", "group": "Meaning", "question": "Does every frame sit under the frame whose body calls it in the sources, with siblings in execution order and no invented, inverted or flattened call, and is any skipped intermediate call or proposed frame made explicit?" },
+  { "id": "branch-scope", "group": "Meaning", "question": "Does each branch frame state the real source condition as code and nest only the frames that run when it holds, so an early return, throw or gated call reads as its consequence and the continuing path stays outside it?" },
+  { "id": "frame-selection", "group": "Meaning", "question": "Does the stack start at the entry frame the reader would search for, keep every load-bearing frame on the one stated path, and leave out boilerplate, trivial helpers and off-path calls?" },
+  { "id": "comment-value", "group": "Writing", "question": "Does each comment add a fact the code row does not say, such as what the frame refuses, returns, locks or writes, with no comment that restates the call and no needed comment missing?" },
+  { "id": "source-precision", "group": "Meaning", "question": "Does each existing call or condition the reader must find carry the path:line where it is written, while a return literal or a frame marked added omits a source instead of faking one?" },
+  { "id": "tree-traceability", "group": "Look", "question": "In the PNG, can the reader follow each guide to its parent and tell depth, callee, branch rows and change marks apart at a glance, without mistaking a wrapped comment or the source column for structure?" }
+]

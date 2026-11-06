@@ -169,6 +169,23 @@ function renderTokens(text: string, flavor: OutlineRowsFlavor): ReactNode[] {
   );
 }
 
+/**
+ * A call-stack comment with each `backtick` span set in the code font, so code
+ * such as `!judgeUp` never reads as prose. An unpaired backtick stays as text.
+ */
+function renderComment(comment: string, flavor: OutlineRowsFlavor): ReactNode {
+  if (flavor !== "call-stack" || !/`[^`]+`/.test(comment)) return comment;
+  return comment.split(/(`[^`]+`)/).map((part, index) =>
+    /^`[^`]+`$/.test(part) ? (
+      <code key={index} className="docs-tree__note-code">
+        {part.slice(1, -1)}
+      </code>
+    ) : (
+      part
+    ),
+  );
+}
+
 type FlatRow = { row: OutlineRow; depth: number; guides: TreeGuide[] };
 
 function flattenRows(rows: readonly OutlineRow[], ancestorsLast: readonly boolean[], out: FlatRow[]): FlatRow[] {
@@ -193,6 +210,33 @@ function splitSource(source: string): { dir: string; base: string } {
 /** A branch condition without the "?" its author may already have typed. */
 function branchText(text: string): string {
   return text.replace(/^\?\s*/, "");
+}
+
+/**
+ * A call-stack branch that repeats its body: a for, while or do loop, or a row whose leading expression is a
+ * map, flatMap or forEach call. A predicate such as `!jobs.every(…)` or `items.some(…)` stays a condition.
+ */
+const LOOP_BRANCH = /^(?:(?:for|while|do)\b|(?:await\s+)?[\w$.]+\.(?:map|flatMap|forEach)\()/;
+
+/** Tabler "repeat" (MIT): a call-stack loop row leads with it instead of the condition "?". */
+const LOOP_ICON = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M4 12v-3a3 3 0 0 1 3 -3h13m-3 -3l3 3l-3 3" />
+    <path d="M20 12v3a3 3 0 0 1 -3 3h-13m3 3l-3 -3l3 -3" />
+  </svg>
+);
+
+/** The mark that leads a branch row: a loop icon for a call-stack loop, else the condition "?". */
+function BranchMark({ text, flavor }: { text: string; flavor: OutlineRowsFlavor }) {
+  if (flavor === "call-stack" && LOOP_BRANCH.test(text)) {
+    return (
+      <span className="docs-tree__if docs-tree__loop" data-branch-mark="loop">
+        {LOOP_ICON}
+        <span className="docs-tree__sr">loop</span>
+      </span>
+    );
+  }
+  return <span className="docs-tree__if" data-branch-mark="condition">?</span>;
 }
 
 /**
@@ -236,6 +280,46 @@ const OUTLINE_ROWS_VARS = treeVars({
   "--tr-syn-bracket": "var(--docs-outline-rows-bracket-fg,color-mix(in srgb,var(--syntax-punctuation,#d4d4d4) 60%,transparent))",
 });
 
+/*
+ * Call-stack only, on top of the shared trees row CSS (tree-rows.tsx), so the
+ * other tree blocks keep their layout:
+ * - A long frame wraps inside the panel with a hanging indent instead of
+ *   running past its right edge.
+ * - With notes below, the source stays on the frame's own code line, and the
+ *   comment takes the line under it up to the source column, so every file:line sits beside its
+ *   call and a comment does not wrap at half the panel.
+ * - A `backtick` span in a comment is set in the code font (renderComment).
+ * - A wrapped frame's later lines indent two depth steps, so they never line up
+ *   with a child frame, and the code keeps a gap before the source column.
+ * - A loop branch leads with a repeat icon, not the condition "?" (BranchMark).
+ *   Each mark is one indent wide, and a branch's comment indents one step more,
+ *   so every comment starts one indent right of its own code.
+ */
+const CALL_STACK_CSS = `
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.docs-tree[data-tree-kind="call-stack"] :is(.docs-tree__path, .docs-tree__src) {
+  line-height: calc(var(--tr-row, 28px) - 2 * var(--ds-space-1)); padding-block: var(--ds-space-1);
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path {
+  padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent)); text-indent: calc(-2 * var(--tr-indent));
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__path { padding-right: var(--ds-space-4); }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__if { display: inline-block; width: var(--tr-indent); margin-right: 0; text-indent: 0; font-weight: var(--ds-font-weight-semibold); }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__row[data-kind="branch"] .docs-tree__note {
+  padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent));
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__loop svg {
+  display: inline-block; width: var(--ds-space-3); height: var(--ds-space-3); vertical-align: -1px; stroke-width: 2.25;
+}
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / src; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 1; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__note { grid-column: path / src; max-width: none; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__note-code {
+  font-family: var(--tr-mono); font-size: var(--tr-source-size, 12px); font-variant-ligatures: none;
+  color: var(--tr-ink, #1f1f1f); background: none; border: 0; padding: 0;
+}
+`;
+
 const FLAVOR_HEAD = {
   "call-stack": { icon: TREE_ICONS.stack, title: "Call stack" },
   component: { icon: TREE_ICONS.components, title: "Component tree" },
@@ -266,6 +350,7 @@ export function OutlineRows({
   return (
     <section className="not-prose my-4 w-full" data-docs-block-type={blockType} data-source-id={id}>
       <TreeStyle />
+      {flavor === "call-stack" ? <style>{CALL_STACK_CSS}</style> : null}
       <figure className="docs-tree" data-tree-kind={blockType} data-outline-flavor={flavor} data-code-surface="true" style={OUTLINE_ROWS_VARS}>
         <TreeHead icon={head.icon} title={head.title} />
         <div
@@ -304,7 +389,7 @@ export function OutlineRows({
                     <code className="docs-tree__code">
                       {branch ? (
                         <>
-                          <span className="docs-tree__if">?</span>
+                          <BranchMark text={branchText(row.text)} flavor={flavor} />
                           {renderCode(branchText(row.text), flavor)}
                         </>
                       ) : (
@@ -312,7 +397,7 @@ export function OutlineRows({
                       )}
                     </code>
                   </span>
-                  {row.comment ? <span className="docs-tree__note" style={depthStyle(depth)}>{row.comment}</span> : null}
+                  {row.comment ? <span className="docs-tree__note" style={depthStyle(depth)}>{renderComment(row.comment, flavor)}</span> : null}
                   {source ? (
                     <span className="docs-tree__src" title={row.source} data-outline-source={row.source}>
                       <span className="docs-tree__sr">{source.dir}</span>
