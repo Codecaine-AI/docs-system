@@ -13,6 +13,7 @@
         "pseudo-h-write",
         "pseudo-write-lead",
         "pseudo-write-steps",
+        "pseudo-write-names",
         "pseudo-write-comments",
         "pseudo-h-example",
         "pseudo-example-lead",
@@ -95,7 +96,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A pseudocode block restates one function or algorithm as plain steps, so a reader can follow it without knowing the source language. The "
+          "insert": "A pseudocode block restates one function or algorithm as plain steps, one step per line with 2 spaces of indent for each level of nesting. A reader can follow it without knowing the source language. The "
         },
         {
           "insert": "pseudocode.code-syntax",
@@ -135,7 +136,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write one step per line, and indent 2 spaces for each level of nesting. Keep the order of the source's branches, loops, calls, and returns."
+          "insert": "Keep the source's branches, loops, calls, and returns in order, with every condition each one tests, such as a check that ignores quoted words."
         }
       ],
       "children": []
@@ -288,6 +289,57 @@
       "text": [
         {
           "insert": "Show a try and its catch as two steps, such as \"try to parse the line as JSON\" and \"if the parse fails -> skip the line\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-names": {
+      "id": "pseudo-write-names",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each line one reading",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pseudo-write-names-1",
+        "pseudo-write-names-2",
+        "pseudo-write-names-3"
+      ]
+    },
+    "pseudo-write-names-1": {
+      "id": "pseudo-write-names-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name a loop variable so its line reads as English, such as \"for each candidate after the verb\", not \"for each word after word\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-names-2": {
+      "id": "pseudo-write-names-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say what a stop ends, such as \"leave the loop\" or \"return path\", never a bare \"stop\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-names-3": {
+      "id": "pseudo-write-names-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Repeat the noun in place of \"it\" or \"them\", such as \"or 0 when the match has no start\". Name both ends of \"between\", such as \"between the verb and the condition word\"."
         }
       ],
       "children": []
