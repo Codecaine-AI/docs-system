@@ -6,6 +6,7 @@ import {
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_STICKY_BODY_CELL_CLASSES,
   TABLE_STICKY_HEADER_CELL_CLASSES,
+  TABLE_WRAP_MEASURE_CLASS,
 } from "./table-classes";
 
 /**
@@ -101,5 +102,5 @@ export function columnCellClasses(
  */
 export function proseMeasureClass(fit: TableColumnFit | undefined): string | undefined {
   if (fit === "prose") return `${TABLE_PROSE_MEASURE_CLASS} ${TABLE_PROSE_FLOOR_CLASS}`;
-  return fit === "wrap" ? TABLE_PROSE_MEASURE_CLASS : undefined;
+  return fit === "wrap" ? TABLE_WRAP_MEASURE_CLASS : undefined;
 }

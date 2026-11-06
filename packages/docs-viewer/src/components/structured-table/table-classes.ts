@@ -71,6 +71,14 @@ export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min
 export const TABLE_PROSE_FLOOR_CLASS = "min-w-[calc(var(--ds-layout-lane-text)/2)]";
 
 /**
+ * A wrap column's measure: half the prose measure (30ch at stock). The
+ * browser shares spare width by each column's one-line width, so a wrap
+ * column of long chip runs at the full measure would take the width the
+ * prose column needs.
+ */
+export const TABLE_WRAP_MEASURE_CLASS = "max-w-[calc(var(--ds-layout-lane-text)/2)] min-w-min";
+
+/**
  * The pinned first column (th and td): sticky at the frame's left edge,
  * above the cells scrolling under it, painted opaque — the panel fill under
  * the row's own fill (the header's tint, the hovered row's hover fill) so it

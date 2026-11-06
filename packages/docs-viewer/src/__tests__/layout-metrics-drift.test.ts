@@ -57,6 +57,7 @@ import {
   TABLE_ELEMENT_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
   TABLE_PROSE_FLOOR_CLASS,
+  TABLE_WRAP_MEASURE_CLASS,
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_WRAPPER_CLASSES,
@@ -229,6 +230,7 @@ describe("structured table", () => {
     expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
     expect(TABLE_PROSE_FLOOR_CLASS).toBe("min-w-[calc(var(--ds-layout-lane-text)/2)]");
+    expect(TABLE_WRAP_MEASURE_CLASS.split(" ")).toContain("max-w-[calc(var(--ds-layout-lane-text)/2)]");
     expect(m.proseFloorCh * 2).toBe(m.proseMeasureCh);
     expect(PROSE_FLOOR_CH).toBe(m.proseFloorCh);
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
