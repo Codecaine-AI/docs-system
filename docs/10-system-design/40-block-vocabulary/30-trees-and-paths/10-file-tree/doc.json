@@ -282,7 +282,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Never point by position or rank, such as \"the files below\" or \"15th\". The tree sorts folders first and then names, so give an order in a sentence after the tree."
+          "insert": "Never point by position, such as \"the files below\". Folders sort first and then names, so a file can land above or below the files it names."
         }
       ],
       "children": []
