@@ -50,6 +50,7 @@ test("flags a made-up branch field and fields nested under a primitive or litera
     { name: "ok", type: "true", fields: [{ name: "lock", type: "DraftLockInfo" }] },
     { name: "load", type: "object", fields: [{ name: "status", type: "\"loaded\" | \"error\"" }, { name: "\"content-type\"", type: "string" }] },
     { name: "items[]", type: "Item[]", fields: [{ name: "id", type: "string" }] },
+    { name: "\"say \\\"hello world\\\"\"", type: "string" },
   ])).toEqual([
     "props.operations[0].returnShape.fields[0].name",
     "props.operations[0].returnShape.fields[1].name",

@@ -122,7 +122,7 @@ export const interactionSurfaceFieldShapeRule: LintRule = {
         const { name, type, fields: nested } = raw as RawField;
         const at = `${path}[${index}]`;
         const out: { field: string; evidence: string; message: string }[] = [];
-        if (typeof name === "string" && /[\s:]/.test(name.replace(/"[^"]*"|'[^']*'/g, ""))) {
+        if (typeof name === "string" && /[\s:]/.test(name.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g, ""))) {
           out.push({ field: `${at}.name`, evidence: name, message: `The field name "${name}" is not a key. Name the field by its real key.` });
         }
         if (Array.isArray(nested) && nested.length > 0 && typeof type === "string" && PRIMITIVE_TYPE.test(type.trim())) {
