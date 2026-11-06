@@ -17,3 +17,8 @@ test("accepts quotes with no code in the sentence, long quotations, and code-onl
   expect(check(document(para("p", [{ insert: "The " }, { insert: "lint", attributes: { code: true } }, { insert: ' rule reports "Prose contains a semicolon here."' }])))).toEqual([]);
   expect(check(document(para("p", [{ insert: "Replace " }, { insert: "in order to", attributes: { code: true } }, { insert: " with " }, { insert: "to", attributes: { code: true } }, { insert: "." }])))).toEqual([]);
 });
+
+test("a doc reference is not a code literal, so a sentence with a reference and a quote passes", () => {
+  const doc = document(para("p", [{ insert: "The " }, { insert: "Settings", attributes: { reference: { kind: "doc", path: "docs/settings" } } }, { insert: ' page calls this "automatic".' }]));
+  expect(check(doc)).toEqual([]);
+});

@@ -17,3 +17,9 @@ test("accepts plain fact bullets, numbered steps and task items", () => {
   expect(check(document(item("a", "Start with the types.", { ordered: true }), item("b", "Then read the sweep.", { ordered: true })))).toEqual([]);
   expect(check(document(item("a", "Install the CLI.", { checked: false }), item("b", "Then run the check.", { checked: false })))).toEqual([]);
 });
+
+test("names and facts that start with an order word do not make a sequence", () => {
+  expect(check(document(item("a", "React renders the page."), item("b", "Next.js renders pages on the server.")))).toEqual([]);
+  expect(check(document(item("a", "Each login is stored."), item("b", "Last login is recorded per user.")))).toEqual([]);
+  expect(check(document(item("a", "The cache is local."), item("b", "First-class plugins load at start.")))).toEqual([]);
+});

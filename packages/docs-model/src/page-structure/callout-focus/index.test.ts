@@ -29,3 +29,8 @@ test("flags a body of more than two sentences, counting nested paragraphs", () =
   expect(fields(doc)).toEqual(["c text"]);
   expect(check(document(callout("c", "Place a feature by who wants it. Rendering belongs to the viewer.")))).toEqual([]);
 });
+
+test("a title that opens with another tone's word, or with a tone word under a kind, passes", () => {
+  expect(check(document(callout("c", "The rate counts runs that end with an accepted page.", { tone: "info", title: "Success rate per round" })))).toEqual([]);
+  expect(check(document(callout("c", "Two lanes may touch the theme file.", { tone: "warning", kind: "Boundary under review", title: "Warning lights on shared files" })))).toEqual([]);
+});

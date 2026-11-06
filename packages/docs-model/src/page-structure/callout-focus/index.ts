@@ -2,10 +2,14 @@ import type { DocBlock } from "../../doc-schema";
 import type { LintRule } from "../../lint/types";
 import { proseText, sentences } from "../../writing/prose";
 
-/** The words a printed callout label shows: each tone name and the forms a title uses to repeat it. */
-const TONE_WORDS = new Set([
-  "info", "note", "decision", "decided", "decide", "risk", "risky", "warning", "warn", "caution", "success", "succeeded", "important", "tip",
-]);
+/** The forms a title uses to repeat each tone's printed label, such as "Decided" under Decision. */
+const TONE_WORDS: Record<string, readonly string[]> = {
+  info: ["info", "note"],
+  decision: ["decision", "decided", "decide"],
+  risk: ["risk", "risky"],
+  warning: ["warning", "warn", "caution"],
+  success: ["success", "succeeded"],
+};
 /** Short words that carry no topic, so two texts that share only them do not repeat each other. */
 const MINOR = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "can", "do", "does", "for", "from", "has", "in", "into", "is", "it", "its", "no", "not",
@@ -55,8 +59,10 @@ export const calloutFocusRule: LintRule = {
       const kind = typeof block.props.kind === "string" ? block.props.kind.trim().toLowerCase() : "";
       if (title) {
         const first = words(title)[0] ?? "";
-        const tone = typeof block.props.tone === "string" ? block.props.tone : "info";
-        if (TONE_WORDS.has(first) || first === tone || (kind && title.toLowerCase().startsWith(kind))) {
+        // The printed label is the kind when set, else the tone. Only that label's own words count as a repeat.
+        const tone = typeof block.props.tone === "string" && block.props.tone in TONE_WORDS ? block.props.tone : "info";
+        const repeatsLabel = kind ? title.toLowerCase().startsWith(kind) : TONE_WORDS[tone]!.includes(first);
+        if (repeatsLabel) {
           matches.push({ blockId: block.id, field: "props.title", evidence: title, message: `The title "${title}" opens with "${title.split(/\s+/)[0]}", which repeats the printed label.` });
         } else {
           const own = [...new Set(topicWords(title))];

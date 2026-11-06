@@ -3,7 +3,8 @@ import type { LintRule } from "../../lint/types";
 const text = (b: { text?: { insert: string }[] }) => b.text?.map((s) => s.insert).join("") ?? "";
 
 /** Openers that put an item after the one before it, so the run is a sequence. */
-const ORDER_OPENER = /^(first|firstly|second|secondly|third|then|next|after that|afterwards|finally|last|lastly|start with|start by|begin with|end with)\b/i;
+/** The opener must end at a space or comma, so a name such as "Next.js" or "First-class" never matches. */
+const ORDER_OPENER = /^(first|firstly|second|secondly|third|then|next|after that|afterwards|finally|lastly|start with|start by|begin with|end with)(?=[\s,])/i;
 
 /**
  * Bullets that carry an order in their words. "Start with X" then "Then read Y" is a sequence, and a numbered

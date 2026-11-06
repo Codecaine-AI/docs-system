@@ -52,3 +52,9 @@ test("an opening bracket before a chip joins it, and punctuation between two chi
   const pair = html([{ insert: "a", attributes: { code: true } }, { insert: "(" }, { insert: "b", attributes: { code: true } }]);
   expect(pair.replace(/<[^>]+>/g, "")).toBe("a(b");
 });
+
+test("a reference span next to a chip is never split, so its label prints once", () => {
+  const markup = html([{ insert: "(", attributes: { reference: { kind: "doc", path: "docs/settings", label: "Settings (" } } }, { insert: "x", attributes: { code: true } }]);
+  expect(markup.replace(/<[^>]+>/g, "")).toBe("Settings (x");
+  expect(glued(markup)).toEqual([]);
+});

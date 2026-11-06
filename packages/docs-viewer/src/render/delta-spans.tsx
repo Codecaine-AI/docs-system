@@ -51,8 +51,10 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
     if (!span.attributes?.code) return null;
     const prev = spans[index - 1];
     const next = spans[index + 1];
-    const before = prev && !prev.attributes?.code ? CHIP_GLUE_BEFORE.exec(prev.insert)?.[0] ?? "" : "";
-    const after = next && !next.attributes?.code ? CHIP_GLUE_AFTER.exec(next.insert)?.[0] ?? "" : "";
+    // A reference span prints its label, not its insert, so slicing it would print the label twice. It never glues.
+    const plain = (s: DeltaSpan | undefined): s is DeltaSpan => !!s && !s.attributes?.code && !s.attributes?.reference;
+    const before = plain(prev) ? CHIP_GLUE_BEFORE.exec(prev.insert)?.[0] ?? "" : "";
+    const after = plain(next) ? CHIP_GLUE_AFTER.exec(next.insert)?.[0] ?? "" : "";
     if (before) prev!.insert = prev!.insert.slice(0, -before.length);
     if (after) next!.insert = next!.insert.slice(after.length);
     return before || after ? { before, after, prev, next } : null;

@@ -35,3 +35,9 @@ test("callout-message judges each callout with its label, title and nested body 
   });
 });
 
+
+test("an edit to a paragraph inside a callout re-judges the callout", () => {
+  const callouts = rule("judgment.callout-message");
+  const doc = page(block("warn", "callout", "Writes wait for the style read.", { tone: "warning" }, ["more"]), block("more", "paragraph", "Read tools work without a task."));
+  expect(ruleTargets(callouts, doc, ["more"])).toEqual(["warn"]);
+});

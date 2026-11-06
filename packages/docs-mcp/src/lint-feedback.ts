@@ -233,6 +233,11 @@ export const judgmentRules: readonly JudgmentRule[] = [
     gateThreshold: 0.85,
     gate: true,
     problem: "Callout does not carry one message that fits its label.",
+    // The body includes nested blocks, so an edit to one of them re-judges the callout that holds it.
+    anchors: (doc, id) => {
+      for (let at: string | undefined = id; at; at = parentOf(doc, at)) if (doc.blocks[at]?.type === "callout") return [at];
+      return [id];
+    },
     state: (doc, id) => {
       const block = doc.blocks[id]!;
       const props = block.props as { tone?: string; kind?: string; title?: string };
