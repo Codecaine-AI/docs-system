@@ -1,9 +1,14 @@
 // The fixed writer: one Claude Code run per brief (Opus 5.5, medium effort) that writes one new page
 // in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files as of SOURCE_REF.
+// The UI Hill Climb tool calls it on a writer round, through hill-climb/adapter.json:
+//   bun evals/quality-climb/write.ts --briefs <round briefs file> --out <fixtures dir> [--concurrency 3]
+// Each brief's page goes to <out>/<set>/<NN>-<slug>/ with its corpus, writer.jsonl, metrics.json and page.json.
+// A page whose metrics.json exists is kept, so a crashed write resumes.
 import { existsSync } from "node:fs";
-import { copyFile, cp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
+import { parseArgs } from "node:util";
 import { $ } from "bun";
 import type { Brief } from "./schema";
 
@@ -173,17 +178,45 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   return metrics;
 }
 
+/** The page folder of one brief under a writer's out folder: <set>/<NN>-<slug>. */
+export const writtenPageDir = (out: string, brief: Brief) => join(out, brief.set, `${String(brief.id).padStart(2, "0")}-${brief.slug}`);
+
 /**
- * Copies the page that a finished earlier round wrote in `fromDir` into `pageDir`, so this checkout's viewer
- * re-renders it with no new write. The corpus's themes link points at `systemRoot`'s themes, not the old checkout's.
- * metrics.json comes last, because it marks a finished write.
+ * Writes every brief's page into `out`, at most `concurrency` at once, and stops the docs daemon after. Returns the
+ * briefs whose write failed, with the reason.
  */
-export async function copyWrittenPage(brief: Brief, fromDir: string, pageDir: string, systemRoot = REPO): Promise<void> {
-  if (!existsSync(join(fromDir, "metrics.json")) || !existsSync(pagePath(fromDir, brief))) throw new Error(`No finished page for brief ${brief.id} in ${fromDir}.`);
-  const corpus = join(pageDir, "corpus");
-  await rm(corpus, { recursive: true, force: true });
-  await cp(join(fromDir, "corpus"), corpus, { recursive: true, verbatimSymlinks: true, filter: (src) => src !== join(fromDir, "corpus/themes") });
-  await symlink(join(systemRoot, "themes"), join(corpus, "themes"));
-  await writeFile(join(pageDir, "frozen-from.json"), JSON.stringify({ from: fromDir }, null, 2));
-  await copyFile(join(fromDir, "metrics.json"), join(pageDir, "metrics.json"));
+export async function writeAll(briefs: (Brief & { local?: boolean })[], out: string, concurrency = 3, systemRoot = REPO): Promise<{ briefId: number; error: string }[]> {
+  const stateDir = process.env.CODECAINE_DOCS_STATE_DIR ?? join(out, "docs-state");
+  await mkdir(stateDir, { recursive: true });
+  const settings = await authSettings(out);
+  const failed: { briefId: number; error: string }[] = [];
+  let next = 0;
+  try {
+    await Promise.all(Array.from({ length: Math.min(concurrency, briefs.length) }, async () => {
+      while (next < briefs.length) {
+        const brief = briefs[next++]!;
+        const pageDir = writtenPageDir(out, brief);
+        try {
+          if (!existsSync(join(pageDir, "metrics.json"))) await writePage(brief, pageDir, stateDir, settings, systemRoot);
+          // The tool's assets.ts publishes a page only when page.json says it is not a local brief's.
+          await writeFile(join(pageDir, "page.json"), JSON.stringify({ briefId: brief.id, slug: brief.slug, set: brief.set, local: brief.local === true }, null, 2));
+        } catch (error) {
+          failed.push({ briefId: brief.id, error: error instanceof Error ? error.message : String(error) });
+        }
+      }
+    }));
+  } finally {
+    await $`bun ${join(systemRoot, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir, systemRoot)) } as Record<string, string>).quiet().nothrow();
+  }
+  return failed;
+}
+
+if (import.meta.main) {
+  const { values: opt } = parseArgs({ options: { briefs: { type: "string" }, out: { type: "string" }, concurrency: { type: "string", default: "3" } } });
+  if (!opt.briefs || !opt.out) throw new Error("Pass --briefs <round briefs file> --out <fixtures dir>.");
+  const briefs = JSON.parse(await readFile(resolve(opt.briefs), "utf8")) as (Brief & { local?: boolean })[];
+  const failed = await writeAll(briefs, resolve(opt.out), Number(opt.concurrency));
+  for (const f of failed) console.error(`brief ${f.briefId}: ${f.error}`);
+  console.log(`Wrote ${briefs.length - failed.length} of ${briefs.length} page(s) into ${resolve(opt.out)}.`);
+  process.exit(failed.length ? 1 : 0);
 }

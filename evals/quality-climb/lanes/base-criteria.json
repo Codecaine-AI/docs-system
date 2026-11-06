@@ -1,8 +1,0 @@
-[
-  { "id": "accuracy", "group": "Meaning", "question": "Does each of the lane's blocks say what the source files do, with no wrong fact, name, type or path?" },
-  { "id": "clarity", "group": "Writing", "question": "Does the text in each block have one reading, in plain technical English?" },
-  { "id": "block-choice", "group": "Writing", "question": "Is this block type the right block for its content, and is the content shaped to fit the block?" },
-  { "id": "hierarchy", "group": "Look", "question": "Do type sizes, weights, spacing and alignment inside the block show what matters first?" },
-  { "id": "craft", "group": "Look", "question": "Does each block look finished, with no clipped, overlapping, misaligned or broken part?" },
-  { "id": "readability", "group": "Look", "question": "At the 1280 px viewport of the PNG, can the reader read every part of each block without zoom or sideways scroll?" }
-]
