@@ -122,20 +122,6 @@
   font-weight: var(--syntax-string-font-weight, inherit);
 }
 
-/*
- * A wrapping code line breaks before a string literal, not inside it, so a
- * line never ends on a lone quote that reads as cut off. The string is one
- * inline box that moves to the next visual line whole; a string wider than
- * the line still wraps inside its own box. Only read code lines (hljs cells
- * in [data-code-line]) do this.
- */
-[data-code-line] > code.hljs .hljs-string {
-  display: inline-block;
-  max-width: 100%;
-  vertical-align: top;
-  text-indent: 0;
-}
-
 /* Interpolated code inside template strings is code again, not string. */
 .hljs-subst {
   color: var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary, var(--color-text-default, inherit))));
