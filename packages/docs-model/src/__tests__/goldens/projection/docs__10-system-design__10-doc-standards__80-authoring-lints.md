@@ -158,11 +158,25 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
 
+  - code.language flags a code block with no language.
+
+    - The page shows such a block as plain text with no language label.
+
+    - Set the language to the file's language, or to text for plain output.
+
+    - docs_check fails until the task fixes it.
+
+  - code.annotation-range flags a code annotation whose lines key does not parse, covers no line, or reaches past the listing's last line. The reader cannot pair such a note with its code. docs_check fails until the task fixes it.
+
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 - **Layout Warnings**
 
-  - `layout.code-line-width` flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column.
+  - `layout.code-line-width` flags a code line wider than the code panel shows.
+
+    - The read page wraps such a line, and the edit panel scrolls it sideways.
+
+    - At stock settings the panel shows 118 columns, with or without notes, because notes move under their lines when the code needs the width.
 
     - The rule measures each line in px in 13px IBM Plex Mono against the panel's code width in px, and its message states the line in columns.
 
