@@ -314,7 +314,8 @@ export function stackDetailSegments(detail: string): string[] {
  * shared by file-tree and file-explorer notes and call-stack and
  * component-tree comments. Rows never wrap. Notes wrap at `noteMaxCh` of the
  * note font, and that cap includes the note's 24px left padding
- * (border-box). Past the lane, the rows scroll sideways.
+ * (border-box). File-tree notes have no cap and run to the panel's right
+ * edge. Past the lane, the rows scroll sideways.
  */
 export const TREE_METRICS = {
   /** Row text: code font. */

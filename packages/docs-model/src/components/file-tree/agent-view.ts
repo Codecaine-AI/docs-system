@@ -2,10 +2,11 @@
 
 import type { DocBlock } from "../../doc-schema";
 import type { ComponentBundle } from "../types";
+import { isDocsColor } from "../shared/colors";
 
 type FileTreeChange = "added" | "removed" | "modified" | "renamed";
 
-type FileTreeEntry = { path: string; note?: string; change?: FileTreeChange; from?: string };
+type FileTreeEntry = { path: string; note?: string; change?: FileTreeChange; from?: string; colored: boolean };
 
 const FILE_TREE_CHANGE_MARKERS: Record<FileTreeChange, string> = {
   added: "+",
@@ -31,6 +32,7 @@ function fileTreeEntries(block: DocBlock): FileTreeEntry[] {
       note: typeof entry.note === "string" && entry.note.trim() ? entry.note.trim() : undefined,
       change: isFileTreeChange(entry.change) ? entry.change : undefined,
       from: typeof entry.from === "string" && entry.from.trim() ? entry.from.trim() : undefined,
+      colored: isDocsColor(entry.color),
     }));
 }
 
@@ -74,8 +76,8 @@ export function projectFileTree(block: DocBlock): string {
     return hasAnyMarker ? "  " : "";
   };
 
+  const isDir = (node: FileTreeNode) => node.explicitDir || node.children.size > 0;
   const sortChildren = (node: FileTreeNode): FileTreeNode[] => {
-    const isDir = (child: FileTreeNode) => child.explicitDir || child.children.size > 0;
     return [...node.children.values()].sort((a, b) => {
       const dirDelta = Number(isDir(b)) - Number(isDir(a));
       if (dirDelta !== 0) return dirDelta;
@@ -83,10 +85,23 @@ export function projectFileTree(block: DocBlock): string {
     });
   };
 
+  // Compact folders, by the doc render's rule (docs-viewer `compactFileTree`): a folder with no note, change or
+  // color merges into its only child when that child is a folder with no change, so a chain prints as one line.
+  const mergesIntoChild = (node: FileTreeNode): FileTreeNode | undefined => {
+    if (!isDir(node) || node.children.size !== 1 || node.entry?.note || node.entry?.change || node.entry?.colored) return undefined;
+    const [child] = node.children.values();
+    return child && isDir(child) && !child.entry?.change ? child : undefined;
+  };
+
   const lines: string[] = [];
-  const render = (node: FileTreeNode, guide: string, childGuide: string) => {
-    const isDir = node.explicitDir || node.children.size > 0;
-    const name = isDir ? `${node.name}/` : node.name;
+  const render = (start: FileTreeNode, guide: string, childGuide: string) => {
+    let node = start;
+    let joined = start.name;
+    for (let child = mergesIntoChild(node); child; child = mergesIntoChild(node)) {
+      joined = `${joined}/${child.name}`;
+      node = child;
+    }
+    const name = isDir(node) ? `${joined}/` : joined;
     const label =
       node.entry?.change === "renamed" && node.entry.from ? `${node.entry.from} -> ${name}` : name;
     const note = node.entry?.note ? `  # ${node.entry.note}` : "";

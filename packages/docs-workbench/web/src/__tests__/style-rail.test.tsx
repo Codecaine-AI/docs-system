@@ -2743,7 +2743,7 @@ describe("style rail file-tree tokens", () => {
     },
   } as const;
   const FILE_TREE_NUMBERS = {
-    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
+    folderWeight: { cssVar: "--docs-file-tree-folder-weight", min: 300, max: 900, step: 50, defaultValue: 600 },
     fileWeight: { cssVar: "--docs-file-tree-file-weight", min: 300, max: 900, step: 50, defaultValue: 400 },
     changeTint: { cssVar: "--docs-file-tree-change-tint", min: 0, max: 100, step: 1, defaultValue: 8 },
   } as const;
