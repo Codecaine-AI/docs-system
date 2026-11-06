@@ -165,10 +165,15 @@ export function CodeBlockHeader({
   );
 }
 
+/** A note's code span this short stays on one row, so a chip never splits in two. */
+const NOTE_CODE_NOWRAP_CHARS = 32;
+
 /** A note's text with each `backtick span` as inline code, the way the agent view's markdown shows it. */
 function noteText(note: string): ReactNode[] {
   return note.split(/`([^`\n]+)`/).map((part, index) =>
-    index % 2 === 1 ? <code key={index} className={CODE_NOTE_CODE_CLASSES}>{part}</code> : part,
+    index % 2 === 1 ? (
+      <code key={index} className={cn(CODE_NOTE_CODE_CLASSES, part.length <= NOTE_CODE_NOWRAP_CHARS && "whitespace-nowrap")}>{part}</code>
+    ) : part,
   );
 }
 
