@@ -16,6 +16,7 @@
         "write-operation-lead",
         "write-operation-name",
         "write-operation-kind",
+        "write-operation-params-described",
         "write-operation-example",
         "write-operation-return",
         "write-operation-union",
@@ -223,25 +224,25 @@
       "props": {},
       "text": [
         {
-          "insert": "For an action object that a reducer takes, use "
+          "insert": "For one action of a reducer that takes a tagged union, name the operation by its real call with the type literal, such as "
         },
         {
-          "insert": "reducer.type",
+          "insert": "docPeekReducer(state, { type: \"open\" })",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", such as "
+          "insert": ". The row then prints the name as written, with no "
         },
         {
-          "insert": "docPeekReducer.open",
+          "insert": "(…)",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", and list the object's fields as params."
+          "insert": " after it."
         }
       ],
       "children": []
@@ -275,6 +276,17 @@
       "text": [
         {
           "insert": "An operation that creates, renews, deletes, or prunes anything is an action, even when it deletes expired entries only as a side effect."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-params-described": {
+      "id": "write-operation-params-described",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Describe each parameter whose name and type do not tell a caller what to pass."
         }
       ],
       "children": []

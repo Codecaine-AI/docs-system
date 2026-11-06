@@ -10,11 +10,13 @@ Each operation gives a caller its whole contract: its real name, its kind, every
 
 - Name an operation by the call that a caller writes, `receiver.method`, such as `DraftLockStore.acquire`.
 
-  - For an action object that a reducer takes, use `reducer.type`, such as `docPeekReducer.open`, and list the object's fields as params.
+  - For one action of a reducer that takes a tagged union, name the operation by its real call with the type literal, such as `docPeekReducer(state, { type: "open" })`. The row then prints the name as written, with no `(…)` after it.
 
 - Set `kind` on every operation.
 
   - An operation that creates, renews, deletes, or prunes anything is an action, even when it deletes expired entries only as a side effect.
+
+- Describe each parameter whose name and type do not tell a caller what to pass.
 
 - Give every operation an `exampleCall` with literal values and no variable that the call does not set.
 
@@ -159,6 +161,11 @@ Three actions maintain the `operations` array. The surface below documents itsel
 
 ```
 [action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape) -> InteractionSurfacePatch  # Rejects duplicate operation names.
+  name: string
+  description?: string
+  params?: array
+  returns?: string
+  kind?: string
   returnShape?: ReturnShape
     fields: Field[]
     example?: string
