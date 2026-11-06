@@ -6,6 +6,34 @@ Reach for it when the nested structure is files, not steps: repo slices, refacto
 
 To show the files a change touches as editor sidebar rows with a badge per changed file, use file-explorer instead.
 
+## Write a File Tree
+
+A file tree tells the reader where each file lives and what it holds. Three rules keep it to what the brief asks.
+
+- Scope
+
+  - Root the tree at the folder the brief names. Both renders draw a chain of single-child folders as one row, such as `packages/docs-style/src/rules/`, so long entry paths cost no rows.
+
+  - Show each file the brief asks about inside its folder. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
+
+  - Leave out branches that the brief does not ask for. When the tree shows only part of a folder, say so in the sentence before it.
+
+- Notes
+
+  - A note says what a file holds or does that its name does not. A note that repeats the name, such as `moveNode` on `move-node.ts`, tells the reader nothing.
+
+  - Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case.
+
+  - Never point by position, such as "the files below". Folders sort first and then names, so a file can land above or below the files it names.
+
+- Colors
+
+  - Use a color only to set 2 or more groups apart. A tree with one group needs no color.
+
+  - Say what each color marks in the sentence before the tree, such as "blue marks the files that the build writes".
+
+  - Put the color on the top folder of its group. Every row under that folder takes its guide color.
+
 ## Example
 
 A live instance: a refactor slice of this block's own source folder.
@@ -120,13 +148,15 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 ## Doc Renderer
 
-`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a `.` root line, then one row per node with `tree`-style guides (`├──`, `└──`, `│`). An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
+`FileTreeDocsBlock` draws the block on the doc surface, in reader and editor alike, as a monospace panel with a File tree head. Each node is one row, and thin guide lines join each row to its parent folder. An empty `entries` array renders a `(no entries)` placeholder. The contract is Doc renderer.
 
 - Ordering
 
-  - Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing "/".
+  - Directories sort first at every level, then names in ascending codepoint order. Directory names render semibold with a trailing "/".
 
   - The order matches the agent render exactly, so the two surfaces agree by design.
+
+  - A folder with no note, change or color merges into its only child folder, so a chain such as `packages/docs-model/src/` draws as one row. The agent render merges by the same rule.
 
 - Change markers
 

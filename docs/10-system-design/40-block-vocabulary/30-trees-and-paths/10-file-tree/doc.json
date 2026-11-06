@@ -13,6 +13,11 @@
         "component-worked-example-rule",
         "b-21-file-tree-when-to-use",
         "b-21-file-tree-explorer-link",
+        "b-ftfam-write-h",
+        "b-ftfam-write-lead",
+        "b-ftfam-write-scope",
+        "b-ftfam-write-notes",
+        "b-ftfam-write-colors",
         "b-21-file-tree-example-heading",
         "b-21-file-tree-example-intro",
         "b-21-file-tree-example-block",
@@ -122,6 +127,210 @@
         },
         {
           "insert": " instead."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-h": {
+      "id": "b-ftfam-write-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write a File Tree"
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-lead": {
+      "id": "b-ftfam-write-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A file tree tells the reader where each file lives and what it holds. Three rules keep it to what the brief asks."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-scope": {
+      "id": "b-ftfam-write-scope",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Scope"
+        }
+      ],
+      "children": [
+        "b-ftfam-write-scope-1",
+        "b-ftfam-write-scope-2",
+        "b-ftfam-write-scope-3"
+      ]
+    },
+    "b-ftfam-write-scope-1": {
+      "id": "b-ftfam-write-scope-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Root the tree at the folder the brief names. Both renders draw a chain of single-child folders as one row, such as "
+        },
+        {
+          "insert": "packages/docs-style/src/rules/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so long entry paths cost no rows."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-scope-2": {
+      "id": "b-ftfam-write-scope-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Show each file the brief asks about inside its folder. When the brief asks which folders hold more than "
+        },
+        {
+          "insert": "index.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", list those other files under their folders."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-scope-3": {
+      "id": "b-ftfam-write-scope-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave out branches that the brief does not ask for. When the tree shows only part of a folder, say so in the sentence before it."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-notes": {
+      "id": "b-ftfam-write-notes",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Notes"
+        }
+      ],
+      "children": [
+        "b-ftfam-write-notes-1",
+        "b-ftfam-write-notes-2",
+        "b-ftfam-write-notes-3"
+      ]
+    },
+    "b-ftfam-write-notes-1": {
+      "id": "b-ftfam-write-notes-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note says what a file holds or does that its name does not. A note that repeats the name, such as "
+        },
+        {
+          "insert": "moveNode",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on "
+        },
+        {
+          "insert": "move-node.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", tells the reader nothing."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-notes-2": {
+      "id": "b-ftfam-write-notes-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-notes-3": {
+      "id": "b-ftfam-write-notes-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never point by position, such as \"the files below\". Folders sort first and then names, so a file can land above or below the files it names."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-colors": {
+      "id": "b-ftfam-write-colors",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Colors"
+        }
+      ],
+      "children": [
+        "b-ftfam-write-colors-1",
+        "b-ftfam-write-colors-2",
+        "b-ftfam-write-colors-3"
+      ]
+    },
+    "b-ftfam-write-colors-1": {
+      "id": "b-ftfam-write-colors-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use a color only to set 2 or more groups apart. A tree with one group needs no color."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-colors-2": {
+      "id": "b-ftfam-write-colors-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say what each color marks in the sentence before the tree, such as \"blue marks the files that the build writes\"."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-write-colors-3": {
+      "id": "b-ftfam-write-colors-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put the color on the top folder of its group. Every row under that folder takes its guide color."
         }
       ],
       "children": []
@@ -1013,52 +1222,7 @@
           }
         },
         {
-          "insert": " draws the block on the doc surface, in reader and editor alike, as a bordered monospace panel. The panel has a "
-        },
-        {
-          "insert": ".",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " root line, then one row per node with "
-        },
-        {
-          "insert": "tree",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "-style guides ("
-        },
-        {
-          "insert": "├──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "└──",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "│",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "). An empty "
+          "insert": " draws the block on the doc surface, in reader and editor alike, as a monospace panel with a File tree head. Each node is one row, and thin guide lines join each row to its parent folder. An empty "
         },
         {
           "insert": "entries",
@@ -1104,7 +1268,8 @@
       ],
       "children": [
         "b-ftfam-docr-order-1",
-        "b-ftfam-docr-order-2"
+        "b-ftfam-docr-order-2",
+        "b-ftfam-docr-order-3"
       ]
     },
     "b-ftfam-docr-order-1": {
@@ -1113,7 +1278,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Directories sort first at every level, then names in ascending codepoint order. Directory names render with a trailing \"/\"."
+          "insert": "Directories sort first at every level, then names in ascending codepoint order. Directory names render semibold with a trailing \"/\"."
         }
       ],
       "children": []
@@ -1125,6 +1290,26 @@
       "text": [
         {
           "insert": "The order matches the agent render exactly, so the two surfaces agree by design."
+        }
+      ],
+      "children": []
+    },
+    "b-ftfam-docr-order-3": {
+      "id": "b-ftfam-docr-order-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A folder with no note, change or color merges into its only child folder, so a chain such as "
+        },
+        {
+          "insert": "packages/docs-model/src/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " draws as one row. The agent render merges by the same rule."
         }
       ],
       "children": []
