@@ -389,8 +389,8 @@ describe("rich-text style tokens", () => {
       .join("\n");
     for (const tone of ["info", "decision", "warning", "risk", "success"]) {
       for (const part of ["accent", "tint", "title-fg"]) {
-        // The tint falls back to transparent (the note has no fill at stock).
-        expect(css).toContain(`var(--docs-callout-${tone}-${part}, ${part === "tint" ? "transparent" : "#"}`);
+        // Every part, the tint included, falls back to its light literal (the note has the tone's soft fill at stock).
+        expect(css).toContain(`var(--docs-callout-${tone}-${part}, #`);
         expect(css).not.toMatch(new RegExp(`--docs-callout-${tone}-${part}:\\s`));
       }
     }

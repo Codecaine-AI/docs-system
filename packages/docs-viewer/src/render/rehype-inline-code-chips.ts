@@ -1,4 +1,4 @@
-import { inlineCodeChipProps } from "./delta-spans";
+import { CHIP_GLUE_AFTER, CHIP_GLUE_BEFORE, inlineCodeChipProps } from "./delta-spans";
 import { chipNeedsPieces, chipPieces } from "../components/mono-breaks";
 
 /** The slice of the hast shape this pass reads and writes (no @types/hast dependency). */
@@ -31,15 +31,31 @@ function chipChildren(text: string): HastNode[] {
   });
 }
 
+const isChip = (node: HastNode, parent: HastNode | null) => node.type === "element" && node.tagName === "code" && parent?.tagName !== "pre";
+
 function visit(node: HastNode, parent: HastNode | null): void {
-  if (node.type === "element" && node.tagName === "code" && parent?.tagName !== "pre") {
+  if (isChip(node, parent)) {
     const text = hastText(node);
     const { className, "data-chip-kind": kind } = inlineCodeChipProps(text);
     node.properties = { ...node.properties, className: className.split(" "), dataChipKind: kind };
     if (chipNeedsPieces(text)) node.children = chipChildren(text);
     return;
   }
-  for (const child of node.children ?? []) visit(child, node);
+  const children = node.children ?? [];
+  for (const child of children) visit(child, node);
+  // A chip and the punctuation beside it share one nowrap span (delta-spans.tsx CHIP_GLUE_BEFORE and CHIP_GLUE_AFTER).
+  for (let i = 0; i < children.length; i++) {
+    if (!isChip(children[i]!, node)) continue;
+    const prev = children[i - 1];
+    const next = children[i + 1];
+    const before = prev?.type === "text" ? CHIP_GLUE_BEFORE.exec(prev.value ?? "")?.[0] ?? "" : "";
+    const after = next?.type === "text" ? CHIP_GLUE_AFTER.exec(next.value ?? "")?.[0] ?? "" : "";
+    if (!before && !after) continue;
+    if (before) prev!.value = prev!.value!.slice(0, -before.length);
+    if (after) next!.value = next!.value!.slice(after.length);
+    const parts: HastNode[] = [...(before ? [{ type: "text", value: before }] : []), children[i]!, ...(after ? [{ type: "text", value: after }] : [])];
+    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", ...(before ? { dataChipGlueBefore: "true" } : {}), ...(after ? { dataChipGlueAfter: "true" } : {}), style: "white-space:nowrap" }, children: parts };
+  }
 }
 
 /**
