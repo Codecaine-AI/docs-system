@@ -12,6 +12,13 @@
         "b-22-interaction-surface-lead-2",
         "component-worked-example-rule",
         "operation-description-authoring",
+        "write-operation-h",
+        "write-operation-lead",
+        "write-operation-name",
+        "write-operation-kind",
+        "write-operation-example",
+        "write-operation-return",
+        "write-operation-union",
         "b-22-interaction-surface-example-h",
         "b-22-interaction-surface-example-intro",
         "worked-state-before",
@@ -151,6 +158,240 @@
         },
         {
           "insert": ". Do not invent details to fill missing descriptions."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-h": {
+      "id": "write-operation-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write Each Operation"
+        }
+      ],
+      "children": []
+    },
+    "write-operation-lead": {
+      "id": "write-operation-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each operation gives a caller its whole contract: its real name, its kind, every parameter, and an example that runs as written."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-name": {
+      "id": "write-operation-name",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name an operation by the call that a caller writes, "
+        },
+        {
+          "insert": "receiver.method",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", such as "
+        },
+        {
+          "insert": "DraftLockStore.acquire",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "write-operation-name-reducer"
+      ]
+    },
+    "write-operation-name-reducer": {
+      "id": "write-operation-name-reducer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For an action object that a reducer takes, use "
+        },
+        {
+          "insert": "reducer.type",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", such as "
+        },
+        {
+          "insert": "docPeekReducer.open",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and list the object's fields as params."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-kind": {
+      "id": "write-operation-kind",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Set "
+        },
+        {
+          "insert": "kind",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on every operation."
+        }
+      ],
+      "children": [
+        "write-operation-kind-action"
+      ]
+    },
+    "write-operation-kind-action": {
+      "id": "write-operation-kind-action",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An operation that creates, renews, deletes, or prunes anything is an action, even when it deletes expired entries only as a side effect."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-example": {
+      "id": "write-operation-example",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every operation an "
+        },
+        {
+          "insert": "exampleCall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with literal values and no variable that the call does not set."
+        }
+      ],
+      "children": [
+        "write-operation-example-args"
+      ]
+    },
+    "write-operation-example-args": {
+      "id": "write-operation-example-args",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Pass each argument that fixes the result, such as a "
+        },
+        {
+          "insert": "now",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " date."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-return": {
+      "id": "write-operation-return",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For an object return, make "
+        },
+        {
+          "insert": "returnShape.example",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " the exact result of that "
+        },
+        {
+          "insert": "exampleCall",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "write-operation-return-scenario"
+      ]
+    },
+    "write-operation-return-scenario": {
+      "id": "write-operation-return-scenario",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the examples of one surface share state, write them as one scenario in call order."
+        }
+      ],
+      "children": []
+    },
+    "write-operation-union": {
+      "id": "write-operation-union",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For a union keyed on one field, type that field with its literal values, such as "
+        },
+        {
+          "insert": "true | false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "write-operation-union-branch"
+      ]
+    },
+    "write-operation-union-branch": {
+      "id": "write-operation-union-branch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start the description of each field that only one branch has with that branch, such as \"Only when ok is true.\""
         }
       ],
       "children": []
@@ -1023,7 +1264,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A closed row is one line, "
+          "insert": "A closed row shows "
         },
         {
           "insert": "receiver.method(…) → ReturnType",
@@ -1032,7 +1273,32 @@
           }
         },
         {
-          "insert": ". Hovering or focusing the operation name opens a tooltip with the Action, Query, or Event badge and the operation purpose."
+          "insert": " and ends in a kind chip with the kind icon and the word action, query, or event."
+        }
+      ],
+      "children": [
+        "docr-header-wrap",
+        "docr-header-tip"
+      ]
+    },
+    "docr-header-wrap": {
+      "id": "docr-header-wrap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A return type too long for the row wraps under the name."
+        }
+      ],
+      "children": []
+    },
+    "docr-header-tip": {
+      "id": "docr-header-tip",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Hovering or focusing the operation name opens a tooltip with the kind badge and the operation purpose."
         }
       ],
       "children": []
@@ -1293,7 +1559,21 @@
           }
         },
         {
-          "insert": ", the "
+          "insert": "."
+        }
+      ],
+      "children": [
+        "agentr-sig-kind",
+        "agentr-sig-tails"
+      ]
+    },
+    "agentr-sig-kind": {
+      "id": "agentr-sig-kind",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every line has the "
         },
         {
           "insert": "[kind]",
@@ -1302,7 +1582,27 @@
           }
         },
         {
-          "insert": " prefix only for query and event, the "
+          "insert": " prefix, and an operation with no kind prints "
+        },
+        {
+          "insert": "[action]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "agentr-sig-tails": {
+      "id": "agentr-sig-tails",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
         },
         {
           "insert": "-> returns",
@@ -1320,7 +1620,7 @@
           }
         },
         {
-          "insert": " tails only when present."
+          "insert": " tails print only when present."
         }
       ],
       "children": []
@@ -1938,7 +2238,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name, so neither takes space on screen."
+          "insert": "Description tooltips on parameter and returned-field names were approved on 2026-09-24 as a ledger decision shared with State Shape. On 2026-10-02 the operation purpose and kind badge moved into a tooltip on the operation name. On 2026-11-06 the kind came back to the closed row as a chip, because a reader of a static page could not tell an action from a query."
         }
       ],
       "children": []
@@ -1949,7 +2249,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Reuse the State Shape field ledger, typography, and thin separators. One-line closed rows, the kind and purpose tooltip, and separate Parameters and Returns cards with list and code side by side are Interaction Surface decisions."
+          "insert": "Reuse the State Shape field ledger, typography, and thin separators. Closed rows with a kind chip, the purpose tooltip, and separate Parameters and Returns cards with list and code side by side are Interaction Surface decisions."
         }
       ],
       "children": []
