@@ -122,19 +122,33 @@ async function codexJudgeHome(): Promise<string> {
 
 export const MUSE = { model: "muse-wonder-full-1.0", effort: "high" } as const;
 
+const museHomes = new Map<string, Promise<string>>();
+
 /**
  * An XDG_CONFIG_HOME whose muse/settings.json holds only the user's provider, endpoint and a catalog entry for the
  * judge model, and links the user's auth. The Muse judge gets no user AGENTS.md, skills or MCP servers.
+ * Pages are judged at once, so each home is made once per process and every caller shares that promise.
  */
-async function museJudgeHome(): Promise<string> {
-  const home = join(REPO, ".tmp/quality-climb/muse-judge-home");
+export function museJudgeHome(home = join(REPO, ".tmp/quality-climb/muse-judge-home"), userDir = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "muse")): Promise<string> {
+  let made = museHomes.get(home);
+  if (!made) {
+    made = makeMuseHome(home, userDir);
+    museHomes.set(home, made);
+    made.catch(() => museHomes.delete(home));
+  }
+  return made;
+}
+
+async function makeMuseHome(home: string, userDir: string): Promise<string> {
   await mkdir(join(home, "muse"), { recursive: true });
-  const userDir = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "muse");
   const user = JSON.parse(await readFile(join(userDir, "settings.json"), "utf8").catch(() => "{}"));
   const entry = (user.model_catalog ?? []).find((m: { model_id: string }) => m.model_id === MUSE.model) ?? { ...(user.model_catalog?.[0] ?? {}), model_id: MUSE.model, display_label: "Muse Wonder Full 1.0" };
   const settings = { schema_version: user.schema_version ?? 1, provider: user.provider ?? "meta", model: MUSE.model, model_catalog: [{ ...entry, is_default: true }], ...(user.endpoint_transport ? { endpoint_transport: user.endpoint_transport } : {}) };
   await writeFile(join(home, "muse/settings.json"), JSON.stringify(settings, null, 2), { mode: 0o600 });
-  if (!existsSync(join(home, "muse/auth.json")) && existsSync(join(userDir, "auth.json"))) await symlink(join(userDir, "auth.json"), join(home, "muse/auth.json"));
+  // Another round's process can make the link between the check and the symlink call.
+  if (!existsSync(join(home, "muse/auth.json")) && existsSync(join(userDir, "auth.json"))) {
+    await symlink(join(userDir, "auth.json"), join(home, "muse/auth.json")).catch((error) => { if (error.code !== "EEXIST") throw error; });
+  }
   return home;
 }
 
