@@ -26,9 +26,9 @@ Each operation gives a caller its whole contract: its real name, its kind, every
 
   - When the examples of one surface share state, write them as one scenario in call order.
 
-- For a result with more than one shape, set `returns` to the union type and give `returnShape` one top-level field per branch.
+- For a union keyed on one field, keep the fields flat and type that field with its literal values, such as `true | false`.
 
-  - Name each branch field by its key and value, such as `ok: true`, leave its type empty, and nest that branch's fields under it.
+  - Start the description of each field that only one branch has with that branch, such as "Only when ok is true."
 
 ## Example
 
