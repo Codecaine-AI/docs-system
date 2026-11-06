@@ -140,6 +140,8 @@ const EXPLORER_CSS = `
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color] .docs-tree__icon { color: var(--tr-grp); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-color]:not([data-change]) .docs-tree__icon svg { fill: color-mix(in srgb, currentColor 35%, transparent); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__icon { color: var(--tr-chg); }
+/* a changed name mixes its change hue with the row ink, so it reads clearly over its own tint */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__name { color: color-mix(in srgb, var(--tr-chg-name) 55%, var(--tr-ink)); }
 .docs-explorer__legend {
   display: flex; flex-wrap: wrap; gap: var(--ds-space-1) var(--ds-space-4);
   padding: var(--ds-space-1-5) var(--tr-pad-x, 12px);
