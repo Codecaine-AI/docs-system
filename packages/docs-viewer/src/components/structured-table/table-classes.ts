@@ -89,7 +89,7 @@ export const TABLE_HEAD_CLASSES =
  * its own token is set.
  */
 export const TABLE_HEADER_CELL_TEXT_CLASSES =
-  "min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
+  "min-w-15 align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,#1f1f1f)] text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
 
 export const TABLE_ROW_HOVER_CLASSES =
   "transition-colors hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]";
@@ -104,7 +104,10 @@ export const TABLE_ROW_RULE_CLASSES =
   "border-b border-solid border-b-[length:var(--docs-table-row-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]";
 
 /**
- * Body cell type. A td carrying `data-cell-kind` (cell-kind.ts) is an
+ * Body cell type. Every code chip in a cell takes the plain chip ink, not
+ * its typed-chip kind color: chips sit side by side in a column, where a
+ * path in red beside a name in blue reads as two kinds of value.
+ * A td carrying `data-cell-kind` (cell-kind.ts) is an
  * identifier cell: 0.5px under the body size in the code font, ink colored —
  * and the key column's identifier is the one colored cell, in the key token
  * (property syntax role). Inside it the inline-code chip vars are zeroed
@@ -118,7 +121,7 @@ export const TABLE_ROW_RULE_CLASSES =
  * identifiers alone overflow it).
  */
 export const TABLE_BODY_CELL_TEXT_CLASSES = [
-  "align-top text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
+  "align-top [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,#1f1f1f)] text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
   "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
   "data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)] data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
   "data-[cell-kind]:[--docs-inline-code-bg:transparent] data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor] data-[cell-kind]:[--docs-inline-code-pad-x:0] data-[cell-kind]:[--docs-inline-code-pad-y:0] data-[cell-kind]:[--docs-inline-code-text-size:1] data-[cell-kind]:[--docs-inline-code-border-width:0px]",
