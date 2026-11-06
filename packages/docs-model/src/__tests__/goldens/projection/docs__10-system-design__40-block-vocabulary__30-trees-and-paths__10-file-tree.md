@@ -24,7 +24,7 @@ A file tree tells the reader where each file lives and what it holds. Three rule
 
   - Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case.
 
-  - Never point by position, such as "the files below". Folders sort first and then names, so a file can land above or below the files it names.
+  - Never point by position or rank, such as "the files below" or "15th". The tree sorts folders first and then names, so give an order in a sentence after the tree.
 
 - Colors
 
