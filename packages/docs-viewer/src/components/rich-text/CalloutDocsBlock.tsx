@@ -89,13 +89,14 @@ export function calloutLabel(kind: string | undefined, tone: string): string {
 
 /*
  * One renderer for both surfaces (the editor's callout node view delegates
- * here) and ONE rail note for every tone: no box and no fill, a 3px left
- * rail in the tone color. The first line is the tone glyph and the printed
+ * here) and ONE rail note for every tone: a 3px left rail in the tone
+ * color over the tone's soft fill, with no frame, so the note stands apart
+ * from the prose around it. The first line is the tone glyph and the printed
  * label in the tone color at body size, weight 600, then (when titled) a
  * "·" separator and the title in ink at the same size and weight; the body
  * sits below in body text. The tone color marks only the rail, the glyph
- * and the label, so each note has one focal point. The frame knobs still
- * work: a tone tint fills the note and a hairline width draws a frame.
+ * and the label, so each note has one focal point. A theme can clear the
+ * tint knob for a bare rail, or widen the hairline to draw a frame.
  *
  * DOM: <aside data-callout-tone data-callout-variant data-callout-titled>
  * holding a head row (icon, label — `kind` when set, else the tone name,
@@ -136,36 +137,36 @@ const CALLOUT_BODY_CLASSES =
 const CALLOUT_STYLES = `
   [data-docs-block-type="callout"] {
     --docs-callout-accent: var(--docs-callout-info-accent, #0b6e99);
-    --docs-callout-tint: var(--docs-callout-info-tint, transparent);
+    --docs-callout-tint: var(--docs-callout-info-tint, #ddebf1);
     --docs-callout-title-ink: var(--docs-callout-info-title-fg, #1f1f1f);
     --docs-callout-text: var(--docs-callout-fg, #2a2a2a);
     --docs-callout-frame: var(--docs-callout-border, #e6e5e3);
   }
   [data-docs-block-type="callout"][data-callout-tone="decision"] {
     --docs-callout-accent: var(--docs-callout-decision-accent, #6940a5);
-    --docs-callout-tint: var(--docs-callout-decision-tint, transparent);
+    --docs-callout-tint: var(--docs-callout-decision-tint, #eae4f2);
     --docs-callout-title-ink: var(--docs-callout-decision-title-fg, #1f1f1f);
   }
   [data-docs-block-type="callout"][data-callout-tone="warning"] {
     --docs-callout-accent: var(--docs-callout-warning-accent, #9a5b00);
-    --docs-callout-tint: var(--docs-callout-warning-tint, transparent);
+    --docs-callout-tint: var(--docs-callout-warning-tint, #fbf3db);
     --docs-callout-title-ink: var(--docs-callout-warning-title-fg, #1f1f1f);
   }
   [data-docs-block-type="callout"][data-callout-tone="risk"] {
     --docs-callout-accent: var(--docs-callout-risk-accent, #c62121);
-    --docs-callout-tint: var(--docs-callout-risk-tint, transparent);
+    --docs-callout-tint: var(--docs-callout-risk-tint, #fbe4e4);
     --docs-callout-title-ink: var(--docs-callout-risk-title-fg, #1f1f1f);
   }
   [data-docs-block-type="callout"][data-callout-tone="success"] {
     --docs-callout-accent: var(--docs-callout-success-accent, #26744f);
-    --docs-callout-tint: var(--docs-callout-success-tint, transparent);
+    --docs-callout-tint: var(--docs-callout-success-tint, #e2efe6);
     --docs-callout-title-ink: var(--docs-callout-success-title-fg, #1f1f1f);
   }
 
-  /* The one rail note: tone rail on the left; no fill or frame at stock
-     (the tint is transparent and the hairline 0px until a theme sets them). */
+  /* The one rail note: tone rail on the left over the tone's soft fill; no
+     frame at stock (the hairline is 0px until a theme sets it). */
   [data-docs-block-type="callout"] {
-    padding: var(--docs-callout-pad-y,2px) var(--docs-callout-pad-x,14px);
+    padding: var(--docs-callout-pad-y,12px) var(--docs-callout-pad-x,14px);
     padding-left: calc(var(--docs-callout-pad-x,14px) - var(--docs-callout-rail-width,3px) + var(--docs-callout-hairline-width,0px));
     background: var(--docs-callout-tint);
     border: var(--docs-callout-hairline-width,0px) solid var(--docs-callout-frame);

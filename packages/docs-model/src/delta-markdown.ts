@@ -66,14 +66,27 @@ export function wrapMarkdownMarks(text: string, attrs: DeltaSpan["attributes"]):
  */
 export function deltaToMarkdownInline(spans: DeltaSpan[] | undefined): string {
   if (!spans || spans.length === 0) return "";
-  return spans
-    .map((span) => {
-      const attrs = span.attributes;
-      if (attrs?.reference) {
-        const display = span.insert || attrs.reference.label || attrs.reference.path;
-        return wrapMarkdownMarks(display, attrs);
-      }
-      return wrapMarkdownMarks(span.insert, attrs);
+  // Adjacent spans that share their outer marks form one run, wrapped once: a bold label with a bold
+  // code span inside projects as **Data in through `DocsClient`**, not **Data in through ****`DocsClient`**.
+  const outer = (attrs: DeltaSpan["attributes"]) =>
+    JSON.stringify([!!attrs?.bold, !!attrs?.italic, !!attrs?.strike, attrs?.link ?? null]);
+  const runs: DeltaSpan[][] = [];
+  for (const span of spans) {
+    const last = runs[runs.length - 1];
+    if (last && outer(last[0]!.attributes) === outer(span.attributes)) last.push(span);
+    else runs.push([span]);
+  }
+  return runs
+    .map((run) => {
+      const inner = run
+        .map((span) => {
+          const attrs = span.attributes;
+          const text = attrs?.reference ? span.insert || attrs.reference.label || attrs.reference.path : span.insert;
+          return attrs?.code ? `\`${text}\`` : text;
+        })
+        .join("");
+      const { code: _code, ...marks } = run[0]!.attributes ?? {};
+      return wrapMarkdownMarks(inner, marks);
     })
     .join("");
 }

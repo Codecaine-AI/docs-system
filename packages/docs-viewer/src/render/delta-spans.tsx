@@ -47,48 +47,91 @@ export function renderDeltaSpans(
   options?: { wholeChipMaxChars?: number },
 ): ReactNode {
   if (!text || text.length === 0) return null;
-  return text.map((span, index) => {
-    let node: ReactNode = span.insert;
-    const attrs = span.attributes;
-    if (attrs) {
-      if (attrs.code) {
-        const chip = inlineCodeChipProps(span.insert);
-        // A chip up to `wholeChipMaxChars` long breaks on screen only after a `,` or `|` list
-        // separator, never at its spaces (structured-table cells, mono-breaks.tsx listChipBreaks).
-        // Any other chip renders as pieces, so it never breaks mid-token (mono-breaks.tsx chipBreaks).
-        node = options?.wholeChipMaxChars !== undefined && span.insert.length <= options.wholeChipMaxChars
-          ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{listChipBreaks(span.insert)}</code>
-          : <code {...chip}>{chipBreaks(span.insert)}</code>;
-      }
-      if (attrs.bold) node = <strong>{node}</strong>;
-      if (attrs.italic) node = <em>{node}</em>;
-      if (attrs.strike) node = <del>{node}</del>;
-      if (attrs.link) {
-        node = (
-          <a href={attrs.link} target="_blank" rel="noreferrer" className={LINK_CLASSES}>
-            {node}
-          </a>
-        );
-      } else if (attrs.reference) {
-        // Doc/code mention (D27) — inert in the tracer; deep-link
-        // navigation arrives with the Plannotator/backlinks work.
-        const isSource = attrs.reference.kind === "source";
-        const label = attrs.reference.label ?? node;
-        node = (
-          <span
-            data-spectre-ref="true"
-            data-ref-kind={attrs.reference.kind}
-            data-ref-path={attrs.reference.path}
-            data-ref-symbol={attrs.reference.symbol}
-            data-ref-section={attrs.reference.section}
-            title={attrs.reference.path}
-            className={isSource ? SOURCE_REFERENCE_CLASSES : DOC_REFERENCE_CLASSES}
-          >
-            {isSource ? label : <span className={DOC_REFERENCE_LABEL_CLASSES}>{label}</span>}
-          </span>
-        );
-      }
-    }
-    return <Fragment key={index}>{node}</Fragment>;
+  const spans = text.map((span) => ({ ...span }));
+  // Punctuation next to a chip stays on the chip's line (see CHIP_GLUE_BEFORE and CHIP_GLUE_AFTER).
+  // In reading order, so punctuation between two chips goes to one of them only.
+  const glue = spans.map((span, index) => {
+    if (!span.attributes?.code) return null;
+    const prev = spans[index - 1];
+    const next = spans[index + 1];
+    // A reference span prints its label, not its insert, so slicing it would print the label twice. It never glues.
+    const plain = (s: DeltaSpan | undefined): s is DeltaSpan => !!s && !s.attributes?.code && !s.attributes?.reference;
+    const before = plain(prev) ? CHIP_GLUE_BEFORE.exec(prev.insert)?.[0] ?? "" : "";
+    const after = plain(next) ? CHIP_GLUE_AFTER.exec(next.insert)?.[0] ?? "" : "";
+    if (before) prev!.insert = prev!.insert.slice(0, -before.length);
+    if (after) next!.insert = next!.insert.slice(after.length);
+    return before || after ? { before, after, prev, next } : null;
   });
+  return spans.map((span, index) => {
+    const g = glue[index];
+    if (!g) return <Fragment key={index}>{markedSpan(span, options)}</Fragment>;
+    return (
+      <span
+        key={index}
+        data-chip-glue="true"
+        data-chip-glue-before={g.before ? "true" : undefined}
+        data-chip-glue-after={g.after ? "true" : undefined}
+        className="whitespace-nowrap"
+      >
+        {g.before && markedSpan({ ...g.prev!, insert: g.before }, options)}
+        {markedSpan(span, options)}
+        {g.after && markedSpan({ ...g.next!, insert: g.after }, options)}
+      </span>
+    );
+  });
+}
+
+/**
+ * Punctuation that a chip keeps on its own line. A prose chip is an inline-block that moves whole to the next
+ * line (styles/rich-text.css), and a browser may break between an inline-block and the punctuation beside it.
+ * The renderers wrap a chip, an opening bracket or quote right before it, and closing punctuation right after
+ * it in one nowrap span, so a line never ends with "(" or starts with ". The".
+ */
+export const CHIP_GLUE_BEFORE = /[(\[{"'\u2018\u201c]+$/;
+export const CHIP_GLUE_AFTER = /^[.,;:!?)\]}"'\u2019\u201d]+/;
+
+/** One span with its marks applied, code innermost. */
+function markedSpan(span: DeltaSpan, options?: { wholeChipMaxChars?: number }): ReactNode {
+  let node: ReactNode = span.insert;
+  const attrs = span.attributes;
+  if (attrs) {
+    if (attrs.code) {
+      const chip = inlineCodeChipProps(span.insert);
+      // A chip up to `wholeChipMaxChars` long breaks on screen only after a `,` or `|` list
+      // separator, never at its spaces (structured-table cells, mono-breaks.tsx listChipBreaks).
+      // Any other chip renders as pieces, so it never breaks mid-token (mono-breaks.tsx chipBreaks).
+      node = options?.wholeChipMaxChars !== undefined && span.insert.length <= options.wholeChipMaxChars
+        ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{listChipBreaks(span.insert)}</code>
+        : <code {...chip}>{chipBreaks(span.insert)}</code>;
+    }
+    if (attrs.bold) node = <strong>{node}</strong>;
+    if (attrs.italic) node = <em>{node}</em>;
+    if (attrs.strike) node = <del>{node}</del>;
+    if (attrs.link) {
+      node = (
+        <a href={attrs.link} target="_blank" rel="noreferrer" className={LINK_CLASSES}>
+          {node}
+        </a>
+      );
+    } else if (attrs.reference) {
+      // Doc/code mention (D27) — inert in the tracer; deep-link
+      // navigation arrives with the Plannotator/backlinks work.
+      const isSource = attrs.reference.kind === "source";
+      const label = attrs.reference.label ?? node;
+      node = (
+        <span
+          data-spectre-ref="true"
+          data-ref-kind={attrs.reference.kind}
+          data-ref-path={attrs.reference.path}
+          data-ref-symbol={attrs.reference.symbol}
+          data-ref-section={attrs.reference.section}
+          title={attrs.reference.path}
+          className={isSource ? SOURCE_REFERENCE_CLASSES : DOC_REFERENCE_CLASSES}
+        >
+          {isSource ? label : <span className={DOC_REFERENCE_LABEL_CLASSES}>{label}</span>}
+        </span>
+      );
+    }
+  }
+  return node;
 }
