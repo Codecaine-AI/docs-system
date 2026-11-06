@@ -1349,6 +1349,7 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "pseudocode-code-syntax-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1454,6 +1455,19 @@
       "text": [
         {
           "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "pseudocode-code-syntax-lint": {
+      "id": "pseudocode-code-syntax-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "pseudocode.code-syntax flags a pseudocode line that uses source-language syntax outside its strings and comment, such as ==, ===, &&, ??, ?., +=, an object literal, or a [0] index. The message gives the plain words for each one, such as \"is not\" for !==. docs_check fails until the task fixes it."
         }
       ],
       "children": []

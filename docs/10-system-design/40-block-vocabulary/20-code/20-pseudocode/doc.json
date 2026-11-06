@@ -10,6 +10,10 @@
       "props": {},
       "children": [
         "pseudo-intro",
+        "pseudo-h-write",
+        "pseudo-write-lead",
+        "pseudo-write-steps",
+        "pseudo-write-comments",
         "pseudo-h-example",
         "pseudo-example-lead",
         "pseudo-example",
@@ -72,6 +76,291 @@
       ],
       "children": []
     },
+    "pseudo-h-write": {
+      "id": "pseudo-h-write",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write Pseudocode"
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-lead": {
+      "id": "pseudo-write-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pseudocode block restates one function or algorithm as plain steps, so a reader can follow it without knowing the source language. The "
+        },
+        {
+          "insert": "pseudocode.code-syntax",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lint flags the operators that the first group bans."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-steps": {
+      "id": "pseudo-write-steps",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write each step in plain words",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pseudo-write-steps-1",
+        "pseudo-write-steps-2",
+        "pseudo-write-steps-3",
+        "pseudo-write-steps-4",
+        "pseudo-write-steps-5"
+      ]
+    },
+    "pseudo-write-steps-1": {
+      "id": "pseudo-write-steps-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write one step per line, and indent 2 spaces for each level of nesting. Keep the order of the source's branches, loops, calls, and returns."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-steps-2": {
+      "id": "pseudo-write-steps-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write "
+        },
+        {
+          "insert": "is",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "is not",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "and",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "or",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "add 1 to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in place of "
+        },
+        {
+          "insert": "===",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "!==",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "&&",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "||",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "+=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-steps-3": {
+      "id": "pseudo-write-steps-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Say a fallback for a missing value in words, such as \"the usage of the result, or 0 when it is missing\", not "
+        },
+        {
+          "insert": "result?.usage ?? 0",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-steps-4": {
+      "id": "pseudo-write-steps-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name the list, map, or field that a step changes, such as \"append the code span to spans\". Describe an object, an index such as "
+        },
+        {
+          "insert": "match[1]",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a regex, or a range in words, such as \"the text from cursor up to index, not including index\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-steps-5": {
+      "id": "pseudo-write-steps-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Show a try and its catch as two steps, such as \"try to parse the line as JSON\" and \"if the parse fails -> skip the line\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-comments": {
+      "id": "pseudo-write-comments",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each comment a reason",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pseudo-write-comments-1",
+        "pseudo-write-comments-2",
+        "pseudo-write-comments-3"
+      ]
+    },
+    "pseudo-write-comments-1": {
+      "id": "pseudo-write-comments-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A trailing "
+        },
+        {
+          "insert": "//",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " comment gives a reason, a rule, or a consequence, such as "
+        },
+        {
+          "insert": "// the earliest note wins",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-comments-2": {
+      "id": "pseudo-write-comments-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A comment never restates its line, and it never names only a file or a function."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-comments-3": {
+      "id": "pseudo-write-comments-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a comment to about 40 characters, so it fits in the comment column beside its line. Put a longer explanation in the text after the block."
+        }
+      ],
+      "children": []
+    },
     "pseudo-h-example": {
       "id": "pseudo-h-example",
       "type": "heading",
@@ -120,7 +409,7 @@
       "props": {},
       "text": [
         {
-          "insert": "annotationLineRuns(lineCount, annotations)\n  for each annotation in annotations\n    for each line in expandLineRange(annotation.lines, lineCount)\n      if owner has no line -> owner[line] = index // the earliest note wins\n  for each line in 1..lineCount\n    if owner has no line\n      current = null // a gap ends the run\n    else if current.annotationIndex is owner[line]\n      current.length += 1\n    else\n      current = newRun(line, owner[line]) // a new owner starts a run\n      push current onto runs\n  return runs"
+          "insert": "annotationLineRuns(lineCount, annotations)\n  for each annotation in annotations, with its index\n    for each line in expandLineRange(annotation.lines, lineCount)\n      if line has no owner -> make index the owner of line // the earliest note wins\n  for each line from 1 to lineCount\n    if line has no owner\n      current = none // a gap ends the run\n    else if current exists and current.annotationIndex is the owner of line\n      add 1 to current.length\n    else\n      current = a new run at line for its owner // a new owner starts a run\n      append current to runs\n  return runs"
         }
       ],
       "children": []
@@ -704,7 +993,7 @@
           }
         },
         {
-          "insert": " comment. The comments share one aligned column, and a comment wraps inside the panel instead of scrolling."
+          "insert": " comment, and the comments share one aligned column. When a comment would wrap in that column, every comment moves under its line and hangs 2 characters past the line's indent."
         }
       ],
       "children": []
