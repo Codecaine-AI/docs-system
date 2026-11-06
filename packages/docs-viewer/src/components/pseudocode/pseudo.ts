@@ -40,8 +40,9 @@ export function pseudoGrammar(hljs: HLJSApi): Language {
       hljs.C_LINE_COMMENT_MODE,
       // A string has no escapes: in "\" the backslash is the text and the second quote ends it.
       { scope: "string", begin: /"/, end: /"/, illegal: /\n/ },
-      // A file name such as doc.json or metrics.failed.json: consumed as plain text.
-      { match: new RegExp(`[\\w-]+(?:\\.[\\w-]+)*\\.(?:${FILE_EXTENSIONS.join("|")})\\b`) },
+      // A file name such as doc.json or metrics.failed.json: consumed as plain text. A name followed by "(" is a
+      // method call, such as response.json() or console.log(value), and the call rule below colors it.
+      { match: new RegExp(`[\\w-]+(?:\\.[\\w-]+)*\\.(?:${FILE_EXTENSIONS.join("|")})\\b(?!\\()`) },
       hljs.C_NUMBER_MODE,
       { scope: "operator", match: /->|=>/ },
       // A call: a name directly followed by "(" — but never a control word (`if (x)`).

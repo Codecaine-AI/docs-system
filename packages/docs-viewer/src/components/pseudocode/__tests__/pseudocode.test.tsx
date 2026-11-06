@@ -121,6 +121,13 @@ describe("pseudocode block", () => {
     expect(row!.html).toContain('JSON.<span class="hljs-title function_">parse</span>(line)');
   });
 
+  it("colors a method call whose name is also a file extension, and leaves a file name plain", () => {
+    const [call, log, file] = renderPseudocode(["body = response.json()", "console.log(value)", "write metrics.json"].join("\n"));
+    expect(call!.html).toContain('response.<span class="hljs-title function_">json</span>()');
+    expect(log!.html).toContain('console.<span class="hljs-title function_">log</span>(value)');
+    expect(file!.html).not.toMatch(/hljs-(property|title)/);
+  });
+
   it("reads the leading +/-/space column as diff marks only with diff on", () => {
     const code = [" keep()", "-old()", "+new()"].join("\n");
     expect(renderPseudocode(code, { diff: true }).map((row) => [row.diff, row.code])).toEqual([
