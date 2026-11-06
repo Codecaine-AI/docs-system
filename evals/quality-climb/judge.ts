@@ -122,19 +122,33 @@ async function codexJudgeHome(): Promise<string> {
 
 export const MUSE = { model: "muse-wonder-full-1.0", effort: "high" } as const;
 
+const museHomes = new Map<string, Promise<string>>();
+
 /**
  * An XDG_CONFIG_HOME whose muse/settings.json holds only the user's provider, endpoint and a catalog entry for the
  * judge model, and links the user's auth. The Muse judge gets no user AGENTS.md, skills or MCP servers.
+ * Pages are judged at once, so each home is made once per process and every caller shares that promise.
  */
-async function museJudgeHome(): Promise<string> {
-  const home = join(REPO, ".tmp/quality-climb/muse-judge-home");
+export function museJudgeHome(home = join(REPO, ".tmp/quality-climb/muse-judge-home"), userDir = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "muse")): Promise<string> {
+  let made = museHomes.get(home);
+  if (!made) {
+    made = makeMuseHome(home, userDir);
+    museHomes.set(home, made);
+    made.catch(() => museHomes.delete(home));
+  }
+  return made;
+}
+
+async function makeMuseHome(home: string, userDir: string): Promise<string> {
   await mkdir(join(home, "muse"), { recursive: true });
-  const userDir = join(process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config"), "muse");
   const user = JSON.parse(await readFile(join(userDir, "settings.json"), "utf8").catch(() => "{}"));
   const entry = (user.model_catalog ?? []).find((m: { model_id: string }) => m.model_id === MUSE.model) ?? { ...(user.model_catalog?.[0] ?? {}), model_id: MUSE.model, display_label: "Muse Wonder Full 1.0" };
   const settings = { schema_version: user.schema_version ?? 1, provider: user.provider ?? "meta", model: MUSE.model, model_catalog: [{ ...entry, is_default: true }], ...(user.endpoint_transport ? { endpoint_transport: user.endpoint_transport } : {}) };
   await writeFile(join(home, "muse/settings.json"), JSON.stringify(settings, null, 2), { mode: 0o600 });
-  if (!existsSync(join(home, "muse/auth.json")) && existsSync(join(userDir, "auth.json"))) await symlink(join(userDir, "auth.json"), join(home, "muse/auth.json"));
+  // Another round's process can make the link between the check and the symlink call.
+  if (!existsSync(join(home, "muse/auth.json")) && existsSync(join(userDir, "auth.json"))) {
+    await symlink(join(userDir, "auth.json"), join(home, "muse/auth.json")).catch((error) => { if (error.code !== "EEXIST") throw error; });
+  }
   return home;
 }
 
@@ -257,7 +271,34 @@ export async function judgePage(judge: string, packet: Packet, pageDir: string, 
   return judgeWith(judge, packet, pageDir, sample, await judgePrompt(packet), JudgeReplySchema, (text) => parseJudgeReply(text, ids));
 }
 
-/** Scores the lane's blocks on a page against each criterion, and the page's 8 categories as a guard. */
+/** The hash of the criteria ids and questions a lane reply was scored against. */
+export const criteriaHash = (criteria: Criterion[]) => createHash("sha256").update(JSON.stringify(criteria.map((c) => [c.id, c.question]))).digest("hex");
+/** The file beside a lane score file that holds the criteriaHash it was scored against. */
+export const criteriaFile = (pageDir: string, judge: string, sample: number) => join(pageDir, "scores", `${judge}.${sample}.criteria`);
+
+/**
+ * Scores the lane's blocks on a page against each criterion, and the page's 8 categories as a guard. Saves the
+ * criteria hash beside the score file, so cachedLaneReply reuses the reply only while the criteria stay the same.
+ */
 export async function judgeLanePage(judge: string, packet: LanePacket, pageDir: string, sample = 1): Promise<LaneReply> {
-  return judgeWith(judge, packet, pageDir, sample, await laneJudgePrompt(packet), laneReplySchema(packet.criteria), (text) => parseLaneReply(text, packet.criteria));
+  const reply = await judgeWith(judge, packet, pageDir, sample, await laneJudgePrompt(packet), laneReplySchema(packet.criteria), (text) => parseLaneReply(text, packet.criteria));
+  await writeFile(criteriaFile(pageDir, judge, sample), criteriaHash(packet.criteria));
+  return reply;
+}
+
+/**
+ * A saved lane reply, or null when it must be judged again: no score file, a criteria hash that is missing or names
+ * other ids or questions, a reply that fails the lane reply schema, or scores for other criterion ids than `criteria`.
+ */
+export async function cachedLaneReply(pageDir: string, judge: string, sample: number, criteria: Criterion[]): Promise<LaneReply | null> {
+  const file = scoreFile(pageDir, judge, sample);
+  const hash = await readFile(criteriaFile(pageDir, judge, sample), "utf8").catch(() => null);
+  if (!existsSync(file) || hash !== criteriaHash(criteria)) return null;
+  // The full reply schema, not only the criterion ids: a reply that lacks a category would give a NaN category mean.
+  const parsed = parseLaneReply(await readFile(file, "utf8"), criteria);
+  if (!parsed.ok) return null;
+  const reply = parsed.reply;
+  const scored = Object.keys(reply.criteria ?? {}).sort();
+  const ids = criteria.map((c) => c.id).sort();
+  return scored.length === ids.length && scored.every((id, i) => id === ids[i]) ? reply : null;
 }
