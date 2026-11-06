@@ -25,6 +25,7 @@ import {
 } from "./classes";
 import { CodeBlockHeader, CodeNoteRow, CodeNotesAside, CodeNotesBody, CodeNotesLayout } from "./CodeShell";
 import { highlightCode, prettyPrintIfJson, resolveDisplayLanguage } from "./highlight";
+import { withWrapPoints } from "./wrap-points";
 
 export type { CodeAnnotation } from "./annotations";
 
@@ -224,8 +225,8 @@ export function AnnotatedCodeBlock({
    * rescues one-liner JSON, not something to author against.
    */
   const displayCode = useMemo(() => prettyPrintIfJson(code, language), [code, language]);
-  /** One hljs-highlighted HTML string per line (count matches split("\n")). */
-  const lines = useMemo(() => highlightCode(displayCode, language), [displayCode, language]);
+  /** One hljs-highlighted HTML string per line (count matches split("\n")), with break points for a wrapping line. */
+  const lines = useMemo(() => highlightCode(displayCode, language).map(withWrapPoints), [displayCode, language]);
   /** Leading whitespace of each displayed line, in ch (a tab counts 4, the page tab-size). */
   const indents = useMemo(
     () => displayCode.split("\n").map((line) => [...(/^[ \t]*/.exec(line)?.[0] ?? "")].reduce((n, c) => n + (c === "\t" ? 4 : 1), 0)),
