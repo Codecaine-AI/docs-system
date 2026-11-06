@@ -7,6 +7,8 @@ export const PAGE_FLOOR = 9;
 export const COST_LIMIT = 1.2;
 /** The most a lane round's page-category mean may fall below the baseline round's, per judge and set. */
 export const CATEGORY_DROP = 0.5;
+/** Absorbs float error in a mean difference. It is far below the smallest real step, 1/1600 of a point. */
+const DROP_TOLERANCE = 1e-9;
 
 /**
  * The judge ladder: each stage's counting judges and how many samples each takes per page. A stage adds a judge
@@ -267,9 +269,10 @@ export function categoryGuard(current: LaneScores, baseline: LaneScores | null):
     const before = baseline[judge]?.[set];
     if (!now || !before) continue;
     for (const c of PAGE_CATEGORIES) {
-      // In whole hundredths, as `mean` sums them: 8.3 - 7.8 is 0.5000000000000009 in floats, and an exact 0.5 must pass.
-      const drop = hundredths(before.categories[c].mean) - hundredths(now.categories[c].mean);
-      if (drop > hundredths(CATEGORY_DROP)) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
+      // A float tolerance, not rounding: 8.3 - 7.8 is 0.5000000000000009 and must pass, but a mean can hold more than
+      // two decimals (9.0125 - 8.50625 = 0.50625), and rounding would hide that excess drop.
+      const drop = before.categories[c].mean - now.categories[c].mean;
+      if (drop > CATEGORY_DROP + DROP_TOLERANCE) items.push({ set, text: `${judge} ${set} ${c}: mean ${now.categories[c].mean.toFixed(2)}, baseline ${before.categories[c].mean.toFixed(2)}` });
     }
   }
   const detail = items.length ? `${items.length} page-category mean(s) fell more than ${CATEGORY_DROP} below the baseline` : `no page-category mean fell more than ${CATEGORY_DROP} below the baseline`;

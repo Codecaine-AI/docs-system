@@ -271,6 +271,21 @@ describe("lane gate", () => {
     expect(gate(round(7.79), ["sol"], baseline).guards.at(-1)).toMatchObject({ name: "page-categories", pass: false, items: [{ set: "climb" }, { set: "held-out" }] });
   });
 
+  test("the page-category guard fails a drop of 0.50625 over 8 two-sample pages, which rounding to hundredths would hide", () => {
+    // Baseline page medians: seven 9.0 and one 9.1, mean 9.0125. Current: seven 8.5 and one 8.55 (median of 8.5 and 8.6), mean 8.50625.
+    const page = (set: BriefSet, id: number, structure: [number, number]): LanePageScore => ({
+      ...lanePage("sol", set, { id }),
+      samples: structure.map((s) => lanePage("sol", set, { id, categories: { structure: s } }).samples[0]!),
+    });
+    const round = (first: [number, number], rest: [number, number]) =>
+      (["climb", "held-out"] as const).flatMap((set) => Array.from({ length: 8 }, (_, i) => page(set, (set === "climb" ? 10 : 30) + i, i === 0 ? first : rest)));
+    const baseline = gate(round([9.1, 9.1], [9.0, 9.0]), ["sol"]).scores;
+    expect(baseline.sol!.climb!.categories.structure.mean).toBe(9.0125);
+    const now = gate(round([8.5, 8.6], [8.5, 8.5]), ["sol"], baseline);
+    expect(now.scores.sol!.climb!.categories.structure.mean).toBe(8.50625);
+    expect(now.guards.at(-1)).toMatchObject({ name: "page-categories", pass: false });
+  });
+
   test("the builder report holds held-out scores only, never held-out pages, findings or guard items", () => {
     const baseline = gate(both("sol"), ["sol"]).scores;
     const pages = [lanePage("sol", "climb", { finding: "climb finding" }), lanePage("sol", "held-out", { id: 7, score: 9.0, finding: "secret held-out finding", categories: { craft: 7 } })];
