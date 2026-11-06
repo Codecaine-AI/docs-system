@@ -162,13 +162,22 @@ function bodyWords(line: StackDetailLine): { words: { text: string; width: numbe
   return { words, width };
 }
 
-/** Lines the words take at the line's width: words fill each line, and a word wider than the line takes one alone. */
+/**
+ * Lines the words take at the line's width: words fill each line, and an unbreakable word wider than the line
+ * takes one alone. A plain word wider than the line breaks anywhere (`overflow-wrap: anywhere`), so it fills the
+ * rest of the line and runs on.
+ */
 function bodyLineCount(words: ReturnType<typeof bodyWords>["words"], availablePx: number): number {
+  const width = Math.max(1, availablePx);
   let lines = 1;
   let current = 0;
   for (const word of words) {
-    if (current === 0) current = word.width;
-    else if (current + word.gap + word.width <= availablePx + 0.005) current += word.gap + word.width;
+    if (!word.unbreakable && word.width > width + 0.005) {
+      const run = current + (current === 0 ? 0 : word.gap) + word.width;
+      lines += Math.ceil(run / width) - 1;
+      current = run - (Math.ceil(run / width) - 1) * width;
+    } else if (current === 0) current = word.width;
+    else if (current + word.gap + word.width <= width + 0.005) current += word.gap + word.width;
     else {
       lines += 1;
       current = word.width;

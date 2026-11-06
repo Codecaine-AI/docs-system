@@ -107,6 +107,15 @@ describe("layout.stack-detail-fit", () => {
     expect(check(block)[0]!.message).toEndWith("so it wraps to 3 lines.");
   });
 
+  test("a long plain word beside a code span breaks anywhere and runs on over several lines", () => {
+    const word = "a".repeat(100);
+    const run = measureWidth("run", codeFont(13)) + measureWidth(" ", prose) + width(word);
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `\`run\` ${word}` }, { name: "Other" }] }, { name: "Side" }] }]);
+    const card = stackDetailLines(block, 1100)[0]!.availablePx;
+    expect(check(block)[0]!.message).toEndWith(`so it wraps to ${Math.ceil(run / card)} lines.`);
+    expect(Math.ceil(run / card)).toBeGreaterThan(2);
+  });
+
   test("two-column containers can leave a card narrower than the cap", () => {
     // Wide lane 1100px, less 26px per container frame, halved per two-column body, less the card's 26px.
     const inner = (1100 - 26 - 12) / 2;
