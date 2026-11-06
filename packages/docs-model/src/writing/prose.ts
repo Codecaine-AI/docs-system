@@ -6,15 +6,19 @@ export interface ProseField {
   text: string;
   paragraph: boolean;
 }
+/** How proseText reads literal spans. With referencesAsText, a reference span keeps its text and only code is a literal. */
+export interface ProseOptions {
+  referencesAsText?: boolean;
+}
 /** Keep a separator for literal spans so adjoining prose cannot form a false phrase. */
-export function proseText(value: unknown): string {
+export function proseText(value: unknown, options: ProseOptions = {}): string {
   if (typeof value === "string")
     return value.replace(/(`+)[\s\S]*?\1/g, "\u0000");
   if (!Array.isArray(value)) return "";
   return proseText(
     value
       .map((span: DeltaSpan) =>
-        span?.attributes?.code || span?.attributes?.reference
+        span?.attributes?.code || (span?.attributes?.reference && !options.referencesAsText)
           ? "\u0000"
           : (span?.insert ?? ""),
       )
@@ -59,7 +63,7 @@ export function excludedBlockIds(context: LintContext): Set<string> {
   return excluded;
 }
 /** Explicit field allowlist: never descend into examples, references or embedded payloads. */
-export function authoredProse(context: LintContext): ProseField[] {
+export function authoredProse(context: LintContext, options: ProseOptions = {}): ProseField[] {
   const out: ProseField[] = [];
   function add(
     value: unknown,
@@ -67,7 +71,7 @@ export function authoredProse(context: LintContext): ProseField[] {
     block?: DocBlock,
     paragraph = false,
   ) {
-    const text = proseText(value);
+    const text = proseText(value, options);
     if (text.trim()) out.push({ blockId: block?.id, field, text, paragraph });
   }
   add(context.document.title, "title");

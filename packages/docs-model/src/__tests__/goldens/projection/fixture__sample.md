@@ -33,9 +33,8 @@ Stable ids are a system invariant.
 
 ```
   src/
-  ├── components/
-  │   └── docs/
-> │       └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx
+  ├── components/docs/
+> │   └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx
   └── lib/
       ├── docs-model/
 ~     │   ├── doc-ops.ts  # typed ops + inverses
