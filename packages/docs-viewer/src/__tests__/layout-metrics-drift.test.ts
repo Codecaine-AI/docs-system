@@ -24,6 +24,7 @@ import {
   codeHasNotes,
   liftBacktickCode as modelLiftBacktickCode,
   monoBreakPieces,
+  stackDetailLayout,
   stackDetailSegments,
   tableCellKinds as modelTableCellKinds,
   tableColumnFits as modelTableColumnFits,
@@ -376,13 +377,15 @@ describe("stack", () => {
     "one segment only",
     "`startMcp` runs `ensureDaemon` · forwards calls",
     "`node:fs/promises` calls on the checked path",
+    "src/rules/index.ts · rulesFrom · also imports profile types",
   ])("the model reads %p as path or prose exactly as the stack renders it", (detail) => {
     const { container } = render(createElement(StackBlock, { nodes: [{ name: "Leaf", detail }], boundaries: [] }));
     const rendered = container.querySelector("[data-stack-detail]")!;
     const path = modelChipKind(detail) === "path";
     expect(rendered.hasAttribute("data-mono")).toBe(path);
     if (path) {
-      expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => line.textContent)).toEqual(stackDetailSegments(detail));
+      expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => ({ text: line.textContent, path: !line.hasAttribute("data-prose") })))
+        .toEqual(stackDetailLayout(detail));
     } else {
       expect(rendered.textContent).toBe(stackDetailSegments(detail).join(m.proseDetailJoiner));
     }

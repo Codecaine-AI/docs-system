@@ -1,5 +1,6 @@
 import { measureWidth, type FontSpec } from "@codecaine-ai/text-measure";
 import type { DocBlockType } from "../doc-schema";
+import { chipKind } from "./chips";
 
 /**
  * Layout facts: the numbers the docs viewer lays blocks out with at STOCK
@@ -308,6 +309,22 @@ export const STACK_PATH_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * monoColumnPx
  */
 export function stackDetailSegments(detail: string): string[] {
   return detail.split(/\s+·\s+/).filter(Boolean).map((segment) => segment.replace(/`/g, ""));
+}
+
+/**
+ * The lines a stack leaf detail draws. A detail that is not a path joins its segments with ", " on one line.
+ * In a path detail, each bare path segment (no space, such as `src/rules/index.ts`) gets its own code-face
+ * line, and the other segments join with ", " on one line after them, in the body face.
+ */
+export function stackDetailLayout(detail: string): { text: string; path: boolean }[] {
+  const segments = stackDetailSegments(detail);
+  if (chipKind(detail) !== "path") return [{ text: segments.join(STACK_METRICS.proseDetailJoiner), path: false }];
+  const isPath = (segment: string) => !/\s/.test(segment) && chipKind(segment) === "path";
+  const rest = segments.filter((segment) => !isPath(segment));
+  return [
+    ...segments.filter(isPath).map((text) => ({ text, path: true })),
+    ...(rest.length > 0 ? [{ text: rest.join(STACK_METRICS.proseDetailJoiner), path: false }] : []),
+  ];
 }
 
 // -- Tree rows -------------------------------------------------------------------

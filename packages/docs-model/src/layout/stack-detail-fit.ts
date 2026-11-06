@@ -3,7 +3,7 @@ import type { DocBlock } from "../doc-schema";
 import { readStack, type StackNode } from "../components/stack/state";
 import type { LintRule, RuleMatch } from "../lint/types";
 import { blockWidthsPx } from "./block-width";
-import { chipKind, monoBreakPieces } from "./chips";
+import { monoBreakPieces } from "./chips";
 import { approximateNote, excerpt, px, widthVerdict, type LayoutVerdict } from "./fit";
 import {
   LANE_PX,
@@ -12,7 +12,7 @@ import {
   STACK_PATH_DETAIL_MAX_PX,
   codeFont,
   sansFont,
-  stackDetailSegments,
+  stackDetailLayout,
 } from "./metrics";
 
 /**
@@ -65,24 +65,21 @@ export function stackDetailLines(block: DocBlock, blockWidthPx: number): StackDe
       }
       if (!node.detail) return;
       const cardPx = Math.max(0, widthPx - CARD_CHROME_PX);
-      const segments = stackDetailSegments(node.detail);
-      if (chipKind(node.detail) === "path") {
-        const availablePx = Math.min(STACK_PATH_DETAIL_MAX_PX, cardPx);
-        for (const segment of segments) {
-          lines.push({
-            field: `${here}.detail`, node, text: segment, path: true,
+      const pathCapPx = Math.min(STACK_PATH_DETAIL_MAX_PX, cardPx);
+      const proseCapPx = Math.min(STACK_DETAIL_MAX_PX, cardPx);
+      for (const line of stackDetailLayout(node.detail)) {
+        lines.push(line.path
+          ? {
+            field: `${here}.detail`, node, text: line.text, path: true,
             font: codeFont(m.pathDetailFontSizePx), lineHeightPx: m.pathDetailFontSizePx * m.pathDetailLineHeight,
-            availablePx, cardBound: cardPx < STACK_PATH_DETAIL_MAX_PX,
+            availablePx: pathCapPx, cardBound: cardPx < STACK_PATH_DETAIL_MAX_PX,
+          }
+          : {
+            field: `${here}.detail`, node, text: line.text, path: false,
+            font: sansFont(m.detailFontSizePx), lineHeightPx: m.detailFontSizePx * m.detailLineHeight,
+            availablePx: proseCapPx, cardBound: cardPx < STACK_DETAIL_MAX_PX,
           });
-        }
-        return;
       }
-      const availablePx = Math.min(STACK_DETAIL_MAX_PX, cardPx);
-      lines.push({
-        field: `${here}.detail`, node, text: segments.join(m.proseDetailJoiner), path: false,
-        font: sansFont(m.detailFontSizePx), lineHeightPx: m.detailFontSizePx * m.detailLineHeight,
-        availablePx, cardBound: cardPx < STACK_DETAIL_MAX_PX,
-      });
     });
   };
   visit(readStack(block).nodes, blockWidthPx, "props.nodes");

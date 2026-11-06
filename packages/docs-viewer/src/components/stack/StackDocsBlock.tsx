@@ -63,7 +63,9 @@ const STACK_STYLE = `
 [data-stack-detail]{max-width:var(--ds-layout-lane-text);margin-top:var(--ds-space-0-5);font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui);color:var(--stack-text);overflow-wrap:anywhere}
 [data-stack-detail-line]{display:block}
 [data-stack-detail][data-mono]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.6;overflow-wrap:normal}
-[data-stack-detail-line][data-prose],[data-stack-name][data-prose]{font-family:var(--stack-sans)}
+[data-stack-detail][data-mono]>[data-stack-detail-line]:not([data-prose]){color:var(--stack-muted)}
+[data-stack-detail-line][data-prose]{font-family:var(--stack-sans);font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui)}
+[data-stack-name][data-prose]{font-family:var(--stack-sans)}
 [data-stack-code]{font-family:var(--stack-mono);font-size:.9em;white-space:nowrap}
 [data-stack-nowrap]{white-space:nowrap}
 [data-stack-uses],[data-stack-boundary]{position:relative;min-width:0}
@@ -92,20 +94,30 @@ const hoverTitle = (...parts: (string | undefined)[]) => parts.filter(Boolean).j
 const detailSegments = (detail: string) => detail.split(/\s+·\s+/).filter(Boolean);
 
 /**
- * A leaf's detail as plain text: prose segments join with ", "; path segments
- * (`@spectre/* · @/* · apps/{…}/`) go one per line, since their own commas and
- * braces would blur a comma-joined line.
+ * A leaf's detail. A detail that is not a path joins its segments with ", " on
+ * one line. In a path detail, each bare path segment (`@spectre/*`,
+ * `src/rules/index.ts`) gets its own muted code-face line, since its own
+ * commas and braces would blur a comma-joined line, and the other segments
+ * join with ", " on one line after them in the body face. docs-model
+ * layout/metrics.ts `stackDetailLayout` is the same layout for the lints.
  */
 function StackDetail({ detail }: { detail: string }) {
   const segments = detailSegments(detail);
   if (chipKind(detail) !== "path") return <div data-stack-detail="">{codeWords(segments.join(", "))}</div>;
+  const isPath = (segment: string) => !/\s/.test(segment) && chipKind(segment.replace(/`/g, "")) === "path";
+  const rest = segments.filter((segment) => !isPath(segment));
   return (
     <div data-stack-detail="" data-mono="">
-      {segments.map((segment, index) => (
-        <span key={index} data-stack-detail-line="" data-prose={isProse(segment) ? "" : undefined}>
-          {isProse(segment) ? codeWords(segment) : monoBreaks(segment.replace(/`/g, ""))}
+      {segments.filter(isPath).map((segment, index) => (
+        <span key={index} data-stack-detail-line="">
+          {monoBreaks(segment.replace(/`/g, ""))}
         </span>
       ))}
+      {rest.length > 0 && (
+        <span data-stack-detail-line="" data-prose="">
+          {codeWords(rest.join(", "))}
+        </span>
+      )}
     </div>
   );
 }
