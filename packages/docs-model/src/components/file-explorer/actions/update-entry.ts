@@ -15,7 +15,7 @@ export const updateEntry = defineComponentAction({
   params: Type.Object({
     path: Type.String({ minLength: 1, description: "Exact path of the entry to patch." }),
     note: Type.Optional(
-      Type.Union([Type.String(), Type.Null()], { description: "New note; pass null to clear." }),
+      Type.Union([Type.String(), Type.Null()], { description: "New note: one fact about the file's role, in about 10 words. Pass null to clear." }),
     ),
     change: Type.Optional(
       Type.Union(
