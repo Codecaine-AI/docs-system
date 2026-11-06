@@ -1,5 +1,6 @@
 import { measureWidth, type FontSpec } from "@codecaine-ai/text-measure";
 import type { DocBlockType } from "../doc-schema";
+import { chipKind } from "./chips";
 
 /**
  * Layout facts: the numbers the docs viewer lays blocks out with at STOCK
@@ -282,12 +283,14 @@ export const STACK_METRICS = {
   detailFontSizePx: 13.5,
   detailLineHeight: 1.5,
   detailMaxCh: 60,
-  pathDetailFontSizePx: 12,
+  pathDetailFontSizePx: 13,
   pathDetailLineHeight: 1.6,
-  /** Leaf name: code font, weight 600. */
-  nameFontSizePx: 13.5,
+  /** A backtick code span in a body line or a rule: code font at 13px. */
+  codeSpanFontSizePx: 13,
+  /** Leaf name: code font (sans when it is prose), weight 600. */
+  nameFontSizePx: 14,
   nameWeight: 600,
-  roleFontSizePx: 12,
+  roleFontSizePx: 13,
   /** Leaf card padding. A card with a role keeps 10px on the left beside its 3px edge. */
   boxPadXPx: 12,
   boxPadYPx: 10,
@@ -306,12 +309,49 @@ export const STACK_METRICS = {
 
 /** The prose detail cap in px at the stock size: 506.25. */
 export const STACK_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * sansChPx(STACK_METRICS.detailFontSizePx);
-/** The path detail cap in px: 60ch of the code font at 12px, 432. */
+/** The path detail cap in px: 60ch of the code font at 13px, 468. */
 export const STACK_PATH_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * monoColumnPx(STACK_METRICS.pathDetailFontSizePx);
 
-/** A stack detail's segments, split the way the viewer splits them: on a middle dot with whitespace on both sides. */
+/**
+ * A stack detail's segments as the viewer draws them: split on a middle dot with whitespace on both sides, and
+ * without the backticks that mark a code span.
+ */
 export function stackDetailSegments(detail: string): string[] {
-  return detail.split(/\s+·\s+/).filter(Boolean);
+  return stackDetailRawSegments(detail).map((segment) => segment.replace(/`/g, ""));
+}
+
+/**
+ * A detail's segments with their backticks: split on a middle dot with whitespace on both sides, and a leading
+ * bare path written with a comma (`packages/docs-viewer, DocsClientProvider`) split off as its own segment.
+ */
+export function stackDetailRawSegments(detail: string): string[] {
+  return detail.split(/\s+·\s+/).filter(Boolean).flatMap((segment) => {
+    const lead = /^(`?[^\s`,]+`?),\s+(\S.*)$/.exec(segment);
+    return lead && chipKind(lead[1]!.replace(/`/g, "")) === "path" ? [lead[1]!, lead[2]!] : [segment];
+  });
+}
+
+/**
+ * The lines a stack leaf detail draws. A detail that is not a path joins its segments with ", " on one line.
+ * In a path detail, each bare path segment (no space, such as `src/rules/index.ts`) gets its own code-face
+ * line, and the other segments join with ", " on one line after them, in the body face. `text` is what the
+ * line shows, and `raw` keeps the backticks that mark its code spans.
+ */
+export function stackDetailLayout(detail: string): { text: string; raw: string; path: boolean }[] {
+  const segments = stackDetailRawSegments(detail);
+  const strip = (text: string) => text.replace(/`/g, "");
+  const joined = (list: string[]) => {
+    const raw = list.join(STACK_METRICS.proseDetailJoiner);
+    return { text: strip(raw), raw, path: false };
+  };
+  // Backticks mark code spans, so a detail wrapped in them is not a quoted string.
+  if (chipKind(strip(detail)) !== "path") return [joined(segments)];
+  const isPath = (segment: string) => !/\s/.test(segment) && chipKind(strip(segment)) === "path";
+  const rest = segments.filter((segment) => !isPath(segment));
+  return [
+    ...segments.filter(isPath).map((segment) => ({ text: strip(segment), raw: segment, path: true })),
+    ...(rest.length > 0 ? [joined(rest)] : []),
+  ];
 }
 
 // -- Tree rows -------------------------------------------------------------------

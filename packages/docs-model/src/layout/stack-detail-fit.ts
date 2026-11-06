@@ -3,7 +3,7 @@ import type { DocBlock } from "../doc-schema";
 import { readStack, type StackNode } from "../components/stack/state";
 import type { LintRule, RuleMatch } from "../lint/types";
 import { blockWidthsPx } from "./block-width";
-import { chipKind, monoBreakPieces } from "./chips";
+import { monoBreakPieces } from "./chips";
 import { approximateNote, excerpt, px, widthVerdict, type LayoutVerdict } from "./fit";
 import {
   LANE_PX,
@@ -12,7 +12,7 @@ import {
   STACK_PATH_DETAIL_MAX_PX,
   codeFont,
   sansFont,
-  stackDetailSegments,
+  stackDetailLayout,
 } from "./metrics";
 
 /**
@@ -37,6 +37,8 @@ export interface StackDetailLine {
   node: StackNode;
   /** The text one line must hold: the joined prose detail, or one path segment. */
   text: string;
+  /** The line as written, with the backticks that mark its code spans. */
+  raw: string;
   path: boolean;
   font: FontSpec;
   lineHeightPx: number;
@@ -65,24 +67,23 @@ export function stackDetailLines(block: DocBlock, blockWidthPx: number): StackDe
       }
       if (!node.detail) return;
       const cardPx = Math.max(0, widthPx - CARD_CHROME_PX);
-      const segments = stackDetailSegments(node.detail);
-      if (chipKind(node.detail) === "path") {
-        const availablePx = Math.min(STACK_PATH_DETAIL_MAX_PX, cardPx);
-        for (const segment of segments) {
-          lines.push({
-            field: `${here}.detail`, node, text: segment, path: true,
+      const pathCapPx = Math.min(STACK_PATH_DETAIL_MAX_PX, cardPx);
+      const layout = stackDetailLayout(node.detail);
+      // A path detail's lines share one code-face parent, whose 60ch cap also bounds its body line.
+      const capPx = layout.some((line) => line.path) ? STACK_PATH_DETAIL_MAX_PX : STACK_DETAIL_MAX_PX;
+      for (const line of layout) {
+        lines.push(line.path
+          ? {
+            field: `${here}.detail`, node, text: line.text, raw: line.raw, path: true,
             font: codeFont(m.pathDetailFontSizePx), lineHeightPx: m.pathDetailFontSizePx * m.pathDetailLineHeight,
-            availablePx, cardBound: cardPx < STACK_PATH_DETAIL_MAX_PX,
+            availablePx: pathCapPx, cardBound: cardPx < STACK_PATH_DETAIL_MAX_PX,
+          }
+          : {
+            field: `${here}.detail`, node, text: line.text, raw: line.raw, path: false,
+            font: sansFont(m.detailFontSizePx), lineHeightPx: m.detailFontSizePx * m.detailLineHeight,
+            availablePx: Math.min(capPx, cardPx), cardBound: cardPx < capPx,
           });
-        }
-        return;
       }
-      const availablePx = Math.min(STACK_DETAIL_MAX_PX, cardPx);
-      lines.push({
-        field: `${here}.detail`, node, text: segments.join(m.proseDetailJoiner), path: false,
-        font: sansFont(m.detailFontSizePx), lineHeightPx: m.detailFontSizePx * m.detailLineHeight,
-        availablePx, cardBound: cardPx < STACK_DETAIL_MAX_PX,
-      });
     });
   };
   visit(readStack(block).nodes, blockWidthPx, "props.nodes");
@@ -105,7 +106,7 @@ export interface StackDetailFit {
   coveredWidth: number;
   /** Lines the text takes at the line's width. */
   lineCount: number;
-  /** Path lines: the widest run the renderer cannot break. */
+  /** The widest run the renderer cannot break: a path run, a code span or a hyphenated word. */
   widestRun?: { text: string; width: number };
 }
 
@@ -129,9 +130,76 @@ function pathLineCount(runs: readonly string[], line: StackDetailLine): number {
   return lines;
 }
 
+/**
+ * A body line's words as the stack paints them: each backtick span is one word in the code face at
+ * `codeSpanFontSizePx`, and the rest splits at spaces in the line's font. A code span and a hyphenated word
+ * never break (docs-viewer StackDocsBlock.tsx `codeWords`), so each is an unbreakable run.
+ */
+function bodyWords(line: StackDetailLine): { words: { text: string; width: number; gap: number; unbreakable: boolean }[]; width: number } {
+  const code = codeFont(m.codeSpanFontSizePx);
+  const space = measureWidth(" ", line.font);
+  const words: { text: string; width: number; gap: number; unbreakable: boolean }[] = [];
+  let width = 0;
+  let pendingGap = 0;
+  line.raw.split(/(`[^`]+`)/).forEach((part, index) => {
+    if (index % 2 === 1) {
+      const text = part.slice(1, -1);
+      const spanWidth = measureWidth(text, code);
+      width += spanWidth;
+      words.push({ text, width: spanWidth, gap: pendingGap, unbreakable: true });
+      pendingGap = 0;
+      return;
+    }
+    const plain = part.replace(/`/g, "");
+    width += measureWidth(plain, line.font);
+    for (const piece of plain.split(/(\s+)/)) {
+      if (piece === "") continue;
+      if (/^\s+$/.test(piece)) { pendingGap = space; continue; }
+      words.push({ text: piece, width: measureWidth(piece, line.font), gap: pendingGap, unbreakable: /\w-\w/.test(piece) });
+      pendingGap = 0;
+    }
+  });
+  return { words, width };
+}
+
+/**
+ * Lines the words take at the line's width: words fill each line, and an unbreakable word wider than the line
+ * takes one alone. A plain word wider than the line breaks anywhere (`overflow-wrap: anywhere`), so it fills the
+ * rest of the line and runs on.
+ */
+function bodyLineCount(words: ReturnType<typeof bodyWords>["words"], availablePx: number): number {
+  const width = Math.max(1, availablePx);
+  let lines = 1;
+  let current = 0;
+  for (const word of words) {
+    if (!word.unbreakable && word.width > width + 0.005) {
+      const run = current + (current === 0 ? 0 : word.gap) + word.width;
+      lines += Math.ceil(run / width) - 1;
+      current = run - (Math.ceil(run / width) - 1) * width;
+    } else if (current === 0) current = word.width;
+    else if (current + word.gap + word.width <= width + 0.005) current += word.gap + word.width;
+    else {
+      lines += 1;
+      current = word.width;
+    }
+  }
+  return lines;
+}
+
 /** One line's fit, judged on covered text: characters the bundled faces lack are reported, never judged an overflow. */
 export function stackDetailFit(line: StackDetailLine): StackDetailFit {
-  const fit = fitText(line.text, line.font, { width: line.availablePx, lineHeight: line.lineHeightPx, maxLines: 1 });
+  let fit = fitText(line.text, line.font, { width: line.availablePx, lineHeight: line.lineHeightPx, maxLines: 1 });
+  let lineCount = fit.lineCount;
+  let widestRun: StackDetailFit["widestRun"];
+  if (!line.path) {
+    const { words, width } = bodyWords(line);
+    if (line.raw.includes("`")) {
+      // Code spans draw in another face, so the line's width is the sum of its parts.
+      fit = { ...fit, neededWidth: width, verdict: width > line.availablePx + 0.005 ? "overflows" : "fits" };
+      lineCount = bodyLineCount(words, line.availablePx);
+    }
+    for (const word of words) if (word.unbreakable && (!widestRun || word.width > widestRun.width)) widestRun = { text: word.text, width: word.width };
+  }
   const uncovered = fit.uncovered.length > 0;
   let coveredWidth = fit.neededWidth;
   if (uncovered) {
@@ -139,8 +207,6 @@ export function stackDetailFit(line: StackDetailLine): StackDetailFit {
     for (const cluster of uncoveredChars(line.text, line.font.family)) covered = covered.split(cluster).join("");
     coveredWidth = measureWidth(covered, line.font);
   }
-  let lineCount = fit.lineCount;
-  let widestRun: StackDetailFit["widestRun"];
   if (line.path) {
     const runs = pathRuns(line.text);
     for (const run of runs) {

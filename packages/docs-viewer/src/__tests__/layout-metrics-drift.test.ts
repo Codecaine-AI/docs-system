@@ -25,6 +25,7 @@ import {
   codeHasNotes,
   liftBacktickCode as modelLiftBacktickCode,
   monoBreakPieces,
+  stackDetailLayout,
   stackDetailSegments,
   tableCellKinds as modelTableCellKinds,
   tableColumnFits as modelTableColumnFits,
@@ -364,6 +365,7 @@ describe("stack", () => {
       "font-weight": `${m.nameWeight}`,
     });
     expect(declarations(css, "[data-stack-role]")["font-size"]).toBe(`${m.roleFontSizePx}px`);
+    expect(declarations(css, "[data-stack-code]")["font-size"]).toBe(`${m.codeSpanFontSizePx}px`);
     expect(declarations(css, "[data-stack-box]")).toMatchObject({
       padding: `${m.boxPadYPx}px ${m.boxPadXPx}px`,
       border: expect.stringMatching(new RegExp(`^${m.boxBorderPx}px solid `)),
@@ -387,13 +389,20 @@ describe("stack", () => {
     "metrics.ts · columns.ts",
     "Owns the lane widths · reads the theme",
     "one segment only",
+    "`startMcp` runs `ensureDaemon` · forwards calls",
+    "`node:fs/promises` calls on the checked path",
+    "src/rules/index.ts · rulesFrom · also imports profile types",
+    "`packages/docs-viewer`, `DocsClientProvider` · `DocBlockRenderer`",
+    "Write resolvers, then `checkDocsPath`",
+    "`packages/docs-viewer/src/client.tsx` · `DocBlockRenderer` · `DocPeekPanel`",
   ])("the model reads %p as path or prose exactly as the stack renders it", (detail) => {
     const { container } = render(createElement(StackBlock, { nodes: [{ name: "Leaf", detail }], boundaries: [] }));
     const rendered = container.querySelector("[data-stack-detail]")!;
-    const path = modelChipKind(detail) === "path";
+    const path = modelChipKind(detail.replace(/`/g, "")) === "path";
     expect(rendered.hasAttribute("data-mono")).toBe(path);
     if (path) {
-      expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => line.textContent)).toEqual(stackDetailSegments(detail));
+      expect([...rendered.querySelectorAll("[data-stack-detail-line]")].map((line) => ({ text: line.textContent, path: !line.hasAttribute("data-prose") })))
+        .toEqual(stackDetailLayout(detail).map(({ text, path }) => ({ text, path })));
     } else {
       expect(rendered.textContent).toBe(stackDetailSegments(detail).join(m.proseDetailJoiner));
     }
