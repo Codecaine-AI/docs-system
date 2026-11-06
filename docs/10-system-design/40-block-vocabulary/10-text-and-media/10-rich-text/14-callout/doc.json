@@ -40,6 +40,7 @@
         "b-15-callout-proj-7",
         "b-15-callout-agent-h-12",
         "b-15-callout-agent-0-length",
+        "b-15-callout-agent-title",
         "b-15-callout-agent-0-decision-pattern",
         "b-15-callout-agent-1-13",
         "b-15-callout-agent-2-14",
@@ -375,7 +376,7 @@
           }
         },
         {
-          "insert": " aliasing, any block whose type is a string but not one of the canonical block types coerces to a callout, preserving the old type name as "
+          "insert": " aliasing, a block of an unknown type coerces to a callout and keeps its old type name in "
         },
         {
           "insert": "props.kind",
@@ -384,7 +385,7 @@
           }
         },
         {
-          "insert": " (unless the block already carries its own non-empty "
+          "insert": ", unless it has a "
         },
         {
           "insert": "kind",
@@ -393,7 +394,7 @@
           }
         },
         {
-          "insert": "). Props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all."
+          "insert": ". Props, text, and children carry over unchanged, and the next save writes the coerced form."
         }
       ],
       "children": []
@@ -609,7 +610,21 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep the body to one or two sentences, the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section ("
+          "insert": "Keep the body to one or two sentences, the labeled fact itself."
+        }
+      ],
+      "children": [
+        "b-15-callout-agent-0-length-r0",
+        "b-15-callout-agent-0-length-r1"
+      ]
+    },
+    "b-15-callout-agent-0-length-r0": {
+      "id": "b-15-callout-agent-0-length-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mechanics, rationale, history, and examples go in a section after the callout, under a "
         },
         {
           "insert": "heading",
@@ -618,7 +633,54 @@
           }
         },
         {
-          "insert": " level 2 or 3 plus paragraphs) placed after the callout; a callout that scrolls is a section wearing a border."
+          "insert": " of level 2 or 3."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-0-length-r1": {
+      "id": "b-15-callout-agent-0-length-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A callout that scrolls is a section wearing a border."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-title": {
+      "id": "b-15-callout-agent-title",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give a title only when it names a fact that the body does not state."
+        }
+      ],
+      "children": [
+        "b-15-callout-agent-title-r0",
+        "b-15-callout-agent-title-r1"
+      ]
+    },
+    "b-15-callout-agent-title-r0": {
+      "id": "b-15-callout-agent-title-r0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The printed label already says the tone, so a title never opens with it, as in \"Decided:\"."
+        }
+      ],
+      "children": []
+    },
+    "b-15-callout-agent-title-r1": {
+      "id": "b-15-callout-agent-title-r1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave the title out when it would repeat the body's first sentence."
         }
       ],
       "children": []

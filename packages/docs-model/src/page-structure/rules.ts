@@ -11,6 +11,8 @@ import { headingTitleCaseRule } from "./heading-title-case";
 import { labelColonOpenerRule } from "./label-colon-opener";
 import { loneLabelParentRule } from "./lone-label-parent";
 import { splitOrderedListRule } from "./split-ordered-list";
+import { calloutFocusRule } from "./callout-focus";
+import { sequenceBulletsRule } from "./sequence-bullets";
 export const pageStructureRules: LintRule[] = [
   openingParagraphRule,
   titleHeadingRule,
@@ -24,4 +26,6 @@ export const pageStructureRules: LintRule[] = [
   labelColonOpenerRule,
   loneLabelParentRule,
   splitOrderedListRule,
+  calloutFocusRule,
+  sequenceBulletsRule,
 ];

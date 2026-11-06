@@ -1331,6 +1331,27 @@
           "insert": "structure.split-ordered-list flags a block between two numbered steps, such as a code block after step 4. The next step would render as \"1.\", so the block moves into the children of the step above it."
         }
       ],
+      "children": [
+        "structure-sequence-bullets-lint"
+      ]
+    },
+    "structure-sequence-bullets-lint": {
+      "id": "structure-sequence-bullets-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.sequence-bullets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a bullet run whose later item opens with an order word, such as \"Then read\" after \"Start with\". The run becomes a numbered list. docs_check fails until the task fixes it."
+        }
+      ],
       "children": []
     },
     "component-lints": {
@@ -1349,6 +1370,7 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "structure-callout-focus-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1454,6 +1476,25 @@
       "text": [
         {
           "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "structure-callout-focus-lint": {
+      "id": "structure-callout-focus-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "structure.callout-focus",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a callout title that opens with its tone word, such as \"Decided:\" under the Decision label, and a title whose topic words mostly repeat the body's first sentence. It also flags a callout body of more than 2 sentences. docs_check fails until the task fixes it."
         }
       ],
       "children": []
