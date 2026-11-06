@@ -241,8 +241,10 @@ describe("structured table", () => {
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("**:whitespace-nowrap");
     expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:**:whitespace-nowrap");
     // An identifier cell zeroes the chip: no padding, the cell's own size.
-    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:[--docs-inline-code-pad-x:0]");
-    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("data-[cell-kind]:[--docs-inline-code-text-size:1]");
+    // Inline code in every cell is unpadded mono at the identifier size (table-fit.ts SCREEN_CODE).
+    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain("[--docs-inline-code-pad-x:0]");
+    expect(TABLE_BODY_CELL_TEXT_CLASSES).toContain(`[&_code]:text-[length:calc(var(--docs-table-font-size,${m.fontSizePx}px)-${m.fontSizePx - m.identifierFontSizePx}px)]`);
+    expect(TABLE_HEADER_CELL_TEXT_CLASSES).toContain("[--docs-inline-code-pad-x:0]");
   });
 
   test("an inline code chip's size, padding and border equal INLINE_MARK_METRICS", () => {

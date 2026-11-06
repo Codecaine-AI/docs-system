@@ -109,13 +109,11 @@ describe("layout.table-fit on screen", () => {
     expect(check(document(block))[0]!.message).toContain("scrolls sideways on screen");
   });
 
-  test("a code span over 40 characters breaks only between its pieces, each padded on both sides", () => {
+  test("a code span over 40 characters breaks only between its pieces, in unpadded mono at the identifier size", () => {
     const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src/components"), { insert: " for the reader." }]]]);
     const { columns } = structuredTableWidths(block, 688)!;
-    const chip = 13.5 * 0.85;
-    // The chip breaks at the <wbr> after its first piece, so that piece carries a third padding (Chromium's min-content).
     expect(columns[1]!.widest.measured.text).toBe("packagesrootfolder/");
-    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(chip)) + 3 * chip * 0.35, 6);
+    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(13)), 6);
   });
 
   test("a code span of up to 40 characters never breaks, not even at a space", () => {

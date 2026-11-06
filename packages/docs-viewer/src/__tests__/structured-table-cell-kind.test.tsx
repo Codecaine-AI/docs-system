@@ -146,10 +146,9 @@ describe("identifier cells on both surfaces", () => {
       for (const header of Array.from(container.querySelectorAll("thead th"))) {
         expect(header.hasAttribute("data-cell-kind")).toBe(false);
       }
-      // The chip vars are zeroed on identifier cells, so a whole-cell code
-      // span reads as plain mono rather than a chip.
+      // The chip vars are zeroed on every cell, so code reads as plain mono rather than a chip.
       const mono = container.querySelector('tbody td[data-cell-kind="mono"]')!;
-      expect(mono.className).toContain("data-[cell-kind]:[--docs-inline-code-bg:transparent]");
+      expect(mono.className).toContain("[--docs-inline-code-bg:transparent]");
       // The typed-chip color lives on the code element, so it is reset there.
       expect(mono.className).toContain("data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor]");
       expect(mono.className).toContain("data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)]");

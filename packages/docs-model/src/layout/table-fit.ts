@@ -89,20 +89,17 @@ const m = TABLE_METRICS;
 const CELL_CHROME_PX = 2 * m.cellPadXPx + m.columnRulePx;
 const FRAME_PX = 2 * m.borderPx;
 
-function chipOn(sizePx: number, identifier: boolean): InlineContext["chip"] {
-  if (identifier) return { sizePx, padXPx: 0 };
-  const chipSize = sizePx * INLINE_MARK_METRICS.codeTextEm;
-  return { sizePx: chipSize, padXPx: chipSize * INLINE_MARK_METRICS.codePadXEm };
-}
+/** On screen, inline code in any cell is plain mono at the identifier size, with no chip padding (viewer TABLE_CELL_CODE_CLASSES). */
+const SCREEN_CODE: InlineContext["chip"] = { sizePx: m.identifierFontSizePx, padXPx: 0 };
 
 /** How a cell paints on screen: its font, its chips, and whether it wraps. */
 function screenContext(row: TableCellRow, kind: TableCellKind | undefined, fit: TableColumnFit): InlineContext {
   const whole = { wholeChipMaxChars: m.wholeChipMaxChars };
   if (row === "header") {
-    return { ...whole, font: sansFont(m.headerFontSizePx, m.headerWeight), chip: chipOn(m.headerFontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+    return { ...whole, font: sansFont(m.headerFontSizePx, m.headerWeight), chip: SCREEN_CODE, wrap: fit === "fit" ? "nowrap" : "normal" };
   }
-  if (kind) return { ...whole, font: codeFont(m.identifierFontSizePx), chip: chipOn(m.identifierFontSizePx, true), wrap: "nowrap" };
-  return { ...whole, font: sansFont(m.fontSizePx, m.bodyWeight), chip: chipOn(m.fontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+  if (kind) return { ...whole, font: codeFont(m.identifierFontSizePx), chip: SCREEN_CODE, wrap: "nowrap" };
+  return { ...whole, font: sansFont(m.fontSizePx, m.bodyWeight), chip: SCREEN_CODE, wrap: fit === "fit" ? "nowrap" : "normal" };
 }
 
 /** How a cell paints in PDF export: print CSS wraps cells anywhere and sets code to 9pt. */
