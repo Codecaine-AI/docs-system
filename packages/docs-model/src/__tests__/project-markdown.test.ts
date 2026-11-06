@@ -114,6 +114,8 @@ describe("projectToMarkdown — the sample fixture", () => {
         "```\n" +
         "[action] file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree\n" +
         "  path: string  # /-separated path\n" +
+        "  note?: string\n" +
+        "  change?: string\n" +
         "[action] file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath\n" +
         "[action] file-tree.removeEntry(path: string)\n" +
         "```",

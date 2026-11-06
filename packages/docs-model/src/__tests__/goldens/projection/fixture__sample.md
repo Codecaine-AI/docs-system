@@ -49,6 +49,8 @@ Stable ids are a system invariant.
 ```
 [action] file-tree.addEntry(path: string, note?: string, change?: string) -> props patch  # Append a path entry to the tree
   path: string  # /-separated path
+  note?: string
+  change?: string
 [action] file-tree.updateEntry(path: string, newPath?: string) -> props patch  # Patch note/change/from, or rename via newPath
 [action] file-tree.removeEntry(path: string)
 ```

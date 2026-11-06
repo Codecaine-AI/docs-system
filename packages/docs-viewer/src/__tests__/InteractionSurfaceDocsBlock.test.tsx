@@ -234,6 +234,8 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(signatureTail({ name: "a.b" })).toBe("()");
     expect(signatureTail({ name: "a.b", returns: "R" })).toBe("() → R");
     expect(signatureTail({ name: "a.b", params: [{ name: "x", type: "string" }, { name: "y", required: false }], returns: "R" })).toBe("(…) → R");
+    // A call-form name already shows its arguments: the tail is the return type alone.
+    expect(signatureTail({ name: 'reduce(state, { type: "open" })', params: [{ name: "state" }], returns: "S" })).toBe(" → S");
   });
 
   it("gives every param a shared ledger row with its type, the description as a name tooltip", () => {

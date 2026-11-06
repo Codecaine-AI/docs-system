@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { Plug, Radio, Search, Zap, type LucideIcon } from "lucide-react";
-import type { Field } from "@codecaine-ai/docs-model";
+import { isCallFormName, type Field } from "@codecaine-ai/docs-model";
 import { CodeLines, LinkGroup, type LinkedCodeLine } from "../linked-panels";
 import { DescribedName } from "../described-name";
 import { monoBreaks } from "../mono-breaks";
@@ -76,6 +76,8 @@ function PunctToken({ text }: { text: string }) { return <span data-sig-token="p
  * The wrapper's text is the real dotted name, unchanged.
  */
 function QualifiedName({ name }: { name: string }) {
+  // A call-form name (`reducer(state, { type: "open" })`) colors like the example call.
+  if (isCallFormName(name)) return <span data-sig-token="name">{tokenizeExampleCall(name).flatMap(({ tokens }) => tokens).map((token, index) => token.kind === "space" ? token.text : <span key={index} data-sig-token={token.kind}>{token.text}</span>)}</span>;
   const dot = name.lastIndexOf(".");
   if (dot <= 0 || dot === name.length - 1) return <span data-sig-token="name">{name}</span>;
   const receiver = name.slice(0, dot).split(".");
@@ -124,11 +126,13 @@ const ELIDED_PARAMS = "…";
 
 /**
  * The collapsed line's signature tail: params elided to `(…)` (`()` when the
- * operation takes none), then the return type. The full signature is the
- * expanded pane's job.
+ * operation takes none), then the return type. A call-form name already shows
+ * its arguments, so its tail is the return type alone. The full signature is
+ * the expanded pane's job.
  */
 export function signatureTail(operation: InteractionSurfaceOperation): string {
-  return `(${operation.params?.length ? ELIDED_PARAMS : ""})${operation.returns ? ` ${RETURNS_ARROW} ${operation.returns}` : ""}`;
+  const params = isCallFormName(operation.name) ? "" : `(${operation.params?.length ? ELIDED_PARAMS : ""})`;
+  return `${params}${operation.returns ? ` ${RETURNS_ARROW} ${operation.returns}` : ""}`;
 }
 
 /**
@@ -138,7 +142,7 @@ export function signatureTail(operation: InteractionSurfaceOperation): string {
  */
 function SignatureTailTokens({ operation }: { operation: InteractionSurfaceOperation }) {
   return <span data-operation-tail="true">
-    <span data-operation-params="true"><PunctToken text="(" />{operation.params?.length ? <span data-sig-token="elided">{ELIDED_PARAMS}</span> : null}<PunctToken text=")" /></span>
+    {!isCallFormName(operation.name) && <span data-operation-params="true"><PunctToken text="(" />{operation.params?.length ? <span data-sig-token="elided">{ELIDED_PARAMS}</span> : null}<PunctToken text=")" /></span>}
     {operation.returns && <span data-sig-token="returns" data-operation-returns="true"> {RETURNS_ARROW} <TypeToken text={operation.returns} /></span>}
   </span>;
 }
