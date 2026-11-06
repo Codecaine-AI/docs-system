@@ -38,12 +38,14 @@ export const provenanceOf = (b: RoundBrief): PageProvenance => ({ briefId: b.id,
 /** A lane round's page folder: .tmp/quality-climb/lanes/<lane>/round-<n>/<set>/<NN>-<slug>. */
 const LANE_PAGE = /(?:^|\/)\.tmp\/quality-climb\/lanes\/[^/]+\/round-[^/]+\/(climb|held-out)\/(\d+)-([^/]+)\/?$/;
 
-/** The provenance a page folder recorded, or null when it recorded none (or a page.json without a boolean local). */
+/** The provenance a page folder recorded, or null when it recorded none, or a page.json that is unparsable or incomplete. */
 export function readProvenance(pageDir: string): PageProvenance | null {
   const file = join(pageDir, PROVENANCE_FILE);
   if (existsSync(file)) {
-    const p = JSON.parse(readFileSync(file, "utf8")) as Partial<PageProvenance>;
-    const ok = typeof p.local === "boolean" && typeof p.briefId === "number" && typeof p.slug === "string" && (SETS as readonly string[]).includes(p.set as string);
+    // A page.json that does not parse, or parses to null, records nothing, so the page is refused, even in a lane.
+    let p: Partial<PageProvenance> | null;
+    try { p = JSON.parse(readFileSync(file, "utf8")) as Partial<PageProvenance> | null; } catch { return null; }
+    const ok = !!p && typeof p.local === "boolean" && typeof p.briefId === "number" && typeof p.slug === "string" && (SETS as readonly string[]).includes(p.set as string);
     return ok ? (p as PageProvenance) : null;
   }
   // Lane rounds written before page.json existed have none. A lane's briefs come only from

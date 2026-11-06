@@ -71,3 +71,13 @@ test("a lane round page with no page.json counts as public, and a whole-page rou
   expect(readProvenance(lanePage)).toEqual({ briefId: 3, slug: "api", set: "climb", local: false });
   expect(readProvenance(roundPage)).toBeNull();
 });
+
+test("a page.json that does not parse, or parses to null, records nothing, even in a lane round", async () => {
+  const root = await mkdtemp(join(tmpdir(), "qc-provenance-bad-"));
+  const lanePage = join(root, ".tmp/quality-climb/lanes/state-shape/round-2/climb/03-api");
+  await mkdir(lanePage, { recursive: true });
+  await writeFile(join(lanePage, "page.json"), '{"briefId": 3, "slug": "ap');
+  expect(readProvenance(lanePage)).toBeNull();
+  await writeFile(join(lanePage, "page.json"), "null");
+  expect(readProvenance(lanePage)).toBeNull();
+});
