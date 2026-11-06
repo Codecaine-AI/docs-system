@@ -172,7 +172,7 @@ describe("ProcessOutlineDocsBlock", () => {
     const css = document.querySelector("#docs-process-outline-style")?.textContent ?? "";
 
     expect(css).toMatch(
-      /\.docs-process-outline__node--depth-one:has\(> \.docs-process-outline__children\)>\.docs-process-outline__line \{ color:var\(--po-title\); font-weight:var\(--docs-process-outline-branch-weight, 600\); \}/,
+      /\.docs-process-outline__node--depth-one:has\(> \.docs-process-outline__children\)>\.docs-process-outline__line \{ color:var\(--po-title\); font-weight:var\(--docs-process-outline-branch-weight, 700\); \}/,
     );
     expect(css).toContain("--po-branch-gap: var(--docs-process-outline-branch-gap, 16px);");
     // Phases with substeps take the branch gap between them.

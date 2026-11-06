@@ -108,7 +108,7 @@ const PROCESS_OUTLINE_CSS = `
 .docs-process-outline__node>.docs-process-outline__line { font-weight:var(--docs-process-outline-step-weight, 400); }
 /* a phase (first level, with substeps) reads in ink at the branch weight, so each phase group starts strong;
    depth below that reads from indent only */
-.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 600); }
+.docs-process-outline__node--depth-one:has(> .docs-process-outline__children)>.docs-process-outline__line { color:var(--po-title); font-weight:var(--docs-process-outline-branch-weight, 700); }
 .docs-process-outline__node--deep>.docs-process-outline__line { color:var(--docs-process-outline-deep-ink, #2a2a2a); }
 /* a nested group (a step below the phases with at least one step child; notes alone do not make a group) reads at the
    group weight, between a phase and a leaf */

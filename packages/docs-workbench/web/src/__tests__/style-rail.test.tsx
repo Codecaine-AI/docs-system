@@ -3948,7 +3948,7 @@ describe("style rail process-outline tokens", () => {
   /** Weights and unitless percentage strengths: key -> [var suffix, min, max, step, default]. */
   const NUMBERS: Record<string, [string, number, number, number, number]> = {
     rootWeight: ["root-weight", 300, 900, 50, 600],
-    branchWeight: ["branch-weight", 300, 900, 50, 600],
+    branchWeight: ["branch-weight", 300, 900, 50, 700],
     groupWeight: ["group-weight", 300, 900, 50, 500],
     stepWeight: ["step-weight", 300, 900, 50, 400],
     keywordWeight: ["keyword-weight", 300, 900, 50, 500],

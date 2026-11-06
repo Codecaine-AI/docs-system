@@ -2308,7 +2308,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The root title and each phase, a first-level step with substeps, render in ink at weight 600. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400."
+          "insert": "The root title renders in ink at weight 600, and each phase, a first-level step with substeps, at weight 700. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400."
         }
       ],
       "children": []

@@ -333,7 +333,7 @@ process-outline.moveStep(from: number[], to: number[]) -> ProcessOutlinePatch  #
 
 - Hierarchy by weight
 
-  - The root title and each phase, a first-level step with substeps, render in ink at weight 600. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400.
+  - The root title renders in ink at weight 600, and each phase, a first-level step with substeps, at weight 700. A deeper step with its own substeps renders at weight 500, and a leaf step at weight 400.
 
   - A loop opener (`Repeat`, `While`, `For each`) or a branch opener (`If`, `When`, `Otherwise`, `Unless`, `On failure`) at the start of a step renders as a keyword in any case. So does `until` inside a `Repeat` step.
 
