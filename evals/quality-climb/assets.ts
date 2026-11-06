@@ -22,6 +22,17 @@ export const assetName = (b: RoundBrief) => `${String(b.id).padStart(2, "0")}-${
 /** The briefs of `set` whose renders may be published: never a local brief. */
 export const publishable = (briefs: RoundBrief[], set: string) => briefs.filter((b) => b.set === set && !b.local);
 
+/**
+ * A compare.ts manifest without the pages of local briefs, as `publishable` does for a round. A page folder is
+ * <NN>-<slug>, so a page whose slug is a local brief's is dropped, and so is the full-page image made from it.
+ */
+export function publishableCompare(m: CompareManifest, briefs: RoundBrief[]): CompareManifest {
+  const local = new Set(briefs.filter((b) => b.local).map((b) => b.slug));
+  const pages = m.pages.filter((p) => !local.has(p.page.replace(/^\d+-/, "")));
+  const full = m.full && pages.some((p) => m.full === `full-${p.image}`) ? m.full : null;
+  return { ...m, pages, full };
+}
+
 /** The asset branch folder of one compare.ts run. */
 export const compareFolder = (m: CompareManifest) => `lanes/${m.lane}/${m.after}-vs-${m.before}`.replace(/[^\w./-]+/g, "-");
 
@@ -64,8 +75,10 @@ if (import.meta.main) {
   const { values: opt } = parseArgs({ options: { round: { type: "string" }, set: { type: "string", default: "climb" }, compare: { type: "string" } } });
   if (opt.compare) {
     const dir = resolve(opt.compare);
-    const manifest = JSON.parse(await readFile(join(dir, "compare.json"), "utf8")) as CompareManifest;
-    if (manifest.set !== "climb") throw new Error(`${dir}/compare.json is not a climb-set comparison, so it is not published.`);
+    const all = JSON.parse(await readFile(join(dir, "compare.json"), "utf8")) as CompareManifest;
+    if (all.set !== "climb") throw new Error(`${dir}/compare.json is not a climb-set comparison, so it is not published.`);
+    const manifest = publishableCompare(all, loadBriefs());
+    if (manifest.pages.length < all.pages.length) console.error(`Skipped ${all.pages.length - manifest.pages.length} local brief page(s).`);
     const folder = compareFolder(manifest);
     const images = [...manifest.pages.map((p) => p.image), ...(manifest.full ? [manifest.full] : [])];
     const commit = await pushAssets(images.map((image) => ({ from: join(dir, image), to: `${folder}/${image}` })), `Lane ${manifest.lane} side-by-side images, ${manifest.after} against ${manifest.before}`);

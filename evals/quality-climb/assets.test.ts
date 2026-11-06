@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { compareFolder, compareSection } from "./assets";
+import { compareFolder, compareSection, publishableCompare } from "./assets";
+import type { RoundBrief } from "./briefs";
 import type { CompareManifest } from "./compare";
 
 const manifest: CompareManifest = {
@@ -9,6 +10,15 @@ const manifest: CompareManifest = {
 
 test("a compare run publishes under its lane and both round labels, with no unsafe path characters", () => {
   expect(compareFolder(manifest)).toBe("lanes/state-shape/round-2-vs-round-1");
+});
+
+test("a compare run never publishes a local brief's page, nor the full-page image made from it", () => {
+  const brief = { id: 1, slug: "doc", set: "climb" } as RoundBrief;
+  expect(publishableCompare(manifest, [brief])).toEqual(manifest);
+  const kept = publishableCompare(manifest, [{ ...brief, local: true }]);
+  expect(kept.pages.map((p) => p.page)).toEqual(["03-api"]);
+  expect(kept.full).toBeNull();
+  expect(compareSection(kept, "https://raw.example/x")).not.toContain("01-doc");
 });
 
 test("the PR section embeds every page pair and the full-page pair from the folder URL", () => {
