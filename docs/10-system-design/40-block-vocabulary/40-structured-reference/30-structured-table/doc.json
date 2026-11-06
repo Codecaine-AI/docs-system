@@ -292,6 +292,7 @@
         "b-st-writing-cells-1",
         "b-st-writing-cells-2",
         "b-st-writing-cells-3",
+        "b-st-writing-cells-5",
         "b-st-writing-cells-4"
       ]
     },
@@ -323,7 +324,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a cell that does not apply as None in plain text, the same way in every row."
+          "insert": "Write a cell that does not apply as None in plain text, and give None one meaning in a column."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-cells-5": {
+      "id": "b-st-writing-cells-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When a value is missing for a reason, write the reason, such as Required or Every brief, not None."
         }
       ],
       "children": []
