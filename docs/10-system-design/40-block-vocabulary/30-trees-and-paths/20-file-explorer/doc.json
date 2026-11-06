@@ -208,7 +208,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Leave an unchanged file out of an explorer of changed files, and name it in the prose instead, because its row contradicts the title."
+          "insert": "Add an unchanged file only when the prose names it, and give it a note that says why it is there."
         }
       ],
       "children": []
@@ -219,7 +219,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When the explorer shows part of a folder, title it for that part, such as \"Key files in src/background\", and say in the lead how many files it leaves out."
+          "insert": "Say in the lead that the explorer leaves the other files of the folder out."
         }
       ],
       "children": []
@@ -230,7 +230,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When the source names a changed folder and none of its files, list the folder with its change and a note on what changed in it."
+          "insert": "Mark the changed files in a folder, not the folder alone, because a folder row with no files under it shows no changed file."
         }
       ],
       "children": []
