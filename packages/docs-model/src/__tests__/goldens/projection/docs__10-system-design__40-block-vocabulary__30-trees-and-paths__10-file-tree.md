@@ -14,7 +14,7 @@ A file tree tells the reader where each file lives and what it holds. Three rule
 
   - Root the tree at the folder the brief names. Both renders draw a chain of single-child folders as one row, such as `packages/docs-style/src/rules/`, so long entry paths cost no rows.
 
-  - When the brief asks for a whole folder, show every file in it that the sources name, such as a data file that a loader reads. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
+  - Show each file the brief asks about inside its folder. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
 
   - Leave out branches that the brief does not ask for. When the tree shows only part of a folder, say so in the sentence before it.
 
@@ -22,13 +22,9 @@ A file tree tells the reader where each file lives and what it holds. Three rule
 
   - A note says what a file holds or does that its name does not. A note that repeats the name, such as `moveNode` on `move-node.ts`, tells the reader nothing.
 
-  - Give a note to each row that the brief asks about, folders included, and to its siblings. A folder note says what belongs in the folder.
+  - Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case.
 
-  - Never point by position, such as "the files below" or "15th". The tree sorts folders first and then names, so give an order in a sentence after the tree.
-
-  - Keep each note to one line of about 10 words. A note is a label, not a paragraph.
-
-  - Put each file name, path or identifier in a note between backticks, such as ``loadBriefs``. The panel draws it in the code font.
+  - Never point by position, such as "the files below". Folders sort first and then names, so a file can land above or below the files it names.
 
 - Colors
 
@@ -182,7 +178,7 @@ Every `apply` is pure: entries go in, a props patch `{ entries }` comes out, and
 
 - Notes
 
-  - `note` renders in one aligned, muted sans column after the names, and a run between backticks draws in the code font. A note runs to the panel's right edge, wraps only past it, and is never truncated.
+  - `note` renders in one aligned, muted sans column after the names. Each note wraps inside a 60ch cap of its 13.5px face, 506.25px in Inter including its 24px left padding, and is never truncated.
 
 - In the editor
 
