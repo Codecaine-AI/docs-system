@@ -20,7 +20,7 @@ import { appendFile, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { $ } from "bun";
-import { PROVENANCE_FILE, loadBriefs, provenanceOf, type RoundBrief } from "./briefs";
+import { PROVENANCE_FILE, loadBriefs, pageProvenance, type RoundBrief } from "./briefs";
 import {
   STAGES, added, builderReport, costGuard, evaluateGate, evaluateLaneGate, laneBuilderReport, lintGuard, parseTestLog, parseTypeErrors, testsGuard,
   type FailureSets, type LanePageScore, type LaneScores, type PageScore, type Stage, type WriterCost,
@@ -137,8 +137,8 @@ async function judged<T>(b: Brief, cached: (judge: string, sample: number) => Pr
 async function runBrief(b: RoundBrief) {
   const page = pageDir(opt.round!, b);
   await mkdir(page, { recursive: true });
-  // assets.ts publishes a page only when this file says it is not a local brief's.
-  await writeFile(join(page, PROVENANCE_FILE), JSON.stringify(provenanceOf(b), null, 2));
+  // assets.ts publishes a page only when this file says it is not a local brief's. A frozen copy keeps its source's.
+  await writeFile(join(page, PROVENANCE_FILE), JSON.stringify(pageProvenance(b, frozenFrom ? join(frozenFrom, pageName(b)) : undefined), null, 2));
   if (!existsSync(join(page, "metrics.json"))) {
     if (frozenFrom) { log(`${name(b)}: copying the frozen page`); await copyWrittenPage(b, join(frozenFrom, pageName(b)), page, systemRoot); }
     else { log(`${name(b)}: writing`); await writePage(b, page, stateDir, settings, systemRoot); }

@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { compareFolder, compareSection, publishableCompare, publishableRound } from "./assets";
-import { loadBriefs, readProvenance, type PageProvenance, type RoundBrief } from "./briefs";
+import { loadBriefs, pageProvenance, readProvenance, type PageProvenance, type RoundBrief } from "./briefs";
 import type { CompareManifest } from "./compare";
 
 const recorded = (briefId: number, slug: string, local = false): { before: PageProvenance; after: PageProvenance } => {
@@ -70,6 +70,19 @@ test("a lane round page with no page.json counts as public, and a whole-page rou
   await Promise.all([mkdir(lanePage, { recursive: true }), mkdir(roundPage, { recursive: true })]);
   expect(readProvenance(lanePage)).toEqual({ briefId: 3, slug: "api", set: "climb", local: false });
   expect(readProvenance(roundPage)).toBeNull();
+});
+
+test("a frozen copy keeps its source page's local provenance, though the lane brief it is copied for is public", async () => {
+  const root = await mkdtemp(join(tmpdir(), "qc-provenance-frozen-"));
+  const source = join(root, ".tmp/quality-climb/round-9/climb/100-docs-mcp-daily-use");
+  await mkdir(source, { recursive: true });
+  await writeFile(join(source, "page.json"), JSON.stringify({ briefId: 100, slug: "docs-mcp-daily-use", set: "climb", local: true }));
+  const laneBrief = { id: 100, slug: "docs-mcp-daily-use", set: "climb", local: false } as unknown as RoundBrief;
+  expect(pageProvenance(laneBrief, source).local).toBe(true);
+  expect(pageProvenance(laneBrief).local).toBe(false);
+  const bare = join(root, ".tmp/quality-climb/round-9/climb/101-bare");
+  await mkdir(bare, { recursive: true });
+  expect(() => pageProvenance(laneBrief, bare)).toThrow("has no recorded provenance");
 });
 
 test("a page.json that does not parse, or parses to null, records nothing, even in a lane round", async () => {

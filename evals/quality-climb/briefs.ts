@@ -35,6 +35,19 @@ export const PROVENANCE_FILE = "page.json";
 
 export const provenanceOf = (b: RoundBrief): PageProvenance => ({ briefId: b.id, slug: b.slug, set: b.set, local: b.local === true });
 
+/**
+ * The provenance a round records for brief `b`'s page. A page copied with --frozen-from keeps its source page's
+ * provenance: a local whole-page brief can share its id and slug with a lane brief, so the current brief alone would
+ * record the copy as public. A source page with no recorded provenance is refused.
+ */
+export function pageProvenance(b: RoundBrief, frozenSource?: string): PageProvenance {
+  const own = provenanceOf(b);
+  if (!frozenSource) return own;
+  const source = readProvenance(frozenSource);
+  if (!source) throw new Error(`Frozen page ${frozenSource} has no recorded provenance, so its copy could not be published safely.`);
+  return { ...own, local: own.local || source.local };
+}
+
 /** A lane round's page folder: .tmp/quality-climb/lanes/<lane>/round-<n>/<set>/<NN>-<slug>. */
 const LANE_PAGE = /(?:^|\/)\.tmp\/quality-climb\/lanes\/[^/]+\/round-[^/]+\/(climb|held-out)\/(\d+)-([^/]+)\/?$/;
 
