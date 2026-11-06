@@ -306,7 +306,7 @@ export const media: Record<string, Record<string, ThemeTokenDefinition>> = {
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: dsNumber("font.weight.regular", ""),
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     fileFg: color("--docs-file-tree-file-fg"),
     fileWeight: {

@@ -5,6 +5,7 @@ import type { DocBlockRenderContext } from "../../../render/block-registry";
 import { TREE_ROWS_CSS } from "../../outline-rows/tree-rows";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { descriptors } from "../descriptor";
+import { FILE_TREE_CSS } from "../FileTreeDocsBlock";
 
 const RENDER_CTX: DocBlockRenderContext = {
   renderText: () => null,
@@ -167,5 +168,17 @@ describe("file tree notes", () => {
     expect(notes.map((note) => note.textContent)).toEqual(["Exports loadBriefs, read by round.ts", "No code here"]);
     expect(Array.from(notes[0]!.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["loadBriefs", "round.ts"]);
     expect(notes[1]!.querySelector("code")).toBeNull();
+  });
+});
+
+describe("file tree style rail settings", () => {
+  it("takes folder weight and guide color from the File tree rail settings, with semibold and muted ink as the defaults", () => {
+    renderTree([{ path: "src/a.ts" }]);
+    const panel = document.querySelector<HTMLElement>('.docs-tree[data-tree-kind="file-tree"]')!;
+    expect(panel.style.getPropertyValue("--tr-folder-weight")).toBe("var(--docs-file-tree-folder-weight,600)");
+    expect(panel.style.getPropertyValue("--tr-guide")).toBe("var(--docs-file-tree-guide-fg,var(--docs-muted,#666562))");
+    // The file-tree stylesheet sets neither one again, so a rail override reaches the rows.
+    expect(FILE_TREE_CSS).not.toMatch(/--tr-folder-weight\s*:/);
+    expect(FILE_TREE_CSS).not.toMatch(/--tr-guide\s*:/);
   });
 });

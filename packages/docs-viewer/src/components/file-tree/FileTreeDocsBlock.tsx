@@ -89,13 +89,13 @@ export const FILE_TREE_VARS = treeVars({
   "--tr-row": "var(--docs-file-tree-line-height,28px)",
   "--tr-ink": "var(--docs-file-tree-file-fg,var(--docs-ink,#1f1f1f))",
   "--tr-folder-fg": "var(--docs-file-tree-folder-fg,var(--docs-ink,#1f1f1f))",
-  "--tr-folder-weight": "var(--docs-file-tree-folder-weight,400)",
+  "--tr-folder-weight": "var(--docs-file-tree-folder-weight,600)",
   "--tr-file-fg": "var(--docs-file-tree-file-fg,var(--docs-ink,#1f1f1f))",
   "--tr-file-weight": "var(--docs-file-tree-file-weight,400)",
   "--tr-group-weight": "var(--docs-file-tree-group-weight,600)",
   "--tr-note-fg": "var(--docs-file-tree-note-fg,var(--docs-muted,#666562))",
   "--tr-note-size": "var(--docs-file-tree-note-text-size,13.5px)",
-  "--tr-guide": "var(--docs-file-tree-guide-fg,var(--docs-guide,color-mix(in srgb,#9b9a97 45%,#e6e5e3)))",
+  "--tr-guide": "var(--docs-file-tree-guide-fg,var(--docs-muted,#666562))",
   "--tr-muted": "var(--docs-file-tree-muted-fg,var(--docs-muted,#666562))",
   "--tr-added-name": "var(--docs-file-tree-added-fg,var(--docs-diff-add,#26744f))",
   "--tr-added-fg": "var(--docs-file-tree-added-marker,var(--docs-diff-add,#26744f))",
@@ -116,22 +116,15 @@ export const FILE_TREE_VARS = treeVars({
 });
 
 /**
- * File-tree-only look on top of the shared rows (the file explorer keeps its
- * own): folders draw semibold, as `tree -C` bolds directories, so a folder
- * reads as one before its trailing "/"; and the guides take the muted text
- * ink instead of the softer shared guide, so each row traces to its parent on
- * the dark code panel. A colored group's own guide color still wins on its rows.
- * A note is a one-line label, so it runs to the panel's right edge instead of
- * wrapping at the shared 60ch prose measure; only a note longer than the
- * panel wraps. A `code` span in a note draws in the code font at the note's
- * own muted ink and never breaks, so identifiers and paths stand apart from
- * the note's words without outranking the file names.
+ * File-tree-only rules on top of the shared rows. A note is a one-line label, so it runs to the panel's right edge
+ * instead of wrapping at the shared 60ch prose measure; only a note longer
+ * than the panel wraps. A `code` span in a note draws in the code font at the
+ * note's own muted ink and never breaks, so identifiers and paths stand apart
+ * from the note's words without outranking the file names. Semibold folders
+ * and muted-ink guides are the File tree knobs' defaults (FILE_TREE_VARS), so
+ * the style rail still sets them.
  */
 export const FILE_TREE_CSS = `
-.docs-tree[data-tree-kind="file-tree"] > .docs-tree__rows {
-  --tr-folder-weight: var(--ds-font-weight-semibold);
-  --tr-guide: var(--docs-muted, #666562);
-}
 .docs-tree[data-tree-kind="file-tree"] .docs-tree__note { max-width: none; }
 .docs-tree__note-code {
   font-family: var(--tr-mono); font-size: 0.92em;
