@@ -69,6 +69,29 @@ describe("pseudocode block", () => {
     expect(row.html).toContain('<span class="hljs-title function_">row</span>');
   });
 
+  it("leaves plain-English words, file names and range ends uncolored", () => {
+    const rows = renderPseudocode([
+      'if path starts with "docs/", in any case and not empty -> stop',
+      "add the text from word to end, then set done",
+      "write metrics.failed.json",
+      "push cell[cursor..index]",
+      'path = path with every "\\" replaced by "/" // backslash',
+    ].join("\n"));
+    const colored = (html: string) => [...html.matchAll(/<span class="hljs-([\w -]+)">([^<]*)<\/span>/g)].filter((m) => !m[1]!.includes("comment")).map((m) => m[2]);
+    expect(colored(rows[0]!.html)).toEqual(["if", '"docs/"', "-&gt;", "stop"]);
+    expect(colored(rows[1]!.html)).toEqual(["then"]);
+    expect(colored(rows[2]!.html)).toEqual([]);
+    expect(colored(rows[3]!.html)).toEqual([]);
+    // "\" is a whole string, so the text after it stays plain and the comment still splits off.
+    expect(colored(rows[4]!.html)).toEqual(['"\\"', '"/"']);
+    expect(rows[4]!.comment).toBe("// backslash");
+  });
+
+  it("colors a method call as a call, not as a property", () => {
+    const [row] = renderPseudocode("event = JSON.parse(line)");
+    expect(row!.html).toContain('JSON.<span class="hljs-title function_">parse</span>(line)');
+  });
+
   it("reads the leading +/-/space column as diff marks only with diff on", () => {
     const code = [" keep()", "-old()", "+new()"].join("\n");
     expect(renderPseudocode(code, { diff: true }).map((row) => [row.diff, row.code])).toEqual([
