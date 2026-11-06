@@ -98,3 +98,13 @@ export function monoBreakPieces(text: string): string[] {
   });
   return pieces.filter((piece, index) => piece !== "" || index === 0);
 }
+
+/**
+ * A whole chip's pieces in a structured-table cell (viewer mono-breaks.tsx
+ * `listChipPieces`): it may break only after a list separator, `,` or `|`,
+ * that sits between two other characters. `climb|held-out|all` and
+ * `sol=3,opus=1` can wrap, while `--root <path>` stays on one line.
+ */
+export function listChipPieces(text: string): string[] {
+  return text.split(/(?<=[^\s,|][,|])(?=[^,|])/);
+}

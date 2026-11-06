@@ -8,7 +8,7 @@
 export * from "./metrics";
 export * from "./columns";
 export * from "./block-width";
-export { chipKind, chipNeedsPieces, chipPieces, monoBreakPieces, type ChipKind } from "./chips";
+export { chipKind, chipNeedsPieces, chipPieces, listChipPieces, monoBreakPieces, type ChipKind } from "./chips";
 export { liftBacktickCode, tableCellKinds, tableColumnFits, WRAP_THRESHOLD, type TableCellKind, type TableColumnFit } from "./table-columns";
 export { measureInline, type InlineContext, type InlineLayout, type MeasuredText, type WrapMode } from "./inline-measure";
 export { FIT_TOLERANCE_PX, widthVerdict, type LayoutVerdict } from "./fit";

@@ -11,9 +11,9 @@ import {
   SOURCE_REFERENCE_CLASSES,
 } from "./block-classes";
 import { chipKind } from "../components/typed-chip";
-import { chipBreaks } from "../components/mono-breaks";
+import { chipBreaks, listChipBreaks } from "../components/mono-breaks";
 
-/** A whole chip stays on one line on screen. Print CSS wraps code anywhere, so print lets it wrap. */
+/** A whole chip breaks on screen only at its list pieces. Print CSS wraps code anywhere, so print lets it wrap. */
 const WHOLE_CHIP_CLASSES = "whitespace-nowrap print:whitespace-normal";
 
 /**
@@ -56,11 +56,11 @@ export function renderDeltaSpans(
     if (attrs) {
       if (attrs.code) {
         const chip = inlineCodeChipProps(span.insert);
-        // A chip up to `wholeChipMaxChars` long never breaks on screen, not even at its spaces
-        // (structured-table cells). Any other chip renders as pieces, so it never breaks mid-token
-        // (mono-breaks.tsx chipBreaks).
+        // A chip up to `wholeChipMaxChars` long breaks on screen only after a `,` or `|` list
+        // separator, never at its spaces (structured-table cells, mono-breaks.tsx listChipBreaks).
+        // Any other chip renders as pieces, so it never breaks mid-token (mono-breaks.tsx chipBreaks).
         node = options?.wholeChipMaxChars !== undefined && span.insert.length <= options.wholeChipMaxChars
-          ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{span.insert}</code>
+          ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{listChipBreaks(span.insert)}</code>
           : <code {...chip}>{chipBreaks(span.insert)}</code>;
       }
       if (attrs.bold) node = <strong>{node}</strong>;

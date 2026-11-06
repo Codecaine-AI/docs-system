@@ -105,3 +105,25 @@ export function chipBreaks(text: string): ReactNode {
     );
   });
 }
+
+/**
+ * A whole chip's pieces in a structured-table cell: it may break only after
+ * a list separator, `,` or `|`, between two other characters, so
+ * `climb|held-out|all` and `sol=3,opus=1` can wrap while `--root <path>`
+ * stays on one line. docs-model layout/chips.ts holds the lint's copy.
+ */
+export function listChipPieces(text: string): string[] {
+  return text.split(/(?<=[^\s,|][,|])(?=[^,|])/);
+}
+
+/** `listChipPieces` as React: nowrap pieces with a `<wbr>` between two pieces. Chromium breaks at a `<wbr>` even under nowrap. */
+export function listChipBreaks(text: string): ReactNode {
+  const pieces = listChipPieces(text);
+  if (pieces.length === 1) return text;
+  return pieces.map((piece, index) => (
+    <Fragment key={index}>
+      {index > 0 && <wbr />}
+      <span data-chip-piece="" style={NOWRAP}>{piece}</span>
+    </Fragment>
+  ));
+}

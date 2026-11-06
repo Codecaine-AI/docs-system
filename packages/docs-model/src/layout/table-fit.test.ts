@@ -123,6 +123,11 @@ describe("layout.table-fit on screen", () => {
     expect(structuredTableWidths(block, 688)!.columns[1]!.widest.measured.text).toBe("--root <path>");
   });
 
+  test("a code span of up to 40 characters breaks only after a list separator", () => {
+    const block = table("t", ["Option", "Value"], [["--samples", [code("<judge>=<count>,<judge>=<count>")]], ["--set", [code("climb|held-out|all")]]]);
+    expect(structuredTableWidths(block, 688)!.columns[1]!.widest.measured.text).toBe("<judge>=<count>,");
+  });
+
   test("identifier cells never wrap their text, but a path over 40 characters still breaks at its pieces", () => {
     const block = table("t", ["Path", "Notes"], [[[code("packages/docs-viewer/src/components/structured")], "x"], [[code("headerRuleWidthTokenWithALongName")], "y"]]);
     const { columns } = structuredTableWidths(block, 688)!;

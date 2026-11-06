@@ -20,6 +20,7 @@ import {
   chipKind as modelChipKind,
   chipNeedsPieces as modelChipNeedsPieces,
   chipPieces as modelChipPieces,
+  listChipPieces as modelListChipPieces,
   codeDisplayText,
   codeHasNotes,
   liftBacktickCode as modelLiftBacktickCode,
@@ -66,7 +67,7 @@ import { PROSE_FLOOR_CH, WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits }
 import { tableCellKinds } from "../components/structured-table/cell-kind";
 import { liftBacktickCode } from "../components/structured-table/cell-code";
 import { chipKind } from "../components/typed-chip";
-import { chipNeedsPieces, chipPieces, monoBreaks } from "../components/mono-breaks";
+import { chipNeedsPieces, chipPieces, listChipPieces, monoBreaks } from "../components/mono-breaks";
 import { INLINE_CODE_CLASSES } from "../render/block-classes";
 import { renderDeltaSpans } from "../render/delta-spans";
 import { StackBlock } from "../components/stack/StackDocsBlock";
@@ -303,12 +304,14 @@ describe("inline code chips (docs-model layout/chips.ts)", () => {
     "headerRuleWidth", "verification.json", "foo_bar", "./path/to/file.ts", "camelCaseIdentifierThatIsVeryLong", "a/b c/d",
     "\"quoted\"", "1.5px", "true", "fn()", "editor.setContent", "useState", "Type", "some text with spaces", "brand-huggingface",
     "costEstimate?", "CORE_HARNESS_PROMPT_EDITOR_MODEL", "<kernel root>/pi-sessions", "calc(var(--x))", "@scope/pkg",
+    "climb|held-out|all", "<judge>=<count>,<judge>=<count>", "a, b", "x||y", ",lead", "--root <path>",
   ];
 
   test.each(texts)("both copies type and cut %p alike", (text) => {
     expect(modelChipKind(text)).toBe(chipKind(text));
     expect(modelChipPieces(text)).toEqual(chipPieces(text));
     expect(modelChipNeedsPieces(text)).toBe(chipNeedsPieces(text));
+    expect(modelListChipPieces(text)).toEqual(listChipPieces(text));
   });
 
   test.each(texts.filter((text) => text.trim()))("a chip of %p renders the pieces and breaks the lint measures", (text) => {
