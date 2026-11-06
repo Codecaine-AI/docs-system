@@ -7,7 +7,6 @@ import { FIT_TOLERANCE_PX, approximateNote, px, widthVerdict } from "./fit";
 import {
   CODE_METRICS,
   CODE_VISIBLE_COLUMNS,
-  CODE_VISIBLE_COLUMNS_WITH_NOTES,
   LANE_PX,
   NESTED_INSET_PX,
   codeFont,
@@ -81,9 +80,17 @@ export function codeLineWidth(line: string): CodeLineWidth {
   return { width, coveredWidth: Math.max(0, coveredWidth), uncovered, reliable: activeBackend().exact && uncovered.length === 0 };
 }
 
+/** The fix for a long line: a copied source line stays verbatim, so the writer cuts it or keeps it, never reflows it. */
+const CUT_OR_KEEP =
+  "Keep a copied source line verbatim. If the page does not need the line, cut it and mark the cut with one comment line, such as `// ...`. " +
+  "Never reflow or shorten a copied line to fit.";
+
 /**
- * Code never wraps on screen: a line wider than the code column scrolls the
- * whole panel sideways. PDF export sets code to `pre-wrap`, so this is an
+ * A line wider than the code column wraps on the read page (docs-viewer
+ * components/code/CodeAnnotations.tsx) and scrolls the edit panel sideways.
+ * A notes column never narrows such a line: when the widest line does not fit
+ * beside the notes, each note moves under the lines it explains and the code
+ * takes the full panel. PDF export sets code to `pre-wrap`, so this is an
  * on-screen check only.
  */
 export const codeLineWidthRule: LintRule = {
@@ -94,9 +101,9 @@ export const codeLineWidthRule: LintRule = {
   applicability:
     `Each line of a code block as the read surface shows it (JSON pretty-printed), measured in the bundled IBM Plex Mono at ` +
     `${CODE_METRICS.fontSizePx}px through @codecaine-ai/text-measure, against the width the panel gives code at stock settings: ` +
-    `${CODE_VISIBLE_COLUMNS} columns, ${CODE_VISIBLE_COLUMNS_WITH_NOTES} beside a notes column, and fewer when nested in a text-lane block ` +
+    `${CODE_VISIBLE_COLUMNS} columns, with or without notes, and fewer when nested in a text-lane block ` +
     `(${codeVisibleColumns(LANE_PX.text, false)} under a paragraph, ` +
-    `${codeVisibleColumns(LANE_PX.text - (NESTED_INSET_PX["list-item"] ?? 0), false)} in a list item). Within 1px of the edge it may scroll.`,
+    `${codeVisibleColumns(LANE_PX.text - (NESTED_INSET_PX["list-item"] ?? 0), false)} in a list item). Within 1px of the edge it may wrap.`,
   exclusions: [
     "PDF export, which wraps code (pre-wrap) instead of scrolling",
     "Pseudocode, file trees, file explorers and code panes inside other blocks",
@@ -104,9 +111,7 @@ export const codeLineWidthRule: LintRule = {
     "Windows narrower than the code lane, and classic scrollbars that take width from an annotated panel past 20 lines",
     "Characters the bundled IBM Plex Mono lacks (CJK, emoji): their width is estimated and never judged an overflow",
   ],
-  suggestion:
-    "Wrap or shorten the line to fit the code panel, or accept horizontal scrolling for this block. " +
-    "This is an on-screen check: PDF export wraps code instead of scrolling.",
+  suggestion: CUT_OR_KEEP,
   check({ document, blocks }) {
     let widths: Map<string, number> | undefined;
     const column = monoColumnPx(CODE_METRICS.fontSizePx);
@@ -114,10 +119,8 @@ export const codeLineWidthRule: LintRule = {
       if (block.type !== "code") return [];
       widths ??= blockWidthsPx(document);
       const width = widths.get(block.id) ?? LANE_PX.code;
-      const hasNotes = codeHasNotes(block.props.annotations);
-      const codePx = codeTextWidthPx(width, hasNotes);
-      const visible = codeVisibleColumns(width, hasNotes);
-      const notes = hasNotes && width >= CODE_METRICS.notesBesideMinWidthPx ? " beside its notes column" : "";
+      const codePx = codeTextWidthPx(width, false);
+      const visible = codeVisibleColumns(width, false);
       const language = typeof block.props.language === "string" ? block.props.language : undefined;
       const lines = codeDisplayText(deltaToPlainTextInline(block.text), language).split("\n");
       return lines.flatMap((raw, index): RuleMatch[] => {
@@ -129,22 +132,13 @@ export const codeLineWidthRule: LintRule = {
         const verdict = widthVerdict(measured.width, measured.coveredWidth, codePx, measured.uncovered.length > 0);
         if (verdict === "fits") return [];
         const number = index + 1;
-        const over = Math.max(1, columns - visible);
         const lead =
           verdict === "overflows"
-            ? `Line ${number} is ${columns} columns wide, but at stock theme settings the code panel fits ${visible}${notes} before it scrolls sideways.`
+            ? `Line ${number} is ${columns} columns wide, but at stock theme settings the code panel fits ${visible}, so the line wraps on the page.`
             : verdict === "borderline"
-              ? `Line ${number} is ${columns} columns wide and at stock theme settings the code panel fits about ${visible}${notes}, so it may scroll sideways.`
-              : `Line ${number} may scroll sideways: it needs about ${px(measured.width)} and at stock theme settings the code panel shows ${px(codePx)}${notes}, and part of that width is text the bundled fonts lack.`;
-        return [{
-          blockId: block.id,
-          field: "text",
-          evidence: evidenceOf(line),
-          message: `${lead}${approximateNote(measured)}`,
-          suggestion:
-            `Wrap line ${number} or shorten it by ${over} column${over === 1 ? "" : "s"}, or accept horizontal ` +
-            `scrolling for this block. This is an on-screen check: PDF export wraps code instead of scrolling.`,
-        }];
+              ? `Line ${number} is ${columns} columns wide and at stock theme settings the code panel fits about ${visible}, so it may wrap.`
+              : `Line ${number} may wrap: it needs about ${px(measured.width)} and at stock theme settings the code panel shows ${px(codePx)}, and part of that width is text the bundled fonts lack.`;
+        return [{ blockId: block.id, field: "text", evidence: evidenceOf(line), message: `${lead}${approximateNote(measured)}`, suggestion: CUT_OR_KEEP }];
       });
     });
   },
