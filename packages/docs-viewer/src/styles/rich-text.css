@@ -9,14 +9,14 @@
  * chipBreaks cuts (components/mono-breaks.tsx). Table cells and other typed
  * blocks keep the inline chip, which wraps after a `/` to fit narrow columns.
  *
- * A prose chip also takes 60% of the --docs-inline-code-pad-x knob on each
- * side, so a comma or period after it sits close to its text, not one
- * space away. The knob still moves it, and table chips keep the full pad
- * that the table-fit layout metrics measure.
+ * A prose chip also pads each side by the 4px space token, on the spacing
+ * grid and narrower than the --docs-inline-code-pad-x default, so a comma or
+ * period after it sits close to its text, not one space away. Table chips
+ * keep the knob's pad, which the table-fit layout metrics measure.
  */
 .docs-markdown :is([data-doc-block="paragraph"], [data-doc-block="heading"], [data-doc-block="list-item"], [data-callout-body]) code[data-chip-kind] {
   display: inline-block;
   max-width: 100%;
   vertical-align: baseline;
-  padding-inline: calc(var(--docs-inline-code-pad-x, 0.35) * 0.6em);
+  padding-inline: var(--ds-space-1);
 }
