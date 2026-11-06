@@ -270,10 +270,22 @@
         }
       ],
       "children": [
+        "cs-rules-g1-5",
         "cs-rules-g1-1",
         "cs-rules-g1-4",
         "cs-rules-g1-3"
       ]
+    },
+    "cs-rules-g1-5": {
+      "id": "cs-rules-g1-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The stack starts at the entry frame the reader searches for and stops at the frame where the reader's task ends. Logging, timing, and bookkeeping calls on the way stay out."
+        }
+      ],
+      "children": []
     },
     "cs-rules-g1-1": {
       "id": "cs-rules-g1-1",
