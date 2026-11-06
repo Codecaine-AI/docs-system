@@ -3,6 +3,7 @@ import { cleanup, render } from "@testing-library/react";
 import { StructuredTableBlock } from "../components/structured-table/StructuredTableDocsBlock";
 import { TableGrid } from "../components/structured-table/editor/TableGrid";
 import {
+  TABLE_PROSE_FLOOR_CLASS,
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_STICKY_BODY_CELL_CLASSES,
   TABLE_STICKY_HEADER_CELL_CLASSES,
@@ -234,7 +235,7 @@ describe("structured-table column sizing and the pinned first column", () => {
       }
       expect(notes!.className.split(" ")).not.toContain("whitespace-nowrap");
       const measure = notes!.querySelector("div")!;
-      expect(measure.className).toBe(TABLE_PROSE_MEASURE_CLASS);
+      expect(measure.className).toBe(`${TABLE_PROSE_MEASURE_CLASS} ${TABLE_PROSE_FLOOR_CLASS}`);
       expect(measure.textContent).toContain("Header rule thickness");
       cleanup();
     }

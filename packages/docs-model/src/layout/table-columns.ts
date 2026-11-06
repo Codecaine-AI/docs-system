@@ -133,7 +133,7 @@ export function tableColumnFits(
   });
   let prose = -1;
   columns.forEach((column, index) => {
-    if (column.code || column.average === 0) return;
+    if (column.code || column.average === 0 || column.longest <= TABLE_METRICS.proseFloorCh) return;
     if (prose === -1 || column.average > columns[prose]!.average) prose = index;
   });
   return columns.map((column, index) => {

@@ -249,6 +249,8 @@ export const TABLE_METRICS = {
   rowMinHeightPx: 28,
   /** Prose and wrap columns wrap their text at this many ch of the cell font. */
   proseMeasureCh: 60,
+  /** The prose column is never narrower than this many ch. A table whose longest text cell is this short has no prose column. */
+  proseFloorCh: 30,
   /** A text column whose longest body cell is over this many characters wraps. */
   wrapThresholdChars: 24,
   /** On screen, a code chip in a cell up to this many characters long never breaks, not even at a space. */
@@ -257,6 +259,7 @@ export const TABLE_METRICS = {
 
 /** The prose measure in px at the stock cell size: 506.25. */
 export const TABLE_PROSE_MEASURE_PX = TABLE_METRICS.proseMeasureCh * sansChPx(TABLE_METRICS.fontSizePx);
+export const TABLE_PROSE_FLOOR_PX = TABLE_METRICS.proseFloorCh * sansChPx(TABLE_METRICS.fontSizePx);
 
 // -- Stack ---------------------------------------------------------------------
 

@@ -63,6 +63,13 @@ export const TABLE_COLUMN_FIT_CLASSES = {
 export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min-w-min";
 
 /**
+ * The prose column's floor (column-layout.ts PROSE_FLOOR_CH), on the same
+ * block as the measure: a box's min-content width is the larger of its
+ * min-width and its longest word, so the floor never cuts a word.
+ */
+export const TABLE_PROSE_FLOOR_CLASS = "min-w-[30ch]";
+
+/**
  * The pinned first column (th and td): sticky at the frame's left edge,
  * above the cells scrolling under it, painted opaque — the panel fill under
  * the row's own fill (the header's tint, the hovered row's hover fill) so it

@@ -2,6 +2,8 @@ import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import type { TableCellKind } from "./cell-kind";
 import {
   TABLE_COLUMN_FIT_CLASSES,
+  TABLE_PROSE_FLOOR_CLASS,
+  TABLE_PROSE_MEASURE_CLASS,
   TABLE_STICKY_BODY_CELL_CLASSES,
   TABLE_STICKY_HEADER_CELL_CLASSES,
 } from "./table-classes";
@@ -35,6 +37,13 @@ export const WRAP_THRESHOLD = 24;
 /** A code chip in a cell up to this many characters long never breaks on screen (cell-render.tsx). */
 export const WHOLE_CHIP_MAX_CHARS = 40;
 
+/**
+ * The prose column is never narrower than this many ch (TABLE_PROSE_FLOOR_CLASS),
+ * so one-line columns cannot squeeze it to a few words a line. A table whose
+ * longest text cell is this short or shorter has no prose column.
+ */
+export const PROSE_FLOOR_CH = 30;
+
 export function tableColumnFits(
   rows: readonly (readonly TableCell[])[],
   columnCount: number,
@@ -57,7 +66,7 @@ export function tableColumnFits(
   // Ties go to the leftmost column; a table with no body text has no prose column.
   let prose = -1;
   columns.forEach((column, index) => {
-    if (column.code || column.average === 0) return;
+    if (column.code || column.average === 0 || column.longest <= PROSE_FLOOR_CH) return;
     if (prose === -1 || column.average > columns[prose].average) prose = index;
   });
 
@@ -85,7 +94,12 @@ export function columnCellClasses(
   return [TABLE_COLUMN_FIT_CLASSES[fit ?? "fit"], pin].filter(Boolean).join(" ");
 }
 
-/** Whether a column's cell content sits inside the prose measure. */
-export function hasProseMeasure(fit: TableColumnFit | undefined): boolean {
-  return fit === "prose" || fit === "wrap";
+/**
+ * The classes of the block around a body cell's content: the prose measure
+ * for a prose or wrap column, plus the floor for the prose column. Undefined
+ * for a fit column, whose content needs no block.
+ */
+export function proseMeasureClass(fit: TableColumnFit | undefined): string | undefined {
+  if (fit === "prose") return `${TABLE_PROSE_MEASURE_CLASS} ${TABLE_PROSE_FLOOR_CLASS}`;
+  return fit === "wrap" ? TABLE_PROSE_MEASURE_CLASS : undefined;
 }

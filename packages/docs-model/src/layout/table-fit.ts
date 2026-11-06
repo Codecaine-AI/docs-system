@@ -11,6 +11,7 @@ import {
   PDF_PAGE,
   PDF_TABLE_CELL_PAD_PX,
   TABLE_METRICS,
+  TABLE_PROSE_FLOOR_PX,
   TABLE_PROSE_MEASURE_PX,
   codeFont,
   sansFont,
@@ -157,13 +158,15 @@ export function structuredTableWidths(block: DocBlock, pdfAvailablePx: number): 
         pdfOverflows.push({ row, column, measured: print, wraps: false, identifier: kind !== undefined });
       }
     }
+    // The prose column's cell content keeps a floor width (viewer TABLE_PROSE_FLOOR_CLASS).
+    const floor = fit === "prose" ? TABLE_PROSE_FLOOR_PX + CELL_CHROME_PX : 0;
     return {
       name: tableCellToPlainText(name).trim(),
       fit,
       identifiers: kinds.some((row) => row[column] !== undefined),
-      minPx: Math.max(m.minColumnPx, widest!.measured.width + CELL_CHROME_PX),
-      minCoveredPx: Math.max(m.minColumnPx, minCovered + CELL_CHROME_PX),
-      preferredPx: Math.max(m.minColumnPx, preferred + CELL_CHROME_PX),
+      minPx: Math.max(m.minColumnPx, floor, widest!.measured.width + CELL_CHROME_PX),
+      minCoveredPx: Math.max(m.minColumnPx, floor, minCovered + CELL_CHROME_PX),
+      preferredPx: Math.max(m.minColumnPx, floor, preferred + CELL_CHROME_PX),
       widest: widest!,
     };
   });

@@ -56,11 +56,12 @@ import {
   TABLE_COLUMN_RULE_CLASSES,
   TABLE_ELEMENT_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
+  TABLE_PROSE_FLOOR_CLASS,
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_WRAPPER_CLASSES,
 } from "../components/structured-table/table-classes";
-import { WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
+import { PROSE_FLOOR_CH, WHOLE_CHIP_MAX_CHARS, WRAP_THRESHOLD, tableColumnFits } from "../components/structured-table/column-layout";
 import { tableCellKinds } from "../components/structured-table/cell-kind";
 import { liftBacktickCode } from "../components/structured-table/cell-code";
 import { chipKind } from "../components/typed-chip";
@@ -227,6 +228,8 @@ describe("structured table", () => {
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("max-w-[var(--ds-layout-lane-text)]");
     expect(resolveDsVars("var(--ds-layout-lane-text)")).toBe(`${m.proseMeasureCh}ch`);
     expect(TABLE_PROSE_MEASURE_CLASS.split(" ")).toContain("min-w-min");
+    expect(TABLE_PROSE_FLOOR_CLASS).toBe(`min-w-[${m.proseFloorCh}ch]`);
+    expect(PROSE_FLOOR_CH).toBe(m.proseFloorCh);
     expect(WRAP_THRESHOLD).toBe(m.wrapThresholdChars);
     expect(WHOLE_CHIP_MAX_CHARS).toBe(m.wholeChipMaxChars);
     expect(TABLE_COLUMN_FIT_CLASSES.fit.split(" ")).toContain("whitespace-nowrap");
