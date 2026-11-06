@@ -283,7 +283,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The stack starts at the entry frame the reader searches for and stops at the frame where the reader's task ends. A stack on a short page holds about 10 to 20 frames, and logging, timing, and bookkeeping calls stay out."
+          "insert": "The stack starts at the entry frame the reader searches for and stops at the frame where the reader's task ends. A stack on a short page holds at most 20 frames, and logging, timing, and bookkeeping calls stay out."
         }
       ],
       "children": []
@@ -486,7 +486,7 @@
           }
         },
         {
-          "insert": ". The calls inside them nest under that frame, so a reader sees what repeats and what runs only on an error."
+          "insert": ". The calls of their body nest under that frame as frames, never only in its comment."
         }
       ],
       "children": []
@@ -595,6 +595,7 @@
         "cs-rules-g2-2",
         "cs-rules-g2-4",
         "cs-rules-g2-3",
+        "cs-rules-g2-6",
         "cs-rules-g2-5"
       ]
     },
@@ -700,7 +701,18 @@
       "props": {},
       "text": [
         {
-          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. It says only what this frame's own body does, and a step that runs only sometimes keeps its condition, as in \"up to one judge call\"."
+          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. A comment that only repeats the row or the function name is left out."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2-6": {
+      "id": "cs-rules-g2-6",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A comment says only what this frame's own body does, and a step that runs only sometimes keeps its condition, as in \"up to one judge call\"."
         }
       ],
       "children": []
@@ -720,7 +732,7 @@
           }
         },
         {
-          "insert": ", and renders in the code font."
+          "insert": ", and renders in the code font. Plain words, such as a finding's message, stay outside backticks."
         }
       ],
       "children": []
@@ -1350,7 +1362,8 @@
       "children": [
         "cs-doc-2a",
         "cs-doc-2b",
-        "cs-doc-2c"
+        "cs-doc-2c",
+        "cs-doc-2d"
       ]
     },
     "cs-doc-2a": {
@@ -1409,6 +1422,44 @@
         },
         {
           "insert": " keyword take the control-flow color."
+        }
+      ],
+      "children": []
+    },
+    "cs-doc-2d": {
+      "id": "cs-doc-2d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A loop branch, such as "
+        },
+        {
+          "insert": "for (…)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "jobs.map(…)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", leads with a repeat icon in place of the "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
