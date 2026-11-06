@@ -574,7 +574,7 @@ describe("StateShapeBlock — code in descriptions", () => {
 
   it("balances a description's last line, so no word sits alone on it", () => {
     render(<StateShapeBlock id="pretty" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
-    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-field-token="note"]{text-wrap:pretty}');
+    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}');
   });
 
   it("prints a description with no backticks as plain text", () => {
