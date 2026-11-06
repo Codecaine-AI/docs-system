@@ -118,9 +118,10 @@ const PROCESS_OUTLINE_CSS = `
   position:relative; display:flex; flex-direction:column; gap:var(--po-gap);
   margin-left:var(--po-rail-x); padding-top:var(--po-gap); padding-left:calc(var(--po-indent) - var(--po-rail-x));
 }
-/* the root's children are the panel body; phases breathe, but only when they have substeps */
+/* the root's children are the panel body; phases breathe, but only when they have substeps. The right side keeps one
+   more space step, so the longest step never seems to touch the frame */
 .docs-process-outline__node--root>.docs-process-outline__children {
-  margin-left:0; padding:var(--po-pad-y) var(--po-pad-x) calc(var(--po-pad-y) + var(--ds-space-1)) calc(var(--po-pad-x) + var(--po-indent));
+  margin-left:0; padding:var(--po-pad-y) calc(var(--po-pad-x) + var(--ds-space-3)) calc(var(--po-pad-y) + var(--ds-space-1)) calc(var(--po-pad-x) + var(--po-indent));
 }
 .docs-process-outline__node--root>.docs-process-outline__children:has(> .docs-process-outline__node > .docs-process-outline__children) { --po-gap: var(--po-branch-gap); }
 .docs-process-outline__children>.docs-process-outline__node { position:relative; }
