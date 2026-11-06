@@ -1,0 +1,7 @@
+[
+  { "id": "field-coverage", "group": "Meaning", "question": "Does the field tree list every source-defined field the brief's record needs, each nested under the parent the source nests it under?" },
+  { "id": "description-adds", "group": "Writing", "question": "Where a field has a description, does it add a fact the name, type, nesting and optional marker do not already say, such as a unit, constraint, default or null meaning?" },
+  { "id": "example-matches-tree", "group": "Writing", "question": "Does the JSON example match the field tree in keys, nesting and value types, with the nested objects and collections central to the brief populated and no undeclared key?" },
+  { "id": "parent-tracing", "group": "Look", "question": "From the PNG alone, can the reader trace each nested field to its immediate parent without losing its depth?" },
+  { "id": "optionality-signals", "group": "Look", "question": "From the PNG alone, can the reader tell required fields from optional fields at every nesting depth?" }
+]
