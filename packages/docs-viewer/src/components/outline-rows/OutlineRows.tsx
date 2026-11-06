@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { useNotesBelow } from "../notes-below";
+import { sourceLabels } from "../component-tree/source-labels";
 import type { OutlineRow } from "@codecaine-ai/docs-model";
 import {
   TREE_ICONS,
@@ -113,7 +114,50 @@ export function tokenizeOutlineCode(text: string, flavor: OutlineRowsFlavor): To
   return tokens;
 }
 
+/**
+ * A JSX row split at the spaces that sit outside braces, brackets and quotes,
+ * so a wrapped row breaks between props and never inside one. A closing `>`
+ * or `/>` stays with the prop before it.
+ */
+function topLevelWords(text: string): string[] {
+  const words: string[] = [];
+  let depth = 0;
+  let quote: string | null = null;
+  let start = 0;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]!;
+    if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = null; continue; }
+    if (ch === '"' || ch === "'" || ch === "`") quote = ch;
+    else if ("{[(".includes(ch)) depth++;
+    else if ("}])".includes(ch)) depth = Math.max(0, depth - 1);
+    else if (ch === " " && depth === 0) {
+      let end = i;
+      while (end < text.length && text[end] === " ") end++;
+      if (!/^\/?>$/.test(text.slice(end).trimEnd())) { words.push(text.slice(start, end)); start = end; }
+      i = end - 1;
+    }
+  }
+  words.push(text.slice(start));
+  return words.filter(Boolean);
+}
+
 function renderCode(text: string, flavor: OutlineRowsFlavor): ReactNode[] {
+  if (flavor === "component") {
+    // The gap sits outside the word span, so the row can break there.
+    return topLevelWords(text).map((word, index) => {
+      const core = word.trimEnd();
+      return (
+        <Fragment key={index}>
+          <span className="docs-tree__word">{renderTokens(core, flavor)}</span>
+          {word.slice(core.length)}
+        </Fragment>
+      );
+    });
+  }
+  return renderTokens(text, flavor);
+}
+
+function renderTokens(text: string, flavor: OutlineRowsFlavor): ReactNode[] {
   return tokenizeOutlineCode(text, flavor).map((token, index) =>
     token.kind === "plain" ? (
       <span key={index}>{token.text}</span>
@@ -283,6 +327,8 @@ const FLAVOR_HEAD = {
 
 /** The rows, with the comments beside the code, are wider than the panel. */
 const rowsOverflow = (el: HTMLDivElement) => Boolean(el.querySelector(".docs-tree__note")) && el.scrollWidth > el.clientWidth + 1;
+/** A component tree also wraps rows with no comment instead of scrolling (component-tree/style.ts). */
+const componentRowsOverflow = (el: HTMLDivElement) => el.scrollWidth > el.clientWidth + 1;
 
 export function OutlineRows({
   id,
@@ -298,7 +344,9 @@ export function OutlineRows({
   const flat = flattenRows(rows, [], []);
   const diff = hasChange(rows);
   const head = FLAVOR_HEAD[flavor];
-  const notesBelow = useNotesBelow(rowsOverflow);
+  const notesBelow = useNotesBelow(flavor === "component" ? componentRowsOverflow : rowsOverflow);
+  // A component tree's chips name the shortest path tail that tells its files apart.
+  const labels = flavor === "component" ? sourceLabels(flat.flatMap(({ row }) => (row.source ? [row.source] : []))) : null;
   return (
     <section className="not-prose my-4 w-full" data-docs-block-type={blockType} data-source-id={id}>
       <TreeStyle />
@@ -319,7 +367,7 @@ export function OutlineRows({
           ) : (
             flat.map(({ row, depth, guides }, index) => {
               const branch = row.kind === "branch";
-              const source = row.source ? splitSource(row.source) : null;
+              const source = row.source ? (labels?.get(row.source) ?? splitSource(row.source)) : null;
               return (
                 <div
                   key={index}

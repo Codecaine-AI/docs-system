@@ -71,9 +71,8 @@ describe("file-tree agent view", () => {
     const expected = [
       "```",
       "  src/",
-      "  ├── components/",
-      "  │   └── docs/",
-      "> │       └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx",
+      "  ├── components/docs/",
+      "> │   └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx",
       "  └── lib/",
       "      ├── docs-model/",
       "~     │   ├── doc-ops.ts  # typed ops + inverses",

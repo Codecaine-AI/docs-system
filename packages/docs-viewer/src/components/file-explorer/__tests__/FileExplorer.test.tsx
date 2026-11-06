@@ -56,7 +56,8 @@ describe("file explorer", () => {
     const marks = Array.from(document.querySelectorAll('[role="treeitem"]')).map(
       (row) => row.querySelector(".docs-tree__mark")?.textContent,
     );
-    expect(marks).toEqual(["", "", "+added", "~modified", ">renamed", "", ""]);
+    // actions/ holds only added files, so it is a new folder and shows "+" too.
+    expect(marks).toEqual(["", "+added", "+added", "~modified", ">renamed", "", ""]);
     for (const badge of ["A", "M", "R"]) {
       expect(Array.from(document.querySelectorAll('[role="treeitem"] span')).some((node) => node.textContent === badge)).toBe(false);
     }
@@ -93,22 +94,28 @@ describe("file explorer", () => {
     expect(rowNames()).toContain("update-entry.ts");
   });
 
-  it("folds past maxRows and toggles between all and first rows", () => {
+  it("folds past maxRows, names the hidden count, and toggles between all and first rows", () => {
     renderBlock({ entries: ENTRIES, maxRows: 3 });
     expect(rowNames()).toHaveLength(3);
     const more = Array.from(document.querySelectorAll("button")).find((node) =>
-      node.textContent?.startsWith("Show all"),
+      node.textContent?.startsWith("Show"),
     )!;
-    expect(more.textContent).toBe("Show all 7 rows");
+    expect(more.textContent).toBe("Show 4 more rows");
     fireEvent.click(more);
     expect(rowNames()).toHaveLength(7);
     expect(more.textContent).toBe("Show first 3 rows");
   });
 
-  it("folds at 8 rows by default", () => {
-    const many = Array.from({ length: 10 }, (_, i) => ({ path: `src/file-${i}.ts` }));
+  it("shows a list whole when the fold would hide 3 rows or fewer", () => {
+    renderBlock({ entries: ENTRIES, maxRows: 4 });
+    expect(rowNames()).toHaveLength(7);
+    expect(document.querySelector("button")).toBeNull();
+  });
+
+  it("folds at 24 rows by default", () => {
+    const many = Array.from({ length: 30 }, (_, i) => ({ path: `src/file-${String(i).padStart(2, "0")}.ts` }));
     renderBlock({ entries: many });
-    expect(rowNames()).toHaveLength(8);
+    expect(rowNames()).toHaveLength(24);
   });
 
   /** Each rendered row as "name color head seam", e.g. "app/src blue head". */
@@ -149,5 +156,53 @@ describe("file explorer", () => {
     expect(colorRows()).toEqual(["p blue head", "f blue", "d.ts pink head seam", "r.ts blue seam"]);
     fireEvent.click(folderRow("f"));
     expect(colorRows()).toEqual(["p blue head", "f blue", "r.ts blue"]);
+  });
+
+  it("marks a folder new only when every file under it is new", () => {
+    renderBlock({
+      entries: [
+        { path: "src/fresh/a.ts", change: "added" },
+        { path: "src/fresh/deep/b.ts", change: "added" },
+        { path: "src/mixed/c.ts", change: "added" },
+        { path: "src/mixed/d.ts" },
+      ],
+    });
+    const changeOf = (name: string) =>
+      Array.from(document.querySelectorAll('[role="treeitem"]'))
+        .find((row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === name)
+        ?.getAttribute("data-change");
+    expect(changeOf("fresh")).toBe("added");
+    expect(changeOf("deep")).toBe("added");
+    expect(changeOf("mixed")).toBeNull();
+    cleanup();
+    // A sub-folder's own change counts: a new file beside a removed folder is no new parent.
+    renderBlock({ entries: [{ path: "src/new.ts", change: "added" }, { path: "src/old/", change: "removed" }] });
+    expect(changeOf("src")).toBeNull();
+    expect(changeOf("old")).toBe("removed");
+  });
+
+  it("keys each change kind the tree holds under the rows, and shows no key without a change", () => {
+    renderBlock({ entries: ENTRIES });
+    const keys = Array.from(document.querySelectorAll(".docs-explorer__key")).map((key) => key.textContent);
+    expect(keys).toEqual(["+added", "~modified", ">renamed"]);
+    cleanup();
+    renderBlock({ entries: [{ path: "src/a.ts" }] });
+    expect(document.querySelector(".docs-explorer__legend")).toBeNull();
+  });
+
+  it("gives an empty folder no twisty and no toggle", () => {
+    renderBlock({ entries: [{ path: "out/" }, { path: "src/a.ts" }] });
+    const out = Array.from(document.querySelectorAll('[role="treeitem"]')).find(
+      (row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === "out",
+    )!;
+    expect(out.hasAttribute("aria-expanded")).toBe(false);
+    expect(out.querySelector(".docs-tree__twisty svg")).toBeNull();
+  });
+
+  it("sets each backticked span of a note as code, and leaves an unpaired backtick as text", () => {
+    renderBlock({ entries: [{ path: "src/a.ts", note: "Exports `patchIds` and `undo` for the `store" }] });
+    const note = document.querySelector(".docs-tree__note")!;
+    expect(Array.from(note.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["patchIds", "undo"]);
+    expect(note.textContent).toBe("Exports patchIds and undo for the `store");
   });
 });

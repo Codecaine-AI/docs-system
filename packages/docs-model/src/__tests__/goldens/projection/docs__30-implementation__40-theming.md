@@ -108,29 +108,26 @@ Each host resolves the global root, and the client switches to the Global theme 
 
 ```
 packages/
-├── docs-mcp/
-│   └── src/
-│       ├── background/
-│       │   └── supervisor.ts  # sets CODECAINE_DOCS_GLOBAL_THEMES for the managed runtime
-│       ├── daemon.ts  # passes the same root from the daemon
-│       ├── managed-runtime.ts  # reads the variable, falls back to dirname(registry)/themes, and answers globalTheme: true
-│       └── service.ts  # passes globalThemesRoot to every project's routes
-├── docs-server/
-│   └── src/
-│       ├── routes.ts  # theme routes that list global first and route the reserved id
-│       └── themes.ts  # reserved id, root resolution, themesRootForId, and atomic theme writes
+├── docs-mcp/src/
+│   ├── background/
+│   │   └── supervisor.ts  # sets CODECAINE_DOCS_GLOBAL_THEMES for the managed runtime
+│   ├── daemon.ts  # passes the same root from the daemon
+│   ├── managed-runtime.ts  # reads the variable, falls back to dirname(registry)/themes, and answers globalTheme: true
+│   └── service.ts  # passes globalThemesRoot to every project's routes
+├── docs-server/src/
+│   ├── routes.ts  # theme routes that list global first and route the reserved id
+│   └── themes.ts  # reserved id, root resolution, themesRootForId, and atomic theme writes
 └── docs-workbench/
     ├── src/
     │   ├── export.ts  # static export snapshots global, then repository default, unless themeId is explicit
     │   ├── run-serve.ts  # standalone serve resolves the root when the state directory exists
     │   └── server.ts  # reports globalTheme in GET /api/serve-config
-    └── web/
-        └── src/
-            ├── data/
-            │   ├── api.ts  # getServeConfig reads globalTheme and defaults it to false
-            │   └── project-storage.ts  # themeStorage routes the theme cache to docs-global: keys
-            └── shell/
-                └── App.tsx  # loads and saves global, guards writes on read errors, and follows storage events
+    └── web/src/
+        ├── data/
+        │   ├── api.ts  # getServeConfig reads globalTheme and defaults it to false
+        │   └── project-storage.ts  # themeStorage routes the theme cache to docs-global: keys
+        └── shell/
+            └── App.tsx  # loads and saves global, guards writes on read errors, and follows storage events
 ```
 
 | Endpoint | Global theme behavior |
