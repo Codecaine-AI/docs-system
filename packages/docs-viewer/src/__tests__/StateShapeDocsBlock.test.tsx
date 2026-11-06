@@ -537,3 +537,17 @@ describe("StateShapeBlock — optionality legend and path wrapping", () => {
     expect(note!.querySelector("[data-json-seg]")).toBeNull();
   });
 });
+
+describe("StateShapeBlock — code in descriptions", () => {
+  it("sets each backtick span of a description as code and hides the backticks", () => {
+    render(<StateShapeBlock id="code" fields={[{ name: "replace", type: "string", description: 'What to write. `""` deletes the word; `daemonFetch` reads it.' }]} />);
+    const note = document.querySelector('[data-field-token="note"]')!;
+    expect(Array.from(note.querySelectorAll("[data-note-code]")).map((n) => n.textContent)).toEqual(['""', "daemonFetch"]);
+    expect(note.textContent).toBe('What to write. "" deletes the word; daemonFetch reads it.');
+  });
+
+  it("prints a description with no backticks as plain text", () => {
+    render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
+    expect(document.querySelector("[data-note-code]")).toBeNull();
+  });
+});

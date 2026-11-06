@@ -48,6 +48,7 @@ export const STATE_SHAPE_STYLE = `
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
 [data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
 [data-docs-block-type="state-shape"] [data-json-seg]{white-space:nowrap}
+[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));overflow-wrap:anywhere}
 [data-shape-legend]{margin:0;padding:var(--ds-space-1-5) var(--docs-shape-pad-x,16px) var(--ds-space-1);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 var(--docs-shape-rule-width,1px) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
 `;
@@ -228,6 +229,16 @@ export function fitNameColumn(rows: readonly Pick<FieldLedgerRow, "field" | "dep
 const SHAPE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + STATE_SHAPE_STYLE;
 
 /**
+ * A field description with each `backtick` span set as inline code, so a code name, an empty string `""` or a
+ * separator such as `" | "` reads as a literal value and not as prose. The backticks themselves are not shown.
+ */
+export function noteWithCode(description: string): ReactNode {
+  const parts = description.split(/`([^`]+)`/);
+  if (parts.length === 1) return description;
+  return parts.map((part, index) => index % 2 === 1 ? <code key={index} data-note-code="">{part}</code> : part);
+}
+
+/**
  * The ledger's key to optionality. A row marks only an optional field (`?`), so a shape whose fields are all
  * required shows no marker at all; the legend says which case the reader sees.
  */
@@ -257,7 +268,7 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     <LinkGroup>
       <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined}>
         <div data-shape-tree="true">
-          {fields.length > 0 ? <><FieldLedger rows={model.rows} inlineNotes data-shape-ledger="true" /><OptionalityLegend rows={model.rows} /></> : <p data-shape-empty="true">(no fields)</p>}
+          {fields.length > 0 ? <><FieldLedger rows={model.rows} inlineNotes renderNote={noteWithCode} data-shape-ledger="true" /><OptionalityLegend rows={model.rows} /></> : <p data-shape-empty="true">(no fields)</p>}
         </div>
         {model.exampleLines && <div data-shape-example-pane="true" data-code-surface="true" data-ref-code="true">
           <CodeLines data-shape-example="true" lines={model.exampleLines} tabIndex={0} role="region" aria-label={`${label} example`} />

@@ -135,7 +135,10 @@ export function ledgerGuides(rows: readonly Pick<FieldLedgerRow, "depth">[]): Tr
   });
 }
 
-function FieldRow({ row, guides, tipId, inline }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string; inline: boolean }) {
+/** Renders a field description's text. A host without one prints the description as plain text. */
+export type NoteRenderer = (description: string) => ReactNode;
+
+function FieldRow({ row, guides, tipId, inline, renderNote }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string; inline: boolean; renderNote?: NoteRenderer }) {
   const { field, depth } = row;
   const optional = field.required === false && <span data-field-token="optional"><span aria-hidden="true">?</span><span data-sr-only> (optional)</span></span>;
   const content: ReactNode = <>
@@ -147,7 +150,7 @@ function FieldRow({ row, guides, tipId, inline }: { row: FieldLedgerRow; guides:
     </span>
     <span data-field-def>
       <FieldType value={field.type} />
-      {inline && field.description && <span data-field-token="note">{field.description}</span>}
+      {inline && field.description && <span data-field-token="note">{renderNote ? renderNote(field.description) : field.description}</span>}
     </span>
   </>;
   const props = { ...row.attrs, "data-field-row": row.path, "data-field-depth": depth, style: { "--field-depth": depth } as CSSProperties };
@@ -160,10 +163,10 @@ function FieldRow({ row, guides, tipId, inline }: { row: FieldLedgerRow; guides:
  * (DescribedName) and prints inline in print media. With `inlineNotes`, the
  * description prints under the type on screen too, so a static reader sees it.
  */
-export function FieldLedger({ rows, inlineNotes = false, ...rest }: { rows: readonly FieldLedgerRow[]; inlineNotes?: boolean } & DataAttributes) {
+export function FieldLedger({ rows, inlineNotes = false, renderNote, ...rest }: { rows: readonly FieldLedgerRow[]; inlineNotes?: boolean; renderNote?: NoteRenderer } & DataAttributes) {
   const tipBase = useId();
   const guides = ledgerGuides(rows);
-  return <div {...rest} data-field-ledger>{rows.map((row, index) => <FieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${tipBase}-tip-${index}`} inline={inlineNotes} />)}</div>;
+  return <div {...rest} data-field-ledger>{rows.map((row, index) => <FieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${tipBase}-tip-${index}`} inline={inlineNotes} renderNote={renderNote} />)}</div>;
 }
 
 /**
