@@ -17,7 +17,7 @@ export const addEntry = defineComponentAction({
       minLength: 1,
       description: '/-separated path, no leading "./"; a trailing "/" marks an explicit directory.',
     }),
-    note: Type.Optional(Type.String({ description: "One fact about what the file does, in about 10 words. Put identifiers in backticks. Never point to another row. Never restate the name, path or change, and never open with +." })),
+    note: Type.Optional(Type.String({ description: "A present-tense verb and one fact about what the file does, in 8 to 10 words. Put identifiers in backticks. Never point to another row. Never restate the name, path or change, and never open with +." })),
     change: Type.Optional(
       Type.Union(
         [

@@ -429,7 +429,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give a note one fact about what the file does, in about 10 words, so it fits on one line. Where a build or an installer copies the file is not what it does."
+          "insert": "Start each note with a present-tense verb, such as \"Runs\" or \"Stores\", and give one fact about what the file does in 8 to 10 words."
         }
       ],
       "children": []
@@ -480,7 +480,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give every new file a note when some new files have notes."
+          "insert": "Leave a note out when the sources do not say what the file does, because where a build copies a file is not what it does."
         }
       ],
       "children": []
