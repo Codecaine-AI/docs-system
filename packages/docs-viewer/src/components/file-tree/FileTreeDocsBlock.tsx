@@ -123,8 +123,9 @@ export const FILE_TREE_VARS = treeVars({
  * the dark code panel. A colored group's own guide color still wins on its rows.
  * A note is a one-line label, so it runs to the panel's right edge instead of
  * wrapping at the shared 60ch prose measure; only a note longer than the
- * panel wraps. A `code` span in a note draws in the code font at the row
- * ink, so identifiers and paths stand apart from the note's words.
+ * panel wraps. A `code` span in a note draws in the code font at the note's
+ * own muted ink and never breaks, so identifiers and paths stand apart from
+ * the note's words without outranking the file names.
  */
 export const FILE_TREE_CSS = `
 .docs-tree[data-tree-kind="file-tree"] > .docs-tree__rows {
@@ -134,7 +135,7 @@ export const FILE_TREE_CSS = `
 .docs-tree[data-tree-kind="file-tree"] .docs-tree__note { max-width: none; }
 .docs-tree__note-code {
   font-family: var(--tr-mono); font-size: 0.92em;
-  color: var(--tr-ink, #1f1f1f);
+  color: inherit; white-space: nowrap;
 }
 `;
 
