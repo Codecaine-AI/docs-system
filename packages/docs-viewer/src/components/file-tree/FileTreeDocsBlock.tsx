@@ -121,12 +121,16 @@ export const FILE_TREE_VARS = treeVars({
  * reads as one before its trailing "/"; and the guides mix the muted text
  * ink into the border instead of the softer shared guide, so each row traces to its parent on
  * the dark code panel. A colored group's own guide color still wins on its rows.
+ * A note is a one-line label, so it runs to the panel's right edge instead of
+ * wrapping at the shared 60ch prose measure; only a note longer than the
+ * panel wraps.
  */
 export const FILE_TREE_CSS = `
 .docs-tree[data-tree-kind="file-tree"] > .docs-tree__rows {
   --tr-folder-weight: var(--ds-font-weight-semibold);
   --tr-guide: color-mix(in srgb, var(--docs-muted, #666562) 70%, var(--tr-border, #e6e5e3));
 }
+.docs-tree[data-tree-kind="file-tree"] .docs-tree__note { max-width: none; }
 `;
 
 /** The struck old path of a rename, relative to the new name's folder (full path in the title). */
