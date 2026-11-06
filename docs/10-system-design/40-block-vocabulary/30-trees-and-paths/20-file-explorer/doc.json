@@ -187,7 +187,8 @@
       "children": [
         "fx-w-rows-1",
         "fx-w-rows-2",
-        "fx-w-rows-3"
+        "fx-w-rows-3",
+        "fx-w-rows-4"
       ]
     },
     "fx-w-rows-1": {
@@ -219,6 +220,17 @@
       "text": [
         {
           "insert": "Say in the lead that the explorer leaves the other files of the folder out."
+        }
+      ],
+      "children": []
+    },
+    "fx-w-rows-4": {
+      "id": "fx-w-rows-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mark the changed files in a folder, not the folder alone, because a folder row with no files under it shows no changed file."
         }
       ],
       "children": []
@@ -377,7 +389,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Set "
+          "insert": "Leave "
         },
         {
           "insert": "maxRows",
@@ -386,7 +398,7 @@
           }
         },
         {
-          "insert": " to the row count when the explorer has more than 8 rows, so no changed file folds out of view."
+          "insert": " unset, and split an explorer of more than 24 rows into one block per package."
         }
       ],
       "children": []
@@ -569,7 +581,7 @@
                 "name": "color",
                 "type": "\"gray\" | \"red\" | \"orange\" | \"yellow\" | \"green\" | \"teal\" | \"blue\" | \"violet\" | \"pink\"",
                 "required": false,
-                "description": "Group color from the docs color roster. It tints and fills the icons of the row and its subtree. Any other value fails validation."
+                "description": "Group color from the docs color roster. It draws a strip down the rows of its subtree and tints their icons. Any other value fails validation."
               }
             ]
           },
@@ -577,13 +589,13 @@
             "name": "title",
             "type": "string",
             "required": false,
-            "description": "Header title. No header renders without it."
+            "description": "Header title: what the files are, never the root folder path. No header renders without it."
           },
           {
             "name": "maxRows",
             "type": "integer (>= 1)",
             "required": false,
-            "description": "Rows shown before folding (default 8)."
+            "description": "Rows shown before folding (default 24). A fold never hides fewer than 4 rows."
           }
         ],
         "name": "FileExplorerState",
@@ -1056,16 +1068,16 @@
           }
         },
         {
-          "insert": " visible rows, the list folds behind a "
+          "insert": " rows, 24 by default, the list folds behind a "
         },
         {
-          "insert": "Show all N rows",
+          "insert": "Show N more rows",
           "attributes": {
             "bold": true
           }
         },
         {
-          "insert": " toggle."
+          "insert": " toggle. It never folds to hide fewer than 4 rows."
         }
       ],
       "children": []
@@ -1105,7 +1117,7 @@
           }
         },
         {
-          "insert": " tints and fills the icon of that row and of every row beneath it, and the names keep their ink. A descendant's own "
+          "insert": " runs as a strip down the left edge of that row and of every row beneath it, and tints and fills their icons. The names keep their ink. A descendant's own "
         },
         {
           "insert": "color",
@@ -1114,7 +1126,7 @@
           }
         },
         {
-          "insert": " overrides the inherited one for its subtree. A file entry's "
+          "insert": " overrides the inherited one for its subtree, and a file entry's "
         },
         {
           "insert": "color",

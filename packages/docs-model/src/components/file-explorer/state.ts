@@ -9,7 +9,7 @@ export const FileExplorerState = Type.Object(
   {
     entries: Type.Array(FileTreeEntrySchema),
     title: Type.Optional(Type.String({ description: "Header title: what the files are, never the root folder path. No header without it." })),
-    maxRows: Type.Optional(Type.Integer({ minimum: 1, description: "Rows shown before folding (default 8)." })),
+    maxRows: Type.Optional(Type.Integer({ minimum: 1, description: "Rows shown before folding (default 24). A fold never hides fewer than 4 rows. Leave it unset." })),
   },
   { additionalProperties: false },
 );
