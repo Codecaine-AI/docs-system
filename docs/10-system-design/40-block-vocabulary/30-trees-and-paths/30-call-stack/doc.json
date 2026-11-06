@@ -519,7 +519,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A branch frame always holds the frames that its condition gates. For an "
+          "insert": "A branch frame always holds the frames that run when its text is true. For an "
         },
         {
           "insert": "else",
@@ -528,19 +528,19 @@
           }
         },
         {
-          "insert": " arm, write "
+          "insert": " arm, wrap the source condition in "
         },
         {
-          "insert": "else",
+          "insert": "!( … )",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " and the source condition, such as "
+          "insert": ", such as "
         },
         {
-          "insert": "else (baseline === undefined)",
+          "insert": "!(baseline === undefined)",
           "attributes": {
             "code": true
           }
@@ -636,7 +636,7 @@
           }
         },
         {
-          "insert": " is the line where the caller writes the call or the condition, not the line where the callee starts. Only the top frame cites the line where its own handler starts, and the text before the block says so."
+          "insert": " is the line where the caller writes the call or the condition, not the line where the callee starts. Only the top frame cites the line where its own handler starts, and the page text never explains how the block cites lines."
         }
       ],
       "children": []
