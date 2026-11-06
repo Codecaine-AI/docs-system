@@ -124,9 +124,8 @@ describe("projectToMarkdown — the sample fixture", () => {
     expect(markdown).toContain(
       "```\n" +
         "  src/\n" +
-        "  ├── components/\n" +
-        "  │   └── docs/\n" +
-        "> │       └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx\n" +
+        "  ├── components/docs/\n" +
+        "> │   └── src/components/docs/BlockRenderer.tsx -> DocBlockRenderer.tsx\n" +
         "  └── lib/\n" +
         "      ├── docs-model/\n" +
         "~     │   ├── doc-ops.ts  # typed ops + inverses\n" +
@@ -501,6 +500,38 @@ describe("projectToMarkdown — file-tree tree rendering", () => {
         "  kept.ts\n" +
         "+ new.ts  # fresh\n" +
         "~ touched.ts\n" +
+        "```",
+    );
+  });
+
+  it("prints a chain of single-child folders as one compact line", () => {
+    const md = projectToMarkdown(treeDoc([{ path: "packages/docs-model/src/a.ts" }, { path: "packages/docs-model/src/b.ts" }]));
+    expect(md).toContain("```\npackages/docs-model/src/\n├── a.ts\n└── b.ts\n```");
+  });
+
+  it("keeps a folder on its own line when it carries a note, change or color, or its only child is a file", () => {
+    const md = projectToMarkdown(
+      treeDoc([
+        { path: "noted/", note: "why" },
+        { path: "noted/inner/x.ts" },
+        { path: "colored/", color: "blue" },
+        { path: "colored/inner/y.ts" },
+        { path: "moved/added/", change: "added" },
+        { path: "lone/z.ts" },
+      ]),
+    );
+    expect(md).toContain(
+      "```\n" +
+        "  colored/\n" +
+        "  └── inner/\n" +
+        "      └── y.ts\n" +
+        "  lone/\n" +
+        "  └── z.ts\n" +
+        "  moved/\n" +
+        "+ └── added/\n" +
+        "  noted/  # why\n" +
+        "  └── inner/\n" +
+        "      └── x.ts\n" +
         "```",
     );
   });
