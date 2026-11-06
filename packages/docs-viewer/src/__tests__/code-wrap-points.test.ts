@@ -24,8 +24,15 @@ describe("withWrapPoints", () => {
 
   it("keeps hyphenated words and short string literals on one row", () => {
     expect(withWrapPoints("a non-empty verb and --workspace")).toBe(
-      'a <span class="whitespace-nowrap">non-empty</span> verb and <span class="whitespace-nowrap">--workspace</span>',
+      'a <span class="whitespace-pre">non-empty</span> verb and <span class="whitespace-pre">--workspace</span>',
     );
-    expect(withWrapPoints('<span class="hljs-string">&quot;, &quot;</span>')).toBe('<span class="hljs-string whitespace-nowrap">&quot;, &quot;</span>');
+    expect(withWrapPoints('<span class="hljs-string">&quot;, &quot;</span>')).toBe('<span class="hljs-string whitespace-pre">&quot;, &quot;</span>');
+  });
+
+  it("keeps the spaces of a short string as written while it keeps the string on one row", () => {
+    const [html] = highlightCode('const gap = "  ";', "ts");
+    const wrapped = withWrapPoints(html!);
+    expect(wrapped).toContain('<span class="hljs-string whitespace-pre">&quot;  &quot;</span>');
+    expect(text(wrapped)).toBe(text(html!));
   });
 });

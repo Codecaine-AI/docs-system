@@ -8,8 +8,8 @@
  * same.
  */
 
-/** Keeps a hyphenated word (`non-empty`, `--workspace`) on one row. */
-const NOWRAP = "whitespace-nowrap";
+/** Keeps a hyphenated word (`non-empty`, `--workspace`) or a short string on one row, and keeps its spaces as written. */
+const NOWRAP = "whitespace-pre";
 
 /** A string literal this short, quotes and entities included, never splits. */
 const SHORT_STRING_CHARS = 16;

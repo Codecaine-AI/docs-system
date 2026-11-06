@@ -52,12 +52,12 @@ const RESTING_MARK = "after:border-[color:var(--docs-code-annotation-accent,#0b6
 function stubLayout(blockWidth: number) {
   const original = HTMLElement.prototype.getBoundingClientRect;
   HTMLElement.prototype.getBoundingClientRect = function (this: HTMLElement) {
-    // The block section, the column probe (64 zeros), then the furniture probe (a width, no text).
+    // The block section, a line probe (text at 7.8 px a character, 13 px for a CJK one), then the furniture probe (a width, no text).
     const probe = this.style.visibility === "hidden";
     const width = this.hasAttribute("data-code-annotations")
       ? blockWidth
       : probe && this.textContent
-        ? this.textContent.length * 7.8
+        ? [...this.textContent].reduce((sum, char) => sum + (/[\u3000-\u9fff]/.test(char) ? 13 : 7.8), 0)
         : probe
           ? 360
           : 0;
@@ -175,7 +175,13 @@ describe("AnnotatedCodeBlock", () => {
 
   it("puts each note under the last line it explains when the code cannot sit beside the notes", () => {
     const longLine = `const message = "${"x".repeat(90)}";`;
-    for (const [blockWidth, code] of [[600, CODE], [900, [longLine, ...CODE.split("\n").slice(1)].join("\n")]] as const) {
+    // 50 CJK characters fit 60 columns but paint about 650 px, wider than the 540 px left beside the notes.
+    const wideLine = `// ${"日".repeat(50)}`;
+    for (const [blockWidth, code] of [
+      [600, CODE],
+      [900, [longLine, ...CODE.split("\n").slice(1)].join("\n")],
+      [900, [wideLine, ...CODE.split("\n").slice(1)].join("\n")],
+    ] as const) {
       const restore = stubLayout(blockWidth);
       const { container } = renderBlock([
         { lines: "2-3", label: "Sum", note: "Adds the inputs." },

@@ -1,4 +1,5 @@
 import { deltaToPlainTextInline } from "../../delta-markdown";
+import { codeDisplayText } from "../../layout/code-line-width";
 import type { LintRule } from "../../lint/types";
 import { readCodeAnnotations } from "./state";
 
@@ -61,7 +62,9 @@ export const codeAnnotationRangeRule: LintRule = {
   check({ blocks }) {
     return blocks.flatMap((block) => {
       if (block.type !== "code") return [];
-      const lineCount = deltaToPlainTextInline(block.text).split("\n").length;
+      // Count the lines the viewer shows: it pretty-prints one-line JSON before it numbers lines.
+      const language = typeof block.props.language === "string" ? block.props.language : undefined;
+      const lineCount = codeDisplayText(deltaToPlainTextInline(block.text), language).split("\n").length;
       return readCodeAnnotations(block).flatMap((annotation, index) => {
         const covered = coveredLines(annotation.lines, lineCount);
         const parts = annotation.lines.split(",").map((part) => part.trim().match(/^(\d+)(?:\s*[-–]\s*(\d+))?$/));
