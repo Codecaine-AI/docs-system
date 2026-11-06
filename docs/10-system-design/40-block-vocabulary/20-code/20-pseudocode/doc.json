@@ -306,11 +306,32 @@
         }
       ],
       "children": [
+        "pseudo-write-names-0",
         "pseudo-write-names-1",
         "pseudo-write-names-2",
         "pseudo-write-names-3",
         "pseudo-write-names-4"
       ]
+    },
+    "pseudo-write-names-0": {
+      "id": "pseudo-write-names-0",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Open each block with the header line of its function at indent 0, such as "
+        },
+        {
+          "insert": "parseTranscript(jsonl)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and give each function its own block. The viewer sets the header line in a heavier weight."
+        }
+      ],
+      "children": []
     },
     "pseudo-write-names-1": {
       "id": "pseudo-write-names-1",
