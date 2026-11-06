@@ -11,7 +11,7 @@ import { join } from "node:path";
 test("docs-cli audit measures layout with HarfBuzz and reports layout findings as warnings", async () => {
   const root = await mkdtemp(join(tmpdir(), "docs-cli-text-measure-"));
   try {
-    const sentence = "Short text column under forty characters";
+    const sentence = "Short text under 24 char";
     const doc = {
       schemaVersion: 1, id: "wide", title: "Wide Table", root: "root",
       blocks: {
@@ -19,7 +19,7 @@ test("docs-cli audit measures layout with HarfBuzz and reports layout findings a
         intro: { id: "intro", type: "paragraph", props: {}, children: [], text: [{ insert: "This page holds a table that is too wide for its lane." }] },
         table: {
           id: "table", type: "structured-table", children: [],
-          props: { columns: ["One", "Two", "Three", "Four", "Five", "Six"], rows: [[sentence, sentence, sentence, sentence, sentence, sentence]] },
+          props: { columns: ["One", "Two", "Three", "Four", "Five", "Six", "Seven"], rows: [[sentence, sentence, sentence, sentence, sentence, sentence, sentence]] },
         },
       },
     };
