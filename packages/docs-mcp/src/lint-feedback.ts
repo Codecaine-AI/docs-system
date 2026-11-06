@@ -23,7 +23,13 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "structure.deep-list": { gate: true },
   "structure.image-alt": { gate: true },
   "structure.split-ordered-list": { gate: true },
+  "structure.callout-focus": { gate: true },
+  "structure.sequence-bullets": { gate: true },
+  "structure.split-bullet-list": { gate: true },
+  "writing.mixed-literal-marks": { gate: true },
   "interaction-surface.returns-prose": { gate: true },
+  "code.language": { gate: true },
+  "code.annotation-range": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },
 };
@@ -218,6 +224,40 @@ export const judgmentRules: readonly JudgmentRule[] = [
     // The literal "reads as one paragraph" question failed almost every lead. Naming the two failure modes separates.
     question: "Does the pair `lead` and `bullets` fail to read as prose? It fails when `lead` is a bare label or fragment instead of a complete sentence, or when it does not introduce what `bullets` say.",
     fix: "Make the lead a complete sentence that introduces the bullets. Make each bullet a complete sentence that follows from it.",
+  },
+  {
+    // The rich-text quality climb's judges (Muse, Fable and Opus) most often marked a callout down for a second,
+    // unrelated sentence after its message, or for a label weaker or stronger than the message.
+    id: "judgment.callout-message",
+    kind: "choice",
+    appliesTo: ["callout"],
+    threshold: 0.6,
+    gateThreshold: 0.85,
+    gate: true,
+    problem: "Callout does not carry one message that fits its label.",
+    // The body includes nested blocks, so an edit to one of them re-judges the callout that holds it.
+    anchors: (doc, id) => {
+      for (let at: string | undefined = id; at; at = parentOf(doc, at)) if (doc.blocks[at]?.type === "callout") return [at];
+      return [id];
+    },
+    state: (doc, id) => {
+      const block = doc.blocks[id]!;
+      const props = block.props as { tone?: string; kind?: string; title?: string };
+      return {
+        heading: nearestHeading(doc, id) ?? "",
+        label: props.kind || props.tone || "info",
+        title: props.title ?? "",
+        body: [textOf(doc, id), ...(block.children ?? []).map((child) => textOf(doc, child))].filter(Boolean).join("\n"),
+      };
+    },
+    question: "What does the documentation callout tell the reader? `label` is its printed label, such as warning, info or decision, `title` its optional title and `body` its text.",
+    options: [
+      { label: "one_message", description: "One message whose force fits the label. A second sentence, if any, gives the reason, the exception, or the action for that same message." },
+      { label: "two_messages", description: "Two separate messages, such as a warning followed by an unrelated fact or tip.",
+        problem: "Callout carries a second message.", fix: "Keep the message that fits the label in the callout. Move the other sentence into the prose before or after the callout." },
+      { label: "label_mismatch", description: "A message whose force does not fit the label, such as a plain fact under a warning label or a refusal the reader must avoid under an info label.",
+        problem: "Callout label does not fit its message.", fix: "Set tone to fit the message: warning or risk for what can go wrong, decision for a choice made, success for a result, and info for a neutral fact." },
+    ],
   },
 ];
 

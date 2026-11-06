@@ -75,7 +75,7 @@ export const media: Record<string, Record<string, ThemeTokenDefinition>> = {
       max: 32,
       step: 1,
       unit: "px",
-      defaultValue: dsNumber("space.0-5", "px"),
+      defaultValue: dsNumber("space.3", "px"),
     },
     // Stock follows the body size: the base semantic stylesheets do not
     // declare this var, so the head falls back to var(--style-font-size)
