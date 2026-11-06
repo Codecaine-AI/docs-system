@@ -105,13 +105,13 @@ The component registers exactly two typed actions, both built with `defineCompon
 **code annotation actions**
 
 ```
-code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
+[action] code.setAnnotation(lines: string, note: string, label?: string) -> CodePatch  # Upsert a line annotation keyed by its exact "lines" string (e.g. "4-9").
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
       lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.
       label?: string  # Short heading on the note.
       note: string  # The annotation body.
-code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
+[action] code.removeAnnotation(lines: string) -> CodePatch  # Remove the annotation whose "lines" key matches exactly.
   Returns CodePatch:
     annotations?: CodeAnnotation[]  # Line annotations, each keyed by its exact lines string.
       lines: string  # 1-indexed range string, such as "4", "4-9", or "1,4-6", and the entry's identity key.

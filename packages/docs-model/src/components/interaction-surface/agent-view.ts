@@ -10,7 +10,7 @@ import { readInteractionSurfaceOperations as interactionSurfaceOperations } from
 /**
  * Signature-line rendering (see the module header for the format):
  * `[kind] name(param: type, optional?: type) -> returns  # description` —
- * the `[kind]` prefix only for query/event, ` -> returns` and
+ * the `[kind]` prefix on every line (action when unset), ` -> returns` and
  * `  # description` only when present. One line per operation, document order.
  * Beneath a signature line, each param that carries a description or nested
  * fields adds indented detail lines in the shared field-line grammar
@@ -22,8 +22,8 @@ import { readInteractionSurfaceOperations as interactionSurfaceOperations } from
 function projectInteractionSurface(block: DocBlock): string {
   const title = stringProp(block, "title");
   const lines = interactionSurfaceOperations(block).flatMap((operation) => {
-    const kindPrefix =
-      operation.kind === "query" || operation.kind === "event" ? `[${operation.kind}] ` : "";
+    // Every line names its kind, as the viewer's row chip does: an operation without one is an action.
+    const kindPrefix = `[${operation.kind ?? "action"}] `;
     const params = (operation.params ?? [])
       .map((param) => {
         const optional = param.required === false ? "?" : "";
