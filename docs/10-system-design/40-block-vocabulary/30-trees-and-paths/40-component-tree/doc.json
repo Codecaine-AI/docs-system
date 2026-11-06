@@ -13,6 +13,12 @@
         "ct-h-example",
         "ct-example-lead",
         "ct-example",
+        "ct-h-rows",
+        "ct-rows-lead",
+        "ct-rows-g1",
+        "ct-rows-g2",
+        "ct-rows-g3",
+        "ct-rows-g4",
         "ct-h-state",
         "ct-state-lead",
         "ct-state-shape",
@@ -28,6 +34,7 @@
         "ct-doc-2",
         "ct-doc-3",
         "ct-doc-4",
+        "ct-doc-5",
         "ct-h-agent",
         "ct-agent-lead",
         "ct-agent-1",
@@ -73,10 +80,10 @@
       "props": {},
       "text": [
         {
-          "insert": "This tree is the workbench doc page, from "
+          "insert": "This tree is the panel that "
         },
         {
-          "insert": "App",
+          "insert": "OutlineRows",
           "attributes": {
             "code": true
           }
@@ -85,13 +92,40 @@
           "insert": " in "
         },
         {
-          "insert": "packages/docs-workbench/web/src/shell/App.tsx",
+          "insert": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " down to the renderer or editor that draws one page. Each source chip points at the line that renders the row inside its parent."
+          "insert": " draws for a component-tree block. The root's source is its definition, and every other source is the line that renders the row. The tree leaves out the "
+        },
+        {
+          "insert": "section",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "figure",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and rows "
+        },
+        {
+          "insert": "div",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wrappers, because no part the reader needs hangs off them."
         }
       ],
       "children": []
@@ -102,63 +136,87 @@
       "props": {
         "nodes": [
           {
-            "text": "<App>",
-            "comment": "tree, hash path, theme state",
-            "source": "packages/docs-workbench/web/src/shell/App.tsx:269",
+            "text": "<OutlineRows id={id} rows={rows} flavor={flavor} …>",
+            "comment": "one panel of code rows",
+            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:249",
             "nodes": [
               {
-                "text": "useCodeTheme()",
-                "kind": "hook",
-                "comment": "reads the active code theme",
-                "source": "packages/docs-workbench/web/src/shell/App.tsx:287"
+                "text": "<TreeHead icon={head.icon} title={head.title} />",
+                "comment": "family tile and block title",
+                "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:270"
               },
               {
-                "text": "<DocsClientProvider canvasEmbed={…}>",
-                "comment": "injects the embed slots",
-                "source": "packages/docs-workbench/web/src/shell/App.tsx:654",
+                "text": "flat.length === 0",
+                "kind": "branch",
+                "comment": "the block has no rows",
                 "nodes": [
                   {
-                    "text": "<Sidebar tree={tree} />",
-                    "source": "packages/docs-workbench/web/src/shell/App.tsx:690"
-                  },
+                    "text": "<div className=\"docs-tree__empty\">",
+                    "comment": "the (no rows) line",
+                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:281"
+                  }
+                ]
+              },
+              {
+                "text": "else",
+                "kind": "branch",
+                "nodes": [
                   {
-                    "text": "<DocPage path={path}>",
-                    "comment": "one page, read or edited",
-                    "source": "packages/docs-workbench/web/src/shell/App.tsx:698",
+                    "text": "<div className=\"docs-tree__row\" …>",
+                    "comment": "one per row, depth first",
+                    "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:287",
                     "nodes": [
                       {
-                        "text": "useTransientHighlights()",
-                        "kind": "hook",
-                        "comment": "flashes the saved blocks",
-                        "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:349"
-                      },
-                      {
-                        "text": "isStatic",
+                        "text": "diff",
                         "kind": "branch",
+                        "comment": "some row in the block changed",
                         "nodes": [
                           {
-                            "text": "<DocBlockRenderer document={doc} />",
-                            "comment": "read-only export",
-                            "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:1390"
+                            "text": "<TreeMark change={row.change} />",
+                            "comment": "the +, − or ~ gutter glyph",
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:298"
                           }
                         ]
                       },
                       {
-                        "text": "mode === \"edit\"",
+                        "text": "<TreeGuides guides={guides} />",
+                        "comment": "elbow and pipe guides",
+                        "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:303"
+                      },
+                      {
+                        "text": "branch",
                         "kind": "branch",
                         "nodes": [
                           {
-                            "text": "<DocEditor onApplyOps={…} />",
-                            "source": "packages/docs-workbench/web/src/pages/DocPage.tsx:1400"
+                            "text": "<span className=\"docs-tree__if\">",
+                            "comment": "the ? before a condition",
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:307"
+                          }
+                        ]
+                      },
+                      {
+                        "text": "row.comment",
+                        "kind": "branch",
+                        "nodes": [
+                          {
+                            "text": "<span className=\"docs-tree__note\" …>",
+                            "comment": "the comment beside or under the code",
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:315"
+                          }
+                        ]
+                      },
+                      {
+                        "text": "source",
+                        "kind": "branch",
+                        "nodes": [
+                          {
+                            "text": "<span className=\"docs-tree__src\" …>",
+                            "comment": "the file and line chip",
+                            "source": "packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:317"
                           }
                         ]
                       }
                     ]
-                  },
-                  {
-                    "text": "<DocPeekPanel projectId=\"local\" />",
-                    "comment": "side peek for doc links",
-                    "source": "packages/docs-workbench/web/src/shell/App.tsx:721"
                   }
                 ]
               }
@@ -166,6 +224,411 @@
           }
         ]
       },
+      "children": []
+    },
+    "ct-h-rows": {
+      "id": "ct-h-rows",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write the Rows"
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-lead": {
+      "id": "ct-rows-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each row copies its render site, so a reader can match the tree to the source files row by row. A tree that rewrites a condition, drops a guard or invents a row misleads that reader."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1": {
+      "id": "ct-rows-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Row Text",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-rows-g1-1",
+        "ct-rows-g1-2",
+        "ct-rows-g1-3",
+        "ct-rows-g1-4"
+      ]
+    },
+    "ct-rows-g1-1": {
+      "id": "ct-rows-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Copy each component row from the JSX at its render site, such as "
+        },
+        {
+          "insert": "<TreeHead icon={head.icon} title={head.title} />",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1-2": {
+      "id": "ct-rows-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the props that pass data, children or a render callback to a row in the tree. Write "
+        },
+        {
+          "insert": "…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before the closing "
+        },
+        {
+          "insert": ">",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "/>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when you drop other props."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1-3": {
+      "id": "ct-rows-g1-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a conditional or long prop value as "
+        },
+        {
+          "insert": "{…}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", never as one of its arms."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g1-4": {
+      "id": "ct-rows-g1-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put a child that a parent renders through a callback prop, such as "
+        },
+        {
+          "insert": "renderCanvas={renderCanvas}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", under the component that calls the callback. Keep that prop on the parent row."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g2": {
+      "id": "ct-rows-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Branches",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-rows-g2-1",
+        "ct-rows-g2-2",
+        "ct-rows-g2-3",
+        "ct-rows-g2-4"
+      ]
+    },
+    "ct-rows-g2-1": {
+      "id": "ct-rows-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a branch row's text as the source's own condition, such as "
+        },
+        {
+          "insert": "props.selectedId === \"theme.presets\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", not a paraphrase."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g2-2": {
+      "id": "ct-rows-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write the last arm as "
+        },
+        {
+          "insert": "else",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or as "
+        },
+        {
+          "insert": "default",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a switch."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g2-3": {
+      "id": "ct-rows-g2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Nest an inner condition's branch rows under the outer branch row, as the source nests them. Each row's guards then read from its ancestors."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g2-4": {
+      "id": "ct-rows-g2-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In a chain of 3 or more arms, keep an arm that renders nothing as a branch row with no children and the comment "
+        },
+        {
+          "insert": "renders nothing",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g3": {
+      "id": "ct-rows-g3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Scope",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-rows-g3-1",
+        "ct-rows-g3-2",
+        "ct-rows-g3-3"
+      ]
+    },
+    "ct-rows-g3-1": {
+      "id": "ct-rows-g3-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start the tree at the root the brief names, and stop at the leaves it names."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g3-2": {
+      "id": "ct-rows-g3-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave out an intrinsic element such as "
+        },
+        {
+          "insert": "div",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "section",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "aside",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "nav",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and move its component children up to its depth. Keep it when the brief names the part it draws, or when children slot into it."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g3-3": {
+      "id": "ct-rows-g3-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep one root per tree. Expand a component that renders in 2 places under the first place, and give the other row the comment "
+        },
+        {
+          "insert": "same rows as above",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g4": {
+      "id": "ct-rows-g4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Sources and Comments",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "ct-rows-g4-1",
+        "ct-rows-g4-2",
+        "ct-rows-g4-3"
+      ]
+    },
+    "ct-rows-g4-1": {
+      "id": "ct-rows-g4-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give the root row the source of its own definition, such as "
+        },
+        {
+          "insert": "OutlineRows.tsx:249",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in the example."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g4-2": {
+      "id": "ct-rows-g4-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every other row the line in its parent's file that renders it. A row that a "
+        },
+        {
+          "insert": "map",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " callback renders takes the line of its JSX."
+        }
+      ],
+      "children": []
+    },
+    "ct-rows-g4-3": {
+      "id": "ct-rows-g4-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a comment as what the row draws, or which case a branch covers, in a few words. Leave out a comment that repeats the row's name or props, narrates event handlers, or gives only a package name."
+        }
+      ],
       "children": []
     },
     "ct-h-state": {
@@ -256,7 +719,7 @@
                 "name": "kind",
                 "type": "\"component\" | \"hook\" | \"branch\"",
                 "required": false,
-                "description": "Defaults to component. A branch is a condition row that may own nodes. Give each arm of an if/else or a ternary its own branch row, such as !descriptor and descriptor, so the reader sees which nodes render in which case."
+                "description": "Defaults to component. A branch is a condition row that may own nodes. Give each arm of an if/else or a ternary its own branch row with the source's own condition, such as descriptor, and write the last arm as else. The reader then sees which nodes render in which case."
               },
               {
                 "name": "comment",
@@ -788,7 +1251,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Comments line up in one column, and a source shows as a muted file name and line. The full path is its tooltip."
+          "insert": "Comments line up in one column. A source chip shows the shortest path tail that tells the block's files apart, such as "
+        },
+        {
+          "insert": "AppShell/index.tsx:73",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and the full path is its tooltip."
         }
       ],
       "children": []
@@ -827,6 +1299,17 @@
         },
         {
           "insert": " gutter mark and a row tint."
+        }
+      ],
+      "children": []
+    },
+    "ct-doc-5": {
+      "id": "ct-doc-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "When the code leaves the comments too little room, each comment moves under its row and the chip stays on the code line. A long row wraps between props, under its own first line."
         }
       ],
       "children": []
