@@ -7,7 +7,7 @@ import { outlineRowSchema, readOutlineRows, type OutlineRow } from "../shared/ou
 
 export const COMPONENT_TREE_KINDS = ["component", "hook", "branch"] as const;
 
-export const ComponentTreeRowSchema = outlineRowSchema("ComponentTreeRow", "nodes", COMPONENT_TREE_KINDS, "\"component\" (default) is a rendered element; \"hook\" a hook call; \"branch\" a condition row that may own nodes. Give each arm of an if/else or a ternary its own branch row, such as \"!descriptor\" and \"descriptor\".");
+export const ComponentTreeRowSchema = outlineRowSchema("ComponentTreeRow", "nodes", COMPONENT_TREE_KINDS, "\"component\" (default) is a rendered element; \"hook\" a hook call; \"branch\" a condition row that may own nodes. Give each arm of an if/else or a ternary its own branch row with the source's own condition, such as \"descriptor\", and write the last arm as \"else\".");
 
 export const ComponentTreeState = Type.Object({ nodes: Type.Array(ComponentTreeRowSchema) }, { additionalProperties: false });
 
