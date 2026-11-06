@@ -174,7 +174,12 @@ const EXPLORER_CSS = `
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__name { color: color-mix(in srgb, var(--tr-chg-name) 55%, var(--tr-ink)); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__name[data-dir] { font-weight: var(--ds-font-weight-semibold); }
 /* a wrapped note balances its lines, so no word sits alone on the last one */
-.docs-tree[data-tree-kind="file-explorer"] .docs-tree__note { text-wrap: pretty; }
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__note {
+  text-wrap: pretty;
+  padding-left: var(--ds-space-4);
+  /* notes sit nearer the name ink than the shared muted note color, so they hold up on the dark panel */
+  color: color-mix(in srgb, var(--tr-note-fg, #666562) 75%, var(--tr-ink, #1f1f1f));
+}
 .docs-explorer__code {
   font: var(--ds-font-weight-regular) 0.92em var(--tr-mono);
   color: var(--tr-ink, #1f1f1f);
@@ -210,8 +215,7 @@ function ExplorerRowView({
 }) {
   const { node, names } = row;
   const change = rowChange(node);
-  // An empty folder has nothing to fold: it shows a closed twisty (its files
-  // are not listed) and is no toggle.
+  // An empty folder has nothing to fold, so it gets no twisty and no toggle.
   const foldable = node.isDir && node.children.size > 0;
   const folder = foldable
     ? {
@@ -244,7 +248,7 @@ function ExplorerRowView({
       >
         <TreeGuides guides={pipeGuides(row.depth)} />
         <span className="docs-tree__twisty" aria-hidden="true">
-          {foldable && open ? TREE_ICONS.chevronDown : node.isDir ? TREE_ICONS.chevronRight : null}
+          {foldable ? (open ? TREE_ICONS.chevronDown : TREE_ICONS.chevronRight) : null}
         </span>
         <span className="docs-tree__icon" aria-hidden="true">
           {node.isDir ? TREE_ICONS.folder : TREE_ICONS.file}

@@ -185,13 +185,13 @@ describe("file explorer", () => {
     expect(document.querySelector(".docs-explorer__legend")).toBeNull();
   });
 
-  it("gives an empty folder a closed twisty and no toggle", () => {
+  it("gives an empty folder no twisty and no toggle", () => {
     renderBlock({ entries: [{ path: "out/" }, { path: "src/a.ts" }] });
     const out = Array.from(document.querySelectorAll('[role="treeitem"]')).find(
       (row) => row.querySelector("[data-docs-file-tree-name]")?.textContent === "out",
     )!;
     expect(out.hasAttribute("aria-expanded")).toBe(false);
-    expect(out.querySelector(".docs-tree__twisty svg")).not.toBeNull();
+    expect(out.querySelector(".docs-tree__twisty svg")).toBeNull();
   });
 
   it("sets each backticked span of a note as code, and leaves an unpaired backtick as text", () => {
