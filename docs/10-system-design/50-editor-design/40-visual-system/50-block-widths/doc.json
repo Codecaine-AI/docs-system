@@ -34,6 +34,7 @@
         "bw-table-1",
         "bw-table-2",
         "bw-table-3",
+        "bw-table-3b",
         "bw-table-4",
         "bw-h-howto",
         "bw-howto-lead",
@@ -233,7 +234,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Descriptions, notes, comments, tooltips, and captions keep the reading measure inside every block."
+          "insert": "Descriptions, comments, tooltips, captions, and most notes keep the reading measure inside a block. A file tree note is a one-line label, so it runs to the panel's right edge and wraps only when it is longer than the panel."
         }
       ],
       "children": []
@@ -333,7 +334,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field ledger uses one 24ch name column and a 24px gap, so type columns line up across blocks."
+          "insert": "A field ledger's name column is at most 24ch wide, with a 24px gap before the type. A state shape fits that column to its longest name, from 10ch to 24ch."
         }
       ],
       "children": []
@@ -371,7 +372,8 @@
         }
       ],
       "children": [
-        "bw-rule-5a"
+        "bw-rule-5a",
+        "bw-rule-5b"
       ]
     },
     "bw-rule-5a": {
@@ -381,6 +383,17 @@
       "text": [
         {
           "insert": "The state shape and the interaction surface split the list and the code 44/56 when the block is at least 560px wide. The list keeps at least 360px and the code pane at least 260px, and a narrower block stacks the two panes."
+        }
+      ],
+      "children": []
+    },
+    "bw-rule-5b": {
+      "id": "bw-rule-5b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A state shape gives the list 52% when its example is 36 columns or narrower and shorter than 55% of the field list's estimated height."
         }
       ],
       "children": []
@@ -806,7 +819,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Table prose columns and stack details wrap at 60ch of 13.5px Inter, 506.25px. File tree notes share that cap, and their 24px left padding counts inside it."
+          "insert": "Table prose columns and stack details wrap at 60ch of 13.5px Inter, 506.25px."
         }
       ],
       "children": []
@@ -932,7 +945,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A text column whose longest cell is 40 characters or less stays on one line."
+          "insert": "A text column whose longest cell is 24 characters or less stays on one line."
         }
       ],
       "children": []
@@ -943,7 +956,18 @@
       "props": {},
       "text": [
         {
-          "insert": "The text column with the longest average text takes the remaining width and wraps at 60ch."
+          "insert": "The text column with the longest average text takes the remaining width, wraps at 60ch, and keeps at least 30ch. A table whose longest text cell is 30 characters or less has no such prose column."
+        }
+      ],
+      "children": []
+    },
+    "bw-table-3b": {
+      "id": "bw-table-3b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Another long text column wraps at 60ch when its average text is at least 80% of the prose column's, and at 30ch otherwise."
         }
       ],
       "children": []

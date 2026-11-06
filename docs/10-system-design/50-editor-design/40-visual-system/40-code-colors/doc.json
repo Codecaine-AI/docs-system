@@ -21,6 +21,7 @@
         "cc-chips-lead",
         "cc-chips-table",
         "cc-chips-contrast",
+        "cc-chips-table-cell",
         "cc-h-import",
         "cc-import-lead",
         "cc-import-1",
@@ -258,7 +259,7 @@
           [
             "function",
             "`--syntax-function`",
-            "Callees, calls, hooks, and operation names",
+            "Callees, calls, hooks, operation names, and pseudocode step verbs",
             "`#DCDCAA`"
           ],
           [
@@ -433,6 +434,35 @@
         },
         {
           "insert": " to keep 4.5:1 contrast on the chip fill."
+        }
+      ],
+      "children": []
+    },
+    "cc-chips-table-cell": {
+      "id": "cc-chips-table-cell",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline code in a structured-table cell is plain mono, not a chip. "
+        },
+        {
+          "insert": "TABLE_CELL_CODE_CLASSES",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-viewer/src/components/structured-table/table-classes.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " removes the fill, padding and border, and sets the plain chip ink instead of a kind color."
         }
       ],
       "children": []
