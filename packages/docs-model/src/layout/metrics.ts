@@ -249,12 +249,19 @@ export const TABLE_METRICS = {
   rowMinHeightPx: 28,
   /** Prose and wrap columns wrap their text at this many ch of the cell font. */
   proseMeasureCh: 60,
+  /** The prose column is never narrower than this many ch. A table whose longest text cell is this short has no prose column. */
+  proseFloorCh: 30,
+  /** A long text column whose average body text is at least this share of the prose column's wraps at the full prose measure. */
+  textColumnShare: 0.8,
   /** A text column whose longest body cell is over this many characters wraps. */
-  wrapThresholdChars: 40,
+  wrapThresholdChars: 24,
+  /** On screen, a code chip in a cell up to this many characters long never breaks, not even at a space. */
+  wholeChipMaxChars: 40,
 } as const;
 
 /** The prose measure in px at the stock cell size: 506.25. */
 export const TABLE_PROSE_MEASURE_PX = TABLE_METRICS.proseMeasureCh * sansChPx(TABLE_METRICS.fontSizePx);
+export const TABLE_PROSE_FLOOR_PX = TABLE_METRICS.proseFloorCh * sansChPx(TABLE_METRICS.fontSizePx);
 
 // -- Stack ---------------------------------------------------------------------
 
@@ -314,7 +321,8 @@ export function stackDetailSegments(detail: string): string[] {
  * shared by file-tree and file-explorer notes and call-stack and
  * component-tree comments. Rows never wrap. Notes wrap at `noteMaxCh` of the
  * note font, and that cap includes the note's 24px left padding
- * (border-box). Past the lane, the rows scroll sideways.
+ * (border-box). File-tree notes have no cap and run to the panel's right
+ * edge. Past the lane, the rows scroll sideways.
  */
 export const TREE_METRICS = {
   /** Row text: code font. */

@@ -5,7 +5,7 @@ import type { TableCell } from "@codecaine-ai/docs-model";
 import { cn } from "../../ui/cn";
 import { tableCellKinds } from "./cell-kind";
 import { renderTableCell } from "./cell-render";
-import { columnCellClasses, hasProseMeasure, tableColumnFits } from "./column-layout";
+import { columnCellClasses, proseMeasureClass, tableColumnFits } from "./column-layout";
 import {
   TABLE_BODY_CELL_TEXT_CLASSES,
   TABLE_CELL_SPACING_CLASS,
@@ -13,7 +13,6 @@ import {
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
-  TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
@@ -107,8 +106,8 @@ export function StructuredTableBlock({
                       columnCellClasses(fits[columnIndex], columnIndex, false),
                     )}
                   >
-                    {hasProseMeasure(fits[columnIndex]) ? (
-                      <div className={TABLE_PROSE_MEASURE_CLASS}>
+                    {proseMeasureClass(fits[columnIndex]) ? (
+                      <div className={proseMeasureClass(fits[columnIndex])}>
                         {renderTableCell(row[columnIndex] ?? "")}
                       </div>
                     ) : (

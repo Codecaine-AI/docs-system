@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useId, useMemo, type CSSProperties, type ReactNode } from "react";
 import { Braces } from "lucide-react";
 import { printJsonLines, type Field } from "@codecaine-ai/docs-model";
 import { DescribedName } from "../described-name";
@@ -32,7 +32,7 @@ export type StateShapeSourceProps = { path: string; symbol?: string };
  * ledger (./field-ledger) reads the `--fl-*` locals mapped here.
  */
 export const STATE_SHAPE_STYLE = `
-[data-docs-block-type="state-shape"]{container-type:inline-size;margin:var(--ds-space-4) 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:var(--docs-shape-name-width,24ch);--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
+[data-docs-block-type="state-shape"]{container-type:inline-size;margin:var(--ds-space-4) 0;overflow:hidden;color:var(--docs-text,#2a2a2a);background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7));border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3));border-radius:var(--docs-shape-radius,var(--radius,2px));--fl-pad-x:var(--docs-shape-pad-x,16px);--fl-row-pad:var(--docs-shape-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--docs-shape-rule,var(--docs-rule-soft,#efeeec));--fl-rule-w:var(--docs-shape-rule-width,1px);--fl-name-w:min(var(--docs-shape-name-width,24ch),var(--shape-name-fit,24ch));--fl-indent:var(--docs-shape-indent,16px);--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe));--fl-name-weight:var(--docs-shape-name-weight,500);--fl-name-size:var(--docs-shape-text-size,13px);--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0));--fl-type-size:var(--docs-shape-type-text-size,13px);--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4));--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4));--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--fl-muted);--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562));--fl-desc-size:var(--docs-shape-desc-text-size,13.5px)}
 [data-shape-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--docs-shape-header-pad-y,6px) var(--docs-shape-pad-x,16px);background:var(--docs-shape-header-bg,var(--docs-panel,#f8f8f7));border-bottom:var(--docs-shape-header-rule-width,1px) solid var(--docs-shape-header-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-name]{margin:0;min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-shape-header-text-size,13px);font-weight:var(--docs-shape-header-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-shape-header-fg,var(--docs-ink,#1f1f1f));overflow-wrap:normal}
 [data-shape-header]>[data-described]{margin-left:auto;min-width:0}
@@ -46,6 +46,13 @@ export const STATE_SHAPE_STYLE = `
 [data-shape-example-pane]{min-width:0;background:var(--docs-code-block-bg,color-mix(in srgb,var(--muted) 30%,transparent));border-top:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}
 @container (min-width:560px){[data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-shape-grid][data-has-example] [data-shape-example-pane]{border-top:0;border-left:var(--docs-shape-pane-rule-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))}}
 .review-wide [data-shape-grid][data-has-example]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}
+@container (min-width:560px){[data-shape-grid][data-has-example][data-example-short]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),calc(var(--docs-pane-split,44%) + 8%)) minmax(260px,1fr)}}
+[data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}
+[data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}
+[data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}[data-docs-block-type="state-shape"] [data-json-glue]{white-space:nowrap}[data-docs-block-type="state-shape"] [data-field-token="optional"]{margin-left:0}[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}
+[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
+[data-shape-legend]{margin:0;padding:var(--ds-space-1) var(--docs-shape-pad-x,16px) var(--ds-space-1-5);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 calc(-1 * var(--docs-shape-rule-width,1px)) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
+[data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
 `;
 
 /**
@@ -123,20 +130,91 @@ function jsonTokenKind(token: string, rest: string): JsonTokenKind {
   if (token.length === 1 && "{}[],:".includes(token)) return "punct";
   return "number";
 }
+/** A string value with no space that this many characters or fewer separate at each `/` reads as a path. */
+const PATH_SEGMENT_MAX = 32;
+
+/**
+ * A path-like string value (no space, a `/`, every part short) as one inline-block per part with a break after each
+ * `/`, so a soft-wrapped path breaks between folders and not inside a name such as `docs-mcp`. A part wider than the
+ * whole line still wraps inside itself, so nothing runs past the pane. Any other string is returned whole.
+ */
+function pathSegments(token: string): ReactNode {
+  if (/\s/.test(token) || !token.includes("/")) return token;
+  const parts = token.split(/(?<=\/)/);
+  if (parts.some((part) => part.length > PATH_SEGMENT_MAX)) return token;
+  return parts.map((part, index) => <Fragment key={index}>{index > 0 && <wbr />}<span data-json-seg="">{part}</span></Fragment>);
+}
+
+/** The characters of a string value that stay on the line of its closing quote and comma. */
+const GLUE_TAIL = 3;
+
+/** The kinds of token that end a `"key": value` pair on one line (a `{` or `[` opens a nested block instead). */
+const PAIR_VALUE_KINDS: ReadonlySet<JsonTokenKind> = new Set(["string", "number", "boolean", "null"]);
+
+/**
+ * One example line as role-tagged token spans. A `"key": value` pair is wrapped in one `data-json-pair` span that
+ * never breaks between the key and the start of its value, so a long value wraps inside itself and never drops
+ * whole onto the next visual line, away from its key.
+ */
 export function jsonLineTokens(line: string): ReactNode[] {
   const output: ReactNode[] = [];
+  const kinds: (JsonTokenKind | null)[] = [];
+  const texts: string[] = [];
   let cursor = 0;
   for (const match of line.matchAll(JSON_LEXEME_PATTERN)) {
     const index = match.index ?? 0;
-    if (index > cursor) output.push(line.slice(cursor, index));
+    if (index > cursor) { output.push(line.slice(cursor, index)); kinds.push(null); texts.push(line.slice(cursor, index)); }
     const token = match[0];
     const kind = jsonTokenKind(token, line.slice(index + token.length));
-    output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{token}</span>);
+    output.push(<span key={index} data-json-token={kind} className={JSON_TOKEN_CLASS[kind]}>{kind === "string" ? pathSegments(token) : token}</span>);
+    kinds.push(kind);
+    texts.push(token);
     cursor = index + token.length;
   }
-  if (cursor < line.length) output.push(line.slice(cursor));
-  return output;
+  if (cursor < line.length) { output.push(line.slice(cursor)); kinds.push(null); texts.push(line.slice(cursor)); }
+  const key = kinds.indexOf("key");
+  // After the key come its ":" and a space; the value is the next token.
+  const value = kinds.findIndex((kind, index) => index > key + 1 && kind !== null);
+  if (key < 0 || value < 0 || !PAIR_VALUE_KINDS.has(kinds[value]!)) return output;
+  // The pair takes the line's indent too, so the line cannot break between its indent and its key.
+  const start = key === 1 && kinds[0] === null ? 0 : key;
+  // A string value's closing quote and the trailing comma print as one unbreakable unit, so the comma never wraps
+  // onto a line of its own.
+  const comma = kinds[value + 1] === "punct" && texts[value + 1] === ",";
+  if (kinds[value] === "string" && comma) {
+    const token = texts[value]!;
+    // The glue also takes the value's last few characters, so a wrap never leaves `",` alone on a line.
+    const body = token.slice(0, -1);
+    // A path keeps its whole last part with the quote, so the glue never splits a name such as `docs-mcp`.
+    const slash = body.lastIndexOf("/");
+    const pathLike = !/\s/.test(body) && slash > 0 && body.length - slash - 1 <= PATH_SEGMENT_MAX;
+    const cut = pathLike ? slash + 1 : Math.max(1, body.length - GLUE_TAIL);
+    output[value] = <span key="value" data-json-token="string" className={JSON_TOKEN_CLASS.string}>{pathSegments(body.slice(0, cut))}<span data-json-glue="">{body.slice(cut)}{'"'}<span data-json-token="punct" className={JSON_TOKEN_CLASS.punct}>,</span></span></span>;
+    output.splice(value + 1, 1);
+  }
+  return [...output.slice(0, start), <span key="pair" data-json-pair="">{output.slice(start, value + 1)}</span>, ...output.slice(value + 1)];
 }
+
+/** Continuation lines of a wrapped string value hang this far at most, so a deep key still leaves room to wrap. */
+const VALUE_HANG_MAX = 26;
+
+/**
+ * The hanging indent of one example line. A `"key": "value"` line whose value has no space (a path, a token, an
+ * id) hangs its continuation lines under the first character inside the value's opening quote, so the wrapped
+ * value reads as one string. Any other line, prose strings included, hangs 2ch past its own indent, so a long
+ * sentence keeps the pane's width.
+ */
+export function exampleHang(line: string): number {
+  const pair = /^(\s*"(?:[^"\\]|\\.)*":\s*)"[^\s"]*"?,?$/.exec(line);
+  return pair && pair[1]!.length <= VALUE_HANG_MAX ? pair[1]!.length - 1 : leadingColumns(line);
+}
+
+/**
+ * The widest line, in columns, that the example folds an object or array onto. The side pane shows about 46
+ * columns at the 1280px page (48% of an 815px block), so a folded line never soft-wraps and leaves its closing
+ * brace on a line alone.
+ */
+const EXAMPLE_FOLD_COLUMNS = 42;
 
 function normalizeRangePath(path: string) { return path.replace(/\[\d+\]/g, "").replace(/^\.+/, ""); }
 
@@ -145,6 +223,8 @@ export type ShapeModel = {
   rows: FieldLedgerRow[];
   /** The pretty-printed example, each line keyed with its field chain (deepest first); undefined without a valid example. */
   exampleLines?: LinkedCodeLine[];
+  /** The widest printed example line, in columns; undefined without a valid example. */
+  exampleColumns?: number;
 };
 
 /**
@@ -160,8 +240,9 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   }
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
+  let printedColumns = 0;
   if (parsed) {
-    const { lines, ranges } = printJsonLines(value, { inlineWidth: 56 });
+    const { lines, ranges } = printJsonLines(value, { inlineWidth: EXAMPLE_FOLD_COLUMNS });
     const paths = new Set(flat.map((row) => row.path));
     const keysByLine = new Array<string[] | undefined>(lines.length);
     for (const range of ranges) {
@@ -173,7 +254,8 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
         if (chain[0] !== path) chain.unshift(path);
       }
     }
-    exampleLines = lines.map((line, index) => ({ content: hangingLine(leadingColumns(line), jsonLineTokens(line)), linkKey: keysByLine[index] }));
+    printedColumns = lines.reduce((max, line) => Math.max(max, line.length), 0);
+    exampleLines = lines.map((line, index) => ({ content: hangingLine(exampleHang(line), jsonLineTokens(line)), linkKey: keysByLine[index] }));
   }
   const rows = flat.map(({ field, depth, path }) => ({
     path,
@@ -182,10 +264,73 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
     ...(matched.has(path) ? { linkKey: path } : {}),
     attrs: rowAttrs?.(path, depth, field),
   }));
-  return { rows, exampleLines };
+  return { rows, exampleLines, ...(exampleLines ? { exampleColumns: printedColumns } : {}) };
+}
+
+/** The name column never shrinks below this many ch, and never grows past the shared ledger's 24ch. */
+const NAME_FIT_MIN_CH = 10;
+const NAME_FIT_MAX_CH = 24;
+/** One nesting step (--docs-shape-indent, 16px) in ch of the 13px mono name font, rounded up. */
+const INDENT_CH = 2.2;
+
+/**
+ * The name column width, in ch, that holds the longest name at its depth with its `?`: a shape with short names
+ * gives the type and description that space instead of an empty 24ch column.
+ */
+export function fitNameColumn(rows: readonly Pick<FieldLedgerRow, "field" | "depth">[]): number {
+  const widest = rows.reduce((max, { field, depth }) => Math.max(max, field.name.length + (field.required === false ? 1.5 : 0) + depth * INDENT_CH), 0);
+  return Math.min(NAME_FIT_MAX_CH, Math.max(NAME_FIT_MIN_CH, Math.ceil(widest + 1)));
 }
 
 const SHAPE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + STATE_SHAPE_STYLE;
+
+/**
+ * A field description with each `backtick` span set as inline code, so a code name, an empty string `""` or a
+ * separator such as `" | "` reads as a literal value and not as prose. The backticks themselves are not shown. A short
+ * span never breaks inside itself, so `docs-model` or `Authorization: Bearer <token>` stays whole.
+ */
+/** A code span this many characters or shorter stays on one line; a longer one may break anywhere. */
+const NOTE_CODE_NOWRAP_MAX = 32;
+
+export function noteWithCode(description: string): ReactNode {
+  const parts = description.split(/`([^`]+)`/);
+  if (parts.length === 1) return description;
+  return parts.map((part, index) => {
+    if (index % 2 === 0) return part;
+    if (part.length <= NOTE_CODE_NOWRAP_MAX) return <code key={index} data-note-code="">{part}</code>;
+    // A long path breaks only after a /, like an example path; other long code may break anywhere.
+    const segments = /\s/.test(part) || !part.includes("/") ? null : part.split(/(?<=\/)/);
+    return <code key={index} data-note-code="long">{segments ? segments.map((segment, at) => <Fragment key={at}>{at > 0 && <wbr />}<span data-json-seg="">{segment}</span></Fragment>) : part}</code>;
+  });
+}
+
+/** Description characters that one line of the field column holds at the 1280px page. */
+const NOTE_LINE_CHARS = 42;
+/** Columns the example pane shows when the field list takes its 8% more width. */
+const NARROW_PANE_COLUMNS = 36;
+
+/**
+ * True when the example would end far above the field list and every example line still fits a narrower pane:
+ * its printed lines are fewer than 55% of the field list's estimated lines (each row's type line, its description
+ * lines, and its row padding counted as half a line), and its widest line is NARROW_PANE_COLUMNS or less. The grid
+ * then gives the field list more width, which shortens it, so the two panes end nearer together.
+ */
+export function exampleIsShort(rows: readonly FieldLedgerRow[], exampleLines: number, exampleColumns: number): boolean {
+  if (exampleColumns > NARROW_PANE_COLUMNS) return false;
+  const ledgerLines = rows.reduce((sum, { field }) => sum + 1.5 + Math.ceil((field.description?.length ?? 0) / NOTE_LINE_CHARS), 1);
+  return exampleLines < ledgerLines * 0.55;
+}
+
+/**
+ * The ledger's key to optionality. A row marks only an optional field (`?`), so a shape whose fields are all
+ * required shows no marker at all; the legend says which case the reader sees.
+ */
+function OptionalityLegend({ rows }: { rows: readonly FieldLedgerRow[] }) {
+  const optional = rows.some((row) => row.field.required === false);
+  return <p data-shape-legend={optional ? "optional" : "all-required"}>
+    {optional ? <><span data-shape-legend-mark aria-hidden="true">?</span> marks an optional field. Every other field is required.</> : rows.length === 1 ? "The field is required." : "Every field is required."}
+  </p>;
+}
 
 export function StateShapeBlock({ id, name, description, source, fields, example }: { id: string; name?: string; description?: string; source?: StateShapeSourceProps; fields: Field[]; example?: string }) {
   const model = useMemo(() => buildShapeModel(fields, example, (path, depth, field) => ({ "data-shape-field": field.name, "data-shape-path": path, "data-shape-depth": depth })), [fields, example]);
@@ -194,7 +339,8 @@ export function StateShapeBlock({ id, name, description, source, fields, example
   const sourceShort = source ? `${source.path.slice(source.path.lastIndexOf("/") + 1)}${source.symbol ? `#${source.symbol}` : ""}` : undefined;
   const sourceTipId = useId();
   const label = name ?? sourceRef ?? "State shape";
-  return <section className="not-prose w-full min-w-0" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef} data-code-surface="true">
+  const nameFit = { "--shape-name-fit": `${fitNameColumn(model.rows)}ch` } as CSSProperties;
+  return <section className="not-prose w-full min-w-0" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef} data-code-surface="true" style={nameFit}>
     <style>{SHAPE_SHEET}</style>
     {(name || sourceRef) && <header data-shape-header="true">
       <span data-ref-tile aria-hidden="true"><Braces aria-hidden="true" data-shape-icon="true" /></span>
@@ -203,9 +349,9 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     </header>}
     {description && <p data-shape-description="true">{description}</p>}
     <LinkGroup>
-      <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined}>
+      <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined} data-example-short={model.exampleColumns !== undefined && model.exampleLines && exampleIsShort(model.rows, model.exampleLines.length, model.exampleColumns) ? "true" : undefined}>
         <div data-shape-tree="true">
-          {fields.length > 0 ? <FieldLedger rows={model.rows} inlineNotes data-shape-ledger="true" /> : <p data-shape-empty="true">(no fields)</p>}
+          {fields.length > 0 ? <><OptionalityLegend rows={model.rows} /><FieldLedger rows={model.rows} inlineNotes renderNote={noteWithCode} data-shape-ledger="true" /></> : <p data-shape-empty="true">(no fields)</p>}
         </div>
         {model.exampleLines && <div data-shape-example-pane="true" data-code-surface="true" data-ref-code="true">
           <CodeLines data-shape-example="true" lines={model.exampleLines} tabIndex={0} role="region" aria-label={`${label} example`} />

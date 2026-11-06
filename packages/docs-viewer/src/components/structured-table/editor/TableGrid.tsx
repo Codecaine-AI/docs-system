@@ -9,14 +9,13 @@ import {
   TABLE_ELEMENT_CLASSES,
   TABLE_HEAD_CLASSES,
   TABLE_HEADER_CELL_TEXT_CLASSES,
-  TABLE_PROSE_MEASURE_CLASS,
   TABLE_ROW_HOVER_CLASSES,
   TABLE_ROW_MIN_HEIGHT_CLASS,
   TABLE_ROW_RULE_CLASSES,
   TABLE_WRAPPER_CLASSES,
 } from "../table-classes";
 import { tableCellKinds } from "../cell-kind";
-import { columnCellClasses, hasProseMeasure, tableColumnFits } from "../column-layout";
+import { columnCellClasses, proseMeasureClass, tableColumnFits } from "../column-layout";
 import { useTableOverflow } from "../use-table-overflow";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { placeCaretAtEnd } from "./caret";
@@ -213,7 +212,7 @@ export function TableGrid({
                   )}
                   onMouseEnter={() => onHoverCell(rowIndex, columnIndex)}
                 >
-                  <div className={hasProseMeasure(fits[columnIndex]) ? TABLE_PROSE_MEASURE_CLASS : undefined}>
+                  <div className={proseMeasureClass(fits[columnIndex])}>
                     <EditableCell
                       value={row[columnIndex] ?? ""}
                       editable={editable}

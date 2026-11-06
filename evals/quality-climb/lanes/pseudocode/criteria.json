@@ -1,0 +1,9 @@
+[
+  { "id": "control-flow-fidelity", "group": "Meaning", "question": "Against the source files, does each block keep the source's order of branches, loops, calls and returns, with no invented step and no dropped path that changes the result?" },
+  { "id": "plain-language-abstraction", "group": "Writing", "question": "In the markdown, does each block read as plain-language steps, with one idea per line and no real-language syntax such as braces, semicolons, type annotations or language-specific calls?" },
+  { "id": "comment-purpose", "group": "Writing", "question": "In the markdown and the PNG, does each trailing // comment give a reason, rule or consequence, or say what a name means, in a short phrase, and not restate what its line already says?" },
+  { "id": "highlight-roles", "group": "Look", "question": "In the PNG, does highlighting mark control words, calls, properties and -> arrows in their correct roles, with no plain-English word coloured as code?" },
+  { "id": "nesting-legibility", "group": "Look", "question": "In the PNG, is each line's nesting under its controlling branch or loop clear from one consistent indent step, with wrapped continuation lines held at that indent so they do not read as new steps?" },
+  { "id": "comment-ownership", "group": "Look", "question": "In the PNG, can each trailing // comment be matched to exactly one line, whether it sits in the aligned comment column or below its line?" },
+  { "id": "diff-polarity", "group": "Look", "question": "In the PNG, where diff is on, can the reader tell added, removed and unchanged lines apart from the +/- sign, row tint and strike together, without colour alone carrying the meaning?" }
+]

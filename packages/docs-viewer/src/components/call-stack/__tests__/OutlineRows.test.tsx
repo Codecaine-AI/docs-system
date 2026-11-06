@@ -94,6 +94,25 @@ describe("call-stack rows", () => {
       .map((node) => `${node.getAttribute("data-outline-token")}:${node.textContent}`);
     expect(tokens).toEqual(["control:return", "callee:apply", "prop:ops", "number:409", 'string:"x"', "call:wrap"]);
   });
+  it("sets each backtick span of a comment in the code font and leaves an unpaired backtick as text", () => {
+    const wrapper = renderBlock("call-stack", { frames: [{ text: "judge()", comment: "skipped when `!judgeUp`, a ` stays" }] });
+    const note = wrapper?.querySelector(".docs-tree__note");
+    expect(note?.textContent).toBe("skipped when !judgeUp, a ` stays");
+    expect([...(note?.querySelectorAll("code") ?? [])].map((code) => code.textContent)).toEqual(["!judgeUp"]);
+  });
+  it("leads a loop branch with the loop mark, and a condition or an array predicate guard with ?", () => {
+    const wrapper = renderBlock("call-stack", {
+      frames: [
+        { text: "for (const block of blocks)", kind: "branch", frames: [{ text: "check(block)" }] },
+        { text: "jobs.map(async (job) => …)", kind: "branch" },
+        { text: "!result.ok", kind: "branch" },
+        { text: "!jobs.every((job) => job.ok)", kind: "branch", frames: [{ text: "return failure(job)" }] },
+        { text: "items.some((item) => item.stale)", kind: "branch" },
+      ],
+    });
+    const marks = [...(wrapper?.querySelectorAll("[data-branch-mark]") ?? [])].map((mark) => mark.getAttribute("data-branch-mark"));
+    expect(marks).toEqual(["loop", "loop", "condition", "condition", "condition"]);
+  });
 });
 
 describe("component-tree rows", () => {
@@ -127,5 +146,32 @@ describe("component-tree rows", () => {
       "tagpunct:>",
     ]);
     expect(wrapper?.querySelector("figcaption")?.textContent).toBe("Component tree");
+  });
+
+  it("names each source by the shortest path tail that tells the block's files apart", () => {
+    const shell = "packages/docs-workbench/web/src/_components";
+    const wrapper = renderBlock("component-tree", {
+      nodes: [
+        {
+          text: "<RouterShell>",
+          source: `${shell}/RouterShell/index.tsx:37`,
+          nodes: [
+            { text: "<AppShell>", source: `${shell}/RouterShell/index.tsx:50` },
+            { text: "<Sidebar />", source: `${shell}/AppShell/_components/Sidebar/index.tsx:39` },
+            { text: "<DocEditor />", source: "packages/docs-viewer/src/editor/DocEditor.tsx:12" },
+          ],
+        },
+      ],
+    });
+    const chips = [...(wrapper?.querySelectorAll("[data-outline-source]") ?? [])].map((chip) => {
+      const hidden = chip.querySelector(".docs-tree__sr")?.textContent ?? "";
+      return { shown: chip.textContent!.slice(hidden.length), title: chip.getAttribute("title") };
+    });
+    expect(chips).toEqual([
+      { shown: "RouterShell/index.tsx:37", title: `${shell}/RouterShell/index.tsx:37` },
+      { shown: "RouterShell/index.tsx:50", title: `${shell}/RouterShell/index.tsx:50` },
+      { shown: "Sidebar/index.tsx:39", title: `${shell}/AppShell/_components/Sidebar/index.tsx:39` },
+      { shown: "DocEditor.tsx:12", title: "packages/docs-viewer/src/editor/DocEditor.tsx:12" },
+    ]);
   });
 });

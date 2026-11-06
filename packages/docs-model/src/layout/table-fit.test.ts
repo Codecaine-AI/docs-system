@@ -54,12 +54,12 @@ describe("layout.table-fit on screen", () => {
   });
 
   test("fit columns that never wrap past the 1,100px lane make the table scroll, as a warning that never blocks", () => {
-    const sentence = "Short text column under forty characters";
-    const block = table("t", ["One", "Two", "Three", "Four", "Five", "Six"], [[sentence, sentence, sentence, sentence, sentence, sentence]]);
+    const sentence = "Short text under 24 char";
+    const block = table("t", ["One", "Two", "Three", "Four", "Five", "Six", "Seven"], [[sentence, sentence, sentence, sentence, sentence, sentence, sentence]]);
     const { minPx } = structuredTableWidths(block, 688)!;
     expect(minPx).toBeGreaterThan(1101);
     const [finding] = check(document(block));
-    expect(finding).toMatchObject({ blockId: "t", field: "props.columns", evidence: "One | Two | Three | Four | Five | Six" });
+    expect(finding).toMatchObject({ blockId: "t", field: "props.columns", evidence: "One | Two | Three | Four | Five | Six | Seven" });
     expect(finding!.message).toStartWith(`The table needs at least ${px(minPx)} but has 1,100px at stock theme settings, so it scrolls sideways on screen.`);
     expect(finding!.message).toContain(`"Two" at ${px(measureWidth(sentence, { family: "Inter", size: 13.5 }) + 24)}, where row 1 never wraps`);
     expect(finding!.message).not.toContain("approximate");
@@ -109,17 +109,25 @@ describe("layout.table-fit on screen", () => {
     expect(check(document(block))[0]!.message).toContain("scrolls sideways on screen");
   });
 
-  test("a code span breaks only between its pieces, each padded on both sides", () => {
-    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src"), { insert: " for the reader." }]]]);
+  test("a code span over 40 characters breaks only between its pieces, in unpadded mono at the identifier size", () => {
+    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "See " }, code("packagesrootfolder/docs-viewer/src/components"), { insert: " for the reader." }]]]);
     const { columns } = structuredTableWidths(block, 688)!;
-    const chip = 13.5 * 0.85;
-    // The chip breaks at the <wbr> after its first piece, so that piece carries a third padding (Chromium's min-content).
     expect(columns[1]!.widest.measured.text).toBe("packagesrootfolder/");
-    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(chip)) + 3 * chip * 0.35, 6);
+    expect(columns[1]!.widest.measured.width).toBeCloseTo(measureWidth("packagesrootfolder/", codeFont(13)), 6);
   });
 
-  test("identifier cells never wrap their text, but a path still breaks at its pieces", () => {
-    const block = table("t", ["Path", "Notes"], [[[code("packages/docs-viewer/src/components")], "x"], [[code("headerRuleWidthTokenWithALongName")], "y"]]);
+  test("a code span of up to 40 characters never breaks, not even at a space", () => {
+    const block = table("t", ["Name", "Notes"], [["alpha", [{ insert: "Pass " }, code("--root <path>"), { insert: " to export another folder of docs." }]]]);
+    expect(structuredTableWidths(block, 688)!.columns[1]!.widest.measured.text).toBe("--root <path>");
+  });
+
+  test("a code span of up to 40 characters breaks only after a list separator", () => {
+    const block = table("t", ["Option", "Value"], [["--samples", [code("<judge>=<count>,<judge>=<count>")]], ["--set", [code("climb|held-out|all")]]]);
+    expect(structuredTableWidths(block, 688)!.columns[1]!.widest.measured.text).toBe("<judge>=<count>,");
+  });
+
+  test("identifier cells never wrap their text, but a path over 40 characters still breaks at its pieces", () => {
+    const block = table("t", ["Path", "Notes"], [[[code("packages/docs-viewer/src/components/structured")], "x"], [[code("headerRuleWidthTokenWithALongName")], "y"]]);
     const { columns } = structuredTableWidths(block, 688)!;
     expect(columns[0]!.widest.identifier).toBe(true);
     expect(columns[0]!.widest.measured.text).toBe("headerRuleWidthTokenWithALongName");
@@ -151,11 +159,18 @@ describe("layout.table-fit in PDF export", () => {
     expect(check(document(block))).toEqual([]);
   });
 
+  test("a short list chip and the prose column's floor both wrap in print, so neither runs into the next column", () => {
+    const prose = "A sentence long enough to make this column the prose column of the table.";
+    const block = table("t", ["A", "B", "C", "D", "E"], [["a", "b", [{ insert: "Use " }, code("aVeryLongCamelCaseIdentifier,short")], "d", prose]]);
+    expect(structuredTableWidths(block, 688)!.columns[4]!.fit).toBe("prose");
+    expect(structuredTableWidths(block, 688)!.pdfOverflows).toEqual([]);
+  });
+
   test("in a fit column a bold run stays on one line in print", () => {
-    const bold = { insert: "Unbreakable bold label text", attributes: { bold: true as const } };
+    const bold = { insert: "Unbreakable bold label", attributes: { bold: true as const } };
     // Column E holds the longest text, so it is the prose column and C is a fit column.
     const block = table("t", ["A", "B", "C", "D", "E"], [["a", "b", [bold], "d", "A longer sentence that makes this the prose column."]]);
     const [finding] = check(document(block));
-    expect(finding!.message).toContain('"Unbreakable bold label text" in row 1 of "C" cannot wrap');
+    expect(finding!.message).toContain('"Unbreakable bold label" in row 1 of "C" cannot wrap');
   });
 });

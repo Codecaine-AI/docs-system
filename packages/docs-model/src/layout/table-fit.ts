@@ -11,6 +11,7 @@ import {
   PDF_PAGE,
   PDF_TABLE_CELL_PAD_PX,
   TABLE_METRICS,
+  TABLE_PROSE_FLOOR_PX,
   TABLE_PROSE_MEASURE_PX,
   codeFont,
   sansFont,
@@ -23,8 +24,9 @@ import { liftBacktickCode, tableCellKinds, tableColumnFits, type TableCellKind, 
  *
  * On screen the table uses automatic layout. A column never gets narrower
  * than its widest cell's unbreakable content. A fit column or an identifier
- * cell never wraps its text, so the whole text counts, though a code chip
- * still breaks at its `<wbr>`. A prose or wrap column breaks between words,
+ * cell never wraps its text, so the whole text counts, though a long code
+ * chip still breaks at its `<wbr>`. A chip of up to wholeChipMaxChars
+ * characters never breaks. A prose or wrap column breaks between words,
  * so its longest word or code piece counts. When those minimums add up to
  * more than the table's width, the frame scrolls sideways.
  *
@@ -87,19 +89,17 @@ const m = TABLE_METRICS;
 const CELL_CHROME_PX = 2 * m.cellPadXPx + m.columnRulePx;
 const FRAME_PX = 2 * m.borderPx;
 
-function chipOn(sizePx: number, identifier: boolean): InlineContext["chip"] {
-  if (identifier) return { sizePx, padXPx: 0 };
-  const chipSize = sizePx * INLINE_MARK_METRICS.codeTextEm;
-  return { sizePx: chipSize, padXPx: chipSize * INLINE_MARK_METRICS.codePadXEm };
-}
+/** On screen, inline code in any cell is plain mono at the identifier size, with no chip padding (viewer TABLE_CELL_CODE_CLASSES). */
+const SCREEN_CODE: InlineContext["chip"] = { sizePx: m.identifierFontSizePx, padXPx: 0 };
 
 /** How a cell paints on screen: its font, its chips, and whether it wraps. */
 function screenContext(row: TableCellRow, kind: TableCellKind | undefined, fit: TableColumnFit): InlineContext {
+  const whole = { wholeChipMaxChars: m.wholeChipMaxChars };
   if (row === "header") {
-    return { font: sansFont(m.headerFontSizePx, m.headerWeight), chip: chipOn(m.headerFontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+    return { ...whole, font: sansFont(m.headerFontSizePx, m.headerWeight), chip: SCREEN_CODE, wrap: fit === "fit" ? "nowrap" : "normal" };
   }
-  if (kind) return { font: codeFont(m.identifierFontSizePx), chip: chipOn(m.identifierFontSizePx, true), wrap: "nowrap" };
-  return { font: sansFont(m.fontSizePx, m.bodyWeight), chip: chipOn(m.fontSizePx, false), wrap: fit === "fit" ? "nowrap" : "normal" };
+  if (kind) return { ...whole, font: codeFont(m.identifierFontSizePx), chip: SCREEN_CODE, wrap: "nowrap" };
+  return { ...whole, font: sansFont(m.fontSizePx, m.bodyWeight), chip: SCREEN_CODE, wrap: fit === "fit" ? "nowrap" : "normal" };
 }
 
 /** How a cell paints in PDF export: print CSS wraps cells anywhere and sets code to 9pt. */
@@ -147,21 +147,24 @@ export function structuredTableWidths(block: DocBlock, pdfAvailablePx: number): 
       const min = screen.widest;
       if (!widest || min.width > widest.measured.width) widest = { row, column, measured: min, wraps, identifier: kind !== undefined };
       minCovered = Math.max(minCovered, min.coveredWidth);
-      // A wrapping body cell sits in the prose measure, so it asks for at most 60ch. A wrapping header does not.
-      const measured = wraps && row !== "header" ? Math.min(screen.natural.width, TABLE_PROSE_MEASURE_PX) : screen.natural.width;
+      // A wrapping body cell sits in its column's measure: 60ch in a prose or text column, 30ch in a wrap column. A wrapping header does not.
+      const measure = fit === "prose" || fit === "text" ? TABLE_PROSE_MEASURE_PX : TABLE_PROSE_FLOOR_PX;
+      const measured = wraps && row !== "header" ? Math.min(screen.natural.width, measure) : screen.natural.width;
       preferred = Math.max(preferred, min.width, measured);
       const print = measureInline(spans, pdfContext(row, kind, fit)).widest;
       if (widthVerdict(print.width, print.coveredWidth, pdfLimitPx, print.uncovered.length > 0) !== "fits") {
         pdfOverflows.push({ row, column, measured: print, wraps: false, identifier: kind !== undefined });
       }
     }
+    // The prose column's cell content keeps a floor width (viewer TABLE_PROSE_FLOOR_CLASS).
+    const floor = fit === "prose" ? TABLE_PROSE_FLOOR_PX + CELL_CHROME_PX : 0;
     return {
       name: tableCellToPlainText(name).trim(),
       fit,
       identifiers: kinds.some((row) => row[column] !== undefined),
-      minPx: Math.max(m.minColumnPx, widest!.measured.width + CELL_CHROME_PX),
-      minCoveredPx: Math.max(m.minColumnPx, minCovered + CELL_CHROME_PX),
-      preferredPx: Math.max(m.minColumnPx, preferred + CELL_CHROME_PX),
+      minPx: Math.max(m.minColumnPx, floor, widest!.measured.width + CELL_CHROME_PX),
+      minCoveredPx: Math.max(m.minColumnPx, floor, minCovered + CELL_CHROME_PX),
+      preferredPx: Math.max(m.minColumnPx, floor, preferred + CELL_CHROME_PX),
       widest: widest!,
     };
   });
