@@ -33,6 +33,7 @@
         "pseudo-h-doc",
         "pseudo-doc-lead",
         "pseudo-doc-1",
+        "pseudo-doc-verbs",
         "pseudo-doc-2",
         "pseudo-doc-3",
         "pseudo-doc-4",
@@ -55,7 +56,7 @@
           }
         },
         {
-          "insert": ", a plain-language code listing that explains an algorithm or a change in logic without real syntax. The viewer highlights control words, calls, and "
+          "insert": ", a plain-language code listing that explains an algorithm or a change in logic without real syntax. The viewer highlights control words, the action verb that starts a step, calls, and "
         },
         {
           "insert": "->",
@@ -393,7 +394,8 @@
       "children": [
         "pseudo-write-same-1",
         "pseudo-write-same-2",
-        "pseudo-write-same-3"
+        "pseudo-write-same-3",
+        "pseudo-write-same-4"
       ]
     },
     "pseudo-write-same-1": {
@@ -452,6 +454,26 @@
       "text": [
         {
           "insert": "Name each returned field by the name the source returns, such as \"return toolCallsByName, costUsd, durationMs and numTurns\", one field per name."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-same-4": {
+      "id": "pseudo-write-same-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start an action step with a verb that the viewer colors: set, add, append, insert, remove, delete, replace, move, push, pop, sort, split, join, mark, record, read, write, parse, build, create, update, call, check, or make. The viewer colors the verb at the line start, after an arrow, or after then or else, as in "
+        },
+        {
+          "insert": "if path ends with \"/\" -> remove the last slash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -1123,6 +1145,41 @@
         },
         {
           "insert": " as a language."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-doc-verbs": {
+      "id": "pseudo-doc-verbs",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "highlight.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " colors a control word or an action verb only where the word starts a step. A verb also needs a word after it, so "
+        },
+        {
+          "insert": "set = 1",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "setParent(path)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and \"the set of names\" stay plain."
         }
       ],
       "children": []
