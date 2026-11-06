@@ -67,10 +67,10 @@ export async function docsMcpEnv(stateDir: string, root = REPO): Promise<Record<
 }
 
 /**
- * The round 0 commit. Writers and judges read every repo source from it, so the climb's own commits never
- * change what a brief describes. It shares the lint-ref snapshot folder.
+ * The commit writers and judges read every repo source from (main when the lane climb started, which holds evals/).
+ * Climb commits never change what a brief describes. It shares the lint-ref snapshot folder.
  */
-export const SOURCE_REF = "8003057f06cdadef049ee61ec8817ee943ee4198";
+export const SOURCE_REF = "ef186cd44825c69e19eab505ab7b3bcc3dad7f03";
 export const SOURCE_ROOT = join(REPO, ".tmp/quality-climb/lint-rules", SOURCE_REF);
 
 /** Every source as an absolute path. Repo sources are relative to the repo root at SOURCE_REF. Absolute sources stay as they are. */

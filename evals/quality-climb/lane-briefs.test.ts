@@ -43,7 +43,7 @@ function shapeErrors(b: Brief): string[] {
 }
 
 test("each of the 12 lanes has a brief file, and no other lane folder exists", () => {
-  expect(readdirSync(lanesDir).sort()).toEqual([...LANES].sort());
+  expect(readdirSync(lanesDir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()).toEqual([...LANES].sort());
 });
 
 test("ids are unique across every lane, start at 100 and do not reuse a whole-page brief id", () => {
