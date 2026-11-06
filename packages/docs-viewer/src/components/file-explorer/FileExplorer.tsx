@@ -173,6 +173,8 @@ const EXPLORER_CSS = `
 /* a changed name mixes its change hue with the row ink, so it reads clearly over its own tint */
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__row[data-change] .docs-tree__name { color: color-mix(in srgb, var(--tr-chg-name) 55%, var(--tr-ink)); }
 .docs-tree[data-tree-kind="file-explorer"] .docs-tree__name[data-dir] { font-weight: var(--ds-font-weight-semibold); }
+/* a wrapped note balances its lines, so no word sits alone on the last one */
+.docs-tree[data-tree-kind="file-explorer"] .docs-tree__note { text-wrap: pretty; }
 .docs-explorer__code {
   font: var(--ds-font-weight-regular) 0.92em var(--tr-mono);
   color: var(--tr-ink, #1f1f1f);
