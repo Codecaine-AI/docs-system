@@ -128,4 +128,31 @@ describe("component-tree rows", () => {
     ]);
     expect(wrapper?.querySelector("figcaption")?.textContent).toBe("Component tree");
   });
+
+  it("names each source by the shortest path tail that tells the block's files apart", () => {
+    const shell = "packages/docs-workbench/web/src/_components";
+    const wrapper = renderBlock("component-tree", {
+      nodes: [
+        {
+          text: "<RouterShell>",
+          source: `${shell}/RouterShell/index.tsx:37`,
+          nodes: [
+            { text: "<AppShell>", source: `${shell}/RouterShell/index.tsx:50` },
+            { text: "<Sidebar />", source: `${shell}/AppShell/_components/Sidebar/index.tsx:39` },
+            { text: "<DocEditor />", source: "packages/docs-viewer/src/editor/DocEditor.tsx:12" },
+          ],
+        },
+      ],
+    });
+    const chips = [...(wrapper?.querySelectorAll("[data-outline-source]") ?? [])].map((chip) => {
+      const hidden = chip.querySelector(".docs-tree__sr")?.textContent ?? "";
+      return { shown: chip.textContent!.slice(hidden.length), title: chip.getAttribute("title") };
+    });
+    expect(chips).toEqual([
+      { shown: "RouterShell/index.tsx:37", title: `${shell}/RouterShell/index.tsx:37` },
+      { shown: "RouterShell/index.tsx:50", title: `${shell}/RouterShell/index.tsx:50` },
+      { shown: "Sidebar/index.tsx:39", title: `${shell}/AppShell/_components/Sidebar/index.tsx:39` },
+      { shown: "DocEditor.tsx:12", title: "packages/docs-viewer/src/editor/DocEditor.tsx:12" },
+    ]);
+  });
 });
