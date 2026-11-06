@@ -35,6 +35,12 @@
         "b-20-structured-table-proj-h-6",
         "b-stfam-docrender-read",
         "b-stfam-docrender-columns",
+        "b-stfam-docrender-col-1",
+        "b-stfam-docrender-col-2",
+        "b-stfam-docrender-col-3",
+        "b-stfam-docrender-col-4",
+        "b-stfam-docrender-classes",
+        "b-stfam-docrender-code",
         "b-stfam-tablefit-lead",
         "b-stfam-tablefit-screen",
         "b-stfam-tablefit-pdf",
@@ -142,22 +148,9 @@
         }
       ],
       "children": [
-        "b-st-writing-rows-1",
         "b-st-writing-rows-2",
-        "b-st-writing-rows-3",
         "b-st-writing-rows-4"
       ]
-    },
-    "b-st-writing-rows-1": {
-      "id": "b-st-writing-rows-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Give each row one short key in the first column."
-        }
-      ],
-      "children": []
     },
     "b-st-writing-rows-2": {
       "id": "b-st-writing-rows-2",
@@ -165,18 +158,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Make each key different. When two rows would share a key, merge them into one row or add a qualifier to the key."
-        }
-      ],
-      "children": []
-    },
-    "b-st-writing-rows-3": {
-      "id": "b-st-writing-rows-3",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Put the rows in one order that the reader can predict, such as the order of the source file or alphabetical order."
+          "insert": "Give each row a short key in the first column that no other row shares. Merge two rows that would share a key, or add a qualifier."
         }
       ],
       "children": []
@@ -187,7 +169,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Say in the sentence before the table which order the rows follow."
+          "insert": "Put the rows in one order, such as the source order, and say which order in the sentence before the table."
         }
       ],
       "children": []
@@ -206,10 +188,8 @@
       ],
       "children": [
         "b-st-writing-columns-1",
-        "b-st-writing-columns-2",
         "b-st-writing-columns-3",
-        "b-st-writing-columns-4",
-        "b-st-writing-columns-5"
+        "b-st-writing-columns-4"
       ]
     },
     "b-st-writing-columns-1": {
@@ -218,18 +198,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give each column one property."
-        }
-      ],
-      "children": []
-    },
-    "b-st-writing-columns-2": {
-      "id": "b-st-writing-columns-2",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Write every cell of a column in the same form and unit."
+          "insert": "Give each column one property, in the same form and unit in every cell."
         }
       ],
       "children": []
@@ -265,17 +234,6 @@
       ],
       "children": []
     },
-    "b-st-writing-columns-5": {
-      "id": "b-st-writing-columns-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Give a mark such as required or optional its own column, so that a cell of code spans holds no plain words."
-        }
-      ],
-      "children": []
-    },
     "b-st-writing-cells": {
       "id": "b-st-writing-cells",
       "type": "list-item",
@@ -291,9 +249,7 @@
       "children": [
         "b-st-writing-cells-1",
         "b-st-writing-cells-2",
-        "b-st-writing-cells-3",
-        "b-st-writing-cells-5",
-        "b-st-writing-cells-4"
+        "b-st-writing-cells-3"
       ]
     },
     "b-st-writing-cells-1": {
@@ -324,29 +280,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write a cell that does not apply as None in plain text, and give None one meaning in a column."
-        }
-      ],
-      "children": []
-    },
-    "b-st-writing-cells-5": {
-      "id": "b-st-writing-cells-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "When a value is missing for a reason, write the reason, such as Required or Every brief, not None."
-        }
-      ],
-      "children": []
-    },
-    "b-st-writing-cells-4": {
-      "id": "b-st-writing-cells-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "In a description cell, say what the item does for the reader, not which internal function it calls."
+          "insert": "Give None one meaning in a column. When a value is missing for a reason, such as a required option, write the reason."
         }
       ],
       "children": []
@@ -1105,7 +1039,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in "
+          "insert": "Every cell is padded on both sides so text never touches a rule. Columns size to their content, as "
         },
         {
           "insert": "Block Widths and Lanes",
@@ -1117,7 +1051,62 @@
           }
         },
         {
-          "insert": ". The class strings live in "
+          "insert": " describes."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-col-1": {
+      "id": "b-stfam-docrender-col-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A text column stays on one line while its longest cell has 24 characters or fewer."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-col-2": {
+      "id": "b-stfam-docrender-col-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "One prose column wraps at 60ch and never gets narrower than 30ch."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-col-3": {
+      "id": "b-stfam-docrender-col-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Other long columns wrap at 30ch, so the prose column gets the spare width."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-col-4": {
+      "id": "b-stfam-docrender-col-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The first column stays pinned when the table scrolls."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-classes": {
+      "id": "b-stfam-docrender-classes",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The class strings live in "
         },
         {
           "insert": "table-classes.ts",
@@ -1156,6 +1145,70 @@
         },
         {
           "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-code": {
+      "id": "b-stfam-docrender-code",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Inline code in a cell is plain mono with no chip, in the chip ink, 0.5px under the body size. A literal then looks the same whether it fills its cell or sits in a sentence. A code span of up to 40 characters breaks only after a "
+        },
+        {
+          "insert": ",",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or a "
+        },
+        {
+          "insert": "|",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so "
+        },
+        {
+          "insert": "--root <path>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stays on one line. "
+        },
+        {
+          "insert": "column-layout.ts",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/structured-table/column-layout.ts"
+            }
+          }
+        },
+        {
+          "insert": " holds the column rules, and "
+        },
+        {
+          "insert": "cell-render.tsx",
+          "attributes": {
+            "code": true,
+            "reference": {
+              "kind": "source",
+              "path": "packages/docs-viewer/src/components/structured-table/cell-render.tsx"
+            }
+          }
+        },
+        {
+          "insert": " holds the code rule."
         }
       ],
       "children": []
