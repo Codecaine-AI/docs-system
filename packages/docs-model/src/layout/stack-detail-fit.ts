@@ -131,26 +131,50 @@ function pathLineCount(runs: readonly string[], line: StackDetailLine): number {
 }
 
 /**
- * A body line's parts as the stack paints them: each backtick span in the code face at `codeSpanFontSizePx`,
- * and the rest in the line's font. A code span and a hyphenated word never break (docs-viewer
- * StackDocsBlock.tsx `codeWords`), so each is an unbreakable run.
+ * A body line's words as the stack paints them: each backtick span is one word in the code face at
+ * `codeSpanFontSizePx`, and the rest splits at spaces in the line's font. A code span and a hyphenated word
+ * never break (docs-viewer StackDocsBlock.tsx `codeWords`), so each is an unbreakable run.
  */
-function bodyParts(line: StackDetailLine): { width: number; runs: { text: string; width: number }[] } {
+function bodyWords(line: StackDetailLine): { words: { text: string; width: number; gap: number; unbreakable: boolean }[]; width: number } {
   const code = codeFont(m.codeSpanFontSizePx);
+  const space = measureWidth(" ", line.font);
+  const words: { text: string; width: number; gap: number; unbreakable: boolean }[] = [];
   let width = 0;
-  const runs: { text: string; width: number }[] = [];
+  let pendingGap = 0;
   line.raw.split(/(`[^`]+`)/).forEach((part, index) => {
     if (index % 2 === 1) {
-      const run = { text: part.slice(1, -1), width: measureWidth(part.slice(1, -1), code) };
-      width += run.width;
-      runs.push(run);
+      const text = part.slice(1, -1);
+      const spanWidth = measureWidth(text, code);
+      width += spanWidth;
+      words.push({ text, width: spanWidth, gap: pendingGap, unbreakable: true });
+      pendingGap = 0;
       return;
     }
     const plain = part.replace(/`/g, "");
     width += measureWidth(plain, line.font);
-    for (const word of plain.match(/\S*\w-\w\S*/g) ?? []) runs.push({ text: word, width: measureWidth(word, line.font) });
+    for (const piece of plain.split(/(\s+)/)) {
+      if (piece === "") continue;
+      if (/^\s+$/.test(piece)) { pendingGap = space; continue; }
+      words.push({ text: piece, width: measureWidth(piece, line.font), gap: pendingGap, unbreakable: /\w-\w/.test(piece) });
+      pendingGap = 0;
+    }
   });
-  return { width, runs };
+  return { words, width };
+}
+
+/** Lines the words take at the line's width: words fill each line, and a word wider than the line takes one alone. */
+function bodyLineCount(words: ReturnType<typeof bodyWords>["words"], availablePx: number): number {
+  let lines = 1;
+  let current = 0;
+  for (const word of words) {
+    if (current === 0) current = word.width;
+    else if (current + word.gap + word.width <= availablePx + 0.005) current += word.gap + word.width;
+    else {
+      lines += 1;
+      current = word.width;
+    }
+  }
+  return lines;
 }
 
 /** One line's fit, judged on covered text: characters the bundled faces lack are reported, never judged an overflow. */
@@ -158,14 +182,14 @@ export function stackDetailFit(line: StackDetailLine): StackDetailFit {
   let fit = fitText(line.text, line.font, { width: line.availablePx, lineHeight: line.lineHeightPx, maxLines: 1 });
   let lineCount = fit.lineCount;
   let widestRun: StackDetailFit["widestRun"];
-  if (!line.path && line.raw.includes("`")) {
-    // Code spans draw in another face, so the line's width is the sum of its parts.
-    const parts = bodyParts(line);
-    fit = { ...fit, neededWidth: parts.width, verdict: parts.width > line.availablePx + 0.005 ? "overflows" : "fits" };
-    lineCount = Math.max(1, Math.ceil(parts.width / Math.max(1, line.availablePx)));
-    for (const run of parts.runs) if (!widestRun || run.width > widestRun.width) widestRun = run;
-  } else if (!line.path) {
-    for (const run of bodyParts(line).runs) if (!widestRun || run.width > widestRun.width) widestRun = run;
+  if (!line.path) {
+    const { words, width } = bodyWords(line);
+    if (line.raw.includes("`")) {
+      // Code spans draw in another face, so the line's width is the sum of its parts.
+      fit = { ...fit, neededWidth: width, verdict: width > line.availablePx + 0.005 ? "overflows" : "fits" };
+      lineCount = bodyLineCount(words, line.availablePx);
+    }
+    for (const word of words) if (word.unbreakable && (!widestRun || word.width > widestRun.width)) widestRun = { text: word.text, width: word.width };
   }
   const uncovered = fit.uncovered.length > 0;
   let coveredWidth = fit.neededWidth;

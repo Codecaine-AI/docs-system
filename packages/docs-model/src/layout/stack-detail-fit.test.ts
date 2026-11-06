@@ -98,6 +98,15 @@ describe("layout.stack-detail-fit", () => {
     expect(finding!.message).toEndWith("so it overflows sideways.");
   });
 
+  test("code spans that cannot share a line each take a line of their own", () => {
+    // The nested card is 221px wide, and each span takes over half of it in 13px code font.
+    const spans = ["readStackNodeList", "writeStackRuleSet", "checkStackPathNow"];
+    expect(spans.every((span) => measureWidth(span, codeFont(13)) > 221 / 2 && measureWidth(span, codeFont(13)) < 221)).toBe(true);
+    const detail = spans.map((span) => `\`${span}\``).join(" ");
+    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail }, { name: "Other" }] }, { name: "Side" }] }]);
+    expect(check(block)[0]!.message).toEndWith("so it wraps to 3 lines.");
+  });
+
   test("two-column containers can leave a card narrower than the cap", () => {
     // Wide lane 1100px, less 26px per container frame, halved per two-column body, less the card's 26px.
     const inner = (1100 - 26 - 12) / 2;
