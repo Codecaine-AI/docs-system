@@ -5,17 +5,20 @@ import { stringProp } from "../projection-utils";
 import { fieldLines } from "../shared/field";
 import type { ComponentBundle } from "../types";
 
-import { readInteractionSurfaceOperations as interactionSurfaceOperations } from "./state";
+import { isCallFormName, readInteractionSurfaceOperations as interactionSurfaceOperations } from "./state";
 
 /**
  * Signature-line rendering (see the module header for the format):
  * `[kind] name(param: type, optional?: type) -> returns  # description` —
  * the `[kind]` prefix on every line (action when unset), ` -> returns` and
  * `  # description` only when present. One line per operation, document order.
- * Beneath a signature line, each param that carries a description or nested
- * fields adds indented detail lines in the shared field-line grammar
- * (two-space indent per depth, `<name><?>: <type>  # <description>`); params
- * with neither emit nothing extra. An authored `exampleCall` follows the
+ * Beneath a signature line, the params add indented detail lines in the
+ * shared field-line grammar (two-space indent per depth,
+ * `<name><?>: <type>  # <description>`) once any one of them carries a
+ * description or nested fields: then every param gets its line, so the
+ * detail list never looks shorter than the signature. A call-form name
+ * (`reducer(state, { type: "open" })`, see isCallFormName) prints as written,
+ * with no parameter list after it, and always lists its params as lines. An authored `exampleCall` follows the
  * param lines as an indented `Example call:` block, mirroring the returnShape
  * `Example:` block.
  */
@@ -32,10 +35,11 @@ function projectInteractionSurface(block: DocBlock): string {
       .join(", ");
     const returns = operation.returns ? ` -> ${operation.returns}` : "";
     const description = operation.description ? `  # ${operation.description}` : "";
-    const detailLines = (operation.params ?? [])
-      .filter((param) => param.description || (param.fields && param.fields.length > 0))
-      .flatMap((param) => fieldLines([param], 1));
-    return [`${kindPrefix}${operation.name}(${params})${returns}${description}`, ...detailLines,
+    const callForm = isCallFormName(operation.name);
+    const allParams = operation.params ?? [];
+    const detailed = callForm || allParams.some((param) => param.description || (param.fields && param.fields.length > 0));
+    const detailLines = detailed ? fieldLines(allParams, 1) : [];
+    return [`${kindPrefix}${operation.name}${callForm ? "" : `(${params})`}${returns}${description}`, ...detailLines,
       ...(operation.exampleCall !== undefined ? ["  Example call:", ...operation.exampleCall.split("\n").map(line => "    " + line)] : []),
       ...(operation.returnShape ? [
         `  Returns ${operation.returns || "Result"}:`,
