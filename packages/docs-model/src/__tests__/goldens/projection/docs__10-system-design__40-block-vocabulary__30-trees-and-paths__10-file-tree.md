@@ -6,34 +6,6 @@ Reach for it when the nested structure is files, not steps: repo slices, refacto
 
 To show the files a change touches as editor sidebar rows with a badge per changed file, use file-explorer instead.
 
-## Write a File Tree
-
-A file tree tells the reader where each file lives and what it holds. Three rules keep it to what the brief asks.
-
-- Scope
-
-  - Root the tree at the folder the brief names. Both renders draw a chain of single-child folders as one row, such as `packages/docs-style/src/rules/`, so long entry paths cost no rows.
-
-  - Show each file the brief asks about inside its folder. When the brief asks which folders hold more than `index.ts`, list those other files under their folders.
-
-  - Leave out branches that the brief does not ask for. When the tree shows only part of a folder, say so in the sentence before it.
-
-- Notes
-
-  - A note says what a file holds or does that its name does not. A note that repeats the name, such as `moveNode` on `move-node.ts`, tells the reader nothing.
-
-  - Give a note to every sibling in a group, or to none of them. One note among many bare siblings reads as a special case.
-
-  - Never point by position, such as "the files below". Folders sort first and then names, so a file can land above or below the files it names.
-
-- Colors
-
-  - Use a color only to set 2 or more groups apart. A tree with one group needs no color.
-
-  - Say what each color marks in the sentence before the tree, such as "blue marks the files that the build writes".
-
-  - Put the color on the top folder of its group. Every row under that folder takes its guide color.
-
 ## Example
 
 A live instance: a refactor slice of this block's own source folder.
