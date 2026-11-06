@@ -48,7 +48,9 @@ export interface GateResult {
   guards: GuardResult[];
 }
 
-const mean = (values: number[]) => values.reduce((a, b) => a + b, 0) / values.length;
+// Scores are tenths and sample medians can be twentieths, so the mean sums whole hundredths. Summing the floats
+// would make 8 scores whose true mean is 9.5 come out 9.4999…, and the gate would fail them.
+const mean = (values: number[]) => values.reduce((a, b) => a + Math.round(b * 100), 0) / (100 * values.length);
 const meanMin = (values: number[]) => ({ mean: mean(values), min: Math.min(...values) });
 const median = (values: number[]) => {
   const sorted = [...values].sort((a, b) => a - b);

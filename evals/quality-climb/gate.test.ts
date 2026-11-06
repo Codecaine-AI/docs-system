@@ -224,6 +224,14 @@ describe("lane gate", () => {
     expect(texts(result)).toEqual(["sol climb nesting: mean 9.40 < 9.5"]);
   });
 
+  test("passes a criterion whose page scores average exactly 9.5, though their float sum falls just short", () => {
+    const scores = [9.6, 9.9, 9.9, 10, 9.1, 8.8, 9.6, 9.1];
+    const climb = scores.map((nesting, i) => lanePage("sol", "climb", { id: 10 + i, criteria: [{ nesting }] }));
+    const result = gate([...climb, lanePage("sol", "held-out")], ["sol"]);
+    expect(result.scores.sol!.climb!.criteria.nesting!.mean).toBe(9.5);
+    expect(result.pass).toBe(true);
+  });
+
   test("fails on the held-out set alone, and on a set no counting judge scored", () => {
     expect(texts(gate([lanePage("sol", "climb"), lanePage("sol", "held-out", { score: 9.4 })], ["sol"]))).toEqual(criteria.map((c) => `sol held-out ${c}: mean 9.40 < 9.5`));
     expect(texts(gate([lanePage("sol", "climb")], ["sol"]))).toEqual(["sol held-out: no pages scored"]);
