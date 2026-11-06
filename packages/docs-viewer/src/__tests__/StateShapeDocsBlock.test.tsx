@@ -518,6 +518,12 @@ describe("StateShapeBlock — name column fit", () => {
 describe("StateShapeBlock — optionality legend and path wrapping", () => {
   const legend = () => document.querySelector("[data-shape-legend]");
 
+  it("puts the legend above the field list, where a reader starts", () => {
+    render(<StateShapeBlock id="top" fields={[{ name: "url", type: "string" }]} />);
+    const tree = document.querySelector("[data-shape-tree]")!;
+    expect(tree.firstElementChild?.hasAttribute("data-shape-legend")).toBe(true);
+  });
+
   it("says every field is required when no field is optional", () => {
     render(<StateShapeBlock id="req" fields={[{ name: "url", type: "string" }, { name: "pid", type: "number" }]} />);
     expect(legend()?.textContent).toBe("Every field is required.");
