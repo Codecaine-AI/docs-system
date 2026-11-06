@@ -1349,6 +1349,7 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "770899b7-1a12-406f-b788-2216bf20f25c",
         "bundle-relative-src-lint"
       ]
     },
@@ -1454,6 +1455,32 @@
       "text": [
         {
           "insert": "interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as \"{ ok, doc } for a doc patch.\" The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "770899b7-1a12-406f-b788-2216bf20f25c": {
+      "id": "770899b7-1a12-406f-b788-2216bf20f25c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "stack.badge-repeats-name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a stack node whose badge holds only words of the node name, such as "
+        },
+        {
+          "insert": "host",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on \"Host app\". The badge draws as the card's role word, so it must name a role or a file that the name does not state."
         }
       ],
       "children": []
