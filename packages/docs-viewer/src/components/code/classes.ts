@@ -297,6 +297,10 @@ export const CODE_NOTE_LABEL_CLASSES =
 export const CODE_NOTE_BODY_CLASSES =
   "mt-0.5 block text-[length:var(--docs-code-note-text-size,13px)] leading-[var(--ds-line-height-ui)] text-[color:var(--docs-ink,#d4d4d4)] transition-colors";
 
+/** A `backtick span` in a note: inline code in the code font on a faint chip of the panel ink. */
+export const CODE_NOTE_CODE_CLASSES =
+  "rounded-[var(--radius,2px)] bg-[color:color-mix(in_srgb,currentColor_12%,transparent)] px-[var(--ds-space-1)] font-mono";
+
 /**
  * READ surface, notes inline: the row under an annotated range's last line
  * that holds its note. It keeps the line grid (an empty sticky gutter cell,

@@ -194,6 +194,13 @@ describe("AnnotatedCodeBlock", () => {
     }
   });
 
+  it("shows a backtick span in a note as inline code, without the backticks", () => {
+    const { container } = renderBlock([{ lines: "4", note: "Prints `c` through `console.log`." }]);
+    const body = container.querySelector("[data-note-body]")!;
+    expect(body.textContent).toBe("Prints c through console.log.");
+    expect(Array.from(body.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["c", "console.log"]);
+  });
+
   it("renders notes as plain buttons at rest — no dividers, card border, background, or ring — and never stripes them", () => {
     const { container } = renderBlock([
       { lines: "1", label: "Setup", note: "First." },
