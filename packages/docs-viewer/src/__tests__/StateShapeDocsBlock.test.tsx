@@ -387,31 +387,32 @@ describe("StateShapeBlock — plain reference panel", () => {
 
   it("keys example lines with their whole chain, deepest first — ancestors still light them", () => {
     renderTwoPane();
-    // The pane folds a short object of primitives onto one line, so a field
-    // object such as { "name": ..., "required": ... } is one line that keys both fields.
+    // The pane folds an object of primitives onto one line only when the line fits in 44 columns, so
+    // { "name": "params", ... } is one line that keys both fields, and the longer first item stays expanded.
     expect(exampleLine(1)?.getAttribute("data-link-key")).toBeNull();
-    expect(exampleLine(11)?.getAttribute("data-link-key")).toBeNull();
+    expect(exampleLine(14)?.getAttribute("data-link-key")).toBeNull();
     expect(exampleLine(4)?.getAttribute("data-link-key")).toBe("source.path source");
-    expect(exampleLine(8)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
-    expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
+    expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.name fields");
+    expect(exampleLine(10)?.getAttribute("data-link-key")).toBe("fields.required fields");
+    expect(exampleLine(12)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
     expect(exampleLine(3)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(6)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(7)?.getAttribute("data-link-key")).toBe("fields");
-    expect(exampleLine(10)?.getAttribute("data-link-key")).toBe("fields");
+    expect(exampleLine(13)?.getAttribute("data-link-key")).toBe("fields");
   });
 
   it("tones JSON tokens with the code theme's syntax roles", () => {
     renderTwoPane();
     const pane = document.querySelector("[data-shape-example]") as HTMLElement;
     expect(pane.getAttribute("data-code-lines")).toBe("true");
-    expect(pane.querySelectorAll("[data-code-line]")).toHaveLength(11);
+    expect(pane.querySelectorAll("[data-code-line]")).toHaveLength(14);
     const line2 = exampleLine(2) as HTMLElement;
     const key = line2.querySelector('[data-json-token="key"]');
     expect(key?.textContent).toBe('"name"');
     expect(key?.className).toContain("--syntax-key");
     expect(key?.className).toContain("--syntax-key-font-style");
     expect(line2.querySelector('[data-json-token="string"]')?.className).toContain("--syntax-string");
-    expect(exampleLine(8)?.querySelector('[data-json-token="boolean"]')?.className).toContain("--syntax-boolean");
+    expect(exampleLine(10)?.querySelector('[data-json-token="boolean"]')?.className).toContain("--syntax-boolean");
     expect(exampleLine(1)?.querySelector('[data-json-token="punct"]')?.className).toContain("--syntax-punctuation");
   });
 

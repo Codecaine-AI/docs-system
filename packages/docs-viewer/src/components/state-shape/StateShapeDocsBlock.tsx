@@ -139,6 +139,12 @@ export function jsonLineTokens(line: string): ReactNode[] {
   return output;
 }
 
+/**
+ * The widest line, in columns, that the example folds an object or array onto. The side pane shows about 48
+ * columns at the 1280px page, so a folded line never soft-wraps and leaves its closing brace on a line alone.
+ */
+const EXAMPLE_FOLD_COLUMNS = 44;
+
 function normalizeRangePath(path: string) { return path.replace(/\[\d+\]/g, "").replace(/^\.+/, ""); }
 
 export type ShapeModel = {
@@ -162,7 +168,7 @@ export function buildShapeModel(fields: readonly Field[], example: string | unde
   const matched = new Set<string>();
   let exampleLines: LinkedCodeLine[] | undefined;
   if (parsed) {
-    const { lines, ranges } = printJsonLines(value, { inlineWidth: 56 });
+    const { lines, ranges } = printJsonLines(value, { inlineWidth: EXAMPLE_FOLD_COLUMNS });
     const paths = new Set(flat.map((row) => row.path));
     const keysByLine = new Array<string[] | undefined>(lines.length);
     for (const range of ranges) {
