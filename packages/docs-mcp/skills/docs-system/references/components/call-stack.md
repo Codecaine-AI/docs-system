@@ -1,6 +1,6 @@
 # call-stack
 
-Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
 
 Use Call Stack to show which function calls which on one code path, with the file and line where each call is written. Mark a condition with kind "branch" and a changed frame with change. Use Process Outline for prose steps and Component Tree for a render tree.
 
@@ -88,7 +88,7 @@ frames: CallStackRow[]  # Top-level frames, drawn top to bottom.
   kind?: "call" | "branch"  # "call" is the default. A branch is a condition, loop, try or catch row that may own frames.
   comment?: string  # Short note in the aligned comment column. Code goes between backticks.
   change?: "added" | "modified" | "removed"  # Diff state: gutter marker and row tint.
-  source?: string  # The line where the caller writes this call, condition or exit, "path:line". A frame marked added has none.
+  source?: string  # The line where the caller writes this call, condition or exit, "path:line". A proposed frame, for code that does not exist yet, has none.
   frames?: CallStackRow[]  # The calls this frame's own body makes, in source order.
 ```
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78",
+  "snapshotId": "sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -109,12 +109,12 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/30-call-stack/doc.json",
-      "sha256": "558dca39db1af097948235b1c421a9939803acb28f9808ba069f7dfb6284c72d",
+      "sha256": "f538ebb635bb6d7f69b086c6603b0ae72f4bdcac553516c7dee480e50d90a0fa",
       "kind": "component-doc"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/30-trees-and-paths/40-component-tree/doc.json",
-      "sha256": "294cccf4268b7277cbcdf14819d186a4308e2a3ffb9963791f941436f203e804",
+      "sha256": "1c702fa6804056590ccb45a9ff4fb856badda6de3baf4f47fc733014aaad58ab",
       "kind": "component-doc"
     },
     {

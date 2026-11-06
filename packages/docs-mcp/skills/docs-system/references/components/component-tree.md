@@ -1,6 +1,6 @@
 # component-tree
 
-Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
 
 Use Component Tree to show which component renders which. Write each row as a rendered JSX element or a branch. Add a hook row only when the page is about that hook, and never for useMemo or useCallback. Name other hooks in prose or pseudocode. Use Call Stack for plain function calls.
 
@@ -15,21 +15,21 @@ The component-tree component owns one block type, `component-tree`, a nested ren
 This tree is the panel that `OutlineRows` in `packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx` draws for a component-tree block. The root's source is its definition, and every other source is the line that renders the row. The tree leaves out the `section`, `figure` and rows `div` wrappers, because no part the reader needs hangs off them.
 
 ```component-tree
-<OutlineRows id={id} rows={rows} flavor={flavor}>  # one panel of code rows  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:249
-  <TreeHead icon={head.icon} title={head.title} />  # family tile and block title  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:270
+<OutlineRows id={id} rows={rows} flavor={flavor}>  # one panel of code rows  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:333
+  <TreeHead icon={head.icon} title={head.title} />  # family tile and block title  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:355
   ? flat.length === 0
-    <div className="docs-tree__empty">  # the (no rows) line  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:281
+    <div className="docs-tree__empty">  # the (no rows) line  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:366
   ? else
-    <div className="docs-tree__row">  # one per row, depth first  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:287
+    <div className="docs-tree__row">  # one per row, depth first  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:372
       ? diff  # some row in the block changed
-        <TreeMark change={row.change} />  # the +, − or ~ gutter glyph  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:298
-      <TreeGuides guides={guides} />  # elbow and pipe guides  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:303
+        <TreeMark change={row.change} />  # the +, − or ~ gutter glyph  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:383
+      <TreeGuides guides={guides} />  # elbow and pipe guides  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:388
       ? branch
-        <span className="docs-tree__if">  # the ? before a condition  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:307
+        <BranchMark text={branchText(row.text)} flavor={flavor} />  # the ? before a condition  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:392
       ? row.comment
-        <span className="docs-tree__note">  # the comment beside or under the code  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:315
+        <span className="docs-tree__note">  # the comment beside or under the code  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:400
       ? source
-        <span className="docs-tree__src">  # the file and line chip  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:317
+        <span className="docs-tree__src">  # the file and line chip  @packages/docs-viewer/src/components/outline-rows/OutlineRows.tsx:402
 ```
 
 ## Write the Rows
@@ -68,7 +68,7 @@ Each row copies its render site, so a reader can match the tree to the source fi
 
 - **Sources and Comments**
 
-  - Give the root row the source of its own definition, such as `OutlineRows.tsx:249` in the example.
+  - Give the root row the source of its own definition, such as `OutlineRows.tsx:333` in the example.
 
   - Give every other row the line in its parent's file that renders it. A row that a `map` callback renders takes the line of its JSX.
 

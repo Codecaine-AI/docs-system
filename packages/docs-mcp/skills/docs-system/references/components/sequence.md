@@ -1,6 +1,6 @@
 # sequence
 
-Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
 
 Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior. Verify the sequence against source or trace evidence.
 

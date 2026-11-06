@@ -1,6 +1,6 @@
 # file-tree
 
-Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
 
 Use a File Tree to explain where files live and what each directory owns. Add notes or change markers when location or a migration is the subject. Use colors only to set 2 or more groups apart, and say what each color marks.
 

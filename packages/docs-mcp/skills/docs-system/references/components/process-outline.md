@@ -1,6 +1,6 @@
 # process-outline
 
-Generated from Docs System sources. Snapshot: `sha256:6b7ba2e2ea8dafb7e65d32388168d75f07c24855c58dcaaca4fabc8913d81b78`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
 
 Use Process Outline for the expected execution path, with nested phases and actor-and-action step names that can be compared with a trace. Phases are short Title Case labels, and so is the root title. Substeps are sentence case actions. A loop or a branch is a parent step that opens with its keyword (For each, While, If, When, On failure) and holds every step it governs. A path that returns early is its own branch step, never the step before the main path. A note gives a reason, a limit or a result, never an action.
 
