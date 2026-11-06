@@ -14,6 +14,7 @@
         "pseudo-write-lead",
         "pseudo-write-steps",
         "pseudo-write-names",
+        "pseudo-write-same",
         "pseudo-write-comments",
         "pseudo-h-example",
         "pseudo-example-lead",
@@ -386,6 +387,84 @@
       ],
       "children": []
     },
+    "pseudo-write-same": {
+      "id": "pseudo-write-same",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write each kind of step the same way",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "pseudo-write-same-1",
+        "pseudo-write-same-2",
+        "pseudo-write-same-3"
+      ]
+    },
+    "pseudo-write-same-1": {
+      "id": "pseudo-write-same-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a value step as a sentence, such as \"set parent to the path without its last part\", not with "
+        },
+        {
+          "insert": "=",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-same-2": {
+      "id": "pseudo-write-same-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give every branch in a block the same form. Put a one-step branch on one line with an arrow, such as "
+        },
+        {
+          "insert": "if parent is empty -> leave the loop",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and indent the steps of a longer branch below its "
+        },
+        {
+          "insert": "if",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-same-3": {
+      "id": "pseudo-write-same-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Name each returned field by the name the source returns, such as \"return toolCallsByName, costUsd, durationMs and numTurns\", one field per name."
+        }
+      ],
+      "children": []
+    },
     "pseudo-write-comments": {
       "id": "pseudo-write-comments",
       "type": "list-item",
@@ -503,7 +582,7 @@
       "props": {},
       "text": [
         {
-          "insert": "annotationLineRuns(lineCount, annotations)\n  for each annotation in annotations, with its index\n    for each line in expandLineRange(annotation.lines, lineCount)\n      if line has no owner -> make index the owner of line // the earliest note wins\n  for each line from 1 to lineCount\n    if line has no owner\n      current = none // a gap ends the run\n    else if current exists and current.annotationIndex is the owner of line\n      add 1 to current.length\n    else\n      current = a new run at line for its owner // a new owner starts a run\n      append current to runs\n  return runs"
+          "insert": "annotationLineRuns(lineCount, annotations)\n  for each annotation in annotations, with its index\n    for each line in expandLineRange(annotation.lines, lineCount)\n      if line has no owner -> make index the owner of line // the earliest note wins\n  for each line from 1 to lineCount\n    if line has no owner\n      set current to none // a gap ends the run\n    else if current exists and current.annotationIndex is the owner of line\n      add 1 to current.length\n    else\n      set current to a new run at line for its owner // a new owner starts a run\n      append current to runs\n  return runs"
         }
       ],
       "children": []
