@@ -94,6 +94,12 @@ describe("call-stack rows", () => {
       .map((node) => `${node.getAttribute("data-outline-token")}:${node.textContent}`);
     expect(tokens).toEqual(["control:return", "callee:apply", "prop:ops", "number:409", 'string:"x"', "call:wrap"]);
   });
+  it("sets each backtick span of a comment in the code font and leaves an unpaired backtick as text", () => {
+    const wrapper = renderBlock("call-stack", { frames: [{ text: "judge()", comment: "skipped when `!judgeUp`, a ` stays" }] });
+    const note = wrapper?.querySelector(".docs-tree__note");
+    expect(note?.textContent).toBe("skipped when !judgeUp, a ` stays");
+    expect([...(note?.querySelectorAll("code") ?? [])].map((code) => code.textContent)).toEqual(["!judgeUp"]);
+  });
 });
 
 describe("component-tree rows", () => {

@@ -125,6 +125,23 @@ function renderCode(text: string, flavor: OutlineRowsFlavor): ReactNode[] {
   );
 }
 
+/**
+ * A call-stack comment with each `backtick` span set in the code font, so code
+ * such as `!judgeUp` never reads as prose. An unpaired backtick stays as text.
+ */
+function renderComment(comment: string, flavor: OutlineRowsFlavor): ReactNode {
+  if (flavor !== "call-stack" || !/`[^`]+`/.test(comment)) return comment;
+  return comment.split(/(`[^`]+`)/).map((part, index) =>
+    /^`[^`]+`$/.test(part) ? (
+      <code key={index} className="docs-tree__note-code">
+        {part.slice(1, -1)}
+      </code>
+    ) : (
+      part
+    ),
+  );
+}
+
 type FlatRow = { row: OutlineRow; depth: number; guides: TreeGuide[] };
 
 function flattenRows(rows: readonly OutlineRow[], ancestorsLast: readonly boolean[], out: FlatRow[]): FlatRow[] {
@@ -198,7 +215,9 @@ const OUTLINE_ROWS_VARS = treeVars({
  * - A long frame wraps inside the panel with a hanging indent instead of
  *   running past its right edge.
  * - With notes below, the source stays on the frame's own code line, and the
- *   comment takes the line under it, so every file:line sits beside its call.
+ *   comment takes the whole line under it, so every file:line sits beside its
+ *   call and a comment does not wrap at half the panel.
+ * - A `backtick` span in a comment is set in the code font (renderComment).
  */
 const CALL_STACK_CSS = `
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__code { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -210,7 +229,11 @@ const CALL_STACK_CSS = `
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / src; }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 1; }
-.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__note { grid-column: path / end; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__note { grid-column: path / end; max-width: none; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__note-code {
+  font-family: var(--tr-mono); font-size: var(--tr-source-size, 12px); font-variant-ligatures: none;
+  color: var(--tr-ink, #1f1f1f); background: none; border: 0; padding: 0;
+}
 `;
 
 const FLAVOR_HEAD = {
@@ -286,7 +309,7 @@ export function OutlineRows({
                       )}
                     </code>
                   </span>
-                  {row.comment ? <span className="docs-tree__note" style={depthStyle(depth)}>{row.comment}</span> : null}
+                  {row.comment ? <span className="docs-tree__note" style={depthStyle(depth)}>{renderComment(row.comment, flavor)}</span> : null}
                   {source ? (
                     <span className="docs-tree__src" title={row.source} data-outline-source={row.source}>
                       <span className="docs-tree__sr">{source.dir}</span>
