@@ -13,6 +13,10 @@
         "cs-h-example",
         "cs-example-lead",
         "cs-example",
+        "cs-h-rules",
+        "cs-rules-lead",
+        "cs-rules-g1",
+        "cs-rules-g2",
         "cs-h-state",
         "cs-state-lead",
         "cs-state-shape",
@@ -28,6 +32,7 @@
         "cs-doc-2",
         "cs-doc-3",
         "cs-doc-4",
+        "cs-doc-5",
         "cs-h-agent",
         "cs-agent-lead",
         "cs-agent-1",
@@ -101,7 +106,25 @@
           }
         },
         {
-          "insert": " request from the MCP tool down to the file write. The branch frame is the stale-hash check, and its child is the early return."
+          "insert": " request from the MCP tool down to the file write. Each guard that returns early is a branch frame with its "
+        },
+        {
+          "insert": "return",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " nested under it. The stack leaves out the draft-lock guard and the lint guard in "
+        },
+        {
+          "insert": "applyDocOpsToBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -113,67 +136,93 @@
         "frames": [
           {
             "text": "docs_apply_ops({ path, expected_hash, ops })",
-            "comment": "MCP tool, one atomic op batch",
-            "source": "packages/docs-mcp/src/tools.ts:383",
+            "comment": "the MCP tool handler, one atomic op batch",
+            "source": "packages/docs-mcp/src/tools.ts:476",
             "frames": [
               {
                 "text": "apply(store, args, args.ops, ctx)",
-                "comment": "refuses sidecar actions in a batch",
-                "source": "packages/docs-mcp/src/tools.ts:223",
+                "source": "packages/docs-mcp/src/tools.ts:476",
                 "frames": [
                   {
-                    "text": "priorDoc(store, args.path)",
-                    "comment": "document before the write",
-                    "source": "packages/docs-mcp/src/tools.ts:186"
-                  },
-                  {
-                    "text": "store.applyDocOps(path, ops, expected_hash)",
-                    "source": "packages/docs-server/src/store.ts:584",
+                    "text": "ops.some((op) => op.type === \"componentAction\" && …)",
+                    "kind": "branch",
+                    "source": "packages/docs-mcp/src/tools.ts:270",
                     "frames": [
                       {
-                        "text": "applyDocOpsToBundle(root, path, ops, …)",
-                        "comment": "runs inside withPathLock",
-                        "source": "packages/docs-server/src/doc-ops.ts:67",
+                        "text": "return failure(\"Sidecar actions require …\")",
+                        "comment": "a sidecar action needs its typed component tool"
+                      }
+                    ]
+                  },
+                  {
+                    "text": "priorDoc(store, args.path)",
+                    "comment": "the page before the write, for the reply's changed blocks",
+                    "source": "packages/docs-mcp/src/tools.ts:273"
+                  },
+                  {
+                    "text": "store.applyDocOps(args.path, ops, args.expected_hash)",
+                    "source": "packages/docs-mcp/src/tools.ts:274",
+                    "frames": [
+                      {
+                        "text": "applyDocOpsToBundle(root, path, ops, expectedHash, sessionId)",
+                        "source": "packages/docs-server/src/store.ts:662",
                         "frames": [
                           {
-                            "text": "loadDocBundle(docsRoot, path)",
-                            "comment": "current document and docHash",
-                            "source": "packages/docs-server/src/bundle.ts:65"
-                          },
-                          {
-                            "text": "expectedHash !== loaded.docHash",
-                            "kind": "branch",
-                            "source": "packages/docs-server/src/doc-ops.ts:85",
+                            "text": "withPathLock(jsonAbs, async () => …)",
+                            "comment": "one write per doc.json at a time",
+                            "source": "packages/docs-server/src/doc-ops.ts:82",
                             "frames": [
                               {
-                                "text": "return { status: 409, … }",
-                                "comment": "stale bundle, reload first"
+                                "text": "loadDocBundle(docsRoot, path)",
+                                "comment": "the current document and its docHash",
+                                "source": "packages/docs-server/src/doc-ops.ts:83"
+                              },
+                              {
+                                "text": "expectedHash && expectedHash !== loaded.docHash",
+                                "kind": "branch",
+                                "source": "packages/docs-server/src/doc-ops.ts:87",
+                                "frames": [
+                                  {
+                                    "text": "return { ok: false, status: 409, … }",
+                                    "comment": "stale page, the caller reloads first"
+                                  }
+                                ]
+                              },
+                              {
+                                "text": "applyOps(loaded.document, ops, () => randomUUID(), options)",
+                                "comment": "pure, returns the new document and the inverse ops",
+                                "source": "packages/docs-server/src/doc-ops.ts:110"
+                              },
+                              {
+                                "text": "validateDocDocument(result.doc)",
+                                "source": "packages/docs-server/src/doc-ops.ts:125"
+                              },
+                              {
+                                "text": "!validated.ok",
+                                "kind": "branch",
+                                "source": "packages/docs-server/src/doc-ops.ts:126",
+                                "frames": [
+                                  {
+                                    "text": "return { ok: false, status: 422, … }",
+                                    "comment": "the file on disk stays as it was"
+                                  }
+                                ]
+                              },
+                              {
+                                "text": "docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized)",
+                                "comment": "canonical bytes, whose hash is the new expected_hash",
+                                "source": "packages/docs-server/src/doc-ops.ts:162"
                               }
                             ]
-                          },
-                          {
-                            "text": "applyOps(loaded.document, ops, …)",
-                            "comment": "pure, collects the inverse ops",
-                            "source": "packages/docs-server/src/doc-ops.ts:108"
-                          },
-                          {
-                            "text": "validateDocDocument(result.doc)",
-                            "comment": "whole document again, else 422",
-                            "source": "packages/docs-server/src/doc-ops.ts:123"
-                          },
-                          {
-                            "text": "atomicWriteFile(loaded.jsonAbs, serialized)",
-                            "comment": "canonical bytes, new hash",
-                            "source": "packages/docs-server/src/doc-ops.ts:158"
                           }
                         ]
                       }
                     ]
                   },
                   {
-                    "text": "applied(store, path, result, write)",
-                    "comment": "style findings first, then the new hash",
-                    "source": "packages/docs-mcp/src/tools.ts:197"
+                    "text": "applied(store, args.path, result, { ctx, … })",
+                    "comment": "style findings and the new hash lead the reply",
+                    "source": "packages/docs-mcp/src/tools.ts:274"
                   }
                 ]
               }
@@ -181,6 +230,234 @@
           }
         ]
       },
+      "children": []
+    },
+    "cs-h-rules": {
+      "id": "cs-h-rules",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Writing the Frames"
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-lead": {
+      "id": "cs-rules-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each frame stands for one line of the source, so the reader can find that line and trust the tree. The rules below keep the tree and its two side columns true to the code."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g1": {
+      "id": "cs-rules-g1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tree copies the code",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-rules-g1-1",
+        "cs-rules-g1-2",
+        "cs-rules-g1-3"
+      ]
+    },
+    "cs-rules-g1-1": {
+      "id": "cs-rules-g1-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A frame's children are the calls that its own body makes, in source order. A call inside another call's arguments runs first in the same caller, so it is an earlier sibling."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g1-2": {
+      "id": "cs-rules-g1-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each guard on the path that returns or throws is a "
+        },
+        {
+          "insert": "branch",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " frame with the condition as the source writes it. The "
+        },
+        {
+          "insert": "return",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "throw",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " nests under it, and the frames after the guard stay outside it."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g1-3": {
+      "id": "cs-rules-g1-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A frame's text is the call as the source writes it, with only arguments shortened to "
+        },
+        {
+          "insert": "…",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Two calls or two checks never share one frame."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2": {
+      "id": "cs-rules-g2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The columns point and explain",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "cs-rules-g2-1",
+        "cs-rules-g2-2",
+        "cs-rules-g2-4",
+        "cs-rules-g2-3"
+      ]
+    },
+    "cs-rules-g2-1": {
+      "id": "cs-rules-g2-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is the line where the caller writes the call or the condition, not the line where the callee starts. Only the top frame cites the line where its own handler starts."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2-2": {
+      "id": "cs-rules-g2-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "return",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or "
+        },
+        {
+          "insert": "throw",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " row is an exit, not a call, so it has no "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2-4": {
+      "id": "cs-rules-g2-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A frame for code that does not exist yet has "
+        },
+        {
+          "insert": "change: \"added\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", no "
+        },
+        {
+          "insert": "source",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and a comment that says the frame is proposed."
+        }
+      ],
+      "children": []
+    },
+    "cs-rules-g2-3": {
+      "id": "cs-rules-g2-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A comment adds one fact the row does not show, such as what the frame refuses, returns, locks, or writes. A frame with nothing to add has no comment."
+        }
+      ],
       "children": []
     },
     "cs-h-state": {
@@ -298,13 +575,13 @@
                 "name": "source",
                 "type": "string",
                 "required": false,
-                "description": "Where the frame lives, \"path:line\"."
+                "description": "The line where the caller writes this call or condition, \"path:line\". A `return` or `throw` row, and a frame marked added, has none."
               },
               {
                 "name": "frames",
                 "type": "CallStackRow[]",
                 "required": false,
-                "description": "The calls this frame makes."
+                "description": "The calls this frame's own body makes, in source order."
               }
             ]
           }
@@ -895,7 +1172,7 @@
           }
         },
         {
-          "insert": " column at the right edge."
+          "insert": " column at the right edge. When the comments do not fit beside the code, each comment moves under its frame, and the source stays on the frame's line."
         }
       ],
       "children": []
@@ -943,6 +1220,17 @@
         },
         {
           "insert": " token with a literal fallback."
+        }
+      ],
+      "children": []
+    },
+    "cs-doc-5": {
+      "id": "cs-doc-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A frame too long for the panel wraps with a hanging indent and is never cut off."
         }
       ],
       "children": []
