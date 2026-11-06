@@ -61,7 +61,13 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
     const g = glue[index];
     if (!g) return <Fragment key={index}>{markedSpan(span)}</Fragment>;
     return (
-      <span key={index} data-chip-glue="true" className="whitespace-nowrap">
+      <span
+        key={index}
+        data-chip-glue="true"
+        data-chip-glue-before={g.before ? "true" : undefined}
+        data-chip-glue-after={g.after ? "true" : undefined}
+        className="whitespace-nowrap"
+      >
         {g.before && markedSpan({ ...g.prev!, insert: g.before })}
         {markedSpan(span)}
         {g.after && markedSpan({ ...g.next!, insert: g.after })}

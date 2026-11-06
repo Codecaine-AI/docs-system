@@ -47,6 +47,8 @@ test("markdown chips glue the punctuation of the text node after them", () => {
 test("an opening bracket before a chip joins it, and punctuation between two chips goes to one of them", () => {
   const markup = html([{ insert: "the STE Profile page (" }, { insert: "docs/99-appendix/10-style-guide/30-ste-profile", attributes: { code: true } }, { insert: ")." }]);
   expect(glued(markup)).toEqual(["(docs/99-appendix/10-style-guide/30-ste-profile)."]);
+  // The glue span marks both sides, so the chip drops its padding next to the bracket and the period.
+  expect(markup).toContain('data-chip-glue-before="true" data-chip-glue-after="true"');
   const pair = html([{ insert: "a", attributes: { code: true } }, { insert: "(" }, { insert: "b", attributes: { code: true } }]);
   expect(pair.replace(/<[^>]+>/g, "")).toBe("a(b");
 });

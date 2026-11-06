@@ -54,7 +54,7 @@ function visit(node: HastNode, parent: HastNode | null): void {
     if (before) prev!.value = prev!.value!.slice(0, -before.length);
     if (after) next!.value = next!.value!.slice(after.length);
     const parts: HastNode[] = [...(before ? [{ type: "text", value: before }] : []), children[i]!, ...(after ? [{ type: "text", value: after }] : [])];
-    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", style: "white-space:nowrap" }, children: parts };
+    children[i] = { type: "element", tagName: "span", properties: { dataChipGlue: "true", ...(before ? { dataChipGlueBefore: "true" } : {}), ...(after ? { dataChipGlueAfter: "true" } : {}), style: "white-space:nowrap" }, children: parts };
   }
 }
 
