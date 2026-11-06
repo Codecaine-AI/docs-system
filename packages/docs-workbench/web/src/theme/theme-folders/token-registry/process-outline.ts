@@ -34,6 +34,7 @@ export const processOutline: Record<string, Record<string, ThemeTokenDefinition>
     cycle5: color("--docs-process-outline-cycle-5"),
     cycle6: color("--docs-process-outline-cycle-6"),
     keywordFg: color("--docs-process-outline-keyword-fg"),
+    traceDot: color("--docs-process-outline-trace-dot"),
     noteFg: color("--docs-process-outline-note-fg"),
     // Note rule and bullet dots are flat colors of their own; Note accent
     // strength mixes the level's depth color into both and is 0 by default.
