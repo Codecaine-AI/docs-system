@@ -10,7 +10,7 @@ export type RoundBrief = Brief & { local?: true };
 export const LOCAL_BRIEFS_ENV = "QUALITY_CLIMB_LOCAL_BRIEFS";
 
 /** A slug names folders under the round dir, and the writer removes one before a retry: lowercase words and hyphens only. */
-function checkSlugs<T extends { id: number; slug: string }>(briefs: T[]): T[] {
+export function checkSlugs<T extends { id: number; slug: string }>(briefs: T[]): T[] {
   const bad = briefs.filter((b) => !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(b.slug));
   if (bad.length) throw new Error(`Brief ${bad.map((b) => `${b.id} slug "${b.slug}"`).join(", ")}: a slug holds only lowercase letters, digits and single hyphens.`);
   return briefs;

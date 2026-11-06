@@ -1,0 +1,4 @@
+[
+  { "id": "field-types", "group": "State shape", "question": "Does each field show its type, and does the block mark each optional field?" },
+  { "id": "nesting", "group": "State shape", "question": "Does the block show how nested objects and arrays sit inside their parent?" }
+]
