@@ -1349,6 +1349,8 @@
         "process-outline-parent-lint",
         "process-outline-title-case-lint",
         "interaction-surface-returns-prose-lint",
+        "code-language-lint",
+        "code-annotation-range-lint",
         "bundle-relative-src-lint"
       ]
     },
@@ -1458,6 +1460,75 @@
       ],
       "children": []
     },
+    "code-language-lint": {
+      "id": "code-language-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "code.language flags a code block with no language."
+        }
+      ],
+      "children": [
+        "code-language-lint-shown",
+        "code-language-lint-fix",
+        "code-language-lint-gate"
+      ]
+    },
+    "code-language-lint-shown": {
+      "id": "code-language-lint-shown",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "The page shows such a block as plain text with no language label."
+        }
+      ],
+      "children": []
+    },
+    "code-language-lint-fix": {
+      "id": "code-language-lint-fix",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "Set the language to the file's language, or to text for plain output."
+        }
+      ],
+      "children": []
+    },
+    "code-language-lint-gate": {
+      "id": "code-language-lint-gate",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
+    "code-annotation-range-lint": {
+      "id": "code-annotation-range-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "code.annotation-range flags a code annotation whose lines key does not parse, covers no line, or reaches past the listing's last line. The reader cannot pair such a note with its code. docs_check fails until the task fixes it."
+        }
+      ],
+      "children": []
+    },
     "bundle-relative-src-lint": {
       "id": "bundle-relative-src-lint",
       "type": "list-item",
@@ -1501,12 +1572,36 @@
           }
         },
         {
-          "insert": " flags a code line wider than the code panel shows before it scrolls sideways. At stock settings the panel shows 118 columns, or 82 beside a notes column."
+          "insert": " flags a code line wider than the code panel shows."
         }
       ],
       "children": [
+        "layout-lints-code-line-wrap",
+        "layout-lints-code-line-cols",
         "layout-lints-code-line-px"
       ]
+    },
+    "layout-lints-code-line-wrap": {
+      "id": "layout-lints-code-line-wrap",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The read page wraps such a line, and the edit panel scrolls it sideways."
+        }
+      ],
+      "children": []
+    },
+    "layout-lints-code-line-cols": {
+      "id": "layout-lints-code-line-cols",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "At stock settings the panel shows 118 columns, with or without notes, because notes move under their lines when the code needs the width."
+        }
+      ],
+      "children": []
     },
     "layout-lints-code-line-px": {
       "id": "layout-lints-code-line-px",
