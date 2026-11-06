@@ -336,19 +336,41 @@
  * line's own indent. Rows stack, so the rules of a loop body join into one
  * line from the loop's first step to its last.
  */
-.docs-pseudo-code {
-  background-image: repeating-linear-gradient(
+.docs-pseudo-grid {
+  --docs-pseudo-guides: repeating-linear-gradient(
     to right,
     color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 40%, transparent) 0 1px,
     transparent 1px 2ch
   );
+  --docs-pseudo-guides-x: calc(var(--docs-code-pad-x, var(--ds-space-3)) + 0.5ch);
+}
+
+.docs-pseudo-grid[data-pseudo-diff] {
+  --docs-pseudo-guides-x: calc(var(--ds-space-1) + 0.5ch);
+}
+
+/*
+ * A comment moved under its line takes the steps' size, so its indent in ch
+ * matches its line's, and it carries its line's guides, so a loop's rule
+ * runs on through it.
+ */
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment,
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  font-size: inherit;
+}
+
+.docs-pseudo-code,
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment,
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  background-image: var(--docs-pseudo-guides);
   background-repeat: no-repeat;
-  background-position: calc(var(--docs-code-pad-x, var(--ds-space-3)) + 0.5ch) 0;
+  background-position: var(--docs-pseudo-guides-x) 0;
   background-size: var(--docs-pseudo-indent, 0ch) 100%;
 }
 
-.docs-pseudo-grid[data-pseudo-diff] .docs-pseudo-code {
-  background-position: calc(var(--ds-space-1) + 0.5ch) 0;
+.docs-pseudo-code {
+  /* The cell fills its row, so a guide runs on past a comment that takes a second line. */
+  align-self: stretch;
 }
 
 /* A function header line, such as parseTranscript(jsonl), opens its body in a heavier weight. */
@@ -376,8 +398,8 @@
 }
 
 /*
- * Comments below (PseudocodeGrid data-notes="below"): a comment needs 3 or
- * more lines beside its line, or the rows overflow the panel. The comment
+ * Comments below (PseudocodeGrid data-notes="below"): the rows overflow the
+ * panel. The comment
  * column goes away, each code line takes the full width, and its comment
  * takes a second line under it at the line's own indent, so it never sits
  * where a nested step would. A gap after the pair joins the comment to the
@@ -406,7 +428,33 @@
   padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
 }
 
-.docs-pseudo-grid[data-notes="below"] .docs-pseudo-row:has(.docs-pseudo-comment):not(:last-child) {
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-row:not(:last-child) .docs-pseudo-comment {
+  padding-bottom: var(--ds-space-1-5);
+}
+
+/*
+ * One comment below (PseudocodeGrid data-note-below on its row): a comment
+ * that would wrap beside its line moves under that line, at the line's
+ * indent, and the other comments stay in the aligned column. Its line takes
+ * the comment column's width, and a gap after the pair keeps it apart from
+ * the line below.
+ */
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-code {
+  grid-column: -3 / -1;
+  padding-right: var(--docs-code-pad-x, var(--ds-space-3));
+}
+
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  grid-row: 2;
+  grid-column: -3 / -1;
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid[data-pseudo-diff]:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below]:not(:last-child) .docs-pseudo-comment {
   padding-bottom: var(--ds-space-1-5);
 }
 

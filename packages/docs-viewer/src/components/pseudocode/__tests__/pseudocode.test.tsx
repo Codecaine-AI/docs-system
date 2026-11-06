@@ -4,6 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "../../../render/block-registry";
 import { descriptors } from "../descriptor";
+import { PseudocodeGrid } from "../PseudocodeGrid";
 
 const RENDER_CTX: DocBlockRenderContext = {
   renderText: () => null,
@@ -93,16 +94,26 @@ describe("pseudocode block", () => {
       "input = the input tokens, or 0 if missing",
       "condition words = if, unless, until",
       "else if done -> return none",
-      "  if x then stop",
+      "  if between holds then -> skip",
     ].join("\n"));
     const control = (html: string) => [...html.matchAll(/<span class="hljs-keyword hljs-control">(\w+)<\/span>/g)].map((m) => m[1]);
-    expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "then", "stop"]]);
+    expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "skip"]]);
   });
 
   it("marks a function header line that opens an indented body, and only that line", () => {
     renderPseudocode(["parseTranscript(jsonl)", "  count = 0", "  record(line)", "", "helper(x)"].join("\n"));
     const rows = [...document.querySelectorAll(".docs-pseudo-row")];
     expect(rows.map((row) => row.hasAttribute("data-pseudo-header"))).toEqual([true, false, false, false, false]);
+  });
+
+  it("keeps a row's comment placement when the grid renders again with the same rows", () => {
+    const html = '<div class="docs-pseudo-row"><span class="docs-pseudo-code">step</span><span class="docs-pseudo-comment">// why</span></div>';
+    const { rerender } = render(<PseudocodeGrid html={html} diff={false} />);
+    const row = document.querySelector(".docs-pseudo-row")!;
+    row.setAttribute("data-note-below", "");
+    rerender(<PseudocodeGrid html={html} diff={false} />);
+    expect(document.querySelector(".docs-pseudo-row")).toBe(row);
+    expect(row.hasAttribute("data-note-below")).toBe(true);
   });
 
   it("colors a method call as a call, not as a property", () => {

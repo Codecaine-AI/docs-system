@@ -22,7 +22,7 @@ import type { HLJSApi, Language } from "highlight.js";
 export const PSEUDO_LANGUAGE = "pseudo";
 
 /** Control-flow words; highlight.ts tags them hljs-control (purple), like the code block's `if`. */
-export const PSEUDO_CONTROL_WORDS = ["if", "else", "for", "each", "while", "return", "break", "continue", "skip", "stop", "throw", "emit", "yield", "await", "then", "until", "repeat", "do"];
+export const PSEUDO_CONTROL_WORDS = ["if", "else", "for", "each", "while", "return", "break", "continue", "skip", "stop", "try", "throw", "emit", "yield", "await", "then", "until", "repeat", "do"];
 
 /** File extensions that make `name.ext` a file name, which stays plain text instead of reading as `.property` access. */
 const FILE_EXTENSIONS = ["json", "jsonl", "md", "mdx", "ts", "tsx", "js", "jsx", "mjs", "css", "html", "png", "svg", "yaml", "yml", "toml", "txt", "sh", "log"];
