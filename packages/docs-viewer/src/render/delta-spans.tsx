@@ -11,7 +11,7 @@ import {
   SOURCE_REFERENCE_CLASSES,
 } from "./block-classes";
 import { chipKind } from "../components/typed-chip";
-import { chipBreaks } from "../components/mono-breaks";
+import { WHOLE_CHIP_CLASSES, chipBreaks, listChipBreaks } from "../components/mono-breaks";
 
 /**
  * The class string and `data-chip-kind` for one inline code chip holding
@@ -42,7 +42,10 @@ export function inlineCodeChipProps(text: string): { className: string; "data-ch
  * underlined, a doc reference is a sans link on a dotted underline, and a
  * source reference is a mono link on a hairline rule.
  */
-export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
+export function renderDeltaSpans(
+  text: DeltaSpan[] | undefined,
+  options?: { wholeChipMaxChars?: number },
+): ReactNode {
   if (!text || text.length === 0) return null;
   const spans = text.map((span) => ({ ...span }));
   // Punctuation next to a chip stays on the chip's line (see CHIP_GLUE_BEFORE and CHIP_GLUE_AFTER).
@@ -61,7 +64,7 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
   });
   return spans.map((span, index) => {
     const g = glue[index];
-    if (!g) return <Fragment key={index}>{markedSpan(span)}</Fragment>;
+    if (!g) return <Fragment key={index}>{markedSpan(span, options)}</Fragment>;
     return (
       <span
         key={index}
@@ -70,9 +73,9 @@ export function renderDeltaSpans(text: DeltaSpan[] | undefined): ReactNode {
         data-chip-glue-after={g.after ? "true" : undefined}
         className="whitespace-nowrap"
       >
-        {g.before && markedSpan({ ...g.prev!, insert: g.before })}
-        {markedSpan(span)}
-        {g.after && markedSpan({ ...g.next!, insert: g.after })}
+        {g.before && markedSpan({ ...g.prev!, insert: g.before }, options)}
+        {markedSpan(span, options)}
+        {g.after && markedSpan({ ...g.next!, insert: g.after }, options)}
       </span>
     );
   });
@@ -88,13 +91,18 @@ export const CHIP_GLUE_BEFORE = /[(\[{"'\u2018\u201c]+$/;
 export const CHIP_GLUE_AFTER = /^[.,;:!?)\]}"'\u2019\u201d]+/;
 
 /** One span with its marks applied, code innermost. */
-function markedSpan(span: DeltaSpan): ReactNode {
+function markedSpan(span: DeltaSpan, options?: { wholeChipMaxChars?: number }): ReactNode {
   let node: ReactNode = span.insert;
   const attrs = span.attributes;
   if (attrs) {
     if (attrs.code) {
-      // Pieces, so the chip never breaks mid-token (mono-breaks.tsx chipBreaks).
-      node = <code {...inlineCodeChipProps(span.insert)}>{chipBreaks(span.insert)}</code>;
+      const chip = inlineCodeChipProps(span.insert);
+      // A chip up to `wholeChipMaxChars` long breaks on screen only after a `,` or `|` list
+      // separator, never at its spaces (structured-table cells, mono-breaks.tsx listChipBreaks).
+      // Any other chip renders as pieces, so it never breaks mid-token (mono-breaks.tsx chipBreaks).
+      node = options?.wholeChipMaxChars !== undefined && span.insert.length <= options.wholeChipMaxChars
+        ? <code {...chip} className={`${chip.className} ${WHOLE_CHIP_CLASSES}`}>{listChipBreaks(span.insert)}</code>
+        : <code {...chip}>{chipBreaks(span.insert)}</code>;
     }
     if (attrs.bold) node = <strong>{node}</strong>;
     if (attrs.italic) node = <em>{node}</em>;

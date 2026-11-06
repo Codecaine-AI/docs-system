@@ -50,6 +50,7 @@ export const TABLE_ELEMENT_CLASSES =
 export const TABLE_COLUMN_FIT_CLASSES = {
   fit: "whitespace-nowrap **:whitespace-nowrap",
   prose: "",
+  text: "",
   wrap: "",
 } as const;
 
@@ -61,6 +62,24 @@ export const TABLE_COLUMN_FIT_CLASSES = {
  * its longest word, so `break-words` on the editor island never fires).
  */
 export const TABLE_PROSE_MEASURE_CLASS = "max-w-[var(--ds-layout-lane-text)] min-w-min";
+
+/**
+ * The prose column's floor, half the prose measure: 30ch at stock
+ * (column-layout.ts PROSE_FLOOR_CH). It sits on the same
+ * block as the measure: a box's min-content width is the larger of its
+ * min-width and its longest word, so the floor never cuts a word. Print
+ * drops it: PDF export gives every column an equal share (fixed layout),
+ * and a 30ch block would run into the next column.
+ */
+export const TABLE_PROSE_FLOOR_CLASS = "min-w-[calc(var(--ds-layout-lane-text)/2)] print:min-w-0";
+
+/**
+ * A wrap column's measure: half the prose measure (30ch at stock). The
+ * browser shares spare width by each column's one-line width, so a wrap
+ * column of long chip runs at the full measure would take the width the
+ * prose column needs.
+ */
+export const TABLE_WRAP_MEASURE_CLASS = "max-w-[calc(var(--ds-layout-lane-text)/2)] min-w-min";
 
 /**
  * The pinned first column (th and td): sticky at the frame's left edge,
@@ -88,8 +107,18 @@ export const TABLE_HEAD_CLASSES =
  * The header size follows the body size by default and detaches only when
  * its own token is set.
  */
+/**
+ * Inline code in any cell, header or body, is plain mono with no chip: no
+ * fill, padding or border, the plain chip ink instead of a typed-chip kind
+ * color, and the identifier cells' size (0.5px under the body size). A
+ * literal then looks the same whether it fills its cell or sits in a
+ * sentence, and only the key column's color sets the row key apart.
+ */
+export const TABLE_CELL_CODE_CLASSES =
+  "[--docs-inline-code-bg:transparent] [--docs-inline-code-pad-x:0] [--docs-inline-code-pad-y:0] [--docs-inline-code-border-width:0px] [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,var(--ds-color-code-chip-ink))] [&_code]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)]";
+
 export const TABLE_HEADER_CELL_TEXT_CLASSES =
-  "min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]";
+  `${TABLE_CELL_CODE_CLASSES} min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]`;
 
 export const TABLE_ROW_HOVER_CLASSES =
   "transition-colors hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]";
@@ -104,13 +133,14 @@ export const TABLE_ROW_RULE_CLASSES =
   "border-b border-solid border-b-[length:var(--docs-table-row-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]";
 
 /**
- * Body cell type. A td carrying `data-cell-kind` (cell-kind.ts) is an
+ * Body cell type, with TABLE_CELL_CODE_CLASSES for its inline code.
+ * A td carrying `data-cell-kind` (cell-kind.ts) is an
  * identifier cell: 0.5px under the body size in the code font, ink colored —
  * and the key column's identifier is the one colored cell, in the key token
- * (property syntax role). Inside it the inline-code chip vars are zeroed
+ * (property syntax role). Inside it inline code takes the cell's own color
  * (the typed-chip color on the code element itself included), so a
- * whole-cell code span reads as the same plain mono (both the chip
- * utilities and the workbench's unlayered chip rule read those vars). An
+ * whole-cell code span reads as the same mono (both the chip utilities and
+ * the workbench's unlayered chip rule read those vars). An
  * identifier cell keeps the sans cells' line box (body size times line
  * height) so baselines line up across a row, and it never breaks at its
  * hyphens: the cell and its editor island
@@ -118,10 +148,11 @@ export const TABLE_ROW_RULE_CLASSES =
  * identifiers alone overflow it).
  */
 export const TABLE_BODY_CELL_TEXT_CLASSES = [
+  TABLE_CELL_CODE_CLASSES,
   "align-top text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
   "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
   "data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)] data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
-  "data-[cell-kind]:[--docs-inline-code-bg:transparent] data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor] data-[cell-kind]:[--docs-inline-code-pad-x:0] data-[cell-kind]:[--docs-inline-code-pad-y:0] data-[cell-kind]:[--docs-inline-code-text-size:1] data-[cell-kind]:[--docs-inline-code-border-width:0px]",
+  "data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor]",
 ].join(" ");
 
 export const TABLE_CELL_SPACING_CLASS =
