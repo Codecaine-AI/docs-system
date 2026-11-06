@@ -1,0 +1,6 @@
+[
+  { "id": "column-contract", "group": "Writing", "question": "Does each header name one property, and does every cell under it hold that property in the same kind, notation and unit, with the meaning of any blank or not-applicable cell clear?" },
+  { "id": "row-lookup", "group": "Writing", "question": "Does the first column give each row a short identifier that tells it apart from the other rows, and do the rows follow one order the reader can predict?" },
+  { "id": "identifier-typography", "group": "Look", "question": "In the PNG, are literal identifiers (names, commands, paths, keys, values) set apart from prose the same way in every comparable cell, with no literal backtick or markdown glyph left in a cell?" },
+  { "id": "column-widths", "group": "Look", "question": "In the PNG, does each short column fit its values closely, does prose get enough width to avoid needless wrapping, and is there no broken short cell or wide band of empty space?" }
+]
