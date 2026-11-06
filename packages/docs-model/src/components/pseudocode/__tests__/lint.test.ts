@@ -25,8 +25,8 @@ describe("pseudocode.code-syntax", () => {
     expect(rest).toEqual([]);
     expect(finding!.blockId).toBe("p");
     expect(finding!.message).toStartWith("Lines 2, 3 and 4 use source-language syntax");
-    expect(finding!.message).toContain("Write ?? as \"or 0 when it is missing\".");
-    expect(finding!.message).toContain("Write ==, ===, != or !== as is or is not.");
+    expect(finding!.message).toContain("Write ?? as \"or 0 when the value is missing\".");
+    expect(finding!.message).toContain("Write ==, ===, != or !== as equals or does not equal.");
     expect(finding!.message).toContain("Write an object literal as");
   });
 

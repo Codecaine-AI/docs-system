@@ -150,22 +150,31 @@
           "insert": "Write "
         },
         {
+          "insert": "equals",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to compare two values, "
+        },
+        {
           "insert": "is",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": " for a state such as "
         },
         {
-          "insert": "is not",
+          "insert": "is empty",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": ", and "
         },
         {
           "insert": "and",
@@ -196,15 +205,6 @@
         },
         {
           "insert": "===",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "!==",
           "attributes": {
             "code": true
           }
@@ -248,7 +248,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Say a fallback for a missing value in words, such as \"the usage of the result, or 0 when it is missing\", not "
+          "insert": "Say a fallback for a missing value in words, such as \"the usage of the result, or 0 when the result has no usage\", not "
         },
         {
           "insert": "result?.usage ?? 0",
@@ -257,7 +257,7 @@
           }
         },
         {
-          "insert": "."
+          "insert": ". Leave out a fallback that only satisfies the type checker, such as a default start for a regex match that always has one."
         }
       ],
       "children": []
@@ -308,7 +308,8 @@
       "children": [
         "pseudo-write-names-1",
         "pseudo-write-names-2",
-        "pseudo-write-names-3"
+        "pseudo-write-names-3",
+        "pseudo-write-names-4"
       ]
     },
     "pseudo-write-names-1": {
@@ -340,6 +341,17 @@
       "text": [
         {
           "insert": "Repeat the noun in place of \"it\" or \"them\", such as \"or 0 when the match has no start\". Name both ends of \"between\", such as \"between the verb and the condition word\"."
+        }
+      ],
+      "children": []
+    },
+    "pseudo-write-names-4": {
+      "id": "pseudo-write-names-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a line to about 70 characters, so it does not wrap. Split a long condition into a named step, such as \"quoted = the word is inside quotes\"."
         }
       ],
       "children": []

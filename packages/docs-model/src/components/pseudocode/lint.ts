@@ -5,9 +5,9 @@ import type { LintRule } from "../../lint/types";
  * A `->` arrow, a call and `.field` access stay: the viewer highlights them as pseudocode.
  */
 const CODE_SYNTAX: readonly { pattern: RegExp; label: string; words: string }[] = [
-  { pattern: /[=!]==?/, label: "==, ===, != or !==", words: "is or is not" },
+  { pattern: /[=!]==?/, label: "==, ===, != or !==", words: "equals or does not equal" },
   { pattern: /&&|\|\|/, label: "&& or ||", words: "and or or" },
-  { pattern: /\?\?/, label: "??", words: "\"or 0 when it is missing\"" },
+  { pattern: /\?\?/, label: "??", words: "\"or 0 when the value is missing\"" },
   { pattern: /\?\./, label: "?.", words: "\"if there is one\"" },
   { pattern: /[+\-*/]=|\+\+/, label: "+=, -= or ++", words: "\"add 1 to the count\"" },
   { pattern: /\{\s*[A-Za-z_]\w*\s*:/, label: "an object literal", words: "\"a span with the text and the code attribute\"" },
@@ -47,7 +47,7 @@ export const pseudocodeCodeSyntaxRule: LintRule = {
   enforcement: [],
   applicability: "Each line of a pseudocode block, outside its double-quoted strings and its trailing // comment.",
   exclusions: ["Text inside a double-quoted string or a // comment", "Calls, -> arrows and .field access, which the viewer highlights"],
-  suggestion: "Say the step in plain words: is and is not for === and !==, and and or for && and ||, \"or 0 when it is missing\" for ??, and \"add 1 to\" for += 1. Name a field or a list in words, not as an object literal or a [0] index.",
+  suggestion: "Say the step in plain words: equals and does not equal for === and !==, and and or for && and ||, \"or 0 when the value is missing\" for ??, and \"add 1 to\" for += 1. Name a field or a list in words, not as an object literal or a [0] index.",
   check({ blocks }) {
     return blocks.flatMap((block) => {
       if (block.type !== "pseudocode") return [];
