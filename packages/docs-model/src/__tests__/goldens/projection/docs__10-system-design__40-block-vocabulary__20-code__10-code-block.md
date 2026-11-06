@@ -20,7 +20,7 @@ A listing is evidence. A reader checks each line against the source file and eac
 
   - Mark each cut with one comment line in the listing's language at the place of the cut, such as `// ... 64 lines: issuePath and schemaIssues`. Two parts of a file must never touch without a cut marker.
 
-  - A line wider than about 95 columns wraps in the panel, so cut a long line that the point does not need.
+  - A line wider than about 95 columns wraps in the panel, so cut each long line the point does not need, such as a doc comment that no note discusses.
 
   - Keep a long line verbatim when the point needs it.
 
@@ -34,7 +34,7 @@ A listing is evidence. A reader checks each line against the source file and eac
 
 4. Make each range cover exactly the lines its note discusses.
 
-  - Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them.
+  - Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them. If the note names a line, such as the return, put that line in the range.
 
   - Give the note a short label that names the job of its lines. A label such as "Merge" goes on the line that merges.
 

@@ -292,7 +292,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A line wider than about 95 columns wraps in the panel, so cut a long line that the point does not need."
+          "insert": "A line wider than about 95 columns wraps in the panel, so cut each long line the point does not need, such as a doc comment that no note discusses."
         }
       ],
       "children": []
@@ -390,7 +390,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them."
+          "insert": "Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them. If the note names a line, such as the return, put that line in the range."
         }
       ],
       "children": []
