@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Plug } from "lucide-react";
+import { Plug, Radio, Search, Zap, type LucideIcon } from "lucide-react";
 import type { Field } from "@codecaine-ai/docs-model";
 import { CodeLines, LinkGroup, type LinkedCodeLine } from "../linked-panels";
 import { DescribedName } from "../described-name";
@@ -13,7 +13,7 @@ import { tokenizeExampleCall, tokenizeSigType } from "./signature-tokens";
 
 export const INTERACTION_SURFACE_LABEL = "Interaction Surface";
 export const INTERACTION_SURFACE_AGENT_DESCRIPTION =
-  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Operations start collapsed as one-line rows: chevron and the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType, params elided; they open on click, Enter, or Space. The name is a described name: hover or focus shows a tooltip with a lowercase kind badge (action, query, or event, colored by kind) above the purpose. Open, a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed inline. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
+  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Operations start collapsed as rows: chevron, the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType with params elided, and a kind chip (icon and the word action, query, or event, colored by kind) at the row end. A return type too long for the line wraps under the name, never truncated. Rows open on click, Enter, or Space. The name is a described name: hover or focus shows a tooltip with the kind badge above the purpose. Open, a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, type, and the description printed inline. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
 
 export type InteractionSurfaceParam = Field;
 export type InteractionSurfaceOperation = {
@@ -133,16 +133,13 @@ export function signatureTail(operation: InteractionSurfaceOperation): string {
 
 /**
  * {@link signatureTail} as role-tagged tokens, the same roles as the signature
- * pane. One line, never wrapping: the return type is the part that gives way
- * (ellipsis, full text in its title). The tail's huge flex-shrink keeps the
- * name's proportional share of any overflow below a layout unit, so the name
- * only truncates once the return type is gone (a share of even 0.1px would
- * already trigger its ellipsis).
+ * pane. A return type too long for the line wraps under the name with a
+ * hanging indent, so the closed row always shows the whole type.
  */
 function SignatureTailTokens({ operation }: { operation: InteractionSurfaceOperation }) {
   return <span data-operation-tail="true">
     <span data-operation-params="true"><PunctToken text="(" />{operation.params?.length ? <span data-sig-token="elided">{ELIDED_PARAMS}</span> : null}<PunctToken text=")" /></span>
-    {operation.returns && <span data-sig-token="returns" data-operation-returns="true" title={operation.returns}> {RETURNS_ARROW} <TypeToken text={operation.returns} /></span>}
+    {operation.returns && <span data-sig-token="returns" data-operation-returns="true"> {RETURNS_ARROW} <TypeToken text={operation.returns} /></span>}
   </span>;
 }
 
@@ -172,27 +169,28 @@ const SURFACE_STYLE = `
 [data-operations-title]{margin:0;min-width:0;font-size:var(--docs-interaction-title-text-size,13.5px);font-weight:var(--docs-interaction-title-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-interaction-title-fg,var(--docs-ink,#1f1f1f));overflow-wrap:anywhere}
 [data-interaction-operation]+[data-interaction-operation]{border-top:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}
 [data-operation-line]{padding:0 var(--op-pad-x)}
-[data-operation-line-row]{position:relative;display:flex;align-items:center;gap:var(--ds-space-2);min-height:36px;padding:var(--docs-interaction-header-pad-y,9px) 0}
-[data-operation-name]{display:flex;min-width:0;flex:1 1 auto;overflow:hidden;white-space:pre;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-interaction-header-text-size,13px);font-weight:var(--docs-interaction-header-weight,500);line-height:1.4;color:var(--syntax-punctuation,var(--docs-code-fg,var(--docs-text,#2a2a2a)))}
-[data-operation-name]>[data-described]{position:static;display:flex;flex:0 1 auto;min-width:0}
-[data-operation-name] [data-has-description]{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;border-radius:0}
+[data-operation-line-row]{position:relative;display:flex;align-items:flex-start;gap:var(--ds-space-2);min-height:36px;padding:var(--docs-interaction-header-pad-y,9px) 0}
+[data-operation-line-row]>[data-disclosure-chevron]{margin-top:calc((1.4em - 14px) / 2)}
+[data-operation-name]{display:block;min-width:0;flex:1 1 auto;padding-left:var(--ds-space-4);text-indent:calc(-1 * var(--ds-space-4));white-space:normal;overflow-wrap:anywhere;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-interaction-header-text-size,13px);font-weight:var(--docs-interaction-header-weight,500);line-height:1.4;color:var(--syntax-punctuation,var(--docs-code-fg,var(--docs-text,#2a2a2a)))}
+[data-operation-name]>[data-described]{position:static;display:inline;text-indent:0}
+[data-operation-name] [data-has-description]{border-radius:0}
 [data-operation-line-row] [data-description-tip]{left:22px;top:calc(100% - var(--ds-space-1));width:max-content;max-width:min(52ch,60cqi);font-size:var(--docs-interaction-desc-text-size,13.5px);line-height:var(--docs-interaction-desc-line-height,20px)}
 @supports (anchor-name:--a) and (anchor-scope:--a){[data-operation-line-row]{anchor-scope:--op-name}[data-operation-line-row] [data-has-description]{anchor-name:--op-name}[data-operation-line-row] [data-description-tip]{position-anchor:--op-name;left:calc(anchor(right) + var(--ds-space-3));top:calc(anchor(top) - 7px)}}
 [data-operation-line]:focus-visible [data-description-tip]{opacity:1;visibility:visible;translate:0 0;transition-delay:0s}
 [data-operation-tip-kind]{display:block;margin:1px 0 var(--ds-space-1)}
 [data-operation-tip-kind]:only-child{margin-bottom:1px}
 [data-operation-tip-purpose]{display:block}
-[data-operation-tail]{display:flex;flex:0 1000000 auto;min-width:0;font-weight:var(--ds-font-weight-regular)}
-[data-operation-params]{flex:none}
-[data-operation-returns]{min-width:0;overflow:hidden;text-overflow:ellipsis}
+[data-operation-tail]{font-weight:var(--ds-font-weight-regular)}
+[data-operation-params]{white-space:nowrap}
+[data-op-kind-chip]{display:inline-flex;align-items:center;gap:var(--ds-space-1);flex:none;margin-left:auto;padding:0 var(--ds-space-1-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium);line-height:1.4;color:var(--op-kind);border:var(--ds-border-width-hairline) solid var(--op-kind-line);border-radius:var(--radius,2px);background:color-mix(in srgb,var(--op-kind-soft) 14%,transparent)}
+[data-op-kind-chip] svg{width:var(--ds-space-3);height:var(--ds-space-3);flex:none}
 [data-operation-name] [data-sig-token="elided"]{color:var(--docs-muted,#666562)}
 [data-operation-disclosure][open] [data-operation-tail]{display:none}
-[data-operation-sr]{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 [data-docs-block-type="interaction-surface"][data-docs-block-type] :is([data-operation-name],[data-operation-name] *,[data-op-row] [data-code-line],[data-op-row] [data-code-line] *,[data-op-row],[data-op-row] *,[data-op-card-head] *){font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
 [data-operation-kind-badge]{display:inline-block;flex:none;padding:0 var(--ds-space-1-5);border:var(--ds-border-width-hairline) solid var(--op-kind-line);border-radius:var(--radius,2px);background:var(--op-kind-soft);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium);line-height:1.35;color:var(--op-kind)}
-[data-operation-kind-badge="action"]{--op-kind:var(--docs-kind-action,#9d530d);--op-kind-line:var(--docs-kind-action-line,color-mix(in srgb,#d9730d 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-action-soft,#faebdd)}
-[data-operation-kind-badge="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,color-mix(in srgb,#0b6e99 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-query-soft,#ddebf1)}
-[data-operation-kind-badge="event"]{--op-kind:var(--docs-kind-event,#6940a5);--op-kind-line:var(--docs-kind-event-line,color-mix(in srgb,#6940a5 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-event-soft,#eae4f2)}
+[data-operation-kind-badge="action"],[data-op-kind-chip="action"]{--op-kind:var(--docs-kind-action,#9d530d);--op-kind-line:var(--docs-kind-action-line,color-mix(in srgb,#d9730d 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-action-soft,#faebdd)}
+[data-operation-kind-badge="query"],[data-op-kind-chip="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,color-mix(in srgb,#0b6e99 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-query-soft,#ddebf1)}
+[data-operation-kind-badge="event"],[data-op-kind-chip="event"]{--op-kind:var(--docs-kind-event,#6940a5);--op-kind-line:var(--docs-kind-event-line,color-mix(in srgb,#6940a5 45%,#f8f8f7));--op-kind-soft:var(--docs-kind-event-soft,#eae4f2)}
 [data-operation-body]{overflow:hidden}
 @media screen{[data-operation-disclosure]:not([open])>[data-operation-body]{height:0}}
 [data-operation-disclosure][open]::details-content{overflow:visible}
@@ -208,13 +206,17 @@ const SURFACE_STYLE = `
 [data-op-row]>[data-op-code]:first-child{border-top:0}
 [data-op-code] [data-code-line]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)}
 @container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(360px,calc(100% - 260px)),var(--docs-pane-split,44%)) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
-@media print{[data-operation-name]{flex-wrap:wrap;white-space:normal}[data-operation-name]>[data-described]{display:block;flex-basis:100%}[data-operation-tip-kind]{display:inline-block;margin:0 var(--ds-space-2) 0 0}[data-operation-tip-purpose]{display:inline}}
+@media print{[data-operation-name]>[data-described]{display:block}[data-operation-tip-kind]{display:inline-block;margin:0 var(--ds-space-2) 0 0}[data-operation-tip-purpose]{display:inline}}
 @media(prefers-reduced-motion:reduce){[data-docs-block-type="interaction-surface"] *{scroll-behavior:auto;transition-duration:.01ms}}
 `;
 const SURFACE_SHEET = FIELD_LEDGER_STYLE + REF_TILE_STYLE + REF_CODE_PANE_STYLE + DISCLOSURE_STYLE + SURFACE_STYLE + SIG_TOKEN_STYLE;
 
+/** The closed row's kind chip icon: the icons of the approved 2026-09-15 design. */
+const KIND_ICONS: Record<OperationKind, LucideIcon> = { action: Zap, query: Search, event: Radio };
+
 function OperationRow({ blockId, operation }: { blockId: string; operation: InteractionSurfaceOperation }) {
   const kind: OperationKind = operation.kind ?? "action";
+  const KindIcon = KIND_ICONS[kind];
   const rows = paramRows(operation);
   const callLines = operation.exampleCall ? exampleCallLines(operation, rows) : undefined;
   const shape = operation.returnShape ? buildShapeModel(operation.returnShape.fields, operation.returnShape.example, (path) => ({ "data-shape-path": path })) : undefined;
@@ -225,7 +227,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
   return <div data-interaction-operation={operation.name} data-operation-kind={kind}>
     {/* No `open` attribute is ever rendered, so a re-render (the workbench node view re-renders on every selection change) never resets a row the reader toggled. */}
     <details ref={syncDisclosureExpanded} data-disclosure="true" data-operation-disclosure="true">
-      {/* One line, collapsed or open: chevron and `receiver.method(…) → Type`. The name is a described name: its tooltip (hover dwell, or the summary's keyboard focus) shows the kind badge and the purpose; the summary is labelled by name + kind and described by the purpose for assistive tech. */}
+      {/* Collapsed or open: chevron, `receiver.method(…) → Type` (a long type wraps under the name), and the kind chip at the row end. The name is a described name: its tooltip (hover dwell, or the summary's keyboard focus) shows the kind badge and the purpose; the summary is labelled by name + kind and described by the purpose for assistive tech. */}
       <summary data-operation-line="true" aria-labelledby={`${nameId} ${kindId}`} aria-describedby={operation.description ? purposeId : undefined}>
         <span data-operation-line-row="true">
           <DisclosureChevron />
@@ -239,7 +241,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
             />
             <SignatureTailTokens operation={operation} />
           </span>
-          <span data-operation-sr="true" id={kindId}>{kind}</span>
+          <span data-op-kind-chip={kind} id={kindId}><KindIcon aria-hidden="true" />{kind}</span>
         </span>
       </summary>
       {/* Open: the Parameters card (params | example call), then the Returns card (fields | example). */}
