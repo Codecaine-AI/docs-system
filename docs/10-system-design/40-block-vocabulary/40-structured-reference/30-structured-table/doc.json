@@ -11,6 +11,11 @@
       "children": [
         "b-20-structured-table-lead-2",
         "component-worked-example-rule",
+        "b-st-writing-h",
+        "b-st-writing-lead",
+        "b-st-writing-rows",
+        "b-st-writing-columns",
+        "b-st-writing-cells",
         "b-20-structured-table-example-h",
         "b-20-structured-table-example-intro",
         "b-20-structured-table-example-block",
@@ -87,6 +92,213 @@
       "text": [
         {
           "insert": "When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-h": {
+      "id": "b-st-writing-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Writing a Table"
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-lead": {
+      "id": "b-st-writing-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A reader looks up a row by its first cell and then reads across it. The renderer never draws the "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a heading or a sentence just before the table must say what its rows are."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-rows": {
+      "id": "b-st-writing-rows",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Rows",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-st-writing-rows-1",
+        "b-st-writing-rows-2",
+        "b-st-writing-rows-3"
+      ]
+    },
+    "b-st-writing-rows-1": {
+      "id": "b-st-writing-rows-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each row one short key in the first column."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-rows-2": {
+      "id": "b-st-writing-rows-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Make each key different. When two rows would share a key, merge them into one row or add a qualifier to the key."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-rows-3": {
+      "id": "b-st-writing-rows-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put the rows in one order that the reader can predict, such as the order of the source file or alphabetical order."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-columns": {
+      "id": "b-st-writing-columns",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Columns",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-st-writing-columns-1",
+        "b-st-writing-columns-2",
+        "b-st-writing-columns-3",
+        "b-st-writing-columns-4"
+      ]
+    },
+    "b-st-writing-columns-1": {
+      "id": "b-st-writing-columns-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Give each column one property."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-columns-2": {
+      "id": "b-st-writing-columns-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write every cell of a column in the same form and unit."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-columns-3": {
+      "id": "b-st-writing-columns-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Mark each literal name, path, flag or value as code in every row."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-columns-4": {
+      "id": "b-st-writing-columns-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a flag and its value in one code span, such as "
+        },
+        {
+          "insert": "--root <path>",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-cells": {
+      "id": "b-st-writing-cells",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cells",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "b-st-writing-cells-1",
+        "b-st-writing-cells-2",
+        "b-st-writing-cells-3"
+      ]
+    },
+    "b-st-writing-cells-1": {
+      "id": "b-st-writing-cells-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep each cell to one value or a short phrase."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-cells-2": {
+      "id": "b-st-writing-cells-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put an explanation, a list or a condition in the text before or after the table."
+        }
+      ],
+      "children": []
+    },
+    "b-st-writing-cells-3": {
+      "id": "b-st-writing-cells-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a cell that does not apply as None in plain text, the same way in every row."
         }
       ],
       "children": []
