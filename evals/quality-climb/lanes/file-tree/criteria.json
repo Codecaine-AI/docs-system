@@ -1,0 +1,8 @@
+[
+  { "id": "scope-fits-brief", "group": "Meaning", "question": "Does each tree show the paths the brief asks for and no unrelated branches, rooted at the nearest folder that locates them, with no long single-child chain of parent folders above them?" },
+  { "id": "notes-add-what-names-omit", "group": "Writing", "question": "Does every note state a purpose, contents or distinction that the path alone does not give, and does each row the brief asks the writer to explain carry one?" },
+  { "id": "rows-trace-to-parent", "group": "Look", "question": "Can the reader follow each row's guide lines to its one parent folder without counting indents, including across wrapped notes, tinted rows and changes in depth?" },
+  { "id": "folders-read-as-folders", "group": "Look", "question": "Can the reader tell from the row itself whether each row is a folder or a file, including a folder with no children shown and a file with no extension, with no source folder rendered styled and sorted as a file?" },
+  { "id": "marks-read-without-legend", "group": "Look", "question": "Where a tree uses change markers or group colors, can the reader tell added, removed, modified and renamed rows apart, follow each rename from old to new path, and see which rows each color covers, with no legend (a tree that uses neither scores 10)?" },
+  { "id": "text-drawing-matches-panel", "group": "Meaning", "question": "Does the tree drawing in the page markdown show the same rows, order, folder marks, notes, change markers and rename pairs as the rendered panel, color alone excepted because the text omits it by design?" }
+]

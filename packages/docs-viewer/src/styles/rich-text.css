@@ -1,0 +1,82 @@
+/* Rich-text read surface: paragraphs, headings, list items and callout
+   bodies. Shared by the workbench and docs-publish, like list-markers.css. */
+
+/*
+ * Inline code chips in prose stay whole. A chip that fits on one line moves
+ * to the next line as one piece, so a path such as
+ * `docs/10-system-design/10-doc-standards` never shows as two pills. Only a
+ * chip wider than its whole line wraps, between the nowrap pieces that
+ * chipBreaks cuts (components/mono-breaks.tsx). Table cells and other typed
+ * blocks keep the inline chip, which wraps after a `/` to fit narrow columns.
+ *
+ * A prose chip also pads each side by the 4px space token, on the spacing
+ * grid and narrower than the --docs-inline-code-pad-x default, so a comma or
+ * period after it sits close to its text, not one space away. Table chips
+ * keep the knob's pad, which the table-fit layout metrics measure.
+ *
+ * Prose chips also take one ink, the inline-code ink, whatever kind
+ * components/typed-chip.ts guesses for their text. In a sentence, a red path
+ * beside a navy name and a gray command read as three kinds of mark. Table
+ * cells and typed blocks keep the per-kind colors.
+ */
+.docs-markdown :is([data-doc-block="paragraph"], [data-doc-block="heading"], [data-doc-block="list-item"], [data-callout-body]) code[data-chip-kind] {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: baseline;
+  padding-inline: var(--ds-space-1);
+  --docs-chip-kind-fg: var(--docs-inline-code-fg, var(--ds-light-color-text-ink));
+}
+
+/*
+ * A chip glued to punctuation (render/delta-spans.tsx CHIP_GLUE_BEFORE and
+ * CHIP_GLUE_AFTER) drops its padding on that side, so "docs_end." and
+ * "(docs/" read as one token, with no gap before the period or after the
+ * bracket.
+ */
+.docs-markdown [data-chip-glue-after="true"] > code[data-chip-kind] {
+  padding-inline-end: 0;
+}
+.docs-markdown [data-chip-glue-before="true"] > code[data-chip-kind] {
+  padding-inline-start: 0;
+}
+
+/*
+ * A callout inside a list item sits one small step below the item text, and
+ * the item's own margin spaces it from the next item, so the gap above the
+ * callout matches the gap below it. At the page level it keeps
+ * --docs-callout-margin.
+ */
+.docs-markdown [role="listitem"] [data-docs-block-type="callout"] {
+  margin-block: var(--ds-space-2) 0;
+}
+
+/*
+ * A chip in a heading is set in the code font at the heading's own size,
+ * weight and ink, with no pill, so a heading that is a package or file name,
+ * such as `docs-model`, reads as a heading and not as inline code.
+ */
+.docs-markdown [data-doc-block="heading"] :is(h1, h2, h3, h4, h5, h6) code[data-chip-kind] {
+  font-size: 1em;
+  background: transparent;
+  padding-inline: 0;
+  --docs-chip-kind-fg: currentColor;
+}
+
+/*
+ * A bullet label parent, such as "Owns" over the items a package owns, is a
+ * label for the list under it, not an item of a list (list-markers.css sets
+ * it in 600 ink). It drops its bullet, so the label sits flush with the
+ * prose and its items hang below it with their own markers. Those items take
+ * the first-level disc, because the label is not a list level of its own.
+ * A parent whose text ends a sentence states a fact and keeps its bullet.
+ */
+.docs-markdown [role="listitem"][data-doc-bullet="true"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > [data-doc-list-marker] {
+  display: none;
+}
+.docs-markdown [role="listitem"][data-doc-bullet="true"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > div > div > [data-doc-bullet="true"] > [data-doc-list-marker]::before {
+  width: var(--docs-list-disc-size, var(--ds-space-1-5));
+  height: var(--docs-list-disc-size, var(--ds-space-1-5));
+  border: 0;
+  border-radius: var(--ds-radius-pill);
+  background: currentColor;
+}
