@@ -53,6 +53,11 @@ describe("tableCellKinds", () => {
     ]);
   });
 
+  it("keeps a not-applicable word or dash sans inside an identifier column", () => {
+    const rows: TableCell[][] = [["serve", "4802"], ["help", "None"], ["test", "—"]];
+    expect(tableCellKinds(rows, 2).map((row) => row[1])).toEqual(["mono", undefined, undefined]);
+  });
+
   it("recognizes each strict identifier shape", () => {
     for (const identifier of [
       "file-tree.addEntry",

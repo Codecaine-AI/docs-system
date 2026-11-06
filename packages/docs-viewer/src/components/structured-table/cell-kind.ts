@@ -50,6 +50,15 @@ function isPartCodeCell(cell: TableCell): boolean {
   return typeof cell !== "string" && cell.some((span) => span.attributes?.code === true) && !isWholeCodeCell(cell);
 }
 
+/**
+ * A plain-string cell that is one capitalized word or a dash, such as "None",
+ * "Off", "Yes" or "—": a not-applicable marker or a plain answer, never an
+ * identifier, so it stays sans even in an identifier column.
+ */
+function isPlainWord(cell: TableCell): boolean {
+  return typeof cell === "string" && /^(?:[A-Z][a-z]+|[-–—])$/.test(cell.trim());
+}
+
 /** A plain-string cell that is one token: no whitespace anywhere once trimmed. */
 function singleToken(cell: TableCell): string | null {
   if (typeof cell !== "string") return null;
@@ -86,6 +95,7 @@ export function tableCellKinds(
       if (!qualified) return undefined;
       const cell = row[column] ?? "";
       if (!isWholeCodeCell(cell) && singleToken(cell) === null) return undefined;
+      if (isPlainWord(cell)) return undefined;
       return column === 0 ? "key" : "mono";
     }),
   );
