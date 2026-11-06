@@ -257,7 +257,7 @@ const CALL_STACK_CSS = `
   padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent)); text-indent: calc(-2 * var(--tr-indent));
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__path { padding-right: var(--ds-space-4); }
-.docs-tree[data-tree-kind="call-stack"] .docs-tree__if { display: inline-block; width: var(--tr-indent); margin-right: 0; text-indent: 0; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__if { display: inline-block; width: var(--tr-indent); margin-right: 0; text-indent: 0; font-weight: var(--ds-font-weight-semibold); }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__row[data-kind="branch"] .docs-tree__note {
   padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent));
 }
