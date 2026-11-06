@@ -265,8 +265,8 @@
         "ct-rows-g1-1",
         "ct-rows-g1-2",
         "ct-rows-g1-3",
-        "ct-rows-g1-5",
-        "ct-rows-g1-6"
+        "ct-rows-g1-4",
+        "ct-rows-g1-5"
       ]
     },
     "ct-rows-g1-1": {
@@ -295,25 +295,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Keep the props that a row below reads, such as "
-        },
-        {
-          "insert": "api={api}",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when a child passes "
-        },
-        {
-          "insert": "api",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " on, and the props that pass children or a render callback. Drop the other props with no marker, because a bare "
+          "insert": "Keep at most 3 props on a row, the ones that pass data, children or a render callback to a row in the tree. Drop the other props with no marker, because a bare "
         },
         {
           "insert": "…",
@@ -374,51 +356,33 @@
       ],
       "children": []
     },
+    "ct-rows-g1-4": {
+      "id": "ct-rows-g1-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put a child that a parent renders through a callback prop, such as "
+        },
+        {
+          "insert": "renderCanvas={renderCanvas}",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", under the component that calls the callback. Keep that prop on the parent row."
+        }
+      ],
+      "children": []
+    },
     "ct-rows-g1-5": {
       "id": "ct-rows-g1-5",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Draw a component that a slot prop or a render prop supplies as its own JSX row, such as "
-        },
-        {
-          "insert": "<ProxyCanvas input={input} />",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", never as a prop row. Put it under the row that renders the prop's result, such as the "
-        },
-        {
-          "insert": "div",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " that renders "
-        },
-        {
-          "insert": "{body}",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and name the prop in its comment."
-        }
-      ],
-      "children": []
-    },
-    "ct-rows-g1-6": {
-      "id": "ct-rows-g1-6",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "When a slot's result renders outside the tree, put its row under the component that receives the slot prop. Say in the comment that the slot supplies it and where it renders."
+          "insert": "Draw a child that reaches the tree by 2 paths, such as a provider slot and a render callback, under each parent that creates it. Give each copy the source line of its own path."
         }
       ],
       "children": []
@@ -439,8 +403,7 @@
         "ct-rows-g2-1",
         "ct-rows-g2-2",
         "ct-rows-g2-3",
-        "ct-rows-g2-4",
-        "ct-rows-g2-5"
+        "ct-rows-g2-4"
       ]
     },
     "ct-rows-g2-1": {
@@ -469,7 +432,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write each later test in the chain as "
+          "insert": "Give each arm of an if/else, a ternary or an early-return chain its own branch row. Write each later test in a chain as "
         },
         {
           "insert": "else if",
@@ -487,7 +450,16 @@
           }
         },
         {
-          "insert": "."
+          "insert": ", or as "
+        },
+        {
+          "insert": "default",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in a switch."
         }
       ],
       "children": []
@@ -509,54 +481,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Write each case of a switch as its full comparison, such as "
-        },
-        {
-          "insert": "props.selectedId === \"theme.presets\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", and the last arm as "
-        },
-        {
-          "insert": "default",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Never mix "
-        },
-        {
-          "insert": "else if",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " and "
-        },
-        {
-          "insert": "default",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in one chain."
-        }
-      ],
-      "children": []
-    },
-    "ct-rows-g2-5": {
-      "id": "ct-rows-g2-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "In a chain of 3 or more arms, keep an arm that renders nothing as a branch row with the comment "
+          "insert": "In a chain of 3 or more arms, keep an arm that renders nothing as a branch row with no children and the comment "
         },
         {
           "insert": "renders nothing",
@@ -565,7 +490,7 @@
           }
         },
         {
-          "insert": ". Leave out a branch that can never be true at that place."
+          "insert": "."
         }
       ],
       "children": []
@@ -585,8 +510,7 @@
       "children": [
         "ct-rows-g3-1",
         "ct-rows-g3-2",
-        "ct-rows-g3-3",
-        "ct-rows-g3-4"
+        "ct-rows-g3-3"
       ]
     },
     "ct-rows-g3-1": {
@@ -595,7 +519,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Start the tree at the root the brief names, and stop at the leaves it names. Keep one root per tree."
+          "insert": "Start the tree at the root the brief names, and stop at the leaves it names."
         }
       ],
       "children": []
@@ -642,7 +566,7 @@
           }
         },
         {
-          "insert": ", and move its component children up to its depth. Keep it only when the page's prose names it, when it groups children into a region, or when children slot into it."
+          "insert": ", and move its component children up to its depth. Keep it when the brief names the part it draws, or when children slot into it."
         }
       ],
       "children": []
@@ -653,27 +577,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Expand a component that renders in 2 places under the first place only. At the other place, keep its row and say in its comment how it differs, such as "
-        },
-        {
-          "insert": "same cell, with no placeholder",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "ct-rows-g3-4": {
-      "id": "ct-rows-g3-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Leave out a child component's own loading and error arms unless the brief asks for them."
+          "insert": "Keep one root per tree. Expand a component under every place that renders it, each copy with the props that place passes."
         }
       ],
       "children": []
@@ -694,8 +598,7 @@
         "ct-rows-g4-1",
         "ct-rows-g4-2",
         "ct-rows-g4-3",
-        "ct-rows-g4-4",
-        "ct-rows-g4-5"
+        "ct-rows-g4-4"
       ]
     },
     "ct-rows-g4-1": {
@@ -756,26 +659,6 @@
       "text": [
         {
           "insert": "Give a branch row a comment only when it adds a fact its condition does not state, such as what the user did to reach that case."
-        }
-      ],
-      "children": []
-    },
-    "ct-rows-g4-5": {
-      "id": "ct-rows-g4-5",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Comment every sibling row of the same kind, or none of them. Say in the comment when a "
-        },
-        {
-          "insert": "map",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " renders the row once per item, or which of 2 rows with the same component name it is."
         }
       ],
       "children": []
