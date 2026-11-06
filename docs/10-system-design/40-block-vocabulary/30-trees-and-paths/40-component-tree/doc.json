@@ -265,7 +265,6 @@
         "ct-rows-g1-1",
         "ct-rows-g1-2",
         "ct-rows-g1-3",
-        "ct-rows-g1-4",
         "ct-rows-g1-5"
       ]
     },
@@ -374,42 +373,22 @@
       ],
       "children": []
     },
-    "ct-rows-g1-4": {
-      "id": "ct-rows-g1-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Put a child that a parent renders through a callback prop, such as "
-        },
-        {
-          "insert": "renderCanvas={renderCanvas}",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", under the component that calls the callback. Keep that prop on the parent row."
-        }
-      ],
-      "children": []
-    },
     "ct-rows-g1-5": {
       "id": "ct-rows-g1-5",
       "type": "list-item",
       "props": {},
       "text": [
         {
-          "insert": "Draw a component that a provider supplies through a slot prop, such as "
+          "insert": "A component that a slot prop or a render prop supplies is not a mounted child. Write it as a row of that prop under the component that receives the prop, such as "
         },
         {
-          "insert": "canvasEmbed={…}",
+          "insert": "renderCanvas={(input) => <ProxyCanvas input={input} />}",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", under that provider's row, with the slot's line as its source. Draw a component that a render callback creates under the component that calls the callback."
+          "insert": ", and say in the comment where it renders."
         }
       ],
       "children": []
