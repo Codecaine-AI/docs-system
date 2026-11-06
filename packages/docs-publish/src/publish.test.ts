@@ -75,6 +75,6 @@ test('docsThemeHead is the Default theme as a static head, and articles carry th
  const head=docsThemeHead();
  expect(head.htmlAttributes).toEqual({'data-code-panels':'dark'});
  expect(head.css).toContain(':root {');
- expect(head.css).toContain('[data-doc-lane][data-doc-block-type="state-shape"] { max-width: 1120px; --docs-pane-split: 48%; }');
+ expect(head.css).toContain('[data-doc-lane][data-doc-block-type="state-shape"] { max-width: 1120px; --docs-pane-split: 56%; }');
  fixture(); expect(publishCollection({root,posts:[post]}).posts[0].html).toStartWith(`<div class="${DOC_SURFACE_TYPOGRAPHY_CLASSES}">`);
 });

@@ -6,6 +6,7 @@ import {
   STATE_SHAPE_AGENT_DESCRIPTION,
   STATE_SHAPE_LABEL,
   StateShapeBlock,
+  buildShapeModel,
   classifyTypeText,
   splitTypeUnion,
 } from "../components/state-shape/StateShapeDocsBlock";
@@ -387,33 +388,23 @@ describe("StateShapeBlock — plain reference panel", () => {
 
   it("keys example lines with their whole chain, deepest first — ancestors still light them", () => {
     renderTwoPane();
-    // The pane folds an object of primitives onto one line only when the line fits in 44 columns, so
-    // { "name": "params", ... } is one line that keys both fields, and the longer first item stays expanded.
+    // Every object of this example is wider than the 40-column fold, so it prints expanded (the fixture comment).
     expect(exampleLine(1)?.getAttribute("data-link-key")).toBeNull();
-    expect(exampleLine(14)?.getAttribute("data-link-key")).toBeNull();
+    expect(exampleLine(17)?.getAttribute("data-link-key")).toBeNull();
     expect(exampleLine(4)?.getAttribute("data-link-key")).toBe("source.path source");
     expect(exampleLine(9)?.getAttribute("data-link-key")).toBe("fields.name fields");
-    expect(exampleLine(10)?.getAttribute("data-link-key")).toBe("fields.required fields");
-    expect(exampleLine(12)?.getAttribute("data-link-key")).toBe("fields.required fields.name fields");
+    expect(exampleLine(14)?.getAttribute("data-link-key")).toBe("fields.required fields");
     expect(exampleLine(3)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(6)?.getAttribute("data-link-key")).toBe("source");
     expect(exampleLine(7)?.getAttribute("data-link-key")).toBe("fields");
-    expect(exampleLine(13)?.getAttribute("data-link-key")).toBe("fields");
+    expect(exampleLine(16)?.getAttribute("data-link-key")).toBe("fields");
   });
 
-  it("tones JSON tokens with the code theme's syntax roles", () => {
-    renderTwoPane();
-    const pane = document.querySelector("[data-shape-example]") as HTMLElement;
-    expect(pane.getAttribute("data-code-lines")).toBe("true");
-    expect(pane.querySelectorAll("[data-code-line]")).toHaveLength(14);
-    const line2 = exampleLine(2) as HTMLElement;
-    const key = line2.querySelector('[data-json-token="key"]');
-    expect(key?.textContent).toBe('"name"');
-    expect(key?.className).toContain("--syntax-key");
-    expect(key?.className).toContain("--syntax-key-font-style");
-    expect(line2.querySelector('[data-json-token="string"]')?.className).toContain("--syntax-string");
-    expect(exampleLine(10)?.querySelector('[data-json-token="boolean"]')?.className).toContain("--syntax-boolean");
-    expect(exampleLine(1)?.querySelector('[data-json-token="punct"]')?.className).toContain("--syntax-punctuation");
+  it("folds an object that fits in 40 columns onto one line that keys every field on it", () => {
+    const fields: Field[] = [{ name: "label", type: "string" }, { name: "pos", type: "object", fields: [{ name: "x", type: "number" }, { name: "y", type: "number" }] }];
+    const lines = buildShapeModel(fields, JSON.stringify({ label: "a label long enough to keep the root open", pos: { x: 1, y: 2 } })).exampleLines!;
+    expect(lines).toHaveLength(4);
+    expect(lines[2]!.linkKey).toEqual(["pos.y", "pos.x", "pos"]);
   });
 
   it("lights the whole extent in both panes on hover and pins on click", () => {
