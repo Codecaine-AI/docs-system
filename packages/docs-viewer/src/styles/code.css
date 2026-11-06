@@ -272,8 +272,8 @@
 
 /*
  * Pseudocode block (components/pseudocode/descriptor.tsx). The same dark
- * panel and header strip as the code block, and the code block's metric
- * tokens (text size, line height, gutter, padding). One grid row per source
+ * panel and header strip as the code block, and the code block's line
+ * height, gutter and padding, with text one step larger. One grid row per source
  * line: line number, an optional diff sign, the code, and the trailing
  * comment in one aligned column (colored by the code theme's comment role).
  * The code column shrinks to the panel and wraps, and the comment column
@@ -287,7 +287,8 @@
   grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, max-content) minmax(16ch, 1fr);
   padding-top: var(--docs-code-pad-top, var(--ds-space-3));
   padding-bottom: var(--docs-code-pad-bottom, var(--ds-space-3));
-  font-size: var(--docs-code-text-size, var(--ds-font-size-code));
+  /* Pseudocode is read like prose, so its text is one step larger than a code listing's. */
+  font-size: var(--docs-pseudo-text-size, var(--ds-font-size-ui-lg));
   line-height: var(--docs-code-line-height, var(--ds-line-height-code));
 }
 
@@ -296,6 +297,7 @@
 }
 
 .docs-pseudo-row {
+  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-pseudo-continuation, 4ch));
   display: grid;
   grid-column: 1 / -1;
   grid-template-columns: subgrid;
@@ -313,12 +315,12 @@
 }
 
 /*
- * A line longer than the code column wraps, and its continuation hangs 2ch
- * past the line's own indent (--docs-pseudo-indent, set per row), so a reader
- * sees one statement, not a new line at the left edge.
+ * A line longer than the code column wraps, and its continuation hangs 4ch
+ * past the line's own indent (--docs-pseudo-indent, set per row): twice the
+ * 2-space nesting step, so a reader sees one statement, not a nested step or
+ * a new line at the left edge.
  */
 .docs-pseudo-code {
-  --docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));
   min-width: 0;
   padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));
   text-indent: calc(-1 * var(--docs-pseudo-hang));
@@ -326,23 +328,80 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Indent guides: one faint vertical rule per 2ch nesting step, under the
+ * first character of the step that owns the level, drawn only across the
+ * line's own indent. Rows stack, so the rules of a loop body join into one
+ * line from the loop's first step to its last.
+ */
+.docs-pseudo-grid {
+  --docs-pseudo-guides: repeating-linear-gradient(
+    to right,
+    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 40%, transparent) 0 1px,
+    transparent 1px 2ch
+  );
+  --docs-pseudo-guides-x: calc(var(--docs-code-pad-x, var(--ds-space-3)) + 0.5ch);
+}
+
+.docs-pseudo-grid[data-pseudo-diff] {
+  --docs-pseudo-guides-x: calc(var(--ds-space-1) + 0.5ch);
+}
+
+/*
+ * A comment moved under its line takes the steps' size, so its indent in ch
+ * matches its line's, and it carries its line's guides, so a loop's rule
+ * runs on through it.
+ */
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment,
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  font-size: inherit;
+}
+
+.docs-pseudo-code,
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-comment,
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  background-image: var(--docs-pseudo-guides);
+  background-repeat: no-repeat;
+  background-position: var(--docs-pseudo-guides-x) 0;
+  background-size: var(--docs-pseudo-indent, 0ch) 100%;
+}
+
+.docs-pseudo-code {
+  /* The cell fills its row, so a guide runs on past a comment that takes a second line. */
+  align-self: stretch;
+}
+
+/* A function header line, such as parseTranscript(jsonl), opens its body in a heavier weight. */
+.docs-pseudo-row[data-pseudo-header] .docs-pseudo-code {
+  font-weight: var(--ds-font-weight-semibold);
+}
+
 .docs-pseudo-row:not(:has(.docs-pseudo-comment)) .docs-pseudo-code {
   grid-column: span 2;
   padding-right: var(--docs-code-pad-x, var(--ds-space-3));
 }
 
-/* The comment column keeps the .hljs-comment color and font style. */
+/*
+ * The comment column keeps the .hljs-comment hue and font style, mixed a
+ * quarter of the way toward the code text so a comment's reason reads as
+ * easily as its step. Comments take the code listing's size, one step below
+ * the steps, so a reason reads as secondary and more of it fits the column.
+ */
 .docs-pseudo-comment {
+  font-size: var(--docs-code-text-size, var(--ds-font-size-code));
+  color: color-mix(in srgb, var(--syntax-comment, var(--docs-text-tertiary)) 75%, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))));
   min-width: 0;
   padding: 0 var(--docs-code-pad-x, var(--ds-space-3)) 0 4ch;
   white-space: pre-wrap;
 }
 
 /*
- * Comments below (PseudocodeGrid data-notes="below"): a comment wraps beside
- * its line, or the rows overflow the panel. The comment column goes away,
- * each code line takes the full width, and its comment takes a second line
- * under it at the line's indent.
+ * Comments below (PseudocodeGrid data-notes="below"): the rows overflow the
+ * panel. The comment
+ * column goes away, each code line takes the full width, and its comment
+ * takes a second line under it at the line's own indent, so it never sits
+ * where a nested step would. A gap after the pair joins the comment to the
+ * line above and keeps it apart from the line below.
  */
 .docs-pseudo-grid[data-notes="below"] {
   grid-template-columns: var(--docs-code-gutter-width, var(--ds-space-10)) minmax(0, 1fr);
@@ -367,6 +426,36 @@
   padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
 }
 
+.docs-pseudo-grid[data-notes="below"] .docs-pseudo-row:not(:last-child) .docs-pseudo-comment {
+  padding-bottom: var(--ds-space-1-5);
+}
+
+/*
+ * One comment below (PseudocodeGrid data-note-below on its row): a comment
+ * that would wrap beside its line moves under that line, at the line's
+ * indent, and the other comments stay in the aligned column. Its line takes
+ * the comment column's width, and a gap after the pair keeps it apart from
+ * the line below.
+ */
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-code {
+  grid-column: -3 / -1;
+  padding-right: var(--docs-code-pad-x, var(--ds-space-3));
+}
+
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  grid-row: 2;
+  grid-column: -3 / -1;
+  padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid[data-pseudo-diff]:not([data-notes="below"]) .docs-pseudo-row[data-note-below] .docs-pseudo-comment {
+  padding-left: calc(var(--ds-space-1) + var(--docs-pseudo-indent, 0ch));
+}
+
+.docs-pseudo-grid:not([data-notes="below"]) .docs-pseudo-row[data-note-below]:not(:last-child) .docs-pseudo-comment {
+  padding-bottom: var(--ds-space-1-5);
+}
+
 /*
  * Diff (props.diff): the shared +/− sign column between the number and the
  * code. A change is never color alone: the sign glyph, a soft row tint, and
@@ -387,6 +476,11 @@
   text-align: center;
   font-weight: var(--ds-font-weight-semibold);
   user-select: none;
+}
+
+/* A -> arrow reads as "then", so it takes the control-word color. */
+.docs-pseudo-grid .hljs-operator {
+  color: var(--syntax-control, var(--syntax-keyword, var(--syntax-key)));
 }
 
 .docs-pseudo-row[data-code-diff="add"] {

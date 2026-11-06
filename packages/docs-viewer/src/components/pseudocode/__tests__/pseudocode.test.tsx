@@ -4,6 +4,7 @@ import { cleanup, render } from "@testing-library/react";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
 import type { DocBlockRenderContext } from "../../../render/block-registry";
 import { descriptors } from "../descriptor";
+import { PseudocodeGrid } from "../PseudocodeGrid";
 
 const RENDER_CTX: DocBlockRenderContext = {
   renderText: () => null,
@@ -37,13 +38,13 @@ const PSEUDO = [
 ].join("\n");
 
 describe("pseudocode block", () => {
-  it("hangs a wrapped line's continuation 2ch past that line's own indent", () => {
+  it("hangs a wrapped line's continuation 4ch past that line's own indent, twice the nesting step", () => {
     renderPseudocode("render(block)\n    return lane div(data-doc-lane = docBlockLaneName(layout), class = classes(layout))");
     const rows = [...document.querySelectorAll<HTMLElement>(".docs-pseudo-row")];
     // Each row carries its indent, so its wrapped text hangs under its own code, not at the left edge.
     expect(rows.map((row) => row.style.getPropertyValue("--docs-pseudo-indent"))).toEqual(["0ch", "4ch"]);
     const css = readFileSync(new URL("../../../styles/code.css", import.meta.url), "utf8");
-    expect(css).toContain("--docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-code-hang, 2ch));");
+    expect(css).toContain("--docs-pseudo-hang: calc(var(--docs-pseudo-indent, 0ch) + var(--docs-pseudo-continuation, 4ch));");
     expect(css).toContain("padding-left: calc(var(--docs-code-pad-x, var(--ds-space-3)) + var(--docs-pseudo-hang));\n  text-indent: calc(-1 * var(--docs-pseudo-hang));");
   });
 
@@ -67,6 +68,64 @@ describe("pseudocode block", () => {
     expect(row.html).toContain('<span class="hljs-property">lines</span>');
     expect(row.html).toContain('<span class="hljs-operator">-&gt;</span>');
     expect(row.html).toContain('<span class="hljs-title function_">row</span>');
+  });
+
+  it("leaves plain-English words, file names and range ends uncolored", () => {
+    const rows = renderPseudocode([
+      'if path starts with "docs/", in any case and not empty -> stop',
+      "add the text from word to end, then set done",
+      "write metrics.failed.json",
+      "push cell[cursor..index]",
+      'path = path with every "\\" replaced by "/" // backslash',
+    ].join("\n"));
+    const colored = (html: string) => [...html.matchAll(/<span class="hljs-([\w -]+)">([^<]*)<\/span>/g)].filter((m) => !m[1]!.includes("comment")).map((m) => m[2]);
+    expect(colored(rows[0]!.html)).toEqual(["if", '"docs/"', "-&gt;", "stop"]);
+    expect(colored(rows[1]!.html)).toEqual([]);
+    expect(colored(rows[2]!.html)).toEqual([]);
+    expect(colored(rows[3]!.html)).toEqual([]);
+    // "\" is a whole string, so the text after it stays plain and the comment still splits off.
+    expect(colored(rows[4]!.html)).toEqual(['"\\"', '"/"']);
+    expect(rows[4]!.comment).toBe("// backslash");
+  });
+
+  it("colors a control word only where it starts a statement", () => {
+    const rows = renderPseudocode([
+      "add 1 to the count for part.name",
+      "input = the input tokens, or 0 if missing",
+      "condition words = if, unless, until",
+      "else if done -> return none",
+      "  if between holds then -> skip",
+    ].join("\n"));
+    const control = (html: string) => [...html.matchAll(/<span class="hljs-keyword hljs-control">(\w+)<\/span>/g)].map((m) => m[1]);
+    expect(rows.map((row) => control(row.html))).toEqual([[], [], [], ["else", "if", "return"], ["if", "skip"]]);
+  });
+
+  it("marks a function header line that opens an indented body, and only that line", () => {
+    renderPseudocode(["parseTranscript(jsonl)", "  count = 0", "  record(line)", "", "helper(x)"].join("\n"));
+    const rows = [...document.querySelectorAll(".docs-pseudo-row")];
+    expect(rows.map((row) => row.hasAttribute("data-pseudo-header"))).toEqual([true, false, false, false, false]);
+  });
+
+  it("keeps a row's comment placement when the grid renders again with the same rows", () => {
+    const html = '<div class="docs-pseudo-row"><span class="docs-pseudo-code">step</span><span class="docs-pseudo-comment">// why</span></div>';
+    const { rerender } = render(<PseudocodeGrid html={html} diff={false} />);
+    const row = document.querySelector(".docs-pseudo-row")!;
+    row.setAttribute("data-note-below", "");
+    rerender(<PseudocodeGrid html={html} diff={false} />);
+    expect(document.querySelector(".docs-pseudo-row")).toBe(row);
+    expect(row.hasAttribute("data-note-below")).toBe(true);
+  });
+
+  it("colors a method call as a call, not as a property", () => {
+    const [row] = renderPseudocode("event = JSON.parse(line)");
+    expect(row!.html).toContain('JSON.<span class="hljs-title function_">parse</span>(line)');
+  });
+
+  it("colors a method call whose name is also a file extension, and leaves a file name plain", () => {
+    const [call, log, file] = renderPseudocode(["body = response.json()", "console.log(value)", "write metrics.json"].join("\n"));
+    expect(call!.html).toContain('response.<span class="hljs-title function_">json</span>()');
+    expect(log!.html).toContain('console.<span class="hljs-title function_">log</span>(value)');
+    expect(file!.html).not.toMatch(/hljs-(property|title)/);
   });
 
   it("reads the leading +/-/space column as diff marks only with diff on", () => {
