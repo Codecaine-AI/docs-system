@@ -167,8 +167,7 @@
       "children": [
         "b-ftfam-write-scope-1",
         "b-ftfam-write-scope-2",
-        "b-ftfam-write-scope-3",
-        "b-ftfam-write-scope-4"
+        "b-ftfam-write-scope-3"
       ]
     },
     "b-ftfam-write-scope-1": {
@@ -197,7 +196,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When the brief asks for a whole folder, show every file in it that the sources name, such as a data file that a loader reads. When the brief asks which folders hold more than "
+          "insert": "Show each file the brief asks about inside its folder. When the brief asks which folders hold more than "
         },
         {
           "insert": "index.ts",
@@ -222,17 +221,6 @@
       ],
       "children": []
     },
-    "b-ftfam-write-scope-4": {
-      "id": "b-ftfam-write-scope-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "When the sources do not show the files of a folder, say so in the sentence before the tree. Never put a guess or a different fact in their place, such as exports for files."
-        }
-      ],
-      "children": []
-    },
     "b-ftfam-write-notes": {
       "id": "b-ftfam-write-notes",
       "type": "list-item",
@@ -245,8 +233,7 @@
       "children": [
         "b-ftfam-write-notes-1",
         "b-ftfam-write-notes-2",
-        "b-ftfam-write-notes-3",
-        "b-ftfam-write-notes-4"
+        "b-ftfam-write-notes-3"
       ]
     },
     "b-ftfam-write-notes-1": {
@@ -295,18 +282,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Never point by position, such as \"the files below\" or \"15th\". The tree sorts folders first and then names, so give an order in a sentence after the tree."
-        }
-      ],
-      "children": []
-    },
-    "b-ftfam-write-notes-4": {
-      "id": "b-ftfam-write-notes-4",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Keep each note to one line of about 10 words. A note is a label, not a paragraph."
+          "insert": "Never point by position, such as \"the files below\". Folders sort first and then names, so a file can land above or below the files it names."
         }
       ],
       "children": []
@@ -1552,7 +1528,7 @@
           }
         },
         {
-          "insert": " renders in one aligned, muted sans column after the names. A note runs to the panel's right edge, wraps only past it, and is never truncated."
+          "insert": " renders in one aligned, muted sans column after the names. Each note wraps inside a 60ch cap of its 13.5px face, 506.25px in Inter including its 24px left padding, and is never truncated."
         }
       ],
       "children": []
