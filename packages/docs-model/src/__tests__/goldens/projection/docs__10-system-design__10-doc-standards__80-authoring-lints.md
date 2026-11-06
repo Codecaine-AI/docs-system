@@ -158,6 +158,12 @@ The executable catalog is the source for exact applicability and exclusions. The
 
   - interaction-surface.returns-prose flags an operation whose returns holds a sentence or a condition, such as "{ ok, doc } for a doc patch." The page renders returns as type text, so the condition moves into the operation's description. docs_check fails until the task fixes it.
 
+  - `component-tree.bare-ellipsis` flags a component or hook row with a `…` outside braces and quotes, such as `<Pane settings={settings} …>`.
+
+    - The row reads as broken JSX. The writer drops those props with no marker and writes an omitted value as `{…}`.
+
+    - It is a warning with no enforcement phase, so it never blocks a save or `docs_check`.
+
   - bundle-relative-src rejects bare assets/... src values on completed canvas, sequence, image, and video blocks. Prefix bundle assets with ./, or use a docs-root-relative path or URL.
 
 - **Layout Warnings**
