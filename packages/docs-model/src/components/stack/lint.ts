@@ -23,7 +23,7 @@ export const stackBadgeRepeatsNameRule: LintRule = {
   enforcement: [],
   applicability: "The badge of each node in a Stack block.",
   exclusions: ["A badge with a word that the name does not hold, such as `pure` on docs-model"],
-  suggestion: "Give the badge a role or a file that the name does not state, such as `pure` or `safe-path.ts`, or remove the badge.",
+  suggestion: "Give the badge a role word that the name does not state, such as `pure`, or remove the badge.",
   check({ blocks }) {
     return blocks.flatMap((block) => {
       if (block.type !== "stack") return [];
@@ -38,7 +38,7 @@ export const stackBadgeRepeatsNameRule: LintRule = {
         blockId: block.id,
         field,
         evidence: node.badge!,
-        message: `The badge "${node.badge}" on "${node.name}" repeats the node name, so it adds no role or file.`,
+        message: `The badge "${node.badge}" on "${node.name}" repeats the node name, so it adds no role.`,
       }));
     });
   },

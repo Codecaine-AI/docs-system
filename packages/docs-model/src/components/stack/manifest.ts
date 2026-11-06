@@ -11,11 +11,14 @@ export const manifest: ComponentManifest = {
     whenToUse:
       "Use Stack to show layering and the rule enforced at each line: which layer uses which, and what may never cross. " +
       "Write the layers as a tree of nodes, mark a node `uses` to draw an arrow to its next sibling, and add a boundary after a node to draw the rule beneath it. " +
-      "Draw a uses arrow only where a source file shows the node importing or calling its next sibling. " +
-      "When the sources state the layering only as a rule, such as a comment or an interface that data must pass through, draw no arrow and write the rule as a boundary. " +
-      "Put each rule beneath the layer whose code enforces it. Name the check, the function or interface that runs it, and what a refused value becomes. A rule never only names a kind of check, such as \"Lexical checks\". " +
-      "Give each detail a fact that the name, the arrow label and the rule do not state, such as the module path and the exports that the layer above calls. " +
-      "A badge is one role or file that is not in the name, such as `pure` or `safe-path.ts`. Leave the badge out when it repeats a word of the name. " +
+      "Draw a uses arrow when the sources show or state that the node imports or calls its next sibling. " +
+      "When the sources state a rule but no import or call, such as a path check that a value must pass, draw no arrow and write the rule as a boundary. " +
+      "Give each line between two sibling layers a boundary when the sources hold a rule for it. " +
+      "A boundary states a restriction or a required interface, such as \"docs-viewer never imports host-app code\" or \"data enters only through `DocsClient`\". It never describes what a layer outputs. " +
+      "Put each rule beneath the layer whose code enforces it. Name the check, the function that runs it, and what a refused value becomes. A rule never only names a kind of check, such as \"Lexical checks\". " +
+      "Give each detail a fact that the name, the arrow label and the rule do not state. Start it with the layer's file path when it has one, then name the exports that the layer above calls. " +
+      "A badge is one role word that is not in the name, such as `pure` or `host`. Put a file path in the detail, never in the badge. " +
+      "Wrap each code name in a detail or a rule in backticks, such as `checkDocsPath`, so the stack sets it in the code face. " +
       "Give a leaf a color only when the page says what the color marks. " +
       "When a layer also imports or calls a layer further down, say so in its detail and in the prose next to the stack. " +
       "Keep the layer count in the prose equal to the nodes the stack draws. Use Canvas instead when the picture needs free placement or arbitrary edges.",

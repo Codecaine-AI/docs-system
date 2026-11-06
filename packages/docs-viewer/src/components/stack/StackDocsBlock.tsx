@@ -202,7 +202,7 @@ export function StackBlock({ nodes, boundaries }: StackProps) {
           {node.uses !== undefined && !(crossed && node.uses === true) && (
             <div data-stack-uses="" data-continues={crossed ? "" : undefined}>
               <span data-stack-arrow="" aria-hidden="true" />
-              {typeof node.uses === "string" && <span data-stack-uses-label="">{monoBreaks(node.uses)}</span>}
+              {typeof node.uses === "string" && <span data-stack-uses-label="">{monoBreaks(node.uses.replace(/`/g, ""))}</span>}
             </div>
           )}
           {rule !== undefined && (
