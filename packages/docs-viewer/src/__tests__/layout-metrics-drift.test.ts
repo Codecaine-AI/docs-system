@@ -374,6 +374,8 @@ describe("stack", () => {
     "metrics.ts · columns.ts",
     "Owns the lane widths · reads the theme",
     "one segment only",
+    "`startMcp` runs `ensureDaemon` · forwards calls",
+    "`node:fs/promises` calls on the checked path",
   ])("the model reads %p as path or prose exactly as the stack renders it", (detail) => {
     const { container } = render(createElement(StackBlock, { nodes: [{ name: "Leaf", detail }], boundaries: [] }));
     const rendered = container.querySelector("[data-stack-detail]")!;

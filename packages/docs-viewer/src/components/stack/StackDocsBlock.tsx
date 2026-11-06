@@ -22,7 +22,7 @@ export const STACK_AGENT_DESCRIPTION =
  * draws the shape: a node's role is a 3px left edge in its colour plus a
  * muted mono word at the name row's right end, in the case it was written
  * (and the hover title). A prose name or detail segment sets in the sans
- * face, and a code word inside prose (`startMcp`, `doc.json`) in the mono. A boundary is a dashed line across the stack with the rule as text
+ * face, and a backtick span inside prose (`startMcp`, `doc.json`) in the mono. A boundary is a dashed line across the stack with the rule as text
  * beneath it, never colour alone; next to a crossing arrow the line and the
  * text start just right of it, so the two never overlap.
  *
@@ -64,7 +64,8 @@ const STACK_STYLE = `
 [data-stack-detail-line]{display:block}
 [data-stack-detail][data-mono]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.6;overflow-wrap:normal}
 [data-stack-detail-line][data-prose],[data-stack-name][data-prose]{font-family:var(--stack-sans)}
-[data-stack-code]{font-family:var(--stack-mono);font-size:.9em}
+[data-stack-code]{font-family:var(--stack-mono);font-size:.9em;white-space:nowrap}
+[data-stack-nowrap]{white-space:nowrap}
 [data-stack-uses],[data-stack-boundary]{position:relative;min-width:0}
 [data-stack-uses]{display:flex;align-items:center;min-height:var(--ds-space-5);padding-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
 [data-stack-arrow]{position:absolute;top:0;bottom:0;left:var(--stack-arrow-x);border-left:var(--ds-border-width-ring) solid var(--stack-arrow)}
@@ -74,7 +75,7 @@ const STACK_STYLE = `
 [data-stack-boundary]{display:flex;flex-direction:column;row-gap:var(--ds-space-1-5);padding:var(--ds-space-2) 0 var(--ds-space-3)}
 [data-stack-dash]{height:0;border-top:var(--ds-border-width-hairline) dashed var(--stack-boundary)}
 [data-stack-boundary][data-crossed] [data-stack-dash]{margin-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
-[data-stack-rule]{margin:0 0 0 calc(var(--stack-arrow-x) + var(--ds-space-2));font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-medium);line-height:1.3;color:var(--stack-ink)}
+[data-stack-rule]{margin:0 0 0 calc(var(--stack-arrow-x) + var(--ds-space-2));font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-regular);line-height:1.4;color:var(--stack-text)}
 `;
 
 type StackProps = { nodes: StackNode[]; boundaries: StackBoundary[] };
@@ -102,7 +103,7 @@ function StackDetail({ detail }: { detail: string }) {
     <div data-stack-detail="" data-mono="">
       {segments.map((segment, index) => (
         <span key={index} data-stack-detail-line="" data-prose={isProse(segment) ? "" : undefined}>
-          {isProse(segment) ? codeWords(segment) : monoBreaks(segment)}
+          {isProse(segment) ? codeWords(segment) : monoBreaks(segment.replace(/`/g, ""))}
         </span>
       ))}
     </div>
@@ -112,21 +113,16 @@ function StackDetail({ detail }: { detail: string }) {
 /** A segment or name with a space that is not itself code (`also imports profile types`, `Docs server route`). */
 const isProse = (text: string) => /\s/.test(text.trim()) && !(["string", "call"] as string[]).includes(chipKind(text));
 
-/** A word that reads as code in prose: a camelCase or multi-hump PascalCase name, a call, or a path. */
-const CODE_WORD = /^(?:[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*|[A-Z][a-z0-9]+[A-Z][A-Za-z0-9]*|[\w$.-]*\w\(.*\)|[\w@.-]*\/[\w@./{},*-]*|[\w-]+\.(?:ts|tsx|js|json|md|css))$/;
-
-/** Prose with each code word (`startMcp`, `DocsClient`, `doc.json`) set in the code face, so a name reads as a name. */
+/**
+ * Prose with each backtick span (`startMcp`, `doc.json`) set in the code face, as inline code reads in the
+ * page's prose. The writer marks code. The stack never guesses it, so one detail never mixes a guessed code
+ * name with a missed one. A hyphenated word or a code span never breaks across lines (`docs-workbench`).
+ */
 function codeWords(text: string): ReactNode {
-  const parts = text.split(/(\s+)/);
-  if (!parts.some((part) => CODE_WORD.test(part.replace(/[,:;.]$/, "")))) return text;
-  return parts.map((part, index) => {
-    const word = part.replace(/[,:;.]$/, "");
-    if (!CODE_WORD.test(word)) return part;
-    return (
-      <Fragment key={index}>
-        <span data-stack-code="">{word}</span>
-        {part.slice(word.length)}
-      </Fragment>
+  return text.split(/(`[^`]+`)/).map((part, index) => {
+    if (index % 2 === 1) return <span key={index} data-stack-code="">{part.slice(1, -1)}</span>;
+    return part.split(/(\S*\w-\w\S*)/).map((piece, inner) =>
+      inner % 2 === 1 ? <span key={`${index}:${inner}`} data-stack-nowrap="">{piece}</span> : piece,
     );
   });
 }

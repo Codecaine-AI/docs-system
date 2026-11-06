@@ -302,9 +302,12 @@ export const STACK_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * sansChPx(STACK_ME
 /** The path detail cap in px: 60ch of the code font at 13px, 468. */
 export const STACK_PATH_DETAIL_MAX_PX = STACK_METRICS.detailMaxCh * monoColumnPx(STACK_METRICS.pathDetailFontSizePx);
 
-/** A stack detail's segments, split the way the viewer splits them: on a middle dot with whitespace on both sides. */
+/**
+ * A stack detail's segments as the viewer draws them: split on a middle dot with whitespace on both sides, and
+ * without the backticks that mark a code span.
+ */
 export function stackDetailSegments(detail: string): string[] {
-  return detail.split(/\s+·\s+/).filter(Boolean);
+  return detail.split(/\s+·\s+/).filter(Boolean).map((segment) => segment.replace(/`/g, ""));
 }
 
 // -- Tree rows -------------------------------------------------------------------
