@@ -26,6 +26,7 @@ export const STYLE_RULE_POLICY: Record<string, { gate: boolean }> = {
   "structure.callout-focus": { gate: true },
   "structure.sequence-bullets": { gate: true },
   "structure.split-bullet-list": { gate: true },
+  "writing.mixed-literal-marks": { gate: true },
   "interaction-surface.returns-prose": { gate: true },
   "writing.sentence-length": { gate: false },
   "writing.filler": { gate: false },

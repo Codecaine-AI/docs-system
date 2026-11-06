@@ -1025,7 +1025,8 @@
         "b-80-authoring-lints-writing-filler-flags-in-36",
         "b-80-authoring-lints-writing-dense-paragraph-37",
         "writing-semicolon-lint",
-        "writing-sentence-length-lint"
+        "writing-sentence-length-lint",
+        "writing-mixed-literal-marks-lint"
       ]
     },
     "b-80-authoring-lints-writing-filler-flags-in-36": {
@@ -1112,6 +1113,61 @@
       "text": [
         {
           "insert": "writing.sentence-length flags a prose sentence over 30 words and reports its word count. Review the sentence and split it only at a second thought."
+        }
+      ],
+      "children": []
+    },
+    "writing-mixed-literal-marks-lint": {
+      "id": "writing-mixed-literal-marks-lint",
+      "type": "list-item",
+      "props": {
+        "ordered": false
+      },
+      "text": [
+        {
+          "insert": "writing.mixed-literal-marks",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " flags a sentence that puts one literal in code and another of 3 words or fewer in double quotes, such as one that replaces "
+        },
+        {
+          "insert": "in order to",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "\"to\"",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". When a task adds such a sentence, "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with its "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails until the task gives both literals the code mark."
         }
       ],
       "children": []
