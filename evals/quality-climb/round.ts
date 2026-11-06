@@ -2,6 +2,7 @@
 //   bun evals/quality-climb/round.ts --round <n> [--set climb|held-out|all] [--judges fake|sol,opus] [--briefs 1,2]
 //     [--stage 1|2|3] [--counting sol,opus] [--samples sol=3,opus=1] [--baseline 0] [--lint-ref <git ref>]
 //     [--system-root <path>] [--skip-tests] [--concurrency 3] [--lane <type> [--lanes-dir <path>]] [--frozen-from <round dir>]
+//     [--expand] [--render-only]
 // --stage picks the counting judges and their samples from the judge ladder (STAGES in gate.ts). --judges, --counting
 // and --samples override it. With neither --stage nor --judges, the round runs stage 1.
 // A judge that --samples and the stage do not name scores each page once. The gate reads the median of a judge's samples.
@@ -12,6 +13,8 @@
 // change is scored without writer noise. It takes each page from <round dir>/<set>/<NN>-<slug>/.
 // --system-root names another Docs System checkout whose docs MCP, export and render make the pages. The harness,
 // the briefs and the judges stay this worktree's.
+// --expand opens every disclosure (each interaction-surface operation row) before the screenshot, so page.png and
+// boxes.json show the open state. --render-only writes and renders the pages, then stops: no tests, judges or gate.
 // Set QUALITY_CLIMB_LOCAL_BRIEFS to the local briefs file to run the full brief set of a whole-page round (see briefs.ts).
 // Writes the round dir and prints the builder-facing gate result. A step whose output already exists is skipped,
 // so a crashed round resumes where it stopped.
@@ -37,6 +40,7 @@ const { values: opt } = parseArgs({ options: {
   briefs: { type: "string" }, counting: { type: "string" }, samples: { type: "string" }, baseline: { type: "string", default: "0" },
   "lint-ref": { type: "string" }, "system-root": { type: "string" }, "skip-tests": { type: "boolean", default: false }, concurrency: { type: "string", default: "3" },
   lane: { type: "string" }, "lanes-dir": { type: "string" }, "frozen-from": { type: "string" },
+  expand: { type: "boolean", default: false }, "render-only": { type: "boolean", default: false },
 } });
 if (!opt.round) throw new Error("Pass --round <n>.");
 if (!["climb", "held-out", "all"].includes(opt.set!)) throw new Error("--set must be climb, held-out or all.");
@@ -115,7 +119,7 @@ async function runChecks() {
   await writeFile(join(dir, "checks.json"), JSON.stringify({ ...current, harnessExitCode: harness.exitCode, baseline: baseline ? opt.baseline : null, rerunFiles: files, failedAgain }, null, 2));
   return { harnessExitCode: harness.exitCode, current, baseline, failedAgain };
 }
-const checks = opt["skip-tests"] ? Promise.resolve(null) : runChecks();
+const checks = opt["skip-tests"] || opt["render-only"] ? Promise.resolve(null) : runChecks();
 
 // Renders share one SPA build, so they run one at a time and only the first rebuilds it.
 let renderChain: Promise<unknown> = Promise.resolve();
@@ -145,10 +149,11 @@ async function runBrief(b: RoundBrief) {
     else { log(`${name(b)}: writing`); await writePage(b, page, stateDir, settings, systemRoot); }
   }
   if (!existsSync(join(page, "page.png"))) {
-    const render = renderChain.then(() => { log(`${name(b)}: rendering`); const r = renderPage(b, page, rules, !rebuilt, systemRoot); rebuilt = true; return r; });
+    const render = renderChain.then(() => { log(`${name(b)}: rendering`); const r = renderPage(b, page, rules, !rebuilt, systemRoot, opt.expand); rebuilt = true; return r; });
     renderChain = render.catch(() => {});
     await render;
   }
+  if (opt["render-only"]) return null;
   const packet: Packet = { brief: b, png: join(page, "page.png"), markdown: await readFile(join(page, "page.md"), "utf8"), blocks: await readJson<PageBlock[]>(join(page, "blocks.json")) };
   const pageScores: PageScore[] = [];
   const laneScores: LanePageScore[] = [];
@@ -183,7 +188,12 @@ async function pool<T, R>(items: T[], limit: number, work: (item: T) => Promise<
 const settled = await pool(briefs, Number(opt.concurrency), runBrief);
 await $`bun ${join(systemRoot, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir, systemRoot)) } as Record<string, string>).quiet().nothrow();
 const failed = settled.flatMap((s, i) => s.status === "rejected" ? [{ set: briefs[i]!.set, text: `run brief ${briefs[i]!.id}: ${s.reason instanceof Error ? s.reason.message : s.reason}` }] : []);
-const done = settled.flatMap((s) => s.status === "fulfilled" ? [s.value] : []);
+if (opt["render-only"]) {
+  console.log(`${label}: rendered ${briefs.length - failed.length} of ${briefs.length} page(s) in ${dir}, with no judge.`);
+  for (const f of failed) console.log(`  - ${f.text}`);
+  process.exit(failed.length ? 1 : 0);
+}
+const done = settled.flatMap((s) => s.status === "fulfilled" && s.value ? [s.value] : []);
 
 const cost = (m: WriterMetrics): WriterCost => ({ set: briefs.find((b) => b.id === m.briefId)!.set, briefId: m.briefId, toolCalls: m.toolCalls, tokens: m.tokens.total });
 async function baselineCosts(): Promise<WriterCost[] | null> {
