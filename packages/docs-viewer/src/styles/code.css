@@ -339,7 +339,7 @@
 .docs-pseudo-code {
   background-image: repeating-linear-gradient(
     to right,
-    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 28%, transparent) 0 1px,
+    color-mix(in srgb, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))) 40%, transparent) 0 1px,
     transparent 1px 2ch
   );
   background-repeat: no-repeat;
@@ -364,9 +364,11 @@
 /*
  * The comment column keeps the .hljs-comment hue and font style, mixed a
  * quarter of the way toward the code text so a comment's reason reads as
- * easily as its step.
+ * easily as its step. Comments take the code listing's size, one step below
+ * the steps, so a reason reads as secondary and more of it fits the column.
  */
 .docs-pseudo-comment {
+  font-size: var(--docs-code-text-size, var(--ds-font-size-code));
   color: color-mix(in srgb, var(--syntax-comment, var(--docs-text-tertiary)) 75%, var(--syntax-punctuation, var(--docs-code-fg, var(--docs-text-secondary))));
   min-width: 0;
   padding: 0 var(--docs-code-pad-x, var(--ds-space-3)) 0 4ch;
