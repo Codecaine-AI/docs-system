@@ -26,9 +26,9 @@ Each operation gives a caller its whole contract: its real name, its kind, every
 
   - When the examples of one surface share state, write them as one scenario in call order.
 
-- For a union keyed on one field, type that field with its literal values, such as `true | false`.
+- For a result with more than one shape, set `returns` to the union type and give `returnShape` one top-level field per branch.
 
-  - Start the description of each field that only one branch has with that branch, such as "Only when ok is true."
+  - Name each branch field by its key and value, such as `ok: true`, leave its type empty, and nest that branch's fields under it.
 
 ## Example
 
@@ -318,7 +318,11 @@ The markdown render is an optional `**<title>**` bold line, then a bare fence wi
 
   - The `-> returns` and `# description` tails print only when present.
 
-- Described or nested parameters add indented field lines beneath the signature. A returnShape adds a named Returns section, recursive fields, and the supplied example. Full operation names remain searchable.
+- Once any parameter has a description or nested fields, every parameter adds an indented field line beneath the signature.
+
+  - A `returnShape` adds a named Returns section, recursive fields, and the supplied example.
+
+  - A name that is already a call, such as `docPeekReducer(state, { type: "open" })`, prints as written and always lists its parameters as lines.
 
 - Operation names remain fully dotted in the agent projection. Human-readable card headings do not change stored operation identities.
 
