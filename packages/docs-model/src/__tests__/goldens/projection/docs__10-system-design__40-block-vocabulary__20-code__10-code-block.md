@@ -30,11 +30,15 @@ A listing is evidence. A reader checks each line against the source file and eac
 
   - Test each note. If a reader gets the same fact from the covered lines alone, rewrite the note or delete it.
 
+  - Take each reason from the source files, such as a comment, a caller or a test. Never guess a reason, and write always, never or only when a line proves it.
+
   - For `if (!root) throw new Error(...)`, the note "Throws when the root is missing" retells the line. The note "Every tree reader calls this first, so a broken root pointer fails here and not inside a render" adds the consequence.
 
 4. Make each range cover exactly the lines its note discusses.
 
-  - Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them. If the note names a line, such as the return, put that line in the range.
+  - A note about one statement covers only that statement's lines. Leave out blank lines and comment lines unless the note discusses them.
+
+  - A note about a whole function covers it from its signature to its closing brace. If a note names a line, such as the return, put that line in the range.
 
   - Give the note a short label that names the job of its lines. A label such as "Merge" goes on the line that merges.
 

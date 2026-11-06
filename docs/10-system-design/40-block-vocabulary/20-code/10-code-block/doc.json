@@ -322,6 +322,7 @@
       "children": [
         "b-code-write-value-a",
         "b-code-write-value-b",
+        "b-code-write-value-d",
         "b-code-write-value-c"
       ]
     },
@@ -343,6 +344,17 @@
       "text": [
         {
           "insert": "Test each note. If a reader gets the same fact from the covered lines alone, rewrite the note or delete it."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-value-d": {
+      "id": "b-code-write-value-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Take each reason from the source files, such as a comment, a caller or a test. Never guess a reason, and write always, never or only when a line proves it."
         }
       ],
       "children": []
@@ -380,6 +392,7 @@
       ],
       "children": [
         "b-code-write-range-a",
+        "b-code-write-range-d",
         "b-code-write-range-b",
         "b-code-write-range-c"
       ]
@@ -390,7 +403,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Leave out the signature, the closing brace, blank lines and comment lines unless the note discusses them. If the note names a line, such as the return, put that line in the range."
+          "insert": "A note about one statement covers only that statement's lines. Leave out blank lines and comment lines unless the note discusses them."
+        }
+      ],
+      "children": []
+    },
+    "b-code-write-range-d": {
+      "id": "b-code-write-range-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A note about a whole function covers it from its signature to its closing brace. If a note names a line, such as the return, put that line in the range."
         }
       ],
       "children": []
