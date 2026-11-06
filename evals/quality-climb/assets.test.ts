@@ -85,6 +85,17 @@ test("a frozen copy keeps its source page's local provenance, though the lane br
   expect(() => pageProvenance(laneBrief, bare)).toThrow("has no recorded provenance");
 });
 
+test("a resumed page keeps the local provenance its folder recorded, though this run has no --frozen-from source", async () => {
+  const root = await mkdtemp(join(tmpdir(), "qc-provenance-resume-"));
+  const page = join(root, ".tmp/quality-climb/lanes/rich-text/round-3/climb/100-docs-mcp-daily-use");
+  await mkdir(page, { recursive: true });
+  await writeFile(join(page, "page.json"), JSON.stringify({ briefId: 100, slug: "docs-mcp-daily-use", set: "climb", local: true }));
+  const laneBrief = { id: 100, slug: "docs-mcp-daily-use", set: "climb", local: false } as unknown as RoundBrief;
+  expect(pageProvenance(laneBrief, undefined, page).local).toBe(true);
+  await writeFile(join(page, "page.json"), "{");
+  expect(() => pageProvenance(laneBrief, undefined, page)).toThrow("records no provenance");
+});
+
 test("a page.json that does not parse, or parses to null, records nothing, even in a lane round", async () => {
   const root = await mkdtemp(join(tmpdir(), "qc-provenance-bad-"));
   const lanePage = join(root, ".tmp/quality-climb/lanes/state-shape/round-2/climb/03-api");
