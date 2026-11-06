@@ -206,7 +206,7 @@ const CALL_STACK_CSS = `
   line-height: calc(var(--tr-row, 28px) - 2 * var(--ds-space-1)); padding-block: var(--ds-space-1);
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path {
-  padding-left: calc(var(--depth, 0) * var(--tr-indent) + 2ch); text-indent: -2ch;
+  padding-left: calc(var(--depth, 0) * var(--tr-indent) + var(--ds-space-4)); text-indent: calc(-1 * var(--ds-space-4));
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) { grid-column: path / src; }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__path:not(.docs-tree__path--span) ~ .docs-tree__src { grid-row: 1; }
