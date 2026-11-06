@@ -277,8 +277,8 @@ export const STACK_METRICS = {
   detailMaxCh: 60,
   pathDetailFontSizePx: 12,
   pathDetailLineHeight: 1.6,
-  /** Leaf name: code font, weight 600. */
-  nameFontSizePx: 13.5,
+  /** Leaf name: code font (sans when it is prose), weight 600. */
+  nameFontSizePx: 14,
   nameWeight: 600,
   roleFontSizePx: 12,
   /** Leaf card padding. A card with a role keeps 10px on the left beside its 3px edge. */

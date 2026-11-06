@@ -7,7 +7,7 @@ import { chipKind } from "../typed-chip";
 
 export const STACK_LABEL = "Stack";
 export const STACK_AGENT_DESCRIPTION =
-  "A boundary stack: nested layers drawn top to bottom. A node with children is a tinted container with its name pinned in a header chip; a leaf is a card with its name and its detail as plain text, and an optional badge shows as the card's role: a colored left edge plus a small lowercase word beside the name. A uses arrow points from a node to its next sibling, and a dashed line beneath a node states, in words, the rule enforced at that boundary. Auto-laid out; no coordinates.";
+  "A boundary stack: nested layers drawn top to bottom. A node with children is a tinted container with its name pinned in a header chip; a leaf is a card with its name and its detail as plain text, and an optional badge shows as the card's role: a colored left edge plus a small code-font word beside the name, in its own case. A uses arrow points from a node to its next sibling, and a dashed line beneath a node states, in words, the rule enforced at that boundary. Auto-laid out; no coordinates.";
 
 /**
  * Canvas schematic look (canvas theme/canvas-style.ts SCHEMATIC_LIGHT/DARK,
@@ -20,8 +20,9 @@ export const STACK_AGENT_DESCRIPTION =
  * fill, a hairline in the hue at 55%, semibold name, detail in body text
  * (mono when a path, one segment per line), never a dotted list. The stack
  * draws the shape: a node's role is a 3px left edge in its colour plus a
- * muted lowercase mono word at the name row's right end (and the hover
- * title). A boundary is a dashed line with the rule as text, never colour
+ * muted mono word at the name row's right end, in the case it was written
+ * (and the hover title). A prose name or detail segment sets in the sans
+ * face, and a code word inside prose (`startMcp`, `doc.json`) in the mono. A boundary is a dashed line with the rule as text, never colour
  * alone; next to a crossing arrow the line starts just right of it, so the
  * two never overlap.
  *
@@ -57,23 +58,25 @@ const STACK_STYLE = `
 [data-stack-box]{min-width:0;padding:10px var(--ds-space-3);background:var(--stack-card);border:var(--ds-border-width-hairline) solid color-mix(in srgb,var(--stack-layer,var(--stack-muted)) 55%,transparent);border-radius:var(--stack-radius)}
 [data-stack-box][data-role]{padding-left:10px;border-left:var(--ds-border-width-rail) solid var(--stack-c,var(--stack-muted))}
 [data-stack-head-row]{display:flex;align-items:baseline;justify-content:space-between;column-gap:var(--ds-space-4);min-width:0}
-[data-stack-role]{flex:none;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-regular);line-height:1.4;text-transform:lowercase;color:color-mix(in srgb,var(--stack-muted) 50%,var(--stack-text))}
-[data-stack-name]{min-width:0;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--stack-ink);overflow-wrap:normal}
+[data-stack-role]{flex:none;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-regular);line-height:1.4;color:color-mix(in srgb,var(--stack-muted) 50%,var(--stack-text))}
+[data-stack-name]{min-width:0;font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-lg);font-weight:var(--ds-font-weight-semibold);line-height:1.4;color:var(--stack-ink);overflow-wrap:normal}
 [data-stack-detail]{max-width:var(--ds-layout-lane-text);margin-top:var(--ds-space-0-5);font-size:var(--ds-font-size-ui-md);line-height:var(--ds-line-height-ui);color:var(--stack-text);overflow-wrap:anywhere}
 [data-stack-detail-line]{display:block}
 [data-stack-detail][data-mono]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);line-height:1.6;overflow-wrap:normal}
+[data-stack-detail-line][data-prose],[data-stack-name][data-prose]{font-family:var(--stack-sans)}
+[data-stack-code]{font-family:var(--stack-mono);font-size:.9em}
 [data-stack-uses],[data-stack-boundary]{position:relative;min-width:0}
 [data-stack-uses]{display:flex;align-items:center;min-height:var(--ds-space-5);padding-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
-[data-stack-arrow]{position:absolute;top:0;bottom:0;left:var(--stack-arrow-x);border-left:var(--ds-border-width-hairline) solid var(--stack-arrow)}
-[data-stack-arrow]::after{position:absolute;bottom:1px;left:-3.5px;box-sizing:content-box;width:5px;height:5px;border-right:var(--ds-border-width-hairline) solid var(--stack-arrow);border-bottom:var(--ds-border-width-hairline) solid var(--stack-arrow);transform:rotate(45deg);content:""}
+[data-stack-arrow]{position:absolute;top:0;bottom:0;left:var(--stack-arrow-x);border-left:var(--ds-border-width-ring) solid var(--stack-arrow)}
+[data-stack-arrow]::after{position:absolute;bottom:1px;left:-4.5px;box-sizing:content-box;width:6px;height:6px;border-right:var(--ds-border-width-ring) solid var(--stack-arrow);border-bottom:var(--ds-border-width-ring) solid var(--stack-arrow);transform:rotate(45deg);content:""}
 [data-stack-uses][data-continues] [data-stack-arrow]::after{display:none}
-[data-stack-uses-label]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-xs);line-height:1.3;color:var(--stack-muted);overflow-wrap:normal}
+[data-stack-uses-label]{font-family:var(--stack-mono);font-size:var(--ds-font-size-ui-sm);line-height:1.3;color:color-mix(in srgb,var(--stack-muted) 40%,var(--stack-text));overflow-wrap:normal}
 [data-stack-boundary]{display:flex;align-items:center;min-height:44px;padding:var(--ds-space-1) 0}
 [data-stack-dash]{height:0;border-top:var(--ds-border-width-hairline) dashed var(--stack-boundary)}
 [data-stack-dash="lead"]{flex:0 0 calc(var(--stack-arrow-x) * 2)}
 [data-stack-boundary][data-crossed] [data-stack-dash="lead"]{flex-basis:var(--ds-space-6);margin-left:calc(var(--stack-arrow-x) + var(--ds-space-2))}
 [data-stack-dash="tail"]{flex:1 1 auto;min-width:var(--ds-space-6)}
-[data-stack-rule]{margin:0 var(--ds-space-3);font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-semibold);line-height:1.3;color:var(--stack-ink)}
+[data-stack-rule]{margin:0 var(--ds-space-3);font-size:var(--ds-font-size-ui-md);font-weight:var(--ds-font-weight-medium);line-height:1.3;color:var(--stack-ink)}
 `;
 
 type StackProps = { nodes: StackNode[]; boundaries: StackBoundary[] };
@@ -96,16 +99,38 @@ const detailSegments = (detail: string) => detail.split(/\s+·\s+/).filter(Boole
  */
 function StackDetail({ detail }: { detail: string }) {
   const segments = detailSegments(detail);
-  if (chipKind(detail) !== "path") return <div data-stack-detail="">{segments.join(", ")}</div>;
+  if (chipKind(detail) !== "path") return <div data-stack-detail="">{codeWords(segments.join(", "))}</div>;
   return (
     <div data-stack-detail="" data-mono="">
       {segments.map((segment, index) => (
-        <span key={index} data-stack-detail-line="">
-          {monoBreaks(segment)}
+        <span key={index} data-stack-detail-line="" data-prose={isProse(segment) ? "" : undefined}>
+          {isProse(segment) ? codeWords(segment) : monoBreaks(segment)}
         </span>
       ))}
     </div>
   );
+}
+
+/** A segment or name with a space that is not itself code (`also imports profile types`, `Docs server route`). */
+const isProse = (text: string) => /\s/.test(text.trim()) && chipKind(text) === "other";
+
+/** A word that reads as code in prose: a camelCase or multi-hump PascalCase name, a call, or a path. */
+const CODE_WORD = /^(?:[a-z][a-z0-9]*[A-Z][A-Za-z0-9]*|[A-Z][a-z0-9]+[A-Z][A-Za-z0-9]*|[\w$.-]*\w\(.*\)|[\w@.-]*\/[\w@./{},*-]*|[\w-]+\.(?:ts|tsx|js|json|md|css))$/;
+
+/** Prose with each code word (`startMcp`, `DocsClient`, `doc.json`) set in the code face, so a name reads as a name. */
+function codeWords(text: string): ReactNode {
+  const parts = text.split(/(\s+)/);
+  if (!parts.some((part) => CODE_WORD.test(part.replace(/[,:;.]$/, "")))) return text;
+  return parts.map((part, index) => {
+    const word = part.replace(/[,:;.]$/, "");
+    if (!CODE_WORD.test(word)) return part;
+    return (
+      <Fragment key={index}>
+        <span data-stack-code="">{word}</span>
+        {part.slice(word.length)}
+      </Fragment>
+    );
+  });
 }
 
 /** Tabler `stack-3`: the flow family's stack glyph. */
@@ -149,7 +174,7 @@ function renderNode(node: StackNode, renderList: (nodes: StackNode[]) => ReactNo
       title={node.badge}
     >
       <div data-stack-head-row="">
-        <span data-stack-name="">{monoBreaks(node.name)}</span>
+        <span data-stack-name="" data-prose={isProse(node.name) ? "" : undefined}>{monoBreaks(node.name)}</span>
         {node.badge && <span data-stack-role="">{node.badge}</span>}
       </div>
       {node.detail && <StackDetail detail={node.detail} />}
