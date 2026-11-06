@@ -174,6 +174,11 @@ describe("file explorer", () => {
     expect(changeOf("fresh")).toBe("added");
     expect(changeOf("deep")).toBe("added");
     expect(changeOf("mixed")).toBeNull();
+    cleanup();
+    // A sub-folder's own change counts: a new file beside a removed folder is no new parent.
+    renderBlock({ entries: [{ path: "src/new.ts", change: "added" }, { path: "src/old/", change: "removed" }] });
+    expect(changeOf("src")).toBeNull();
+    expect(changeOf("old")).toBe("removed");
   });
 
   it("keys each change kind the tree holds under the rows, and shows no key without a change", () => {

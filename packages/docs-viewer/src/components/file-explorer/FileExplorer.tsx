@@ -82,27 +82,32 @@ function explorerRows(
   return out;
 }
 
-/** The files under a folder, at any depth. */
-function* filesUnder(node: FileTreeNode): Generator<FileTreeNode> {
+/**
+ * The change marks under a folder, at any depth: each file's change (or none),
+ * and each sub-folder's own change when it has one.
+ */
+function* marksUnder(node: FileTreeNode): Generator<FileTreeChange | undefined> {
   for (const child of node.children.values()) {
-    if (child.isDir) yield* filesUnder(child);
-    else yield child;
+    if (child.isDir) {
+      if (child.change) yield child.change;
+      yield* marksUnder(child);
+    } else yield child.change;
   }
 }
 
 /**
  * The change a row shows: its own, or for a folder with none, "added" or
- * "removed" when every file under it carries that change. A new folder of
- * new files is itself new, so its row never reads as a pre-existing band
- * between added rows.
+ * "removed" when every file under it, and every sub-folder that sets its own
+ * change, carries that one change. A new folder of new files is itself new, so
+ * its row never reads as a pre-existing band between added rows.
  */
 export function rowChange(node: FileTreeNode): FileTreeChange | undefined {
   if (node.change || !node.isDir) return node.change;
   let shared: FileTreeChange | undefined;
-  for (const file of filesUnder(node)) {
-    if (file.change !== "added" && file.change !== "removed") return undefined;
-    if (shared && shared !== file.change) return undefined;
-    shared = file.change;
+  for (const mark of marksUnder(node)) {
+    if (mark !== "added" && mark !== "removed") return undefined;
+    if (shared && shared !== mark) return undefined;
+    shared = mark;
   }
   return shared;
 }
