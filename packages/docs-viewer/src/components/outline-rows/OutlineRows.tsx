@@ -245,6 +245,8 @@ const OUTLINE_ROWS_VARS = treeVars({
  * - A wrapped frame's later lines indent two depth steps, so they never line up
  *   with a child frame, and the code keeps a gap before the source column.
  * - A loop branch leads with a repeat icon, not the condition "?" (BranchMark).
+ *   Each mark is one indent wide, and a branch's comment indents one step more,
+ *   so every comment starts one indent right of its own code.
  */
 const CALL_STACK_CSS = `
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__code { white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -255,6 +257,10 @@ const CALL_STACK_CSS = `
   padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent)); text-indent: calc(-2 * var(--tr-indent));
 }
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__path { padding-right: var(--ds-space-4); }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__if { display: inline-block; width: var(--tr-indent); margin-right: 0; text-indent: 0; }
+.docs-tree[data-tree-kind="call-stack"] .docs-tree__rows[data-notes="below"] .docs-tree__row[data-kind="branch"] .docs-tree__note {
+  padding-left: calc((var(--depth, 0) + 2) * var(--tr-indent));
+}
 .docs-tree[data-tree-kind="call-stack"] .docs-tree__loop svg {
   display: inline-block; width: var(--ds-space-3); height: var(--ds-space-3); vertical-align: -1px; stroke-width: 2.25;
 }
