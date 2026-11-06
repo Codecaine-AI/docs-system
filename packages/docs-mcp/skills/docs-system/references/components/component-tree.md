@@ -1,6 +1,6 @@
 # component-tree
 
-Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:3b6bf2dbf1f3de6a8eb4bdc2f6d3219a46b597af9f20d2713843481ea4360766`. Refresh the installation to regenerate these files.
 
 Use Component Tree to show which component renders which. Write each row as a rendered JSX element or a branch. Add a hook row only when the page is about that hook, and never for useMemo or useCallback. Name other hooks in prose or pseudocode. Use Call Stack for plain function calls.
 

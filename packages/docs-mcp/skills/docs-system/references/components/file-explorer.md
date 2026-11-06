@@ -1,6 +1,6 @@
 # file-explorer
 
-Generated from Docs System sources. Snapshot: `sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:3b6bf2dbf1f3de6a8eb4bdc2f6d3219a46b597af9f20d2713843481ea4360766`. Refresh the installation to regenerate these files.
 
 Use File Explorer to show the files a change touches the way an editor sidebar shows them, with a +, −, ~ or > gutter glyph per changed file. Use File Tree for a plain tree listing of a layout.
 

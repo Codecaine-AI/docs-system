@@ -694,6 +694,12 @@
                     "description": "JSON instance of the returned object."
                   }
                 ]
+              },
+              {
+                "name": "exampleCall",
+                "type": "string",
+                "required": false,
+                "description": "Code text of one real call with literal values, shown beside the parameters of an open row. An empty string is dropped. The interaction-surface lint flags an operation without one."
               }
             ]
           }

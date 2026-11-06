@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:11bbffa608a1ec2ccbd01e339f76ab0d9015fcb10621404fb3ad226800c6d60d",
+  "snapshotId": "sha256:3b6bf2dbf1f3de6a8eb4bdc2f6d3219a46b597af9f20d2713843481ea4360766",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -64,7 +64,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/20-code/10-code-block/doc.json",
-      "sha256": "7c0f26cb25c85bbbf39eee6ec79710746a6e9e8b447fdffb85006e555392d2fc",
+      "sha256": "e332a2c5657164b53cc5f137067140cf04e6fd109170035a78af510cc2dde19e",
       "kind": "component-doc"
     },
     {
@@ -79,7 +79,7 @@
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/40-structured-reference/20-interaction-surface/doc.json",
-      "sha256": "b8ad8c3bcdc5f128cee601d683a7c348c8253d5b46de861c9a9ff05d0bc3c2ce",
+      "sha256": "1b2458cab8fafb7399e17bb5f6a21deee05b2f9ad6724b62fa10bad38e359b46",
       "kind": "component-doc"
     },
     {
@@ -169,7 +169,7 @@
     },
     {
       "path": "packages/docs-model/src/components/state-shape/manifest.ts",
-      "sha256": "3ddcd52a7d15d8517e765a1a5532a02c487098e454b9c4c89a9f4830596b4630",
+      "sha256": "0293153c39a3a2878b43bafeece7593ef46ce8c9f97461d600d020514bb5c11d",
       "kind": "component-manifest"
     },
     {
