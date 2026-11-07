@@ -1,0 +1,5 @@
+{
+  "repos": ["..", "../canvas", "../sequence", "../annotations", "../design-system", "../prompt-kit", "../agent-kernel"],
+  "install": [".."],
+  "overlay": ["../bun.lock"]
+}
