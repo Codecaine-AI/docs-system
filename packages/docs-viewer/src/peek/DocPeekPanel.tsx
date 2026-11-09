@@ -56,9 +56,11 @@ export type DocPeekPanelProps = {
   resolveAssetSrc?: DocBlockRendererProps["resolveAssetSrc"];
   /**
    * "drawer" (default): a framed right drawer with a header bar for Close
-   * and Open in full. "page": a second page column with no frame, no header
-   * and no top padding. The title starts the column, Close and Open in full
-   * sit beside it, and the host gives the column its surface and place.
+   * and Open in full. "page": a second page column with no frame and no
+   * header bar. A pinned row holds Open in full and Close at its top right
+   * (data-doc-peek-controls), and below it the doc scrolls on its own, title
+   * first with no top padding. The host gives the column its surface, place
+   * and edge.
    */
   layout?: "drawer" | "page";
 };
@@ -148,8 +150,19 @@ export function DocPeekPanel({
               (docs-workbench web/src/pages/DocPage.tsx: `flex h-11 ...
               border-b px-3`) so, docked as a flex sibling of the doc column,
               both bottom borders sit at the same y. A page column has no
-              header: its buttons sit beside the title. */}
-          {!page && (
+              header bar, only the pinned row of its two buttons. */}
+          {page ? (
+            // Pinned above the column's own scroll, so Close and Open in full
+            // stay in reach. The host sizes the row (--docs-peek-controls-height)
+            // to line it up with its own top row.
+            <div
+              data-doc-peek-controls=""
+              className="flex h-[var(--docs-peek-controls-height,2.75rem)] shrink-0 items-center justify-end gap-0.5 px-[var(--docs-peek-padding,1.5rem)]"
+            >
+              {openButton}
+              {closeButton}
+            </div>
+          ) : (
             <header className="flex h-11 shrink-0 items-center justify-between border-b px-3">
               {closeButton}
               {openButton}
@@ -183,17 +196,12 @@ export function DocPeekPanel({
                   The body-font-size lane wrapper mirrors DocPage: it gives the
                   title the same text measure the prose gets, resolved at the
                   doc's base font size rather than the h1's own 2.25rem (the
-                  measure is in `ch`). In a page column the title row also
-                  holds Close and Open in full, centred on the title's first
-                  line (1lh of the row, which the host may size like its own
-                  title through data-doc-peek-title-row). */}
+                  measure is in `ch`). In a page column the host can give
+                  the title its own page title's type through
+                  data-doc-peek-title-row. */}
               {page ? (
-                <div data-doc-peek-title-row="" className="flex w-full items-start gap-2">
-                  <h1 className="docs-page-title min-w-0 flex-1">{title}</h1>
-                  <div className="flex h-[1lh] shrink-0 items-center gap-0.5">
-                    {closeButton}
-                    {openButton}
-                  </div>
+                <div data-doc-peek-title-row="" className="w-full">
+                  <h1 className="docs-page-title">{title}</h1>
                 </div>
               ) : (
                 <div className="w-full max-w-[var(--style-content-width,60ch)] text-[length:var(--style-font-size,18px)]">

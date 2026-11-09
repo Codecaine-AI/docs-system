@@ -264,12 +264,14 @@ describe('mountDraftEditor side peek', () => {
       await waitFor(() => expect(slotPanel()?.textContent).toContain('Hello from the target'));
       expect(slotPanel()?.closest('.docs-draft-editor')).toBeTruthy();
       expect(container.textContent).not.toContain('Hello from the target');
-      // A page column: no header bar, and the title row holds Close and Open in full.
+      // A page column: no header bar, a pinned row for Close and Open in full, then the title in the scroll.
       expect(slotPanel()?.querySelector('header')).toBeNull();
-      const titleRow = slotPanel()?.querySelector('[data-doc-peek-title-row]');
-      expect(titleRow?.querySelector('h1.docs-page-title')?.textContent).toBe('target');
-      expect(titleRow?.querySelector('[aria-label="Close preview"]')).toBeTruthy();
-      expect(titleRow?.querySelector('[aria-label="Open in full"]')).toBeTruthy();
+      const controls = slotPanel()?.querySelector('[data-doc-peek-controls]');
+      expect(controls?.querySelector('[aria-label="Close preview"]')).toBeTruthy();
+      expect(controls?.querySelector('[aria-label="Open in full"]')).toBeTruthy();
+      const scroller = slotPanel()?.querySelector('.overflow-y-auto');
+      expect(scroller?.contains(controls!)).toBe(false);
+      expect(scroller?.querySelector('[data-doc-peek-title-row] h1.docs-page-title')?.textContent).toBe('target');
 
       await act(async () => { document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT)); });
       expect(slotPanel()?.hasAttribute('data-doc-peek-panel')).toBe(false);
