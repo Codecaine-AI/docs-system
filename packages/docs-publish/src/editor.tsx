@@ -52,9 +52,11 @@ export type DraftEditorOptions = {
   /**
    * A host element, outside the editor, that holds the peek panel (with
    * `peek`). The panel renders into it through a React portal, so it can sit
-   * at page level beside the reading column instead of inside its width. The
-   * host gives the element its height and scroll context. Absent, the panel
-   * mounts beside the editor as a sticky flex sibling.
+   * at page level beside the reading column instead of inside its width. It
+   * renders as a page column (DocPeekPanel layout "page"): no frame and no
+   * header bar, the title first with Close and Open in full beside it. The
+   * host gives the element its place, height and surface. Absent, the panel
+   * mounts beside the editor as a sticky flex sibling with a header bar.
    */
   peekContainer?: HTMLElement;
 };
@@ -221,6 +223,7 @@ function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyO
   );
   const panel = peek ? (
     <DocPeekPanel
+      layout={peek.peekContainer ? 'page' : 'drawer'}
       projectId={projectId}
       onNavigate={peek.onNavigate ?? ignoreNavigate}
       onOpenChange={peek.onPeekOpenChange}
