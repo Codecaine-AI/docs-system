@@ -11,6 +11,7 @@
       "children": [
         "maintenance-0",
         "maintenance-1",
+        "editor-workflow-guide",
         "core-releases-guide",
         "central-service-guide",
         "pdf-export-guide",
@@ -45,6 +46,44 @@
         },
         {
           "insert": " explains installation, multi-project discovery, skills, updates, and recovery."
+        }
+      ],
+      "children": []
+    },
+    "editor-workflow-guide": {
+      "id": "editor-workflow-guide",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Editor Workflow",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
+            }
+          }
+        },
+        {
+          "insert": " gives the steps an agent follows to read and edit a corpus through the Docs tools. "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves it as topic "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []

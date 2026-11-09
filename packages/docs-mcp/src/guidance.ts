@@ -6,6 +6,7 @@ import {
   AUTHORING_BUNDLES,
   STANDARDS_BUNDLES,
   STYLE_GUIDE_BUNDLES,
+  WORKFLOW_BUNDLES,
   assembleAuthoringGuidance,
   componentGuidance,
   guidanceBundleFile,
@@ -21,7 +22,7 @@ export const GUIDANCE_SCHEMA_VERSION = 1;
 export type GuidanceSource = {
   path: string;
   sha256: string;
-  kind: "standard" | "style" | "component-doc" | "component-manifest" | "renderer" | "skill";
+  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer" | "skill";
 };
 export type GuidanceSnapshot = {
   text: string;
@@ -65,7 +66,7 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   for (const input of inputs) sources.push({
     path: `docs/${input.bundle}/doc.json`,
     sha256: hashGuidanceContent(input.content),
-    kind: STANDARDS_BUNDLES.includes(input.bundle) ? "standard" : "style",
+    kind: STANDARDS_BUNDLES.includes(input.bundle) ? "standard" : WORKFLOW_BUNDLES.includes(input.bundle) ? "workflow" : "style",
   });
   const componentReferences: Record<string, string> = {};
   for (const component of components) {
@@ -91,7 +92,7 @@ export type GuidanceTopic = { topic: string; covers: string; text: string };
 /** Readable topic name for one structure-standards bundle, such as `standards-cross-doc-linking`. */
 const standardsTopic = (bundle: string): string => `standards-${bundle.slice(bundle.lastIndexOf("/") + 1).replace(/^\d+-/, "")}`;
 /** Topic names in index order. Each stays small enough for a client to show inline, except `all`, the unsplit text. */
-export const GUIDANCE_TOPICS: readonly string[] = ["style", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "all"];
+export const GUIDANCE_TOPICS: readonly string[] = ["style", "workflow", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "all"];
 const unescapeAttribute = (value: string): string => value.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 /** Split a snapshot's assembled text into topics. Every topic line is a verbatim line of `snapshot.text`, so a task's topics come from its pinned snapshot. */
@@ -113,8 +114,10 @@ export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): Guidan
   };
   const style = section("docs_style_guide");
   const standards = section("docs_structure_standards");
+  const workflow = section("docs_editor_workflow");
   return [
     { topic: "style", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
+    { topic: "workflow", covers: "Editor workflow: the task steps, requests, page titles, page and asset management, and html blocks.", text: workflow.join("\n") },
     { topic: "components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
     ...STANDARDS_BUNDLES.map(bundle => {
       const doc = page(standards, bundle);
