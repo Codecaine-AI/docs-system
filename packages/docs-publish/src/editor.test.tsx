@@ -251,6 +251,30 @@ describe('mountDraftEditor side peek', () => {
     expect(container.textContent).not.toContain('Doc not found');
   });
 
+  it('with peekContainer, the panel opens in the host element and the editor keeps its column', async () => {
+    const slot = document.createElement('div');
+    document.body.appendChild(slot);
+    try {
+      await mount({ peek: true, peekContainer: slot, onNavigate: () => {} });
+      expect(peekPanel()).toBeNull();
+      expect(container.firstElementChild?.classList.contains('docs-markdown')).toBe(true);
+
+      await act(async () => { fireEvent.click(await chip()); });
+      const slotPanel = () => slot.querySelector('aside[aria-label="Doc preview"]');
+      await waitFor(() => expect(slotPanel()?.textContent).toContain('Hello from the target'));
+      expect(slotPanel()?.closest('.docs-draft-editor')).toBeTruthy();
+      expect(container.textContent).not.toContain('Hello from the target');
+
+      await act(async () => { document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT)); });
+      expect(slotPanel()?.hasAttribute('data-doc-peek-panel')).toBe(false);
+      await act(() => handle!.destroy());
+      handle = null;
+      expect(slot.childElementCount).toBe(0);
+    } finally {
+      slot.remove();
+    }
+  });
+
   it('with hostOwnsEscape, Escape keeps the panel open and the close event closes it', async () => {
     await mount({ peek: true, hostOwnsEscape: true, onNavigate: () => {} });
     await act(async () => { fireEvent.click(await chip()); });

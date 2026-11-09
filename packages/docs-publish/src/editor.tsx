@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot, type Root } from 'react-dom/client';
 import DocEditor, { type DocEditorSaveState } from '../../docs-viewer/src/editor/DocEditor';
 import { DocsClientProvider, type AcquireDraftLockResult, type CanvasEmbedProps, type DocsClient, type SequenceEmbedProps, type DocsTreeNode, type DraftLockKind } from '../../docs-viewer/src/client';
@@ -48,9 +49,17 @@ export type DraftEditorOptions = {
   hostOwnsEscape?: boolean;
   /** Reports when the peek opens or closes, so the host can hide competing docked UI. */
   onPeekOpenChange?: (open: boolean) => void;
+  /**
+   * A host element, outside the editor, that holds the peek panel (with
+   * `peek`). The panel renders into it through a React portal, so it can sit
+   * at page level beside the reading column instead of inside its width. The
+   * host gives the element its height and scroll context. Absent, the panel
+   * mounts beside the editor as a sticky flex sibling.
+   */
+  peekContainer?: HTMLElement;
 };
 /** The side-peek options DraftEditorHost passes to DocPeekPanel. */
-type PeekOptions = Pick<DraftEditorOptions, 'onNavigate' | 'loadPeek' | 'hostOwnsEscape' | 'onPeekOpenChange'>;
+type PeekOptions = Pick<DraftEditorOptions, 'onNavigate' | 'loadPeek' | 'hostOwnsEscape' | 'onPeekOpenChange' | 'peekContainer'>;
 const ignoreNavigate = () => {};
 /**
  * `flush()` saves pending edits now and resolves once every save and lock
@@ -210,23 +219,34 @@ function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyO
       />
     </div>
   );
+  const panel = peek ? (
+    <DocPeekPanel
+      projectId={projectId}
+      onNavigate={peek.onNavigate ?? ignoreNavigate}
+      onOpenChange={peek.onPeekOpenChange}
+      loadPeek={peek.loadPeek}
+      hostOwnsEscape={peek.hostOwnsEscape}
+      resolveAssetSrc={resolvePeekAssetSrc}
+    />
+  ) : null;
   return (
     <DocsClientProvider client={client} canvasEmbed={embeds.canvas} sequenceEmbed={embeds.sequence}>
-      {peek ? (
+      {peek?.peekContainer ? (
+        // The host owns the panel's place on the page: the panel fills the
+        // host element's height and the editor keeps its own column. The
+        // wrapper carries the scope class, so the editor's tokens reach it.
+        <>
+          {editor}
+          {createPortal(<div className="docs-draft-editor flex h-full">{panel}</div>, peek.peekContainer)}
+        </>
+      ) : peek ? (
         // The peek is a push drawer: a flex sibling of the doc column. It
         // sticks to the top of the host's scroll area at viewport height
         // (--docs-peek-height), so it stays in view while the doc scrolls.
         <div className="flex items-start">
           {editor}
           <div className="sticky top-0 flex h-[var(--docs-peek-height,100vh)] shrink-0">
-            <DocPeekPanel
-              projectId={projectId}
-              onNavigate={peek.onNavigate ?? ignoreNavigate}
-              onOpenChange={peek.onPeekOpenChange}
-              loadPeek={peek.loadPeek}
-              hostOwnsEscape={peek.hostOwnsEscape}
-              resolveAssetSrc={resolvePeekAssetSrc}
-            />
+            {panel}
           </div>
         </div>
       ) : editor}
@@ -241,7 +261,7 @@ function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyO
 export async function mountDraftEditor(container: HTMLElement, options: DraftEditorOptions): Promise<DraftEditorHandle> {
   const { path, onStatus, appEmbeds } = options;
   const peek: PeekOptions | null = options.peek
-    ? { onNavigate: options.onNavigate, loadPeek: options.loadPeek, hostOwnsEscape: options.hostOwnsEscape, onPeekOpenChange: options.onPeekOpenChange }
+    ? { onNavigate: options.onNavigate, loadPeek: options.loadPeek, hostOwnsEscape: options.hostOwnsEscape, onPeekOpenChange: options.onPeekOpenChange, peekContainer: options.peekContainer }
     : null;
   // Embedded diagrams measure text: load the measured fonts (they re-lay out when they arrive).
   void loadPublishedFonts();
