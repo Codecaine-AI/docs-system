@@ -10,10 +10,12 @@
  *
  * The panel is fully self-managing: it listens on `document` for
  * `DOC_REFERENCE_NAVIGATE_EVENT` (peek intent opens/replaces, navigate
- * intent — and peeks in hosts without `DocsClient.getDocBundle` — forwards
- * to `onNavigate`), closes on Escape, and loads content through the
- * host-provided DocsClient. The host only supplies identity (`projectId`),
- * a full-navigation callback, and optional asset resolution.
+ * intent — and peeks in hosts with no loader — forwards to `onNavigate`),
+ * closes on Escape and on `DOC_PEEK_CLOSE_EVENT`, and loads content through
+ * `loadPeek` or the host-provided DocsClient. A load that fails or returns
+ * null closes the panel and forwards the ref to `onNavigate`. The host only
+ * supplies identity (`projectId`), a full-navigation callback, and optional
+ * loading, Escape ownership and asset resolution.
  */
 
 import { useEffect, useMemo } from "react";
@@ -26,6 +28,7 @@ import { docPageTitle } from "../render/doc-title";
 import { cn } from "../ui/cn";
 import { PageTransition } from "../transitions/PageTransition";
 import { useDocPeek } from "./use-doc-peek";
+import type { DocBundle } from "./peek-state";
 
 export type DocPeekPanelProps = {
   projectId: string;
@@ -33,6 +36,17 @@ export type DocPeekPanelProps = {
   onNavigate: (ref: SpectreRef) => void;
   /** Reports visibility so a host can hide competing docked UI. */
   onOpenChange?: (open: boolean) => void;
+  /**
+   * Loads a peeked ref instead of `DocsClient.getDocBundle`, so a host can
+   * peek refs outside `projectId`. Null or a rejection forwards the ref to
+   * `onNavigate` and closes the panel.
+   */
+  loadPeek?: (ref: SpectreRef) => Promise<DocBundle | null>;
+  /**
+   * The host handles Escape. The panel adds no Escape listener, and the host
+   * closes it by dispatching `DOC_PEEK_CLOSE_EVENT` on `document`.
+   */
+  hostOwnsEscape?: boolean;
   /**
    * Host asset resolver for `image`/`video` block srcs — a plain
    * `(src) => string` with no bundle awareness required: the panel
@@ -48,9 +62,11 @@ export function DocPeekPanel({
   projectId,
   onNavigate,
   onOpenChange,
+  loadPeek,
+  hostOwnsEscape,
   resolveAssetSrc,
 }: DocPeekPanelProps) {
-  const { state, close } = useDocPeek({ projectId, onNavigate });
+  const { state, close } = useDocPeek({ projectId, onNavigate, loadPeek, hostOwnsEscape });
 
   useEffect(() => {
     onOpenChange?.(state.open);

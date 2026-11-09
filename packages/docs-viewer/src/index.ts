@@ -44,6 +44,8 @@ export { DocPeekPanel, type DocPeekPanelProps } from "./peek/DocPeekPanel";
 export * from "./components/linked-panels";
 export {
   DOC_REFERENCE_NAVIGATE_EVENT,
+  DOC_PEEK_CLOSE_EVENT,
+  type DocBundle,
   type DocReferenceNavigateDetail,
   type DocReferenceNavigateIntent,
   type DocPeekState,

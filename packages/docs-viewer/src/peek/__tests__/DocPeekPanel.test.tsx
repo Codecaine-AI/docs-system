@@ -6,6 +6,7 @@ import { DocsClientProvider, type DocsClient } from "../../client";
 import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "../../render/block-classes";
 import { DocPeekPanel } from "../DocPeekPanel";
 import {
+  DOC_PEEK_CLOSE_EVENT,
   DOC_REFERENCE_NAVIGATE_EVENT,
   type DocReferenceNavigateDetail,
 } from "../peek-state";
@@ -228,13 +229,15 @@ describe("DocPeekPanel", () => {
     expect(screen.queryByText("Hello from A")).toBeNull();
   });
 
-  it("shows a not-found placeholder for an unknown bundle path", async () => {
-    renderPanel();
-    await dispatchNavigateEvent({
-      ref: { kind: "doc", path: "guides/missing", label: "Ghost" },
-      intent: "peek",
-    });
-    expect(screen.getByText("Doc not found.")).toBeTruthy();
+  it("closes and hands an unknown bundle path to onNavigate, never a not-found preview", async () => {
+    const { onNavigate } = renderPanel();
+    const ghost: SpectreRef = { kind: "doc", path: "guides/missing", label: "Ghost" };
+    await dispatchNavigateEvent({ ref: ghost, intent: "peek" });
+
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(onNavigate.mock.calls[0]?.[0]).toEqual(ghost);
+    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+    expect(screen.queryByText("Doc not found.")).toBeNull();
   });
 
   it("'Open in full' hands the peeked ref to onNavigate and closes", async () => {
@@ -308,6 +311,84 @@ describe("DocPeekPanel", () => {
 
     expect(onNavigate).toHaveBeenCalledTimes(1);
     expect(onNavigate.mock.calls[0]?.[0]).toEqual(refA);
+    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+  });
+});
+
+describe("DocPeekPanel host loading and Escape", () => {
+  function renderHosted(props: {
+    loadPeek?: (ref: SpectreRef) => Promise<{ doc: unknown; documentPath?: string } | null>;
+    hostOwnsEscape?: boolean;
+    client?: DocsClient | null;
+  }) {
+    const onNavigate = mock((_ref: SpectreRef) => {});
+    render(
+      <DocsClientProvider client={props.client ?? null}>
+        <DocPeekPanel
+          projectId="proj-1"
+          onNavigate={onNavigate}
+          loadPeek={props.loadPeek}
+          hostOwnsEscape={props.hostOwnsEscape}
+        />
+      </DocsClientProvider>,
+    );
+    return { onNavigate };
+  }
+
+  const crossRef: SpectreRef = { kind: "doc", path: "other-project/guides/c", label: "Doc C" };
+
+  it("peeks through loadPeek with the ref as sent, even with no DocsClient", async () => {
+    const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
+    const { onNavigate } = renderHosted({ loadPeek });
+    await dispatchNavigateEvent({ ref: crossRef, intent: "peek" });
+
+    expect(loadPeek.mock.calls[0]?.[0]).toEqual(crossRef);
+    expect(screen.getByText("Hello from C")).toBeTruthy();
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it("prefers loadPeek over the client's getDocBundle", async () => {
+    const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
+    renderHosted({ loadPeek, client: stubClient() });
+    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
+
+    expect(screen.getByText("Hello from C")).toBeTruthy();
+    expect(screen.queryByText("Hello from A")).toBeNull();
+  });
+
+  it("a rejected loadPeek closes the panel and navigates to the ref", async () => {
+    const { onNavigate } = renderHosted({ loadPeek: async () => { throw new Error("offline"); } });
+    await dispatchNavigateEvent({ ref: crossRef, intent: "peek" });
+
+    expect(onNavigate).toHaveBeenCalledTimes(1);
+    expect(onNavigate.mock.calls[0]?.[0]).toEqual(crossRef);
+    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+    expect(screen.queryByText("offline")).toBeNull();
+  });
+
+  it("with hostOwnsEscape, Escape leaves the panel open and the close event closes it", async () => {
+    renderHosted({ hostOwnsEscape: true, client: stubClient() });
+    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
+
+    await act(async () => {
+      fireEvent.keyDown(window, { key: "Escape" });
+    });
+    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(true);
+
+    await act(async () => {
+      document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
+    });
+    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+    expect(screen.queryByText("Hello from A")).toBeNull();
+  });
+
+  it("the close event also closes a panel that owns Escape itself", async () => {
+    renderHosted({ client: stubClient() });
+    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
+
+    await act(async () => {
+      document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
+    });
     expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
   });
 });
