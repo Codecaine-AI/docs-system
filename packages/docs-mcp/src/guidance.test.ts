@@ -29,6 +29,12 @@ test("external guidance uses the shared renderer and covers every registered com
   expect((await loadGuidance()).snapshotId).toBe(snapshot.snapshotId);
 });
 
+test("the snapshot hashes only served sources, so a skill edit never changes the snapshot id", async () => {
+  const { sources } = await loadGuidance();
+  expect(sources.filter(source => source.path.includes("skills/"))).toEqual([]);
+  expect([...new Set(sources.map(source => source.kind))].sort()).toEqual(["component-doc", "component-manifest", "renderer", "standard", "style", "workflow"]);
+});
+
 test("guidance topics split the snapshot into whole pages without losing text", async () => {
   const snapshot = await loadGuidance();
   const topics = guidanceTopics(snapshot);

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   AUTHORING_BUNDLES,
@@ -22,7 +22,7 @@ export const GUIDANCE_SCHEMA_VERSION = 1;
 export type GuidanceSource = {
   path: string;
   sha256: string;
-  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer" | "skill";
+  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer";
 };
 export type GuidanceSnapshot = {
   text: string;
@@ -80,8 +80,6 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
     if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Docs System service before beginning a new task.`);
     sources.push({ path: initial.path, sha256: initial.hash, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
   }
-  const skillPath = join(PACKAGE_ROOT, "skills/docs-system/SKILL.md");
-  sources.push({ path: relative(REPO_ROOT, skillPath), sha256: hashGuidanceContent(await readFile(skillPath, "utf8")), kind: "skill" });
   const text = assembleAuthoringGuidance(docsRoot, inputs);
   // Include the projection itself so a changed projection dependency cannot keep the old identity.
   const snapshotId = `sha256:${hashGuidanceContent(JSON.stringify({ version: GUIDANCE_SCHEMA_VERSION, sources, components, text, componentReferences }))}`;
