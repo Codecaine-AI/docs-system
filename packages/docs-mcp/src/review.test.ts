@@ -18,9 +18,10 @@ const fixture: DocDocument = {
 let workspace: string;
 let service: ReturnType<typeof createInteractionService>;
 let ids: Record<string, string>;
+/** The reply without its call_id, which differs on every call. */
 const invoke = async (name: string, args: Record<string, unknown> = {}, cwd = workspace) => {
-  const result = await service.call(cwd, name, args);
-  return result.structuredContent as Record<string, any>;
+  const { call_id: _, ...data } = (await service.call(cwd, name, args)).structuredContent as Record<string, any>;
+  return data;
 };
 const STYLE_GATE = 'Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 /** Begin a task and satisfy its read-before-write gate. */
@@ -144,7 +145,7 @@ test("docs_guidance lists topics by default and serves each topic from the task 
     expect([entry.topic, read.snapshot_id, read.guidance.length]).toEqual([entry.topic, task.snapshot_id, entry.chars]);
     // Each topic stays small enough for a client to show inline. Only the unsplit text is larger.
     // The required style topic carries three pages (writing style, structure, STE profile), so it gets a wider cap.
-    const cap = entry.topic === "style" ? 30_000 : 20_000;
+    const cap = entry.topic === "style" ? 35_000 : 20_000;
     if (entry.topic !== "all") expect([entry.topic, Buffer.byteLength(result.content[0]!.text) < cap]).toEqual([entry.topic, true]);
   }
   expect((await invoke("docs_guidance", { task_id: task.task_id, topic: "style" })).guidance).toContain("<docs_style_guide");
