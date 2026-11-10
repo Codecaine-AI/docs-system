@@ -45,7 +45,7 @@ const vocabularyNouns: readonly Term[] = [
   { term: "baseline", meaning: "The page as it was before the first write of a task." },
   { term: "judgment rule", meaning: "A style rule that a model answers with a confidence score." },
   { term: "style gate", meaning: "The gated findings that a task added, which make docs_check fail." },
-  { term: "task", meaning: "One authoring activity, from docs_begin to docs_end." },
+  { term: "task", meaning: "One authoring activity, from docs_begin until it expires." },
   { term: "viewer", meaning: "The React package that shows and edits pages." },
   { term: "workbench", meaning: "The local app that docs serve starts." },
   { term: "board", meaning: "One canvas file, which a canvas block points to." },

@@ -72,7 +72,7 @@ Every registered rule has a stable ID, a corpus docsPath, a severity, enforcemen
 
   - `STYLE_RULE_POLICY` in lint-feedback.ts sets which warnings are gated. `writing.sentence-length`, `writing.filler`, and unlisted rules stay editorial.
 
-  - The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until `docs_end`.
+  - The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until the task expires.
 
   - Write results list up to 5 `style_findings` that the write introduced or that sit on blocks it touched. `style_gate_open` counts the gated violations the task still has open on the page.
 

@@ -55,23 +55,23 @@ type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
 
 /** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
 export const PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "b1e91579ccb099b356443403430999131a959213e4501ab0e0800894ed93d702",
-  "references/components.md": "f070685b484a4e63def2a1094c55bdda7950103332411b413e6c3b358170b716",
-  "references/components/call-stack.md": "39681ae9fa4206f83c578448ddd06e46c8c4929af22484ff94a3fb5a21817ede",
-  "references/components/canvas.md": "3756eb065f444a2b46cbab10b4ae279005735ec79258f9329d33623ec0bf2f11",
-  "references/components/code.md": "7787dfcb194481f4b0aac82d66cf5ecd6519409a814ee44c4b387439a6ebf45e",
-  "references/components/component-tree.md": "bbbfcc9629598cdeaef12c668c8f917dac37cf29674d180c25c1ddad904b13fe",
-  "references/components/file-explorer.md": "526ad27bbd3626576f6b884c582246f46c022189f2838fc34b28de45c8d06f0e",
-  "references/components/file-tree.md": "788cdbe4fcd72388b8cd97410ce558f70d2147c49f948e7f122ec8d248bf5540",
-  "references/components/interaction-surface.md": "fc1b522a741686e32f7466e373822525703943123aa627ac04cf986817dcc5e4",
-  "references/components/process-outline.md": "bbc6c082cf714c263f2b7bbe119f89ec7275fb84cfa55ceb55ea6516e3db43a3",
-  "references/components/pseudocode.md": "3ab3fe8eca6999756d07a0d6c7c9b16e1f3ab30f6c45f3ead7e3b6f036722969",
-  "references/components/rich-text.md": "c9b119c383417908b72f9482e578f736c60651fa38b9c5ee16df9bf26c71e7b9",
-  "references/components/sequence.md": "a0a8e4d05d83234ee9386bc294690c21bb8d86c3b8946d4b45fc9c78dd9c493d",
-  "references/components/stack.md": "2489f5059f2ec410b7a1c796427f2ec404f4b18ff3968c040b1913e3cb71ef88",
-  "references/components/state-shape.md": "597a9f802df0792e0709f0403273edc3d76bfe305cd58447583bc0c3efa102fa",
-  "references/components/structured-table.md": "9b8a149ddd97747cf80eb971af6316ba39615515d4432bc0be474f3058247699",
-  "references/standards.md": "38e8bacb29076de8a6c2e86a47a33a65a983da04d44b01f46f474e3bb73069d3",
+  "SKILL.md": "389ea1ba35979f15a7231a769d4c7b814cf5662429bd539d8cf271a7d421ce69",
+  "references/components.md": "6387f9bd16828a2800602af1e9e83fdd06b6c1abfab803b25db88f451d616cf1",
+  "references/components/call-stack.md": "79cca1bab42be472e77c56f53d81e41682094893ef98f32f3da0e356527f9f4a",
+  "references/components/canvas.md": "f8e1bb5b3a0a70ff57e0013ca36685976dd6d5ad915f6fbe4d42c869ef0180d5",
+  "references/components/code.md": "b141fb3b1ee40a00e13f3955c1408ea313d89ea35f5911a42f2253eb11cb8999",
+  "references/components/component-tree.md": "9fb63ee420d67896e98740be1b9f7029de6a13d997d98f72d20ad8c09ab15cdd",
+  "references/components/file-explorer.md": "2ca98a23df19a4232f99c094ee85b17401093d61ea0597130d895e0ff8bd0388",
+  "references/components/file-tree.md": "5619a0248c1f00e0c35dc0737604f4f309919500577938cb9e7cbc39d321f002",
+  "references/components/interaction-surface.md": "e5ae101ed4e13c01819c876ac28b301e697dbdc400146b930da6b6f2acee4b49",
+  "references/components/process-outline.md": "301d6834c9c951339fd7c13b97361c72ac913680a7827bb10c9e014bdbedba89",
+  "references/components/pseudocode.md": "86ee443e5bc7d82c4b5da4204f28162561db507eb938ca404aae92f6843a1070",
+  "references/components/rich-text.md": "d9e3aad0622fc0ef2787b8273b06ac93a3807bccb890cd80a465932da53a0b27",
+  "references/components/sequence.md": "cef453a4966a9c3c92d976416ceae117500dc4d1f3b43b62d869ec9198cd6e23",
+  "references/components/stack.md": "37b7a7f2b48cebc34dfe2d9f600019f7f25cd4635ac4cec88beb125fb9d67fb2",
+  "references/components/state-shape.md": "ff816adf76b22aec290c1567077647fd67a5b9c44aee54d779be26472f56176c",
+  "references/components/structured-table.md": "967f9c7c8256c0328aa3e219ea9593627edcfe38136e969e9b84f19037a4c377",
+  "references/standards.md": "bed94382626029289a9775e00fe58bcceb7eb3828d650d0f6f3186818065648f",
 };
 
 const workflow = { topic: "workflow" } as const;
@@ -187,8 +187,8 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.workflow.report", kind: "step", file: "SKILL.md", lines: [42, 42], scenario: "edit-page", destination: workflow,
-    text: "5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.",
-    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "Call `docs_end` with `task_id` to release the task"],
+    text: "5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. The task expires after 30 minutes without a docs call.",
+    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "A task expires after 30 minutes without a docs call"],
   },
   {
     id: "skill.workflow.requests", kind: "rule", file: "SKILL.md", lines: [44, 44], scenario: "work-requests", destination: workflow,
@@ -259,8 +259,8 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.titles.repair", kind: "rule", file: "SKILL.md", lines: [76, 76], scenario: "page-titles", destination: workflow,
-    text: "Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.",
-    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish", "`docs_fix_lints` stays available for an untouched legacy document"],
+    text: "Do not call a repair tool after ordinary edits. Run `docs_check` to review other findings before completion.",
+    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish"],
     behavior: { tools: ["docs_check"] },
   },
   {
@@ -302,7 +302,7 @@ const UNITS: readonly UnitSpec[] = [
   generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
   generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
   generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1552),
+  generated("references/standards.md", "edit-page", { topic: "all" }, 1730),
 ];
 
 /** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */

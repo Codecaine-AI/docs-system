@@ -39,7 +39,7 @@ Follow these steps for every edit, and for each open request on a page.
    - If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error.
 4. Run `docs_check` with `task_id` on each changed page. Fix its `lint` and `style_gate` findings and each failing component.
    - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
-5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.
+5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. The task expires after 30 minutes without a docs call.
 
 For a request, reply with `docs_annotation_reply` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.
 
@@ -73,7 +73,7 @@ The display title and body headings are separate. H1 headings are allowed in the
 
 Saves automatically remove only that repeated opening H1 and preserve its children. They do not demote or remove other H1s. The response returns the corrected document, revision, and normalization summary; use that state for subsequent edits. The edit and cleanup share one undo patch.
 
-Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.
+Do not call a repair tool after ordinary edits. Run `docs_check` to review other findings before completion.
 
 ## Page and Asset Management
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72",
+  "snapshotId": "sha256:edab8029c6dc6ebde46b849a277ceecce6cdbd4d3bf12c2843644170185e083f",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -39,7 +39,7 @@
     },
     {
       "path": "docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json",
-      "sha256": "ae63eab36d26f90cd292b37cf66628a8271a1ad7c08d4b8a3d42db8e5e52430e",
+      "sha256": "b85241317e91e5bd809c0e643c838949b27471f6ffc669e6aa1ec69cf373abd6",
       "kind": "standard"
     },
     {
@@ -56,6 +56,11 @@
       "path": "docs/99-appendix/10-style-guide/30-ste-profile/doc.json",
       "sha256": "f4be659414f2e6c26b8d86adfc2564a2e328b4a1165ca9d2c727c5affdbd06d3",
       "kind": "style"
+    },
+    {
+      "path": "docs/40-guides/15-editor-workflow/doc.json",
+      "sha256": "601d3f08de8d20d984f66b209eb3e6a409d2532b7af2d2b5d3a58686fcf4abe1",
+      "kind": "workflow"
     },
     {
       "path": "docs/10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/doc.json",
@@ -129,7 +134,7 @@
     },
     {
       "path": "packages/docs-model/src/authoring-guidance.ts",
-      "sha256": "c8ea786d889ea99d2a30e2db427c65409389c8ac50f505dfb552f24028354bc2",
+      "sha256": "b07c80e038a51989d809a27b04118935312a95e58fe2e53e681a672c9084857e",
       "kind": "renderer"
     },
     {
@@ -211,11 +216,6 @@
       "path": "packages/docs-model/src/components/file-explorer/manifest.ts",
       "sha256": "387d1099d22dd1badb4daa6e4d582bb06600c201287f2664b8e86e275d08ebb9",
       "kind": "component-manifest"
-    },
-    {
-      "path": "packages/docs-mcp/skills/docs-system/SKILL.md",
-      "sha256": "b1e91579ccb099b356443403430999131a959213e4501ab0e0800894ed93d702",
-      "kind": "skill"
     }
   ]
 }

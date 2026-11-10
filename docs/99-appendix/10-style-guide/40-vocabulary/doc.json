@@ -750,16 +750,7 @@
                 }
               },
               {
-                "insert": " to "
-              },
-              {
-                "insert": "docs_end",
-                "attributes": {
-                  "code": true
-                }
-              },
-              {
-                "insert": "."
+                "insert": " until it expires."
               }
             ]
           ],

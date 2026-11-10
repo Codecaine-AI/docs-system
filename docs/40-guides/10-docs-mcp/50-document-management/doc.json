@@ -78,12 +78,12 @@
           [
             "Assets and components",
             "docs_assets, docs_asset_read, docs_asset_upload, docs_asset_move, docs_asset_delete, docs_component_create",
-            "Inventory unused files; upload media; create validated Canvas or Sequence sidecars; transfer or remove assets without dangling references."
+            "Inventory unused files, upload media, and create validated Canvas or Sequence sidecars. Transfer or remove assets without dangling references."
           ],
           [
             "Content",
             "docs_apply_ops, docs_insert, docs_write_text, docs_component_read, generated component actions",
-            "Edit typed block structure and component state with revisions; preserve document and block IDs."
+            "Edit typed block structure and component state with revisions. Document and block IDs stay the same."
           ],
           [
             "Review and recovery",
@@ -92,7 +92,7 @@
           ],
           [
             "Discovery and verification",
-            "docs_discover, docs_tree, docs_search, docs_backlinks, docs_begin, docs_guidance, docs_check, docs_end",
+            "docs_capabilities, docs_tree, docs_search, docs_backlinks, docs_begin, docs_guidance, docs_check",
             "Find the project and pages, load maintained guidance, and verify every affected document."
           ]
         ]
