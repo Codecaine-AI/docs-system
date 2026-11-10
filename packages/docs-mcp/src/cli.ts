@@ -11,6 +11,7 @@ import { guidanceManifest } from './guidance-manifest';
 import { INSTRUCTIONS } from './instructions';
 import { createDevelopmentSnapshot } from './snapshot';
 import { createInteractionService } from './service';
+import { discoverProjects } from './discovery';
 import { loadCodecaineEnv } from './codecaine-env';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
 loadCodecaineEnv();
@@ -19,6 +20,16 @@ const args=process.argv.slice(2);const command=args.shift()??'help';
 function option(name:string,fallback?:string){const i=args.indexOf(name);return i>=0?args[i+1]:fallback;}
 const workspace=resolve(option('--workspace',process.env.CLAUDE_PROJECT_DIR||process.cwd())!);
 const out=(value:unknown)=>console.log(JSON.stringify(value,null,2));
+/** The id and name of every project in the workspace, read from each docs_capabilities page. */
+async function capabilityProjects(state:Awaited<ReturnType<typeof ensureDaemon>>){
+ const projects:{id:string,name:string}[]=[];let cursor:string|undefined;
+ do{
+  const result=await (await daemonFetch(state,'/rpc',{workspace,name:'docs_capabilities',arguments:cursor===undefined?{}:{cursor}})).json() as any;
+  if(result.isError)throw new Error(result.structuredContent.detail);
+  projects.push(...result.structuredContent.projects);cursor=result.structuredContent.next_cursor??undefined;
+ }while(cursor!==undefined);
+ return projects;
+}
 try{
  switch(command){
   case 'mcp':await startMcp(workspace);break;
@@ -37,10 +48,10 @@ try{
    else throw new Error('Use background install, start, stop, or status');
    break;
   }
-  case 'discover':case 'call':case 'tools':{
+  case 'capabilities':case 'call':case 'tools':{
    const state=await ensureDaemon();
-   const name=command==='discover'?'docs_discover':args[0];
-   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='discover'?{}:JSON.parse(option('--args','{}')!),identity:{runId:newRunId(),...identityFromEnv()}});
+   const name=command==='capabilities'?'docs_capabilities':args[0];
+   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='capabilities'?{}:JSON.parse(option('--args','{}')!),identity:{runId:newRunId(),...identityFromEnv()}});
    const result=await response.json();out(result);if(!response.ok||(result as any).isError)process.exitCode=1;break;
   }
   case 'install':{
@@ -59,9 +70,7 @@ try{
   case 'manifest':out(await guidanceManifest());break;
   case 'guidance':{const snapshot=await loadGuidance();if(args.includes('--write'))await generateSkillReferences(join(PACKAGE_ROOT,'skills','docs-system'),snapshot);out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
   case 'ui':{
-   const state=await ensureDaemon();const found=await (await daemonFetch(state,'/rpc',{workspace,name:'docs_discover',arguments:{}})).json() as any;
-   if(found.isError)throw new Error(found.structuredContent.detail);
-   const projects=found.structuredContent.projects;
+   const state=await ensureDaemon();const projects=await capabilityProjects(state);
    const id=option('--project')??(projects.length===1?projects[0].id:undefined);
    const project=projects.find((p:any)=>p.id===id||p.name===id);if(!project)throw new Error(`Choose --project from: ${projects.map((p:any)=>p.id).join(', ')}`);
    const health=await(await daemonFetch(state,'/health')).json() as any;
@@ -71,10 +80,12 @@ try{
     if(!args.includes('--no-open')&&process.platform==='darwin')Bun.spawn(['open',url],{stdout:'ignore',stderr:'ignore'});
     break;
    }
+   // The local service names projects as discoverProjects does, so its docs root comes from a local scan.
+   const local=(await discoverProjects(workspace)).projects.find(p=>p.id===project.id);if(!local)throw new Error(`Project ${project.id} is not in ${workspace}`);
    const {runServe}=await import('../../docs-workbench/src/run-serve');
-   await runServe({docsRoot:project.docsRoot,port:Number(option('--port','4808')),hostname:'127.0.0.1',sharedApi:{url:state.url,projectId:project.id,token:state.token}});break;
+   await runServe({docsRoot:local.docsRoot,port:Number(option('--port','4808')),hostname:'127.0.0.1',sharedApi:{url:state.url,projectId:project.id,token:state.token}});break;
   }
   default:console.log(`Docs System\n\n  background install|start|stop|status      Manage the signed central service (default port 4820)\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
-  doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  discover [--workspace PATH]               List project documentation\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance [--write]                        Inspect/regenerate skill references\n  instructions                              Print the prompt block (MCP instructions)\n  manifest                                  Print the skill rule-unit manifest as JSON\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
+  doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  capabilities [--workspace PATH]           Print the capabilities index with the project list\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance [--write]                        Inspect/regenerate skill references\n  instructions                              Print the prompt block (MCP instructions)\n  manifest                                  Print the skill rule-unit manifest as JSON\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
  }
 }catch(error){console.error(error instanceof Error?error.message:String(error));process.exitCode=1;}

@@ -16,7 +16,6 @@ export async function startMcp(initialWorkspace:string){
   await rootsReady;
   const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args,identity});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
   const result=await response.json() as any;
-  if(name==='docs_discover'&&!result.isError&&typeof result.structuredContent?.workspace==='string')workspace=result.structuredContent.workspace;
   if(name==='docs_capabilities'&&!result.isError&&typeof result.structuredContent?.scope?.workspace==='string')workspace=result.structuredContent.scope.workspace;
   return result;
  };
@@ -32,7 +31,7 @@ export async function startMcp(initialWorkspace:string){
  });
  const refreshRoots=async()=>{
   if(!server.getClientCapabilities()?.roots)return;
-  try {const roots=await server.listRoots();const local=roots.roots.filter(r=>r.uri.startsWith('file:'));if(local.length===1)workspace=fileURLToPath(local[0]!.uri);} catch { /* Explicit --workspace and docs_discover remain available. */ }
+  try {const roots=await server.listRoots();const local=roots.roots.filter(r=>r.uri.startsWith('file:'));if(local.length===1)workspace=fileURLToPath(local[0]!.uri);} catch { /* Explicit --workspace and docs_capabilities remain available. */ }
  };
  server.oninitialized=()=>{rootsReady=refreshRoots();};
  server.setNotificationHandler(RootsListChangedNotificationSchema,refreshRoots);

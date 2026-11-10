@@ -96,7 +96,7 @@ function writerPrompt(brief: Brief): string {
     `- Source files: read each one with the Read tool before you write. The page must match them.`,
     ...sourcePaths(brief).map((p) => `  - ${p}`),
     ``,
-    `Write only through the docs-system tools. When docs_check with your task_id passes, call docs_end and reply DONE.`,
+    `Write only through the docs-system tools. When docs_check with your task_id passes, reply DONE.`,
   ].join("\n");
 }
 

@@ -5,7 +5,7 @@
     "slug": "docs-mcp-daily-use",
     "title": "Daily Use of the Docs MCP",
     "reader": "A developer whose coding agent already has the docs MCP installed and who wants to know the order of calls for one edit",
-    "prompt": "Write a short page that tells the reader the order of docs MCP calls for one edit, from docs_discover to docs_end. Give the five daily steps as a numbered list, with one sentence on what each call returns or checks. Add a warning that the service refuses content writes until the task reads docs_guidance topic style, and say that read tools work without a task.",
+    "prompt": "Write a short page that tells the reader the order of docs MCP calls for one edit, from docs_capabilities to docs_check. Give the five daily steps as a numbered list, with one sentence on what each call returns or checks. Add a warning that the service refuses content writes until the task reads docs_guidance topic style, and say that read tools work without a task.",
     "sources": ["packages/docs-mcp/README.md"],
     "blockTypes": ["rich-text", "callout"],
     "rewrites": ""

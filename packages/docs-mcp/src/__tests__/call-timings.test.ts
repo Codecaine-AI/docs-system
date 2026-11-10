@@ -54,8 +54,8 @@ test("concurrent calls each record only their own lock wait and judge span, and 
   const service = createInteractionService({ managed: true, judgmentEngine: engine });
   try {
     const invoke = async (name: string, args: Record<string, unknown> = {}) => (await service.call(temp, name, args)).structuredContent as Record<string, any>;
-    const { projects } = await invoke("docs_discover");
-    const project = (member: string) => projects.find((p: any) => p.docsRoot.startsWith(join(temp, member))).id;
+    const { projects } = await invoke("docs_capabilities");
+    const project = (member: string) => projects.find((p: any) => p.name === member).id;
     const { task_id } = await invoke("docs_begin");
     expect((await invoke("docs_guidance", { task_id, topic: "style" })).ok).toBe(true);
     const alpha = await invoke("docs_read", { project: project("alpha"), path: "page" });
@@ -104,7 +104,7 @@ test("50 concurrent calls across a rotation keep all 50 lines between the file a
   await writeFile(timings, `${"x".repeat(LIMIT - 1000)}\n`);
   const service = createInteractionService({ managed: true, judgmentEngine: null });
   try {
-    await service.call(temp, "docs_discover", {});
+    await service.call(temp, "docs_capabilities", {});
     const results = await Promise.all(Array.from({ length: 50 }, () => service.call(temp, "docs_guidance", {})));
     const ids = results.map((result) => result.structuredContent!.call_id as string);
     const rows = [timings, `${timings}.1`].flatMap((file) => readFileSync(file, "utf8").split("\n").filter((line) => line.startsWith("{")))
@@ -118,11 +118,11 @@ test("50 concurrent calls across a rotation keep all 50 lines between the file a
 test("a metadata reply and a refused call each name their own line", async () => {
   const service = createInteractionService({ managed: true, judgmentEngine: null });
   try {
-    const discovered = await service.call(temp, "docs_discover", {});
+    const discovered = await service.call(temp, "docs_capabilities", {});
     const refused = await service.call(temp, "docs_write_text", { project: "nope", path: "page", blockId: "a", expected_hash: "x", markdown: "x" });
     expect(refused.isError).toBe(true);
     const byId = new Map((await lines()).map((line) => [line.call_id, line]));
-    for (const [result, tool, ok] of [[discovered, "docs_discover", true], [refused, "docs_write_text", false]] as const) {
+    for (const [result, tool, ok] of [[discovered, "docs_capabilities", true], [refused, "docs_write_text", false]] as const) {
       const callId = result.structuredContent!.call_id as string;
       expect(byId.get(callId)).toMatchObject({ tool, ok });
       // The text a client reads carries the same id.

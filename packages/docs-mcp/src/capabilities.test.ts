@@ -131,7 +131,7 @@ describe("docs_capabilities", () => {
     const { task_id } = await call("docs_begin");
     const gated: string[] = [];
     for (const { name } of service.listTools()) {
-      if (["docs_discover", "docs_capabilities", "docs_begin", "docs_guidance", "docs_end"].includes(name)) continue;
+      if (["docs_capabilities", "docs_begin", "docs_guidance"].includes(name)) continue;
       if ((await call(name, { task_id, project: projects[0].id, path: "page" })).detail === STYLE_GATE) gated.push(name);
     }
     expect(gated.sort()).toEqual([...topics[0].required_for].sort());

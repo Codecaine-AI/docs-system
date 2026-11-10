@@ -90,7 +90,7 @@ describe("fresh hosts honor codecaine.docs.json exclude without any registration
       import { createInteractionService } from ${JSON.stringify(join(PACKAGES, "docs-mcp/src/service.ts"))};
       const [kb] = process.argv.slice(2);
       const service = createInteractionService({ judgmentEngine: null });
-      const discovered = JSON.parse((await service.call(kb, "docs_discover", { workspace: kb })).content[0].text);
+      const discovered = JSON.parse((await service.call(kb, "docs_capabilities", { workspace: kb })).content[0].text);
       const project = discovered.projects[0].id;
       const read = async (path) => JSON.parse((await service.call(kb, "docs_read", { project, path })).content[0].text);
       const tree = await (await service.uiRequest(project, new Request("http://localhost/projects/" + project + "/api/tree"))).json();

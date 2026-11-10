@@ -31,10 +31,10 @@ afterAll(async () => {
 });
 
 test('a call with an identity writes one record with its thread id and tool', async () => {
- await rpc('docs_discover', {}, { runId: 'run-a', threadId: 'thread-a', agent: 'claude-code' });
+ await rpc('docs_capabilities', {}, { runId: 'run-a', threadId: 'thread-a', agent: 'claude-code' });
  const records = openActionLog().query({ threadId: 'thread-a' });
  expect(records.length).toBe(1);
- expect(records[0]).toMatchObject({ runId: 'run-a', threadId: 'thread-a', agent: 'claude-code', tool: 'docs_discover', target: '-', result: 'ok' });
+ expect(records[0]).toMatchObject({ runId: 'run-a', threadId: 'thread-a', agent: 'claude-code', tool: 'docs_capabilities', target: '-', result: 'ok' });
 });
 
 test('docs_begin with thread_id binds the run, so earlier and later calls resolve to the thread', async () => {
@@ -57,7 +57,7 @@ test('docs_begin with thread_id binds the run, so earlier and later calls resolv
 
 test('the daemon\'s own probes, sent without an identity, write no record', async () => {
  const before = openActionLog().query().length;
- const result = await serveRpc(service, createRpcRecorder(), { workspace, name: 'docs_discover', arguments: {} });
+ const result = await serveRpc(service, createRpcRecorder(), { workspace, name: 'docs_capabilities', arguments: {} });
  expect(result.structuredContent.ok).toBe(true);
  expect(openActionLog().query().length).toBe(before);
 });

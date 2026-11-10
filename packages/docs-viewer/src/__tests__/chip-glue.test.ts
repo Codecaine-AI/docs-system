@@ -30,7 +30,7 @@ test("a chip and the punctuation after it render in one nowrap span, and the res
 
 test("a chip followed by a word or by nothing stays unglued", () => {
   expect(glued(html([{ insert: "docs_read", attributes: { code: true } }, { insert: " returns the hash" }]))).toEqual([]);
-  expect(glued(html([{ insert: "Run " }, { insert: "docs_end", attributes: { code: true } }]))).toEqual([]);
+  expect(glued(html([{ insert: "Run " }, { insert: "docs_check", attributes: { code: true } }]))).toEqual([]);
 });
 
 test("markdown chips glue the punctuation of the text node after them", () => {

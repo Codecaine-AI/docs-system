@@ -8,8 +8,8 @@ import { createInteractionService } from "../service";
 import { treeIndex } from "@codecaine-ai/docs-server/store";
 
 // The discovery cache rule (service.ts): one scan per workspace, reused until a manifest or the registry's
-// listing changes; docs_discover always rescans. These tests count discoverProjects calls through a spy and
-// use docs_discover and docs_tree only, which need no guidance snapshot. The service runs as managed with a
+// listing changes. These tests count discoverProjects calls through a spy and use docs_capabilities,
+// docs_tree and the service's discover, which hold no task. The service runs as managed with a
 // build id so it never fingerprints the implementation (snapshot.ts reads sibling repos the worktree lacks).
 // A path whose mtime is within 50 ms of a scan's start is signed changed-during-scan and rescans once, so a
 // test waits past that margin (settle) after it changes a fixture and before the call that scans it.
@@ -49,8 +49,8 @@ afterEach(async () => {
 });
 const invoke = (ws: string, name: string, args: Record<string, unknown> = {}) => service.call(ws, name, args).then(r => r.structuredContent as Record<string, any>);
 
-test("one scan serves every call on a workspace, concurrent calls included; docs_discover rescans", async () => {
-  const found = await invoke(workspace, "docs_discover");
+test("one scan serves every call on a workspace, docs_capabilities and concurrent calls included", async () => {
+  const found = await invoke(workspace, "docs_capabilities");
   const project = found.projects[0].id as string;
   expect(scans).toHaveBeenCalledTimes(1);
   for (let i = 0; i < 5; i++) expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
@@ -58,10 +58,8 @@ test("one scan serves every call on a workspace, concurrent calls included; docs
   const results = await Promise.all(Array.from({ length: 6 }, () => invoke(workspace, "docs_tree", { project })));
   expect(results.every(r => r.ok)).toBe(true);
   expect(scans).toHaveBeenCalledTimes(1);
-  expect((await invoke(workspace, "docs_discover")).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
-  expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
+  expect((await invoke(workspace, "docs_capabilities")).ok).toBe(true);
+  expect(scans).toHaveBeenCalledTimes(1);
 });
 
 test("a workspace never seen is scanned on first use, and concurrent first calls share that scan", async () => {
@@ -79,7 +77,7 @@ test("a workspace never seen is scanned on first use, and concurrent first calls
 });
 
 test("a manifest change at the workspace or at a project root rescans once on the next call", async () => {
-  const project = (await invoke(workspace, "docs_discover")).projects[0].id as string;
+  const project = (await invoke(workspace, "docs_capabilities")).projects[0].id as string;
   await writeFile(join(workspace, "codecaine.docs.json"), JSON.stringify({ name: "cache-workspace" }));
   await settle();
   expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
@@ -94,7 +92,7 @@ test("a manifest change at the workspace or at a project root rescans once on th
 });
 
 test("a registry rewrite drops only a discovery the registry no longer lists unchanged, once per rewrite", async () => {
-  const project = (await invoke(workspace, "docs_discover")).projects[0];
+  const project = (await service.discover(workspace)).projects[0]!;
   // The supervisor's write after that scan lists the project as reported: nothing to drop.
   await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [project] }));
   expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
@@ -121,14 +119,14 @@ async function globWorkspace() {
   return root;
 }
 
-test("a project that appears under a workspace glob is found on the next call without docs_discover", async () => {
+test("a project that appears under a workspace glob is in the next docs_capabilities list", async () => {
   const globbed = await globWorkspace();
   try {
     // gamma matches the glob but has no corpus at its default docs root, so it is not a project yet.
     await mkdir(join(globbed, "packages", "gamma", "notes", "page"), { recursive: true });
     await writeFile(join(globbed, "packages", "gamma", "notes", "page", "doc.json"), JSON.stringify(page));
     await settle();
-    const alpha = (await invoke(globbed, "docs_discover")).projects[0].id as string;
+    const alpha = (await invoke(globbed, "docs_capabilities")).projects[0].id as string;
     expect((await invoke(globbed, "docs_tree", { project: alpha })).ok).toBe(true);
     expect(scans).toHaveBeenCalledTimes(1);
     // A new sibling folder with a manifest: the glob's prefix folder packages/ changes.
@@ -137,6 +135,7 @@ test("a project that appears under a workspace glob is found on the next call wi
     await writeFile(join(globbed, "packages", "beta", "codecaine.docs.json"), JSON.stringify({ name: "beta" }));
     await settle();
     const beta = projectId("beta", join(globbed, "packages", "beta", "docs"));
+    expect((await invoke(globbed, "docs_capabilities")).projects.map((p: any) => p.id).sort()).toEqual([alpha, beta].sort());
     expect((await invoke(globbed, "docs_tree", { project: beta })).ok).toBe(true);
     expect(scans).toHaveBeenCalledTimes(2);
     // A manifest added to a folder the glob already matched: that folder changes.
@@ -157,11 +156,11 @@ test("a registry rewrite that lists a new project under a cached workspace drops
   await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
   await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
   await settle();
-  const found = await invoke(workspace, "docs_discover");
-  expect(found.projects.map((p: any) => p.name)).toEqual(["alpha"]);
+  const found = await service.discover(workspace);
+  expect(found.projects.map(p => p.name)).toEqual(["alpha"]);
   await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
   const gamma = { id: projectId("gamma", join(workspace, "gamma", "docs")), name: "gamma", root: join(workspace, "gamma"), docsRoot: join(workspace, "gamma", "docs"), products: ["docs"] };
-  // Another client's docs_discover rewrites the registry with gamma.
+  // Another client's docs_capabilities rewrites the registry with gamma.
   await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [...found.projects, gamma] }));
   expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
   expect(scans).toHaveBeenCalledTimes(2);
@@ -170,7 +169,7 @@ test("a registry rewrite that lists a new project under a cached workspace drops
 });
 
 test("concurrent calls that find one stale entry after a manifest change share one rescan", async () => {
-  const project = (await invoke(workspace, "docs_discover")).projects[0].id as string;
+  const project = (await invoke(workspace, "docs_capabilities")).projects[0].id as string;
   await writeFile(join(workspace, "alpha", "codecaine.docs.json"), JSON.stringify({ name: "alpha" }));
   await settle();
   const results = await Promise.all(Array.from({ length: 4 }, () => invoke(workspace, "docs_tree", { project })));
@@ -188,10 +187,10 @@ test("a manifest edited during a scan rescans once on the next call", async () =
     await writeFile(manifest, JSON.stringify({ name: "alpha", exclude: ["drafts/**"] }));
     return found;
   });
-  const found = await invoke(workspace, "docs_discover");
-  expect(found.projects[0].exclude).toBeUndefined();
+  const found = await service.discover(workspace);
+  expect(found.projects[0]!.exclude).toBeUndefined();
   await settle();
-  const project = found.projects[0].id as string;
+  const project = found.projects[0]!.id;
   expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
   expect(scans).toHaveBeenCalledTimes(2);
   expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
@@ -204,11 +203,12 @@ test("a declared folder whose manifest is edited to enable docs is a project on 
   await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
   await writeFile(join(workspace, "gamma", "codecaine.docs.json"), JSON.stringify({ name: "gamma", products: ["api"] }));
   await settle();
-  expect((await invoke(workspace, "docs_discover")).projects.map((p: any) => p.name)).toEqual(["alpha"]);
+  expect((await invoke(workspace, "docs_capabilities")).projects.map((p: any) => p.name)).toEqual(["alpha"]);
   // Rewriting the file in place changes the manifest, not the gamma folder.
   await writeFile(join(workspace, "gamma", "codecaine.docs.json"), JSON.stringify({ name: "gamma", products: ["docs", "api"] }));
   await settle();
   const gamma = projectId("gamma", join(workspace, "gamma", "docs"));
+  expect((await invoke(workspace, "docs_capabilities")).projects.map((p: any) => p.name).sort()).toEqual(["alpha", "gamma"]);
   expect((await invoke(workspace, "docs_tree", { project: gamma })).ok).toBe(true);
   expect(scans).toHaveBeenCalledTimes(2);
 });
@@ -222,7 +222,7 @@ test("a project that appears below an unmatched folder of a nested glob is found
     // qux matches packages/* but nothing under it matches the full glob yet.
     await mkdir(join(nested, "packages", "qux"), { recursive: true });
     await settle();
-    expect((await invoke(nested, "docs_discover")).projects.map((p: any) => p.name)).toEqual(["alpha"]);
+    expect((await invoke(nested, "docs_capabilities")).projects.map((p: any) => p.name)).toEqual(["alpha"]);
     await mkdir(join(nested, "packages", "qux", "sub", "beta", "docs", "page"), { recursive: true });
     await writeFile(join(nested, "packages", "qux", "sub", "beta", "docs", "page", "doc.json"), JSON.stringify(page));
     await settle();
@@ -234,31 +234,27 @@ test("a project that appears below an unmatched folder of a nested glob is found
   }
 });
 
-test("a project dropped from the workspace releases its watcher and its tree index on the next docs_discover", async () => {
+test("a project dropped from the workspace releases its watcher and its tree index on the next call", async () => {
   const watched = createInteractionService({ judgmentEngine: null, managed: true, registryFile, watchFs: true });
-  const call = (name: string, args: Record<string, unknown> = {}) => watched.call(workspace, name, args).then(r => r.structuredContent as Record<string, any>);
   try {
-    const found = await call("docs_discover");
-    const alphaRoot = found.projects[0].docsRoot as string;
+    const found = await watched.discover(workspace);
+    const alphaRoot = found.projects[0]!.docsRoot;
     expect(treeIndex.isWatched(alphaRoot)).toBe(true);
     await mkdir(join(workspace, "beta", "docs", "page"), { recursive: true });
     await writeFile(join(workspace, "beta", "docs", "page", "doc.json"), JSON.stringify(page));
     await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "beta" }]));
     await settle();
-    const again = await call("docs_discover");
-    expect(again.projects.map((p: Record<string, unknown>) => p.docsRoot)).not.toContain(alphaRoot);
+    const again = await watched.discover(workspace);
+    expect(again.projects.map(p => p.docsRoot)).not.toContain(alphaRoot);
     expect(treeIndex.isWatched(alphaRoot)).toBe(false);
-    expect(treeIndex.isWatched(again.projects[0].docsRoot)).toBe(true);
+    expect(treeIndex.isWatched(again.projects[0]!.docsRoot)).toBe(true);
   } finally {
     watched.close();
   }
 });
 
-test("two docs_discover calls that overlap share one scan, so neither can commit over the other", async () => {
-  const [first, second] = await Promise.all([invoke(workspace, "docs_discover"), invoke(workspace, "docs_discover")]);
+test("two docs_capabilities calls that overlap share one scan, so neither can commit over the other", async () => {
+  const [first, second] = await Promise.all([invoke(workspace, "docs_capabilities"), invoke(workspace, "docs_capabilities")]);
   expect(scans).toHaveBeenCalledTimes(1);
   expect(first.projects.map((p: Record<string, unknown>) => p.id)).toEqual(second.projects.map((p: Record<string, unknown>) => p.id));
-  // A rescan after the shared scan settles is a scan of its own.
-  expect((await invoke(workspace, "docs_discover")).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
 });

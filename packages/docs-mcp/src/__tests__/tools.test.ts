@@ -288,28 +288,19 @@ test('management restore refuses newly added descendants',async()=>{
 });
 
 
-test("title lint fix requires a current revision, removes duplicates, and supports undo", async () => {
-  const before = await read();
+test("docs_check reports a legacy opening H1 that repeats the title, and the next save removes it", async () => {
   const legacy = structuredClone(fixture);
   legacy.blocks.root.children.unshift("title");
   legacy.blocks.title = { id: "title", type: "heading", props: { level: 1 }, children: [], text: [{ insert: "Fixture" }] };
   await writeFile(join(roots.a, "page/doc.json"), serializeDocDocument(legacy));
+  const checked = await call("docs_check", { path: "page" });
+  expect(checked.ok).toBe(false);
+  expect(checked.lint.findings.map((finding: any) => finding.ruleId)).toContain("structure.title-heading");
   const added = await read();
-  expect(added.ok).toBe(true);
-  expect((await call("docs_check", { path: "page" })).ok).toBe(false);
-  expect((await call("docs_fix_lints", { path: "page", expected_hash: before.hash })).status).toBe(409);
-  const fixed = await call("docs_fix_lints", { path: "page", expected_hash: added.hash });
-  expect(fixed.ok).toBe(true);
-  expect(fixed.fixed).toBe(1);
-  expect(fixed.doc.blocks.title).toBeUndefined();
-  // The lint covers the whole saved page, not the trimmed doc in the result.
-  expect(fixed.lint).toEqual((await call("docs_read", { path: "page" })).lint);
+  const saved = await call("docs_apply_ops", { path: "page", expected_hash: added.hash, ops: [{ type: "updateBlock", blockId: "p", text: [{ insert: "Saved." }] }] });
+  expect(saved.ok).toBe(true);
+  expect((await read()).doc.blocks.title).toBeUndefined();
   expect((await call("docs_check", { path: "page" })).ok).toBe(true);
-  const repeat = await call("docs_fix_lints", { path: "page", expected_hash: fixed.hash });
-  expect(repeat.fixed).toBe(0);
-  expect(repeat.hash).toBe(fixed.hash);
-  expect((await call("docs_undo", { patch_id: fixed.patchId })).ok).toBe(true);
-  expect((await read()).doc.blocks.title.text).toEqual([{ insert: "Fixture" }]);
 });
 
 test('Process Outline remains draft-editable but completion rejects disconnected roots until repaired', async () => {

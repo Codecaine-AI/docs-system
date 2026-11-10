@@ -32,7 +32,7 @@ const MINUTE=60_000,HOUR=3_600_000;
 export const DEFAULT_TASK_IDLE_MS=30*MINUTE;
 export const DEFAULT_TASK_MAX_AGE_MS=12*HOUR;
 const RETIRED_KEEP_MS=24*HOUR,SWEEP_EVERY_MS=MINUTE;
-type RetireReason='idle'|'max-age'|'ended';
+type RetireReason='idle'|'max-age';
 type TaskCanvasBaseline=NonNullable<ReturnType<NonNullable<DocsToolContext['taskCanvasBaselines']>['get']>>;
 type Task={workspace:string,snapshot:GuidanceSnapshot,createdAt:number,lastUsedAt:number,inFlight:number,topicsRead:Set<string>,baselines:Map<string,DocDocument|null>,canvasBaselines:Map<string,TaskCanvasBaseline>};
 const plural=(n:number,unit:string)=>`${n} ${unit}${n===1?'':'s'}`;
@@ -88,7 +88,6 @@ export function createInteractionService(options: { managed?: boolean; projectId
  const RETIRED_MESSAGE:Record<RetireReason,(id:string)=>string>={
   'max-age':id=>`Task ${id} reached the ${maxAgeMs%HOUR===0?`${maxAgeMs/HOUR}-hour`:span(maxAgeMs)} limit and was closed. Your saved edits are kept. Call docs_begin again, then read docs_guidance topic "style".`,
   idle:id=>`Task ${id} expired after ${span(idleMs)} without a docs call. Your saved edits are kept. Call docs_begin again, then read docs_guidance topic "style".`,
-  ended:id=>`Task ${id} was ended with docs_end. Call docs_begin for new edits.`,
  };
  // Tasks on the same guidance share one snapshot object, refcounted by snapshotId.
  const snapshots=new Map<string,{snapshot:GuidanceSnapshot,refs:number}>();
@@ -130,9 +129,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
  const watchers=new Map<string,ReturnType<typeof watchDocsRoot>>();
  const treeWatches=new Map<string,()=>void>();
  const tools=createDocsTools({resolveProject:async(id)=>{
-  const project=projects.get(id);if(!project)throw new Error('Unknown project. Call docs_discover for the active workspace first.');return project;
+  const project=projects.get(id);if(!project)throw new Error('Unknown project. Call docs_capabilities for the active workspace first.');return project;
  },
- // First-touch documents per task, freed when the task retires (docs_end or expiry). undefined: not captured yet. null: the doc did not exist at first touch.
+ // First-touch documents per task, freed when the task expires. undefined: not captured yet. null: the doc did not exist at first touch.
  taskBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.baselines.get(key),set:(taskId:string,key:string,doc:DocDocument|null)=>{tasks.get(taskId)?.baselines.set(key,doc);}},
  // First-touch Canvas sidecars per task, freed with the task: the boards its canvas text lints judge against.
  taskCanvasBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.canvasBaselines.get(key),set:(taskId:string,key:string,board:TaskCanvasBaseline)=>{tasks.get(taskId)?.canvasBaselines.set(key,board);}},
@@ -147,8 +146,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
   * workspace that it lacks. A new folder under a glob or a manifest added to a matched folder changes a
   * folder's mtime, and an edit to a manifest that enables docs changes the manifest. Each path is signed
   * after the scan, and one whose mtime is 50 ms before the scan's start or later is signed
-  * changed-during-scan, so a change the scan may have missed rescans once on the next call. docs_discover
-  * always rescans, a workspace never seen is scanned on first use, calls that arrive during a scan share
+  * changed-during-scan, so a change the scan may have missed rescans once on the next call. A workspace never seen is scanned on first use, calls that arrive during a scan share
   * it, and concurrent calls that find one stale entry share one rescan. Nothing else scans: one
   * discoverProjects on the knowledge base costs 4 s of CPU, and it used to run on every tool call. A call
   * stats each signed file and folder once, 47 for 20 projects under packages/*.
@@ -163,7 +161,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
  const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
  let registrySignature:string|undefined;
- /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged, and every one that lacks a project the registry lists under its workspace. The supervisor rewrites it after each docs_discover with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
+ /** On a registry rewrite, drop every settled discovery the registry no longer lists unchanged, and every one that lacks a project the registry lists under its workspace. The supervisor rewrites it after each docs_capabilities with that scan's projects as reported, so a workspace's own rescan never drops it, and a lasting disagreement costs one rescan per rewrite, never one per call. */
  async function dropDisowned(){
   if(!options.registryFile)return;
   const current=await signature(options.registryFile);
@@ -207,14 +205,11 @@ export function createInteractionService(options: { managed?: boolean; projectId
   for(const path of paths)signatures.set(path,await signature(path,since));
   return {discovery,signatures};
  }
- /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (docs_discover). */
- async function discover(workspace:string,rescan=false):Promise<Discovery>{
+ /** The workspace's discovery: cached under the rule above, scanned on first use or after a change. */
+ async function discover(workspace:string):Promise<Discovery>{
   const key=resolve(workspace);
   await dropDisowned();
-  const current=discoveries.get(key);
-  // A rescan that arrives while a scan of this workspace runs joins it. Two scans of one workspace would otherwise race to commit its workspace set and its watchers, and the slower one could close a project the faster one found.
-  if(rescan&&current&&!current.settled){try{return (await current.pending).discovery;}catch{/* The failed scan was dropped; scan again. */}}
-  const cached=rescan?undefined:current;
+  const cached=discoveries.get(key);
   if(cached){
    try{
     if(!cached.settled)return (await cached.pending).discovery;
@@ -230,11 +225,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
   catch(error){if(discoveries.get(key)===entry)discoveries.delete(key);throw error;}
  }
  const metadataTools=[
-  {name:'docs_discover',description:'Discover normalized documentation in the active workspace and declared member projects. Call first; use returned explicit project IDs. No machine-wide scan.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'}})},
   {name:'docs_capabilities',description:'The capabilities index: the project ids and names of the workspace, discovery warnings, versions, the guidance snapshot, the tool order, and each guidance topic with its size and the writes it unlocks. Call first, and use a returned project ID. A page holds at most 4,096 bytes. Pass next_cursor as cursor for the next page.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'},cursor:{...string,description:'next_cursor from the previous page.'}})},
   {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'}})},
   {name:'docs_guidance',description:'Read maintained guidance one topic at a time. Supply task_id to read the task\'s pinned snapshot. Without topic or component it lists topics and sizes. Reading topic "style" with task_id is required once per task before the first edit. Pass component for one component\'s full reference.',inputSchema:schema({task_id:string,topic:{type:'string',enum:[...GUIDANCE_TOPICS,'standards'],description:'Guidance topic. "standards" lists the per-page standards topics. "all" is the full unsplit text.'},component:string})},
-  {name:'docs_end',description:'Finish an authoring activity after docs_check with task_id on each changed page. Releases its pinned guidance snapshot and edit baselines. It does not undo valid edits.',inputSchema:schema({task_id:string},['task_id'])},
  ];
  function listTools(){return [...metadataTools,...tools.map(({name,description,inputSchema})=>{
   const properties=inputSchema.properties as object;
@@ -283,14 +276,13 @@ export function createInteractionService(options: { managed?: boolean; projectId
    sweep();
    // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
    await textMeasureReady();
-   const discovery=await discover((name==='docs_discover'||name==='docs_capabilities') && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_discover');
-   if(name==='docs_discover')return reply({ok:true,workspace:discovery.workspace,projects:discovery.projects,warnings:discovery.warnings,authoring:'Call docs_begin before editing. Read docs_guidance topic "style" with task_id before your first edit.'});
+   const discovery=await discover(name==='docs_capabilities' && typeof args.workspace==='string'?args.workspace:workspace);
    if(name==='docs_capabilities')return reply(await capabilities(discovery,args.cursor));
    if(name==='docs_begin'){
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed. Stop and restart the Docs service before beginning a new task.');
     if(tasks.size>=maxTasks){
      const t0=now();const idlest=Math.max(...[...tasks.values()].map(t=>t.inFlight>0?0:t0-t.lastUsedAt));
-     throw new Error(`Too many open authoring activities (${tasks.size}). The longest-idle one has been idle ${idlest<MINUTE?'under a minute':span(Math.floor(idlest/MINUTE)*MINUTE)}; tasks expire after ${span(idleMs)} without a docs call. End finished tasks with docs_end.`);
+     throw new Error(`Too many open authoring activities (${tasks.size}). The longest-idle one has been idle ${idlest<MINUTE?'under a minute':span(Math.floor(idlest/MINUTE)*MINUTE)}; tasks expire after ${span(idleMs)} without a docs call.`);
     }
     const snapshot=internSnapshot(await loadGuidance());const id=randomUUID();const t0=now();tasks.set(id,{workspace:discovery.workspace,snapshot,createdAt:t0,lastUsedAt:t0,inFlight:0,topicsRead:new Set(),baselines:new Map(),canvasBaselines:new Map()});
     return reply({ok:true,task_id:id,snapshot_id:snapshot.snapshotId,topics_read:[]});
@@ -312,12 +304,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
     task?.topicsRead.add(topic.topic);
     return reply({ok:true,snapshot_id:snapshot.snapshotId,topic:topic.topic,covers:topic.covers,chars:topic.text.length,guidance:topic.text,...(topic.topic==='all'?{components:snapshot.components,sources:snapshot.sources.map(({path,sha256})=>({path,sha256}))}:{})});
    }
-   if(name==='docs_end'){
-    const task=liveTask(args.task_id,discovery.workspace);if(!task)throw new Error('Unknown task for this workspace.');
-    retire(String(args.task_id),'ended');return reply({ok:true,ended:true,snapshot_id:task.snapshot.snapshotId});
-   }
    const tool=tools.find(t=>t.name===name);if(!tool)throw new Error(`Unknown tool ${name}`);
-   if(typeof args.project!=='string'||!workspaces.get(discovery.workspace)?.has(args.project))throw new Error('Project is not in this workspace. Call docs_discover and use a returned project ID.');
+   if(typeof args.project!=='string'||!workspaces.get(discovery.workspace)?.has(args.project))throw new Error('Project is not in this workspace. Call docs_capabilities and use a returned project ID.');
    const {task_id,...toolArgs}=args;
    const taskId=typeof task_id==='string'?task_id:'';
    if(!MUTATION_READS.has(name)){

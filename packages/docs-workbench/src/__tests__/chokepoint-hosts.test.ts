@@ -104,12 +104,12 @@ describe("B7-2-04: a present non-string docsRoot refuses every fresh host, as di
     before = await treeBytes(kb);
   });
 
-  test("MCP service: discovery refuses with Invalid docsRoot; no project, no store", async () => {
+  test("MCP service: docs_capabilities refuses with Invalid docsRoot; no project, no store", async () => {
     const result = await fresh("mcp-malformed", `
       import { createInteractionService } from ${JSON.stringify(join(PACKAGES, "docs-mcp/src/service.ts"))};
       const [kb] = process.argv.slice(2);
       const service = createInteractionService({ judgmentEngine: null });
-      const discovered = await service.call(kb, "docs_discover", { workspace: kb });
+      const discovered = await service.call(kb, "docs_capabilities", { workspace: kb });
       console.log(JSON.stringify({ isError: discovered.isError === true, text: discovered.content[0].text }));
       service.close();
       process.exit(0);

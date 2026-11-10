@@ -189,7 +189,6 @@ const UNITS: readonly UnitSpec[] = [
     id: "skill.workflow.report", kind: "step", file: "SKILL.md", lines: [42, 42], scenario: "edit-page", destination: workflow,
     text: "5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.",
     anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "Call `docs_end` with `task_id` to release the task"],
-    behavior: { tools: ["docs_end"] },
   },
   {
     id: "skill.workflow.requests", kind: "rule", file: "SKILL.md", lines: [44, 44], scenario: "work-requests", destination: workflow,
@@ -262,7 +261,7 @@ const UNITS: readonly UnitSpec[] = [
     id: "skill.titles.repair", kind: "rule", file: "SKILL.md", lines: [76, 76], scenario: "page-titles", destination: workflow,
     text: "Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.",
     anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish", "`docs_fix_lints` stays available for an untouched legacy document"],
-    behavior: { tools: ["docs_check", "docs_fix_lints"] },
+    behavior: { tools: ["docs_check"] },
   },
   {
     id: "skill.pages.move", kind: "step", file: "SKILL.md", lines: [78, 80], scenario: "move-page", destination: workflow,
@@ -315,8 +314,8 @@ export async function guidanceManifest(root = SKILL_ROOT): Promise<ManifestUnit[
   })));
 }
 
-/** Writes that skip the style gate: tree, annotation, review-decision, asset, undo, restore and lint-fix writes. */
-export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_rename", "docs_delete", "docs_set_title", "docs_annotation_add", "docs_annotation_reply", "docs_annotation_resolve", "docs_annotation_thread", "docs_proposal_accept", "docs_proposal_reject", "docs_changeset_stage", "docs_changeset_accept", "docs_changeset_reject", "docs_asset_upload", "docs_asset_move", "docs_asset_delete", "docs_undo", "docs_management_restore", "docs_fix_lints"]);
+/** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
+export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_rename", "docs_delete", "docs_set_title", "docs_annotation_add", "docs_annotation_reply", "docs_annotation_resolve", "docs_annotation_thread", "docs_proposal_accept", "docs_proposal_reject", "docs_changeset_stage", "docs_changeset_accept", "docs_changeset_reject", "docs_asset_upload", "docs_asset_move", "docs_asset_delete", "docs_undo", "docs_management_restore"]);
 /** The topics a write needs, read in the same task. Every write outside STYLE_GATE_EXEMPT is a content write and needs topic style. The index lists the result as each topic's required_for. */
 export const requiredTopics = (write: string): readonly string[] => STYLE_GATE_EXEMPT.has(write) ? [] : ["style"];
 
