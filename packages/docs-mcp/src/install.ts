@@ -127,10 +127,15 @@ async function installedSkill(dir: string, name: string): Promise<boolean> {
  * references/standards.md, references/components.md, and each references/components/*.md. A file a user added stays.
  */
 async function generatedSkillFiles(dir: string): Promise<string[]> {
-  const components = join(dir, "references/components");
-  const names = (await lstat(components).catch(() => null))?.isDirectory() ? await readdir(components, { withFileTypes: true }) : [];
+  // lstat does not follow the last link, so a symlinked references or references/components folder is skipped, never entered.
+  const realDirectory = async (path: string) => (await lstat(path).catch(() => null))?.isDirectory() === true;
+  const references = join(dir, "references");
+  const components = join(references, "components");
+  const inReferences = await realDirectory(references);
+  const names = inReferences && await realDirectory(components) ? await readdir(components, { withFileTypes: true }) : [];
   const candidates = [
-    "SKILL.md", "snapshot.json", "references/standards.md", "references/components.md",
+    "SKILL.md", "snapshot.json",
+    ...(inReferences ? ["references/standards.md", "references/components.md"] : []),
     ...names.filter((entry) => entry.isFile() && entry.name.endsWith(".md")).map((entry) => `references/components/${entry.name}`).sort(),
   ].map((file) => join(dir, file));
   const files: string[] = [];

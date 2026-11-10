@@ -129,6 +129,25 @@ describe("client installation", () => {
     for (const [file, content] of Object.entries(agentsFiles)) expect(await readFile(join(agents, file), "utf8")).toBe(content);
     for (const [file, content] of Object.entries(claudeFiles)) expect(await readFile(join(claude, file), "utf8")).toBe(content);
   });
+  test("never retires a file through a symlinked references folder of an owned copy", async () => {
+    const options = await fixture();
+    const home = options.homeDir;
+    const copy = join(home, ".agents/skills/docs-system");
+    await installedSkillCopy(copy, "docs-system");
+    await rm(join(copy, "references"), { recursive: true });
+    const outside = join(home, "outside");
+    const targetFiles = { "standards.md": "Outside standards\n", "components.md": "Outside catalog\n", "components/canvas.md": "Outside canvas\n" };
+    for (const [file, content] of Object.entries(targetFiles)) {
+      await mkdir(join(outside, file, ".."), { recursive: true });
+      await writeFile(join(outside, file), content);
+    }
+    await symlink(outside, join(copy, "references"));
+    const report = await installClients({ ...options, clients: ["pi"], write: true });
+    expect(report.changes.filter((change) => change.kind === "skill").map((change) => change.path).sort()).toEqual([join(copy, "SKILL.md"), join(copy, "snapshot.json")]);
+    for (const [file, content] of Object.entries(targetFiles)) expect(await readFile(join(outside, file), "utf8")).toBe(content);
+    expect((await readdir(outside)).sort()).toEqual(["components", "components.md", "standards.md"]);
+    expect(await readdir(join(outside, "components"))).toEqual(["canvas.md"]);
+  });
   test("leaves a skills root alone when it is a symlink that another tool manages", async () => {
     const options = await fixture();
     const home = options.homeDir;
