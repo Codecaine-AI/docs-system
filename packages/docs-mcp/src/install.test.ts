@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { codexConfig, doctorClients, installClients, restoreInstallation } from "./install";
@@ -128,6 +128,32 @@ describe("client installation", () => {
     await restoreInstallation(report, { write: true });
     for (const [file, content] of Object.entries(agentsFiles)) expect(await readFile(join(agents, file), "utf8")).toBe(content);
     for (const [file, content] of Object.entries(claudeFiles)) expect(await readFile(join(claude, file), "utf8")).toBe(content);
+  });
+  test("retires only the component files of registered components, and a user's component file stays", async () => {
+    const options = await fixture();
+    const copy = join(options.homeDir, ".agents/skills/docs-system");
+    await installedSkillCopy(copy, "docs-system", { "references/components/canvas.md": "Old canvas\n", "references/components/custom.md": "My notes\n" });
+    const leftover = (await doctorClients({ ...options, clients: ["pi"] })).checks.filter((check) => check.status === "leftover").map((check) => check.path);
+    expect(leftover).toContain(join(copy, "references/components/canvas.md"));
+    expect(leftover).not.toContain(join(copy, "references/components/custom.md"));
+    await installClients({ ...options, clients: ["pi"], write: true });
+    expect(await readdir(join(copy, "references/components"))).not.toContain("canvas.md");
+    expect(await readFile(join(copy, "references/components/custom.md"), "utf8")).toBe("My notes\n");
+  });
+  test("removes SKILL.md and snapshot.json last, so a retry after a failed removal finishes the copy", async () => {
+    const options = await fixture();
+    const copy = join(options.homeDir, ".agents/skills/docs-system");
+    await installedSkillCopy(copy, "docs-system", { "references/components/canvas.md": "Old canvas\n" });
+    // A read-only components folder makes the backup of canvas.md fail partway through the removals.
+    await chmod(join(copy, "references/components"), 0o555);
+    try {
+      await expect(installClients({ ...options, clients: ["pi"], write: true })).rejects.toThrow();
+    } finally { await chmod(join(copy, "references/components"), 0o755); }
+    expect((await readdir(copy)).filter((file) => !file.includes(".codecaine-backup-")).sort()).toEqual(["SKILL.md", "references", "snapshot.json"]);
+    await installClients({ ...options, clients: ["pi"], write: true });
+    expect((await readdir(copy)).filter((file) => !file.includes(".codecaine-backup-"))).toEqual(["references"]);
+    expect(await readdir(join(copy, "references/components"))).not.toContain("canvas.md");
+    expect((await doctorClients({ ...options, clients: ["pi"] })).ok).toBe(true);
   });
   test("never retires a file through a symlinked references folder of an owned copy", async () => {
     const options = await fixture();

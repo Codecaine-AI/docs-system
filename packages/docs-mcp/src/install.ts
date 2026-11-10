@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -123,20 +123,22 @@ async function installedSkill(dir: string, name: string): Promise<boolean> {
 }
 
 /**
- * The files of the skill copy at `dir` that the old reference generator wrote: SKILL.md, snapshot.json,
- * references/standards.md, references/components.md, and each references/components/*.md. A file a user added stays.
+ * The files of the skill copy at `dir` that the old reference generator wrote: references/standards.md,
+ * references/components.md, references/components/<name>.md for each registered component, then snapshot.json and
+ * SKILL.md last, so a retry after a partial failure still recognizes the copy. A file a user added stays.
  */
 async function generatedSkillFiles(dir: string): Promise<string[]> {
   // lstat does not follow the last link, so a symlinked references or references/components folder is skipped, never entered.
   const realDirectory = async (path: string) => (await lstat(path).catch(() => null))?.isDirectory() === true;
   const references = join(dir, "references");
-  const components = join(references, "components");
   const inReferences = await realDirectory(references);
-  const names = inReferences && await realDirectory(components) ? await readdir(components, { withFileTypes: true }) : [];
+  const inComponents = inReferences && await realDirectory(join(references, "components"));
+  // The registry docs_guidance serves components from. Loaded only when an owned copy exists.
+  const { componentGuidance } = await import("../../docs-model/src/authoring-guidance");
   const candidates = [
-    "SKILL.md", "snapshot.json",
     ...(inReferences ? ["references/standards.md", "references/components.md"] : []),
-    ...names.filter((entry) => entry.isFile() && entry.name.endsWith(".md")).map((entry) => `references/components/${entry.name}`).sort(),
+    ...(inComponents ? componentGuidance().map((component) => `references/components/${component.name}.md`) : []),
+    "snapshot.json", "SKILL.md",
   ].map((file) => join(dir, file));
   const files: string[] = [];
   for (const path of candidates) if (await regularFile(path) !== null) files.push(path);
