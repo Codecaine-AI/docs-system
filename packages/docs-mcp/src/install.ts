@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, readdir, realpath, rename, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type ClientName = "codex" | "claude" | "pi";
@@ -122,15 +122,34 @@ async function installedSkill(dir: string, name: string): Promise<boolean> {
   }
 }
 
-/** The regular files under `dir`, in sorted order, without the backups an install or restore leaves beside them. */
-async function skillCopyFiles(dir: string): Promise<string[]> {
+/**
+ * The files of the skill copy at `dir` that the old reference generator wrote: SKILL.md, snapshot.json,
+ * references/standards.md, references/components.md, and each references/components/*.md. A file a user added stays.
+ */
+async function generatedSkillFiles(dir: string): Promise<string[]> {
+  const components = join(dir, "references/components");
+  const names = (await lstat(components).catch(() => null))?.isDirectory() ? await readdir(components, { withFileTypes: true }) : [];
+  const candidates = [
+    "SKILL.md", "snapshot.json", "references/standards.md", "references/components.md",
+    ...names.filter((entry) => entry.isFile() && entry.name.endsWith(".md")).map((entry) => `references/components/${entry.name}`).sort(),
+  ].map((file) => join(dir, file));
   const files: string[] = [];
-  for (const entry of (await readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
-    const path = join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...await skillCopyFiles(path));
-    else if (entry.isFile() && !/\.codecaine-(backup|restore)-/.test(entry.name)) files.push(path);
-  }
+  for (const path of candidates) if (await regularFile(path) !== null) files.push(path);
   return files;
+}
+
+/**
+ * True when another tool manages `root`: the root or a folder between `home` and the root is a symlink, as when a
+ * config sync links ~/.claude/skills into its own folder. Backups written there would not survive the next sync.
+ */
+async function managedElsewhere(root: string, home: string): Promise<boolean> {
+  const real = await realpath(root).catch(() => null);
+  if (real === null) return true;
+  const inside = relative(home, root);
+  const expected = !inside.startsWith("..") && inside !== root
+    ? join(await realpath(home), inside)
+    : join(await realpath(dirname(root)), basename(root));
+  return real !== expected;
 }
 
 async function plan(options: InstallOptions) {
@@ -186,9 +205,10 @@ async function plan(options: InstallOptions) {
   if (clients.includes("codex") || clients.includes("pi")) skillRoots.add(join(home, ".agents/skills"));
   if (clients.includes("claude")) skillRoots.add(join(options.claudeDir ?? join(home, ".claude"), "skills"));
   for (const skillRoot of skillRoots) for (const name of RETIRED_SKILLS) {
+    if (await managedElsewhere(skillRoot, home)) continue;
     const dir = join(skillRoot, name);
     if (!await installedSkill(dir, name)) continue;
-    for (const path of await skillCopyFiles(dir)) await retire(path, "skill", () => true);
+    for (const path of await generatedSkillFiles(dir)) await retire(path, "skill", () => true);
   }
   return { clients, command, files };
 }

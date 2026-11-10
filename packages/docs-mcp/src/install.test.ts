@@ -12,7 +12,7 @@ async function fixture() {
 }
 /** A skill copy in the shape an earlier install wrote: SKILL.md with its name, generated references and snapshot.json. */
 async function installedSkillCopy(dir: string, name: string, files: Record<string, string> = {}) {
-  const all = {
+  const all: Record<string, string> = {
     "SKILL.md": `---\nname: ${name}\ndescription: Old.\n---\n# Old\n`,
     "snapshot.json": JSON.stringify({ schemaVersion: 1, snapshotId: `sha256:${"a".repeat(64)}`, sources: [] }),
     "references/standards.md": "Old standards\n",
@@ -107,25 +107,41 @@ describe("client installation", () => {
     await installClients({ ...options, write: true });
     const agents = join(home, ".agents/skills/docs-system");
     const claude = join(home, ".claude/skills/codecaine-docs");
-    const agentsFiles = await installedSkillCopy(agents, "docs-system", { "SKILL.md.codecaine-backup-1-old": "Older backup\n" });
+    // An older backup and two files a user added stay. Only the files the old generator wrote are leftovers.
+    const kept = ["SKILL.md.codecaine-backup-1-old", "notes.md", "references/extra.txt"];
+    const agentsFiles = await installedSkillCopy(agents, "docs-system", { "SKILL.md.codecaine-backup-1-old": "Older backup\n", "notes.md": "Mine\n", "references/extra.txt": "Also mine\n" });
     const claudeFiles = await installedSkillCopy(claude, "codecaine-docs", { "references/components/canvas.md": "Old canvas\n" });
     const doctor = await doctorClients(options);
     expect(doctor.ok).toBe(false);
     expect(doctor.checks.filter((check) => check.status === "leftover").map((check) => check.path).sort()).toEqual([
       ...Object.keys(claudeFiles).map((file) => join(claude, file)),
-      ...Object.keys(agentsFiles).filter((file) => !file.includes(".codecaine-backup-")).map((file) => join(agents, file)),
+      ...Object.keys(agentsFiles).filter((file) => !kept.includes(file)).map((file) => join(agents, file)),
     ].sort());
     const report = await installClients({ ...options, write: true });
     const removed = report.changes.filter((change) => change.action === "remove");
     expect(removed.every((change) => change.kind === "skill" && change.written)).toBe(true);
     for (const change of removed) expect(await readFile(change.backup!, "utf8")).toBe((change.path.startsWith(agents) ? agentsFiles : claudeFiles)[change.path.slice(change.path.startsWith(agents) ? agents.length + 1 : claude.length + 1)]!);
     expect(await readdir(agents)).not.toContain("SKILL.md");
-    expect(await readFile(join(agents, "SKILL.md.codecaine-backup-1-old"), "utf8")).toBe("Older backup\n");
+    for (const file of kept) expect(await readFile(join(agents, file), "utf8")).toBe(agentsFiles[file]!);
     expect(await readdir(join(claude, "references/components"))).not.toContain("canvas.md");
     expect((await doctorClients(options)).ok).toBe(true);
     await restoreInstallation(report, { write: true });
     for (const [file, content] of Object.entries(agentsFiles)) expect(await readFile(join(agents, file), "utf8")).toBe(content);
     for (const [file, content] of Object.entries(claudeFiles)) expect(await readFile(join(claude, file), "utf8")).toBe(content);
+  });
+  test("leaves a skills root alone when it is a symlink that another tool manages", async () => {
+    const options = await fixture();
+    const home = options.homeDir;
+    // A config sync links ~/.claude/skills into its own folder, so backups there would not survive the next sync.
+    const synced = join(home, "sync/claude/skills");
+    const files = await installedSkillCopy(join(synced, "docs-system"), "docs-system");
+    await mkdir(join(home, ".claude"), { recursive: true });
+    await symlink(synced, join(home, ".claude/skills"));
+    expect((await doctorClients({ ...options, clients: ["claude"] })).checks.filter((check) => check.kind === "skill")).toEqual([]);
+    const report = await installClients({ ...options, clients: ["claude"], write: true });
+    expect(report.changes.filter((change) => change.kind === "skill")).toEqual([]);
+    for (const [file, content] of Object.entries(files)) expect(await readFile(join(synced, "docs-system", file), "utf8")).toBe(content);
+    expect((await doctorClients({ ...options, clients: ["claude"] })).ok).toBe(true);
   });
   test("leaves a skill folder alone when nothing proves an earlier install wrote it", async () => {
     const options = await fixture();
