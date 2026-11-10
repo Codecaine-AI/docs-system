@@ -1624,16 +1624,16 @@
           }
         },
         {
-          "insert": " and "
+          "insert": " moves pages or sections with descendants. Its "
         },
         {
-          "insert": "docs_rename",
+          "insert": "name",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " move pages or sections with descendants. The shared management service rewrites descendant document links, Canvas links, and asset references while preserving document identity. "
+          "insert": " field renames a page or section inside its parent. The shared management service rewrites descendant document links, Canvas links, and asset references while preserving document identity. "
         },
         {
           "insert": "docs_set_title",
@@ -1653,13 +1653,13 @@
       "props": {},
       "text": [
         {
-          "insert": "docs_asset_move",
+          "insert": "docs_move",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " transfers shared assets and updates their references. "
+          "insert": " with an asset path transfers a shared asset and updates its references. "
         },
         {
           "insert": "docs_delete",

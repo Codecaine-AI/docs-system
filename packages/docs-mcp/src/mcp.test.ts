@@ -40,15 +40,15 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   const denied=await Bun.fetch(`${daemon.url}/tools`);expect(denied.status).toBe(401);
   const undo=await invoke(b,'docs_undo',{task_id:begun.task_id,project,patch_id:saved.patchId});expect(undo.ok).toBe(true);
   expect((await invoke(a,'docs_read',{project,path:'page'})).markdown).toContain('Original.');
-  for (const name of ['docs_create','docs_move','docs_rename','docs_delete']) expect(tools.tools.some(t=>t.name===name)).toBe(true);
+  for (const name of ['docs_create','docs_move','docs_delete']) expect(tools.tools.some(t=>t.name===name)).toBe(true);
   const treeArgs={project,task_id:begun.task_id};
   expect((await invoke(a,'docs_move',{project,path:'page',to:'denied',expected_hash:before.hash})).ok).toBe(false);
   const movePreview=await invoke(a,'docs_move',{...treeArgs,path:'page',to:'moved',expected_hash:before.hash});
   expect((await invoke(a,'docs_move',{...treeArgs,path:'page',to:'moved',expected_hash:before.hash,preview:false,expected_tree_hash:movePreview.tree_hash})).ok).toBe(true);
   expect((await invoke(b,'docs_read',{project,path:'moved/child'})).doc.id).toBe('child');
   const movedPage=await invoke(b,'docs_read',{project,path:'moved'});
-  const renamePreview=await invoke(b,'docs_rename',{...treeArgs,path:'moved',name:'renamed',expected_hash:movedPage.hash});
-  expect((await invoke(b,'docs_rename',{...treeArgs,path:'moved',name:'renamed',expected_hash:movedPage.hash,preview:false,expected_tree_hash:renamePreview.tree_hash})).ok).toBe(true);
+  const renamePreview=await invoke(b,'docs_move',{...treeArgs,path:'moved',name:'renamed',expected_hash:movedPage.hash});
+  expect((await invoke(b,'docs_move',{...treeArgs,path:'moved',name:'renamed',expected_hash:movedPage.hash,preview:false,expected_tree_hash:renamePreview.tree_hash})).ok).toBe(true);
   const renamedPage=await invoke(a,'docs_read',{project,path:'renamed'});
   const preview=await invoke(a,'docs_delete',{...treeArgs,path:'renamed',recursive:true,expected_hash:renamedPage.hash});
   expect(preview.preview).toBe(true);

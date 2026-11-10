@@ -165,12 +165,46 @@ test("tree, annotation, review, asset, undo, and restore tools skip the style ga
   const task = await invoke("docs_begin");
   const minimal = { task_id: task.task_id, project: ids.alpha, path: "page" };
   // An exempt tool reaches its own argument validation. A gated tool is refused before it.
-  for (const name of ["docs_create", "docs_move", "docs_set_title", "docs_annotation_add", "docs_proposal_accept", "docs_changeset_accept", "docs_asset_upload", "docs_undo", "docs_management_restore"]) {
+  for (const name of ["docs_create", "docs_move", "docs_set_title", "docs_annotation_write", "docs_proposal_decide", "docs_changeset_decide", "docs_asset_upload", "docs_undo", "docs_management_restore"]) {
     expect([name, (await invoke(name, minimal)).issues?.length > 0]).toEqual([name, true]);
   }
   for (const name of ["docs_write_text", "docs_apply_ops", "docs_insert", "docs_proposal_stage", "docs_component_create", "docs_state_shape_add_field"]) {
     expect([name, (await invoke(name, minimal)).detail]).toEqual([name, STYLE_GATE]);
   }
+});
+
+test("each mode of a merged tool keeps the gates of the tool it replaced", async () => {
+  const project = ids.alpha;
+  const page = await invoke("docs_read", { project, path: "page" });
+  const setup = await invoke("docs_begin");
+  const uploaded = await invoke("docs_asset_upload", { task_id: setup.task_id, project, path: "page", filename: "note.txt", content_type: "text/plain", base64: Buffer.from("hello").toString("base64") });
+  const asset = uploaded.response.path as string;
+  // The single-asset read was a read tool: an asset path in docs_assets still needs no task.
+  const read = await invoke("docs_assets", { project, path: asset });
+  expect(read).toMatchObject({ ok: true, path: asset, size: 5 });
+  const modes: [string, Record<string, unknown>][] = [
+    ["docs_annotation_write", { path: "page", add: { target: { kind: "block", blockId: "body" }, body: "Note.", author: "test", intent: "note" } }],
+    ["docs_annotation_write", { path: "page", reply: { annotation_id: "a1", body: "Done.", author: "test" }, expected_annotations_hash: "h" }],
+    ["docs_annotation_write", { path: "page", resolve: { annotation_id: "a1" }, expected_annotations_hash: "h" }],
+    ["docs_annotation_write", { path: "page", thread: { annotation_id: "a1", thread: null } }],
+    ["docs_proposal_decide", { path: "page", proposal_id: "p1", expected_proposals_hash: "h", decision: "accept" }],
+    ["docs_proposal_decide", { path: "page", proposal_id: "p1", expected_proposals_hash: "h", decision: "reject" }],
+    ["docs_changeset_decide", { changeset_id: "c1", decision: "accept" }],
+    ["docs_changeset_decide", { changeset_id: "c1", decision: "reject" }],
+    ["docs_move", { path: "page", expected_hash: page.hash, to: "moved" }],
+    ["docs_move", { path: "page", expected_hash: page.hash, name: "renamed" }],
+    ["docs_move", { path: asset, expected_hash: read.hash, to: "page/assets/attachments/moved.txt" }],
+    ["docs_delete", { path: "page", expected_hash: page.hash }],
+    ["docs_delete", { path: asset, expected_hash: read.hash }],
+  ];
+  // Each replaced write needed a task, and each skipped the style gate: a task that has not read topic style reaches the tool.
+  const fresh = await invoke("docs_begin");
+  for (const [name, args] of modes) {
+    expect([name, args, (await invoke(name, { project, ...args })).detail]).toEqual([name, args, "Call docs_begin in this workspace before editing, then include task_id."]);
+    expect([name, args, (await invoke(name, { project, task_id: fresh.task_id, ...args })).detail]).not.toEqual([name, args, STYLE_GATE]);
+  }
+  // A content write in the same task is still gated.
+  expect((await invoke("docs_write_text", { project, task_id: fresh.task_id, path: "page", blockId: "body", expected_hash: page.hash, markdown: "Gated." })).detail).toBe(STYLE_GATE);
 });
 
 test("docs_check takes an optional task_id and rejects a task this workspace does not own", async () => {

@@ -1034,10 +1034,19 @@
       "props": {},
       "text": [
         {
-          "insert": "Reply with "
+          "insert": "Reply with the "
         },
         {
-          "insert": "docs_annotation_reply",
+          "insert": "reply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " mode of "
+        },
+        {
+          "insert": "docs_annotation_write",
           "attributes": {
             "code": true
           }
@@ -1172,16 +1181,25 @@
           }
         },
         {
-          "insert": " and "
+          "insert": " moves a page or a whole section with its descendants. Pass "
         },
         {
-          "insert": "docs_rename",
+          "insert": "to",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " move a page or a whole section with its descendants. "
+          "insert": " to move it, or pass "
+        },
+        {
+          "insert": "name",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to rename it inside its parent. "
         },
         {
           "insert": "docs_set_title",
@@ -1190,7 +1208,7 @@
           }
         },
         {
-          "insert": " changes the display title. Each of these tools first returns a preview of the affected files and the reference rewrites."
+          "insert": " changes the display title. Both tools first return a preview of the affected files and the reference rewrites."
         }
       ],
       "children": []
@@ -1389,13 +1407,13 @@
           "insert": "Read the asset hash with "
         },
         {
-          "insert": "docs_asset_read",
+          "insert": "docs_assets",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": "."
+          "insert": " and the asset path."
         }
       ],
       "children": []
@@ -1411,13 +1429,13 @@
           "insert": "Move the asset with "
         },
         {
-          "insert": "docs_asset_move",
+          "insert": "docs_move",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". The service updates the references in other pages."
+          "insert": " and the asset path. The service updates the references in other pages."
         }
       ],
       "children": []

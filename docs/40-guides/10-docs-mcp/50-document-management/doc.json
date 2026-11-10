@@ -72,12 +72,12 @@
         "rows": [
           [
             "Pages and sections",
-            "docs_create, docs_move, docs_rename, docs_delete, docs_set_title",
+            "docs_create, docs_move, docs_delete, docs_set_title",
             "Create pages, relocate or renumber subtrees, change display titles, and delete reviewed pages or subtrees."
           ],
           [
             "Assets and components",
-            "docs_assets, docs_asset_read, docs_asset_upload, docs_asset_move, docs_asset_delete, docs_component_create",
+            "docs_assets, docs_asset_upload, docs_move, docs_delete, docs_component_create",
             "Inventory unused files, upload media, and create validated Canvas or Sequence sidecars. Transfer or remove assets without dangling references."
           ],
           [
@@ -129,7 +129,7 @@
       "props": {},
       "text": [
         {
-          "insert": "1. Discover the project, begin a task, and read the section root with docs_read. Keep its hash. docs_rename takes the section path and a new directory name. docs_move takes the source path and a destination path in the same project."
+          "insert": "1. Discover the project, begin a task, and read the section root with docs_read. Keep its hash. docs_move takes the section path and one more field. Pass name for a new directory name, or pass to for a destination path in the same project."
         }
       ],
       "children": []
@@ -186,7 +186,7 @@
       "props": {},
       "text": [
         {
-          "insert": "1. Use docs_assets or the referencing block to locate the Canvas. Read its source path with docs_asset_read to get the asset hash. Asset paths are relative to the docs root."
+          "insert": "1. Use docs_assets or the referencing block to locate the Canvas. Pass its source path to docs_assets to get the asset hash. Asset paths are relative to the docs root."
         }
       ],
       "children": []
@@ -197,7 +197,7 @@
       "props": {},
       "text": [
         {
-          "insert": "2. Preview docs_asset_move with path, to, and expected_hash. The destination must be in an existing page assets directory and keep the component file type. For example, move an Architecture Canvas into System Design assets/canvases before removing Architecture."
+          "insert": "2. Preview docs_move with the asset path as path, to, and expected_hash. The destination must be in an existing page assets directory and keep the component file type. For example, move an Architecture Canvas into System Design assets/canvases before removing Architecture."
         }
       ],
       "children": []
