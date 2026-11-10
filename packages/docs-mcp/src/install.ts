@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,7 +19,7 @@ export interface InstallOptions {
 }
 export interface InstallChange {
   path: string;
-  kind: "config" | "extension";
+  kind: "config" | "skill" | "extension";
   action: "create" | "update" | "unchanged" | "remove";
   sha256: string;
   written: boolean;
@@ -96,6 +96,43 @@ export function codexConfig(before: string, command: string, args: string[]): st
   return after;
 }
 
+/** The skill copies earlier installs wrote. Agents now read the guidance through the Docs tools. */
+const RETIRED_SKILLS = [SERVER, LEGACY];
+const SNAPSHOT_ID = /^sha256:[0-9a-f]{64}$/;
+
+async function regularFile(path: string): Promise<string | null> {
+  const stat = await lstat(path).catch(() => null);
+  return stat?.isFile() ? readFile(path, "utf8") : null;
+}
+
+/**
+ * An earlier install wrote the skill copy at `dir` when it is a real directory, its SKILL.md frontmatter names `name`,
+ * and its snapshot.json has the shape the reference generator wrote. A symlink or any other folder is not the installer's.
+ */
+async function installedSkill(dir: string, name: string): Promise<boolean> {
+  if (!(await lstat(dir).catch(() => null))?.isDirectory()) return false;
+  const skill = await regularFile(join(dir, "SKILL.md"));
+  const frontmatter = skill?.match(/^---\n([\s\S]*?)\n---\n/)?.[1];
+  if (frontmatter === undefined || !new RegExp(`^name: ${name}$`, "m").test(frontmatter)) return false;
+  try {
+    const snapshot = JSON.parse(await regularFile(join(dir, "snapshot.json")) ?? "");
+    return typeof snapshot?.schemaVersion === "number" && SNAPSHOT_ID.test(snapshot.snapshotId) && Array.isArray(snapshot.sources);
+  } catch {
+    return false;
+  }
+}
+
+/** The regular files under `dir`, in sorted order, without the backups an install or restore leaves beside them. */
+async function skillCopyFiles(dir: string): Promise<string[]> {
+  const files: string[] = [];
+  for (const entry of (await readdir(dir, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...await skillCopyFiles(path));
+    else if (entry.isFile() && !/\.codecaine-(backup|restore)-/.test(entry.name)) files.push(path);
+  }
+  return files;
+}
+
 async function plan(options: InstallOptions) {
   const clients = [...new Set(options.clients ?? ["codex", "claude", "pi"])] as ClientName[];
   if (!clients.length || clients.some((name) => !["codex", "claude", "pi"].includes(name))) throw new Error("Choose codex, claude, pi, or all clients");
@@ -144,6 +181,15 @@ async function plan(options: InstallOptions) {
     await retire(join(dir, `extensions/${LEGACY}.ts`), "extension", (before) => before.startsWith("// Managed by Codecaine Docs."));
     await add(join(dir, `extensions/${SERVER}.ts`), "extension", () => `// Managed by Docs System. Re-run install to update this checkout path.\nimport { createPiExtension } from ${JSON.stringify(join(root, "src/pi-extension.ts"))};\nexport default createPiExtension(${JSON.stringify(command)});\n`);
   }
+  // Earlier installs wrote the docs-system skill, and before it codecaine-docs, into these roots. Retire the copies they own.
+  const skillRoots = new Set<string>();
+  if (clients.includes("codex") || clients.includes("pi")) skillRoots.add(join(home, ".agents/skills"));
+  if (clients.includes("claude")) skillRoots.add(join(options.claudeDir ?? join(home, ".claude"), "skills"));
+  for (const skillRoot of skillRoots) for (const name of RETIRED_SKILLS) {
+    const dir = join(skillRoot, name);
+    if (!await installedSkill(dir, name)) continue;
+    for (const path of await skillCopyFiles(dir)) await retire(path, "skill", () => true);
+  }
   return { clients, command, files };
 }
 
@@ -190,7 +236,7 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
 
 export async function doctorClients(options: InstallOptions = {}) {
   const preview = await installClients({ ...options, write: false });
-  const checks = preview.changes.map((change) => ({ path: change.path, kind: change.kind, status: change.action === "unchanged" ? "ok" : change.action === "create" ? "missing" : "outdated" }));
+  const checks = preview.changes.map((change) => ({ path: change.path, kind: change.kind, status: change.action === "unchanged" ? "ok" : change.action === "create" ? "missing" : change.action === "remove" ? "leftover" : "outdated" }));
   return { ok: checks.every((check) => check.status === "ok"), checks, notes: [...preview.notes, "Doctor checks installed files against current sources. Client connection and model-driven editing require the acceptance exercises."] };
 }
 

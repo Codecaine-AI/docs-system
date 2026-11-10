@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { codexConfig, doctorClients, installClients, restoreInstallation } from "./install";
@@ -9,6 +9,20 @@ async function fixture() {
   const homeDir = await mkdtemp(join(tmpdir(), "docs-install-test-"));
   dirs.push(homeDir);
   return { homeDir, packageRoot: "/checkout with spaces/docs-mcp", bunPath: "/bin/bun" };
+}
+/** A skill copy in the shape an earlier install wrote: SKILL.md with its name, generated references and snapshot.json. */
+async function installedSkillCopy(dir: string, name: string, files: Record<string, string> = {}) {
+  const all = {
+    "SKILL.md": `---\nname: ${name}\ndescription: Old.\n---\n# Old\n`,
+    "snapshot.json": JSON.stringify({ schemaVersion: 1, snapshotId: `sha256:${"a".repeat(64)}`, sources: [] }),
+    "references/standards.md": "Old standards\n",
+    ...files,
+  };
+  for (const [relative, content] of Object.entries(all)) {
+    await mkdir(join(dir, relative, ".."), { recursive: true });
+    await writeFile(join(dir, relative), content);
+  }
+  return all;
 }
 afterEach(async () => { await Promise.all(dirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true }))); });
 
@@ -86,6 +100,51 @@ describe("client installation", () => {
     await restoreInstallation(report, { write: true });
     expect(await readFile(join(home, ".codex/config.toml"), "utf8")).toBe(legacyToml);
     expect(await readFile(join(home, ".pi/agent/extensions/codecaine-docs.ts"), "utf8")).toBe(legacyPi);
+  });
+  test("retires the skill copies earlier installs wrote, doctor reports them until then, and restore brings them back", async () => {
+    const options = await fixture();
+    const home = options.homeDir;
+    await installClients({ ...options, write: true });
+    const agents = join(home, ".agents/skills/docs-system");
+    const claude = join(home, ".claude/skills/codecaine-docs");
+    const agentsFiles = await installedSkillCopy(agents, "docs-system", { "SKILL.md.codecaine-backup-1-old": "Older backup\n" });
+    const claudeFiles = await installedSkillCopy(claude, "codecaine-docs", { "references/components/canvas.md": "Old canvas\n" });
+    const doctor = await doctorClients(options);
+    expect(doctor.ok).toBe(false);
+    expect(doctor.checks.filter((check) => check.status === "leftover").map((check) => check.path).sort()).toEqual([
+      ...Object.keys(claudeFiles).map((file) => join(claude, file)),
+      ...Object.keys(agentsFiles).filter((file) => !file.includes(".codecaine-backup-")).map((file) => join(agents, file)),
+    ].sort());
+    const report = await installClients({ ...options, write: true });
+    const removed = report.changes.filter((change) => change.action === "remove");
+    expect(removed.every((change) => change.kind === "skill" && change.written)).toBe(true);
+    for (const change of removed) expect(await readFile(change.backup!, "utf8")).toBe((change.path.startsWith(agents) ? agentsFiles : claudeFiles)[change.path.slice(change.path.startsWith(agents) ? agents.length + 1 : claude.length + 1)]!);
+    expect(await readdir(agents)).not.toContain("SKILL.md");
+    expect(await readFile(join(agents, "SKILL.md.codecaine-backup-1-old"), "utf8")).toBe("Older backup\n");
+    expect(await readdir(join(claude, "references/components"))).not.toContain("canvas.md");
+    expect((await doctorClients(options)).ok).toBe(true);
+    await restoreInstallation(report, { write: true });
+    for (const [file, content] of Object.entries(agentsFiles)) expect(await readFile(join(agents, file), "utf8")).toBe(content);
+    for (const [file, content] of Object.entries(claudeFiles)) expect(await readFile(join(claude, file), "utf8")).toBe(content);
+  });
+  test("leaves a skill folder alone when nothing proves an earlier install wrote it", async () => {
+    const options = await fixture();
+    const home = options.homeDir;
+    // No snapshot.json, another name in SKILL.md, and a symlink to a folder in the installed shape.
+    const noSnapshot = join(home, ".agents/skills/docs-system");
+    await installedSkillCopy(noSnapshot, "docs-system");
+    await rm(join(noSnapshot, "snapshot.json"));
+    const otherName = join(home, ".claude/skills/docs-system");
+    await installedSkillCopy(otherName, "my-docs");
+    const elsewhere = join(home, "elsewhere/codecaine-docs");
+    await installedSkillCopy(elsewhere, "codecaine-docs");
+    await symlink(elsewhere, join(home, ".agents/skills/codecaine-docs"));
+    const report = await installClients({ ...options, write: true });
+    expect(report.changes.filter((change) => change.kind === "skill")).toEqual([]);
+    expect((await readdir(noSnapshot)).sort()).toEqual(["SKILL.md", "references"]);
+    expect((await readdir(otherName)).sort()).toEqual(["SKILL.md", "references", "snapshot.json"]);
+    expect((await readdir(elsewhere)).sort()).toEqual(["SKILL.md", "references", "snapshot.json"]);
+    expect((await doctorClients(options)).ok).toBe(true);
   });
   test("refuses to drop a customized legacy Codex block", () => {
     const legacy = '# BEGIN CODECAINE DOCS MCP (managed by docs-mcp install)\n[mcp_servers.codecaine-docs]\ncommand = "bun"\nargs = []\nenabled = false\n# END CODECAINE DOCS MCP\n';
