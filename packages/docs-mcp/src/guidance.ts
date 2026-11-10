@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -10,7 +10,6 @@ import {
   assembleAuthoringGuidance,
   componentGuidance,
   guidanceBundleFile,
-  renderComponentCatalog,
   type ComponentGuidance,
 } from "../../docs-model/src/authoring-guidance";
 import { validateDocDocument } from "../../docs-model/src/doc-schema";
@@ -135,25 +134,4 @@ function splitTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] 
     }),
     { topic: "all", title: "All Guidance", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
   ];
-}
-
-/** Render the same maintained sources into a portable Agent Skills directory. */
-export async function generateSkillReferences(outputDir: string, guidance?: GuidanceSnapshot): Promise<void> {
-  const snapshot = guidance ?? await loadGuidance();
-  const references = join(outputDir, "references");
-  await mkdir(join(references, "components"), { recursive: true });
-  const stamp = `Generated from Docs System sources. Snapshot: \`${snapshot.snapshotId}\`. Refresh the installation to regenerate these files.\n\n`;
-  // One Details line per component, in catalog order; two components may share a document.
-  let detailIndex = 0;
-  const catalog = renderComponentCatalog(snapshot.components).replace(/^Details: (.+)$/gm, (_match, docsPath: string) => {
-    const component = snapshot.components[detailIndex++]!;
-    return `Details: [${component.name}](components/${component.name}.md). Canonical document: \`${docsPath}\`.`;
-  });
-  await Promise.all([
-    writeFile(join(references, "standards.md"), `# Docs Authoring Guidance\n\n${stamp}${snapshot.text}\n`),
-    writeFile(join(references, "components.md"), `# Component Selection\n\n${stamp}${catalog}\n`),
-    ...snapshot.components.map(component => writeFile(join(references, "components", `${component.name}.md`),
-      `# ${component.name}\n\n${stamp}${componentReferenceText(component, snapshot.componentReferences[component.name]!)}\n`)),
-    writeFile(join(outputDir, "snapshot.json"), JSON.stringify({ schemaVersion: GUIDANCE_SCHEMA_VERSION, snapshotId: snapshot.snapshotId, sources: snapshot.sources }, null, 2) + "\n"),
-  ]);
 }

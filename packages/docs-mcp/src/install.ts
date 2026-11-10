@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
-import { homedir, tmpdir } from "node:os";
-import { dirname, join, resolve } from "node:path";
+import { lstat, mkdir, readFile, realpath, rename, rm, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type ClientName = "codex" | "claude" | "pi";
@@ -16,8 +16,6 @@ export interface InstallOptions {
   claudeDir?: string;
   claudeConfigFile?: string;
   piDir?: string;
-  /** Pre-rendered skill files, also useful for isolated installer tests. */
-  skillFiles?: Record<string, string>;
 }
 export interface InstallChange {
   path: string;
@@ -98,28 +96,67 @@ export function codexConfig(before: string, command: string, args: string[]): st
   return after;
 }
 
-async function collectFiles(root: string, relative = ""): Promise<Record<string, string>> {
-  const files: Record<string, string> = {};
-  for (const entry of await readdir(join(root, relative), { withFileTypes: true })) {
-    const path = join(relative, entry.name);
-    if (entry.isDirectory()) Object.assign(files, await collectFiles(root, path));
-    else if (entry.isFile()) files[path] = await readFile(join(root, path), "utf8");
-    else throw new Error(`Skill sources must be ordinary files or directories: ${path}`);
+/** The skill copies earlier installs wrote. Agents now read the guidance through the Docs tools. */
+const RETIRED_SKILLS = [SERVER, LEGACY];
+const SNAPSHOT_ID = /^sha256:[0-9a-f]{64}$/;
+
+async function regularFile(path: string): Promise<string | null> {
+  const stat = await lstat(path).catch(() => null);
+  return stat?.isFile() ? readFile(path, "utf8") : null;
+}
+
+/**
+ * An earlier install wrote the skill copy at `dir` when it is a real directory, its SKILL.md frontmatter names `name`,
+ * and its snapshot.json has the shape the reference generator wrote. A symlink or any other folder is not the installer's.
+ */
+async function installedSkill(dir: string, name: string): Promise<boolean> {
+  if (!(await lstat(dir).catch(() => null))?.isDirectory()) return false;
+  const skill = await regularFile(join(dir, "SKILL.md"));
+  const frontmatter = skill?.match(/^---\n([\s\S]*?)\n---\n/)?.[1];
+  if (frontmatter === undefined || !new RegExp(`^name: ${name}$`, "m").test(frontmatter)) return false;
+  try {
+    const snapshot = JSON.parse(await regularFile(join(dir, "snapshot.json")) ?? "");
+    return typeof snapshot?.schemaVersion === "number" && SNAPSHOT_ID.test(snapshot.snapshotId) && Array.isArray(snapshot.sources);
+  } catch {
+    return false;
   }
+}
+
+/**
+ * The files of the skill copy at `dir` that the old reference generator wrote: references/standards.md,
+ * references/components.md, references/components/<name>.md for each registered component, then snapshot.json and
+ * SKILL.md last, so a retry after a partial failure still recognizes the copy. A file a user added stays.
+ */
+async function generatedSkillFiles(dir: string): Promise<string[]> {
+  // lstat does not follow the last link, so a symlinked references or references/components folder is skipped, never entered.
+  const realDirectory = async (path: string) => (await lstat(path).catch(() => null))?.isDirectory() === true;
+  const references = join(dir, "references");
+  const inReferences = await realDirectory(references);
+  const inComponents = inReferences && await realDirectory(join(references, "components"));
+  // The registry docs_guidance serves components from. Loaded only when an owned copy exists.
+  const { componentGuidance } = await import("../../docs-model/src/authoring-guidance");
+  const candidates = [
+    ...(inReferences ? ["references/standards.md", "references/components.md"] : []),
+    ...(inComponents ? componentGuidance().map((component) => `references/components/${component.name}.md`) : []),
+    "snapshot.json", "SKILL.md",
+  ].map((file) => join(dir, file));
+  const files: string[] = [];
+  for (const path of candidates) if (await regularFile(path) !== null) files.push(path);
   return files;
 }
 
-async function skillFiles(options: InstallOptions, root: string): Promise<Record<string, string>> {
-  if (options.skillFiles) return options.skillFiles;
-  const template = await collectFiles(join(root, "skills", SERVER));
-  const temp = await mkdtemp(join(tmpdir(), "codecaine-skills-"));
-  try {
-    const { generateSkillReferences } = await import("./guidance");
-    await generateSkillReferences(temp);
-    return { ...template, ...await collectFiles(temp) };
-  } finally {
-    await rm(temp, { recursive: true, force: true });
-  }
+/**
+ * True when another tool manages `root`: the root or a folder between `home` and the root is a symlink, as when a
+ * config sync links ~/.claude/skills into its own folder. Backups written there would not survive the next sync.
+ */
+async function managedElsewhere(root: string, home: string): Promise<boolean> {
+  const real = await realpath(root).catch(() => null);
+  if (real === null) return true;
+  const inside = relative(home, root);
+  const expected = !inside.startsWith("..") && inside !== root
+    ? join(await realpath(home), inside)
+    : join(await realpath(dirname(root)), basename(root));
+  return real !== expected;
 }
 
 async function plan(options: InstallOptions) {
@@ -170,22 +207,15 @@ async function plan(options: InstallOptions) {
     await retire(join(dir, `extensions/${LEGACY}.ts`), "extension", (before) => before.startsWith("// Managed by Codecaine Docs."));
     await add(join(dir, `extensions/${SERVER}.ts`), "extension", () => `// Managed by Docs System. Re-run install to update this checkout path.\nimport { createPiExtension } from ${JSON.stringify(join(root, "src/pi-extension.ts"))};\nexport default createPiExtension(${JSON.stringify(command)});\n`);
   }
-  const rendered = await skillFiles(options, root);
+  // Earlier installs wrote the docs-system skill, and before it codecaine-docs, into these roots. Retire the copies they own.
   const skillRoots = new Set<string>();
   if (clients.includes("codex") || clients.includes("pi")) skillRoots.add(join(home, ".agents/skills"));
   if (clients.includes("claude")) skillRoots.add(join(options.claudeDir ?? join(home, ".claude"), "skills"));
-  for (const skillRoot of skillRoots) {
-    // Remove the legacy skill's installed files only when its SKILL.md still carries the legacy name.
-    const legacy = join(skillRoot, LEGACY);
-    if (!new RegExp(`^name: ${LEGACY}$`, "m").test(await existing(join(legacy, "SKILL.md")) ?? "")) continue;
-    for (const relative of Object.keys(rendered)) await retire(resolve(legacy, relative), "skill", () => true);
-  }
-  for (const destination of [...skillRoots].map((skillRoot) => join(skillRoot, SERVER))) {
-    for (const [relative, content] of Object.entries(rendered)) {
-      const path = resolve(destination, relative);
-      if (!path.startsWith(destination + "/")) throw new Error(`Invalid skill file path: ${relative}`);
-      await add(path, "skill", () => content);
-    }
+  for (const skillRoot of skillRoots) for (const name of RETIRED_SKILLS) {
+    if (await managedElsewhere(skillRoot, home)) continue;
+    const dir = join(skillRoot, name);
+    if (!await installedSkill(dir, name)) continue;
+    for (const path of await generatedSkillFiles(dir)) await retire(path, "skill", () => true);
   }
   return { clients, command, files };
 }
@@ -195,7 +225,7 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
   const planned = await plan(options);
   const result: InstallResult = {
     mode: options.write ? "write" : "preview", clients: planned.clients, command: planned.command, changes: [],
-    notes: ["Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.", "Each connection discovers its active workspace; no fixed project is written into user configuration.", "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.", "Skills are selected by the host model. Verify automatic guidance and editing in each client before considering setup accepted."],
+    notes: ["Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.", "Each connection discovers its active workspace; no fixed project is written into user configuration.", "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.", "Verify that each client calls docs_capabilities and completes a typed edit before considering setup accepted."],
   };
   // Complete parsing and generation for all clients before changing any user file.
   for (const file of planned.files) {
@@ -233,7 +263,7 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
 
 export async function doctorClients(options: InstallOptions = {}) {
   const preview = await installClients({ ...options, write: false });
-  const checks = preview.changes.map((change) => ({ path: change.path, kind: change.kind, status: change.action === "unchanged" ? "ok" : change.action === "create" ? "missing" : "outdated" }));
+  const checks = preview.changes.map((change) => ({ path: change.path, kind: change.kind, status: change.action === "unchanged" ? "ok" : change.action === "create" ? "missing" : change.action === "remove" ? "leftover" : "outdated" }));
   return { ok: checks.every((check) => check.status === "ok"), checks, notes: [...preview.notes, "Doctor checks installed files against current sources. Client connection and model-driven editing require the acceptance exercises."] };
 }
 

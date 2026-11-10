@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "doc-fbcae849d48a5ffd75b457615fdd12ef",
-  "title": "Skills and Component Knowledge",
+  "title": "Guidance and Component Knowledge",
   "root": "root",
   "blocks": {
     "root": {
@@ -42,7 +42,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Change the maintained source, regenerate derived references, and refresh installed copies. Editing an installed skill alone creates a local difference that the next installation can overwrite."
+          "insert": "Agents get the Docs workflow, the writing rules, and the component knowledge from the Docs tools, not from an installed skill. To change a rule, change its maintained source. "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " loads the guidance again for each new task, so the next task reads the change."
         }
       ],
       "children": []
@@ -86,16 +95,34 @@
       "props": {},
       "text": [
         {
-          "insert": "packages/docs-mcp/skills/docs-system/SKILL.md",
+          "insert": "Editor Workflow",
           "attributes": {
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-mcp/skills/docs-system/SKILL.md"
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
             }
           }
         },
         {
-          "insert": " owns the external-agent workflow, trigger description, and skill metadata."
+          "insert": " owns the external-agent workflow. "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves it as topic "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -175,7 +202,7 @@
           }
         },
         {
-          "insert": " loads and validates canonical documents, hashes guidance sources, splits the guidance into "
+          "insert": " loads and validates canonical documents, hashes guidance sources, and splits the guidance into "
         },
         {
           "insert": "docs_guidance",
@@ -184,7 +211,7 @@
           }
         },
         {
-          "insert": " topics, and generates portable skill references."
+          "insert": " topics."
         }
       ],
       "children": []
@@ -430,7 +457,25 @@
       "props": {},
       "text": [
         {
-          "insert": "The installed skill tells the coding agent when and how to use those tools. Installation places references/standards.md, references/components.md, references/components/<name>.md, and snapshot.json beside SKILL.md. These files are generated from the canonical corpus and manifests. They are not independent standards."
+          "insert": "The "
+        },
+        {
+          "insert": "INSTRUCTIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prompt block tells the coding agent when to use those tools and to call "
+        },
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first. The topics hold the rules. They are rendered from the canonical corpus and manifests, and they are not independent standards."
         }
       ],
       "children": []
@@ -459,7 +504,7 @@
           }
         },
         {
-          "insert": " returns the full catalog, and a component name returns its detailed reference. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
+          "insert": " returns the full catalog, and a component name returns its detailed reference. A connected MCP server does not prove that a client loads its instructions. Test a first task in each client."
         }
       ],
       "children": []
@@ -492,7 +537,19 @@
           }
         },
         {
-          "insert": " with the task ID. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
+          "insert": " with the task ID. Edit the tool-use workflow on "
+        },
+        {
+          "insert": "Editor Workflow",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
+            }
+          }
+        },
+        {
+          "insert": " the same way. Project-specific standards overrides are not implemented."
         }
       ],
       "children": []
@@ -514,7 +571,7 @@
       "props": {},
       "text": [
         {
-          "insert": "3. For a new component, register its bundle, state schema, typed actions, and rendering using the existing component contract. Add its canonical documentation and manifest metadata. A skill reference alone does not implement editing tools."
+          "insert": "3. For a new component, register its bundle, state schema, typed actions, and rendering using the existing component contract. Add its canonical documentation and manifest metadata. A reference page alone does not implement editing tools."
         }
       ],
       "children": []
@@ -525,7 +582,7 @@
       "props": {},
       "text": [
         {
-          "insert": "4. Refresh the client installation and begin a new authoring task. When imported TypeScript changed, restart the service first. Inspect docs_guidance for the changed component and verify a real typed edit."
+          "insert": "4. Begin a new authoring task. When imported TypeScript changed, restart the service first. Inspect docs_guidance for the changed component and verify a real typed edit."
         }
       ],
       "children": []

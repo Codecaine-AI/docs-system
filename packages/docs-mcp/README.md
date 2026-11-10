@@ -10,7 +10,7 @@ bun packages/docs-mcp/src/cli.ts install --write
 bun packages/docs-mcp/src/cli.ts doctor
 ```
 
-Installation previews first, preserves unrelated client settings, and backs up changed files. Save the write command's JSON output for `restore REPORT` inspection. Codex and pi use `~/.agents/skills/docs-system`; Claude uses `~/.claude/skills/docs-system`. pi's extension forwards the MCP tools because pi has no native MCP client. Restart Codex/Claude; use `/reload` in pi.
+Installation previews first, preserves unrelated client settings, and backs up changed files. Save the write command's JSON output for `restore REPORT` inspection. The installer writes the MCP entry for Codex and Claude Code and the pi extension, and no skill. Agents get their guidance from `docs_capabilities` and `docs_guidance`. pi's extension forwards the MCP tools because pi has no native MCP client. Restart Codex/Claude; use `/reload` in pi.
 
 ## Daily Use
 
@@ -65,7 +65,7 @@ bun test packages/docs-mcp/src
 bunx tsc -p packages/docs-mcp/tsconfig.json --noEmit
 ```
 
-Source changes to imported code require stopping/restarting the service and reconnecting clients. Restart shared workbenches too because their service port/token are bound at launch. Canonical writing guidance reloads between tasks; installed references refresh on reinstall. Runtime changes are rejected during active authoring. The snapshot records package source hashes, repository commits, tool contracts, and guidance identity.
+Source changes to imported code require stopping/restarting the service and reconnecting clients. Restart shared workbenches too because their service port/token are bound at launch. Canonical writing guidance reloads between tasks. Runtime changes are rejected during active authoring. The snapshot records package source hashes, repository commits, tool contracts, and guidance identity.
 
 Runtime metadata/logs live at `~/.local/state/codecaine-docs/`, or `CODECAINE_DOCS_STATE_DIR`. `daemon.json` contains the local credential; do not share it. No API key is needed for this service. Code execution remains in the external client.
 
@@ -75,7 +75,7 @@ The [setup guide](../../objectives/docs-mcp-integration/setup-guide.html) record
 
 ## Maintained Documentation
 
-Start with [Docs MCP Maintenance](../../docs/40-guides/10-docs-mcp/doc.json) in the Docs corpus. It links setup and discovery, skills and component knowledge, synchronization and updates, and validation and recovery. The [Docs MCP implementation page](../../docs/30-implementation/10-packages/85-docs-mcp/doc.json) owns architecture and source locations.
+Start with [Docs MCP Maintenance](../../docs/40-guides/10-docs-mcp/doc.json) in the Docs corpus. It links setup and discovery, guidance and component knowledge, synchronization and updates, and validation and recovery. The [Docs MCP implementation page](../../docs/30-implementation/10-packages/85-docs-mcp/doc.json) owns architecture and source locations.
 
 The [HTML maintenance reference](../../objectives/docs-mcp-integration/maintenance-reference.html) is a generated reading copy of those pages. After changing them through Docs tools, regenerate it from this checkout with:
 
@@ -83,7 +83,7 @@ The [HTML maintenance reference](../../objectives/docs-mcp-integration/maintenan
 bun objectives/docs-mcp-integration/artifacts/export-maintenance.ts
 ```
 
-The setup handoff holds dated acceptance evidence. Keep current operating instructions in the corpus, generated skill references derived from canonical sources, and client-installed copies refreshed through the installer.
+The setup handoff holds dated acceptance evidence. Keep current operating instructions in the corpus. The Docs tools serve the guidance from the corpus, so no installed copy needs a refresh.
 
 ## Document and Asset Management
 

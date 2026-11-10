@@ -21,6 +21,11 @@
         "maintenance-9",
         "maintenance-10",
         "maintenance-11",
+        "setup-retired-skills",
+        "setup-retired-skills-root",
+        "setup-retired-skills-owner",
+        "setup-retired-skills-files",
+        "setup-retired-skills-doctor",
         "maintenance-12",
         "maintenance-13",
         "maintenance-14",
@@ -137,7 +142,16 @@
       "props": {},
       "text": [
         {
-          "insert": "4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client can load the installed skill and tools."
+          "insert": "4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client loads the Docs tools. The agent calls "
+        },
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first for the projects and the guidance topics."
         }
       ],
       "children": []
@@ -161,24 +175,20 @@
       "props": {
         "columns": [
           "Client",
-          "Connection",
-          "Skill location"
+          "Connection"
         ],
         "rows": [
           [
             "Codex",
-            "MCP stdio entry mcp_servers.docs-system in ~/.codex/config.toml. CODEX_HOME changes the config directory.",
-            "~/.agents/skills/docs-system"
+            "MCP stdio entry mcp_servers.docs-system in ~/.codex/config.toml. CODEX_HOME changes the config directory."
           ],
           [
             "Claude Code",
-            "MCP stdio entry mcpServers.docs-system in ~/.claude.json.",
-            "~/.claude/skills/docs-system"
+            "MCP stdio entry mcpServers.docs-system in ~/.claude.json."
           ],
           [
             "pi Agent",
-            "~/.pi/agent/extensions/docs-system.ts imports the bridge from the checkout. PI_CODING_AGENT_DIR changes the pi directory.",
-            "~/.agents/skills/docs-system"
+            "~/.pi/agent/extensions/docs-system.ts imports the bridge from the checkout. PI_CODING_AGENT_DIR changes the pi directory."
           ]
         ]
       },
@@ -190,7 +200,108 @@
       "props": {},
       "text": [
         {
-          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries, skill files, and pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries and the pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills": {
+      "id": "setup-retired-skills",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Earlier installs also wrote docs-system and codecaine-docs skill copies, and the installer removes the files they wrote. For Codex or pi, it checks "
+        },
+        {
+          "insert": "~/.agents/skills",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". For Claude Code, it checks the skills folder of the Claude directory."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-root": {
+      "id": "setup-retired-skills-root",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The installer and doctor skip a skills folder that is a symlink or sits under a symlink inside the home directory. Another tool, such as a config sync, manages that folder."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-owner": {
+      "id": "setup-retired-skills-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A copy is installer-owned when it is a real directory, its SKILL.md frontmatter names the skill, and its snapshot.json has the generated shape."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-files": {
+      "id": "setup-retired-skills-files",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "From an installer-owned copy, the installer removes the regular files references/standards.md, references/components.md, and references/components/<name>.md for each registered component, then snapshot.json and SKILL.md."
+        }
+      ],
+      "children": [
+        "setup-retired-skills-backup",
+        "setup-retired-skills-last",
+        "setup-retired-skills-kept"
+      ]
+    },
+    "setup-retired-skills-backup": {
+      "id": "setup-retired-skills-backup",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It keeps a backup beside each removed file, and restore puts the file back."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-last": {
+      "id": "setup-retired-skills-last",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "SKILL.md and snapshot.json go last, so an install that stops partway still finds the copy on the next run."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-kept": {
+      "id": "setup-retired-skills-kept",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every other file and the folders stay."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-doctor": {
+      "id": "setup-retired-skills-doctor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doctor reports each of those generated files as leftover until an install removes it."
         }
       ],
       "children": []

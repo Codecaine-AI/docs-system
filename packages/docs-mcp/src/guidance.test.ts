@@ -2,7 +2,7 @@ import { afterEach, expect, test } from "bun:test";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { loadGuidance, generateSkillReferences, guidanceTopics } from "./guidance";
+import { loadGuidance, guidanceTopics } from "./guidance";
 import { ALL_COMPONENTS } from "../../docs-model/src/components";
 import { AUTHORING_BUNDLES, STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES, WORKFLOW_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
 
@@ -29,7 +29,7 @@ test("external guidance uses the shared renderer and covers every registered com
   expect((await loadGuidance()).snapshotId).toBe(snapshot.snapshotId);
 });
 
-test("the snapshot hashes only served sources, so a skill edit never changes the snapshot id", async () => {
+test("the snapshot hashes only served sources", async () => {
   const { sources } = await loadGuidance();
   expect(sources.filter(source => source.path.includes("skills/"))).toEqual([]);
   expect([...new Set(sources.map(source => source.kind))].sort()).toEqual(["component-doc", "component-manifest", "renderer", "standard", "style", "workflow"]);
@@ -82,21 +82,4 @@ test("canonical edits change the next snapshot while existing snapshots remain u
   await expect(loadGuidance({ docsRoot: target })).rejects.toThrow("structurally invalid");
   await rm(path);
   await expect(loadGuidance({ docsRoot: target })).rejects.toThrow();
-});
-
-test("generated references contain maintained content and one matching snapshot", async () => {
-  const output = await temp();
-  const snapshot = await loadGuidance();
-  await generateSkillReferences(output, snapshot);
-  expect(await readFile(join(output, "references/standards.md"), "utf8")).toContain(snapshot.text);
-  const catalog = await readFile(join(output, "references/components.md"), "utf8");
-  for (const component of snapshot.components) {
-    expect(catalog).toContain(`components/${component.name}.md`);
-    const reference = await readFile(join(output, "references/components", `${component.name}.md`), "utf8");
-    expect(reference).toContain(snapshot.snapshotId);
-    expect(reference).toContain(snapshot.componentReferences[component.name]!);
-  }
-  const manifest = JSON.parse(await readFile(join(output, "snapshot.json"), "utf8"));
-  expect(manifest.snapshotId).toBe(snapshot.snapshotId);
-  expect(manifest.sources).toEqual(snapshot.sources);
 });
