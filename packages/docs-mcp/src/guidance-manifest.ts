@@ -1,9 +1,17 @@
 /**
- * The rule-unit manifest of the deleted docs-system skill. Each unit keeps a run of SKILL.md lines as the skill wrote
- * them, and names the served guidance that now carries it: a docs_guidance topic or a drop with a reason.
- * capabilities.test.ts runs each unit's contract against the served text and strips each unit to prove its contract
- * fails. cli.ts manifest prints the units as JSON for the prose judge.
+ * The rule-unit manifest of two skills. Each unit keeps a run of skill lines as the skill wrote them, and names the
+ * served guidance that now carries it: a docs_guidance topic, a drop with a reason, or a keep in the skill remainder.
+ * The docs-system skill is deleted, so its units keep only their text. The sequence skill still exists under
+ * SEQUENCE_SKILL_ROOT: every non-blank line of its SKILL.md and references/ files sits in one unit, and each unit
+ * carries its file's pinned sha256. capabilities.test.ts checks the line spans, runs each unit's contract against the
+ * served text and strips each unit to prove its contract fails. cli.ts manifest prints the units as JSON for the prose judge.
  */
+import { readFile } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+/** The sequence skill as the external/sequence submodule pins it, so the pins below move only with a submodule bump. */
+export const SEQUENCE_SKILL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../external/sequence/packages/sequence/skills/sequence");
 
 /** The eval scenario that exercises a unit. The gate runners build one task per scenario. */
 export const SCENARIOS = {
@@ -19,33 +27,42 @@ export const SCENARIOS = {
   "implementation-change": "Document an implementation change from its source.",
   "component-example": "Write a worked component example.",
   "setup-gap": "Report a missing Docs connection.",
+  "draw-sequence": "Draw a sequence diagram from a brief into a sequence block.",
 } as const;
 export type ScenarioId = keyof typeof SCENARIOS;
 
-/** metadata: skill frontmatter. rule, step, link: hand-written prose. */
-export type UnitKind = "metadata" | "rule" | "step" | "link";
-/** Where the unit is served now. A drop is allowed only for a unit that routes output to another system. */
-export type Destination = { topic: string } | { component: string } | { drop: "instruments"; reason: string };
+/** metadata: skill frontmatter. rule, step, link: hand-written prose. generated: a whole generated reference file. */
+export type UnitKind = "metadata" | "rule" | "step" | "link" | "generated";
+/**
+ * Where the unit is served now. A drop is allowed only for a unit that routes output to another system. A keep stays
+ * in the skill remainder, and is allowed only for a T3 Code thread step of the knowledge-session skill.
+ */
+export type Destination = { topic: string } | { drop: "instruments"; reason: string } | { keep: string; reason: string };
 /** Recorded behavior gets a structured assertion: each tool is in tools/list, and the service refuses with this exact text. */
 export type Behavior = { tools?: readonly string[]; refusal?: string };
 export type ManifestUnit = {
   id: string;
+  /** The skill the unit comes from. */
+  skill: "docs-system" | "sequence";
   kind: UnitKind;
-  /** Path in the deleted skill folder `packages/docs-mcp/skills/docs-system/`. */
+  /** Path in the skill folder: the deleted `packages/docs-mcp/skills/docs-system/`, or SEQUENCE_SKILL_ROOT. */
   file: string;
   /** First and last line, 1-based and inclusive. */
   lines: readonly [number, number];
+  /** sha256 of the whole file, for a unit of a skill that still exists. */
+  sha256?: string;
   /** The unit's lines as the file held them. */
   text: string;
-  /** Exact phrases of the served text that carry the unit's rule. */
+  /** Exact phrases of the served text that carry the unit's rule. A generated unit has none: its served text must hold every line. */
   anchors: readonly string[];
   scenario: ScenarioId;
   destination: Destination;
   behavior?: Behavior;
 };
+type UnitSpec = Omit<ManifestUnit, "skill" | "sha256" | "text"> & { text?: string };
 
 const workflow = { topic: "workflow" } as const;
-const UNITS: readonly ManifestUnit[] = [
+const DOCS_UNITS: readonly UnitSpec[] = [
   {
     id: "skill.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "edit-page", destination: workflow,
     text: "---\nname: docs-system\ndescription: Read and update Docs System documentation through the connected Docs tools. Use when a project has a Docs System corpus or the user asks to document implementation changes, explain existing documentation, or edit documentation components.\nmetadata:\n  version: \"0.1.0\"\n  product: docs\ncompatibility: Requires the Docs System tool connection. Codex and Claude Code use MCP; pi Agent uses the installed bridge extension.\n---",
@@ -255,9 +272,220 @@ const UNITS: readonly ManifestUnit[] = [
   },
 ];
 
-/** The full manifest, a fresh copy on each call. */
-export async function guidanceManifest(): Promise<ManifestUnit[]> {
-  return structuredClone(UNITS) as ManifestUnit[];
+/** The sha256 of each sequence skill file. A changed file fails the line-span test until its units are re-cut and re-pinned. */
+export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
+  "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
+  "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
+  "references/language.md": "cdaf935920f65ab9dd909431dbdadf068ffb72ab002f6d3c4944708e0f208165",
+};
+/** The refusal of a sequence write in a task that has not read topic sequence-writing. */
+export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
+
+const sequenceWriting = { topic: "sequence-writing" } as const;
+const components = { topic: "components" } as const;
+/** The sequence skill units. A prose unit holds its lines as text. A generated reference file is one unit, and its text comes from disk. */
+const SEQUENCE_UNITS: readonly UnitSpec[] = [
+  {
+    id: "sequence.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "choose-block", destination: { drop: "instruments", reason: "The frontmatter only loads the skill. The instruments skill routes an ordered interaction with calls and returns to a sequence block." },
+    text: "---\nname: sequence\ndescription: \"Write and edit UML sequence diagrams as sequence blocks in Codecaine docs pages through the docs-system MCP: request flows, call and return order, retries, failures and alternatives between named participants. Use after the instruments skill routes a diagram to a sequence block, when Ford says sequence diagram, or before any docs_sequence_* call.\"\ncompatibility: \"Needs the docs-system MCP server.\"\nmetadata:\n  version: \"0.1.0\"\n  product: sequence\n---",
+    anchors: ["Ordered interaction with calls and returns", "sequence block"],
+  },
+  {
+    id: "sequence.intro.block", kind: "rule", file: "SKILL.md", lines: [10, 13], scenario: "choose-block", destination: components,
+    text: "# Sequence\n\nA sequence diagram is always a block inside the docs page it explains. The\nblock only points at a sidecar file, `assets/sequences/<name>.sequence.json`.",
+    anchors: ["The block references a sequence sidecar managed through typed sequence tools"],
+  },
+  {
+    id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: workflow,
+    text: "That JSON document is the source of truth. You edit it as a short text\nprogram, and the docs-mcp `docs_sequence_*` tools are the only write path.\nThis skill has no MCP server of its own.",
+    anchors: ["Never edit `doc.json` or a Canvas or Sequence sidecar with a filesystem write", "The tools keep the typed document structure, component sidecars, revisions, and validation"],
+  },
+  {
+    id: "sequence.columns.lead", kind: "rule", file: "SKILL.md", lines: [18, 21], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "## Order the Columns Before You Write Them\n\nEach column that an arrow crosses makes the flow harder to follow. Before\nyou write the participant lines, do these steps:",
+    anchors: ["## Order the Columns Before You Write Them", "Each column that an arrow crosses makes the flow harder to follow", "Before you write the participant lines, do these steps"],
+  },
+  {
+    id: "sequence.columns.steps", kind: "step", file: "SKILL.md", lines: [23, 27], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "1. Find the first caller: the participant that sends the first message. Put it in column 1, even when an actor appears first in the brief.\n2. Add each other participant in the order it first receives a message, a return included. Most calls then run left to right.\n3. Count the messages of each pair of participants, in both directions.\n4. For each pair with 3 or more messages, check that no other column sits between the two participants.\n5. If a column sits between a busy pair, move the right one of the two left, next to the other. Then do step 4 again.",
+    anchors: ["Find the first caller, the participant that sends the first message, and put it in column 1", "Do this even when an actor appears first in the brief", "Add each other participant in the order it first receives a message, a return included", "Count the messages of each pair of participants, in both directions", "For each pair with 3 or more messages, check that no other column sits between the two participants", "If a column sits between a busy pair, move the right one of the two left, next to the other. Then do step 4 again."],
+  },
+  {
+    id: "sequence.columns.example", kind: "rule", file: "SKILL.md", lines: [29, 34], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "Never move a participant left of the participant that first calls it. For\nexample, a lead agent sends the first call to a builder and later asks Ford a\nquestion. The lead goes in column 1, the builder in column 2, and Ford to\nthe right of both. When a kernel plugin writes `trace.db` 6 times, put\n`trace.db` in the column right of the plugin, even when the plugin calls\ntwo providers first.",
+    anchors: ["Never move a participant left of the participant that first calls it", "A lead agent that calls a builder first and asks Ford a question later goes in column 1, the builder in column 2, and Ford to the right of both", "When a kernel plugin writes `trace.db` 6 times, `trace.db` goes in the column right of the plugin, even when the plugin calls two providers first"],
+  },
+  {
+    id: "sequence.when", kind: "rule", file: "SKILL.md", lines: [36, 42], scenario: "choose-block", destination: components,
+    text: "## When to Use a Sequence Block\n\n- Use one when the order of calls and returns between named parts explains the behavior.\n- Good subjects are a request flow, a handshake, a retry, a failure path and an agent tool loop.\n- Keep it bounded: one interaction, from its first call to its last return.\n- Use a canvas for structure, ownership or a state chart. A sequence block shows time, not structure.\n- Check each message against source code or a trace before you draw it.",
+    anchors: ["Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior", "Verify the sequence against source or trace evidence", "Use Canvas for system connections, ownership boundaries, and dependencies", "tool calls, request and return paths"],
+  },
+  {
+    id: "sequence.workflow.begin", kind: "step", file: "SKILL.md", lines: [44, 47], scenario: "draw-sequence", destination: workflow,
+    text: "## Workflow\n\n1. Call `docs_capabilities` for the project ids, then call `docs_begin`. Keep its `task_id` for every call below.\n2. Read `docs_guidance` topic `style`, then read the page with `docs_read`.",
+    anchors: ["Call `docs_capabilities` for the workspace, and use a project id that it returns", "Call `docs_begin`, and keep its `task_id` for every call", "Read `docs_guidance` with that `task_id` and topic `style`", "Read the page and its neighbors with `docs_read`"],
+    behavior: { tools: ["docs_capabilities", "docs_begin", "docs_guidance", "docs_read"] },
+  },
+  {
+    id: "sequence.workflow.guide", kind: "step", file: "SKILL.md", lines: [48, 48], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "3. Read `references/language.md` before you write a program. Read `references/design-decisions.md` before you change how a diagram is built.",
+    anchors: ["# The Sequence Language, v1 Grammar", "# Sequence Design Decisions"],
+    behavior: { tools: ["docs_sequence_set_program"], refusal: SEQUENCE_WRITING_REFUSAL },
+  },
+  {
+    id: "sequence.workflow.create", kind: "step", file: "SKILL.md", lines: [49, 49], scenario: "draw-sequence", destination: workflow,
+    text: "4. For a new diagram, call `docs_component_create` with `component: \"sequence\"`, then insert the block with the returned `src`.",
+    anchors: ["Use `docs_component_create` to create a validated Canvas or Sequence sidecar before you insert its component block"],
+    behavior: { tools: ["docs_component_create"] },
+  },
+  {
+    id: "sequence.workflow.hashes", kind: "step", file: "SKILL.md", lines: [50, 50], scenario: "draw-sequence", destination: workflow,
+    text: "5. Call `docs_component_read` on the block. Pass its `doc_hash` as `expected_hash` and its `hash` as `expected_component_hash`.",
+    anchors: ["For a Canvas or Sequence block, read `docs_component_read` first", "Pass its `hash` as `expected_component_hash`"],
+    behavior: { tools: ["docs_component_read"] },
+  },
+  {
+    id: "sequence.workflow.program", kind: "step", file: "SKILL.md", lines: [51, 51], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "6. Call `docs_sequence_set_program` with the whole program and both hashes.",
+    anchors: ["An agent rewrites the whole program", "There is no patch DSL and no incremental edit syntax"],
+    behavior: { tools: ["docs_sequence_set_program"] },
+  },
+  {
+    id: "sequence.workflow.result", kind: "step", file: "SKILL.md", lines: [52, 52], scenario: "draw-sequence", destination: workflow,
+    text: "7. Read the result: the program text, the findings and the SVG path. Open the SVG, fix each finding, and send the whole program again.",
+    anchors: ["A Sequence edit also returns the saved `program` and an `svg_path` to open as an image", "Fix the `style_findings` and `component_findings` in each result before the next edit"],
+  },
+  {
+    id: "sequence.workflow.style", kind: "step", file: "SKILL.md", lines: [53, 53], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "8. Set colors and spacing with `docs_sequence_set_style`. Style never goes in the program. `docs_sequence_set_title` changes only the title.",
+    anchors: ["Styling never appears in a program", "Accent colors, fragment color, participant fill, and scale live only in `SequenceDocument.style`", "(`setProgram` / `setStyle` / `setTitle`)"],
+  },
+  {
+    id: "sequence.workflow.check", kind: "step", file: "SKILL.md", lines: [54, 54], scenario: "draw-sequence", destination: workflow,
+    text: "9. Run `docs_check` on the page and fix what it reports.",
+    anchors: ["Run `docs_check` with `task_id` on each changed page"],
+    behavior: { tools: ["docs_check"] },
+  },
+  {
+    id: "sequence.workflow.conflict", kind: "rule", file: "SKILL.md", lines: [56, 58], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "A hash conflict means the page or the sidecar changed. Read it again, merge\nyour change into the new program, and send it once more. A parse error\nnames its line. Fix every listed line, because a failed parse changes nothing.",
+    anchors: ["It returns either a successful document or line-numbered errors", "The parser collects multiple errors where feasible", "A failed parse produces no replacement document"],
+  },
+  {
+    id: "sequence.rules.whole", kind: "rule", file: "SKILL.md", lines: [60, 62], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "## Rules of the Language\n\n- Send the whole program every time. There is no patch or partial program.",
+    anchors: ["An agent rewrites the whole program", "There is no patch DSL and no incremental edit syntax"],
+  },
+  {
+    id: "sequence.rules.parts", kind: "rule", file: "SKILL.md", lines: [63, 65], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- A program has three parts in this order: an optional `title` line, the participants, then `seq`.\n  - A program without a `title` line keeps the diagram's existing title. Change or clear a title with `docs_sequence_set_title`.\n  - Put exactly one blank line before `seq`.",
+    anchors: ["A program has three parts, in this order:", "**The optional title.**", "Exactly one blank line separates the participants from `seq`", "A program without this line has no title"],
+  },
+  {
+    id: "sequence.rules.participants", kind: "rule", file: "SKILL.md", lines: [66, 67], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Number participants 1, 2, 3 with no gaps, in left-to-right order. The number is the participant's identity.\n- Write participant fields in this order: `text=`, `kind=actor`, `label=`, `stereotype=`. Only `text=` is required.",
+    anchors: ["Numbers are dense and in declaration order", "The number **is** the participant's identity in the program", "participant fields in the fixed order `text=`, `kind=actor`, `label=`, `stereotype=`", "| `text=` | yes | the participant's short name |"],
+  },
+  {
+    id: "sequence.rules.messages", kind: "rule", file: "SKILL.md", lines: [68, 73], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Write each message as `<from> <arrow> <to> text=<value>`.\n  - `>` is a sync call. `->` is an async message. `-->` is a return, drawn dashed.\n  - Use `>` for every call the caller waits on: a tool call, an RPC, an HTTP request or a write that must finish first.\n  - A waited-on call stays `>` even when the diagram draws no reply for it.\n  - Use `->` only for a message nobody waits on, such as an event, a notification or a chat message.\n  - A self-message uses one number on both sides, such as `2 > 2 text=validate`.",
+    anchors: ["The form is `<from> <arrow> <to> text=<v>`", "| `-->` | return | dashed line, open arrowhead |", "A call whose caller waits for the reply is sync (`>`)", "An MCP tool call, an RPC and an HTTP request with its response are all sync", "Use async (`->`) only for a message the sender does not wait on", "A waited-on call with no listed return stays `>`", "A self-message uses the same number on both sides"],
+  },
+  {
+    id: "sequence.rules.fragments", kind: "rule", file: "SKILL.md", lines: [74, 76], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- The fragments are `alt` with `else`, `opt` and `loop`.\n  - Each needs `guard=`. An `else` can omit it.\n  - Indent 2 spaces per level, never tabs. Dedent to close a fragment. There is no end keyword.",
+    anchors: ["`alt`, `opt`, and `loop` each begin an operand", "A non-first operand may omit its guard", "requires `guard=<v>`", "Tabs are an error", "Indentation is exactly 2 spaces per level", "There is no `end` keyword"],
+  },
+  {
+    id: "sequence.rules.notes", kind: "rule", file: "SKILL.md", lines: [77, 77], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- A note is `note over=N text=<value>`. The side can also be `left=N` or `right=N`.",
+    anchors: ["The form is `note <side>=<N> text=<v>`, where `<side>` is exactly `over`, `left`, or `right`"],
+  },
+  {
+    id: "sequence.rules.values", kind: "rule", file: "SKILL.md", lines: [78, 78], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- A value can be bare only when it holds letters, digits, `_`, `(`, `)` and `-`. Quote all other values, such as `text=\"Login page\"`.",
+    anchors: ["Values used in labeled fields are bare tokens if and only if they match `/^[A-Za-z0-9_()-]*$/` and contain no space", "All other values are JSON-quoted strings"],
+  },
+  {
+    id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 82], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.\n  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.",
+    anchors: ["Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "Layout derives each activation bar from sync calls, their matching returns and the turns of each caller", "A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "sync call activates receiver until the matching return"],
+  },
+  {
+    id: "sequence.reader.names", kind: "rule", file: "SKILL.md", lines: [84, 88], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "## Writing for the Reader\n\n- Name participants in the reader's words, such as `browser`, `docs server` and `database`.\n  - Keep a header to a name of 1 to 3 words, in one case style for every participant, such as `Child agent` next to `Parent agent`.\n  - Put a code name the brief gives, such as `buildLead(threads)`, in `stereotype=`. Leave any other detail about a participant out of the diagram: never move it into a note.",
+    anchors: ["## Writing for the Reader", "Name participants in the reader's words, such as `browser`, `docs server` and `database`", "Keep a header to 1 to 3 words, in one case style for every participant, such as `Child agent` next to `Parent agent`", "Put a code name the brief gives, such as `buildLead(threads)`, in `stereotype=`", "Leave any other participant detail out of the diagram, and never move it into a note"],
+  },
+  {
+    id: "sequence.reader.columns", kind: "link", file: "SKILL.md", lines: [89, 89], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Order the columns with the steps in \"Order the Columns Before You Write Them\".",
+    anchors: ["## Order the Columns Before You Write Them"],
+  },
+  {
+    id: "sequence.reader.labels", kind: "rule", file: "SKILL.md", lines: [90, 92], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Write a message label as the call or event the reader knows, such as `fetch(user)` or `200 OK`.\n  - Keep a plain-words label to 40 characters or fewer, and a code call to 56. Keep each argument the brief names, and drop the others.\n  - Use one label style in a diagram: a code call for a tool or API call, plain words for an event. Never add a prefix such as `publish:`.",
+    anchors: ["Write a message label as the call or event the reader knows, such as `fetch(user)` or `200 OK`", "Keep a plain-words label to 40 characters or fewer and a code call to 56", "Keep each argument the brief names and drop the others", "Use one label style in a diagram, a code call for a tool or API call and plain words for an event", "Never add a prefix such as `publish:`"],
+  },
+  {
+    id: "sequence.reader.brief", kind: "rule", file: "SKILL.md", lines: [93, 99], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Copy each detail the brief lists. Never rename, merge or drop one.\n  - Copy each argument the brief names into the call label, such as `getOrder(orderId, userId)`. When the brief lists a tool's parameters, write the required ones by name.\n  - Never abbreviate a name the brief uses, such as `baseRevision` to `baseRev`. A code call that lists the brief's arguments can run to 56 characters; shorten plain words first, such as `session_update(id, thread, phase, links)`. Never write an ellipsis, and never move a dropped argument into a note.\n  - Never write an argument the brief does not give for that call. A guessed argument, such as `read(childThreadId)` for a tool that takes `requestId`, misstates the tool.\n  - Write a guard in the brief's words, in prose with no code operator such as `!=`. Keep every condition and remark the brief puts in it, such as `(this part is proposed)` or `the last entry of models`.\n  - Draw each return the brief lists as its own arrow, in the brief's order. Never merge two returns into one.\n  - Keep the place the brief gives for a value, such as `ids in body.meta`.",
+    anchors: ["Copy each detail the brief lists, and never rename, merge or drop one", "Copy each argument it names into the call label, such as `getOrder(orderId, userId)`, and write the required parameters by name", "Never abbreviate a name the brief uses, such as `baseRevision` to `baseRev`", "Shorten plain words first, never write an ellipsis, and never move a dropped argument into a note", "A guessed argument, such as `read(childThreadId)` for a tool that takes `requestId`, misstates the tool", "Write a guard in the brief's words, with no code operator such as `!=`", "Keep every condition and remark the brief puts in the guard, such as `(this part is proposed)`", "Draw each return the brief lists as its own arrow, in the brief's order", "keep the place the brief gives for a value, such as `ids in body.meta`"],
+  },
+  {
+    id: "sequence.reader.one-arrow", kind: "rule", file: "SKILL.md", lines: [100, 100], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Draw one arrow for each call. Never join two calls in one label with \"then\", because a reply then seems to answer both.",
+    anchors: ["Draw one arrow for each call", "Never join two calls in one label with \"then\", because a reply then seems to answer both"],
+  },
+  {
+    id: "sequence.reader.returns", kind: "rule", file: "SKILL.md", lines: [101, 103], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Draw a return only where the brief lists one or the reader must see the reply.\n  - A waited-on call with no listed return stays `>` with no return.\n  - Never add a return such as `saved` or `ok` only to close a call.",
+    anchors: ["Draw a return only where the brief lists one or the reader must see the reply", "A waited-on call with no listed return stays `>`", "never add a return such as `ok` only to close a call"],
+  },
+  {
+    id: "sequence.reader.alt", kind: "rule", file: "SKILL.md", lines: [104, 106], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- When an `alt` branches on a call's reply, put each reply inside the branch it starts, as that branch's first step.\n  - Never merge two outcomes into one reply before the `alt`, such as `200 or 409`.\n  - Let each guard name the condition, and draw only the replies the brief lists.",
+    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`"],
+  },
+  {
+    id: "sequence.reader.guards", kind: "rule", file: "SKILL.md", lines: [107, 107], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Keep a guard to 60 characters or fewer by cutting filler words, never a condition. A note cannot restrict a branch, so a condition never moves to a note. Keep a reason the brief gives with `because` in the guard, in a few words, such as `after a replan`.",
+    anchors: ["Keep a guard to 60 characters or fewer by cutting filler words, never a condition", "A note cannot restrict a branch, so a condition never moves to a note", "Keep a reason the brief gives with `because`, in a few words, such as `after a replan`"],
+  },
+  {
+    id: "sequence.reader.size", kind: "rule", file: "SKILL.md", lines: [108, 108], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Keep a diagram to about 5 participants and 20 messages. Split a larger flow into two blocks.",
+    anchors: ["Keep a diagram to about 5 participants and 20 messages, and split a larger flow into two blocks"],
+  },
+  {
+    id: "sequence.reader.notes", kind: "rule", file: "SKILL.md", lines: [109, 111], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Use a note only where the brief lists one. Keep it short, one fact a message cannot carry.\n  - Keep each condition that the brief gives for that fact.\n  - Start every note with a capital letter, and every prose label with a lowercase letter, so each kind of text has one look.",
+    anchors: ["Use a note only where the brief lists one, for one fact a message cannot carry", "Keep each condition the brief gives for that fact", "Start every note with a capital letter and every prose label with a lowercase letter"],
+  },
+  {
+    id: "sequence.reader.findings", kind: "rule", file: "SKILL.md", lines: [112, 112], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- When a `docs_sequence_set_program` result lists a `long-label`, `long-guard`, `joined-calls` or `leftward-call` finding, fix it.",
+    anchors: ["Fix each `long-label`, `long-guard`, `joined-calls` or `leftward-call` finding in a `docs_sequence_set_program` result", "The lints of `docs_sequence_set_program` check four of them"],
+    behavior: { tools: ["docs_sequence_set_program"] },
+  },
+  {
+    id: "sequence.references", kind: "link", file: "SKILL.md", lines: [114, 118], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "## References\n\n- `references/language.md` is the complete v1 grammar, with every form, the canonical layout, the errors and the parts left out on purpose.\n- `references/design-decisions.md` holds the settled design decisions: the JSON document as source of truth, the text program as a projection, and style kept apart.\n- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
+    anchors: ["# The Sequence Language, v1 Grammar", "# Sequence Design Decisions", "These decisions are settled"],
+  },
+  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 273], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
+  { id: "sequence.reference.design-decisions", kind: "generated", file: "references/design-decisions.md", lines: [1, 12], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
+];
+
+/** The full manifest, a fresh copy on each call. A sequence unit carries its file's pinned sha256, and a generated unit its whole file as text. */
+export async function guidanceManifest(root = SEQUENCE_SKILL_ROOT): Promise<ManifestUnit[]> {
+  const docs = DOCS_UNITS.map(unit => ({ skill: "docs-system" as const, ...unit, text: unit.text! }));
+  const sequence = await Promise.all(SEQUENCE_UNITS.map(async unit => ({
+    skill: "sequence" as const,
+    ...unit,
+    sha256: SEQUENCE_PINNED_SHA256[unit.file]!,
+    text: unit.text ?? (await readFile(join(root, unit.file), "utf8")).split("\n").slice(0, unit.lines[1]).join("\n"),
+  })));
+  return structuredClone([...docs, ...sequence]);
 }
 
 /** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */

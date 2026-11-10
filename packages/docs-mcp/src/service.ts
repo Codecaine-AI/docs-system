@@ -10,7 +10,7 @@ import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type Discovery, type DocsProject } from './discovery';
 import { createDocsTools, type DocsToolContext, type DocsToolResult } from './tools';
 import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, servedText, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
-import { CAPABILITIES, requiredTopics } from './guidance-manifest';
+import { CAPABILITIES, SEQUENCE_WRITING_REFUSAL, requiredTopics } from './guidance-manifest';
 import manifest from '../package.json';
 import { implementationFingerprint } from './lifecycle';
 import { textMeasureBackend, textMeasureReady, watchDocsRoot } from '@codecaine-ai/docs-server';
@@ -23,7 +23,7 @@ const string={type:'string',minLength:1};
 const MUTATION_READS = new Set(['docs_tree','docs_read','docs_check','docs_annotations','docs_component_read','docs_search','docs_backlinks','docs_assets','docs_proposals','docs_changesets','docs_changeset_read']);
 const STYLE_GATE='Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 /** The refusal of a write whose task has not read a topic it needs. Each names its recovery call. */
-const GATE_REFUSALS:Record<string,string>={style:STYLE_GATE,'sequence-writing':'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.'};
+const GATE_REFUSALS:Record<string,string>={style:STYLE_GATE,'sequence-writing':SEQUENCE_WRITING_REFUSAL};
 const STYLE_NEXT='Read docs_guidance with task_id and topic "style" before your first edit. Writes are refused until you do.';
 const topicIndex=(topics:GuidanceTopic[])=>topics.map(({topic,covers,text})=>({topic,covers,chars:text.length}));
 /** A task has read a topic when it read that topic or topic "all", which holds every topic. */
