@@ -137,7 +137,16 @@
       "props": {},
       "text": [
         {
-          "insert": "4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client can load the installed skill and tools."
+          "insert": "4. Restart Codex and Claude Code. In pi, run /reload. Open a new task in the target workspace so the client loads the Docs tools. The agent calls "
+        },
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first for the projects and the guidance topics."
         }
       ],
       "children": []
@@ -161,24 +170,20 @@
       "props": {
         "columns": [
           "Client",
-          "Connection",
-          "Skill location"
+          "Connection"
         ],
         "rows": [
           [
             "Codex",
-            "MCP stdio entry mcp_servers.docs-system in ~/.codex/config.toml. CODEX_HOME changes the config directory.",
-            "~/.agents/skills/docs-system"
+            "MCP stdio entry mcp_servers.docs-system in ~/.codex/config.toml. CODEX_HOME changes the config directory."
           ],
           [
             "Claude Code",
-            "MCP stdio entry mcpServers.docs-system in ~/.claude.json.",
-            "~/.claude/skills/docs-system"
+            "MCP stdio entry mcpServers.docs-system in ~/.claude.json."
           ],
           [
             "pi Agent",
-            "~/.pi/agent/extensions/docs-system.ts imports the bridge from the checkout. PI_CODING_AGENT_DIR changes the pi directory.",
-            "~/.agents/skills/docs-system"
+            "~/.pi/agent/extensions/docs-system.ts imports the bridge from the checkout. PI_CODING_AGENT_DIR changes the pi directory."
           ]
         ]
       },
@@ -190,7 +195,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries, skill files, and pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+          "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries and the pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
         }
       ],
       "children": []

@@ -371,16 +371,34 @@
       "props": {},
       "text": [
         {
-          "insert": "packages/docs-mcp/skills/docs-system/SKILL.md",
+          "insert": "Editor Workflow",
           "attributes": {
             "reference": {
-              "kind": "source",
-              "path": "packages/docs-mcp/skills/docs-system/SKILL.md"
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
             }
           }
         },
         {
-          "insert": " teaches agents how to choose management and review tools. Refresh installed copies through the installer after changing it."
+          "insert": " teaches agents how to choose management and review tools. "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves it as topic "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so the next task reads a change to it."
         }
       ],
       "children": []
