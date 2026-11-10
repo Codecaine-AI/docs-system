@@ -83,23 +83,23 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "edit-page", destination: workflow,
     text: "---\nname: docs-system\ndescription: Read and update Docs System documentation through the connected Docs tools. Use when a project has a Docs System corpus or the user asks to document implementation changes, explain existing documentation, or edit documentation components.\nmetadata:\n  version: \"0.1.0\"\n  product: docs\ncompatibility: Requires the Docs System tool connection. Codex and Claude Code use MCP; pi Agent uses the installed bridge extension.\n---",
-    anchors: ["Docs System corpus", "document implementation changes", "edit documentation components", "Pi reaches them through the installed bridge extension"],
+    anchors: ["Docs System corpus", "document implementation changes", "edit documentation components", "Pi reaches them through the installed bridge extension", "explain documentation", "Codex and Claude Code reach the tools through MCP"],
   },
   {
     id: "skill.intro", kind: "rule", file: "SKILL.md", lines: [10, 12], scenario: "edit-page", destination: workflow,
     text: "# Docs System\n\nUse the connected Docs tools for documentation reads and edits. They preserve typed document structure, component sidecars, revisions, and validation. Do not edit `doc.json` or Canvas/Sequence sidecars with filesystem writes.",
-    anchors: ["The tools keep the typed document structure, component sidecars, revisions, and validation", "Never edit `doc.json` or a Canvas or Sequence sidecar with a filesystem write"],
+    anchors: ["The tools keep the typed document structure, component sidecars, revisions, and validation", "Never edit `doc.json` or a Canvas or Sequence sidecar with a filesystem write", "An agent uses the Docs tools for each read and each edit of a corpus"],
   },
   {
     id: "skill.read.discover", kind: "step", file: "SKILL.md", lines: [14, 16], scenario: "multi-project", destination: workflow,
     text: "## Read or Edit\n\n1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.",
-    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection"],
+    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace"],
     behavior: { tools: ["docs_capabilities"] },
   },
   {
     id: "skill.read.begin", kind: "step", file: "SKILL.md", lines: [17, 17], scenario: "read-only", destination: workflow,
     text: "2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.",
-    anchors: ["need no task", "keep its `task_id` for every call"],
+    anchors: ["need no task", "keep its `task_id` for every call", "`docs_tree`, `docs_search`, and `docs_read` need no task"],
     behavior: { tools: ["docs_tree", "docs_read", "docs_begin"] },
   },
   {
@@ -116,7 +116,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.read.complete", kind: "step", file: "SKILL.md", lines: [20, 20], scenario: "multi-project", destination: workflow,
     text: "5. Run the completion check, repair required findings, and report which documents changed and any unresolved findings. If one project fails, retain and report the successful project edits separately.",
-    anchors: ["Report what changed and each finding you could not fix", "If one project fails, keep the edits in the other projects and report them apart"],
+    anchors: ["Report what changed and each finding you could not fix", "If one project fails, keep the edits in the other projects and report them apart", "Run `docs_check` with `task_id` on each changed page"],
     behavior: { tools: ["docs_check"] },
   },
   {
@@ -127,7 +127,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.style.gate", kind: "rule", file: "SKILL.md", lines: [25, 25], scenario: "edit-page", destination: workflow,
     text: "- Read `docs_guidance` with `task_id` and topic `style` before the first edit. The service refuses content writes until you do, once per task.",
-    anchors: ["The service refuses content writes until the task reads topic `style`", "One read in each task is enough"],
+    anchors: ["The service refuses content writes until the task reads topic `style`", "One read in each task is enough", "Read `docs_guidance` with that `task_id` and topic `style`"],
     behavior: { tools: ["docs_guidance"], refusal: "Read the style guide before your first edit: call docs_guidance with task_id and topic \"style\". Required once per task." },
   },
   {
@@ -138,13 +138,13 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.style.check", kind: "rule", file: "SKILL.md", lines: [27, 27], scenario: "edit-page", destination: workflow,
     text: "- Run `docs_check` with `task_id` on each changed page. It blocks on style violations this task introduced.",
-    anchors: ["blocks on style violations that the task introduced"],
+    anchors: ["blocks on style violations that the task introduced", "Run `docs_check` with `task_id` on each changed page"],
     behavior: { tools: ["docs_check"] },
   },
   {
     id: "skill.workflow.begin", kind: "step", file: "SKILL.md", lines: [29, 33], scenario: "edit-page", destination: workflow,
     text: "## Editor Workflow\n\nFollow these steps for every edit, and for each open request on a page.\n\n1. Call `docs_begin` and keep its `task_id` for every call. Then read `docs_guidance` with that `task_id` and topic `style`.",
-    anchors: ["Call `docs_begin`, and keep its `task_id` for every call", "Read `docs_guidance` with that `task_id` and topic `style`"],
+    anchors: ["Call `docs_begin`, and keep its `task_id` for every call", "Read `docs_guidance` with that `task_id` and topic `style`", "Follow these steps for every edit and for each open request on a page"],
     behavior: { tools: ["docs_begin", "docs_guidance"] },
   },
   {
@@ -161,7 +161,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.workflow.component-hash", kind: "step", file: "SKILL.md", lines: [36, 36], scenario: "choose-block", destination: workflow,
     text: "   - For a Canvas or Sequence block, read `docs_component_read` first and pass its `hash` as `expected_component_hash`.",
-    anchors: ["Pass its `hash` as `expected_component_hash`"],
+    anchors: ["Pass its `hash` as `expected_component_hash`", "For a Canvas or Sequence block, read `docs_component_read` first"],
     behavior: { tools: ["docs_component_read"] },
   },
   {
@@ -188,7 +188,8 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.workflow.report", kind: "step", file: "SKILL.md", lines: [42, 42], scenario: "edit-page", destination: workflow,
     text: "5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.",
-    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change"],
+    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "Call `docs_end` with `task_id` to release the task"],
+    behavior: { tools: ["docs_end"] },
   },
   {
     id: "skill.workflow.requests", kind: "rule", file: "SKILL.md", lines: [44, 44], scenario: "work-requests", destination: workflow,
@@ -224,7 +225,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.guidance.typed-blocks", kind: "rule", file: "SKILL.md", lines: [56, 58], scenario: "choose-block", destination: {topic: "style"},
     text: "## Guidance and Components\n\nTyped blocks are the main value of the docs system. Before you write a section as prose or bullets, check whether it describes a shape: fields, files, an execution path, operations, layers, connections, call order, a comparison, or a screen. If it does, use the typed block for that shape, with one or two sentences around it. Keep a short list of plain facts as a list, and keep steps the reader follows as a numbered list. Specs, plans, and design pages need typed blocks most. The Structure page of the style guide (`99-appendix/10-style-guide/20-structure`) maps each shape to its block.",
-    anchors: ["Typed blocks are the main value of this docs system", "Before you write a section as prose or bullets, check whether it describes one of the shapes in this table", "Put one or two sentences around the block", "Keep a short list of plain facts as a list", "Keep steps that the reader follows as a numbered list", "Specs, plans, and design pages need typed blocks most"],
+    anchors: ["Typed blocks are the main value of this docs system", "Before you write a section as prose or bullets, check whether it describes one of the shapes in this table", "Put one or two sentences around the block", "Keep a short list of plain facts as a list", "Keep steps that the reader follows as a numbered list", "Specs, plans, and design pages need typed blocks most", "If the section describes a shape, use its typed block", "Shapes and the typed block for each"],
   },
   {
     id: "skill.guidance.authority", kind: "link", file: "SKILL.md", lines: [60, 60], scenario: "edit-page", destination: workflow,
@@ -255,13 +256,13 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.titles.save", kind: "rule", file: "SKILL.md", lines: [74, 74], scenario: "page-titles", destination: workflow,
     text: "Saves automatically remove only that repeated opening H1 and preserve its children. They do not demote or remove other H1s. The response returns the corrected document, revision, and normalization summary; use that state for subsequent edits. The edit and cleanup share one undo patch.",
-    anchors: ["A save removes only that repeated opening H1 and keeps its children", "It does not demote or remove other H1 headings", "Use that state for the next edit", "The edit and the cleanup share one undo patch"],
+    anchors: ["A save removes only that repeated opening H1 and keeps its children", "It does not demote or remove other H1 headings", "Use that state for the next edit", "The edit and the cleanup share one undo patch", "The save returns the corrected document, its revision, and a normalization summary"],
   },
   {
     id: "skill.titles.repair", kind: "rule", file: "SKILL.md", lines: [76, 76], scenario: "page-titles", destination: workflow,
     text: "Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.",
-    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish"],
-    behavior: { tools: ["docs_check"] },
+    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish", "`docs_fix_lints` stays available for an untouched legacy document"],
+    behavior: { tools: ["docs_check", "docs_fix_lints"] },
   },
   {
     id: "skill.pages.move", kind: "step", file: "SKILL.md", lines: [78, 80], scenario: "move-page", destination: workflow,
@@ -272,7 +273,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.pages.delete", kind: "step", file: "SKILL.md", lines: [82, 82], scenario: "delete-page", destination: workflow,
     text: "Before deleting an old page that owns a shared Canvas, Sequence, or media asset, read the asset hash with `docs_asset_read` and relocate it with `docs_asset_move`. The service updates references in other pages. Then preview `docs_delete`; use `recursive:true` only when deletion of all descendants is intended. Remaining external references block deletion so they can be repaired explicitly.",
-    anchors: ["Move the asset before you delete its page", "The service updates the references in other pages", "only when you intend to delete all descendants", "Remaining external references block the delete, so you can repair them first"],
+    anchors: ["Move the asset before you delete its page", "The service updates the references in other pages", "only when you intend to delete all descendants", "Remaining external references block the delete, so you can repair them first", "Read the asset hash with `docs_asset_read`", "Move the asset with `docs_asset_move`", "Preview `docs_delete`"],
     behavior: { tools: ["docs_asset_read", "docs_asset_move", "docs_delete"] },
   },
   {
@@ -284,7 +285,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.pages.tools", kind: "rule", file: "SKILL.md", lines: [86, 86], scenario: "edit-page", destination: workflow,
     text: "Use `docs_component_create` to create a validated Canvas or Sequence sidecar before inserting its component block. Use asset upload/read/delete tools for media and attachments, annotation tools for discussion, and proposal/changeset tools when the task calls for staged review. Use the advertised schemas for arguments and limits.",
-    anchors: ["to create a validated Canvas or Sequence sidecar before you insert its component block", "Use the asset upload, read, and delete tools for media and attachments", "Use the annotation tools for discussion", "Use the proposal and changeset tools when the task asks for staged review"],
+    anchors: ["to create a validated Canvas or Sequence sidecar before you insert its component block", "Use the asset upload, read, and delete tools for media and attachments", "Use the annotation tools for discussion", "Use the proposal and changeset tools when the task asks for staged review", "the tool schemas give the arguments and the limits"],
     behavior: { tools: ["docs_component_create"] },
   },
   generated("references/components.md", "choose-block", { topic: "components" }, 143),
