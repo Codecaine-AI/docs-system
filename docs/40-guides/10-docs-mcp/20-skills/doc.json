@@ -17,10 +17,10 @@
         "maintenance-5",
         "maintenance-6",
         "maintenance-7",
-        "skill-source-style-digest",
         "skill-source-instructions",
         "maintenance-8",
         "maintenance-9",
+        "skill-receive-capabilities",
         "skill-receive-begin",
         "skill-receive-guidance",
         "maintenance-10",
@@ -189,51 +189,31 @@
       ],
       "children": []
     },
-    "skill-source-style-digest": {
-      "id": "skill-source-style-digest",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "packages/docs-mcp/src/style-digest.ts",
-          "attributes": {
-            "reference": {
-              "kind": "source",
-              "path": "packages/docs-mcp/src/style-digest.ts"
-            }
-          }
-        },
-        {
-          "insert": " holds the 10-rule style digest that "
-        },
-        {
-          "insert": "docs_begin",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " returns first. It summarizes the style guide, which stays the source of truth."
-        }
-      ],
-      "children": []
-    },
     "skill-source-instructions": {
       "id": "skill-source-instructions",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "packages/docs-mcp/src/mcp.ts",
+          "insert": "packages/docs-mcp/src/instructions.ts",
           "attributes": {
             "reference": {
               "kind": "source",
-              "path": "packages/docs-mcp/src/mcp.ts"
+              "path": "packages/docs-mcp/src/instructions.ts"
             }
           }
         },
         {
-          "insert": " holds the five startup instruction lines that clients load with every session."
+          "insert": " holds "
+        },
+        {
+          "insert": "INSTRUCTIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the prompt block that MCP clients load as the server instructions."
         }
       ],
       "children": []
@@ -257,7 +237,33 @@
       "props": {},
       "text": [
         {
-          "insert": "The server advertises tools and five startup instruction lines. It has no MCP prompts capability. Guidance is split into topics so a result stays small enough for a client to show inline."
+          "insert": "The server advertises tools and the "
+        },
+        {
+          "insert": "INSTRUCTIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " prompt block. It has no MCP prompts capability. Guidance is split into topics so a result stays small enough for a client to show inline."
+        }
+      ],
+      "children": []
+    },
+    "skill-receive-capabilities": {
+      "id": "skill-receive-capabilities",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists the project IDs and the guidance topics with their sizes."
         }
       ],
       "children": []
@@ -287,7 +293,16 @@
       "props": {},
       "text": [
         {
-          "insert": "It returns the task ID, the style digest, a guidance topic index with sizes, one-line component purposes, and the snapshot identity."
+          "insert": "It returns the task ID, the pinned snapshot ID, and "
+        },
+        {
+          "insert": "topics_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -323,6 +338,15 @@
         },
         {
           "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "workflow",
           "attributes": {
             "code": true
           }
@@ -417,16 +441,25 @@
       "props": {},
       "text": [
         {
-          "insert": "The catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. One-line component purposes load with "
+          "insert": "The catalog covers rich text, annotated Code, File Tree, Structured Table, State Shape, Interaction Surface, Canvas, Sequence, and Process Outline. "
         },
         {
-          "insert": "docs_begin",
+          "insert": "docs_guidance",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". The full catalog and detailed references load only when needed. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
+          "insert": " topic "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the full catalog, and a component name returns its detailed reference. Connecting an MCP does not prove a client selected the skill. Test implicit use in each client."
         }
       ],
       "children": []
@@ -459,16 +492,7 @@
           }
         },
         {
-          "insert": " with the task ID. When a style guide edit changes a rule the digest summarizes, update "
-        },
-        {
-          "insert": "STYLE_DIGEST",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to match. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
+          "insert": " with the task ID. For tool-use workflow, edit the source SKILL.md. Project-specific standards overrides are not implemented."
         }
       ],
       "children": []

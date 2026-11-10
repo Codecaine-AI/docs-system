@@ -179,7 +179,7 @@
           "insert": " using an ID from "
         },
         {
-          "insert": "bun packages/docs-mcp/src/cli.ts discover --workspace /absolute/workspace/path",
+          "insert": "bun packages/docs-mcp/src/cli.ts capabilities --workspace /absolute/workspace/path",
           "attributes": {
             "code": true
           }
@@ -340,16 +340,7 @@
           }
         },
         {
-          "insert": ", finish authoring with "
-        },
-        {
-          "insert": "docs_end",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or close the active editor draft. The pending build activates when the authority is idle."
+          "insert": ", wait for the open authoring tasks to expire after 30 idle minutes, or close the active editor draft. The pending build activates when the authority is idle."
         }
       ],
       "children": []

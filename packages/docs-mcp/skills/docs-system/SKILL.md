@@ -13,15 +13,15 @@ Use the connected Docs tools for documentation reads and edits. They preserve ty
 
 ## Read or Edit
 
-1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.
-2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.
+1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.
+2. For reading, use the document tree and read tools. For editing, call `docs_begin` and keep its `task_id` for every edit. Read each guidance topic you need with `docs_guidance`.
 3. Read the target document and its relevant neighbors. Use the component catalog (`docs_guidance` topic `components`) to choose the form that explains the subject. Load a component's detailed reference when needed; use the advertised tool schemas for editing mechanics.
 4. Apply supported typed operations with the current document revision. Edits become visible immediately. On a revision conflict, read the current content and reconcile the requested change before retrying.
 5. Run the completion check, repair required findings, and report which documents changed and any unresolved findings. If one project fails, retain and report the successful project edits separately.
 
 ## Style Rules
 
-- `docs_begin` returns the style digest first. Apply it to every block you write.
+- Apply topic `style` to every block you write.
 - Read `docs_guidance` with `task_id` and topic `style` before the first edit. The service refuses content writes until you do, once per task.
 - Write results include `style_findings` for the blocks you changed. Fix them before moving on.
 - Run `docs_check` with `task_id` on each changed page. It blocks on style violations this task introduced.
@@ -39,7 +39,7 @@ Follow these steps for every edit, and for each open request on a page.
    - If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error.
 4. Run `docs_check` with `task_id` on each changed page. Fix its `lint` and `style_gate` findings and each failing component.
    - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
-5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.
+5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.
 
 For a request, reply with `docs_annotation_reply` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.
 
@@ -73,7 +73,7 @@ The display title and body headings are separate. H1 headings are allowed in the
 
 Saves automatically remove only that repeated opening H1 and preserve its children. They do not demote or remove other H1s. The response returns the corrected document, revision, and normalization summary; use that state for subsequent edits. The edit and cleanup share one undo patch.
 
-Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.
+Do not call a repair tool after ordinary edits. Run `docs_check` to review other findings before completion.
 
 ## Page and Asset Management
 

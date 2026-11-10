@@ -36,7 +36,7 @@ beforeEach(async () => {
     await writeFile(join(workspace, name, "docs/page/doc.json"), serializeDocDocument(fixture));
   }
   service = createInteractionService();
-  const found = await invoke("docs_discover");
+  const found = await invoke("docs_capabilities");
   ids = Object.fromEntries(found.projects.map((project: any) => [project.name, project.id]));
 });
 afterEach(async () => {
@@ -56,9 +56,6 @@ test("service requires a live task in the current workspace for every write", as
   expect(wrongWorkspace.detail).toContain("before editing");
   const changed = await invoke("docs_write_text", { ...args, task_id: parentTask.task_id });
   expect(changed.ok).toBe(true);
-  expect((await invoke("docs_end", { task_id: parentTask.task_id })).ended).toBe(true);
-  expect(await invoke("docs_write_text", { ...args, expected_hash: changed.hash, task_id: parentTask.task_id }))
-    .toEqual({ ok: false, detail: `Task ${parentTask.task_id} was ended with docs_end. Call docs_begin for new edits.` });
   expect((await invoke("docs_read", { project: ids.alpha, path: "page" })).markdown).toContain("Updated documentation.");
 });
 
@@ -69,7 +66,6 @@ test("a project learned in another workspace remains unavailable to this workspa
   expect(result.detail).toContain("not in this workspace");
   const task = await invoke("docs_begin", {}, beta);
   expect(await invoke("docs_guidance", { task_id: task.task_id }, workspace)).toEqual({ ok: false, detail: "Unknown task for this workspace." });
-  expect(await invoke("docs_end", { task_id: task.task_id }, workspace)).toEqual({ ok: false, detail: "Unknown task for this workspace." });
   expect((await invoke("docs_guidance", { task_id: task.task_id }, beta)).snapshot_id).toBe(task.snapshot_id);
 });
 
@@ -165,11 +161,11 @@ test("content writes wait until the task reads the style guide", async () => {
   expect((await invoke("docs_write_text", again)).ok).toBe(true);
 });
 
-test("tree, annotation, review, asset, undo, restore, and lint-fix tools skip the style gate", async () => {
+test("tree, annotation, review, asset, undo, and restore tools skip the style gate", async () => {
   const task = await invoke("docs_begin");
   const minimal = { task_id: task.task_id, project: ids.alpha, path: "page" };
   // An exempt tool reaches its own argument validation. A gated tool is refused before it.
-  for (const name of ["docs_create", "docs_move", "docs_set_title", "docs_annotation_add", "docs_proposal_accept", "docs_changeset_accept", "docs_asset_upload", "docs_undo", "docs_management_restore", "docs_fix_lints"]) {
+  for (const name of ["docs_create", "docs_move", "docs_set_title", "docs_annotation_add", "docs_proposal_accept", "docs_changeset_accept", "docs_asset_upload", "docs_undo", "docs_management_restore"]) {
     expect([name, (await invoke(name, minimal)).issues?.length > 0]).toEqual([name, true]);
   }
   for (const name of ["docs_write_text", "docs_apply_ops", "docs_insert", "docs_proposal_stage", "docs_component_create", "docs_state_shape_add_field"]) {
@@ -187,12 +183,9 @@ test("docs_check takes an optional task_id and rejects a task this workspace doe
   const task = await invoke("docs_begin");
   expect((await invoke("docs_check", { ...target, task_id: task.task_id })).structurally_valid).toBe(true);
   const foreign = await invoke("docs_begin", {}, join(workspace, "beta"));
-  await invoke("docs_end", { task_id: task.task_id });
   for (const task_id of ["missing", foreign.task_id]) {
     expect(await invoke("docs_check", { ...target, task_id })).toEqual({ ok: false, detail: "Unknown task for this workspace." });
   }
-  expect(await invoke("docs_check", { ...target, task_id: task.task_id }))
-    .toEqual({ ok: false, detail: `Task ${task.task_id} was ended with docs_end. Call docs_begin for new edits.` });
 });
 
 test("isolated daemon authenticates local requests and removes its state on shutdown", async () => {
@@ -214,7 +207,7 @@ test("isolated daemon authenticates local requests and removes its state on shut
     const healthy = await Bun.fetch(`${state.url}/health`, { headers });
     expect(healthy.status).toBe(200);
     expect((await healthy.json() as any).pid).toBe(child.pid);
-    const rpc = await Bun.fetch(`${state.url}/rpc`, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: JSON.stringify({ workspace, name: "docs_discover", arguments: {} }) });
+    const rpc = await Bun.fetch(`${state.url}/rpc`, { method: "POST", headers: { ...headers, "content-type": "application/json" }, body: JSON.stringify({ workspace, name: "docs_capabilities", arguments: {} }) });
     expect((await rpc.json() as any).structuredContent.projects).toHaveLength(2);
     expect((await Bun.fetch(`${state.url}/shutdown`, { method: "POST", headers })).status).toBe(200);
     await child.exited;

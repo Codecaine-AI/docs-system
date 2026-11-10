@@ -55,23 +55,23 @@ type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
 
 /** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
 export const PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "b1e91579ccb099b356443403430999131a959213e4501ab0e0800894ed93d702",
-  "references/components.md": "f070685b484a4e63def2a1094c55bdda7950103332411b413e6c3b358170b716",
-  "references/components/call-stack.md": "39681ae9fa4206f83c578448ddd06e46c8c4929af22484ff94a3fb5a21817ede",
-  "references/components/canvas.md": "3756eb065f444a2b46cbab10b4ae279005735ec79258f9329d33623ec0bf2f11",
-  "references/components/code.md": "7787dfcb194481f4b0aac82d66cf5ecd6519409a814ee44c4b387439a6ebf45e",
-  "references/components/component-tree.md": "bbbfcc9629598cdeaef12c668c8f917dac37cf29674d180c25c1ddad904b13fe",
-  "references/components/file-explorer.md": "526ad27bbd3626576f6b884c582246f46c022189f2838fc34b28de45c8d06f0e",
-  "references/components/file-tree.md": "788cdbe4fcd72388b8cd97410ce558f70d2147c49f948e7f122ec8d248bf5540",
-  "references/components/interaction-surface.md": "fc1b522a741686e32f7466e373822525703943123aa627ac04cf986817dcc5e4",
-  "references/components/process-outline.md": "bbc6c082cf714c263f2b7bbe119f89ec7275fb84cfa55ceb55ea6516e3db43a3",
-  "references/components/pseudocode.md": "3ab3fe8eca6999756d07a0d6c7c9b16e1f3ab30f6c45f3ead7e3b6f036722969",
-  "references/components/rich-text.md": "c9b119c383417908b72f9482e578f736c60651fa38b9c5ee16df9bf26c71e7b9",
-  "references/components/sequence.md": "a0a8e4d05d83234ee9386bc294690c21bb8d86c3b8946d4b45fc9c78dd9c493d",
-  "references/components/stack.md": "2489f5059f2ec410b7a1c796427f2ec404f4b18ff3968c040b1913e3cb71ef88",
-  "references/components/state-shape.md": "597a9f802df0792e0709f0403273edc3d76bfe305cd58447583bc0c3efa102fa",
-  "references/components/structured-table.md": "9b8a149ddd97747cf80eb971af6316ba39615515d4432bc0be474f3058247699",
-  "references/standards.md": "38e8bacb29076de8a6c2e86a47a33a65a983da04d44b01f46f474e3bb73069d3",
+  "SKILL.md": "8304cf7a738341e5a88941bd5c2d2f8c8067237aaae80bd82e6248498acd35c4",
+  "references/components.md": "9664c9acd2f7b74f1fe02bee9dd4e951174cbfedc92570b5368e69d680a79a19",
+  "references/components/call-stack.md": "b3cd2392b2809e326335189c65785959375b1b0af406a57cfe46098e833c28fd",
+  "references/components/canvas.md": "915543b7068e81ffd14bfcaf355fd5fd4e448d32fb816f7ea4e37ec9abba8bf5",
+  "references/components/code.md": "d38052734324d2c8d417d626c50c284871231da071c66beb49fa157ef3955d49",
+  "references/components/component-tree.md": "6afdfaf9f4120185f2c911b2acb3fe8560c2b8671145aeed86abc8bada644f26",
+  "references/components/file-explorer.md": "4a5c83b89a07d0f8d34dace513511fa160b760d2c7adf6f959cdac96dd8e4ec7",
+  "references/components/file-tree.md": "b79b9aa930ebfdd6807006ac714ae0d8d2c1d7f4cf443f5328f7847936e982cf",
+  "references/components/interaction-surface.md": "8a247c61e1cc63da820ec9e8ffca1c3253fbde58eee393daa61f660e4f19a9d5",
+  "references/components/process-outline.md": "34ecc278c4024ea0796bf74375de0651cd882077170ba3b5395d90537dd0b103",
+  "references/components/pseudocode.md": "f947f5cbe17cee7407acd22d4b330cbc537225bdf63b16ccebcbcef3de440a1d",
+  "references/components/rich-text.md": "b43dc94dc0f8db4425d215937501783c241bfc748e967d297a54aa812c3b05ac",
+  "references/components/sequence.md": "83b92b6ef92e88de6fcf6522c1edd08cc2b42442a9c779cee8fd5260ea41364f",
+  "references/components/stack.md": "07480d2e623cf4a77db8de722c1f32e50e88e915feb933916d6d807f6ff288fc",
+  "references/components/state-shape.md": "e84d26695a108c74e89acc2ccfeefca6d914db1a9897b8a12565a37c832d69cd",
+  "references/components/structured-table.md": "7c38e54243d97f34f311a4244bfb874aa26913bd90280301907cdfa9ba78373f",
+  "references/standards.md": "62244af3061afa28d8bf05fc4d41865d358412360a7131af76c5e162df6fc366",
 };
 
 const workflow = { topic: "workflow" } as const;
@@ -92,15 +92,15 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.read.discover", kind: "step", file: "SKILL.md", lines: [14, 16], scenario: "multi-project", destination: workflow,
-    text: "## Read or Edit\n\n1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.",
-    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace"],
+    text: "## Read or Edit\n\n1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.",
+    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics", "pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null"],
     behavior: { tools: ["docs_capabilities"] },
   },
   {
     id: "skill.read.begin", kind: "step", file: "SKILL.md", lines: [17, 17], scenario: "read-only", destination: workflow,
-    text: "2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.",
-    anchors: ["need no task", "keep its `task_id` for every call", "`docs_tree`, `docs_search`, and `docs_read` need no task"],
-    behavior: { tools: ["docs_tree", "docs_read", "docs_begin"] },
+    text: "2. For reading, use the document tree and read tools. For editing, call `docs_begin` and keep its `task_id` for every edit. Read each guidance topic you need with `docs_guidance`.",
+    anchors: ["need no task", "keep its `task_id` for every call", "`docs_tree`, `docs_search`, and `docs_read` need no task", "`docs_guidance` serves each topic"],
+    behavior: { tools: ["docs_tree", "docs_read", "docs_begin", "docs_guidance"] },
   },
   {
     id: "skill.read.choose", kind: "step", file: "SKILL.md", lines: [18, 18], scenario: "choose-block", destination: workflow,
@@ -121,7 +121,7 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.style.apply", kind: "rule", file: "SKILL.md", lines: [22, 24], scenario: "edit-page", destination: workflow,
-    text: "## Style Rules\n\n- `docs_begin` returns the style digest first. Apply it to every block you write.",
+    text: "## Style Rules\n\n- Apply topic `style` to every block you write.",
     anchors: ["Apply topic `style` to every block you write"],
   },
   {
@@ -187,9 +187,8 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.workflow.report", kind: "step", file: "SKILL.md", lines: [42, 42], scenario: "edit-page", destination: workflow,
-    text: "5. Call `docs_end`. Report what changed and each finding you could not fix. Never report a partial result as the requested change.",
-    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "Call `docs_end` with `task_id` to release the task"],
-    behavior: { tools: ["docs_end"] },
+    text: "5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.",
+    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`"],
   },
   {
     id: "skill.workflow.requests", kind: "rule", file: "SKILL.md", lines: [44, 44], scenario: "work-requests", destination: workflow,
@@ -260,9 +259,9 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.titles.repair", kind: "rule", file: "SKILL.md", lines: [76, 76], scenario: "page-titles", destination: workflow,
-    text: "Do not call a repair tool after ordinary edits. `docs_fix_lints` remains available for untouched legacy documents. Run `docs_check` to review other findings before completion.",
-    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish", "`docs_fix_lints` stays available for an untouched legacy document"],
-    behavior: { tools: ["docs_check", "docs_fix_lints"] },
+    text: "Do not call a repair tool after ordinary edits. Run `docs_check` to review other findings before completion.",
+    anchors: ["Do not call a repair tool after ordinary edits", "to review the other findings before you finish"],
+    behavior: { tools: ["docs_check"] },
   },
   {
     id: "skill.pages.move", kind: "step", file: "SKILL.md", lines: [78, 80], scenario: "move-page", destination: workflow,
@@ -303,7 +302,7 @@ const UNITS: readonly UnitSpec[] = [
   generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
   generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
   generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1552),
+  generated("references/standards.md", "edit-page", { topic: "all" }, 1734),
 ];
 
 /** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */
@@ -315,8 +314,8 @@ export async function guidanceManifest(root = SKILL_ROOT): Promise<ManifestUnit[
   })));
 }
 
-/** Writes that skip the style gate: tree, annotation, review-decision, asset, undo, restore and lint-fix writes. */
-export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_rename", "docs_delete", "docs_set_title", "docs_annotation_add", "docs_annotation_reply", "docs_annotation_resolve", "docs_annotation_thread", "docs_proposal_accept", "docs_proposal_reject", "docs_changeset_stage", "docs_changeset_accept", "docs_changeset_reject", "docs_asset_upload", "docs_asset_move", "docs_asset_delete", "docs_undo", "docs_management_restore", "docs_fix_lints"]);
+/** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
+export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_rename", "docs_delete", "docs_set_title", "docs_annotation_add", "docs_annotation_reply", "docs_annotation_resolve", "docs_annotation_thread", "docs_proposal_accept", "docs_proposal_reject", "docs_changeset_stage", "docs_changeset_accept", "docs_changeset_reject", "docs_asset_upload", "docs_asset_move", "docs_asset_delete", "docs_undo", "docs_management_restore"]);
 /** The topics a write needs, read in the same task. Every write outside STYLE_GATE_EXEMPT is a content write and needs topic style. The index lists the result as each topic's required_for. */
 export const requiredTopics = (write: string): readonly string[] => STYLE_GATE_EXEMPT.has(write) ? [] : ["style"];
 

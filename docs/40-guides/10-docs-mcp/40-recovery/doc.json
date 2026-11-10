@@ -69,7 +69,7 @@
       "props": {},
       "text": [
         {
-          "insert": "1. Open a new client session in the target project. Ask it to explain one existing documentation page without editing. Expect docs_discover and a tree, search, or read call against the correct project ID."
+          "insert": "1. Open a new client session in the target project. Ask it to explain one existing documentation page without editing. Expect docs_capabilities and a tree, search, or read call against the correct project ID."
         }
       ],
       "children": []
@@ -181,16 +181,7 @@
           }
         },
         {
-          "insert": " on each changed page and "
-        },
-        {
-          "insert": "docs_end",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " when the task finishes. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct."
+          "insert": " on each changed page. Read back the page and inspect it in the shared UI. A successful tool response alone does not establish that the prose is correct."
         }
       ],
       "children": []
@@ -238,7 +229,7 @@
       },
       "text": [
         {
-          "insert": "bun packages/docs-mcp/src/cli.ts tools\nbun packages/docs-mcp/src/cli.ts doctor\nbun packages/docs-mcp/src/cli.ts discover --workspace .."
+          "insert": "bun packages/docs-mcp/src/cli.ts tools\nbun packages/docs-mcp/src/cli.ts doctor\nbun packages/docs-mcp/src/cli.ts capabilities --workspace .."
         }
       ],
       "children": []
@@ -505,16 +496,43 @@
           }
         },
         {
-          "insert": " topic, and one edit baseline per page. "
+          "insert": " topic, and one edit baseline per page. The service releases that context 12 hours after "
         },
         {
-          "insert": "docs_end",
+          "insert": "docs_begin",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " releases that context and does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic."
+          "insert": ", or after 30 minutes without a "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or write call that passes its "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Expiry does not revert applied edits. Stopping the service loses that in-memory state, while saved documents remain on disk. Cross-project edits are not atomic."
         }
       ],
       "children": []

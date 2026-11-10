@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82d40196c8719772bfba10fe9eeb4483cae87a72`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:1d5b8e1f9c4d94789c97e57644e063bbf24b467817afee28fe5d7a925906629a`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -155,7 +155,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
   Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer
 </docs_component_catalog>
 <docs_structure_standards source="docs-system corpus · 10-system-design/10-doc-standards">
-  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
+  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
     Within every layer, the docs keep the same substructure.
 
     A tree of bundle folders descending L1–L6
@@ -259,7 +259,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
         - An agent searches along the same explicit structure instead of guessing.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
+  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
     Every doc and folder carries a two-digit prefix, and every listing sorts by it identically, whether in the sidebar, the terminal, or a render.
 
     This page states the scheme, the reserved ranges, and what running out of gap space actually means.
@@ -320,7 +320,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
+  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
     Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose.
 
     This page states the reference object, which directions links run, and the restraint rules against overlinking.
@@ -412,7 +412,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - Every link points at the concept's one home.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
+  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
     Docs point at code with typed source references. Code never points back.
 
     This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
@@ -487,7 +487,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - The reader arrives at the path with the question already framed.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
+  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
     Documentation does not stop at the doc tree. 
 
     Below the doc tree it continues into the source in three units
@@ -559,7 +559,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - Code is read last, and only where the task lives.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
+  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
     The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates.
 
     This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
@@ -670,7 +670,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
+  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
     Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.
 
     ## Structure
@@ -738,7 +738,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
     The Diataxis distinction comes from [Diataxis](https://diataxis.fr). The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
+  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
     Authoring lints report writing, page structure, and layout problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
 
     ## Structure
@@ -813,7 +813,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
 
       - `STYLE_RULE_POLICY` in lint-feedback.ts sets which warnings are gated. `writing.sentence-length`, `writing.filler`, and unlisted rules stay editorial.
 
-      - The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until `docs_end`.
+      - The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until the task expires.
 
       - Write results list up to 5 `style_findings` that the write introduced or that sit on blocks it touched. `style_gate_open` counts the gated violations the task still has open on the page.
 
@@ -994,7 +994,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
   </doc>
 </docs_structure_standards>
 <docs_style_guide source="docs-system corpus · 99-appendix/10-style-guide">
-  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
+  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
     Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The STE Profile adds stricter word and sentence limits to these rules.
 
     - Lead with the fact.
@@ -1308,7 +1308,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
     5. Replace inflated language with facts, verify paths and claims, and repair required lint findings.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
+  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
     Page structure carries meaning through bullets, lists, headings, titles, and openings. The join test keeps bullet groups complete enough to read as prose.
 
     - **Bullets Carry Prose Meaning**
@@ -1408,7 +1408,7 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
       - Keep steps that the reader follows as a numbered list, as Number Sequential Actions says.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/workspace/codebases/codecaine/core/.pr42-wt/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
+  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
     The STE profile is our software version of ASD-STE100, the Simplified Technical English standard. It sets the word, sentence, and punctuation rules for every page in this corpus. The goal is text that a reader understands on the first read, at a 6th to 7th grade reading level.
 
     > **Proposed: Not enforced yet** — No lint enforces this profile yet. The Open Decisions section at the end needs an owner ruling, and each row shows its proposed default.
@@ -1550,3 +1550,185 @@ Generated from Docs System sources. Snapshot: `sha256:28aceca1b3223bb31c12536c82
 
   </doc>
 </docs_style_guide>
+<docs_editor_workflow source="docs-system corpus · 40-guides/15-editor-workflow">
+  <doc path="40-guides/15-editor-workflow" file="/Users/Ford/.t3/worktrees/mcp-cap/cp2/docs-system/docs/40-guides/15-editor-workflow/doc.json" title="Editor Workflow">
+    Agents read and edit a Docs System corpus through the Docs tools. The tools keep the typed document structure, component sidecars, revisions, and validation. Codex and Claude Code reach the tools through MCP, and Pi reaches them through the installed bridge extension. `docs_guidance` serves this page as topic `workflow`.
+
+    ## When to Use the Docs Tools
+
+    An agent uses the Docs tools for each read and each edit of a corpus.
+
+    - Use them when a project has a Docs System corpus.
+
+    - Use them when the user asks you to document implementation changes, explain documentation, or edit documentation components.
+
+    - Never edit `doc.json` or a Canvas or Sequence sidecar with a filesystem write.
+
+    - Keep a review-only request read-only. `docs_tree`, `docs_search`, and `docs_read` need no task.
+
+    - If the connection is missing or a tool you need is not available, report that setup gap. Do not rewrite storage files in place of a tool call.
+
+    ## Start a Task
+
+    A task is the in-memory record that pins the guidance snapshot for your edits. Each write needs the `task_id` of a live task. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`. Expiry keeps your saved edits.
+
+    1. Call `docs_capabilities` for the workspace, and use a project id that it returns.
+
+      - For a request on several projects, get each project id through the same connection.
+
+      - `docs_capabilities` also lists the guidance topics, and `docs_guidance` serves each topic.
+
+      - Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null.
+
+    2. Call `docs_begin`, and keep its `task_id` for every call.
+
+    3. Read `docs_guidance` with that `task_id` and topic `style`.
+
+      - The service refuses content writes until the task reads topic `style`. One read in each task is enough.
+
+    ## Edit and Check a Page
+
+    Follow these steps for every edit and for each open request on a page. Each edit goes through a typed tool with the current revision hash. A valid edit is saved and visible at once.
+
+    1. Read the page and its neighbors with `docs_read`. When requests drive the work, read them with `docs_annotations`.
+
+      - Choose the block form from the component catalog in topic `components`. Read `docs_guidance` with `component` for the full reference of one component.
+
+    2. Edit through typed tools only, and pass the `docs_read` hash as `expected_hash`.
+
+      - For a Canvas or Sequence block, read `docs_component_read` first. Pass its `hash` as `expected_component_hash`.
+
+      - Edit a block in place. Never delete and recreate a block to change it, and never write structure, arrows, or layout as text.
+
+      - Fix the `style_findings` and `component_findings` in each result before the next edit. A Sequence edit also returns the saved `program` and an `svg_path` to open as an image.
+
+      - On a revision conflict, read the current page and apply the requested change to it before you retry.
+
+      - If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error.
+
+    3. Run `docs_check` with `task_id` on each changed page. Fix its `lint` and `style_gate` findings and each failing component.
+
+      - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
+
+    4. Report what changed and each finding you could not fix.
+
+      - Never report a partial result as the requested change.
+
+      - If one project fails, keep the edits in the other projects and report them apart.
+
+    ## Style Rules
+
+    The style rules apply to each block, and the service checks them on each write and on `docs_check`.
+
+    - Apply topic `style` to every block you write.
+
+    - Write results carry `style_findings` for the blocks you changed. Fix them before you move on.
+
+    - `docs_check` with `task_id` blocks on style violations that the task introduced.
+
+    - `docs_begin` pins the guidance snapshot of the task. Treat the `docs_guidance` topics of the task as the authority when the checkout changes after `docs_begin`.
+
+    - A snapshot mismatch needs a new task and a new read of the guidance.
+
+    ## Work Through Requests
+
+    A request is an annotation that asks for a change on a page. `docs_annotations` lists the open requests of a page.
+
+    - Reply with `docs_annotation_reply` when the intent of a request is not clear.
+
+    - Resolve a request only when it needs no edit or when you decline it.
+
+    - Write a reply as plain sentences about what changed and why, with no block IDs or tool names.
+
+    ## Page Titles and Headings
+
+    The display title and the body headings are separate. An H1 heading can stand in the body. Do not start the body with an H1 that repeats the display title.
+
+    - A save removes only that repeated opening H1 and keeps its children. It does not demote or remove other H1 headings.
+
+    - The save returns the corrected document, its revision, and a normalization summary. Use that state for the next edit.
+
+    - The edit and the cleanup share one undo patch.
+
+    - Do not call a repair tool after ordinary edits. Run `docs_check` to review the other findings before you finish.
+
+    ## Move or Rename Pages
+
+    `docs_move` and `docs_rename` move a page or a whole section with its descendants. `docs_set_title` changes the display title. Each of these tools first returns a preview of the affected files and the reference rewrites.
+
+    1. Review the preview.
+
+    2. Apply the reviewed plan with `preview:false` and its `tree_hash` as `expected_tree_hash`.
+
+      - If the apply refuses with `changed_paths`, start a new preview.
+
+    3. Check the moved pages and each document in `rewritten_sources`.
+
+    4. Keep the `tree_change_id` of the operation.
+
+      - `docs_management_restore` can restore that operation from its recovery journal if the affected files did not change.
+
+      - This restore is separate from `docs_undo`, which reverts content patches.
+
+    ## Delete a Page That Owns an Asset
+
+    A page can own a shared Canvas, Sequence, or media asset that other pages use. Move the asset before you delete its page.
+
+    1. Read the asset hash with `docs_asset_read`.
+
+    2. Move the asset with `docs_asset_move`. The service updates the references in other pages.
+
+    3. Preview `docs_delete`. Pass `recursive:true` only when you intend to delete all descendants.
+
+    4. Apply the reviewed preview with `preview:false` and its `tree_hash` as `expected_tree_hash`.
+
+    Remaining external references block the delete, so you can repair them first.
+
+    ## Create Sidecars and Use Other Tools
+
+    Each kind of content has its own tool family, and the tool schemas give the arguments and the limits.
+
+    - Use `docs_component_create` to create a validated Canvas or Sequence sidecar before you insert its component block.
+
+    - Use the asset upload, read, and delete tools for media and attachments.
+
+    - Use the annotation tools for discussion.
+
+    - Use the proposal and changeset tools when the task asks for staged review.
+
+    ## HTML Diagrams
+
+    An `html` block holds one self-contained HTML and CSS drawing, such as a screen mockup or a physical layout. Its props are `title` and `html`.
+
+    - A script runs only when `allowScripts` is true.
+
+    - The script runs in a sandbox with fetch blocked, so the file loads nothing from outside.
+
+    - The `html-diagrams` skill says how to draw one. Load it before you insert an `html` block.
+
+    ## Document an Implementation Change
+
+    An implementation page describes the code as it is. Read the relevant source as evidence before you describe current behavior.
+
+    - Keep proposed behavior apart from verified behavior.
+
+    - Publication is a separate action. A docs edit does not deploy a website.
+
+    - The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation maps the design to the code and explains the key choices.
+
+    - Agent definitions belong in Agents.
+
+    - Keep the page structure, formatting guidance, examples, and detailed rationale when you change a page in these layers.
+
+    ## Write a Component Example
+
+    A component example shows the state, the operation signature, and the result of one component.
+
+    - Read the component reference with `docs_guidance` and `component` before you create or revise a component example.
+
+    - The component guidance owns the pattern of state, signature, and result for an example.
+
+    - It also owns the rule that a description adds facts that the names do not show.
+
+  </doc>
+</docs_editor_workflow>

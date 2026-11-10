@@ -5,7 +5,7 @@ const audit:any[]=await Bun.file('/tmp/interaction-docs-audit.json').json();
 const results:any[]=[];
 const rpc=async(workspace:string,name:string,args:any={})=>{const r:any=await(await daemonFetch(daemon,'/rpc',{workspace,name,arguments:args})).json();if((r.isError||r.structuredContent?.ok===false)&&name!=='docs_check')throw Error(name+': '+JSON.stringify(r.structuredContent??r));return r.structuredContent;};
 for(const workspace of [...new Set(audit.map(d=>d.workspace))]){
- await rpc(workspace,'docs_discover');let task=await rpc(workspace,'docs_begin');await rpc(workspace,'docs_guidance',{task_id:task.task_id,topic:'style'});
+ await rpc(workspace,'docs_capabilities');let task=await rpc(workspace,'docs_begin');await rpc(workspace,'docs_guidance',{task_id:task.task_id,topic:'style'});
  for(const old of audit.filter(d=>d.workspace===workspace)){
   const {project,path}=old;const current=await rpc(workspace,'docs_read',{project,path});const doc=current.doc,ops:any[]=[];
   if(doc.blocks["approved-design-record"]) continue;
@@ -63,6 +63,6 @@ for(const workspace of [...new Set(audit.map(d=>d.workspace))]){
   }
   if(ops.length){const result=await rpc(workspace,'docs_apply_ops',{project,path,task_id:task.task_id,expected_hash:current.hash,ops});results.push({project,path,operations:ops.length,hash:result.hash});}
  }
- for(const item of audit.filter(d=>d.workspace===workspace)){const checked=await rpc(workspace,'docs_check',{project:item.project,path:item.path});results.push({workspace,path:item.path,check:checked});}await rpc(workspace,'docs_end',{task_id:task.task_id});
+ for(const item of audit.filter(d=>d.workspace===workspace)){const checked=await rpc(workspace,'docs_check',{project:item.project,path:item.path});results.push({workspace,path:item.path,check:checked});}
 }
 await Bun.write('/tmp/interaction-docs-update-results.json',JSON.stringify(results,null,2));console.log(results.map(r=>({project:r.project,path:r.path,operations:r.operations,check:r.check?.ok})));

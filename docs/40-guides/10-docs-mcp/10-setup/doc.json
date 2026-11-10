@@ -227,7 +227,7 @@
       },
       "text": [
         {
-          "insert": "bun packages/docs-mcp/src/cli.ts discover --workspace .."
+          "insert": "bun packages/docs-mcp/src/cli.ts capabilities --workspace .."
         }
       ],
       "children": []
@@ -238,7 +238,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The workspace defaults to --workspace, then CLAUDE_PROJECT_DIR, then the process working directory. MCP roots can update the client workspace. pi passes its session directory. If discovery is wrong, explicitly supply the intended absolute workspace to docs_discover and begin a new task there."
+          "insert": "The workspace defaults to --workspace, then CLAUDE_PROJECT_DIR, then the process working directory. MCP roots can update the client workspace. pi passes its session directory. If discovery is wrong, explicitly supply the intended absolute workspace to docs_capabilities and begin a new task there."
         }
       ],
       "children": []

@@ -212,7 +212,7 @@ describe("component feedback", () => {
     try {
       const invoke = async (name: string, args: Record<string, unknown> = {}) =>
         (await service.call(workspace, name, args)).structuredContent as Record<string, any>;
-      const project = (await invoke("docs_discover")).projects[0].id;
+      const project = (await invoke("docs_capabilities")).projects[0].id;
       const { task_id } = await invoke("docs_begin");
       const read = await invoke("docs_component_read", { project, path: "page", blockId: "board" });
       const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };

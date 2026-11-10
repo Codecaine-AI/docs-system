@@ -768,16 +768,7 @@
       },
       "text": [
         {
-          "insert": "The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until "
-        },
-        {
-          "insert": "docs_end",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
+          "insert": "The docs MCP baseline is the page as it stood before the task's first successful write to it. Each task keeps one per page until the task expires."
         }
       ],
       "children": []

@@ -18,7 +18,6 @@ const fixture: DocDocument = {
 };
 const idleMessage = (id: string) => `Task ${id} expired after 30 minutes without a docs call. Your saved edits are kept. Call docs_begin again, then read docs_guidance topic "style".`;
 const maxAgeMessage = (id: string) => `Task ${id} reached the 12-hour limit and was closed. Your saved edits are kept. Call docs_begin again, then read docs_guidance topic "style".`;
-const endedMessage = (id: string) => `Task ${id} was ended with docs_end. Call docs_begin for new edits.`;
 const UNKNOWN = { ok: false, detail: "Unknown task for this workspace." };
 
 let workspace: string;
@@ -50,7 +49,7 @@ async function open(options: Parameters<typeof createInteractionService>[0] = {}
   const service = createInteractionService({ judgmentEngine: null, now, ...options });
   services.push(service);
   const invoke = async (name: string, args: Record<string, unknown> = {}) => reply(await service.call(workspace, name, args));
-  const found = await invoke("docs_discover");
+  const found = await invoke("docs_capabilities");
   project = found.projects[0].id;
   const begin = async () => {
     const task = await invoke("docs_begin");
@@ -95,17 +94,6 @@ describe("idle expiry", () => {
     expect(await invoke("docs_check", { project, path: "page", task_id: id })).toEqual({ ok: false, detail: maxAgeMessage(id) });
   });
 
-  test("docs_end then reuse returns the ended message on every task call", async () => {
-    const { invoke, begin, write } = await open();
-    const id = await begin();
-    expect((await invoke("docs_end", { task_id: id })).ended).toBe(true);
-    const ended = { ok: false, detail: endedMessage(id) };
-    expect(await write(id, "After the end.")).toEqual(ended);
-    expect(await invoke("docs_guidance", { task_id: id })).toEqual(ended);
-    expect(await invoke("docs_end", { task_id: id })).toEqual(ended);
-    expect(await invoke("docs_check", { project, path: "page", task_id: id })).toEqual(ended);
-  });
-
   test("stats() sweeps, reports the newest task use, and the cap counts live tasks only", async () => {
     const { service, invoke, begin } = await open({ maxTasks: 2 });
     expect(service.stats()).toMatchObject({ tasks: 0, newestTaskUseMs: null });
@@ -116,7 +104,7 @@ describe("idle expiry", () => {
     expect(service.stats()).toMatchObject({ tasks: 2, newestTaskUseMs: 2 * MIN });
     const refused = await invoke("docs_begin");
     expect(refused.ok).toBe(false);
-    expect(refused.detail).toBe("Too many open authoring activities (2). The longest-idle one has been idle 7 minutes; tasks expire after 30 minutes without a docs call. End finished tasks with docs_end.");
+    expect(refused.detail).toBe("Too many open authoring activities (2). The longest-idle one has been idle 7 minutes; tasks expire after 30 minutes without a docs call.");
     // The first task goes idle past 30 minutes; the second stays in use.
     advance(20 * MIN);
     expect((await invoke("docs_guidance", { task_id: second })).ok).toBe(true);
@@ -129,12 +117,10 @@ describe("idle expiry", () => {
 });
 
 describe("task ids on reads", () => {
-  test("ordinary reads ignore expired, ended and unknown task ids; docs_check reports each", async () => {
+  test("ordinary reads ignore expired and unknown task ids; docs_check reports each", async () => {
     const { invoke, begin } = await open();
     const expired = await begin();
     advance(31 * MIN);
-    const ended = await begin();
-    await invoke("docs_end", { task_id: ended });
     const reads: [string, Record<string, unknown>][] = [
       ["docs_read", { project, path: "page" }],
       ["docs_tree", { project }],
@@ -143,11 +129,10 @@ describe("task ids on reads", () => {
     for (const [name, args] of reads) {
       const plain = await invoke(name, args);
       expect([name, plain.ok]).toEqual([name, true]);
-      for (const task_id of [expired, ended, "missing"]) expect([name, await invoke(name, { ...args, task_id })]).toEqual([name, plain]);
+      for (const task_id of [expired, "missing"]) expect([name, await invoke(name, { ...args, task_id })]).toEqual([name, plain]);
     }
     const target = { project, path: "page" };
     expect(await invoke("docs_check", { ...target, task_id: expired })).toEqual({ ok: false, detail: idleMessage(expired) });
-    expect(await invoke("docs_check", { ...target, task_id: ended })).toEqual({ ok: false, detail: endedMessage(ended) });
     expect(await invoke("docs_check", { ...target, task_id: "missing" })).toEqual(UNKNOWN);
   });
 
@@ -169,11 +154,13 @@ describe("guidance snapshot interning", () => {
     const second = await begin();
     const shared = await component(first);
     expect(Object.is(await component(second), shared)).toBe(true);
-    await invoke("docs_end", { task_id: first });
+    // first goes idle past 30 minutes and retires. second stays in use and keeps the snapshot.
+    advance(20 * MIN);
+    await component(second);
+    advance(11 * MIN);
     const third = await begin();
     expect(Object.is(await component(third), shared)).toBe(true);
-    await invoke("docs_end", { task_id: second });
-    await invoke("docs_end", { task_id: third });
+    advance(31 * MIN);
     const fresh = await begin();
     const reloaded = await component(fresh);
     expect(reloaded.name).toBe("state-shape");
@@ -308,20 +295,21 @@ describe("tombstones", () => {
   test("a retired task's id answers with the generic message in another workspace", async () => {
     const { invoke, begin, service } = await open();
     const id = await begin();
-    await invoke("docs_end", { task_id: id });
+    advance(31 * MIN);
     const other = join(workspace, "alpha");
     const elsewhere = async (name: string, args: Record<string, unknown>) => reply(await service.call(other, name, args));
     expect(await elsewhere("docs_guidance", { task_id: id })).toEqual(UNKNOWN);
-    expect(await elsewhere("docs_end", { task_id: id })).toEqual(UNKNOWN);
-    expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: endedMessage(id) });
+    expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: idleMessage(id) });
   });
 
   test("a tombstone is dropped after 24 hours", async () => {
     const { invoke, begin } = await open();
     const id = await begin();
-    await invoke("docs_end", { task_id: id });
+    advance(31 * MIN);
+    // This call retires the task, and the tombstone's 24 hours start now.
+    expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: idleMessage(id) });
     advance(24 * HOUR);
-    expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: endedMessage(id) });
+    expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: idleMessage(id) });
     advance(1);
     expect(await invoke("docs_guidance", { task_id: id })).toEqual(UNKNOWN);
   });
@@ -330,11 +318,10 @@ describe("tombstones", () => {
     const { invoke, begin } = await open({ maxRetired: 2 });
     const ids: string[] = [];
     for (let i = 0; i < 3; i++) {
-      const id = await begin();
-      await invoke("docs_end", { task_id: id });
-      ids.push(id);
+      ids.push(await begin());
+      advance(31 * MIN);
     }
     expect(await invoke("docs_guidance", { task_id: ids[0] })).toEqual(UNKNOWN);
-    for (const id of ids.slice(1)) expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: endedMessage(id) });
+    for (const id of ids.slice(1)) expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: idleMessage(id) });
   });
 });

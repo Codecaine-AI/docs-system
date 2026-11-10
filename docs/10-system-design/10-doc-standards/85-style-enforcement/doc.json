@@ -26,7 +26,6 @@
         "se-sfw-unknown",
         "se-t0-h",
         "se-t0-lead",
-        "se-t0-digest",
         "se-t0-guide",
         "se-t0-skill",
         "se-t0-why",
@@ -759,40 +758,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Each writer agent gets ASD-STE100 Simplified Technical English (STE) plus the house style from three sources."
-        }
-      ],
-      "children": []
-    },
-    "se-t0-digest": {
-      "id": "se-t0-digest",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "Style Digest",
-          "attributes": {
-            "bold": true
-          }
-        }
-      ],
-      "children": [
-        "se-t0-digest-1"
-      ]
-    },
-    "se-t0-digest-1": {
-      "id": "se-t0-digest-1",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "docs_begin",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " opens its result with the style digest, a short list of the top rules."
+          "insert": "Each writer agent gets ASD-STE100 Simplified Technical English (STE) plus the house style from two sources."
         }
       ],
       "children": []

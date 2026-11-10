@@ -3,7 +3,7 @@ import { watch, existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile, rename, copyFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from './registry';
+import { createRegistrySaver, localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from './registry';
 import { directoryHtml } from './home';
 import { DESIGN_SYSTEM_PREFIX, designSystemAssets } from './design-system-assets';
 import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
@@ -54,7 +54,7 @@ let closing = false;
 let registryRevision = 0;
 let previousBuild: { hash: string; file: string } | undefined;
 process.on('exit', () => { active?.process.kill(); candidate?.process.kill(); viewer?.kill(); });
-let persist = Promise.resolve();
+const persist = createRegistrySaver(() => writeRegistry(registryFile, registry));
 const watchers: ReturnType<typeof watch>[] = [];
 const version = (await Bun.file(join(packageRoot, 'package.json')).json()).version;
 const startedAt = new Date().toISOString();
@@ -66,8 +66,16 @@ async function remember(discovery: any) {
   if (!discovery?.ok || typeof discovery.workspace !== 'string' || !Array.isArray(discovery.projects)) return;
   registry = mergeDiscovery(registry, discovery.workspace, discovery.projects);
   registryRevision++;
-  persist = persist.then(() => writeRegistry(registryFile, registry));
-  await persist;
+  await persist();
+}
+/** The complete discovery that an /rpc reply registers, from the runtime's /discovery. A failed read gives undefined, which remember ignores. */
+const registration = (runtime: Runtime, reply: any): Promise<any> => replyDiscovery(reply, workspace => runtimeFetch(runtime, '/discovery', { workspace }).then(r => r.json()).catch(() => undefined));
+/** A workspace's discovery on a runtime: docs_capabilities, then its complete discovery. */
+async function discoverOn(runtime: Runtime, workspace: string) {
+  const response = await runtimeFetch(runtime, '/rpc', { workspace, name: 'docs_capabilities', arguments: {} });
+  const result = await response.json() as any;
+  if (!response.ok || result.isError) throw new Error(result.structuredContent?.detail ?? result.detail ?? 'Discovery failed');
+  return registration(runtime, result.structuredContent);
 }
 async function buildRuntime(): Promise<{ hash: string; file: string }> {
   const sourcePaths = ['authoring-guidance.ts', 'visual-component-guidance.ts', 'project-markdown.ts'].map(p => `packages/docs-model/src/${p}`);
@@ -168,8 +176,8 @@ async function proxyRuntime(request: Request, pathname: string) {
     const response = await fetch(`${runtime.url}${pathname}${url.search}`, { method: request.method, headers, body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body, signal: request.signal, redirect: 'error' });
     if (pathname === '/rpc' && response.ok) {
       const body = await response.json() as any;
-      // A failed registration read leaves the registry as it was and never fails the reply.
-      await remember(await replyDiscovery(body.structuredContent, workspace => runtimeFetch(runtime, '/discovery', { workspace }).then(r => r.json()).catch(() => undefined)));
+      // A failed registration read or save leaves the registry file as it was and never fails the reply.
+      await remember(await registration(runtime, body.structuredContent));
       return Response.json(body, { status: response.status });
     }
     return response;
@@ -198,10 +206,8 @@ async function registerDevice() {
   try {
     await writeFile(scanFile, JSON.stringify(scan), { mode: 0o600 });
     await scanDevice(scan, async workspace => {
-      const response = await runtimeFetch(runtime, '/rpc', { workspace, name: 'docs_discover', arguments: {} });
-      const result = await response.json() as any;
-      const discovery = result.structuredContent;
-      if (!response.ok || result.isError || !discovery?.ok) throw new Error(discovery?.detail ?? result.detail ?? 'Discovery failed');
+      const discovery = await discoverOn(runtime, workspace);
+      if (!discovery?.ok) throw new Error('Discovery failed');
       for (const warning of discovery.warnings ?? []) scanWarning(scan, warning);
       // Do not retain every Markdown-only directory as a registered workspace.
       if (discovery.projects.length) await remember(discovery);
@@ -315,8 +321,7 @@ async function startViewer() {
 }
 await startViewer();
 for (const workspace of registry.workspaces) {
-  const result = await (await runtimeFetch(active!, '/rpc', { workspace, name: 'docs_discover', arguments: {} })).json() as any;
-  await remember(result.structuredContent);
+  await remember(await discoverOn(active!, workspace).catch(() => undefined));
 }
 await writeFile(join(stateDir, 'daemon.json'), JSON.stringify({ url: `http://127.0.0.1:${server.port}`, token, pid: process.pid, packageRoot, startedAt }), { mode: 0o600 });
 console.log(JSON.stringify({ ready: true, port: server.port, build: active!.hash }));

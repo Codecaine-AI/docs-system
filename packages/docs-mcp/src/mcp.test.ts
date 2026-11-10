@@ -27,7 +27,7 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   const [a,b]=await Promise.all([create(),create()]);
   const invoke=async(client:Client,name:string,args:Record<string,unknown>={})=>(await client.callTool({name,arguments:args})).structuredContent as any;
   const tools=await a.listTools();expect(tools.tools.length).toBeGreaterThan(40);
-  const found=await invoke(a,'docs_discover');expect(found.projects.length).toBe(2);const project=found.projects.find((p:any)=>p.name==='a').id;
+  const found=await invoke(a,'docs_capabilities');expect(found.projects.length).toBe(2);const project=found.projects.find((p:any)=>p.name==='a').id;
   expect(a.getInstructions()).toBe(INSTRUCTIONS);
   const begun=await invoke(a,'docs_begin');expect(Object.keys(begun).sort()).toEqual(['call_id','ok','snapshot_id','task_id','topics_read']);
   expect((await invoke(a,'docs_guidance',{task_id:begun.task_id,topic:'style'})).guidance).toContain('docs_style_guide');

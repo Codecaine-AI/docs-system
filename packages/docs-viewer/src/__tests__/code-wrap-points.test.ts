@@ -10,7 +10,7 @@ describe("withWrapPoints", () => {
     for (const line of [
       'const url = fileURLToPath(new URL("./x.ts", import.meta.url));',
       '  throw new Error(`Component action "${def.action}" must have a non-empty verb.`);',
-      "/* Explicit --workspace and docs_discover remain available. */",
+      "/* Explicit --workspace and docs_capabilities remain available. */",
     ]) {
       const [html] = highlightCode(line, "ts");
       expect(text(withWrapPoints(html!))).toBe(text(html!));

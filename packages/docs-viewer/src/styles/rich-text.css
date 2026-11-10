@@ -29,7 +29,7 @@
 
 /*
  * A chip glued to punctuation (render/delta-spans.tsx CHIP_GLUE_BEFORE and
- * CHIP_GLUE_AFTER) drops its padding on that side, so "docs_end." and
+ * CHIP_GLUE_AFTER) drops its padding on that side, so "docs_check." and
  * "(docs/" read as one token, with no gap before the period or after the
  * bracket.
  */

@@ -350,7 +350,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The service rejects invalid structure and stale revisions. Tree, annotation, review-decision, asset, undo, restore, and lint-fix tools skip the style-read requirement. A write result opens with "
+          "insert": "The service rejects invalid structure and stale revisions. Tree, annotation, review-decision, asset, undo, and restore tools skip the style-read requirement. A write result opens with "
         },
         {
           "insert": "style_findings",

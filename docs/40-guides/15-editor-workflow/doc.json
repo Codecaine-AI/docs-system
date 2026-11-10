@@ -27,7 +27,6 @@
         "wf-edit-1",
         "wf-edit-2",
         "wf-edit-3",
-        "wf-edit-end",
         "wf-edit-4",
         "wf-style-h",
         "wf-style-lead",
@@ -47,7 +46,6 @@
         "wf-title-2",
         "wf-title-3",
         "wf-title-4",
-        "wf-title-legacy",
         "wf-move-h",
         "wf-move-lead",
         "wf-move-1",
@@ -258,7 +256,43 @@
           }
         },
         {
-          "insert": " of a live task."
+          "insert": " of a live task. A task expires 12 hours after "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or after 30 minutes without a "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or write call that passes its "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Expiry keeps your saved edits."
         }
       ],
       "children": []
@@ -284,7 +318,9 @@
         }
       ],
       "children": [
-        "wf-start-1a"
+        "wf-start-1a",
+        "wf-start-1b",
+        "wf-start-1c"
       ]
     },
     "wf-start-1a": {
@@ -294,6 +330,70 @@
       "text": [
         {
           "insert": "For a request on several projects, get each project id through the same connection."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-1b": {
+      "id": "wf-start-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also lists the guidance topics, and "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves each topic."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-1c": {
+      "id": "wf-start-1c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topics come before projects in pages of at most 4,096 bytes, so pass "
+        },
+        {
+          "insert": "next_cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " until you find your project or "
+        },
+        {
+          "insert": "next_cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is null."
         }
       ],
       "children": []
@@ -712,37 +812,6 @@
       ],
       "children": []
     },
-    "wf-edit-end": {
-      "id": "wf-edit-end",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Call "
-        },
-        {
-          "insert": "docs_end",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " with "
-        },
-        {
-          "insert": "task_id",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to release the task. It does not undo valid edits."
-        }
-      ],
-      "children": []
-    },
     "wf-edit-4": {
       "id": "wf-edit-4",
       "type": "list-item",
@@ -1074,23 +1143,6 @@
         },
         {
           "insert": " to review the other findings before you finish."
-        }
-      ],
-      "children": []
-    },
-    "wf-title-legacy": {
-      "id": "wf-title-legacy",
-      "type": "list-item",
-      "props": {},
-      "text": [
-        {
-          "insert": "docs_fix_lints",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " stays available for an untouched legacy document. It removes only a repeated opening H1."
         }
       ],
       "children": []
