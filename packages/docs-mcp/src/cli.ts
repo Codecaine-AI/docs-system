@@ -6,7 +6,7 @@ import { startMcp } from './mcp';
 import { runDaemon } from './daemon';
 import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint } from './lifecycle';
 import { installClients, doctorClients, restoreInstallation } from './install';
-import { loadGuidance, generateSkillReferences } from './guidance';
+import { loadGuidance } from './guidance';
 import { guidanceManifest } from './guidance-manifest';
 import { INSTRUCTIONS } from './instructions';
 import { createDevelopmentSnapshot } from './snapshot';
@@ -71,7 +71,7 @@ try{
   }
   case 'instructions':console.log(INSTRUCTIONS);break;
   case 'manifest':out(await guidanceManifest());break;
-  case 'guidance':{const snapshot=await loadGuidance();if(args.includes('--write'))await generateSkillReferences(join(PACKAGE_ROOT,'skills','docs-system'),snapshot);out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
+  case 'guidance':{const snapshot=await loadGuidance();out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
   case 'ui':{
    const state=await ensureDaemon();const projects=await capabilityProjects(state);
    const id=option('--project')??(projects.length===1?projects[0].id:undefined);
@@ -89,6 +89,6 @@ try{
    await runServe({docsRoot:local.docsRoot,port:Number(option('--port','4808')),hostname:'127.0.0.1',sharedApi:{url:state.url,projectId:project.id,token:state.token}});break;
   }
   default:console.log(`Docs System\n\n  background install|start|stop|status      Manage the signed central service (default port 4820)\n  install [--write] [--clients codex,claude,pi]  Install connection and skills (preview by default)\n  restore REPORT [--write]                  Restore a saved installation report
-  doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  capabilities [--workspace PATH]           Print the capabilities index with the project list\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance [--write]                        Inspect/regenerate skill references\n  instructions                              Print the prompt block (MCP instructions)\n  manifest                                  Print the skill rule-unit manifest as JSON\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
+  doctor                                    Check installed bindings\n  mcp [--workspace PATH]                    Start stdio MCP bridge\n  capabilities [--workspace PATH]           Print the capabilities index with the project list\n  tools                                    List typed tools\n  call TOOL --args JSON [--workspace PATH]  Invoke tools for testing\n  ui [--workspace PATH] [--project ID] [--port 4808]  Open shared-authority workbench\n  guidance                                  Print the guidance snapshot id and sources\n  instructions                              Print the prompt block (MCP instructions)\n  manifest                                  Print the rule-unit manifest as JSON\n  snapshot [--out FILE]                     Record development snapshot\n  start | status | stop                     Control the shared local service`);
  }
 }catch(error){console.error(error instanceof Error?error.message:String(error));process.exitCode=1;}
