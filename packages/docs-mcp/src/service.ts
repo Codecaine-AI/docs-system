@@ -160,8 +160,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
  type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
  const discoveries=new Map<string,Entry>();
- /** Each scan's generation. A docs_capabilities cursor names it, so a page set never mixes two scans. */
+ /** Each scan's generation. A docs_capabilities cursor names it, so a page set never mixes two scans. A workspace keeps its generation while its ordered projects and warnings stay the same. */
  const generations=new WeakMap<Discovery,number>();let generation=0;
+ const listings=new Map<string,{listing:string,generation:number}>();
  /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. since: an mtime at or after it signs changed-during-scan. */
  const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
  const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
@@ -208,7 +209,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
   const signatures=new Map<string,string>();
   for(const path of paths)signatures.set(path,await signature(path,since));
-  generations.set(discovery,++generation);
+  const listing=JSON.stringify([discovery.projects.map(p=>[p.id,p.name]),discovery.warnings]);const last=listings.get(discovery.workspace);
+  const kept=last?.listing===listing?last.generation:++generation;listings.set(discovery.workspace,{listing,generation:kept});generations.set(discovery,kept);
   return {discovery,signatures};
  }
  /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (the first docs_capabilities page). */

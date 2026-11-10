@@ -139,8 +139,6 @@ describe("docs_capabilities", () => {
 
   test("a workspace with many projects pages the index within 4,096 bytes per page", async () => {
     const many = await workspaceWith(Array.from({ length: 60 }, (_, i) => `project-with-a-longer-name-${String(i).padStart(2, "0")}`));
-    // A path changed within 50 ms of a scan's start rescans on the next call, which starts a new generation and refuses the cursor. Wait past that margin.
-    await Bun.sleep(60);
     try {
       const pages: Record<string, any>[] = [];
       let cursor: string | undefined;
@@ -156,8 +154,15 @@ describe("docs_capabilities", () => {
       expect(pages.flatMap(index => index.topics).map((topic: any) => topic.id)).toEqual([...GUIDANCE_TOPICS]);
       expect(pages.flatMap(index => index.projects)).toEqual((await service.discover(many)).projects.map(({ id, name }) => ({ id, name })));
       expect(await call("docs_capabilities", { cursor: "-1" }, many)).toMatchObject({ ok: false, detail: expect.stringContaining("Unknown cursor") });
-      // A rescan between two pages starts a new generation, so the old page set's cursor is refused.
+      // Another first-page call that finds the same projects keeps the generation, so the old cursor still returns the next page.
       const first = await call("docs_capabilities", {}, many);
+      await call("docs_capabilities", {}, many);
+      expect((await call("docs_capabilities", { cursor: first.next_cursor }, many)).projects).toEqual(pages[1]!.projects);
+      // A rescan that finds a new project starts a new generation, so the old page set's cursor is refused.
+      const members = JSON.parse(await readFile(join(many, "members.json"), "utf8")) as { dir: string }[];
+      await writeFile(join(many, "members.json"), JSON.stringify([...members, { dir: "added" }]));
+      await mkdir(join(many, "added", "docs/page"), { recursive: true });
+      await writeFile(join(many, "added", "docs/page/doc.json"), serializeDocDocument(page));
       await call("docs_capabilities", {}, many);
       expect(await call("docs_capabilities", { cursor: first.next_cursor }, many)).toEqual(expect.objectContaining({ ok: false, detail: "The project list changed. Call docs_capabilities without a cursor for the first page." }));
     } finally { await rm(many, { recursive: true, force: true }); }
