@@ -1,0 +1,33 @@
+{
+  "name": "docs-system",
+  "start": {
+    "command": "bun {adapter}/serve.ts",
+    "cwd": ".",
+    "env": {
+      "HILL_CLIMB_BRIEFS": "{briefs}",
+      "HILL_CLIMB_FIXTURES": "{fixtures}",
+      "HILL_CLIMB_ROUND": "{round}"
+    }
+  },
+  "ready": "/",
+  "isolate": {
+    "CODECAINE_DOCS_GLOBAL_THEMES": "{run}/no-global-theme",
+    "CODECAINE_DOCS_STATE_DIR": "{run}/docs-state",
+    "DOCS_SOURCE_REF": "ef186cd44825c69e19eab505ab7b3bcc3dad7f03"
+  },
+  "fixtures": {
+    "source": "{frozen}",
+    "seed": "bun {adapter}/seed.ts {fixtures} {briefs} {run}/sources"
+  },
+  "writer": {
+    "command": "bun evals/quality-climb/write.ts --briefs {briefs} --out {fixtures}"
+  },
+  "route": "/{record}/#/{record}",
+  "reach": {
+    "load": "wait [data-docs-scroller] [data-block-id]\nfonts\ncapture [data-docs-scroller]\nboxes [data-block-id]",
+    "theme:light": "eval document.documentElement.classList.remove('dark'); document.documentElement.setAttribute('data-theme', 'light')",
+    "theme:dark": "eval document.documentElement.classList.add('dark'); document.documentElement.setAttribute('data-theme', 'dark')",
+    "closed": "",
+    "open all": "style *,*::before,*::after,::details-content{transition:none!important;animation:none!important}\neval for (const details of document.querySelectorAll('[data-docs-scroller] details')) details.open = true"
+  }
+}

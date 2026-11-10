@@ -1,11 +1,16 @@
 // The fixed writer: one Claude Code run per brief (Opus 5.5, medium effort) that writes one new page
 // in a scratch corpus through this worktree's docs MCP only, plus Read on the brief's source files as of SOURCE_REF.
+// The UI Hill Climb tool calls it on a writer round, through hill-climb/adapter.json:
+//   bun evals/quality-climb/write.ts --briefs <round briefs file> --out <fixtures dir> [--concurrency 3]
+// Each brief's page goes to <out>/<set>/<NN>-<slug>/ with its corpus, writer.jsonl, metrics.json and page.json.
+// A page whose metrics.json exists is kept, so a crashed write resumes.
 import { existsSync } from "node:fs";
-import { copyFile, cp, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, isAbsolute, join, resolve } from "node:path";
+import { parseArgs } from "node:util";
 import { $ } from "bun";
-import type { Brief } from "./schema";
+import { SETS, type Brief } from "./schema";
 
 export const REPO = resolve(import.meta.dir, "../..");
 export const WRITER = { model: "claude-opus-5-5", effort: "medium" } as const;
@@ -76,12 +81,26 @@ export const SOURCE_ROOT = join(REPO, ".tmp/quality-climb/lint-rules", SOURCE_RE
 /** Every source as an absolute path. Repo sources are relative to the repo root at SOURCE_REF. Absolute sources stay as they are. */
 export const sourcePaths = (brief: Brief) => brief.sources.map((s) => resolve(SOURCE_ROOT, s));
 
+/**
+ * The checkout that holds SOURCE_REF: this one, or HILL_CLIMB_TARGET when this one lacks it. A climb's builder repo has one
+ * root commit and no history, and the climb driver names the target checkout in HILL_CLIMB_TARGET.
+ */
+export function sourceRepo(): string {
+  const repos = [REPO, process.env.HILL_CLIMB_TARGET].filter((r): r is string => !!r);
+  const repo = repos.find((r) => Bun.spawnSync(["git", "-C", r, "cat-file", "-e", `${SOURCE_REF}^{tree}`]).exitCode === 0);
+  if (!repo) throw new Error(`No checkout has SOURCE_REF ${SOURCE_REF}. Looked in ${repos.join(" and ")}.`);
+  return repo;
+}
+
 /** Unpacks each repo source of `briefs` that the snapshot lacks from SOURCE_REF. */
 export async function freezeSources(briefs: Brief[]): Promise<void> {
   const missing = [...new Set(briefs.flatMap((b) => b.sources).filter((s) => !isAbsolute(s) && !existsSync(join(SOURCE_ROOT, s))))];
   if (missing.length === 0) return;
   await mkdir(SOURCE_ROOT, { recursive: true });
-  await $`git -C ${REPO} archive ${SOURCE_REF} ${missing} | tar -x -f - -C ${SOURCE_ROOT}`.quiet();
+  await $`git -C ${sourceRepo()} archive ${SOURCE_REF} ${missing} | tar -x -f - -C ${SOURCE_ROOT}`.quiet();
+  // In a pipe, a tar that reads no input can exit 0 (bsdtar on macOS does), so check the files.
+  const still = missing.filter((s) => !existsSync(join(SOURCE_ROOT, s)));
+  if (still.length) throw new Error(`After unpacking ${SOURCE_REF}, ${still.length} brief source(s) are still missing: ${still.join(", ")}.`);
 }
 export const pagePath = (pageDir: string, brief: Brief) => join(pageDir, "corpus/docs", brief.slug, "doc.json");
 
@@ -173,17 +192,56 @@ export async function writePage(brief: Brief, pageDir: string, stateDir: string,
   return metrics;
 }
 
+/** The page folder of one brief under a writer's out folder: <set>/<NN>-<slug>. */
+export const writtenPageDir = (out: string, brief: Brief) => join(out, brief.set, `${String(brief.id).padStart(2, "0")}-${brief.slug}`);
+
 /**
- * Copies the page that a finished earlier round wrote in `fromDir` into `pageDir`, so this checkout's viewer
- * re-renders it with no new write. The corpus's themes link points at `systemRoot`'s themes, not the old checkout's.
- * metrics.json comes last, because it marks a finished write.
+ * Writes every brief's page into `out`, at most `concurrency` at once, and stops the docs daemon after. Returns the
+ * briefs whose write failed, with the reason.
  */
-export async function copyWrittenPage(brief: Brief, fromDir: string, pageDir: string, systemRoot = REPO): Promise<void> {
-  if (!existsSync(join(fromDir, "metrics.json")) || !existsSync(pagePath(fromDir, brief))) throw new Error(`No finished page for brief ${brief.id} in ${fromDir}.`);
-  const corpus = join(pageDir, "corpus");
-  await rm(corpus, { recursive: true, force: true });
-  await cp(join(fromDir, "corpus"), corpus, { recursive: true, verbatimSymlinks: true, filter: (src) => src !== join(fromDir, "corpus/themes") });
-  await symlink(join(systemRoot, "themes"), join(corpus, "themes"));
-  await writeFile(join(pageDir, "frozen-from.json"), JSON.stringify({ from: fromDir }, null, 2));
-  await copyFile(join(fromDir, "metrics.json"), join(pageDir, "metrics.json"));
+export async function writeAll(briefs: (Brief & { local?: boolean })[], out: string, concurrency = 3, systemRoot = REPO): Promise<{ briefId: number; error: string }[]> {
+  const stateDir = process.env.CODECAINE_DOCS_STATE_DIR ?? join(out, "docs-state");
+  await mkdir(stateDir, { recursive: true });
+  const settings = await authSettings(out);
+  // One unpack before the pool starts, so parallel writers never extract into SOURCE_ROOT at the same time.
+  await freezeSources(briefs.filter((b) => !existsSync(join(writtenPageDir(out, b), "metrics.json"))));
+  const failed: { briefId: number; error: string }[] = [];
+  let next = 0;
+  try {
+    await Promise.all(Array.from({ length: Math.min(concurrency, briefs.length) }, async () => {
+      while (next < briefs.length) {
+        const brief = briefs[next++]!;
+        const pageDir = writtenPageDir(out, brief);
+        try {
+          if (!existsSync(join(pageDir, "metrics.json"))) await writePage(brief, pageDir, stateDir, settings, systemRoot);
+          // The tool's assets.ts publishes a page only when page.json says it is not a local brief's.
+          // A resumed page stays local when it was written local, so a later public brief never publishes it.
+          const metaFile = join(pageDir, "page.json");
+          const saved = existsSync(metaFile) ? (JSON.parse(await readFile(metaFile, "utf8")) as { local?: boolean }) : {};
+          const local = brief.local === true || saved.local === true;
+          await writeFile(metaFile, JSON.stringify({ briefId: brief.id, slug: brief.slug, set: brief.set, local }, null, 2));
+        } catch (error) {
+          failed.push({ briefId: brief.id, error: error instanceof Error ? error.message : String(error) });
+        }
+      }
+    }));
+  } finally {
+    await $`bun ${join(systemRoot, "packages/docs-mcp/src/cli.ts")} stop`.env({ ...process.env, ...(await docsMcpEnv(stateDir, systemRoot)) } as Record<string, string>).quiet().nothrow();
+  }
+  return failed;
+}
+
+if (import.meta.main) {
+  const { values: opt } = parseArgs({ options: { briefs: { type: "string" }, out: { type: "string" }, concurrency: { type: "string", default: "3" } } });
+  if (!opt.briefs || !opt.out) throw new Error("Pass --briefs <round briefs file> --out <fixtures dir>.");
+  const briefs = JSON.parse(await readFile(resolve(opt.briefs), "utf8")) as (Brief & { local?: boolean })[];
+  // Each page folder is <out>/<set>/<NN>-<slug>, and a rewrite deletes it first, so a bad id, set or slug never reaches a path.
+  const bad = briefs.filter((b) => !Number.isInteger(b.id) || b.id < 0 || !(SETS as readonly string[]).includes(b.set) || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(b.slug));
+  if (bad.length) throw new Error(`Briefs need a whole-number id, a set of ${SETS.join(" or ")}, and a lowercase kebab-case slug. Bad: ${bad.map((b) => JSON.stringify({ id: b.id, set: b.set, slug: b.slug })).join(", ")}.`);
+  const concurrency = Number(opt.concurrency);
+  if (!Number.isInteger(concurrency) || concurrency < 1) throw new Error(`--concurrency must be a positive integer, not ${opt.concurrency}.`);
+  const failed = await writeAll(briefs, resolve(opt.out), concurrency);
+  for (const f of failed) console.error(`brief ${f.briefId}: ${f.error}`);
+  console.log(`Wrote ${briefs.length - failed.length} of ${briefs.length} page(s) into ${resolve(opt.out)}.`);
+  process.exit(failed.length ? 1 : 0);
 }

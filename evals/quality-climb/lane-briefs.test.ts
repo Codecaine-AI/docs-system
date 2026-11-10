@@ -2,8 +2,10 @@
 import { describe, expect, test } from "bun:test";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
+import { $ } from "bun";
 import repoBriefs from "./briefs.json";
 import { BLOCK_GROUPS, SETS, type Brief } from "./schema";
+import { SOURCE_REF, sourceRepo } from "./write";
 
 const repo = resolve(import.meta.dir, "../..");
 const lanesDir = join(import.meta.dir, "lanes");
@@ -14,6 +16,8 @@ const LANES = [
 const KEYS = ["id", "set", "slug", "title", "reader", "prompt", "sources", "blockTypes", "rewrites"].sort();
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const GROUPS = new Set<string>(BLOCK_GROUPS);
+// Writers and judges read every source as of SOURCE_REF, so a source must exist there, not in the worktree.
+const atSourceRef = new Set((await $`git -C ${sourceRepo()} ls-tree -r --name-only ${SOURCE_REF}`.text()).split("\n"));
 
 const lanes = LANES.map((lane) => ({
   lane,
@@ -73,10 +77,10 @@ describe.each(lanes)("lane $lane", ({ lane, briefs }) => {
     expect(briefs.filter((b) => b.blockTypes[0] !== lane).map((b) => b.id)).toEqual([]);
   });
 
-  test("every source and rewrites path exists in this repo", () => {
+  test("every source and rewrites path exists in this repo at SOURCE_REF", () => {
     const paths = briefs.flatMap((b) => [...b.sources, ...(b.rewrites ? [b.rewrites] : [])]);
     const outside = paths.filter((p) => !resolve(repo, p).startsWith(`${repo}/`));
-    const missing = paths.filter((p) => !existsSync(resolve(repo, p)));
+    const missing = paths.filter((p) => !atSourceRef.has(p));
     expect({ outside, missing }).toEqual({ outside: [], missing: [] });
   });
 

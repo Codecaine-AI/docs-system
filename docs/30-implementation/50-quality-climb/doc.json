@@ -14,39 +14,30 @@
         "what-lead",
         "what-outline",
         "what-builder",
+        "what-judges",
+        "h-adapter",
+        "adapter-lead",
+        "adapter-files",
+        "adapter-draft",
         "h-run",
         "run-lead",
         "run-code",
-        "run-files-lead",
-        "run-files",
+        "run-writer",
         "run-out-lead",
         "run-out",
+        "run-files-lead",
+        "run-files",
+        "h-climb",
+        "climb-lead",
+        "climb-code",
+        "climb-note",
         "h-cat",
         "cat-lead",
         "cat-table",
         "stage-lead",
-        "stage-table",
-        "stage-lane",
-        "guard-lead",
-        "g1",
-        "g2",
-        "g3",
         "h-lane",
         "lane-lead",
         "lane-list",
-        "lane-files",
-        "lane-crit-lead",
-        "lane-crit-shape",
-        "lane-gate",
-        "lane-guard",
-        "lane-muse",
-        "lane-steps-lead",
-        "ls1",
-        "ls2",
-        "ls3",
-        "ls4",
-        "ls5",
-        "lane-preview",
         "h-res",
         "res-h-page",
         "res-lead",
@@ -72,7 +63,16 @@
       "props": {},
       "text": [
         {
-          "insert": "The quality climb measures how well a fixed AI writer documents this codebase with the docs tools. Its code is in "
+          "insert": "The quality climb measures how well a fixed AI writer documents this codebase with the docs tools. Each climb changes the viewer or the writer to raise the judges' scores. UI Hill Climb, a local tool repo at "
+        },
+        {
+          "insert": "codebases/codecaine/tools/ui-hill-climb",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", runs every climb. This repo keeps the 2 parts that the tool calls: the writer in "
         },
         {
           "insert": "evals/quality-climb/",
@@ -81,7 +81,16 @@
           }
         },
         {
-          "insert": ". Each round writes, renders and scores the same page briefs. Between rounds, a builder agent changes the viewer, the guidance, the tool text or the lints from the judges' findings."
+          "insert": " and the adapter in "
+        },
+        {
+          "insert": "hill-climb/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -105,16 +114,7 @@
       "props": {},
       "text": [
         {
-          "insert": "One round runs 4 steps in order. "
-        },
-        {
-          "insert": "round.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " skips a step whose output already exists, so a round that crashes resumes where it stopped."
+          "insert": "A climb starts from a run package that Ford approves. A run package is the file that names the target, its states, its criteria, its judge ladder and its briefs. Each round runs 5 steps in order."
         }
       ],
       "children": []
@@ -125,27 +125,35 @@
       "props": {
         "steps": [
           {
-            "text": "Quality Climb Round",
+            "text": "Hill Climb Round",
             "steps": [
               {
-                "text": "Write Each Page",
+                "text": "Write or Reuse the Pages",
                 "steps": [
                   {
-                    "text": "The writer, Opus 5.5 at medium effort, writes each brief's page with only the docs MCP tools"
+                    "text": "On a writer round, the adapter's writer writes each brief's page again"
                   },
                   {
-                    "text": "Each writer works in its own scratch corpus, with repo sources frozen at commit 8003057"
+                    "text": "On a viewer round, the round renders the pages of the last kept writer round, or the frozen pages"
+                  },
+                  {
+                    "text": "The seed points each page at this checkout's themes and unpacks the brief sources that the judges lack"
                   }
                 ]
               },
               {
-                "text": "Render Each Page",
+                "text": "Serve the Pages",
                 "steps": [
                   {
-                    "text": "render.ts exports the page with docs-cli export and takes a 1280px Playwright PNG"
-                  },
+                    "text": "hill-climb/serve.ts exports each page with this checkout's viewer and serves the sites on a free port"
+                  }
+                ]
+              },
+              {
+                "text": "Screenshot Each State",
+                "steps": [
                   {
-                    "text": "render.ts saves the markdown, the scorable blocks and the docs_check lint findings"
+                    "text": "The tool screenshots each state of each brief, in each theme and in each width that the state takes"
                   }
                 ]
               },
@@ -153,10 +161,7 @@
                 "text": "Judge Each Page",
                 "steps": [
                   {
-                    "text": "Each judge scores the PNG, the markdown and the source in 8 categories and per block"
-                  },
-                  {
-                    "text": "Sol scores each page 3 times and Opus once"
+                    "text": "Each judge on the board gives each criterion one score per screenshot, and scores the 8 page categories"
                   }
                 ]
               },
@@ -164,7 +169,7 @@
                 "text": "Gate the Round",
                 "steps": [
                   {
-                    "text": "gate.ts compares the median scores and the guards with the baseline round"
+                    "text": "Each judge on the board must reach a set mean of 9.5 on each criterion, on both sets, with no page under 9.0"
                   }
                 ]
               }
@@ -180,7 +185,118 @@
       "props": {},
       "text": [
         {
-          "insert": "The builder commits one fix for each finding it acts on. It reads only the climb set, so the held-out set shows whether a fix helps pages it was not made for."
+          "insert": "Between rounds, the builder, Claude Opus 5.5 at high effort, makes one viewer or writer change. It works in its own git repo, "
+        },
+        {
+          "insert": "<run>-builder/worktree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and reads findings for the climb set only. The held-out set then shows whether a change helps pages it was not made for. The driver keeps a change when its gate passes or its climb score stays at or above the last kept round's."
+        }
+      ],
+      "children": []
+    },
+    "what-judges": {
+      "id": "what-judges",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 6 judges are GPT-6.1 Sol, GPT-6 Astra, Claude Opus 5.5, Claude Fable 5.2, Kimi K3.1 Pro and Muse Wonder Full 1.0. The run package's ladder puts them in rungs. A round at rung n scores with the judges of that rung and every rung below it. A run never moves down a rung."
+        }
+      ],
+      "children": []
+    },
+    "h-adapter": {
+      "id": "h-adapter",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "The Docs System Adapter"
+        }
+      ],
+      "children": []
+    },
+    "adapter-lead": {
+      "id": "adapter-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The adapter is "
+        },
+        {
+          "insert": "hill-climb/adapter.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and it names the commands that a round runs. A run package names the adapter in "
+        },
+        {
+          "insert": "target.adapter",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The tool resolves a relative path against the package folder, then the app checkout, then the tool. The folder holds 5 files."
+        }
+      ],
+      "children": []
+    },
+    "adapter-files": {
+      "id": "adapter-files",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "hill-climb/adapter.json",
+            "note": "The start, seed and writer commands, the isolated env, the page route and the reach steps"
+          },
+          {
+            "path": "hill-climb/seed.ts",
+            "note": "Points each page's themes link at this checkout's themes, and unpacks the brief sources it lacks from DOCS_SOURCE_REF for the judges"
+          },
+          {
+            "path": "hill-climb/serve.ts",
+            "note": "Exports each page with docs-cli export, writes page.md, blocks.json and lint.json, copies metrics.json, then serves the sites"
+          },
+          {
+            "path": "hill-climb/remote.json",
+            "note": "The sibling repos, the install folder and the overlay file that a run on another host needs"
+          },
+          {
+            "path": "hill-climb/worktree-setup.sh",
+            "note": "Copies Core's node_modules and the sibling repos into the sealed builder worktree"
+          }
+        ]
+      },
+      "children": []
+    },
+    "adapter-draft": {
+      "id": "adapter-draft",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The tool keeps a draft copy of this folder in its "
+        },
+        {
+          "insert": "adapters/docs-system/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folder, and the tool's own test packages use that copy."
         }
       ],
       "children": []
@@ -193,7 +309,7 @@
       },
       "text": [
         {
-          "insert": "Run a Round"
+          "insert": "Run the Writer"
         }
       ],
       "children": []
@@ -204,25 +320,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Run a round from the repo root. "
-        },
-        {
-          "insert": "briefs.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " holds 8 briefs. To add briefs that stay out of the repo, set "
-        },
-        {
-          "insert": "QUALITY_CLIMB_LOCAL_BRIEFS",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " to a local briefs file."
+          "insert": "On a writer round, the tool runs the adapter's writer command from this checkout's root. You can run the same command to write pages without a climb."
         }
       ],
       "children": []
@@ -235,70 +333,62 @@
       },
       "text": [
         {
-          "insert": "bun evals/quality-climb/round.ts --round 10 --set climb --judges sol,opus --samples sol=3,opus=1"
+          "insert": "bun evals/quality-climb/write.ts --briefs <briefs file> --out <fixtures dir> [--concurrency 3]"
         }
       ],
       "children": []
     },
-    "run-files-lead": {
-      "id": "run-files-lead",
+    "run-writer": {
+      "id": "run-writer",
       "type": "paragraph",
       "props": {},
       "text": [
         {
-          "insert": "Each step has its own file in "
-        },
-        {
-          "insert": "evals/quality-climb/",
+          "insert": "write.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", and each file has a test beside it."
+          "insert": " starts one Claude Code run per brief, with Opus 5.5 at medium effort. Each run writes one page in its own scratch corpus, with only the docs MCP tools and Read on the brief's sources. The writer reads each repo-relative source as of commit "
+        },
+        {
+          "insert": "ef186cd4",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "SOURCE_REF",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in "
+        },
+        {
+          "insert": "write.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". At most 3 runs go at once unless you pass "
+        },
+        {
+          "insert": "--concurrency",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
-      "children": []
-    },
-    "run-files": {
-      "id": "run-files",
-      "type": "file-tree",
-      "props": {
-        "entries": [
-          {
-            "path": "evals/quality-climb/round.ts",
-            "note": "Runs one round: write, render, judge, gate"
-          },
-          {
-            "path": "evals/quality-climb/briefs.json",
-            "note": "The page briefs, each with its set, reader, prompt and sources"
-          },
-          {
-            "path": "evals/quality-climb/write.ts",
-            "note": "The fixed writer: one Claude Code run per brief"
-          },
-          {
-            "path": "evals/quality-climb/render.ts",
-            "note": "Export, PNG, markdown, blocks, block boxes and lint for one page"
-          },
-          {
-            "path": "evals/quality-climb/judge.ts",
-            "note": "Runs each judge and parses its scores"
-          },
-          {
-            "path": "evals/quality-climb/judge-brief.md",
-            "note": "What each score from 1.0 to 10.0 means"
-          },
-          {
-            "path": "evals/quality-climb/gate.ts",
-            "note": "The gate, the guards and the judge ladder"
-          },
-          {
-            "path": "evals/quality-climb/assets.ts",
-            "note": "Pushes the before and after images for a PR"
-          }
-        ]
-      },
       "children": []
     },
     "run-out-lead": {
@@ -307,16 +397,25 @@
       "props": {},
       "text": [
         {
-          "insert": "A round writes its output to "
+          "insert": "Each brief's page goes to "
         },
         {
-          "insert": ".tmp/quality-climb/round-<n>/",
+          "insert": "<out>/<set>/<NN>-<slug>/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", which git ignores."
+          "insert": ". A page whose "
+        },
+        {
+          "insert": "metrics.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " exists is kept, so a crashed write resumes. The command exits 1 when any brief fails, and it names each failed brief."
         }
       ],
       "children": []
@@ -327,27 +426,176 @@
       "props": {
         "entries": [
           {
-            "path": ".tmp/quality-climb/round-<n>/report.json",
-            "note": "Scores per judge, category and block-type group"
+            "path": "<out>/<set>/<NN>-<slug>/corpus/docs/<slug>/doc.json",
+            "note": "The written page"
           },
           {
-            "path": ".tmp/quality-climb/round-<n>/gate.json",
-            "note": "Pass or fail, with each failed rule"
+            "path": "<out>/<set>/<NN>-<slug>/writer.jsonl",
+            "note": "The writer's stream-json transcript"
           },
           {
-            "path": ".tmp/quality-climb/round-<n>/checks.json",
-            "note": "Test and typecheck results for the tests guard"
+            "path": "<out>/<set>/<NN>-<slug>/metrics.json",
+            "note": "Tool calls, tokens, cost and duration of a finished write. A failed write saves metrics.failed.json instead"
           },
           {
-            "path": ".tmp/quality-climb/round-<n>/climb/<nn>-<slug>/page.png",
-            "note": "The rendered page the judges see"
-          },
-          {
-            "path": ".tmp/quality-climb/round-<n>/climb/<nn>-<slug>/scores/",
-            "note": "One JSON file per judge sample"
+            "path": "<out>/<set>/<NN>-<slug>/page.json",
+            "note": "The brief id, slug and set, and whether the brief is local"
           }
         ]
       },
+      "children": []
+    },
+    "run-files-lead": {
+      "id": "run-files-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "evals/quality-climb/",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds the writer, its briefs and their tests."
+        }
+      ],
+      "children": []
+    },
+    "run-files": {
+      "id": "run-files",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "evals/quality-climb/write.ts",
+            "note": "The writer and its command-line entry"
+          },
+          {
+            "path": "evals/quality-climb/schema.ts",
+            "note": "The Brief type, the 2 sets and the block-type groups"
+          },
+          {
+            "path": "evals/quality-climb/briefs.json",
+            "note": "The 8 whole-page briefs"
+          },
+          {
+            "path": "evals/quality-climb/lanes/<type>/briefs.json",
+            "note": "One lane's 12 briefs: 4 in the climb set and 8 in the held-out set"
+          },
+          {
+            "path": "evals/quality-climb/lanes/<type>/criteria.json",
+            "note": "One lane's own criteria"
+          },
+          {
+            "path": "evals/quality-climb/write.test.ts",
+            "note": "Checks the whole-page briefs, the source snapshot and the writer's output folders"
+          },
+          {
+            "path": "evals/quality-climb/lane-briefs.test.ts",
+            "note": "Checks each lane's briefs: the shape, the 4 and 8 split, unique ids and sources that exist at SOURCE_REF"
+          }
+        ]
+      },
+      "children": []
+    },
+    "h-climb": {
+      "id": "h-climb",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Run a Climb"
+        }
+      ],
+      "children": []
+    },
+    "climb-lead": {
+      "id": "climb-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Ask for a climb through the "
+        },
+        {
+          "insert": "ui-hill-climb",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skill, with words such as "
+        },
+        {
+          "insert": "optimize this component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The tool's "
+        },
+        {
+          "insert": "README.md",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " documents "
+        },
+        {
+          "insert": "round.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the climb driver and the lanes. One interaction-surface round runs from frozen pages with the fake judge, at no model cost. Run it from the tool repo:"
+        }
+      ],
+      "children": []
+    },
+    "climb-code": {
+      "id": "climb-code",
+      "type": "code",
+      "props": {
+        "language": "bash"
+      },
+      "text": [
+        {
+          "insert": "bun src/round.ts --package test/fixtures/packages/interaction-surface/run.json \\\n  --app <docs-system checkout> --round 0 --run-dir /tmp/runs/interaction-surface \\\n  --frozen test/fixtures/frozen/interaction-surface/round-0 --judges fake --skip-tests"
+        }
+      ],
+      "children": []
+    },
+    "climb-note": {
+      "id": "climb-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "--skip-tests",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " runs no checks and fails the tests guard, so this round never passes the gate. The package names the tool's draft adapter. The round shows that the adapter seeds, serves and screenshots each page of the checkout that "
+        },
+        {
+          "insert": "--app",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names."
+        }
+      ],
       "children": []
     },
     "h-cat": {
@@ -358,7 +606,7 @@
       },
       "text": [
         {
-          "insert": "Categories and Judges"
+          "insert": "Page Categories"
         }
       ],
       "children": []
@@ -369,7 +617,25 @@
       "props": {},
       "text": [
         {
-          "insert": "Each judge scores every page from 1.0 to 10.0, in steps of 0.1, in 8 categories. Each judge also scores each block, and the gate averages those scores in 13 block-type groups."
+          "insert": "Each judge also scores 8 page categories, and the Whole-Page Climb table in Results uses them. UI Hill Climb keeps the same category ids, in "
+        },
+        {
+          "insert": "PAGE_CATEGORY_QUESTIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of its "
+        },
+        {
+          "insert": "src/schema.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
@@ -434,183 +700,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The judges count in 3 stages. A stage passes when each counting judge gives a mean of 9.5 or more in every category and block-type group, with no page under 9, on both sets."
-        }
-      ],
-      "children": []
-    },
-    "stage-table": {
-      "id": "stage-table",
-      "type": "structured-table",
-      "props": {
-        "columns": [
-          "Stage",
-          "Judges whose scores count"
-        ],
-        "rows": [
-          [
-            "1",
-            "GPT-6.1 Sol and Opus 5.5"
-          ],
-          [
-            "2",
-            "Stage 1 judges and Muse Wonder Full 1.0"
-          ],
-          [
-            "3",
-            "Stage 2 judges and Fable 5.1"
-          ]
-        ]
-      },
-      "children": []
-    },
-    "stage-lane": {
-      "id": "stage-lane",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A lane round sends "
-        },
-        {
-          "insert": "lane-judge-brief.md",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " instead of "
-        },
-        {
-          "insert": "judge-brief.md",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", with the base criteria and the lane's own criteria as its rubric. Climb One Component describes that rubric."
-        }
-      ],
-      "children": []
-    },
-    "guard-lead": {
-      "id": "guard-lead",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A round also fails when any of its 3 guards fails."
-        }
-      ],
-      "children": []
-    },
-    "g1": {
-      "id": "g1",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Tests guard",
-          "attributes": {
-            "bold": true
-          }
-        }
-      ],
-      "children": [
-        "g1a"
-      ]
-    },
-    "g1a": {
-      "id": "g1a",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "It fails on a test or type error that the baseline round's "
-        },
-        {
-          "insert": "checks.json",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " does not list."
-        }
-      ],
-      "children": []
-    },
-    "g2": {
-      "id": "g2",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Lint guard",
-          "attributes": {
-            "bold": true
-          }
-        }
-      ],
-      "children": [
-        "g2a"
-      ]
-    },
-    "g2a": {
-      "id": "g2a",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "It fails on a page with a blocking finding under the rules at the "
-        },
-        {
-          "insert": "--lint-ref",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " snapshot."
-        }
-      ],
-      "children": []
-    },
-    "g3": {
-      "id": "g3",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "Cost guard",
-          "attributes": {
-            "bold": true
-          }
-        }
-      ],
-      "children": [
-        "g3a"
-      ]
-    },
-    "g3a": {
-      "id": "g3a",
-      "type": "list-item",
-      "props": {
-        "ordered": false
-      },
-      "text": [
-        {
-          "insert": "It fails when the writer's mean tokens per page pass 120% of the baseline round."
+          "insert": "A docs-system round also fails when one of its 4 guards fails: tests, lint, writer cost or page categories."
         }
       ],
       "children": []
@@ -643,34 +733,25 @@
           }
         },
         {
-          "insert": ". With "
+          "insert": ". The tool's "
         },
         {
-          "insert": "--lane <type>",
+          "insert": "src/lanes.ts",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ", "
+          "insert": " runs several lanes of one repo at once, each with its own builder worktree. The briefs and criteria of the 12 lanes in Per-Component Lanes stay in "
         },
         {
-          "insert": "round.ts",
+          "insert": "evals/quality-climb/lanes/",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " takes its briefs and criteria from the lane's folder and writes to "
-        },
-        {
-          "insert": ".tmp/quality-climb/lanes/<type>/round-<n>/",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". Each of the 12 lanes has 4 climb briefs and 8 held-out briefs. The rich-text lane scores paragraphs, headings, list items and callouts, and every other lane scores its own block type."
+          "insert": "."
         }
       ],
       "children": []
@@ -693,409 +774,13 @@
           "insert": " in "
         },
         {
-          "insert": "schema.ts",
+          "insert": "lane-briefs.test.ts",
           "attributes": {
             "code": true
           }
         },
         {
           "insert": " lists them."
-        }
-      ],
-      "children": []
-    },
-    "lane-files": {
-      "id": "lane-files",
-      "type": "file-tree",
-      "props": {
-        "entries": [
-          {
-            "path": "evals/quality-climb/lanes/base-criteria.json",
-            "note": "The 6 criteria that every lane scores"
-          },
-          {
-            "path": "evals/quality-climb/lanes/<type>/briefs.json",
-            "note": "The lane's briefs, each in the climb set or the held-out set"
-          },
-          {
-            "path": "evals/quality-climb/lanes/<type>/criteria.json",
-            "note": "The lane's own 4 to 7 criteria, from the lane's council. Without the file, the lane scores the base criteria only"
-          },
-          {
-            "path": "evals/quality-climb/lanes.ts",
-            "note": "Loads a lane's briefs and its base plus lane criteria"
-          },
-          {
-            "path": "evals/quality-climb/lane-judge-brief.md",
-            "note": "What a lane judge scores, and the score anchors"
-          },
-          {
-            "path": "evals/quality-climb/compare.ts",
-            "note": "Before and after images of a lane's blocks"
-          },
-          {
-            "path": "evals/quality-climb/fixtures/lanes/state-shape/",
-            "note": "A test lane with 2 briefs and 2 lane criteria"
-          }
-        ]
-      },
-      "children": []
-    },
-    "lane-crit-lead": {
-      "id": "lane-crit-lead",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Each criterion in a criteria file has 3 fields. "
-        },
-        {
-          "insert": "loadLane",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " refuses a criterion that lacks one, and an id that the base and lane files both use."
-        }
-      ],
-      "children": []
-    },
-    "lane-crit-shape": {
-      "id": "lane-crit-shape",
-      "type": "state-shape",
-      "props": {
-        "example": "{\"id\": \"field-types\", \"group\": \"State shape\", \"question\": \"Does each field show its type, and does the block mark each optional field?\"}",
-        "fields": [
-          {
-            "name": "id",
-            "type": "string",
-            "description": "Lowercase words and digits joined by single hyphens"
-          },
-          {
-            "name": "question",
-            "type": "string",
-            "description": "The one question that the judge scores"
-          },
-          {
-            "name": "group",
-            "type": "string",
-            "description": "A label such as Meaning, Writing or Look, which tells the judge which input to use"
-          }
-        ],
-        "name": "Criterion",
-        "source": {
-          "path": "evals/quality-climb/schema.ts",
-          "symbol": "CriterionSchema"
-        }
-      },
-      "children": []
-    },
-    "lane-gate": {
-      "id": "lane-gate",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A lane judge gives each criterion one score over all of the lane's blocks on a page, and scores the 8 page categories as a guard. A criterion's score is the median of a judge's samples of a page, then the mean over the pages of a set. A lane passes only when every counting judge gives a mean of 9.5 or more on every criterion, on both the climb set and the held-out set."
-        }
-      ],
-      "children": []
-    },
-    "lane-guard": {
-      "id": "lane-guard",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "--stage 1",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ", "
-        },
-        {
-          "insert": "2",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " or "
-        },
-        {
-          "insert": "3",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " picks the counting judges in the stage table of Categories and Judges. A lane round keeps the 3 guards and adds a page-categories guard, "
-        },
-        {
-          "insert": "categoryGuard",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in "
-        },
-        {
-          "insert": "gate.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": ". That guard fails when a judge's page-category mean on a set falls more than 0.5 below the baseline round's, or is not a number."
-        }
-      ],
-      "children": []
-    },
-    "lane-muse": {
-      "id": "lane-muse",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Ford took Muse Wonder out of the lane pass decision after the 12 lanes ran. "
-        },
-        {
-          "insert": "STAGES",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " in "
-        },
-        {
-          "insert": "gate.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " still names Muse at stages 2 and 3. To leave Muse out of a stage 3 round, also pass "
-        },
-        {
-          "insert": "--judges sol,opus,fable --counting sol,opus,fable",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": []
-    },
-    "lane-steps-lead": {
-      "id": "lane-steps-lead",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "A lane PR runs 5 steps from the repo root, in this order. Each round number is an example."
-        }
-      ],
-      "children": []
-    },
-    "ls1": {
-      "id": "ls1",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Run the lane's baseline round on both sets at stage 3."
-        }
-      ],
-      "children": [
-        "ls1c"
-      ]
-    },
-    "ls1c": {
-      "id": "ls1c",
-      "type": "code",
-      "props": {
-        "language": "bash"
-      },
-      "text": [
-        {
-          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 0 --stage 3"
-        }
-      ],
-      "children": []
-    },
-    "ls2": {
-      "id": "ls2",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Run each climb round on the climb set. After a writer change, write the pages again, or after a viewer-only change, re-render the last round's pages with "
-        },
-        {
-          "insert": "--frozen-from",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": "."
-        }
-      ],
-      "children": [
-        "ls2c"
-      ]
-    },
-    "ls2c": {
-      "id": "ls2c",
-      "type": "code",
-      "props": {
-        "language": "bash"
-      },
-      "text": [
-        {
-          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 1 --stage 1 \\\n  --set climb\nbun evals/quality-climb/round.ts --lane state-shape --round 2 --stage 1 \\\n  --set climb --frozen-from .tmp/quality-climb/lanes/state-shape/round-1"
-        }
-      ],
-      "children": []
-    },
-    "ls3": {
-      "id": "ls3",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "After the last climb round, score round 0's pages on both sets under the final viewer. This same-page round has no new write, so the change it shows comes from the viewer alone."
-        }
-      ],
-      "children": [
-        "ls3c"
-      ]
-    },
-    "ls3c": {
-      "id": "ls3c",
-      "type": "code",
-      "props": {
-        "language": "bash"
-      },
-      "text": [
-        {
-          "insert": "bun evals/quality-climb/round.ts --lane state-shape --round 11 --stage 3 \\\n  --frozen-from .tmp/quality-climb/lanes/state-shape/round-0"
-        }
-      ],
-      "children": []
-    },
-    "ls4": {
-      "id": "ls4",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Write one before and after image per climb page, plus one full-page pair. "
-        },
-        {
-          "insert": "compare.ts",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " never compares held-out pages."
-        }
-      ],
-      "children": [
-        "ls4c2"
-      ]
-    },
-    "ls4c2": {
-      "id": "ls4c2",
-      "type": "code",
-      "props": {
-        "language": "bash"
-      },
-      "text": [
-        {
-          "insert": "bun evals/quality-climb/compare.ts --lane state-shape \\\n  --before .tmp/quality-climb/lanes/state-shape/round-0 \\\n  --after .tmp/quality-climb/lanes/state-shape/round-11"
-        }
-      ],
-      "children": []
-    },
-    "ls5": {
-      "id": "ls5",
-      "type": "list-item",
-      "props": {
-        "ordered": true
-      },
-      "text": [
-        {
-          "insert": "Push the images to the quality-climb-assets branch and print the markdown section for the PR body."
-        }
-      ],
-      "children": [
-        "ls5c"
-      ]
-    },
-    "ls5c": {
-      "id": "ls5c",
-      "type": "code",
-      "props": {
-        "language": "bash"
-      },
-      "text": [
-        {
-          "insert": "bun evals/quality-climb/assets.ts \\\n  --compare .tmp/quality-climb/lanes/state-shape/round-11/compare-round-0"
-        }
-      ],
-      "children": []
-    },
-    "lane-preview": {
-      "id": "lane-preview",
-      "type": "paragraph",
-      "props": {},
-      "text": [
-        {
-          "insert": "Three more options help you look at a viewer change before you spend judge tokens. "
-        },
-        {
-          "insert": "--render-only",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " writes and renders the pages, then stops before the tests, the judges and the gate. "
-        },
-        {
-          "insert": "--expand",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " opens every disclosure, such as each interaction-surface operation row, before the screenshot. "
-        },
-        {
-          "insert": "--system-root <path>",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " renders with another Docs System checkout, while the harness, the briefs and the judges stay this worktree's."
         }
       ],
       "children": []
