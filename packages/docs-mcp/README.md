@@ -65,7 +65,7 @@ bun test packages/docs-mcp/src
 bunx tsc -p packages/docs-mcp/tsconfig.json --noEmit
 ```
 
-Source changes to imported code require stopping/restarting the service and reconnecting clients. Restart shared workbenches too because their service port/token are bound at launch. Canonical writing guidance reloads between tasks; installed references refresh on reinstall. Runtime changes are rejected during active authoring. The snapshot records package source hashes, repository commits, tool contracts, and guidance identity.
+Source changes to imported code require stopping/restarting the service and reconnecting clients. Restart shared workbenches too because their service port/token are bound at launch. Canonical writing guidance reloads between tasks. Runtime changes are rejected during active authoring. The snapshot records package source hashes, repository commits, tool contracts, and guidance identity.
 
 Runtime metadata/logs live at `~/.local/state/codecaine-docs/`, or `CODECAINE_DOCS_STATE_DIR`. `daemon.json` contains the local credential; do not share it. No API key is needed for this service. Code execution remains in the external client.
 
