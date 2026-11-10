@@ -22,6 +22,8 @@ const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'o
 const string={type:'string',minLength:1};
 const MUTATION_READS = new Set(['docs_tree','docs_read','docs_check','docs_annotations','docs_component_read','docs_search','docs_backlinks','docs_assets','docs_proposals','docs_changesets','docs_changeset_read']);
 const STYLE_GATE='Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
+/** The refusal of a write whose task has not read a topic it needs. Each names its recovery call. */
+const GATE_REFUSALS:Record<string,string>={style:STYLE_GATE,'sequence-writing':'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.'};
 const STYLE_NEXT='Read docs_guidance with task_id and topic "style" before your first edit. Writes are refused until you do.';
 const topicIndex=(topics:GuidanceTopic[])=>topics.map(({topic,covers,text})=>({topic,covers,chars:text.length}));
 /** A task has read a topic when it read that topic or topic "all", which holds every topic. */
@@ -244,7 +246,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const properties=inputSchema.properties as object;
   if(name==='docs_check')return {name,description:`${description} Include task_id to block on style violations this task introduced.`,inputSchema:{...inputSchema,properties:{...properties,task_id:string}}};
   const mutation=!MUTATION_READS.has(name);
-  return {name,description:mutation?`${description} Call docs_begin first and include task_id.`:description,inputSchema:mutation?{...inputSchema,properties:{...properties,task_id:string},required:[...(inputSchema.required as string[]??[]),'task_id']}:inputSchema};
+  const sequence=requiredTopics(name).includes('sequence-writing')?' A sequence write also needs docs_guidance topic "sequence-writing" read in the task.':'';
+  return {name,description:mutation?`${description} Call docs_begin first and include task_id.${sequence}`:description,inputSchema:mutation?{...inputSchema,properties:{...properties,task_id:string},required:[...(inputSchema.required as string[]??[]),'task_id']}:inputSchema};
  })];}
  /**
   * One page of the capabilities index. Scalar fields repeat on every page. The lists topics, projects and warnings
@@ -326,8 +329,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
     const task=pin(liveTask(task_id,discovery.workspace));
     if(!task)throw new Error(task_id===undefined?'Call docs_begin in this workspace before editing, then include task_id.':'Unknown or ended task_id for this workspace. Call docs_begin in this workspace before editing and use its task_id.');
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed during this task. Restart the Docs service and begin a new task before further edits.');
-    // Only style gates writes today, so its refusal names the one recovery call.
-    if(requiredTopics(name).some(topic=>!hasRead(task,topic)))throw new Error(STYLE_GATE);
+    const unread=requiredTopics(name,toolArgs).find(topic=>!hasRead(task,topic));
+    if(unread)throw new Error(GATE_REFUSALS[unread]);
     return await tool.execute(toolArgs,{taskId});
    }
    // docs_check with task_id blocks on style violations this task introduced. Other reads ignore task_id: they never look it up, fail on it, or refresh it.

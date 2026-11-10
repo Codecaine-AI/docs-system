@@ -48,6 +48,7 @@ test("lists 85 tools, built from createDocsTools plus the metadata tools", () =>
 });
 
 const STYLE_GATE = 'Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
+const SEQUENCE_GATE = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
 const page: DocDocument = {
   schemaVersion: 1, id: "page", title: "Page", root: "root",
   blocks: { root: { id: "root", type: "paragraph", props: {}, children: ["body"] }, body: { id: "body", type: "paragraph", props: {}, children: [], text: [{ insert: "Original." }] } },
@@ -92,8 +93,10 @@ describe("docs_capabilities", () => {
     expect((await call("docs_read", { project: index.projects[0].id, path: "page" })).ok).toBe(true);
     const style = index.topics[0];
     expect(style.bytes).toBe(Buffer.byteLength((await call("docs_guidance", { topic: "style" })).guidance));
-    expect(index.topics.slice(1).map((topic: any) => topic.required_for)).toEqual(index.topics.slice(1).map(() => []));
+    const gates = Object.fromEntries(index.topics.filter((topic: any) => topic.required_for.length > 0).map((topic: any) => [topic.id, topic.required_for]));
+    expect(Object.keys(gates)).toEqual(["style", "sequence-writing"]);
     expect(style.required_for).toEqual(expect.arrayContaining(["docs_write_text", "docs_apply_ops", "docs_insert"]));
+    expect(gates["sequence-writing"]).toEqual(["docs_component_create", "docs_sequence_set_program"]);
   });
 
   test("required_for lists exactly the writes the service refuses until the task reads the topic", async () => {
@@ -105,6 +108,39 @@ describe("docs_capabilities", () => {
       if ((await call(name, { task_id, project: projects[0].id, path: "page" })).detail === STYLE_GATE) gated.push(name);
     }
     expect(gated.sort()).toEqual([...topics[0].required_for].sort());
+    // A task that read style is refused only the sequence writes, and only for a sequence.
+    await call("docs_guidance", { task_id, topic: "style" });
+    const sequence: string[] = [];
+    for (const { name } of service.listTools()) {
+      if (["docs_capabilities", "docs_begin", "docs_guidance"].includes(name)) continue;
+      if ((await call(name, { task_id, project: projects[0].id, path: "page", component: "sequence" })).detail === SEQUENCE_GATE) sequence.push(name);
+    }
+    expect(sequence).toEqual(topics.find((topic: any) => topic.id === "sequence-writing").required_for);
+    expect((await call("docs_component_create", { task_id, project: projects[0].id, path: "page", component: "canvas" })).detail).not.toBe(SEQUENCE_GATE);
+  });
+
+  test("a sequence write is refused until the task reads topic sequence-writing, and succeeds after the read", async () => {
+    const own = await workspaceWith(["gamma"]);
+    try {
+      const at = (name: string, args: Record<string, unknown> = {}) => call(name, args, own);
+      const project = (await at("docs_capabilities")).projects[0].id;
+      const styled = async () => { const { task_id } = await at("docs_begin"); await at("docs_guidance", { task_id, topic: "style" }); return task_id as string; };
+      const src = "./assets/sequences/gate.sequence.json";
+      const create = async (task_id: string) => at("docs_component_create", { task_id, project, path: "page", expected_hash: (await at("docs_read", { project, path: "page" })).hash, component: "sequence", src, document: { version: 1, id: "gate", participants: [], items: [], style: {} } });
+      const first = await styled();
+      expect(await create(first)).toMatchObject({ ok: false, detail: SEQUENCE_GATE });
+      expect((await at("docs_guidance", { task_id: first, topic: "sequence-writing" })).guidance).toContain("## Writing for the Reader");
+      expect((await create(first)).ok).toBe(true);
+      const { blockId } = await at("docs_insert", { task_id: first, project, path: "page", expected_hash: (await at("docs_read", { project, path: "page" })).hash, parentId: "root", index: 1, type: "sequence", props: { src } });
+      // The read is per task: a new task that read only style is refused the program write.
+      const second = await styled();
+      const read = await at("docs_component_read", { project, path: "page", blockId });
+      const write = { task_id: second, project, path: "page", blockId, expected_hash: read.doc_hash, expected_component_hash: read.hash, params: { program: "participant 1 text=client kind=actor\nparticipant 2 text=service\n\nseq\n  1 > 2 text=request\n" } };
+      expect(await at("docs_sequence_set_program", write)).toMatchObject({ ok: false, detail: SEQUENCE_GATE });
+      expect((await at("docs_component_read", { project, path: "page", blockId })).hash).toBe(read.hash);
+      await at("docs_guidance", { task_id: second, topic: "sequence-writing" });
+      expect(await at("docs_sequence_set_program", write)).toMatchObject({ ok: true, program: expect.stringContaining("1 > 2 text=request") });
+    } finally { await Bun.sleep(30); await rm(own, { recursive: true, force: true }); }
   });
 
   test("a workspace with many projects pages the index within 4,096 bytes per page", async () => {

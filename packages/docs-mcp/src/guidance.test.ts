@@ -2,7 +2,8 @@ import { afterEach, expect, test } from "bun:test";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
-import { loadGuidance, guidanceTopics } from "./guidance";
+import { WRITING_GUIDE } from "@codecaine-ai/sequence/language";
+import { SEQUENCE_WRITING_SOURCE, loadGuidance, guidanceTopics } from "./guidance";
 import { ALL_COMPONENTS } from "../../docs-model/src/components";
 import { AUTHORING_BUNDLES, STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES, WORKFLOW_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
 
@@ -15,10 +16,12 @@ test("external guidance uses the shared renderer and covers every registered com
   const snapshot = await loadGuidance();
   expect(snapshot.components.map(component => component.name)).toEqual(ALL_COMPONENTS.map(component => component.manifest.name));
   expect(snapshot.components.flatMap(component => component.ownedTypes)).toEqual(ALL_COMPONENTS.flatMap(component => component.manifest.ownedTypes));
-  expect(snapshot.text).toBe(assembleAuthoringGuidance(corpus, await Promise.all(AUTHORING_BUNDLES.map(async bundle => {
+  const assembled = assembleAuthoringGuidance(corpus, await Promise.all(AUTHORING_BUNDLES.map(async bundle => {
     const path = join(corpus, bundle, "doc.json");
     return { path, status: "ok", content: await readFile(path, "utf8") };
-  }))));
+  })));
+  // The sequence package's WRITING_GUIDE follows the corpus guidance, whole.
+  expect(snapshot.text).toBe(`${assembled}\n<sequence_writing source="${SEQUENCE_WRITING_SOURCE}">\n${WRITING_GUIDE.trimEnd()}\n</sequence_writing>`);
   expect(snapshot.text).toContain("State Shape");
   expect(snapshot.text).toContain("Interaction Surface");
   for (const component of snapshot.components) {
@@ -32,7 +35,7 @@ test("external guidance uses the shared renderer and covers every registered com
 test("the snapshot hashes only served sources", async () => {
   const { sources } = await loadGuidance();
   expect(sources.filter(source => source.path.includes("skills/"))).toEqual([]);
-  expect([...new Set(sources.map(source => source.kind))].sort()).toEqual(["component-doc", "component-manifest", "renderer", "standard", "style", "workflow"]);
+  expect([...new Set(sources.map(source => source.kind))].sort()).toEqual(["component-doc", "component-manifest", "renderer", "sequence-writing", "standard", "style", "workflow"]);
 });
 
 test("guidance topics split the snapshot into whole pages without losing text", async () => {

@@ -262,8 +262,18 @@ export async function guidanceManifest(): Promise<ManifestUnit[]> {
 
 /** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
 export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_delete", "docs_set_title", "docs_annotation_write", "docs_proposal_decide", "docs_changeset_stage", "docs_changeset_decide", "docs_asset_upload", "docs_undo", "docs_management_restore"]);
-/** The topics a write needs, read in the same task. Every write outside STYLE_GATE_EXEMPT is a content write and needs topic style. The index lists the result as each topic's required_for. */
-export const requiredTopics = (write: string): readonly string[] => STYLE_GATE_EXEMPT.has(write) ? [] : ["style"];
+/** The writes that also need topic sequence-writing, each with the arguments that make a call a sequence write. */
+const SEQUENCE_WRITES: Readonly<Record<string, (args: Record<string, unknown>) => boolean>> = {
+  docs_sequence_set_program: () => true,
+  docs_component_create: args => args.component === "sequence",
+};
+/**
+ * The topics a write needs, read in the same task. Every write outside STYLE_GATE_EXEMPT is a content write and needs
+ * topic style. A sequence write also needs topic sequence-writing. Without args the result holds every topic some call
+ * of the write needs, and the index lists it as each topic's required_for.
+ */
+export const requiredTopics = (write: string, args?: Record<string, unknown>): readonly string[] =>
+  STYLE_GATE_EXEMPT.has(write) ? [] : write in SEQUENCE_WRITES && (args === undefined || SEQUENCE_WRITES[write]!(args)) ? ["style", "sequence-writing"] : ["style"];
 
 /** The fixed fields of the docs_capabilities index. Each other field is live. */
 export const CAPABILITIES = {
