@@ -22,6 +22,10 @@
         "maintenance-10",
         "maintenance-11",
         "setup-retired-skills",
+        "setup-retired-skills-root",
+        "setup-retired-skills-owner",
+        "setup-retired-skills-files",
+        "setup-retired-skills-doctor",
         "maintenance-12",
         "maintenance-13",
         "maintenance-14",
@@ -207,7 +211,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Earlier installs also wrote docs-system and codecaine-docs skill copies. For Codex or pi, the installer checks "
+          "insert": "Earlier installs also wrote docs-system and codecaine-docs skill copies, and the installer removes the files they wrote. For Codex or pi, it checks "
         },
         {
           "insert": "~/.agents/skills",
@@ -216,7 +220,76 @@
           }
         },
         {
-          "insert": ", and for Claude Code it checks the skills folder of the Claude directory. A copy is installer-owned when it is a real directory, its SKILL.md frontmatter names the skill, and its snapshot.json has the generated shape. The installer removes each regular file of an installer-owned copy, except the backups of earlier installs, and keeps a new backup beside it. Doctor reports each of those files as leftover until an install removes it."
+          "insert": ". For Claude Code, it checks the skills folder of the Claude directory."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-root": {
+      "id": "setup-retired-skills-root",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The installer and doctor skip a skills folder that is a symlink or sits under a symlink inside the home directory. Another tool, such as a config sync, manages that folder."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-owner": {
+      "id": "setup-retired-skills-owner",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A copy is installer-owned when it is a real directory, its SKILL.md frontmatter names the skill, and its snapshot.json has the generated shape."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-files": {
+      "id": "setup-retired-skills-files",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "From an installer-owned copy, the installer removes the regular files SKILL.md, snapshot.json, references/standards.md, references/components.md, and each .md file in references/components."
+        }
+      ],
+      "children": [
+        "setup-retired-skills-backup",
+        "setup-retired-skills-kept"
+      ]
+    },
+    "setup-retired-skills-backup": {
+      "id": "setup-retired-skills-backup",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It keeps a backup beside each removed file, and restore puts the file back."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-kept": {
+      "id": "setup-retired-skills-kept",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every other file and the folders stay."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-doctor": {
+      "id": "setup-retired-skills-doctor",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Doctor reports each of those generated files as leftover until an install removes it."
         }
       ],
       "children": []
