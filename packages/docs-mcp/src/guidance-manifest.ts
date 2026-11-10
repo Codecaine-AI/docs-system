@@ -1,17 +1,10 @@
 /**
- * The rule-unit manifest of two skills. Each unit keeps a run of skill lines as the skill wrote them, and names the
- * served guidance that now carries it: a docs_guidance topic, a drop with a reason, or a keep in the skill remainder.
- * The docs-system skill is deleted, so its units keep only their text. The sequence skill still exists under
- * SEQUENCE_SKILL_ROOT: every non-blank line of its SKILL.md and references/ files sits in one unit, and each unit
- * carries its file's pinned sha256. capabilities.test.ts checks the line spans, runs each unit's contract against the
- * served text and strips each unit to prove its contract fails. cli.ts manifest prints the units as JSON for the prose judge.
+ * The rule-unit manifest of two deleted skills, docs-system and sequence. Each unit keeps a run of skill lines as the
+ * skill wrote them, and names the served guidance that now carries it: a docs_guidance topic, a drop with a reason, or
+ * a keep in the skill remainder. The units are frozen literals: no skill file is read. capabilities.test.ts runs each
+ * unit's contract against the served text and strips each unit to prove its contract fails. cli.ts manifest prints
+ * the units as JSON for the prose judge.
  */
-import { readFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-/** The sequence skill as the external/sequence submodule pins it, so the pins below move only with a submodule bump. */
-export const SEQUENCE_SKILL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../external/sequence/packages/sequence/skills/sequence");
 
 /** The eval scenario that exercises a unit. The gate runners build one task per scenario. */
 export const SCENARIOS = {
@@ -31,8 +24,8 @@ export const SCENARIOS = {
 } as const;
 export type ScenarioId = keyof typeof SCENARIOS;
 
-/** metadata: skill frontmatter. rule, step, link: hand-written prose. generated: a whole generated reference file. */
-export type UnitKind = "metadata" | "rule" | "step" | "link" | "generated";
+/** metadata: skill frontmatter. rule, step, link: hand-written prose. */
+export type UnitKind = "metadata" | "rule" | "step" | "link";
 /**
  * Where the unit is served now. A drop to instruments is allowed only for a unit that routes output to another
  * system, and its anchors are phrases of the instruments skill. A drop to skill-folder is allowed only for a unit that
@@ -47,21 +40,24 @@ export type ManifestUnit = {
   /** The skill the unit comes from. */
   skill: "docs-system" | "sequence";
   kind: UnitKind;
-  /** Path in the skill folder: the deleted `packages/docs-mcp/skills/docs-system/`, or SEQUENCE_SKILL_ROOT. */
+  /** Path in the deleted skill folder: `packages/docs-mcp/skills/docs-system/` or the sequence repo's `packages/sequence/skills/sequence/`. */
   file: string;
   /** First and last line, 1-based and inclusive. */
   lines: readonly [number, number];
-  /** sha256 of the whole file, for a unit of a skill that still exists. */
-  sha256?: string;
-  /** The unit's lines as the file held them. */
+  /** The unit's lines as the file held them, or the true rule when the unit carries a correction. */
   text: string;
-  /** Exact phrases of the served text that carry the unit's rule. A generated unit has none: its served text must hold every line. */
+  /**
+   * Set when the skill stated a rule that the code does not do. `text` then holds the true rule, so the prose judge
+   * compares the served text against it, and `skillText` records the skill's lines as written.
+   */
+  correction?: { skillText: string; source: string };
+  /** Exact phrases of the served text that carry the unit's rule. A skill-folder drop has none. */
   anchors: readonly string[];
   scenario: ScenarioId;
   destination: Destination;
   behavior?: Behavior;
 };
-type UnitSpec = Omit<ManifestUnit, "skill" | "sha256" | "text"> & { text?: string };
+type UnitSpec = Omit<ManifestUnit, "skill">;
 
 const workflow = { topic: "workflow" } as const;
 const DOCS_UNITS: readonly UnitSpec[] = [
@@ -274,17 +270,11 @@ const DOCS_UNITS: readonly UnitSpec[] = [
   },
 ];
 
-/** The sha256 of each sequence skill file. A changed file fails the line-span test until its units are re-cut and re-pinned. */
-export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
-  "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "0d3ec5dc4a826a420e49222e0aef8d0b54f1735cb5ea78e8d6bc2fc5051ecc13",
-};
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
 
 const sequenceWriting = { topic: "sequence-writing" } as const;
-/** The sequence skill units. A prose unit holds its lines as text. A generated reference file is one unit, and its text comes from disk. */
+/** The sequence skill units, as SKILL.md held them before cp8 deleted it. */
 const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "choose-block", destination: { drop: "instruments", reason: "The frontmatter only loads the skill. The instruments skill routes an ordered interaction with calls and returns to a sequence block." },
@@ -294,7 +284,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.intro.block", kind: "rule", file: "SKILL.md", lines: [10, 13], scenario: "choose-block", destination: sequenceWriting,
     text: "# Sequence\n\nA sequence diagram is always a block inside the docs page it explains. The\nblock only points at a sidecar file, `assets/sequences/<name>.sequence.json`.",
-    anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block points at its sidecar, `assets/sequences/<name>.sequence.json`"],
+    anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block only points at its sidecar, `assets/sequences/<name>.sequence.json`"],
   },
   {
     id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: sequenceWriting,
@@ -354,7 +344,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.result", kind: "step", file: "SKILL.md", lines: [52, 52], scenario: "draw-sequence", destination: sequenceWriting,
     text: "7. Read the result: the program text, the findings and the SVG path. Open the SVG, fix each finding, and send the whole program again.",
-    anchors: ["Open the `svg_path` of each result as an image, fix each finding, and send the whole program again"],
+    anchors: ["Read the saved `program` text, the findings and the `svg_path` in each result", "Open the `svg_path` as an image, fix each finding, and send the whole program again"],
   },
   {
     id: "sequence.workflow.style", kind: "step", file: "SKILL.md", lines: [53, 53], scenario: "draw-sequence", destination: sequenceWriting,
@@ -410,9 +400,16 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     anchors: ["Values used in labeled fields are bare tokens if and only if they match `/^[A-Za-z0-9_()-]*$/` and contain no space", "All other values are JSON-quoted strings"],
   },
   {
-    id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 82], scenario: "draw-sequence", destination: sequenceWriting,
-    text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.\n  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.",
-    anchors: ["Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "Layout derives each activation bar from sync calls, their matching returns and the turns of each caller", "A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "sync call activates receiver until the matching return", "A caller's turn runs from the message that starts it to its last send or the last reply it gets in that turn", "A sync call with no return gets a short bar over its own row"],
+    id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 80], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.",
+    anchors: ["The language carries no styling, no coordinates, no ids, no activations", "Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "sync call activates receiver until the matching return"],
+  },
+  {
+    id: "sequence.rules.activation", kind: "rule", file: "SKILL.md", lines: [81, 82], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "  - A caller that no call holds active is active for each turn in which it waits on a sync call: from the message that starts the turn to its last send or the last reply it gets in that turn.\n  - A sync call with no return gets a short bar over its own row, unless a later row on that lifeline extends the bar.",
+    // Correction: the skill text was wrong. The renderer is the source of truth: packages/sequence/src/layout.ts:379-386 (findCallerTurns: a turn belongs to a participant that no call holds active and needs a sync call it waits on) and layout.ts:1406-1408 with 1483-1484 (a bar for a call with no return grows over the next rows its lifeline takes part in).
+    correction: { skillText: "  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.", source: "packages/sequence/src/layout.ts:379-386 (findCallerTurns: a turn belongs to a participant that no call holds active and needs a sync call it waits on) and layout.ts:1406-1408 with 1483-1484 (a bar for a call with no return grows over the next rows its lifeline takes part in)" },
+    anchors: ["A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "A caller's turn runs from the message that starts it to its last send or the last reply it gets in that turn", "A sync call with no return gets a short bar over its own row, unless a later row on that lifeline extends the bar"],
   },
   {
     id: "sequence.reader.names", kind: "rule", file: "SKILL.md", lines: [84, 88], scenario: "draw-sequence", destination: sequenceWriting,
@@ -447,12 +444,12 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.reader.alt", kind: "rule", file: "SKILL.md", lines: [104, 106], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- When an `alt` branches on a call's reply, put each reply inside the branch it starts, as that branch's first step.\n  - Never merge two outcomes into one reply before the `alt`, such as `200 or 409`.\n  - Let each guard name the condition, and draw only the replies the brief lists.",
-    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`", "Let each guard name the condition of its branch"],
+    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`", "In an `alt`, draw only the replies the brief lists", "let each guard name the condition of its branch"],
   },
   {
     id: "sequence.reader.guards", kind: "rule", file: "SKILL.md", lines: [107, 107], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- Keep a guard to 60 characters or fewer by cutting filler words, never a condition. A note cannot restrict a branch, so a condition never moves to a note. Keep a reason the brief gives with `because` in the guard, in a few words, such as `after a replan`.",
-    anchors: ["Keep a guard to 60 characters or fewer by cutting filler words, never a condition", "A note cannot restrict a branch, so a condition never moves to a note", "Keep a reason the brief gives with `because`, in a few words, such as `after a replan`"],
+    anchors: ["Keep a guard to 60 characters or fewer by cutting filler words, never a condition", "A note cannot restrict a branch, so a condition never moves to a note", "Keep a reason the brief gives with `because` in the guard, in a few words, such as `after a replan`"],
   },
   {
     id: "sequence.reader.size", kind: "rule", file: "SKILL.md", lines: [108, 108], scenario: "draw-sequence", destination: sequenceWriting,
@@ -480,20 +477,14 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     text: "- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
     anchors: [],
   },
-  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 305], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
-  { id: "sequence.reference.design-decisions", kind: "generated", file: "references/design-decisions.md", lines: [1, 12], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
 ];
 
-/** The full manifest, a fresh copy on each call. A sequence unit carries its file's pinned sha256, and a generated unit its whole file as text. */
-export async function guidanceManifest(root = SEQUENCE_SKILL_ROOT): Promise<ManifestUnit[]> {
-  const docs = DOCS_UNITS.map(unit => ({ skill: "docs-system" as const, ...unit, text: unit.text! }));
-  const sequence = await Promise.all(SEQUENCE_UNITS.map(async unit => ({
-    skill: "sequence" as const,
-    ...unit,
-    sha256: SEQUENCE_PINNED_SHA256[unit.file]!,
-    text: unit.text ?? (await readFile(join(root, unit.file), "utf8")).split("\n").slice(0, unit.lines[1]).join("\n"),
-  })));
-  return structuredClone([...docs, ...sequence]);
+/** The full manifest, a fresh copy on each call. */
+export async function guidanceManifest(): Promise<ManifestUnit[]> {
+  return structuredClone([
+    ...DOCS_UNITS.map(unit => ({ skill: "docs-system" as const, ...unit })),
+    ...SEQUENCE_UNITS.map(unit => ({ skill: "sequence" as const, ...unit })),
+  ]);
 }
 
 /** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
