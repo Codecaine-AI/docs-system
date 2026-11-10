@@ -173,7 +173,20 @@
           }
         },
         {
-          "insert": ": the quality climb, which writes, renders and scores pages to measure the docs tools. Its method and results live under "
+          "insert": ": the quality-climb writer and its briefs, which UI Hill Climb calls through the adapter in "
+        },
+        {
+          "insert": "hill-climb/",
+          "attributes": {
+            "reference": {
+              "kind": "source",
+              "path": "hill-climb",
+              "label": "hill-climb/"
+            }
+          }
+        },
+        {
+          "insert": ". The method and the results live under "
         },
         {
           "insert": "Quality Climb",
