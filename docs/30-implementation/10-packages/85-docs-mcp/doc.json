@@ -1596,7 +1596,7 @@
           },
           {
             "path": "packages/docs-mcp/src/guidance-manifest.ts",
-            "note": "Rule units of the former SKILL.md, the style gate, and the fixed capabilities fields"
+            "note": "Rule units of the former docs-system and sequence skills, the write gates, and the fixed capabilities fields"
           },
           {
             "path": "packages/docs-mcp/src/instructions.ts",
