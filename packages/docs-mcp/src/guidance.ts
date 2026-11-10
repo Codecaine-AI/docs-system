@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { WRITING_GUIDE } from "@codecaine-ai/sequence/language";
 import {
   AUTHORING_BUNDLES,
   STANDARDS_BUNDLES,
@@ -21,7 +22,7 @@ export const GUIDANCE_SCHEMA_VERSION = 1;
 export type GuidanceSource = {
   path: string;
   sha256: string;
-  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer";
+  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer" | "sequence-writing";
 };
 export type GuidanceSnapshot = {
   text: string;
@@ -40,6 +41,9 @@ const runtimeFiles = [
 ];
 // JavaScript metadata is imported once. A service restart is necessary after its sources change.
 declare const __DOCS_RUNTIME_SOURCES__: Record<string, string> | undefined;
+/** The sequence package's WRITING_GUIDE, served as topic `sequence-writing`. */
+export const SEQUENCE_WRITING_SOURCE = "@codecaine-ai/sequence/language#WRITING_GUIDE";
+const sequenceWritingSection = (guide: string): string => `<sequence_writing source="${SEQUENCE_WRITING_SOURCE}">\n${guide.trimEnd()}\n</sequence_writing>`;
 const initialRuntimeSources = Promise.all(runtimeFiles.map(async path => ({ path, hash: typeof __DOCS_RUNTIME_SOURCES__ !== 'undefined' && __DOCS_RUNTIME_SOURCES__[path] || hashGuidanceContent(await readFile(join(REPO_ROOT, path), "utf8")) })));
 
 function renderChecked(file: string, content: string): string {
@@ -79,7 +83,8 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
     if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Docs System service before beginning a new task.`);
     sources.push({ path: initial.path, sha256: initial.hash, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
   }
-  const text = assembleAuthoringGuidance(docsRoot, inputs);
+  sources.push({ path: SEQUENCE_WRITING_SOURCE, sha256: hashGuidanceContent(WRITING_GUIDE), kind: "sequence-writing" });
+  const text = `${assembleAuthoringGuidance(docsRoot, inputs)}\n${sequenceWritingSection(WRITING_GUIDE)}`;
   // Include the projection itself so a changed projection dependency cannot keep the old identity.
   const snapshotId = `sha256:${hashGuidanceContent(JSON.stringify({ version: GUIDANCE_SCHEMA_VERSION, sources, components, text, componentReferences }))}`;
   return { text, snapshotId, components, sources, componentReferences };
@@ -98,7 +103,7 @@ export type GuidanceTopic = { topic: string; title: string; covers: string; text
 /** Readable topic name for one structure-standards bundle, such as `standards-cross-doc-linking`. */
 const standardsTopic = (bundle: string): string => `standards-${bundle.slice(bundle.lastIndexOf("/") + 1).replace(/^\d+-/, "")}`;
 /** Topic names in index order. Each stays small enough for a client to show inline, except `all`, the unsplit text. */
-export const GUIDANCE_TOPICS: readonly string[] = ["style", "workflow", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "all"];
+export const GUIDANCE_TOPICS: readonly string[] = ["style", "workflow", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "sequence-writing", "all"];
 const unescapeAttribute = (value: string): string => value.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 /** Split a snapshot's assembled text into topics. Every topic line is a verbatim line of `snapshot.text`, so a task's topics come from its pinned snapshot. */
@@ -132,6 +137,7 @@ function splitTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] 
       const doc = page(standards, bundle);
       return { topic: standardsTopic(bundle), title: `${doc.title} Standard`, covers: `${doc.title} standard.`, text: [standards[0]!, ...doc.lines, standards.at(-1)!].join("\n") };
     }),
+    { topic: "sequence-writing", title: "Sequence Writing", covers: "The sequence language, column order, the writing rules for sequence programs, and the sequence design decisions. Required once per task before a sequence program or a new sequence sidecar.", text: section("sequence_writing").join("\n") },
     { topic: "all", title: "All Guidance", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
   ];
 }
