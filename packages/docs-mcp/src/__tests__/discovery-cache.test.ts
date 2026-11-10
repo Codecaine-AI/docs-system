@@ -265,8 +265,26 @@ test("a project dropped from the workspace releases its watcher and its tree ind
   }
 });
 
-test("two docs_capabilities calls that overlap share one scan, so neither can commit over the other", async () => {
-  const [first, second] = await Promise.all([invoke(workspace, "docs_capabilities"), invoke(workspace, "docs_capabilities")]);
-  expect(scans).toHaveBeenCalledTimes(1);
-  expect(first.projects.map((p: Record<string, unknown>) => p.id)).toEqual(second.projects.map((p: Record<string, unknown>) => p.id));
+test("docs_capabilities calls that overlap run at most two scans, one after the other", async () => {
+  const replies = await Promise.all([1, 2, 3].map(() => invoke(workspace, "docs_capabilities")));
+  expect(scans).toHaveBeenCalledTimes(2);
+  for (const reply of replies) expect(reply.projects.map((p: Record<string, unknown>) => p.id)).toEqual(replies[0]!.projects.map((p: Record<string, unknown>) => p.id));
+});
+
+test("a rescan that arrives during a scan sees a project added after that scan started", async () => {
+  await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
+  await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
+  await settle();
+  let entered!: () => void, release!: () => void;
+  const scanning = new Promise<void>(resolve => { entered = resolve; });
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  // The first scan reads the workspace, then waits while gamma gets its first doc.
+  scans.mockImplementationOnce(async input => { const found = await realDiscoverProjects(input); entered(); await gate; return found; });
+  const first = invoke(workspace, "docs_capabilities");
+  await scanning;
+  await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
+  const second = invoke(workspace, "docs_capabilities");
+  release();
+  expect((await first).projects.map((p: any) => p.name)).toEqual(["alpha"]);
+  expect((await second).projects.map((p: any) => p.name).sort()).toEqual(["alpha", "gamma"]);
 });

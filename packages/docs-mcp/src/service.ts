@@ -157,7 +157,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
  const MTIME_MARGIN_MS=50;
  type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
- type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery};
+ /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
+ type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
  const discoveries=new Map<string,Entry>();
  /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. since: an mtime at or after it signs changed-during-scan. */
  const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
@@ -212,8 +213,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const key=resolve(workspace);
   await dropDisowned();
   const current=discoveries.get(key);
-  // A rescan that arrives while a scan of this workspace runs joins it. Two scans of one workspace would otherwise race to commit its workspace set and its watchers, and the slower one could close a project the faster one found.
-  if(rescan&&current&&!current.settled){try{return (await current.pending).discovery;}catch{/* The failed scan was dropped; scan again. */}}
+  // A rescan that arrives while a scan of this workspace runs queues one scan after it, since the running scan may predate the caller's change. Two parallel scans of one workspace would race to commit its workspace set and its watchers.
+  if(rescan&&current&&!current.settled)return current.next??=current.pending.then(()=>{},()=>{}).then(()=>discover(workspace,true));
   const cached=rescan?undefined:current;
   if(cached){
    try{
