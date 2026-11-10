@@ -52,15 +52,16 @@ describe("coverage", () => {
       const destination = unit.destination as Record<string, unknown>;
       const keys = Object.keys(destination).sort().join(",");
       if (keys === "topic") return GUIDANCE_TOPICS.includes(destination.topic as string) ? [] : [`${unit.id}: unknown topic ${destination.topic}`];
-      if (keys === "drop,reason") return destination.drop === "instruments" && String(destination.reason).trim() !== "" ? [] : [`${unit.id}: a drop names instruments and a reason`];
+      if (keys === "drop,reason") return ["instruments", "skill-folder"].includes(destination.drop as string) && String(destination.reason).trim() !== "" ? [] : [`${unit.id}: a drop names instruments or skill-folder and a reason`];
       if (keys === "keep,reason") return String(destination.keep).trim() !== "" && String(destination.reason).trim() !== "" ? [] : [`${unit.id}: a keep names its place and a reason`];
       return [`${unit.id}: destination ${JSON.stringify(destination)} is not a topic, a drop or a keep`];
     });
     expect(findings).toEqual([]);
     expect(new Set(manifest.map(unit => unit.id)).size).toBe(manifest.length);
     expect(manifest.filter(unit => !(unit.scenario in SCENARIOS)).map(unit => unit.id)).toEqual([]);
-    // Prose is proved by its anchors. A generated unit is proved by its whole text.
-    expect(manifest.filter(unit => (unit.kind === "generated") !== (unit.anchors.length === 0)).map(unit => unit.id)).toEqual([]);
+    // Prose is proved by its anchors. A generated unit is proved by its whole text, and a skill-folder drop has nothing that serves it.
+    const unanchored = (unit: ManifestUnit) => unit.kind === "generated" || ("drop" in unit.destination && unit.destination.drop === "skill-folder");
+    expect(manifest.filter(unit => unanchored(unit) !== (unit.anchors.length === 0)).map(unit => unit.id)).toEqual([]);
   });
 
   test("every non-blank line of the sequence SKILL.md and of each references/ file sits in one unit, and each file keeps its pinned sha256", async () => {

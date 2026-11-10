@@ -34,10 +34,12 @@ export type ScenarioId = keyof typeof SCENARIOS;
 /** metadata: skill frontmatter. rule, step, link: hand-written prose. generated: a whole generated reference file. */
 export type UnitKind = "metadata" | "rule" | "step" | "link" | "generated";
 /**
- * Where the unit is served now. A drop is allowed only for a unit that routes output to another system. A keep stays
- * in the skill remainder, and is allowed only for a T3 Code thread step of the knowledge-session skill.
+ * Where the unit is served now. A drop to instruments is allowed only for a unit that routes output to another
+ * system, and its anchors are phrases of the instruments skill. A drop to skill-folder is allowed only for a unit that
+ * maintains the skill folder itself, which goes away with the folder, and it has no anchors. A keep stays in the skill
+ * remainder, and is allowed only for a T3 Code thread step of the knowledge-session skill.
  */
-export type Destination = { topic: string } | { drop: "instruments"; reason: string } | { keep: string; reason: string };
+export type Destination = { topic: string } | { drop: "instruments" | "skill-folder"; reason: string } | { keep: string; reason: string };
 /** Recorded behavior gets a structured assertion: each tool is in tools/list, and the service refuses with this exact text. */
 export type Behavior = { tools?: readonly string[]; refusal?: string };
 export type ManifestUnit = {
@@ -276,13 +278,12 @@ const DOCS_UNITS: readonly UnitSpec[] = [
 export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
   "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
   "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "825820503841b46dcf9f93d7a2251446ae01735a11e14b7c5c35756ed4859385",
+  "references/language.md": "0d3ec5dc4a826a420e49222e0aef8d0b54f1735cb5ea78e8d6bc2fc5051ecc13",
 };
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
 
 const sequenceWriting = { topic: "sequence-writing" } as const;
-const components = { topic: "components" } as const;
 /** The sequence skill units. A prose unit holds its lines as text. A generated reference file is one unit, and its text comes from disk. */
 const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
@@ -296,9 +297,9 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block points at its sidecar, `assets/sequences/<name>.sequence.json`"],
   },
   {
-    id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: workflow,
+    id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: sequenceWriting,
     text: "That JSON document is the source of truth. You edit it as a short text\nprogram, and the docs-mcp `docs_sequence_*` tools are the only write path.\nThis skill has no MCP server of its own.",
-    anchors: ["Never edit `doc.json` or a Canvas or Sequence sidecar with a filesystem write", "The tools keep the typed document structure, component sidecars, revisions, and validation"],
+    anchors: ["The JSON `SequenceDocument` remains the source of truth", "an agent rewrites the whole program", "Edit a sequence only through the `docs_sequence_*` tools of the docs server", "because the sequence package has no MCP server of its own"],
   },
   {
     id: "sequence.columns.lead", kind: "rule", file: "SKILL.md", lines: [18, 21], scenario: "draw-sequence", destination: sequenceWriting,
@@ -316,9 +317,9 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     anchors: ["Never move a participant left of the participant that first calls it", "A lead agent that calls a builder first and asks Ford a question later goes in column 1, the builder in column 2, and Ford to the right of both", "When a kernel plugin writes `trace.db` 6 times, `trace.db` goes in the column right of the plugin, even when the plugin calls two providers first"],
   },
   {
-    id: "sequence.when", kind: "rule", file: "SKILL.md", lines: [36, 42], scenario: "choose-block", destination: components,
+    id: "sequence.when", kind: "rule", file: "SKILL.md", lines: [36, 42], scenario: "choose-block", destination: sequenceWriting,
     text: "## When to Use a Sequence Block\n\n- Use one when the order of calls and returns between named parts explains the behavior.\n- Good subjects are a request flow, a handshake, a retry, a failure path and an agent tool loop.\n- Keep it bounded: one interaction, from its first call to its last return.\n- Use a canvas for structure, ownership or a state chart. A sequence block shows time, not structure.\n- Check each message against source code or a trace before you draw it.",
-    anchors: ["Use Sequence for a bounded interaction where participant order, calls, returns, waits, retries, or failures explain the behavior", "Verify the sequence against source or trace evidence", "Use Canvas for system connections, ownership boundaries, and dependencies", "tool calls, request and return paths"],
+    anchors: ["### Choose a Sequence Block", "Use a sequence block when the order of calls and returns between named parts explains the behavior", "Good subjects are a request flow, a handshake, a retry, a failure path and an agent tool loop", "Keep a block to one interaction, from its first call to its last return", "Use a canvas for structure, ownership or a state chart", "A sequence block shows time, not structure", "Check each message against source code or a trace before you draw it"],
   },
   {
     id: "sequence.workflow.begin", kind: "step", file: "SKILL.md", lines: [44, 47], scenario: "draw-sequence", destination: workflow,
@@ -329,13 +330,13 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.guide", kind: "step", file: "SKILL.md", lines: [48, 48], scenario: "draw-sequence", destination: sequenceWriting,
     text: "3. Read `references/language.md` before you write a program. Read `references/design-decisions.md` before you change how a diagram is built.",
-    anchors: ["Read `docs_guidance` topic `sequence-writing` with your `task_id` before you write a program", "The docs server refuses `docs_sequence_set_program` and a new sequence sidecar until the task reads it"],
+    anchors: ["Read `docs_guidance` topic `sequence-writing` with your `task_id` before you write a program", "The docs server refuses `docs_sequence_set_program` and a new sequence sidecar until the task reads it", "Read these decisions before you change how a diagram is built"],
     behavior: { tools: ["docs_guidance", "docs_sequence_set_program"], refusal: SEQUENCE_WRITING_REFUSAL },
   },
   {
-    id: "sequence.workflow.create", kind: "step", file: "SKILL.md", lines: [49, 49], scenario: "draw-sequence", destination: workflow,
+    id: "sequence.workflow.create", kind: "step", file: "SKILL.md", lines: [49, 49], scenario: "draw-sequence", destination: sequenceWriting,
     text: "4. For a new diagram, call `docs_component_create` with `component: \"sequence\"`, then insert the block with the returned `src`.",
-    anchors: ["Use `docs_component_create` to create a validated Canvas or Sequence sidecar before you insert its component block"],
+    anchors: ["For a new diagram, create the sidecar with `docs_component_create` and `component` `sequence`, then insert the sequence block with the returned `src`"],
     behavior: { tools: ["docs_component_create"] },
   },
   {
@@ -347,18 +348,18 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.program", kind: "step", file: "SKILL.md", lines: [51, 51], scenario: "draw-sequence", destination: sequenceWriting,
     text: "6. Call `docs_sequence_set_program` with the whole program and both hashes.",
-    anchors: ["An agent rewrites the whole program", "There is no patch DSL and no incremental edit syntax"],
+    anchors: ["Send the whole program to `docs_sequence_set_program` every time, with both hashes"],
     behavior: { tools: ["docs_sequence_set_program"] },
   },
   {
-    id: "sequence.workflow.result", kind: "step", file: "SKILL.md", lines: [52, 52], scenario: "draw-sequence", destination: workflow,
+    id: "sequence.workflow.result", kind: "step", file: "SKILL.md", lines: [52, 52], scenario: "draw-sequence", destination: sequenceWriting,
     text: "7. Read the result: the program text, the findings and the SVG path. Open the SVG, fix each finding, and send the whole program again.",
-    anchors: ["A Sequence edit also returns the saved `program` and an `svg_path` to open as an image", "Fix the `style_findings` and `component_findings` in each result before the next edit"],
+    anchors: ["Open the `svg_path` of each result as an image, fix each finding, and send the whole program again"],
   },
   {
     id: "sequence.workflow.style", kind: "step", file: "SKILL.md", lines: [53, 53], scenario: "draw-sequence", destination: sequenceWriting,
     text: "8. Set colors and spacing with `docs_sequence_set_style`. Style never goes in the program. `docs_sequence_set_title` changes only the title.",
-    anchors: ["Set colors and spacing with `docs_sequence_set_style`, never in the program", "Styling never appears in a program", "Change or clear the title with `docs_sequence_set_title`"],
+    anchors: ["Set colors and spacing with `docs_sequence_set_style`, never in the program", "Styling never appears in a program", "Change or clear the title with `docs_sequence_set_title`, which changes nothing else"],
     behavior: { tools: ["docs_sequence_set_style", "docs_sequence_set_title"] },
   },
   {
@@ -375,7 +376,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.rules.whole", kind: "rule", file: "SKILL.md", lines: [60, 62], scenario: "draw-sequence", destination: sequenceWriting,
     text: "## Rules of the Language\n\n- Send the whole program every time. There is no patch or partial program.",
-    anchors: ["An agent rewrites the whole program", "There is no patch DSL and no incremental edit syntax"],
+    anchors: ["Send the whole program to `docs_sequence_set_program` every time", "There is no patch or partial program"],
   },
   {
     id: "sequence.rules.parts", kind: "rule", file: "SKILL.md", lines: [63, 65], scenario: "draw-sequence", destination: sequenceWriting,
@@ -470,11 +471,16 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     behavior: { tools: ["docs_sequence_set_program"] },
   },
   {
-    id: "sequence.references", kind: "link", file: "SKILL.md", lines: [114, 118], scenario: "draw-sequence", destination: sequenceWriting,
-    text: "## References\n\n- `references/language.md` is the complete v1 grammar, with every form, the canonical layout, the errors and the parts left out on purpose.\n- `references/design-decisions.md` holds the settled design decisions: the JSON document as source of truth, the text program as a projection, and style kept apart.\n- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
+    id: "sequence.references", kind: "link", file: "SKILL.md", lines: [114, 117], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "## References\n\n- `references/language.md` is the complete v1 grammar, with every form, the canonical layout, the errors and the parts left out on purpose.\n- `references/design-decisions.md` holds the settled design decisions: the JSON document as source of truth, the text program as a projection, and style kept apart.",
     anchors: ["# The Sequence Language, v1 Grammar", "# Sequence Design Decisions", "These decisions are settled"],
   },
-  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 292], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
+  {
+    id: "sequence.references.snapshot", kind: "link", file: "SKILL.md", lines: [118, 118], scenario: "draw-sequence", destination: { drop: "skill-folder", reason: "The rule maintains the generated skill folder, and cp8 deletes the folder with its generator. The served topic has no snapshot.json to regenerate." },
+    text: "- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
+    anchors: [],
+  },
+  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 305], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
   { id: "sequence.reference.design-decisions", kind: "generated", file: "references/design-decisions.md", lines: [1, 12], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
 ];
 
