@@ -36,7 +36,7 @@
       "props": {},
       "text": [
         {
-          "insert": "When code, standards, skill instructions, or checkout locations change, use this runbook. Synchronization currently means shared source rendering, generated installed references, and explicit process reloads. It is not an automatic package-release resolver."
+          "insert": "When code, standards, or checkout locations change, use this runbook. Synchronization currently means shared source rendering and explicit process reloads. It is not an automatic package-release resolver."
         }
       ],
       "children": []
@@ -86,27 +86,22 @@
         "rows": [
           [
             "Canonical standard, style, or component document",
-            "New docs_begin loads current corpus text. Reinstall to refresh installed references. Existing tasks retain their snapshot.",
+            "New docs_begin loads current corpus text. Existing tasks retain their snapshot.",
             "Inspect docs_guidance and the new snapshot ID."
           ],
           [
-            "Source SKILL.md",
-            "Reinstall and start a fresh client task so the new skill is loaded.",
-            "Doctor and an implicit documentation request."
-          ],
-          [
             "Manifest, renderer, tool schema, store, or imported runtime code",
-            "Finish tasks; stop service; reconnect clients; restart shared UI; regenerate/install when guidance changed.",
+            "Finish tasks and stop the service. Reconnect clients and restart the shared UI.",
             "New docs_begin, tools listing, affected tests, and a real edit."
           ],
           [
             "Checkout location or Bun path",
-            "Reinstall absolute client paths; stop the old checkout service before switching. Rediscover projects.",
+            "Reinstall the absolute client paths, and stop the old checkout service before you switch. Rediscover projects.",
             "Doctor, discovery, and docs_begin."
           ],
           [
             "Package dependency or version",
-            "Install dependencies at Core root; restart affected processes; record a new snapshot.",
+            "Install dependencies at the Core root. Restart the affected processes and record a new snapshot.",
             "Typecheck and affected package/internal-session tests."
           ]
         ]
@@ -121,7 +116,7 @@
       },
       "text": [
         {
-          "insert": "Generate and Install"
+          "insert": "Install the Clients"
         }
       ],
       "children": []
@@ -134,7 +129,7 @@
       },
       "text": [
         {
-          "insert": "bun packages/docs-mcp/src/cli.ts guidance --write\nbun packages/docs-mcp/src/cli.ts install\nbun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-refresh.json\nbun packages/docs-mcp/src/cli.ts doctor"
+          "insert": "bun packages/docs-mcp/src/cli.ts install\nbun packages/docs-mcp/src/cli.ts install --write > /tmp/codecaine-docs-refresh.json\nbun packages/docs-mcp/src/cli.ts doctor"
         }
       ],
       "children": []
@@ -145,7 +140,7 @@
       "props": {},
       "text": [
         {
-          "insert": "guidance --write refreshes references in the package skill directory. The installer also generates current references in a temporary directory while building its planned changes, so installation does not depend on manually generated copies being current. Keep the source and installed locations distinct. Review generated reference changes instead of editing them by hand."
+          "insert": "The installer writes the MCP entries of Codex and Claude Code and the pi extension. After the first install, reinstall when the checkout location, the Bun path, or the installer code changes, or when doctor reports a file as missing or outdated. The Docs tools serve the guidance from the corpus, so a guidance change needs no reinstall."
         }
       ],
       "children": []
@@ -263,7 +258,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The package is currently private and uses workspace dependencies. The skill has version metadata, while snapshot hashes identify the actual development sources. No release lockfile installer, published compatibility matrix, or automatic six-package version selection exists. Changing a version field alone does not update installed files or running services."
+          "insert": "The package is currently private and uses workspace dependencies. The package.json version is metadata, while snapshot hashes identify the actual development sources. No release lockfile installer, published compatibility matrix, or automatic six-package version selection exists. Changing a version field alone does not update installed files or running services."
         }
       ],
       "children": []
