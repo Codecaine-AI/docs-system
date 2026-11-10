@@ -12,6 +12,10 @@
         "mcp-guide-0",
         "mcp-guide-1",
         "mcp-guide-2",
+        "rae-capabilities",
+        "rae-topics",
+        "rae-edit",
+        "rae-prompt-text",
         "mcp-guide-3",
         "mcp-guide-check",
         "mcp-guide-judgment",
@@ -29,6 +33,7 @@
         "mcp-measure-tests",
         "mcp-guide-4",
         "mcp-guide-5",
+        "ck-workflow",
         "mcp-guide-6",
         "mcp-guide-7",
         "mcp-guide-8",
@@ -46,6 +51,7 @@
         "maintenance-4",
         "maintenance-5",
         "maintenance-6",
+        "mdf-skill-hash",
         "maintenance-7",
         "maintenance-8",
         "maintenance-9",
@@ -89,16 +95,16 @@
       "props": {},
       "text": [
         {
-          "insert": "Discover the active workspace with "
+          "insert": "Call "
         },
         {
-          "insert": "docs_discover",
+          "insert": "docs_capabilities",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": ". Call "
+          "insert": " for the active workspace, then "
         },
         {
           "insert": "docs_begin",
@@ -107,7 +113,155 @@
           }
         },
         {
-          "insert": " before editing. It returns a task ID, the style digest, a guidance topic index, and one-line component purposes. Read "
+          "insert": ". Neither result carries guidance text, and the rules stay behind "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topics."
+        }
+      ],
+      "children": []
+    },
+    "rae-capabilities": {
+      "id": "rae-capabilities",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Capabilities Index",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "rae-cap-fields",
+        "rae-cap-topics",
+        "rae-cap-pages"
+      ]
+    },
+    "rae-cap-fields": {
+      "id": "rae-cap-fields",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the project IDs and names, discovery warnings, versions, the guidance snapshot ID, the tool order, and the discovery tools."
+        }
+      ],
+      "children": []
+    },
+    "rae-cap-topics": {
+      "id": "rae-cap-topics",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It lists each guidance topic with its size and its "
+        },
+        {
+          "insert": "required_for",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " writes, which the service refuses until the task reads that topic or topic "
+        },
+        {
+          "insert": "all",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "rae-cap-pages": {
+      "id": "rae-cap-pages",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The service fills each page up to 4,096 bytes with at least one list item, and "
+        },
+        {
+          "insert": "next_cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " names the next page."
+        }
+      ],
+      "children": []
+    },
+    "rae-topics": {
+      "id": "rae-topics",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Task State and the Style Gate",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "rae-task-begin",
+        "rae-task-style",
+        "rae-task-refusal"
+      ]
+    },
+    "rae-task-begin": {
+      "id": "rae-task-begin",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " returns the task ID, the pinned snapshot ID, and "
+        },
+        {
+          "insert": "topics_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with no style digest."
+        }
+      ],
+      "children": []
+    },
+    "rae-task-style": {
+      "id": "rae-task-style",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read "
         },
         {
           "insert": "docs_guidance",
@@ -125,7 +279,29 @@
           }
         },
         {
-          "insert": " with that task ID next, because the service refuses content writes until the task has read it. Then read the target through "
+          "insert": " with the task ID before the first content write."
+        }
+      ],
+      "children": []
+    },
+    "rae-task-refusal": {
+      "id": "rae-task-refusal",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The service refuses content writes until the task reads that topic, and its refusal names that recovery call."
+        }
+      ],
+      "children": []
+    },
+    "rae-edit": {
+      "id": "rae-edit",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read the target through "
         },
         {
           "insert": "docs_read",
@@ -134,7 +310,36 @@
           }
         },
         {
-          "insert": " and pass its revision hash and the task ID to a typed editing tool. Valid changes apply immediately."
+          "insert": ", and pass its revision hash and the task ID to a typed editing tool. Valid changes apply immediately."
+        }
+      ],
+      "children": []
+    },
+    "rae-prompt-text": {
+      "id": "rae-prompt-text",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The MCP instructions string is one exported constant, "
+        },
+        {
+          "insert": "INSTRUCTIONS",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in instructions.ts, of 800 bytes or less. The MCP server, the pi bridge, and "
+        },
+        {
+          "insert": "cli.ts instructions",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " read the same constant."
         }
       ],
       "children": []
@@ -955,15 +1160,6 @@
           "insert": "Component manifests declare selection guidance and examples. The shared authoring-guidance renderer supplies the catalog to external tools and both built-in Docs agent contexts. "
         },
         {
-          "insert": "docs_begin",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " lists one-line component purposes. "
-        },
-        {
           "insert": "docs_guidance",
           "attributes": {
             "code": true
@@ -989,6 +1185,38 @@
         },
         {
           "insert": " argument returns one component's canonical reference."
+        }
+      ],
+      "children": []
+    },
+    "ck-workflow": {
+      "id": "ck-workflow",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topic "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves the "
+        },
+        {
+          "insert": "Editor Workflow",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
+            }
+          }
+        },
+        {
+          "insert": " guide. It holds the editor workflow, page titles and headings, page and asset management, and HTML diagrams, the chapters that came from the hand-written docs-system SKILL.md."
         }
       ],
       "children": []
@@ -1238,7 +1466,7 @@
           },
           {
             "path": "packages/docs-mcp/src/service.ts",
-            "note": "Project membership, tasks, guidance topics, and the style gate"
+            "note": "Project membership, tasks, the capabilities index, guidance topics, and the style gate"
           },
           {
             "path": "packages/docs-mcp/src/tools.ts",
@@ -1263,6 +1491,14 @@
           {
             "path": "packages/docs-mcp/src/guidance.ts",
             "note": "Canonical guidance loading, topic split, and generated skill references"
+          },
+          {
+            "path": "packages/docs-mcp/src/guidance-manifest.ts",
+            "note": "Rule-unit manifest of the docs-system skill, the style gate, and the fixed capabilities fields"
+          },
+          {
+            "path": "packages/docs-mcp/src/instructions.ts",
+            "note": "The INSTRUCTIONS prompt block"
           },
           {
             "path": "packages/docs-mcp/src/snapshot.ts",
@@ -1293,10 +1529,6 @@
             "note": "Gated style rule policy, write findings, judgment rules, and the judged gate"
           },
           {
-            "path": "packages/docs-mcp/src/style-digest.ts",
-            "note": "Style digest that docs_begin returns first"
-          },
-          {
             "path": "packages/docs-mcp/src/jev-engine.ts",
             "note": "Jev judgment engine: requests, cache, timeout, and the kill switch"
           },
@@ -1310,6 +1542,17 @@
           }
         ]
       },
+      "children": []
+    },
+    "mdf-skill-hash": {
+      "id": "mdf-skill-hash",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The guidance snapshot hash in guidance.ts leaves SKILL.md out. A skill edit never changes the snapshot ID. The manifest in guidance-manifest.ts pins the sha256 of SKILL.md and of each generated reference, and capabilities.test.ts fails when one changes."
+        }
+      ],
       "children": []
     },
     "maintenance-7": {
