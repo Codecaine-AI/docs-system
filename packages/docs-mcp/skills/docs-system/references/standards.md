@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:edab8029c6dc6ebde46b849a277ceecce6cdbd4d3bf12c2843644170185e083f`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:a9c822d95b03773a412fe49db762bf19ff94eb68f0c11c0195f7bc95def1d597`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -1575,6 +1575,8 @@ Generated from Docs System sources. Snapshot: `sha256:edab8029c6dc6ebde46b849a27
     1. Call `docs_capabilities` for the workspace, and use a project id that it returns.
 
       - For a request on several projects, get each project id through the same connection.
+
+      - `docs_capabilities` also lists the guidance topics, and `docs_guidance` serves each topic.
 
     2. Call `docs_begin`, and keep its `task_id` for every call.
 

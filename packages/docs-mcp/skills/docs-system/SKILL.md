@@ -13,15 +13,15 @@ Use the connected Docs tools for documentation reads and edits. They preserve ty
 
 ## Read or Edit
 
-1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.
-2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.
+1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.
+2. For reading, use the document tree and read tools. For editing, call `docs_begin` and keep its `task_id` for every edit. Read each guidance topic you need with `docs_guidance`.
 3. Read the target document and its relevant neighbors. Use the component catalog (`docs_guidance` topic `components`) to choose the form that explains the subject. Load a component's detailed reference when needed; use the advertised tool schemas for editing mechanics.
 4. Apply supported typed operations with the current document revision. Edits become visible immediately. On a revision conflict, read the current content and reconcile the requested change before retrying.
 5. Run the completion check, repair required findings, and report which documents changed and any unresolved findings. If one project fails, retain and report the successful project edits separately.
 
 ## Style Rules
 
-- `docs_begin` returns the style digest first. Apply it to every block you write.
+- Apply topic `style` to every block you write.
 - Read `docs_guidance` with `task_id` and topic `style` before the first edit. The service refuses content writes until you do, once per task.
 - Write results include `style_findings` for the blocks you changed. Fix them before moving on.
 - Run `docs_check` with `task_id` on each changed page. It blocks on style violations this task introduced.

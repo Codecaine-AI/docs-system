@@ -291,7 +291,8 @@
         }
       ],
       "children": [
-        "wf-start-1a"
+        "wf-start-1a",
+        "wf-start-1b"
       ]
     },
     "wf-start-1a": {
@@ -301,6 +302,32 @@
       "text": [
         {
           "insert": "For a request on several projects, get each project id through the same connection."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-1b": {
+      "id": "wf-start-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also lists the guidance topics, and "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves each topic."
         }
       ],
       "children": []

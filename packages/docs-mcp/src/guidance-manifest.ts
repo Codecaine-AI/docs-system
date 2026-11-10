@@ -55,23 +55,23 @@ type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
 
 /** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
 export const PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "389ea1ba35979f15a7231a769d4c7b814cf5662429bd539d8cf271a7d421ce69",
-  "references/components.md": "6387f9bd16828a2800602af1e9e83fdd06b6c1abfab803b25db88f451d616cf1",
-  "references/components/call-stack.md": "79cca1bab42be472e77c56f53d81e41682094893ef98f32f3da0e356527f9f4a",
-  "references/components/canvas.md": "f8e1bb5b3a0a70ff57e0013ca36685976dd6d5ad915f6fbe4d42c869ef0180d5",
-  "references/components/code.md": "b141fb3b1ee40a00e13f3955c1408ea313d89ea35f5911a42f2253eb11cb8999",
-  "references/components/component-tree.md": "9fb63ee420d67896e98740be1b9f7029de6a13d997d98f72d20ad8c09ab15cdd",
-  "references/components/file-explorer.md": "2ca98a23df19a4232f99c094ee85b17401093d61ea0597130d895e0ff8bd0388",
-  "references/components/file-tree.md": "5619a0248c1f00e0c35dc0737604f4f309919500577938cb9e7cbc39d321f002",
-  "references/components/interaction-surface.md": "e5ae101ed4e13c01819c876ac28b301e697dbdc400146b930da6b6f2acee4b49",
-  "references/components/process-outline.md": "301d6834c9c951339fd7c13b97361c72ac913680a7827bb10c9e014bdbedba89",
-  "references/components/pseudocode.md": "86ee443e5bc7d82c4b5da4204f28162561db507eb938ca404aae92f6843a1070",
-  "references/components/rich-text.md": "d9e3aad0622fc0ef2787b8273b06ac93a3807bccb890cd80a465932da53a0b27",
-  "references/components/sequence.md": "cef453a4966a9c3c92d976416ceae117500dc4d1f3b43b62d869ec9198cd6e23",
-  "references/components/stack.md": "37b7a7f2b48cebc34dfe2d9f600019f7f25cd4635ac4cec88beb125fb9d67fb2",
-  "references/components/state-shape.md": "ff816adf76b22aec290c1567077647fd67a5b9c44aee54d779be26472f56176c",
-  "references/components/structured-table.md": "967f9c7c8256c0328aa3e219ea9593627edcfe38136e969e9b84f19037a4c377",
-  "references/standards.md": "bed94382626029289a9775e00fe58bcceb7eb3828d650d0f6f3186818065648f",
+  "SKILL.md": "4caf1da4d02f3bd053f5d7577a4fb22955db6b6e69add429a72b59057b9db366",
+  "references/components.md": "994b0d7b7b804b7318a351986f1eb85bcf752d8a5c2b1feb6f2c6e822edffd31",
+  "references/components/call-stack.md": "ea61c08688c30b034cbbb8cad39cab430086577f24022c0ed16969f9963d6ddb",
+  "references/components/canvas.md": "f5e7853acc9a8e054ec92fcb8b18603988def2301d81e16669031c9746952328",
+  "references/components/code.md": "df457c1c931975c1fa5055aedb84a1ab79df5256cd3c4410293d8cef3a264c62",
+  "references/components/component-tree.md": "0a54185c691752ff535a5f24daece4cde732935d7db7499a3c865acd664bbfbd",
+  "references/components/file-explorer.md": "774731deb680737ff88e7a6d66a36929cc77cffeeffb1616b0a39fbf0adfc4a2",
+  "references/components/file-tree.md": "e11984ef85e51c47ab3d1034a95112e8fe85d43dc1b9cc733f604485647f21e1",
+  "references/components/interaction-surface.md": "d5cd8f796ee82c5f648dc6f6da65d406af11384db6f210ddccdacdce0adec744",
+  "references/components/process-outline.md": "840d9a40e5db65360fcec1b2bfd10014c12db57a67e5f7df1f3b47f2d1c26ed3",
+  "references/components/pseudocode.md": "42358defb878772618a934c1312d4ec040cb576425ba9b5f057465baae41c4ac",
+  "references/components/rich-text.md": "7b3e37bdf508d5c82dcde452e81401ad1f46f1ddac71671f2ea15403f51db67f",
+  "references/components/sequence.md": "b8d4b426360707db6a70f37e6ba5ef94fb15e96359be411fd974be4e9a4cdc30",
+  "references/components/stack.md": "052ac150618a60464c67043a1f8eab54aae38898ecdf0e4883a9e4d6bda2884a",
+  "references/components/state-shape.md": "792dfdbbee736e4815aea87fd307e0b28ae0f68f590a6b9060d577b7b4215bc8",
+  "references/components/structured-table.md": "f3364481945c56d1490f00525e21d90bff7396f2a37e80d79da8c21641260d98",
+  "references/standards.md": "2a9e7db439a27539e470caf8a18706d1a59e15828966dde117894b7e2a4f43c5",
 };
 
 const workflow = { topic: "workflow" } as const;
@@ -92,15 +92,15 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.read.discover", kind: "step", file: "SKILL.md", lines: [14, 16], scenario: "multi-project", destination: workflow,
-    text: "## Read or Edit\n\n1. Discover projects in the active workspace through the discovery tool. Select the requested project explicitly. For a request covering several projects, discover each target through the same connection.",
-    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace"],
+    text: "## Read or Edit\n\n1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.",
+    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics"],
     behavior: { tools: ["docs_capabilities"] },
   },
   {
     id: "skill.read.begin", kind: "step", file: "SKILL.md", lines: [17, 17], scenario: "read-only", destination: workflow,
-    text: "2. For reading, use the document tree and read tools. For editing, begin a documentation task with `docs_begin`. It returns the style digest, a guidance topic index, and one-line component purposes. Keep its `task_id` for every edit.",
-    anchors: ["need no task", "keep its `task_id` for every call", "`docs_tree`, `docs_search`, and `docs_read` need no task"],
-    behavior: { tools: ["docs_tree", "docs_read", "docs_begin"] },
+    text: "2. For reading, use the document tree and read tools. For editing, call `docs_begin` and keep its `task_id` for every edit. Read each guidance topic you need with `docs_guidance`.",
+    anchors: ["need no task", "keep its `task_id` for every call", "`docs_tree`, `docs_search`, and `docs_read` need no task", "`docs_guidance` serves each topic"],
+    behavior: { tools: ["docs_tree", "docs_read", "docs_begin", "docs_guidance"] },
   },
   {
     id: "skill.read.choose", kind: "step", file: "SKILL.md", lines: [18, 18], scenario: "choose-block", destination: workflow,
@@ -121,7 +121,7 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.style.apply", kind: "rule", file: "SKILL.md", lines: [22, 24], scenario: "edit-page", destination: workflow,
-    text: "## Style Rules\n\n- `docs_begin` returns the style digest first. Apply it to every block you write.",
+    text: "## Style Rules\n\n- Apply topic `style` to every block you write.",
     anchors: ["Apply topic `style` to every block you write"],
   },
   {
@@ -302,7 +302,7 @@ const UNITS: readonly UnitSpec[] = [
   generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
   generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
   generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1730),
+  generated("references/standards.md", "edit-page", { topic: "all" }, 1732),
 ];
 
 /** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */

@@ -1,6 +1,6 @@
 # pseudocode
 
-Generated from Docs System sources. Snapshot: `sha256:edab8029c6dc6ebde46b849a277ceecce6cdbd4d3bf12c2843644170185e083f`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:a9c822d95b03773a412fe49db762bf19ff94eb68f0c11c0195f7bc95def1d597`. Refresh the installation to regenerate these files.
 
 Use Pseudocode to explain an algorithm or a change in logic without the noise of real syntax. Write each step in plain words, such as equals, is empty, and, or, and "add 1 to", never ===, &&, ??, ?., += or an object literal. Start each step with its control word, such as if, skip, return or leave, or with an action verb the viewer colors: set, add, append, insert, remove, delete, replace, move, push, pop, sort, split, join, mark, record, read, write, parse, build, create, update, call, check or make. Keep a line to about 70 characters. Keep the source's function and field names and its order of branches, loops, calls, and returns. Give each trailing // comment a reason in about 40 characters. Set diff to show which lines a change adds or removes. Use Code when the reader needs the actual source.
 
