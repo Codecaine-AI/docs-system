@@ -135,7 +135,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  },
  // First-touch documents per task, freed when the task expires. undefined: not captured yet. null: the doc did not exist at first touch.
  taskBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.baselines.get(key),set:(taskId:string,key:string,doc:DocDocument|null)=>{tasks.get(taskId)?.baselines.set(key,doc);}},
- // First-touch Canvas sidecars per task, freed with the task: the boards its canvas text lints judge against.
+ // First-touch Canvas sidecars per task, freed with the task: docs_check marks these boards touched_by_task.
  taskCanvasBaselines:{get:(taskId:string,key:string)=>tasks.get(taskId)?.canvasBaselines.get(key),set:(taskId:string,key:string,board:TaskCanvasBaseline)=>{tasks.get(taskId)?.canvasBaselines.set(key,board);}},
  judgmentEngine:options.judgmentEngine===null?undefined:options.judgmentEngine??defaultJudgmentEngine()});
  /**

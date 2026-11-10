@@ -50,7 +50,7 @@ export interface DocsToolContext {
   resolveProject(project: string): Promise<{ id: string; docsRoot: string }>;
   /** Enables docs_check's style gate for callers that pass a task ID. */
   taskBaselines?: TaskBaselines;
-  /** Each task's first-touch Canvas sidecars, keyed `${project}:${sidecar path}`: what the canvas text lints judge against. */
+  /** Each task's first-touch Canvas sidecars, keyed `${project}:${sidecar path}`: the boards docs_check marks touched_by_task. */
   taskCanvasBaselines?: TaskBaselines<CanvasDocument>;
   /** Model-judged style rules: advisory in write results, gated by docs_check with task_id. Fails open. */
   judgmentEngine?: JudgmentEngine;
@@ -328,7 +328,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         if (block.type === "canvas" || block.type === "sequence") {
           const checked = await component(store, { ...args, blockId: block.id });
           const findings = !checked.ok ? sequenceFindings("issues" in checked ? checked.issues ?? [] : [])
-            : checked.type === "canvas" ? canvasFindings(checked.canvas, { finishing: true, baseline: canvasBaseline(ctx, args.project, checked.src) })
+            : checked.type === "canvas" ? canvasFindings(checked.canvas, { finishing: true })
             : sequenceLintFindings(checked.sequence, lintSequence);
           // A task answers only for the boards it touched, as it answers only for the style violations it introduced.
           // Sequence edits that the diagnostics flag are refused, so a task never leaves a flagged sequence.
@@ -429,11 +429,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           const findings=sequenceLintFindings(args.document as Parameters<typeof sequenceLintFindings>[0],lintSequence);
           return {component_findings:findingList(findings),...(findings.length?{next:SEQUENCE_WARNINGS_NEXT}:{}),...result,src};
         }
-        // Everything on a board this task created is the task's writing, so its text lints judge against an empty board.
+        // A board this task created counts as touched by the task in docs_check.
         const board=args.document as CanvasDocument;const empty={...board,objects:[]};
         const key=componentSidecarPath(args.path,"canvas",src);
         if(ctx.taskId&&key&&canvasBaseline(ctx,args.project,key)===undefined)context.taskCanvasBaselines?.set(ctx.taskId,`${args.project}:${key}`,empty);
-        const findings=canvasFindings(board,{baseline:empty});
+        const findings=canvasFindings(board);
         return {component_findings:findingList(findings),...(findings.length?{next:FIX_COMPONENT_NEXT}:{}),...result,src};
       }),
     tool("docs_proposals", "List staged proposals and stale status for a page.",obj(target),(args,store)=>store.proposals(args.path)),
@@ -532,12 +532,11 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           return componentApplied(store, args.path, rest, sequenceLintFindings(result.sequence, lintSequence),
             { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program }, SEQUENCE_WARNINGS_NEXT);
         }
-        // The text lints judge what this task wrote: against its first-touch board, else the board this edit replaced.
         const result = await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash);
         if (!result.ok || read.type !== "canvas") return applied(store, args.path, result);
-        // Only a saved edit touches the board. Its baseline is the board read before the edit.
+        // Only a saved edit touches the board. docs_check then marks the board touched_by_task.
         if (ctx.taskId && canvasBaseline(ctx, args.project, read.src) === undefined) context.taskCanvasBaselines?.set(ctx.taskId, `${args.project}:${read.src}`, read.canvas);
-        const findings = canvasFindings(result.canvas, { baseline: canvasBaseline(ctx, args.project, read.src) ?? read.canvas });
+        const findings = canvasFindings(result.canvas);
         return componentApplied(store, args.path, result, findings, {});
       }));
   }

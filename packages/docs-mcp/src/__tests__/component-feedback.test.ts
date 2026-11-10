@@ -22,7 +22,9 @@ const flow = {
   participants: [{ id: "client", name: "client", kind: "actor" }, { id: "service", name: "service", kind: "participant" }],
   items: [{ kind: "message", id: "m1", from: "client", to: "service", line: "sync", text: "request" }],
 };
-const LONG_DETAIL = "Receives every request, checks the token and forwards it on";
+const GATEWAY = { id: "gateway", type: "process", text: "Gateway", geometry: { x: 96, y: 96, width: 288, height: 96 } };
+/** A box over most of GATEWAY, which the canvas covered-content lint reports. */
+const CACHE_ON_GATEWAY = { id: "cache", type: "process", text: "Cache", geometry: { x: 128, y: 96, width: 288, height: 96 } };
 const PROGRAM = "participant 1 text=client kind=actor\nparticipant 2 text=service\n\nseq\n  1 > 2 text=request\n  2 --> 1 text=response\n";
 const task: DocsToolCallContext = { taskId: "task-1" };
 /** The sequence package's crossed-columns lint: a message that crosses 2 or more other lifelines. */
@@ -142,37 +144,38 @@ describe("component feedback", () => {
     expect(checked.ok).toBe(true);
   });
 
-  test("a canvas edit that writes an overlong detail reports it on the edit and in docs_check for the task", async () => {
-    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
-    const edited = await call("docs_canvas_add_object", { ...await hashes("board"), params: { object } }, task);
+  test("a canvas edit that puts a box on another box reports it on the edit and in docs_check for the task", async () => {
+    const first = await call("docs_canvas_add_object", { ...await hashes("board"), params: { object: GATEWAY } }, task);
+    expect(first.component_findings).toEqual({ shown: [], omitted: 0 });
+    const edited = await call("docs_canvas_add_object", { ...await hashes("board"), params: { object: CACHE_ON_GATEWAY } }, task);
     expect(edited.ok).toBe(true);
-    expect(edited.component_findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", severity: "warning", at: ["gateway"] }));
+    expect(edited.component_findings.shown).toContainEqual(expect.objectContaining({ rule: "covered-content", severity: "error", at: expect.arrayContaining(["cache"]) }));
     expect(edited.next).toBe("Changes are saved. Fix component_findings, then run docs_check with task_id.");
 
     const checked = await call("docs_check", {}, task);
     expect(checked.ok).toBe(false);
     const entry = component(checked, "board");
-    expect(entry.ok).toBe(false);
-    expect(entry.findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", at: ["gateway"] }));
+    expect(entry).toMatchObject({ ok: false, touched_by_task: true });
+    expect(entry.findings.shown).toContainEqual(expect.objectContaining({ rule: "covered-content", at: expect.arrayContaining(["cache"]) }));
 
-    // A later edit in the same task still judges the detail against the board the task first touched.
-    const moved = await call("docs_canvas_update_object", { ...await hashes("board"), params: { objectId: "gateway", patch: { geometry: { x: 128, y: 96, width: 288, height: 96 } } } }, task);
+    // Moving the box clear of the other one clears the finding.
+    const moved = await call("docs_canvas_update_object", { ...await hashes("board"), params: { objectId: "cache", patch: { geometry: { x: 480, y: 96, width: 288, height: 96 } } } }, task);
     expect(moved.ok).toBe(true);
-    expect(moved.component_findings.shown).toContainEqual(expect.objectContaining({ rule: "detail-too-long", at: ["gateway"] }));
+    expect(moved.component_findings).toEqual({ shown: [], omitted: 0 });
+    expect((await call("docs_check", {}, task)).ok).toBe(true);
   });
 
-  test("a person's own detail is left alone, while geometry lints judge every board", async () => {
-    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
-    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [object] }));
+  test("without a task, docs_check reports a board's overlap and blocks on it", async () => {
+    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [GATEWAY, CACHE_ON_GATEWAY] }));
     const checked = await call("docs_check", {});
-    const rules = component(checked, "board").findings.shown.map((finding: any) => finding.rule);
-    expect(rules).toContain("clipped-text");
-    expect(rules).not.toContain("detail-too-long");
+    expect(component(checked, "board").ok).toBe(false);
+    expect(component(checked, "board").findings.shown.map((finding: any) => finding.rule)).toContain("covered-content");
+    expect(checked.ok).toBe(false);
   });
 
-  test("under a task, a board's pre-existing warning is reported but blocks docs_check only once the task touches the board", async () => {
-    const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
-    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [object] }));
+  test("under a task, a board's pre-existing finding is reported but blocks docs_check only once the task touches the board", async () => {
+    const object = { ...GATEWAY, id: "other", geometry: { x: 96, y: 480, width: 288, height: 96 } };
+    await writeFile(join(temp, "page/assets/canvases/board.canvas.json"), JSON.stringify({ ...board, objects: [GATEWAY, CACHE_ON_GATEWAY] }));
     const read = await call("docs_read", {});
     const prose = await call("docs_write_text", { blockId: "intro", expected_hash: read.hash, markdown: "This page holds a board and a flow." }, task);
     expect(prose.ok).toBe(true);
@@ -180,11 +183,11 @@ describe("component feedback", () => {
     const untouched = await call("docs_check", {}, task);
     expect(untouched.style_gate).toEqual([]);
     expect(component(untouched, "board")).toMatchObject({ ok: false, touched_by_task: false });
-    expect(component(untouched, "board").findings.shown).toContainEqual(expect.objectContaining({ rule: "clipped-text", at: ["gateway"] }));
+    expect(component(untouched, "board").findings.shown).toContainEqual(expect.objectContaining({ rule: "covered-content", at: expect.arrayContaining(["cache"]) }));
     expect(untouched.ok).toBe(true);
 
     // A refused edit leaves the board untouched.
-    const stale = await call("docs_canvas_add_object", { ...await hashes("board"), expected_component_hash: "stale", params: { object: { ...object, id: "other" } } }, task);
+    const stale = await call("docs_canvas_add_object", { ...await hashes("board"), expected_component_hash: "stale", params: { object } }, task);
     expect(stale.ok).toBe(false);
     expect((await call("docs_check", {}, task)).ok).toBe(true);
 
@@ -195,15 +198,14 @@ describe("component feedback", () => {
     expect(missing.ok).toBe(false);
     await writeFile(join(temp, "page/assets/sequences/flow.sequence.json"), JSON.stringify(flow));
 
-    const cramped = { id: "cache", type: "process", text: "Cache", detail: LONG_DETAIL, geometry: { x: 480, y: 96, width: 288, height: 96 } };
-    expect((await call("docs_canvas_add_object", { ...await hashes("board"), params: { object: cramped } }, task)).ok).toBe(true);
+    expect((await call("docs_canvas_add_object", { ...await hashes("board"), params: { object } }, task)).ok).toBe(true);
     const touched = await call("docs_check", {}, task);
     expect(component(touched, "board")).toMatchObject({ ok: false, touched_by_task: true });
-    expect(component(touched, "board").findings.shown).toContainEqual(expect.objectContaining({ at: ["cache"] }));
+    expect(component(touched, "board").findings.shown).toContainEqual(expect.objectContaining({ at: expect.arrayContaining(["cache"]) }));
     expect(touched.ok).toBe(false);
   });
 
-  test("through the service, a task's canvas baseline reaches docs_check and the style read gate still refuses writes", async () => {
+  test("through the service, a task's canvas edit marks the board touched in docs_check and the style read gate still refuses writes", async () => {
     const workspace = join(temp, "workspace");
     await mkdir(join(workspace, "alpha/docs"), { recursive: true });
     await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }]));
@@ -215,15 +217,14 @@ describe("component feedback", () => {
       const project = (await invoke("docs_capabilities")).projects[0].id;
       const { task_id } = await invoke("docs_begin");
       const read = await invoke("docs_component_read", { project, path: "page", blockId: "board" });
-      const object = { id: "gateway", type: "process", text: "Gateway", detail: LONG_DETAIL, geometry: { x: 96, y: 96, width: 288, height: 96 } };
-      const args = { task_id, project, path: "page", blockId: "board", expected_hash: read.doc_hash, expected_component_hash: read.hash, params: { object } };
+      const args = { task_id, project, path: "page", blockId: "board", expected_hash: read.doc_hash, expected_component_hash: read.hash, params: { object: GATEWAY } };
       expect((await invoke("docs_canvas_add_object", args)).detail).toContain('topic "style"');
       expect((await invoke("docs_guidance", { task_id, topic: "style" })).ok).toBe(true);
       expect((await invoke("docs_canvas_add_object", args)).ok).toBe(true);
-      const rules = async (extra: Record<string, unknown>) => component(await invoke("docs_check", { project, path: "page", ...extra }), "board").findings.shown.map((finding: any) => finding.rule);
-      expect(await rules({ task_id })).toContain("detail-too-long");
-      // Without the task nothing on the board is attributable to an agent.
-      expect(await rules({})).not.toContain("detail-too-long");
+      const checkBoard = async (extra: Record<string, unknown>) => component(await invoke("docs_check", { project, path: "page", ...extra }), "board");
+      expect(await checkBoard({ task_id })).toMatchObject({ ok: true, touched_by_task: true });
+      // Without the task, docs_check marks no board as touched.
+      expect(await checkBoard({})).not.toHaveProperty("touched_by_task");
     } finally { service.close(); }
   });
 });
