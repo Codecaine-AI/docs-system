@@ -567,7 +567,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Page and section operations include descendants. docs_move and docs_rename preview their complete file and reference changes. Apply them with preview:false and expected_tree_hash. Use docs_set_title for display titles."
+          "insert": "Page and section operations include descendants. docs_move previews its complete file and reference changes, for a move with to and for a rename with name. Apply it with preview:false and expected_tree_hash. Use docs_set_title for display titles."
         }
       ],
       "children": []
@@ -603,13 +603,13 @@
           "insert": "Deletion refuses external references into the deleted subtree. Move shared assets with "
         },
         {
-          "insert": "docs_asset_move",
+          "insert": "docs_move",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " before removing their owner page. Section moves rewrite both descendant links and shared or external asset paths. Use "
+          "insert": " and the asset path before removing their owner page. Section moves rewrite both descendant links and shared or external asset paths. Use "
         },
         {
           "insert": "recursive:true",
@@ -629,7 +629,7 @@
       "props": {},
       "text": [
         {
-          "insert": "After a move or rename, read the destination, inspect rewritten links, and run docs_check on affected pages. After deletion, inspect docs_tree and check remaining affected pages. Reconnect clients after the service restart so their tool catalogs include docs_move, docs_rename, and docs_delete. When the daemon address changes, restart shared workbenches."
+          "insert": "After a move or rename, read the destination, inspect rewritten links, and run docs_check on affected pages. After deletion, inspect docs_tree and check remaining affected pages. Reconnect clients after the service restart so their tool catalogs include docs_move and docs_delete. When the daemon address changes, restart shared workbenches."
         }
       ],
       "children": []
