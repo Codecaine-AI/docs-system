@@ -276,7 +276,7 @@ const DOCS_UNITS: readonly UnitSpec[] = [
 export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
   "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
   "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "cdaf935920f65ab9dd909431dbdadf068ffb72ab002f6d3c4944708e0f208165",
+  "references/language.md": "825820503841b46dcf9f93d7a2251446ae01735a11e14b7c5c35756ed4859385",
 };
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
@@ -291,9 +291,9 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     anchors: ["Ordered interaction with calls and returns", "sequence block"],
   },
   {
-    id: "sequence.intro.block", kind: "rule", file: "SKILL.md", lines: [10, 13], scenario: "choose-block", destination: components,
+    id: "sequence.intro.block", kind: "rule", file: "SKILL.md", lines: [10, 13], scenario: "choose-block", destination: sequenceWriting,
     text: "# Sequence\n\nA sequence diagram is always a block inside the docs page it explains. The\nblock only points at a sidecar file, `assets/sequences/<name>.sequence.json`.",
-    anchors: ["The block references a sequence sidecar managed through typed sequence tools"],
+    anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block points at its sidecar, `assets/sequences/<name>.sequence.json`"],
   },
   {
     id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: workflow,
@@ -329,8 +329,8 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.guide", kind: "step", file: "SKILL.md", lines: [48, 48], scenario: "draw-sequence", destination: sequenceWriting,
     text: "3. Read `references/language.md` before you write a program. Read `references/design-decisions.md` before you change how a diagram is built.",
-    anchors: ["# The Sequence Language, v1 Grammar", "# Sequence Design Decisions"],
-    behavior: { tools: ["docs_sequence_set_program"], refusal: SEQUENCE_WRITING_REFUSAL },
+    anchors: ["Read `docs_guidance` topic `sequence-writing` with your `task_id` before you write a program", "The docs server refuses `docs_sequence_set_program` and a new sequence sidecar until the task reads it"],
+    behavior: { tools: ["docs_guidance", "docs_sequence_set_program"], refusal: SEQUENCE_WRITING_REFUSAL },
   },
   {
     id: "sequence.workflow.create", kind: "step", file: "SKILL.md", lines: [49, 49], scenario: "draw-sequence", destination: workflow,
@@ -339,9 +339,9 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     behavior: { tools: ["docs_component_create"] },
   },
   {
-    id: "sequence.workflow.hashes", kind: "step", file: "SKILL.md", lines: [50, 50], scenario: "draw-sequence", destination: workflow,
+    id: "sequence.workflow.hashes", kind: "step", file: "SKILL.md", lines: [50, 50], scenario: "draw-sequence", destination: sequenceWriting,
     text: "5. Call `docs_component_read` on the block. Pass its `doc_hash` as `expected_hash` and its `hash` as `expected_component_hash`.",
-    anchors: ["For a Canvas or Sequence block, read `docs_component_read` first", "Pass its `hash` as `expected_component_hash`"],
+    anchors: ["Read the block with `docs_component_read`", "Pass its `doc_hash` as `expected_hash` and its `hash` as `expected_component_hash`"],
     behavior: { tools: ["docs_component_read"] },
   },
   {
@@ -358,7 +358,8 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.style", kind: "step", file: "SKILL.md", lines: [53, 53], scenario: "draw-sequence", destination: sequenceWriting,
     text: "8. Set colors and spacing with `docs_sequence_set_style`. Style never goes in the program. `docs_sequence_set_title` changes only the title.",
-    anchors: ["Styling never appears in a program", "Accent colors, fragment color, participant fill, and scale live only in `SequenceDocument.style`", "(`setProgram` / `setStyle` / `setTitle`)"],
+    anchors: ["Set colors and spacing with `docs_sequence_set_style`, never in the program", "Styling never appears in a program", "Change or clear the title with `docs_sequence_set_title`"],
+    behavior: { tools: ["docs_sequence_set_style", "docs_sequence_set_title"] },
   },
   {
     id: "sequence.workflow.check", kind: "step", file: "SKILL.md", lines: [54, 54], scenario: "draw-sequence", destination: workflow,
@@ -369,7 +370,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.conflict", kind: "rule", file: "SKILL.md", lines: [56, 58], scenario: "draw-sequence", destination: sequenceWriting,
     text: "A hash conflict means the page or the sidecar changed. Read it again, merge\nyour change into the new program, and send it once more. A parse error\nnames its line. Fix every listed line, because a failed parse changes nothing.",
-    anchors: ["It returns either a successful document or line-numbered errors", "The parser collects multiple errors where feasible", "A failed parse produces no replacement document"],
+    anchors: ["A hash conflict means the page or the sidecar changed", "Read both again, merge your change into the new program, and send the whole program once more", "A parse error names its line", "Fix every listed line, because a failed parse saves nothing"],
   },
   {
     id: "sequence.rules.whole", kind: "rule", file: "SKILL.md", lines: [60, 62], scenario: "draw-sequence", destination: sequenceWriting,
@@ -379,7 +380,8 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.rules.parts", kind: "rule", file: "SKILL.md", lines: [63, 65], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- A program has three parts in this order: an optional `title` line, the participants, then `seq`.\n  - A program without a `title` line keeps the diagram's existing title. Change or clear a title with `docs_sequence_set_title`.\n  - Put exactly one blank line before `seq`.",
-    anchors: ["A program has three parts, in this order:", "**The optional title.**", "Exactly one blank line separates the participants from `seq`", "A program without this line has no title"],
+    anchors: ["A program has three parts, in this order:", "**The optional title.**", "Exactly one blank line separates the participants from `seq`", "A program without a `title` line keeps the diagram's existing title"],
+    behavior: { tools: ["docs_sequence_set_title"] },
   },
   {
     id: "sequence.rules.participants", kind: "rule", file: "SKILL.md", lines: [66, 67], scenario: "draw-sequence", destination: sequenceWriting,
@@ -389,7 +391,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.rules.messages", kind: "rule", file: "SKILL.md", lines: [68, 73], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- Write each message as `<from> <arrow> <to> text=<value>`.\n  - `>` is a sync call. `->` is an async message. `-->` is a return, drawn dashed.\n  - Use `>` for every call the caller waits on: a tool call, an RPC, an HTTP request or a write that must finish first.\n  - A waited-on call stays `>` even when the diagram draws no reply for it.\n  - Use `->` only for a message nobody waits on, such as an event, a notification or a chat message.\n  - A self-message uses one number on both sides, such as `2 > 2 text=validate`.",
-    anchors: ["The form is `<from> <arrow> <to> text=<v>`", "| `-->` | return | dashed line, open arrowhead |", "A call whose caller waits for the reply is sync (`>`)", "An MCP tool call, an RPC and an HTTP request with its response are all sync", "Use async (`->`) only for a message the sender does not wait on", "A waited-on call with no listed return stays `>`", "A self-message uses the same number on both sides"],
+    anchors: ["The form is `<from> <arrow> <to> text=<v>`", "| `-->` | return | dashed line, open arrowhead |", "A call whose caller waits for the reply is sync (`>`)", "An MCP tool call, an RPC and an HTTP request with its response are all sync", "Use async (`->`) only for a message the sender does not wait on", "A waited-on call with no listed return stays `>`", "A self-message uses the same number on both sides", "Use `>` for every call the caller waits on, a write that must finish first included"],
   },
   {
     id: "sequence.rules.fragments", kind: "rule", file: "SKILL.md", lines: [74, 76], scenario: "draw-sequence", destination: sequenceWriting,
@@ -409,7 +411,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 82], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.\n  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.",
-    anchors: ["Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "Layout derives each activation bar from sync calls, their matching returns and the turns of each caller", "A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "sync call activates receiver until the matching return"],
+    anchors: ["Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "Layout derives each activation bar from sync calls, their matching returns and the turns of each caller", "A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "sync call activates receiver until the matching return", "A caller's turn runs from the message that starts it to its last send or the last reply it gets in that turn", "A sync call with no return gets a short bar over its own row"],
   },
   {
     id: "sequence.reader.names", kind: "rule", file: "SKILL.md", lines: [84, 88], scenario: "draw-sequence", destination: sequenceWriting,
@@ -444,7 +446,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.reader.alt", kind: "rule", file: "SKILL.md", lines: [104, 106], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- When an `alt` branches on a call's reply, put each reply inside the branch it starts, as that branch's first step.\n  - Never merge two outcomes into one reply before the `alt`, such as `200 or 409`.\n  - Let each guard name the condition, and draw only the replies the brief lists.",
-    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`"],
+    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`", "Let each guard name the condition of its branch"],
   },
   {
     id: "sequence.reader.guards", kind: "rule", file: "SKILL.md", lines: [107, 107], scenario: "draw-sequence", destination: sequenceWriting,
@@ -472,7 +474,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     text: "## References\n\n- `references/language.md` is the complete v1 grammar, with every form, the canonical layout, the errors and the parts left out on purpose.\n- `references/design-decisions.md` holds the settled design decisions: the JSON document as source of truth, the text program as a projection, and style kept apart.\n- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
     anchors: ["# The Sequence Language, v1 Grammar", "# Sequence Design Decisions", "These decisions are settled"],
   },
-  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 273], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
+  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 292], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
   { id: "sequence.reference.design-decisions", kind: "generated", file: "references/design-decisions.md", lines: [1, 12], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
 ];
 
