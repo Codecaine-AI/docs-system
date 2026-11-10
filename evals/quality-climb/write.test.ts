@@ -6,7 +6,7 @@ import { join, resolve } from "node:path";
 import { $ } from "bun";
 import briefs from "./briefs.json";
 import { BLOCK_GROUPS, type Brief } from "./schema";
-import { REPO, SOURCE_REF, SOURCE_ROOT, docsMcpEnv, freezeSources, pagePath, parseTranscript, sourcePaths, writeAll, writtenPageDir } from "./write";
+import { REPO, SOURCE_REF, SOURCE_ROOT, docsMcpEnv, freezeSources, pagePath, parseTranscript, sourcePaths, sourceRepo, writeAll, writtenPageDir } from "./write";
 
 const repoBriefs = briefs as Brief[];
 
@@ -32,7 +32,7 @@ test("a brief's repo sources resolve to the round 0 snapshot, not the worktree, 
   expect(paths).toEqual(brief.sources.map((s) => join(SOURCE_ROOT, s)));
   for (const [i, path] of paths.entries()) {
     expect(path.startsWith(`${REPO}/packages/`)).toBe(false);
-    expect(await readFile(path, "utf8")).toBe(await $`git -C ${REPO} show ${SOURCE_REF}:${brief.sources[i]!}`.text());
+    expect(await readFile(path, "utf8")).toBe(await $`git -C ${sourceRepo()} show ${SOURCE_REF}:${brief.sources[i]!}`.text());
   }
   expect(sourcePaths({ ...brief, sources: ["/elsewhere/doc.json"] })).toEqual(["/elsewhere/doc.json"]);
 });
@@ -81,7 +81,24 @@ echo '{"type":"result","is_error":false,"num_turns":1,"duration_ms":5,"total_cos
     }
     expect(await writeAll(two, out, 2)).toEqual([]);
     expect((await readFile(calls, "utf8")).trim().split("\n").sort()).toEqual(two.map((b) => b.slug).sort());
+    // A finished local page resumed by a public brief of the same set, id and slug stays local.
+    const publicTwin = { ...two[1]!, local: false };
+    expect(await writeAll([publicTwin], out, 1)).toEqual([]);
+    expect(JSON.parse(await readFile(join(writtenPageDir(out, publicTwin), "page.json"), "utf8")).local).toBe(true);
   } finally {
     process.env.PATH = path;
   }
 }, 60_000);
+
+test("the write command refuses a brief whose slug would leave its page folder, and deletes nothing", async () => {
+  const out = await mkdtemp(join(tmpdir(), "qc-write-cli-"));
+  const keep = join(out, "climb", "01-finished");
+  await $`mkdir -p ${keep}`;
+  await writeFile(join(keep, "metrics.json"), "{}");
+  const file = join(out, "briefs.json");
+  await writeFile(file, JSON.stringify([{ ...repoBriefs[0]!, slug: "../.." }]));
+  const run = await $`bun ${join(REPO, "evals/quality-climb/write.ts")} --briefs ${file} --out ${out}`.nothrow().quiet();
+  expect(run.exitCode).toBe(1);
+  expect(run.stderr.toString()).toContain("lowercase kebab-case slug");
+  expect(existsSync(join(keep, "metrics.json"))).toBe(true);
+});
