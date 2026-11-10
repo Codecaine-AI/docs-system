@@ -41,7 +41,7 @@ Follow these steps for every edit, and for each open request on a page.
    - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
 5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.
 
-For a request, reply with `docs_annotation_reply` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.
+For a request, reply with the `reply` mode of `docs_annotation_write` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.
 
 ## HTML Diagrams
 
@@ -77,9 +77,9 @@ Do not call a repair tool after ordinary edits. Run `docs_check` to review other
 
 ## Page and Asset Management
 
-Use `docs_move` or `docs_rename` for pages and whole sections with descendants. Use `docs_set_title` for the display title. These operations preview their affected files and reference rewrites; apply the reviewed plan with `preview:false` and its `tree_hash` as `expected_tree_hash`. If the apply refuses with `changed_paths`, start a new preview.
+Use `docs_move` for pages and whole sections with descendants. Pass `to` to move one, or `name` to rename it inside its parent. Use `docs_set_title` for the display title. These operations preview their affected files and reference rewrites; apply the reviewed plan with `preview:false` and its `tree_hash` as `expected_tree_hash`. If the apply refuses with `changed_paths`, start a new preview.
 
-Before deleting an old page that owns a shared Canvas, Sequence, or media asset, read the asset hash with `docs_asset_read` and relocate it with `docs_asset_move`. The service updates references in other pages. Then preview `docs_delete`; use `recursive:true` only when deletion of all descendants is intended. Remaining external references block deletion so they can be repaired explicitly.
+Before deleting an old page that owns a shared Canvas, Sequence, or media asset, read the asset hash with `docs_assets` and the asset path, and relocate it with `docs_move`. The service updates references in other pages. Then preview `docs_delete`; use `recursive:true` only when deletion of all descendants is intended. Remaining external references block deletion so they can be repaired explicitly.
 
 Check the moved pages and every returned `rewritten_sources` document. Retain `tree_change_id`; `docs_management_restore` can restore that operation from its recovery journal if affected files have not changed. This is separate from content-patch `docs_undo`.
 

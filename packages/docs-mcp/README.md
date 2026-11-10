@@ -87,11 +87,11 @@ The setup handoff holds dated acceptance evidence. Keep current operating instru
 
 ## Document and Asset Management
 
-Page operations cover whole sections, including descendants. `docs_move` and `docs_rename` rewrite descendant document links, Canvas links, and shared or external asset paths. `docs_set_title` changes the display title without changing its address. `docs_delete` supports `recursive:true` for a reviewed subtree.
+Page operations cover whole sections, including descendants. `docs_move` takes `to` to move or `name` to rename inside the parent, and rewrites descendant document links, Canvas links, and shared or external asset paths. `docs_set_title` changes the display title without changing its address. `docs_delete` supports `recursive:true` for a reviewed subtree.
 
 Management calls preview by default. Read the source hash, review `files`, `children`, and `rewritten_sources`, then apply with `preview:false` and `expected_tree_hash` from `tree_hash`. Corpus changes invalidate the preview. Destinations must be absent and stay inside the selected project.
 
-Use `docs_assets` to inventory assets, `docs_asset_read` for hashes, and `docs_asset_move` to transfer shared Canvas, Sequence, or media files into their new owning page. The service rewrites referencing pages. Only then delete the old owner. Deletion refuses remaining references from outside the deletion set.
+Use `docs_assets` to inventory assets, `docs_assets` with an asset path for its hash, and `docs_move` with an asset path to transfer shared Canvas, Sequence, or media files into their new owning page. `docs_delete` with an asset path removes an unused asset. The service rewrites referencing pages. Only then delete the old owner. Deletion refuses remaining references from outside the deletion set.
 
 `docs_management_restore` restores a management operation from `tree_change_id` after a preview. It refuses later edits or added descendants. Journals live in `.changesets/file-management/`; `docs_undo` remains the separate content-patch mechanism. Storage failures report their recovery journal and any rollback failure.
 

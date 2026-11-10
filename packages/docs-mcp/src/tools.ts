@@ -124,6 +124,19 @@ function response(data: Record<string, unknown>): DocsToolResult {
     ...(data.ok === false ? { isError: true } : {}) };
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
+/** A refusal in the shape of a schema validation failure, for a rule the schema cannot state. */
+const invalid = (path: string, message: string) => ({ ...failure("Tool arguments failed validation."), issues: [{ path, message }] });
+/** A mode is an optional sub-object or value. null counts as absent, so a client that sends every field still sends one mode. */
+const nullable = <T extends TSchema>(schema: T) => Type.Optional(Type.Union([schema, Type.Null()]));
+/** The one mode a call sends, or the refusal for none or for two. */
+function oneMode<M extends string>(args: Record<string, any>, modes: readonly M[]): M | Record<string, unknown> {
+  const sent = modes.filter((mode) => args[mode] != null);
+  if (sent.length === 1) return sent[0]!;
+  const list = `${modes.slice(0, -1).join(", ")}${modes.length > 2 ? "," : ""} or ${modes.at(-1)}`;
+  return invalid("", `Send exactly one of ${list}${sent.length ? `, not ${sent.join(" and ")}` : ""}.`);
+}
+/** A path inside a page's assets directory names an asset, not a page. */
+const isAssetPath = (path: unknown) => typeof path === "string" && path.includes("/assets/");
 /** Component findings as write results and docs_check carry them: errors, then warnings, then notes, capped like style findings. */
 const COMPONENT_FINDINGS_LIMIT = 5;
 const findingList = (findings: ComponentFinding[]) => ({ shown: findings.slice(0, COMPONENT_FINDINGS_LIMIT), omitted: Math.max(0, findings.length - COMPONENT_FINDINGS_LIMIT) });
@@ -353,11 +366,16 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
       // A successful create proves the page was absent, so its baseline is null.
       return applied(store, args.path, { ...doc, creation_id: staged.changeset.id, undo_available: false }, { ctx, project: args.project, before: null });
     }),
-    ...["docs_move", "docs_rename"].map((name) => tool(name,
-      name === "docs_move" ? "Preview moving a page or entire section with descendants. Rewrites descendant doc links and asset references, including shared Canvas/Sequence assets. Apply with preview:false and expected_tree_hash. Does not change the title." : "Preview renaming a page or entire section within its parent, preserving descendant links and assets. Apply with preview:false and expected_tree_hash. Use docs_set_title for the display title.",
-      obj({ ...writeTarget, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str), ...(name === "docs_move" ? { to: str } : { name: Type.String({ pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$" }) }) }),
+    tool("docs_move", "Preview moving or renaming a page or entire section with descendants, or moving an asset. Send exactly one of to (the destination path) or name (a new folder name inside the same parent). Rewrites descendant doc links and asset references, including shared Canvas/Sequence assets. An asset path (one that holds /assets/) moves the asset to another page assets directory, takes its hash from docs_assets as expected_hash, and rewrites every src and poster that names it. Apply with preview:false and expected_tree_hash. Does not change the title: use docs_set_title.",
+      obj({ ...writeTarget, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str), to: nullable(str), name: nullable(Type.String({ pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$" })) }),
       async (args, store) => {
-        const destination = name === "docs_move" ? args.to : [normalizeBundlePath(args.path).split("/").slice(0,-1).join("/"),args.name].filter(Boolean).join("/");
+        const mode = oneMode(args, ["to", "name"] as const);
+        if (typeof mode !== "string") return mode;
+        if (isAssetPath(args.path)) {
+          if (mode === "name") return invalid("/name", "name renames a page or section. Move an asset with to.");
+          return store.manageFiles({kind:"asset",path:args.path,to:args.to,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash});
+        }
+        const destination = mode === "to" ? args.to : [normalizeBundlePath(args.path).split("/").slice(0,-1).join("/"),args.name].filter(Boolean).join("/");
         if (!destination || normalizeBundlePath(destination) !== destination) return failure("Use a canonical directory bundle destination.");
         const file = resolveDocBundleJsonPath(store.docsRoot,destination);
         if (!file) return failure("Invalid destination.");
@@ -365,14 +383,24 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
         await confined(store.docsRoot,resolve(store.docsRoot,".changesets"));
         await confined(store.docsRoot,resolve(store.docsRoot,".index"));
         return mutateTree(store,args,destination);
-      })),
-    tool("docs_delete", "Preview deleting a page or subtree and bundled assets. Set recursive:true for descendants. Refuses remaining external references. Relocate shared assets first with docs_asset_move. Apply reviewed deletion with preview:false and expected_tree_hash. Recovery journal retained; no guarded undo.",
+      }),
+    tool("docs_delete", "Preview deleting a page or subtree and bundled assets. Set recursive:true for descendants. Refuses remaining external references. Relocate shared assets first with docs_move. An asset path (one that holds /assets/) deletes that unused asset, takes its hash from docs_assets as expected_hash, refuses while a page names it, and refuses recursive. Apply reviewed deletion with preview:false and expected_tree_hash. Recovery journal retained; no guarded undo.",
       obj({ ...writeTarget, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str), recursive: Type.Optional(Type.Boolean()) }),
       async (args,store) => {
+        if (isAssetPath(args.path)) {
+          if (args.recursive === true) return invalid("/recursive", "recursive deletes a page's descendants. An asset has none.");
+          return store.manageFiles({kind:"asset",path:args.path,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash});
+        }
         await confined(store.docsRoot,resolve(store.docsRoot,".changesets"));
         return mutateTree(store,args);
       }),
-    tool("docs_assets", "List asset paths, byte sizes and hashes, including unused files. Optionally restrict to a page or section.",obj({project:str,path:Type.Optional(str)}),(args,store)=>store.assets(args.path)),
+    tool("docs_assets", "List asset paths, byte sizes and hashes, including unused files. Optionally restrict to a page or section. An asset path (one that holds /assets/) returns that one asset's hash and size. Use this hash before moving or deleting an asset. With an asset path, include_content:true adds its base64 bytes, up to 1 MiB.",
+      obj({project:str,path:Type.Optional(str),include_content:Type.Optional(Type.Boolean())}),async(args,store)=>{
+        if(!isAssetPath(args.path))return args.include_content?invalid("/include_content","include_content reads one asset. Pass an asset path."):store.assets(args.path);
+        const bytes=await docsFs(store.docsRoot).readFile(args.path);
+        if(args.include_content && bytes.length>1048576)return failure("Asset is larger than the 1 MiB inline read limit.",413);
+        return {ok:true,path:args.path,hash:createHash("sha256").update(bytes).digest("hex"),size:bytes.length,...(args.include_content?{base64:bytes.toString("base64")}: {})};
+      }),
     tool("docs_search", "Search page titles and rendered documentation in this project. Returns matching paths and short excerpts.",obj({project:str,query:str,limit:Type.Optional(Type.Integer({minimum:1,maximum:100}))}),async(args,store)=>{
       const matches:any[]=[];const query=args.query.toLowerCase();
       async function visit(nodes:any[]){for(const node of nodes){if(matches.length>=(args.limit??20))return;if(node.kind==="bundle"){const doc=await store.docGet(node.path);if(doc.ok){const body=`${doc.doc.title??""}\n${doc.markdown}`;const at=body.toLowerCase().indexOf(query);if(at>=0)matches.push({path:node.path,title:doc.doc.title,excerpt:body.slice(Math.max(0,at-80),at+240)});}}if(node.children)await visit(node.children);}}
@@ -381,13 +409,6 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     tool("docs_management_restore", "Preview restoring a completed page/asset management change by tree_change_id. Refuses subsequent edits to any affected file. Apply with preview:false and expected_tree_hash. Uses the retained recovery journal.",
       obj({project:str,tree_change_id:str,preview:Type.Optional(Type.Boolean()),expected_tree_hash:Type.Optional(str)}),
       (args,store)=>store.restoreManagedFiles(args.tree_change_id,args.preview,args.expected_tree_hash)),
-    tool("docs_asset_read", "Read a docs-root-relative asset hash and size. Set include_content:true for base64 bytes up to 1 MiB. Use this hash before moving or deleting an asset.",
-      obj({ ...target, include_content: Type.Optional(Type.Boolean()) }), async(args,store)=>{
-        if(!args.path.includes("/assets/"))return failure("Expected a bundle asset path.");
-        const bytes=await docsFs(store.docsRoot).readFile(args.path);
-        if(args.include_content && bytes.length>1048576)return failure("Asset is larger than the 1 MiB inline read limit.",413);
-        return {ok:true,path:args.path,hash:createHash("sha256").update(bytes).digest("hex"),size:bytes.length,...(args.include_content?{base64:bytes.toString("base64")}: {})};
-      }),
     tool("docs_asset_upload", "Upload an image, video or attachment to an existing page using base64 bytes. The store enforces file types, sizes and collision-safe naming. Returns src to use in a typed block.",
       obj({ ...target, filename:str, content_type:str, base64:Type.String({maxLength:140000000}) }), async(args,store)=>{
         if(!/^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/.test(args.base64))return failure("Invalid base64.");
@@ -419,39 +440,37 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
     tool("docs_proposal_stage", "Stage typed document operations for review instead of applying them. Uses the current page hash. Sidecar edits use component tools.",
       obj({...writeTarget,summary:str,ops:Type.Array(opSchema,{minItems:1,maxItems:1000})}),
       (args,store)=>store.stageProposal(args.path,{summary:args.summary,ops:args.ops,expectedHash:args.expected_hash})),
-    ...["accept","reject"].map(action=>tool(`docs_proposal_${action}`,`${action} a reviewed proposal using the current proposals-file hash returned by staging or docs_proposals.`,
-      obj({...target,proposal_id:str,expected_proposals_hash:str}),async(args,store,ctx)=>{
-        if(action!=="accept")return store.rejectProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash});
+    tool("docs_proposal_decide","Accept or reject a reviewed proposal using the current proposals-file hash returned by staging or docs_proposals. accept applies the proposal's ops.",
+      obj({...target,proposal_id:str,expected_proposals_hash:str,decision:Type.Union([Type.Literal("accept"),Type.Literal("reject")])}),async(args,store,ctx)=>{
+        if(args.decision!=="accept")return store.rejectProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash});
         const before=await priorDoc(store,args.path);
         const result=await store.acceptProposal(args.path,args.proposal_id,{expectedHash:args.expected_proposals_hash});
         return applied(store,args.path,result,{ctx,project:args.project,before,ops:result.ok?result.proposal.ops:undefined});
-      })),
+      }),
     tool("docs_changesets", "List review changesets, optionally filtered by page path.",obj({project:str,path:Type.Optional(Type.String())}),(args,store)=>store.changesets(args.path)),
     tool("docs_changeset_read", "Read a changeset before reviewing its proposed edits.",obj({project:str,changeset_id:str}),(args,store)=>store.changesetGet(args.changeset_id)),
     tool("docs_changeset_stage", "Group existing staged proposals into a review changeset. Page management uses the preview-based move/delete tools.",
       obj({project:str,summary:str,entries:Type.Array(obj({docPath:str,proposalId:str}),{minItems:1,maxItems:100})}),
       (args,store)=>store.changesetStage({summary:args.summary,entries:args.entries})),
-    ...["accept","reject"].map(action=>tool(`docs_changeset_${action}`,`${action} a changeset after reading and reviewing its entries. The service retains its validation and rollback rules.`,
-      obj({project:str,changeset_id:str}),(args,store)=>action==="accept"?store.changesetAccept(args.changeset_id):store.changesetReject(args.changeset_id))),
+    tool("docs_changeset_decide","Accept or reject a changeset after reading and reviewing its entries. The service retains its validation and rollback rules.",
+      obj({project:str,changeset_id:str,decision:Type.Union([Type.Literal("accept"),Type.Literal("reject")])}),(args,store)=>args.decision==="accept"?store.changesetAccept(args.changeset_id):store.changesetReject(args.changeset_id)),
     tool("docs_backlinks", "Read typed inbound links to a page.",obj(target),(args,store)=>store.backlinks(args.path).then(backlinks=>({ok:true,backlinks}))),
-    tool("docs_annotation_add", "Add a validated note or agent request to a page. Read docs_annotations for expected_annotations_hash; omit only when no annotation file exists.",
-      obj({...target,target:record,body:str,author:str,intent:Type.Union([Type.Literal("note"),Type.Literal("agent-request")]),expected_annotations_hash:Type.Optional(str)}),
-      (args,store)=>store.addAnnotation(args.path,{target:args.target,body:args.body,author:args.author,intent:args.intent,expectedHash:args.expected_annotations_hash})),
-    tool("docs_annotation_reply", "Reply to a page annotation using its current annotation-file hash.",
-      obj({...target,annotation_id:str,body:str,author:str,expected_annotations_hash:str}),
-      (args,store)=>store.addAnnotationReply(args.path,args.annotation_id,{body:args.body,author:args.author,expectedHash:args.expected_annotations_hash})),
-    tool("docs_annotation_resolve", "Resolve a page annotation using its current annotation-file hash.",
-      obj({...target,annotation_id:str,expected_annotations_hash:str,response:Type.Optional(Type.String())}),
-      (args,store)=>store.resolveAnnotation(args.path,args.annotation_id,args.expected_annotations_hash,undefined,args.response)),
-    tool("docs_annotation_thread", "Bind a page annotation to a T3 Code thread, or pass thread:null to clear it. The annotation stays open.",
-      obj({...target,annotation_id:str,thread:Type.Union([obj({id:str,title:Type.Optional(Type.String())}),Type.Null()]),expected_annotations_hash:Type.Optional(str)}),
-      (args,store)=>store.setAnnotationThread(args.path,args.annotation_id,{thread:args.thread,expectedHash:args.expected_annotations_hash})),
-    tool("docs_asset_move", "Preview relocating a Canvas, Sequence, image, video or attachment to another page assets directory. Rewrites all referencing document src/poster values; preserves asset bytes. Paths are docs-root-relative. Read hash with docs_asset_read. Apply with preview:false and expected_tree_hash.",
-      obj({ ...writeTarget, to: str, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str) }),
-      (args,store) => store.manageFiles({kind:"asset",path:args.path,to:args.to,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash})),
-    tool("docs_asset_delete", "Preview removing an unused asset. Refuses any remaining document references. Apply reviewed deletion with preview:false and expected_tree_hash.",
-      obj({ ...writeTarget, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str) }),
-      (args,store) => store.manageFiles({kind:"asset",path:args.path,expected_hash:args.expected_hash,preview:args.preview,expected_tree_hash:args.expected_tree_hash})),
+    tool("docs_annotation_write", "Write to a page annotation. Send exactly one of add, reply, resolve or thread. add adds a validated note or agent request. reply replies to an annotation. resolve resolves it. thread binds it to a T3 Code thread, or clears the binding with thread:null, and the annotation stays open. Read docs_annotations for expected_annotations_hash. reply and resolve need it. add and thread omit it only when no annotation file exists.",
+      obj({...target,expected_annotations_hash:Type.Optional(str),
+        add:nullable(obj({target:record,body:str,author:str,intent:Type.Union([Type.Literal("note"),Type.Literal("agent-request")])})),
+        reply:nullable(obj({annotation_id:str,body:str,author:str})),
+        resolve:nullable(obj({annotation_id:str,response:Type.Optional(Type.String())})),
+        thread:nullable(obj({annotation_id:str,thread:Type.Union([obj({id:str,title:Type.Optional(Type.String())}),Type.Null()])}))}),
+      async(args,store)=>{
+        const mode=oneMode(args,["add","reply","resolve","thread"] as const);
+        if(typeof mode!=="string")return mode;
+        const hash=args.expected_annotations_hash;
+        if((mode==="reply"||mode==="resolve")&&hash===undefined)return invalid("/expected_annotations_hash",`${mode} needs expected_annotations_hash. Read it from docs_annotations.`);
+        if(mode==="add")return store.addAnnotation(args.path,{...args.add,expectedHash:hash});
+        if(mode==="reply")return store.addAnnotationReply(args.path,args.reply.annotation_id,{body:args.reply.body,author:args.reply.author,expectedHash:hash});
+        if(mode==="resolve")return store.resolveAnnotation(args.path,args.resolve.annotation_id,hash,undefined,args.resolve.response);
+        return store.setAnnotationThread(args.path,args.thread.annotation_id,{thread:args.thread.thread,expectedHash:hash});
+      }),
     tool("docs_set_title", "Preview changing a page display title without changing its path, ID or children. Apply with preview:false and expected_tree_hash.",
       obj({ ...writeTarget, title: str, preview: Type.Optional(Type.Boolean()), expected_tree_hash: Type.Optional(str) }),
       async (args, store, ctx) => {

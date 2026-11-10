@@ -153,7 +153,7 @@ describe('complete corpus management',()=>{
   await putDoc('overview',overview);
   await mkdir(join(roots.a,'overview/assets/canvases'),{recursive:true});
   await writeFile(join(roots.a,'overview/assets/canvases/map.canvas.json'),JSON.stringify({nodes:[],edges:[],links:[{id:'link',objectId:'node',target:{kind:'doc',path:'page/child'}}]}));
-  const result=await manage('docs_rename',{path:'page',name:'20-section',expected_hash:(await read()).hash});expect(result.ok).toBe(true);
+  const result=await manage('docs_move',{path:'page',name:'20-section',expected_hash:(await read()).hash});expect(result.ok).toBe(true);
   expect((await read('a','20-section/child')).doc.id).toBe(fixture.id);
   expect((await read('a','overview')).doc.blocks.p.text[0].attributes.reference.path).toBe('20-section/child');
   const canvas=JSON.parse(await readFile(join(roots.a,'overview/assets/canvases/map.canvas.json'),'utf8'));expect(canvas.links[0].target.path).toBe('20-section/child');
@@ -163,8 +163,8 @@ describe('complete corpus management',()=>{
   await mkdir(join(roots.a,'page/assets/canvases'),{recursive:true});
   await writeFile(join(roots.a,'page/assets/canvases/map.canvas.json'),bytes);
   const overview=structuredClone(fixture);overview.blocks.canvas={id:'canvas',type:'canvas',props:{src:'../page/assets/canvases/map.canvas.json'},children:[]};overview.blocks.root.children.push('canvas');await putDoc('overview',overview);
-  const asset=await call('docs_asset_read',{path:'page/assets/canvases/map.canvas.json'});expect(asset.ok).toBe(true);
-  const moved=await manage('docs_asset_move',{path:'page/assets/canvases/map.canvas.json',to:'overview/assets/canvases/map.canvas.json',expected_hash:asset.hash});expect(moved.ok).toBe(true);
+  const asset=await call('docs_assets',{path:'page/assets/canvases/map.canvas.json'});expect(asset.ok).toBe(true);
+  const moved=await manage('docs_move',{path:'page/assets/canvases/map.canvas.json',to:'overview/assets/canvases/map.canvas.json',expected_hash:asset.hash});expect(moved.ok).toBe(true);
   expect(await readFile(join(roots.a,'overview/assets/canvases/map.canvas.json'),'utf8')).toBe(bytes);
   expect((await read('a','overview')).doc.blocks.canvas.props.src).toBe('./assets/canvases/map.canvas.json');
   expect((await manage('docs_delete',{path:'page',expected_hash:(await read()).hash})).ok).toBe(true);
@@ -182,9 +182,9 @@ describe('complete corpus management',()=>{
   expect((await read('a','overview')).doc.blocks.image.props.src).toBe('../section/moved/assets/images/local.png');
  });
  test('preview detects changed descendants and title editing preserves path',async()=>{
-  await putDoc('page/child');const args={path:'page',name:'renamed',expected_hash:(await read()).hash};const preview=await call('docs_rename',args);
+  await putDoc('page/child');const args={path:'page',name:'renamed',expected_hash:(await read()).hash};const preview=await call('docs_move',args);
   await writeFile(join(roots.a,'page/child/.hidden'),'changed');
-  expect((await call('docs_rename',{...args,preview:false,expected_tree_hash:preview.tree_hash})).ok).toBe(false);
+  expect((await call('docs_move',{...args,preview:false,expected_tree_hash:preview.tree_hash})).ok).toBe(false);
   expect((await manage('docs_set_title',{path:'page',title:'New Title',expected_hash:(await read()).hash})).ok).toBe(true);
   expect((await read()).doc.title).toBe('New Title');expect((await read('a','page/child')).ok).toBe(true);
  });
@@ -207,8 +207,27 @@ describe('complete corpus management',()=>{
  });
  test('uploads, reads and deletes unused attachments through tools',async()=>{
   const uploaded=await call('docs_asset_upload',{path:'page',filename:'note.txt',content_type:'text/plain',base64:Buffer.from('hello').toString('base64')});expect(uploaded.ok).toBe(true);
-  const asset=await call('docs_asset_read',{path:uploaded.response.path,include_content:true});expect(asset.ok).toBe(true);expect(Buffer.from(asset.base64,'base64').toString()).toBe('hello');
-  expect((await manage('docs_asset_delete',{path:uploaded.response.path,expected_hash:asset.hash})).ok).toBe(true);
+  const asset=await call('docs_assets',{path:uploaded.response.path,include_content:true});expect(asset.ok).toBe(true);expect(Buffer.from(asset.base64,'base64').toString()).toBe('hello');
+  expect((await manage('docs_delete',{path:uploaded.response.path,expected_hash:asset.hash})).ok).toBe(true);
+ });
+ test('docs_move takes exactly one of to or name, and an asset path refuses name',async()=>{
+  const args={path:'page',expected_hash:(await read()).hash};
+  for(const sent of [{},{to:null,name:null},{to:'new',name:'renamed'}])expect((await call('docs_move',{...args,...sent})).issues?.[0]?.message).toStartWith('Send exactly one of to or name');
+  expect((await call('docs_move',{...args,to:'new',name:null})).ok).toBe(true);
+  expect((await call('docs_move',{...args,to:null,name:'renamed'})).ok).toBe(true);
+  const uploaded=await call('docs_asset_upload',{path:'page',filename:'note.txt',content_type:'text/plain',base64:Buffer.from('hello').toString('base64')});
+  const asset=await call('docs_assets',{path:uploaded.response.path});
+  expect((await call('docs_move',{path:uploaded.response.path,expected_hash:asset.hash,name:'renamed'})).issues).toEqual([{path:'/name',message:'name renames a page or section. Move an asset with to.'}]);
+ });
+ test('docs_delete refuses recursive on an asset and a named asset, and docs_assets reads content only from an asset path',async()=>{
+  const uploaded=await call('docs_asset_upload',{path:'page',filename:'note.txt',content_type:'text/plain',base64:Buffer.from('hello').toString('base64')});
+  const asset=await call('docs_assets',{path:uploaded.response.path});expect(asset).toMatchObject({ok:true,path:uploaded.response.path,size:5});expect(asset.base64).toBeUndefined();
+  expect((await call('docs_delete',{path:uploaded.response.path,expected_hash:asset.hash,recursive:true})).issues).toEqual([{path:'/recursive',message:"recursive deletes a page's descendants. An asset has none."}]);
+  expect((await call('docs_assets',{path:'page',include_content:true})).issues).toEqual([{path:'/include_content',message:'include_content reads one asset. Pass an asset path.'}]);
+  expect((await call('docs_assets',{path:'page'})).assets.map((entry:any)=>entry.path)).toEqual([uploaded.response.path]);
+  const page=structuredClone(fixture);page.blocks.file={id:'file',type:'attachment',props:{src:`./assets/attachments/${uploaded.response.path.split('/').at(-1)}`},children:[]};page.blocks.root.children.push('file');
+  await writeFile(join(roots.a,'page/doc.json'),serializeDocDocument(page));
+  expect(await call('docs_delete',{path:uploaded.response.path,expected_hash:asset.hash})).toMatchObject({ok:false,status:409,inbound:['page/doc.json']});
  });
 });
 
@@ -217,10 +236,35 @@ test('creates a Sequence through the service and preserves annotation targets wh
  const created=await call('docs_component_create',{path:'page',component:'sequence',src:'assets/sequences/new.sequence.json',document:sequence,expected_hash:(await read()).hash});expect(created.ok).toBe(true);
  const inserted=await call('docs_insert',{path:'page',type:'sequence',props:{src:'assets/sequences/new.sequence.json'},parentId:'root',index:2,expected_hash:(await read()).hash});expect(inserted.ok).toBe(true);
  expect((await call('docs_component_read',{path:'page',blockId:inserted.blockId})).ok).toBe(true);
- const note=await call('docs_annotation_add',{path:'page',target:{kind:'block',blockId:'p'},body:'Review this.',author:'test',intent:'note'});expect(note.ok).toBe(true);
- const bound=await call('docs_annotation_thread',{path:'page',annotation_id:note.annotation.id,thread:{id:'thread-1'},expected_annotations_hash:note.hash});expect(bound.annotation).toMatchObject({status:'open',thread:{id:'thread-1'}});
- const reply=await call('docs_annotation_reply',{path:'page',annotation_id:note.annotation.id,body:'Reviewed.',author:'test',expected_annotations_hash:bound.hash});expect(reply.ok).toBe(true);
- expect((await call('docs_annotation_resolve',{path:'page',annotation_id:note.annotation.id,expected_annotations_hash:reply.hash})).ok).toBe(true);
+ const note=await call('docs_annotation_write',{path:'page',add:{target:{kind:'block',blockId:'p'},body:'Review this.',author:'test',intent:'note'}});expect(note.ok).toBe(true);
+ const bound=await call('docs_annotation_write',{path:'page',thread:{annotation_id:note.annotation.id,thread:{id:'thread-1'}},expected_annotations_hash:note.hash});expect(bound.annotation).toMatchObject({status:'open',thread:{id:'thread-1'}});
+ const reply=await call('docs_annotation_write',{path:'page',reply:{annotation_id:note.annotation.id,body:'Reviewed.',author:'test'},expected_annotations_hash:bound.hash});expect(reply.ok).toBe(true);
+ expect((await call('docs_annotation_write',{path:'page',resolve:{annotation_id:note.annotation.id},expected_annotations_hash:reply.hash})).ok).toBe(true);
+});
+
+describe('docs_annotation_write',()=>{
+ const add={target:{kind:'block',blockId:'p'},body:'Review this.',author:'test',intent:'note'};
+ const annotations=async()=>JSON.parse(await readFile(join(roots.a,'page/annotations.json'),'utf8')).annotations;
+ test('a call with one mode and the other modes null applies',async()=>{
+  const note=await call('docs_annotation_write',{path:'page',add,reply:null,resolve:null,thread:null});expect(note.ok).toBe(true);
+  const replied=await call('docs_annotation_write',{path:'page',add:null,reply:{annotation_id:note.annotation.id,body:'Done.',author:'test'},resolve:null,thread:null,expected_annotations_hash:note.hash});expect(replied.ok).toBe(true);
+  expect(await annotations()).toMatchObject([{id:note.annotation.id,body:'Review this.',replies:[{body:'Done.'}]}]);
+ });
+ test('refuses no mode and two modes without writing',async()=>{
+  for(const [sent,message] of [[{},'Send exactly one of add, reply, resolve, or thread.'],[{add:null,reply:null},'Send exactly one of add, reply, resolve, or thread.'],
+   [{add,reply:{annotation_id:'a1',body:'Done.',author:'test'}},'Send exactly one of add, reply, resolve, or thread, not add and reply.']] as const){
+   expect(await call('docs_annotation_write',{path:'page',...sent})).toEqual({ok:false,status:400,detail:'Tool arguments failed validation.',issues:[{path:'',message}]});
+  }
+  expect(await readFile(join(roots.a,'page/annotations.json'),'utf8').catch(()=>null)).toBeNull();
+ });
+ test('reply and resolve refuse a missing expected_annotations_hash, and add keeps its stale-hash check',async()=>{
+  const note=await call('docs_annotation_write',{path:'page',add});
+  expect((await call('docs_annotation_write',{path:'page',reply:{annotation_id:note.annotation.id,body:'Done.',author:'test'}})).issues).toEqual([{path:'/expected_annotations_hash',message:'reply needs expected_annotations_hash. Read it from docs_annotations.'}]);
+  expect((await call('docs_annotation_write',{path:'page',resolve:{annotation_id:note.annotation.id}})).issues).toEqual([{path:'/expected_annotations_hash',message:'resolve needs expected_annotations_hash. Read it from docs_annotations.'}]);
+  expect((await call('docs_annotation_write',{path:'page',add,expected_annotations_hash:'stale'})).ok).toBe(false);
+  expect((await call('docs_annotation_write',{path:'page',add:{...add,intent:'other'}})).detail).toBe('Tool arguments failed validation.');
+  expect(await annotations()).toHaveLength(1);
+ });
 });
 
 const canvasDocument = {schemaVersion:1,id:'x',mode:'diagram',objects:[],connections:[],links:[],annotations:[]};
@@ -261,7 +305,7 @@ test('docs_check loads a docs-root-relative component without rejoining the bund
 test('stages and accepts reviewed edits and can restore deletion without overwriting later edits',async()=>{
  const staged=await call('docs_proposal_stage',{path:'page',expected_hash:(await read()).hash,summary:'Clarify',ops:[{type:'updateBlock',blockId:'p',text:[{insert:'Reviewed text.'}]}]});expect(staged.ok).toBe(true);
  const proposals=await call('docs_proposals',{path:'page'});expect(proposals.proposals).toHaveLength(1);
- expect((await call('docs_proposal_accept',{path:'page',proposal_id:staged.proposal.id,expected_proposals_hash:proposals.hash})).ok).toBe(true);
+ expect((await call('docs_proposal_decide',{path:'page',proposal_id:staged.proposal.id,expected_proposals_hash:proposals.hash,decision:'accept'})).ok).toBe(true);
  const deleted=await manage('docs_delete',{path:'page',expected_hash:(await read()).hash});expect(deleted.ok).toBe(true);
  const restore=await manage('docs_management_restore',{tree_change_id:deleted.tree_change_id});expect(restore.ok).toBe(true);
  expect((await read()).markdown).toContain('Reviewed text.');
@@ -273,8 +317,18 @@ test('changeset review tools keep staged multi-page edits available',async()=>{
  const staged=await call('docs_proposal_stage',{path:'page',expected_hash:(await read()).hash,summary:'Clarify',ops:[{type:'updateBlock',blockId:'p',text:[{insert:'Reviewed changeset.'}]}]});
  const grouped=await call('docs_changeset_stage',{summary:'Review group',entries:[{docPath:'page',proposalId:staged.proposal.id}]});expect(grouped.ok).toBe(true);
  expect((await call('docs_changeset_read',{changeset_id:grouped.changeset.id})).ok).toBe(true);
- expect((await call('docs_changeset_accept',{changeset_id:grouped.changeset.id})).ok).toBe(true);
+ expect((await call('docs_changeset_decide',{changeset_id:grouped.changeset.id,decision:'accept'})).ok).toBe(true);
  expect((await read()).markdown).toContain('Reviewed changeset.');
+});
+test('rejects a proposal and a changeset through the decide tools without applying them',async()=>{
+ const stage=async(text:string)=>call('docs_proposal_stage',{path:'page',expected_hash:(await read()).hash,summary:'Clarify',ops:[{type:'updateBlock',blockId:'p',text:[{insert:text}]}]});
+ const staged=await stage('Rejected proposal.');
+ expect((await call('docs_proposal_decide',{path:'page',proposal_id:staged.proposal.id,expected_proposals_hash:staged.hash,decision:'reject'})).ok).toBe(true);
+ expect((await call('docs_proposal_decide',{path:'page',proposal_id:staged.proposal.id,expected_proposals_hash:'stale',decision:'accept'})).ok).toBe(false);
+ const grouped=await call('docs_changeset_stage',{summary:'Review group',entries:[{docPath:'page',proposalId:(await stage('Rejected changeset.')).proposal.id}]});
+ expect((await call('docs_changeset_decide',{changeset_id:grouped.changeset.id,decision:'reject'})).ok).toBe(true);
+ expect((await call('docs_changeset_decide',{changeset_id:grouped.changeset.id,decision:'maybe'})).detail).toBe('Tool arguments failed validation.');
+ expect((await read()).markdown).toContain('Initial text.');
 });
 test('inventories unused assets and searches pages without filesystem instructions',async()=>{
  await mkdir(join(roots.a,'page/assets/images'),{recursive:true});await writeFile(join(roots.a,'page/assets/images/unused.png'),'unused');
@@ -331,7 +385,7 @@ describe("codecaine.docs.json exclude", () => {
       expect((await read("a", "page")).ok).toBe(true);
       const refusals = [
         await call("docs_read", { path: frozen }),
-        await call("docs_asset_read", { path: `${frozen}/assets/images/a.png` }),
+        await call("docs_assets", { path: `${frozen}/assets/images/a.png` }),
         await call("docs_tree", {}),
       ];
       expect(refusals[0]).toMatchObject({ ok: false });

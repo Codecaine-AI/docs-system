@@ -1,6 +1,6 @@
 # code
 
-Generated from Docs System sources. Snapshot: `sha256:1d5b8e1f9c4d94789c97e57644e063bbf24b467817afee28fe5d7a925906629a`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a721f1637ba900d2f518da00df1b2ad89da143c97`. Refresh the installation to regenerate these files.
 
 Use annotated source listings as evidence of the actual implementation. Put a state instance in State Shape alongside its field definition.
 

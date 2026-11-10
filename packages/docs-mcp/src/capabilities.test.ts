@@ -77,6 +77,23 @@ describe("coverage", () => {
   });
 });
 
+// In process, never through the daemon: ensureDaemon reuses a running daemon without a code check.
+test("lists 85 tools, built from createDocsTools plus the metadata tools", () => {
+  const service = createInteractionService({ judgmentEngine: null });
+  try {
+    const tools = service.listTools();
+    const names = tools.map(tool => tool.name);
+    expect(names.length).toBe(85);
+    expect(new Set(names).size).toBe(85);
+    expect(names).toEqual(expect.arrayContaining(["docs_annotation_write", "docs_proposal_decide", "docs_changeset_decide", "docs_move", "docs_delete", "docs_assets"]));
+    // A merged tool picks its mode from typed properties. Pi's Anthropic converter drops a top-level oneOf, anyOf or allOf.
+    expect(tools.filter(tool => ["oneOf", "anyOf", "allOf"].some(key => key in tool.inputSchema)).map(tool => tool.name)).toEqual([]);
+    const write = tools.find(tool => tool.name === "docs_annotation_write")!.inputSchema as { properties: Record<string, unknown>; required: string[] };
+    expect(Object.keys(write.properties)).toEqual(["project", "path", "expected_annotations_hash", "add", "reply", "resolve", "thread", "task_id"]);
+    expect(write.required).toEqual(["project", "path", "task_id"]);
+  } finally { service.close(); }
+});
+
 const STYLE_GATE = 'Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 const page: DocDocument = {
   schemaVersion: 1, id: "page", title: "Page", root: "root",
