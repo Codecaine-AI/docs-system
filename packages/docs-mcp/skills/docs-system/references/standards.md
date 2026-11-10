@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:a9c822d95b03773a412fe49db762bf19ff94eb68f0c11c0195f7bc95def1d597`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:1d5b8e1f9c4d94789c97e57644e063bbf24b467817afee28fe5d7a925906629a`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -1570,13 +1570,15 @@ Generated from Docs System sources. Snapshot: `sha256:a9c822d95b03773a412fe49db7
 
     ## Start a Task
 
-    A task is the in-memory record that pins the guidance snapshot for your edits. Each write needs the `task_id` of a live task. A task expires after 30 minutes without a docs call, or 12 hours after `docs_begin`. Expiry keeps your saved edits.
+    A task is the in-memory record that pins the guidance snapshot for your edits. Each write needs the `task_id` of a live task. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`. Expiry keeps your saved edits.
 
     1. Call `docs_capabilities` for the workspace, and use a project id that it returns.
 
       - For a request on several projects, get each project id through the same connection.
 
       - `docs_capabilities` also lists the guidance topics, and `docs_guidance` serves each topic.
+
+      - Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null.
 
     2. Call `docs_begin`, and keep its `task_id` for every call.
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "snapshotId": "sha256:a9c822d95b03773a412fe49db762bf19ff94eb68f0c11c0195f7bc95def1d597",
+  "snapshotId": "sha256:1d5b8e1f9c4d94789c97e57644e063bbf24b467817afee28fe5d7a925906629a",
   "sources": [
     {
       "path": "docs/10-system-design/10-doc-standards/10-structure/doc.json",
@@ -59,7 +59,7 @@
     },
     {
       "path": "docs/40-guides/15-editor-workflow/doc.json",
-      "sha256": "2bf6f5154f6dcddfa76560476afc65bdd2256bbb5c5f167eae06d9cecf040c42",
+      "sha256": "5cc1a5d028ed9c7af8a1febbd81fe5f2f9f6970b9549e7ce58b4376eade73b14",
       "kind": "workflow"
     },
     {

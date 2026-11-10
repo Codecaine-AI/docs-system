@@ -13,7 +13,7 @@ Use the connected Docs tools for documentation reads and edits. They preserve ty
 
 ## Read or Edit
 
-1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.
+1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.
 2. For reading, use the document tree and read tools. For editing, call `docs_begin` and keep its `task_id` for every edit. Read each guidance topic you need with `docs_guidance`.
 3. Read the target document and its relevant neighbors. Use the component catalog (`docs_guidance` topic `components`) to choose the form that explains the subject. Load a component's detailed reference when needed; use the advertised tool schemas for editing mechanics.
 4. Apply supported typed operations with the current document revision. Edits become visible immediately. On a revision conflict, read the current content and reconcile the requested change before retrying.
@@ -39,7 +39,7 @@ Follow these steps for every edit, and for each open request on a page.
    - If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error.
 4. Run `docs_check` with `task_id` on each changed page. Fix its `lint` and `style_gate` findings and each failing component.
    - Leave a block alone when its entry has `touched_by_task: false`. Report its findings instead.
-5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. The task expires after 30 minutes without a docs call.
+5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.
 
 For a request, reply with `docs_annotation_reply` when its intent is not clear. Resolve a request only when it needs no edit or you decline it. Write replies as plain sentences about what changed and why, with no block IDs or tool names.
 

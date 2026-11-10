@@ -55,23 +55,23 @@ type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
 
 /** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
 export const PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "4caf1da4d02f3bd053f5d7577a4fb22955db6b6e69add429a72b59057b9db366",
-  "references/components.md": "994b0d7b7b804b7318a351986f1eb85bcf752d8a5c2b1feb6f2c6e822edffd31",
-  "references/components/call-stack.md": "ea61c08688c30b034cbbb8cad39cab430086577f24022c0ed16969f9963d6ddb",
-  "references/components/canvas.md": "f5e7853acc9a8e054ec92fcb8b18603988def2301d81e16669031c9746952328",
-  "references/components/code.md": "df457c1c931975c1fa5055aedb84a1ab79df5256cd3c4410293d8cef3a264c62",
-  "references/components/component-tree.md": "0a54185c691752ff535a5f24daece4cde732935d7db7499a3c865acd664bbfbd",
-  "references/components/file-explorer.md": "774731deb680737ff88e7a6d66a36929cc77cffeeffb1616b0a39fbf0adfc4a2",
-  "references/components/file-tree.md": "e11984ef85e51c47ab3d1034a95112e8fe85d43dc1b9cc733f604485647f21e1",
-  "references/components/interaction-surface.md": "d5cd8f796ee82c5f648dc6f6da65d406af11384db6f210ddccdacdce0adec744",
-  "references/components/process-outline.md": "840d9a40e5db65360fcec1b2bfd10014c12db57a67e5f7df1f3b47f2d1c26ed3",
-  "references/components/pseudocode.md": "42358defb878772618a934c1312d4ec040cb576425ba9b5f057465baae41c4ac",
-  "references/components/rich-text.md": "7b3e37bdf508d5c82dcde452e81401ad1f46f1ddac71671f2ea15403f51db67f",
-  "references/components/sequence.md": "b8d4b426360707db6a70f37e6ba5ef94fb15e96359be411fd974be4e9a4cdc30",
-  "references/components/stack.md": "052ac150618a60464c67043a1f8eab54aae38898ecdf0e4883a9e4d6bda2884a",
-  "references/components/state-shape.md": "792dfdbbee736e4815aea87fd307e0b28ae0f68f590a6b9060d577b7b4215bc8",
-  "references/components/structured-table.md": "f3364481945c56d1490f00525e21d90bff7396f2a37e80d79da8c21641260d98",
-  "references/standards.md": "2a9e7db439a27539e470caf8a18706d1a59e15828966dde117894b7e2a4f43c5",
+  "SKILL.md": "8304cf7a738341e5a88941bd5c2d2f8c8067237aaae80bd82e6248498acd35c4",
+  "references/components.md": "9664c9acd2f7b74f1fe02bee9dd4e951174cbfedc92570b5368e69d680a79a19",
+  "references/components/call-stack.md": "b3cd2392b2809e326335189c65785959375b1b0af406a57cfe46098e833c28fd",
+  "references/components/canvas.md": "915543b7068e81ffd14bfcaf355fd5fd4e448d32fb816f7ea4e37ec9abba8bf5",
+  "references/components/code.md": "d38052734324d2c8d417d626c50c284871231da071c66beb49fa157ef3955d49",
+  "references/components/component-tree.md": "6afdfaf9f4120185f2c911b2acb3fe8560c2b8671145aeed86abc8bada644f26",
+  "references/components/file-explorer.md": "4a5c83b89a07d0f8d34dace513511fa160b760d2c7adf6f959cdac96dd8e4ec7",
+  "references/components/file-tree.md": "b79b9aa930ebfdd6807006ac714ae0d8d2c1d7f4cf443f5328f7847936e982cf",
+  "references/components/interaction-surface.md": "8a247c61e1cc63da820ec9e8ffca1c3253fbde58eee393daa61f660e4f19a9d5",
+  "references/components/process-outline.md": "34ecc278c4024ea0796bf74375de0651cd882077170ba3b5395d90537dd0b103",
+  "references/components/pseudocode.md": "f947f5cbe17cee7407acd22d4b330cbc537225bdf63b16ccebcbcef3de440a1d",
+  "references/components/rich-text.md": "b43dc94dc0f8db4425d215937501783c241bfc748e967d297a54aa812c3b05ac",
+  "references/components/sequence.md": "83b92b6ef92e88de6fcf6522c1edd08cc2b42442a9c779cee8fd5260ea41364f",
+  "references/components/stack.md": "07480d2e623cf4a77db8de722c1f32e50e88e915feb933916d6d807f6ff288fc",
+  "references/components/state-shape.md": "e84d26695a108c74e89acc2ccfeefca6d914db1a9897b8a12565a37c832d69cd",
+  "references/components/structured-table.md": "7c38e54243d97f34f311a4244bfb874aa26913bd90280301907cdfa9ba78373f",
+  "references/standards.md": "62244af3061afa28d8bf05fc4d41865d358412360a7131af76c5e162df6fc366",
 };
 
 const workflow = { topic: "workflow" } as const;
@@ -92,8 +92,8 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.read.discover", kind: "step", file: "SKILL.md", lines: [14, 16], scenario: "multi-project", destination: workflow,
-    text: "## Read or Edit\n\n1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.",
-    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics"],
+    text: "## Read or Edit\n\n1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.",
+    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics", "pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null"],
     behavior: { tools: ["docs_capabilities"] },
   },
   {
@@ -187,8 +187,8 @@ const UNITS: readonly UnitSpec[] = [
   },
   {
     id: "skill.workflow.report", kind: "step", file: "SKILL.md", lines: [42, 42], scenario: "edit-page", destination: workflow,
-    text: "5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. The task expires after 30 minutes without a docs call.",
-    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "A task expires after 30 minutes without a docs call"],
+    text: "5. Report what changed and each finding you could not fix. Never report a partial result as the requested change. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.",
+    anchors: ["Report what changed and each finding you could not fix", "Never report a partial result as the requested change", "or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`"],
   },
   {
     id: "skill.workflow.requests", kind: "rule", file: "SKILL.md", lines: [44, 44], scenario: "work-requests", destination: workflow,
@@ -302,7 +302,7 @@ const UNITS: readonly UnitSpec[] = [
   generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
   generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
   generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1732),
+  generated("references/standards.md", "edit-page", { topic: "all" }, 1734),
 ];
 
 /** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */

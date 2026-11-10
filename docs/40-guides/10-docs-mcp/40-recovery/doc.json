@@ -496,10 +496,37 @@
           }
         },
         {
-          "insert": " topic, and one edit baseline per page. The service releases that context when the task expires, after 30 minutes without a docs call or 12 hours after "
+          "insert": " topic, and one edit baseline per page. The service releases that context 12 hours after "
         },
         {
           "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or after 30 minutes without a "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or write call that passes its "
+        },
+        {
+          "insert": "task_id",
           "attributes": {
             "code": true
           }

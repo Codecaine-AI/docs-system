@@ -18,7 +18,7 @@ Installation previews first, preserves unrelated client settings, and backs up c
 2. `docs_begin` returns `task_id`, `snapshot_id` and `topics_read`.
 3. `docs_guidance` with `task_id` and topic `style` unlocks content edits for that task. Writes are refused until then.
 4. `docs_read` returns stable IDs, rendered content, and `hash`. Typed edits require `task_id` and that `hash` as `expected_hash`. Component sidecars require both hashes. Valid changes apply immediately.
-5. `docs_check` with `task_id` verifies completion and blocks on style violations the task introduced. The task expires after 30 minutes without a docs call.
+5. `docs_check` with `task_id` verifies completion and blocks on style violations the task introduced. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`.
 
 Read tools also work without opening an authoring task. A task is only a pinned authoring context, not an internal agent run.
 

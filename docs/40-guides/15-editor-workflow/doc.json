@@ -256,10 +256,37 @@
           }
         },
         {
-          "insert": " of a live task. A task expires after 30 minutes without a docs call, or 12 hours after "
+          "insert": " of a live task. A task expires 12 hours after "
         },
         {
           "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or after 30 minutes without a "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or write call that passes its "
+        },
+        {
+          "insert": "task_id",
           "attributes": {
             "code": true
           }
@@ -292,7 +319,8 @@
       ],
       "children": [
         "wf-start-1a",
-        "wf-start-1b"
+        "wf-start-1b",
+        "wf-start-1c"
       ]
     },
     "wf-start-1a": {
@@ -328,6 +356,44 @@
         },
         {
           "insert": " serves each topic."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-1c": {
+      "id": "wf-start-1c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topics come before projects in pages of at most 4,096 bytes, so pass "
+        },
+        {
+          "insert": "next_cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " until you find your project or "
+        },
+        {
+          "insert": "next_cursor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is null."
         }
       ],
       "children": []
