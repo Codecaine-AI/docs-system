@@ -14,7 +14,8 @@ export async function centralProjectUrl(docsRoot: string): Promise<string | null
   if (!health.ok || !(await health.json() as any).central) throw new Error('Start the installed Docs background service before opening this project.');
   const canonical = await realpath(docsRoot);
   const response = await fetch(new URL('/rpc', origin), { method: 'POST', headers, body: JSON.stringify({ workspace: dirname(canonical), name: 'docs_capabilities', arguments: {} }) });
-  const result = await response.json() as any;
+  const result = await response.json().catch(() => ({})) as any;
+  if (!response.ok) throw new Error(`Docs registration failed (${response.status}): ${result.detail ?? 'no detail'}`);
   if (result.isError) throw new Error(result.structuredContent?.detail ?? 'Docs registration failed');
   // docs_capabilities registered the workspace's projects. The registry lists each one with its docs root.
   const { projects } = await (await fetch(new URL('/api/projects', origin), { headers })).json() as { projects: { id: string; docsRoot: string }[] };

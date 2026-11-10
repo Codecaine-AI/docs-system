@@ -24,8 +24,11 @@ const out=(value:unknown)=>console.log(JSON.stringify(value,null,2));
 async function capabilityProjects(state:Awaited<ReturnType<typeof ensureDaemon>>){
  const projects:{id:string,name:string}[]=[];let cursor:string|undefined;
  do{
-  const result=await (await daemonFetch(state,'/rpc',{workspace,name:'docs_capabilities',arguments:cursor===undefined?{}:{cursor}})).json() as any;
-  if(result.isError)throw new Error(result.structuredContent.detail);
+  const response=await daemonFetch(state,'/rpc',{workspace,name:'docs_capabilities',arguments:cursor===undefined?{}:{cursor}});
+  const text=await response.text();let result:any;
+  try{result=JSON.parse(text);}catch{throw new Error(`Docs service error ${response.status}: ${text}`);}
+  if(!response.ok)throw new Error(`Docs service error ${response.status}: ${result.detail??result.error??text}`);
+  if(result.isError)throw new Error(result.structuredContent?.detail??'docs_capabilities failed');
   projects.push(...result.structuredContent.projects);cursor=result.structuredContent.next_cursor??undefined;
  }while(cursor!==undefined);
  return projects;
