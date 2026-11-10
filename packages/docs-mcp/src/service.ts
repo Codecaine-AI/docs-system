@@ -9,7 +9,7 @@ import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type Discovery, type DocsProject } from './discovery';
 import { createDocsTools, type DocsToolContext, type DocsToolResult } from './tools';
-import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
+import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, servedText, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
 import { CAPABILITIES, requiredTopics } from './guidance-manifest';
 import manifest from '../package.json';
 import { implementationFingerprint } from './lifecycle';
@@ -303,7 +303,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
     if(typeof args.component==='string'){
      const component=snapshot.components.find((c:any)=>c.name===args.component||c.ownedTypes?.includes(args.component));
      if(!component)throw new Error(`Unknown component ${args.component}`);
-     return reply({ok:true,snapshot_id:snapshot.snapshotId,component,reference:snapshot.componentReferences[component.name]});
+     return reply({ok:true,snapshot_id:snapshot.snapshotId,component,reference:servedText(snapshot.componentReferences[component.name]!)});
     }
     const topics=guidanceTopics(snapshot);
     if(args.topic===undefined)return reply({ok:true,snapshot_id:snapshot.snapshotId,topics:topicIndex(topics),next:STYLE_NEXT});

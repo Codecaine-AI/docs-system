@@ -86,6 +86,15 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   return { text, snapshotId, components, sources, componentReferences };
 }
 
+let servedTextHook: ((text: string) => string) | undefined;
+/** Test hook for the manifest mutation test. It rewrites each served topic text and component reference. The snapshot and the manifest stay unchanged. */
+export function setServedTextHook(hook?: (text: string) => string): void { servedTextHook = hook; }
+/** Guidance text as docs_guidance serves it. */
+export const servedText = (text: string): string => servedTextHook ? servedTextHook(text) : text;
+/** One component's reference as the generated skill file holds it, from the fields docs_guidance serves for that component. */
+export const componentReferenceText = (component: Pick<ComponentGuidance, "whenToUse" | "example" | "docsPath">, reference: string): string =>
+  `${component.whenToUse}\n\nExample: ${component.example}\n\nCanonical document: \`${component.docsPath}\`.\n\n${reference}`;
+
 export type GuidanceTopic = { topic: string; title: string; covers: string; text: string };
 /** Readable topic name for one structure-standards bundle, such as `standards-cross-doc-linking`. */
 const standardsTopic = (bundle: string): string => `standards-${bundle.slice(bundle.lastIndexOf("/") + 1).replace(/^\d+-/, "")}`;
@@ -95,6 +104,9 @@ const unescapeAttribute = (value: string): string => value.replace(/&quot;/g, '"
 
 /** Split a snapshot's assembled text into topics. Every topic line is a verbatim line of `snapshot.text`, so a task's topics come from its pinned snapshot. */
 export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] {
+  return splitTopics(snapshot).map(topic => ({ ...topic, text: servedText(topic.text) }));
+}
+function splitTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] {
   const lines = snapshot.text.split("\n");
   const section = (tag: string): string[] => {
     const start = lines.findIndex(line => line.startsWith(`<${tag} `) || line === `<${tag}>`);
@@ -141,7 +153,7 @@ export async function generateSkillReferences(outputDir: string, guidance?: Guid
     writeFile(join(references, "standards.md"), `# Docs Authoring Guidance\n\n${stamp}${snapshot.text}\n`),
     writeFile(join(references, "components.md"), `# Component Selection\n\n${stamp}${catalog}\n`),
     ...snapshot.components.map(component => writeFile(join(references, "components", `${component.name}.md`),
-      `# ${component.name}\n\n${stamp}${component.whenToUse}\n\nExample: ${component.example}\n\nCanonical document: \`${component.docsPath}\`.\n\n${snapshot.componentReferences[component.name]}\n`)),
+      `# ${component.name}\n\n${stamp}${componentReferenceText(component, snapshot.componentReferences[component.name]!)}\n`)),
     writeFile(join(outputDir, "snapshot.json"), JSON.stringify({ schemaVersion: GUIDANCE_SCHEMA_VERSION, snapshotId: snapshot.snapshotId, sources: snapshot.sources }, null, 2) + "\n"),
   ]);
 }

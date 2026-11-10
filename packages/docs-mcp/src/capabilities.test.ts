@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
 import { componentGuidance } from "../../docs-model/src/authoring-guidance";
-import { GUIDANCE_TOPICS, loadGuidance } from "./guidance";
+import { GUIDANCE_TOPICS, componentReferenceText, loadGuidance, setServedTextHook } from "./guidance";
 import { PINNED_SHA256, SCENARIOS, SKILL_ROOT, guidanceManifest, type ManifestUnit } from "./guidance-manifest";
 import { createInteractionService } from "./service";
 import pkg from "../package.json";
@@ -155,5 +155,89 @@ describe("docs_capabilities", () => {
       expect(pages.flatMap(index => index.projects)).toEqual((await service.discover(many)).projects.map(({ id, name }) => ({ id, name })));
       expect(await call("docs_capabilities", { cursor: "-1" }, many)).toMatchObject({ ok: false, detail: expect.stringContaining("Unknown cursor") });
     } finally { await rm(many, { recursive: true, force: true }); }
+  });
+});
+
+/** A generated line in the form the served text holds it: no indent, no install-specific file path, and the catalog's Details line as the served catalog writes it. */
+const servedForm = (line: string) => line.trim().replace(/ file="[^"]*"/g, "").replace(/^Details: \[[^\]]+\]\(components\/[^)]+\.md\)\. Canonical document: `([^`]+)`\.$/, "Details: $1");
+/** The non-blank lines of a generated file after the generator's title and snapshot stamp, which no topic serves. */
+const generatedBody = (text: string) => text.split("\n").slice(4).filter(line => line.trim() !== "");
+type Observed = { tools: ReadonlySet<string>; refusal: string };
+
+/** Every way the served text fails to keep a unit. A generated unit needs each of its lines. A prose unit needs each anchor. Recorded behavior needs its tools listed and named, and its exact refusal. */
+function contractFindings(unit: ManifestUnit, served: string, observed: Observed): string[] {
+  const findings: string[] = [];
+  if (unit.kind === "generated") {
+    const lines = new Set(served.split("\n").map(servedForm));
+    const missing = generatedBody(unit.text).filter(line => !lines.has(servedForm(line)));
+    if (missing.length) findings.push(`${unit.id}: the served text lacks ${missing.length} lines, first "${missing[0]!.trim()}"`);
+  }
+  for (const anchor of unit.anchors) if (!served.includes(anchor)) findings.push(`${unit.id}: the served text lacks "${anchor}"`);
+  for (const tool of unit.behavior?.tools ?? []) {
+    if (!observed.tools.has(tool)) findings.push(`${unit.id}: ${tool} is not in tools/list`);
+    if (!served.includes(tool)) findings.push(`${unit.id}: the served text does not name ${tool}`);
+  }
+  if (unit.behavior?.refusal !== undefined && unit.behavior.refusal !== observed.refusal) findings.push(`${unit.id}: the service refuses with "${observed.refusal}"`);
+  return findings;
+}
+
+/** The test hook body: the served text without the unit's lines and anchor phrases. */
+const strip = (unit: ManifestUnit) => (text: string) => {
+  const lines = new Set(unit.kind === "generated" ? generatedBody(unit.text).map(servedForm) : unit.text.split("\n").filter(line => line.trim() !== "").map(servedForm));
+  let out = text.split("\n").filter(line => !lines.has(servedForm(line))).join("\n");
+  for (const anchor of unit.anchors) while (out.includes(anchor)) out = out.replaceAll(anchor, "");
+  return out;
+};
+
+describe("manifest contract", () => {
+  let service: ReturnType<typeof createInteractionService>;
+  let workspace: string;
+  let task_id: string;
+  let observed: Observed;
+  const call = async (name: string, args: Record<string, unknown> = {}) => (await service.call(workspace, name, args)).structuredContent as Record<string, any>;
+  /** The text docs_guidance serves for the unit's destination, from the task's pinned snapshot. A drop has none here: agent-config's instruments test owns it. */
+  async function servedFor(unit: ManifestUnit): Promise<string | undefined> {
+    const { destination } = unit;
+    if ("topic" in destination) return (await call("docs_guidance", { task_id, topic: destination.topic })).guidance;
+    if ("component" in destination) {
+      const { component, reference } = await call("docs_guidance", { task_id, component: destination.component });
+      return componentReferenceText(component, reference);
+    }
+    return undefined;
+  }
+  beforeAll(async () => {
+    service = createInteractionService({ judgmentEngine: null });
+    workspace = await workspaceWith(["alpha"]);
+    const { projects } = await call("docs_capabilities");
+    ({ task_id } = await call("docs_begin"));
+    // A content write in a task that has not read topic style records the refusal text.
+    const fresh = await call("docs_begin");
+    const read = await call("docs_read", { project: projects[0].id, path: "page" });
+    const refused = await call("docs_write_text", { task_id: fresh.task_id, project: projects[0].id, path: "page", blockId: "body", expected_hash: read.hash, markdown: "Refused." });
+    observed = { tools: new Set(service.listTools().map(tool => tool.name)), refusal: refused.detail };
+  });
+  afterAll(async () => { setServedTextHook(); await Bun.sleep(30); service.close(); await rm(workspace, { recursive: true, force: true }); });
+
+  test("each unit's served topic keeps its anchors, its lines and its recorded behavior, with no network call", async () => {
+    const findings: string[] = [];
+    for (const unit of manifest) {
+      const served = await servedFor(unit);
+      if (served !== undefined) findings.push(...contractFindings(unit, served, observed));
+    }
+    expect(findings).toEqual([]);
+  });
+
+  test("stripping one unit from the served topic fails that unit's contract, and the manifest stays unchanged", async () => {
+    const before = JSON.stringify(manifest);
+    const survivors: string[] = [];
+    try {
+      for (const unit of manifest.filter(unit => !("drop" in unit.destination))) {
+        setServedTextHook(strip(unit));
+        if (contractFindings(unit, (await servedFor(unit))!, observed).length === 0) survivors.push(unit.id);
+      }
+    } finally { setServedTextHook(); }
+    expect(survivors).toEqual([]);
+    expect(JSON.stringify(manifest)).toBe(before);
+    expect(JSON.stringify(await guidanceManifest())).toBe(before);
   });
 });
