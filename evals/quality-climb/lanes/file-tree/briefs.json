@@ -13,11 +13,11 @@
   {
     "id": 137,
     "set": "climb",
-    "slug": "docs-skill-bundle",
-    "title": "The Docs Skill Bundle",
-    "reader": "An agent operator who wants to know which files the installed docs-system skill gives an agent",
-    "prompt": "Write a short page that shows the files of the docs-system skill bundle in packages/docs-mcp/skills/docs-system/ as a tree. Include each component reference file under references/components/, and note what SKILL.md, components.md and standards.md each hold. Say in one sentence when an agent loads a component reference file.",
-    "sources": ["packages/docs-mcp/skills/docs-system/SKILL.md", "packages/docs-mcp/skills/docs-system/references/components.md"],
+    "slug": "docs-guidance-sources",
+    "title": "The Docs Guidance Sources",
+    "reader": "An agent operator who wants to know which corpus pages the Docs tools serve to an agent as guidance",
+    "prompt": "Write a short page that shows, as a tree, the corpus folders and pages that the Docs MCP guidance loads: the style guide pages, the doc-standards pages and the component reference pages. Note what each folder holds. Say in one sentence when an agent reads the reference of one component.",
+    "sources": ["packages/docs-mcp/src/guidance.ts", "packages/docs-model/src/authoring-guidance.ts"],
     "blockTypes": ["file-tree"],
     "rewrites": ""
   },
@@ -105,7 +105,7 @@
     "title": "The Four Docs Layers",
     "reader": "A product owner who is setting up a docs corpus for a new project",
     "prompt": "Write a short page that shows the top-level folders of a docs corpus as a tree, with a note on what each layer holds. Explain that each doc is a folder with a doc.json file, and how the number prefixes set the reading order.",
-    "sources": ["packages/framework/SKILL.md", "packages/docs-mcp/skills/docs-system/references/standards.md"],
+    "sources": ["packages/framework/SKILL.md", "docs/10-system-design/10-doc-standards/10-structure/doc.json"],
     "blockTypes": ["file-tree"],
     "rewrites": ""
   },

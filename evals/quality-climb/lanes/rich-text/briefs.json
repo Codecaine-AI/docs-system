@@ -68,11 +68,11 @@
   {
     "id": 106,
     "set": "held-out",
-    "slug": "docs-skill-editor-rules",
-    "title": "Editor Rules for Agents",
-    "reader": "An agent operator who wants a one-screen summary of the rules the docs-system skill gives an editing agent",
-    "prompt": "Write a quick-reference page of the editor workflow that the docs-system skill gives an agent. Give the five workflow steps as a numbered list with nested items for the Canvas and Sequence rule, the edit-in-place rule and the refused-twice rule. Add one short section on when to reply to a request and when to resolve it.",
-    "sources": ["packages/docs-mcp/skills/docs-system/SKILL.md"],
+    "slug": "docs-page-move-rules",
+    "title": "Page Move Rules for Agents",
+    "reader": "An agent operator who wants a one-screen summary of the rules an agent follows to move and delete pages",
+    "prompt": "Write a quick-reference page of the rules an agent follows to move, rename and delete pages through the Docs tools. Give the move steps as a numbered list with nested items for the preview, the tree hash and the restore. Add one short section on how to move a shared Canvas before you delete the page that owns it.",
+    "sources": ["docs/40-guides/10-docs-mcp/50-document-management/doc.json"],
     "blockTypes": ["rich-text"],
     "rewrites": ""
   },
