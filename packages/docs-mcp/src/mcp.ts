@@ -6,16 +6,7 @@ import { resolve } from 'node:path';
 import { ensureDaemon, daemonFetch } from './lifecycle';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import manifest from '../package.json';
-
-/** Short by design: clients load this with every session. The full rules live in docs_guidance topic "style". */
-const INSTRUCTIONS=[
- 'Call docs_discover for the active workspace, then docs_begin. Its result opens with the style digest.',
- 'Before your first edit, read docs_guidance with task_id and topic "style". Writes are refused until you do.',
- 'The most-broken rules are bold-label parents only for 2 or more groups of 3 or more facts, lists of about 5 items, no semicolons or label-colon openers, and claims the source does not prove.',
- 'When content describes a shape, show it in its typed block (state-shape, file-tree, process-outline, canvas, sequence and the rest). Keep plain facts as a list.',
- 'Write results carry style_findings. Fix them as you go, and run docs_check with task_id on each changed page.',
- 'Edit only through typed Docs tools with task_id and revision hashes. Never rewrite doc.json or component sidecars directly.',
-].join('\n');
+import { INSTRUCTIONS } from './instructions';
 
 export async function startMcp(initialWorkspace:string){
  const state=await ensureDaemon();let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();

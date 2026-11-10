@@ -5,6 +5,16 @@ import { mkdtemp,mkdir,writeFile,readFile,rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { CLI_PATH } from './lifecycle';
+import { INSTRUCTIONS } from './instructions';
+
+test('the prompt block stays within 12 lines and 800 bytes, and the CLI prints it unchanged',async()=>{
+ expect(INSTRUCTIONS.split('\n').length).toBeLessThanOrEqual(12);
+ expect(Buffer.byteLength(INSTRUCTIONS)).toBeLessThanOrEqual(800);
+ expect(INSTRUCTIONS).toContain('docs_capabilities');
+ expect(INSTRUCTIONS).toContain('compaction');
+ const printed=Bun.spawnSync([process.execPath,CLI_PATH,'instructions']);
+ expect(printed.stdout.toString()).toBe(`${INSTRUCTIONS}\n`);
+});
 
 test('two MCP clients share one authority; typed edits, UI visibility, stale rejection and undo cross protocol',async()=>{
  const root=await mkdtemp(join(tmpdir(),'docs-mcp-protocol-'));const state=join(root,'state');const clients:Client[]=[];
@@ -18,7 +28,7 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   const invoke=async(client:Client,name:string,args:Record<string,unknown>={})=>(await client.callTool({name,arguments:args})).structuredContent as any;
   const tools=await a.listTools();expect(tools.tools.length).toBeGreaterThan(40);
   const found=await invoke(a,'docs_discover');expect(found.projects.length).toBe(2);const project=found.projects.find((p:any)=>p.name==='a').id;
-  expect(a.getInstructions()).toContain('topic "style"');
+  expect(a.getInstructions()).toBe(INSTRUCTIONS);
   const begun=await invoke(a,'docs_begin');expect(Object.keys(begun).sort()).toEqual(['call_id','ok','snapshot_id','task_id','topics_read']);
   expect((await invoke(a,'docs_guidance',{task_id:begun.task_id,topic:'style'})).guidance).toContain('docs_style_guide');
   const before=await invoke(a,'docs_read',{project,path:'page'});
