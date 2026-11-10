@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from '../background/registry';
+import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from '../background/registry';
 import { createInteractionService } from '../service';
 import { createDocsStore } from '@codecaine-ai/docs-server/store';
 import { FS_WATCH_ACTOR } from '@codecaine-ai/docs-server/fs-watch';
@@ -40,6 +40,23 @@ test('central projects do not share browser preferences or document caches', asy
     window.happyDOM.setURL('http://localhost:4808/');
     expect(projectStorageKey('existing-key')).toBe('existing-key');
   } finally { delete (globalThis as any).window; await window.happyDOM.close(); }
+});
+
+test('a docs_capabilities reply registers the complete discovery of its workspace', async () => {
+  const temp = await mkdtemp(join(tmpdir(), 'docs-capabilities-registry-'));
+  const service = createInteractionService({ judgmentEngine: null });
+  try {
+    await writeFile(join(temp, 'members.json'), JSON.stringify([{ dir: 'a' }, { dir: 'b' }]));
+    const doc = { schemaVersion: 1, id: 'test', title: 'Test', root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } };
+    for (const name of ['a', 'b']) { await mkdir(join(temp, name, 'docs/page'), { recursive: true }); await writeFile(join(temp, name, 'docs/page/doc.json'), JSON.stringify(doc)); }
+    const reply = (await service.call(temp, 'docs_capabilities')).structuredContent as any;
+    // The managed runtime's /discovery route answers with the service's cached discovery.
+    const discovery = await replyDiscovery(reply, async workspace => { const found = await service.discover(workspace); return { ok: true, workspace: found.workspace, projects: found.projects }; }) as any;
+    const { workspace, projects } = await service.discover(temp);
+    expect(discovery).toEqual({ ok: true, workspace, projects });
+    const registry = mergeDiscovery(await readRegistry(join(temp, 'projects.json'), temp), discovery.workspace, discovery.projects);
+    expect(registry.projects.map(p => projectRoute(`/projects/${p.id}/docs/`)?.id)).toEqual(reply.projects.map((p: any) => p.id));
+  } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
 });
 
 test('project registration persists stable IDs and keeps different projects distinct', async () => {

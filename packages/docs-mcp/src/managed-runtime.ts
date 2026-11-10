@@ -37,6 +37,11 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
       return Response.json({ service: 'codecaine-docs-runtime', build: process.env.CODECAINE_DOCS_BUILD, ...stats, newestTaskUseMs: stats.newestTaskUseMs ?? null, patches: ledgerStats(), ...memoryReport() });
     }
     if (url.pathname === '/tools') return Response.json({ tools: service.listTools() });
+    // The supervisor registers the complete discovery of a workspace after docs_capabilities, whose reply pages only project ids and names.
+    if (url.pathname === '/discovery' && request.method === 'POST') {
+      const discovery = await service.discover((await request.json() as { workspace: string }).workspace);
+      return Response.json({ ok: true, workspace: discovery.workspace, projects: discovery.projects });
+    }
     if (url.pathname === '/rpc' && request.method === 'POST') {
       const body = await request.json() as any;
       return Response.json(await serveRpc(service, record, body));
