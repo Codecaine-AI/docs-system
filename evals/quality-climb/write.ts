@@ -203,6 +203,8 @@ export async function writeAll(briefs: (Brief & { local?: boolean })[], out: str
   const stateDir = process.env.CODECAINE_DOCS_STATE_DIR ?? join(out, "docs-state");
   await mkdir(stateDir, { recursive: true });
   const settings = await authSettings(out);
+  // One unpack before the pool starts, so parallel writers never extract into SOURCE_ROOT at the same time.
+  await freezeSources(briefs.filter((b) => !existsSync(join(writtenPageDir(out, b), "metrics.json"))));
   const failed: { briefId: number; error: string }[] = [];
   let next = 0;
   try {
