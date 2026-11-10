@@ -2,12 +2,13 @@ import { expect, test } from 'bun:test';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from '../background/registry';
+import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from '../background/registry';
 import { createInteractionService } from '../service';
 import { createDocsStore } from '@codecaine-ai/docs-server/store';
 import { FS_WATCH_ACTOR } from '@codecaine-ai/docs-server/fs-watch';
 import { DraftLockStore } from '@codecaine-ai/docs-server/draft-locks';
 import { projectStorage, projectStorageKey } from '../../../docs-workbench/web/src/data/project-storage';
+import { Window } from 'happy-dom';
 
 test('draft counts exclude other projects and expired leases', () => {
   const base = new DraftLockStore(1000);
@@ -21,22 +22,41 @@ test('draft counts exclude other projects and expired leases', () => {
   expect(a.activeCount(new Date(time.getTime() + 1001))).toBe(0);
 });
 
-test('central projects do not share browser preferences or document caches', () => {
-  const previous = window.location.href;
+test('central projects do not share browser preferences or document caches', async () => {
+  // The package-local run has no DOM preload, so this test brings its own window.
+  const window = new Window({ url: 'http://localhost:4808/' });
+  (globalThis as any).window = window;
   try {
-    window.location.href = 'http://localhost:4820/projects/a/docs/';
+    window.happyDOM.setURL('http://localhost:4820/projects/a/docs/');
     projectStorage.setItem('central-test', 'A');
-    window.location.href = 'http://localhost:4820/projects/b/docs/';
+    window.happyDOM.setURL('http://localhost:4820/projects/b/docs/');
     expect(projectStorage.getItem('central-test')).toBeNull();
     projectStorage.setItem('central-test', 'B');
-    window.location.href = 'http://localhost:4820/projects/a/docs/';
+    window.happyDOM.setURL('http://localhost:4820/projects/a/docs/');
     expect(projectStorage.getItem('central-test')).toBe('A');
     projectStorage.removeItem('central-test');
-    window.location.href = 'http://localhost:4820/projects/b/docs/';
+    window.happyDOM.setURL('http://localhost:4820/projects/b/docs/');
     projectStorage.removeItem('central-test');
-    window.location.href = 'http://localhost:4808/';
+    window.happyDOM.setURL('http://localhost:4808/');
     expect(projectStorageKey('existing-key')).toBe('existing-key');
-  } finally { window.location.href = previous; }
+  } finally { delete (globalThis as any).window; await window.happyDOM.close(); }
+});
+
+test('a docs_capabilities reply registers the complete discovery of its workspace', async () => {
+  const temp = await mkdtemp(join(tmpdir(), 'docs-capabilities-registry-'));
+  const service = createInteractionService({ judgmentEngine: null });
+  try {
+    await writeFile(join(temp, 'members.json'), JSON.stringify([{ dir: 'a' }, { dir: 'b' }]));
+    const doc = { schemaVersion: 1, id: 'test', title: 'Test', root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } };
+    for (const name of ['a', 'b']) { await mkdir(join(temp, name, 'docs/page'), { recursive: true }); await writeFile(join(temp, name, 'docs/page/doc.json'), JSON.stringify(doc)); }
+    const reply = (await service.call(temp, 'docs_capabilities')).structuredContent as any;
+    // The managed runtime's /discovery route answers with the service's cached discovery.
+    const discovery = await replyDiscovery(reply, async workspace => { const found = await service.discover(workspace); return { ok: true, workspace: found.workspace, projects: found.projects }; }) as any;
+    const { workspace, projects } = await service.discover(temp);
+    expect(discovery).toEqual({ ok: true, workspace, projects });
+    const registry = mergeDiscovery(await readRegistry(join(temp, 'projects.json'), temp), discovery.workspace, discovery.projects);
+    expect(registry.projects.map(p => projectRoute(`/projects/${p.id}/docs/`)?.id)).toEqual(reply.projects.map((p: any) => p.id));
+  } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
 });
 
 test('project registration persists stable IDs and keeps different projects distinct', async () => {

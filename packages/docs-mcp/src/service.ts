@@ -9,8 +9,9 @@ import { setDocsRootExclude } from '@codecaine-ai/docs-index/paths';
 import { createDocsRoutes } from '@codecaine-ai/docs-server/routes';
 import { discoverProjects, type Discovery, type DocsProject } from './discovery';
 import { createDocsTools, type DocsToolContext, type DocsToolResult } from './tools';
-import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
-import { STYLE_DIGEST } from './style-digest';
+import { GUIDANCE_TOPICS, guidanceTopics, loadGuidance, servedText, type GuidanceSnapshot, type GuidanceTopic } from './guidance';
+import { CAPABILITIES, requiredTopics } from './guidance-manifest';
+import manifest from '../package.json';
 import { implementationFingerprint } from './lifecycle';
 import { textMeasureBackend, textMeasureReady, watchDocsRoot } from '@codecaine-ai/docs-server';
 import { defaultJudgmentEngine } from './jev-engine';
@@ -20,20 +21,20 @@ const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({co
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
 const string={type:'string',minLength:1};
 const MUTATION_READS = new Set(['docs_tree','docs_read','docs_check','docs_annotations','docs_component_read','docs_search','docs_backlinks','docs_asset_read','docs_assets','docs_proposals','docs_changesets','docs_changeset_read']);
-/** Tree, annotation, review-decision, asset, undo, restore, and lint-fix writes skip the style gate. Every other write is content. */
-const STYLE_GATE_EXEMPT=new Set(['docs_create','docs_move','docs_rename','docs_delete','docs_set_title','docs_annotation_add','docs_annotation_reply','docs_annotation_resolve','docs_annotation_thread','docs_proposal_accept','docs_proposal_reject','docs_changeset_stage','docs_changeset_accept','docs_changeset_reject','docs_asset_upload','docs_asset_move','docs_asset_delete','docs_undo','docs_management_restore','docs_fix_lints']);
 const STYLE_GATE='Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 const STYLE_NEXT='Read docs_guidance with task_id and topic "style" before your first edit. Writes are refused until you do.';
 const topicIndex=(topics:GuidanceTopic[])=>topics.map(({topic,covers,text})=>({topic,covers,chars:text.length}));
-/** First sentence of a manifest's whenToUse. docs_guidance topic "components" carries the rest. */
-const oneLine=(text:string)=>/^[\s\S]*?[.!?](?=\s|$)/.exec(text)?.[0]??text;
+/** A task has read a topic when it read that topic or topic "all", which holds every topic. */
+const hasRead=(task:{topicsRead:Set<string>},topic:string)=>task.topicsRead.has(topic)||task.topicsRead.has('all');
+/** One docs_capabilities page stays within 4,096 bytes, call_id included. */
+const CAPABILITIES_PAGE_BYTES=4096,CALL_ID_BYTES=64;
 const MINUTE=60_000,HOUR=3_600_000;
 export const DEFAULT_TASK_IDLE_MS=30*MINUTE;
 export const DEFAULT_TASK_MAX_AGE_MS=12*HOUR;
 const RETIRED_KEEP_MS=24*HOUR,SWEEP_EVERY_MS=MINUTE;
 type RetireReason='idle'|'max-age'|'ended';
 type TaskCanvasBaseline=NonNullable<ReturnType<NonNullable<DocsToolContext['taskCanvasBaselines']>['get']>>;
-type Task={workspace:string,snapshot:GuidanceSnapshot,createdAt:number,lastUsedAt:number,inFlight:number,styleRead:boolean,baselines:Map<string,DocDocument|null>,canvasBaselines:Map<string,TaskCanvasBaseline>};
+type Task={workspace:string,snapshot:GuidanceSnapshot,createdAt:number,lastUsedAt:number,inFlight:number,topicsRead:Set<string>,baselines:Map<string,DocDocument|null>,canvasBaselines:Map<string,TaskCanvasBaseline>};
 const plural=(n:number,unit:string)=>`${n} ${unit}${n===1?'':'s'}`;
 /** A duration in the largest whole unit: 30 minutes, 12 hours. */
 const span=(ms:number)=>ms%HOUR===0?plural(ms/HOUR,'hour'):ms%MINUTE===0?plural(ms/MINUTE,'minute'):plural(Math.ceil(ms/1000),'second');
@@ -230,7 +231,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const metadataTools=[
   {name:'docs_discover',description:'Discover normalized documentation in the active workspace and declared member projects. Call first; use returned explicit project IDs. No machine-wide scan.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'}})},
-  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, the style digest, a guidance topic index, and one-line component purposes. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'}})},
+  {name:'docs_capabilities',description:'The capabilities index: the project ids and names of the workspace, discovery warnings, versions, the guidance snapshot, the tool order, and each guidance topic with its size and the writes it unlocks. Call first, and use a returned project ID. A page holds at most 4,096 bytes. Pass next_cursor as cursor for the next page.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'},cursor:{...string,description:'next_cursor from the previous page.'}})},
+  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'}})},
   {name:'docs_guidance',description:'Read maintained guidance one topic at a time. Supply task_id to read the task\'s pinned snapshot. Without topic or component it lists topics and sizes. Reading topic "style" with task_id is required once per task before the first edit. Pass component for one component\'s full reference.',inputSchema:schema({task_id:string,topic:{type:'string',enum:[...GUIDANCE_TOPICS,'standards'],description:'Guidance topic. "standards" lists the per-page standards topics. "all" is the full unsplit text.'},component:string})},
   {name:'docs_end',description:'Finish an authoring activity after docs_check with task_id on each changed page. Releases its pinned guidance snapshot and edit baselines. It does not undo valid edits.',inputSchema:schema({task_id:string},['task_id'])},
  ];
@@ -240,6 +242,30 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const mutation=!MUTATION_READS.has(name);
   return {name,description:mutation?`${description} Call docs_begin first and include task_id.`:description,inputSchema:mutation?{...inputSchema,properties:{...properties,task_id:string},required:[...(inputSchema.required as string[]??[]),'task_id']}:inputSchema};
  })];}
+ /**
+  * One page of the capabilities index. Scalar fields repeat on every page. The lists topics, projects and warnings
+  * continue across pages in that order, and next_cursor is the offset of the next item, or null on the last page.
+  * A page holds at least one item, so paging always ends.
+  */
+ async function capabilities(discovery:Discovery,cursor:unknown){
+  const snapshot=await loadGuidance();const listed=listTools();
+  const writes=listed.map(t=>t.name).filter(name=>!MUTATION_READS.has(name)&&!metadataTools.some(t=>t.name===name));
+  const items:(readonly ['topics'|'projects'|'warnings',unknown])[]=[
+   ...guidanceTopics(snapshot).map(t=>['topics',{id:t.topic,title:t.title,bytes:Buffer.byteLength(t.text),required_for:writes.filter(w=>requiredTopics(w).includes(t.topic))}] as const),
+   ...discovery.projects.map(p=>['projects',{id:p.id,name:p.name}] as const),
+   ...discovery.warnings.map(w=>['warnings',w] as const),
+  ];
+  const offset=cursor===undefined?0:typeof cursor==='string'&&/^\d+$/.test(cursor)?Number(cursor):-1;
+  if(offset<0||offset>=items.length)throw new Error('Unknown cursor. Call docs_capabilities without a cursor for the first page.');
+  const page=(end:number,next_cursor:string|null)=>{
+   const pick=(list:string)=>items.slice(offset,end).filter(([name])=>name===list).map(([,value])=>value);
+   return {ok:true,protocol_version:'1',server_version:manifest.version,tool_contract_hash:`sha256:${createHash('sha256').update(JSON.stringify(listed)).digest('hex')}`,guidance_snapshot:snapshot.snapshotId,scope:{workspace:discovery.workspace},guidance_tool:CAPABILITIES.guidance_tool,entry_tool:CAPABILITIES.entry_tool,completion_tools:CAPABILITIES.completion_tools,operations:CAPABILITIES.operations,topics:pick('topics'),discovery_tools:CAPABILITIES.discovery_tools,projects:pick('projects'),warnings:pick('warnings'),next_cursor};
+  };
+  // Measure with the widest cursor, so the page still fits once next_cursor is set.
+  const fits=(end:number)=>Buffer.byteLength(JSON.stringify(page(end,String(items.length))))+CALL_ID_BYTES<=CAPABILITIES_PAGE_BYTES;
+  let end=offset+1;while(end<items.length&&fits(end+1))end++;
+  return page(end,end<items.length?String(end):null);
+ }
  /** One tool call inside its own timing context, then one call-timings line for it. */
  async function call(workspace:string,name:string,args:Record<string,unknown>={}):Promise<DocsToolResult>{
   const started=performance.now();
@@ -257,17 +283,17 @@ export function createInteractionService(options: { managed?: boolean; projectId
    sweep();
    // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
    await textMeasureReady();
-   const discovery=await discover(name==='docs_discover' && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_discover');
-   if(name==='docs_discover')return reply({ok:true,workspace:discovery.workspace,projects:discovery.projects,warnings:discovery.warnings,authoring:'Call docs_begin before editing. It returns the style digest and a guidance topic index. Read docs_guidance topic "style" with task_id before your first edit.'});
+   const discovery=await discover((name==='docs_discover'||name==='docs_capabilities') && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_discover');
+   if(name==='docs_discover')return reply({ok:true,workspace:discovery.workspace,projects:discovery.projects,warnings:discovery.warnings,authoring:'Call docs_begin before editing. Read docs_guidance topic "style" with task_id before your first edit.'});
+   if(name==='docs_capabilities')return reply(await capabilities(discovery,args.cursor));
    if(name==='docs_begin'){
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed. Stop and restart the Docs service before beginning a new task.');
     if(tasks.size>=maxTasks){
      const t0=now();const idlest=Math.max(...[...tasks.values()].map(t=>t.inFlight>0?0:t0-t.lastUsedAt));
      throw new Error(`Too many open authoring activities (${tasks.size}). The longest-idle one has been idle ${idlest<MINUTE?'under a minute':span(Math.floor(idlest/MINUTE)*MINUTE)}; tasks expire after ${span(idleMs)} without a docs call. End finished tasks with docs_end.`);
     }
-    const snapshot=internSnapshot(await loadGuidance());const id=randomUUID();const t0=now();tasks.set(id,{workspace:discovery.workspace,snapshot,createdAt:t0,lastUsedAt:t0,inFlight:0,styleRead:false,baselines:new Map(),canvasBaselines:new Map()});
-    // Clients may show only the first 2 KB of a large result, so the digest leads and full guidance stays behind docs_guidance topics.
-    return reply({ok:true,task_id:id,style_digest:STYLE_DIGEST,next:STYLE_NEXT,topics:topicIndex(guidanceTopics(snapshot)),components:snapshot.components.map(({name,whenToUse})=>({name,when_to_use:oneLine(whenToUse)})),snapshot_id:snapshot.snapshotId,implementation_hash:await startupFingerprint,tool_contract_hash:createHash('sha256').update(JSON.stringify(listTools())).digest('hex'),projects:discovery.projects});
+    const snapshot=internSnapshot(await loadGuidance());const id=randomUUID();const t0=now();tasks.set(id,{workspace:discovery.workspace,snapshot,createdAt:t0,lastUsedAt:t0,inFlight:0,topicsRead:new Set(),baselines:new Map(),canvasBaselines:new Map()});
+    return reply({ok:true,task_id:id,snapshot_id:snapshot.snapshotId,topics_read:[]});
    }
    if(name==='docs_guidance'){
     const task=pin(liveTask(args.task_id,discovery.workspace));
@@ -277,13 +303,13 @@ export function createInteractionService(options: { managed?: boolean; projectId
     if(typeof args.component==='string'){
      const component=snapshot.components.find((c:any)=>c.name===args.component||c.ownedTypes?.includes(args.component));
      if(!component)throw new Error(`Unknown component ${args.component}`);
-     return reply({ok:true,snapshot_id:snapshot.snapshotId,component,reference:snapshot.componentReferences[component.name]});
+     return reply({ok:true,snapshot_id:snapshot.snapshotId,component,reference:servedText(snapshot.componentReferences[component.name]!)});
     }
     const topics=guidanceTopics(snapshot);
     if(args.topic===undefined)return reply({ok:true,snapshot_id:snapshot.snapshotId,topics:topicIndex(topics),next:STYLE_NEXT});
     if(args.topic==='standards')return reply({ok:true,snapshot_id:snapshot.snapshotId,topic:'standards',topics:topicIndex(topics.filter(t=>t.topic.startsWith('standards-'))),next:'The standards are split by page. Read the topics you need.'});
     const topic=topics.find(t=>t.topic===args.topic);if(!topic)throw new Error(`Unknown topic ${String(args.topic)}. Call docs_guidance without a topic for the index.`);
-    if(task&&(topic.topic==='style'||topic.topic==='all'))task.styleRead=true;
+    task?.topicsRead.add(topic.topic);
     return reply({ok:true,snapshot_id:snapshot.snapshotId,topic:topic.topic,covers:topic.covers,chars:topic.text.length,guidance:topic.text,...(topic.topic==='all'?{components:snapshot.components,sources:snapshot.sources.map(({path,sha256})=>({path,sha256}))}:{})});
    }
    if(name==='docs_end'){
@@ -298,7 +324,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
     const task=pin(liveTask(task_id,discovery.workspace));
     if(!task)throw new Error(task_id===undefined?'Call docs_begin in this workspace before editing, then include task_id.':'Unknown or ended task_id for this workspace. Call docs_begin in this workspace before editing and use its task_id.');
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed during this task. Restart the Docs service and begin a new task before further edits.');
-    if(!task.styleRead&&!STYLE_GATE_EXEMPT.has(name))throw new Error(STYLE_GATE);
+    // Only style gates writes today, so its refusal names the one recovery call.
+    if(requiredTopics(name).some(topic=>!hasRead(task,topic)))throw new Error(STYLE_GATE);
     return await tool.execute(toolArgs,{taskId});
    }
    // docs_check with task_id blocks on style violations this task introduced. Other reads ignore task_id: they never look it up, fail on it, or refresh it.

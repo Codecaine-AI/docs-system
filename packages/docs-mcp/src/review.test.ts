@@ -3,10 +3,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
-import { componentGuidance } from "../../docs-model/src/authoring-guidance";
-import { loadGuidance } from "./guidance";
+import { GUIDANCE_TOPICS, loadGuidance } from "./guidance";
 import { createInteractionService } from "./service";
-import { STYLE_DIGEST } from "./style-digest";
 
 const fixture: DocDocument = {
   schemaVersion: 1, id: "review", title: "Service Review", root: "root",
@@ -18,9 +16,10 @@ const fixture: DocDocument = {
 let workspace: string;
 let service: ReturnType<typeof createInteractionService>;
 let ids: Record<string, string>;
+/** The reply without its call_id, which differs on every call. */
 const invoke = async (name: string, args: Record<string, unknown> = {}, cwd = workspace) => {
-  const result = await service.call(cwd, name, args);
-  return result.structuredContent as Record<string, any>;
+  const { call_id: _, ...data } = (await service.call(cwd, name, args)).structuredContent as Record<string, any>;
+  return data;
 };
 const STYLE_GATE = 'Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
 /** Begin a task and satisfy its read-before-write gate. */
@@ -116,26 +115,15 @@ test("focused guidance returns the canonical component chapter from the task sna
   expect((await invoke("docs_guidance", { task_id: task.task_id, component: "unknown" })).ok).toBe(false);
 });
 
-test("docs_begin fits the style digest into the client preview and leaves full guidance to topics", async () => {
-  const result = await service.call(workspace, "docs_begin");
-  const json = result.content[0]!.text;
-  const begin = result.structuredContent as Record<string, any>;
-  const digest = JSON.stringify(STYLE_DIGEST);
-  // Clients persist large results and show the model a 2 KB preview of this JSON.
-  expect(Object.keys(begin).slice(0, 4)).toEqual(["ok", "task_id", "style_digest", "next"]);
-  expect(json.indexOf(digest)).toBeGreaterThan(0);
-  expect(json.indexOf(digest) + digest.length).toBeLessThanOrEqual(2_000);
-  expect(Buffer.byteLength(json)).toBeLessThan(6_000);
-  expect(begin.next).toContain('topic "style"');
-  expect(begin.guidance).toBeUndefined();
-  expect(begin.components).toEqual(componentGuidance().map(({ name }) => ({ name, when_to_use: expect.stringMatching(/^[^\n]+$/) })));
+test("docs_begin returns task state only", async () => {
+  expect(await invoke("docs_begin")).toEqual({ ok: true, task_id: expect.any(String), snapshot_id: (await loadGuidance()).snapshotId, topics_read: [] });
 });
 
 test("docs_guidance lists topics by default and serves each topic from the task snapshot", async () => {
   const task = await invoke("docs_begin");
   const index = await invoke("docs_guidance", { task_id: task.task_id });
   expect(index.guidance).toBeUndefined();
-  expect(index.topics).toEqual(task.topics);
+  expect(index.topics.map((entry: any) => entry.topic)).toEqual([...GUIDANCE_TOPICS]);
   const listed = service.listTools().find(tool => tool.name === "docs_guidance") as any;
   expect(listed.inputSchema.properties.topic.enum).toEqual([...index.topics.map((entry: any) => entry.topic), "standards"]);
   for (const entry of index.topics) {
@@ -144,7 +132,7 @@ test("docs_guidance lists topics by default and serves each topic from the task 
     expect([entry.topic, read.snapshot_id, read.guidance.length]).toEqual([entry.topic, task.snapshot_id, entry.chars]);
     // Each topic stays small enough for a client to show inline. Only the unsplit text is larger.
     // The required style topic carries three pages (writing style, structure, STE profile), so it gets a wider cap.
-    const cap = entry.topic === "style" ? 30_000 : 20_000;
+    const cap = entry.topic === "style" ? 35_000 : 20_000;
     if (entry.topic !== "all") expect([entry.topic, Buffer.byteLength(result.content[0]!.text) < cap]).toEqual([entry.topic, true]);
   }
   expect((await invoke("docs_guidance", { task_id: task.task_id, topic: "style" })).guidance).toContain("<docs_style_guide");

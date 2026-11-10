@@ -3,7 +3,7 @@ import { watch, existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile, rename, copyFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, writeRegistry } from './registry';
+import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from './registry';
 import { directoryHtml } from './home';
 import { DESIGN_SYSTEM_PREFIX, designSystemAssets } from './design-system-assets';
 import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type DeviceScan } from './device-discovery';
@@ -168,7 +168,8 @@ async function proxyRuntime(request: Request, pathname: string) {
     const response = await fetch(`${runtime.url}${pathname}${url.search}`, { method: request.method, headers, body: ['GET', 'HEAD'].includes(request.method) ? undefined : request.body, signal: request.signal, redirect: 'error' });
     if (pathname === '/rpc' && response.ok) {
       const body = await response.json() as any;
-      await remember(body.structuredContent);
+      // A failed registration read leaves the registry as it was and never fails the reply.
+      await remember(await replyDiscovery(body.structuredContent, workspace => runtimeFetch(runtime, '/discovery', { workspace }).then(r => r.json()).catch(() => undefined)));
       return Response.json(body, { status: response.status });
     }
     return response;

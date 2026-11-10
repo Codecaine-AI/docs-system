@@ -23,6 +23,11 @@ export const STYLE_GUIDE_BUNDLES: ReadonlyArray<string> = [
 	"99-appendix/10-style-guide/30-ste-profile",
 ];
 
+/** The editor workflow guide, rendered into <docs_editor_workflow>. docs_guidance serves it as topic `workflow`. */
+export const WORKFLOW_BUNDLES: ReadonlyArray<string> = [
+	"40-guides/15-editor-workflow",
+];
+
 const INDENT = "  ";
 
 function indent(body: string): string {
@@ -92,7 +97,7 @@ export function renderComponentCatalog(components = componentGuidance()): string
   ].join("\n\n")).join("\n\n");
 }
 
-export const AUTHORING_BUNDLES = [...STANDARDS_BUNDLES, ...STYLE_GUIDE_BUNDLES];
+export const AUTHORING_BUNDLES = [...STANDARDS_BUNDLES, ...STYLE_GUIDE_BUNDLES, ...WORKFLOW_BUNDLES];
 export const guidanceBundleFile = (docsRoot: string, bundle: string): string => `${docsRoot.replace(/[\\/]$/, "")}/${bundle}/doc.json`;
 export type AuthoringInput = { path: string; status: string; content?: string };
 
@@ -112,5 +117,6 @@ export function assembleAuthoringGuidance(docsRoot: string, inputs: readonly Aut
     block("docs_component_catalog", 'source="docs-model component manifests"', renderComponentCatalog()),
     block("docs_structure_standards", 'source="docs-system corpus · 10-system-design/10-doc-standards"', renderBundles(STANDARDS_BUNDLES)),
     block("docs_style_guide", 'source="docs-system corpus · 99-appendix/10-style-guide"', renderBundles(STYLE_GUIDE_BUNDLES)),
+    block("docs_editor_workflow", 'source="docs-system corpus · 40-guides/15-editor-workflow"', renderBundles(WORKFLOW_BUNDLES)),
   ].join("\n");
 }

@@ -4,7 +4,7 @@ import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { loadGuidance, generateSkillReferences, guidanceTopics } from "./guidance";
 import { ALL_COMPONENTS } from "../../docs-model/src/components";
-import { AUTHORING_BUNDLES, STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
+import { AUTHORING_BUNDLES, STANDARDS_BUNDLES, STYLE_GUIDE_BUNDLES, WORKFLOW_BUNDLES, assembleAuthoringGuidance, componentGuidance } from "../../docs-model/src/authoring-guidance";
 
 const temporary: string[] = [];
 const corpus = resolve(import.meta.dir, "../../../docs");
@@ -29,12 +29,19 @@ test("external guidance uses the shared renderer and covers every registered com
   expect((await loadGuidance()).snapshotId).toBe(snapshot.snapshotId);
 });
 
+test("the snapshot hashes only served sources, so a skill edit never changes the snapshot id", async () => {
+  const { sources } = await loadGuidance();
+  expect(sources.filter(source => source.path.includes("skills/"))).toEqual([]);
+  expect([...new Set(sources.map(source => source.kind))].sort()).toEqual(["component-doc", "component-manifest", "renderer", "standard", "style", "workflow"]);
+});
+
 test("guidance topics split the snapshot into whole pages without losing text", async () => {
   const snapshot = await loadGuidance();
   const topics = guidanceTopics(snapshot);
   const text = (name: string) => topics.find(topic => topic.topic === name)?.text ?? "";
   const pages = (body: string) => [...body.matchAll(/^  <doc path="([^"]+)"/gm)].map(match => match[1]);
   expect(pages(text("style"))).toEqual([...STYLE_GUIDE_BUNDLES]);
+  expect(pages(text("workflow"))).toEqual([...WORKFLOW_BUNDLES]);
   expect(text("components")).toContain("<docs_visual_components");
   expect(text("components")).toContain("<docs_component_catalog");
   expect(topics.filter(topic => topic.topic.startsWith("standards-")).map(topic => pages(topic.text))).toEqual(STANDARDS_BUNDLES.map(bundle => [bundle]));

@@ -1,0 +1,1798 @@
+{
+  "schemaVersion": 1,
+  "id": "doc-1cae97a9f7d64e52c6a3befd62f90bca",
+  "title": "Editor Workflow",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "wf-intro",
+        "wf-use-h",
+        "wf-use-lead",
+        "wf-use-1",
+        "wf-use-2",
+        "wf-use-3",
+        "wf-use-4",
+        "wf-use-5",
+        "wf-start-h",
+        "wf-start-lead",
+        "wf-start-1",
+        "wf-start-2",
+        "wf-start-3",
+        "wf-edit-h",
+        "wf-edit-lead",
+        "wf-edit-1",
+        "wf-edit-2",
+        "wf-edit-3",
+        "wf-edit-end",
+        "wf-edit-4",
+        "wf-style-h",
+        "wf-style-lead",
+        "wf-style-1",
+        "wf-style-2",
+        "wf-style-3",
+        "wf-style-4",
+        "wf-style-5",
+        "wf-req-h",
+        "wf-req-lead",
+        "wf-req-1",
+        "wf-req-2",
+        "wf-req-3",
+        "wf-title-h",
+        "wf-title-lead",
+        "wf-title-1",
+        "wf-title-2",
+        "wf-title-3",
+        "wf-title-4",
+        "wf-title-legacy",
+        "wf-move-h",
+        "wf-move-lead",
+        "wf-move-1",
+        "wf-move-2",
+        "wf-move-3",
+        "wf-move-4",
+        "wf-del-h",
+        "wf-del-lead",
+        "wf-del-1",
+        "wf-del-2",
+        "wf-del-3",
+        "wf-del-4",
+        "wf-del-note",
+        "wf-tools-h",
+        "wf-tools-lead",
+        "wf-tools-1",
+        "wf-tools-2",
+        "wf-tools-3",
+        "wf-tools-4",
+        "wf-html-h",
+        "wf-html-lead",
+        "wf-html-1",
+        "wf-html-2",
+        "wf-html-3",
+        "wf-impl-h",
+        "wf-impl-lead",
+        "wf-impl-1",
+        "wf-impl-2",
+        "wf-impl-3",
+        "wf-impl-4",
+        "wf-impl-5",
+        "wf-example-h",
+        "wf-example-lead",
+        "wf-example-1",
+        "wf-example-2",
+        "wf-example-3"
+      ]
+    },
+    "wf-intro": {
+      "id": "wf-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agents read and edit a Docs System corpus through the Docs tools. The tools keep the typed document structure, component sidecars, revisions, and validation. Codex and Claude Code reach the tools through MCP, and Pi reaches them through the installed bridge extension. "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves this page as topic "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-h": {
+      "id": "wf-use-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "When to Use the Docs Tools"
+        }
+      ],
+      "children": []
+    },
+    "wf-use-lead": {
+      "id": "wf-use-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An agent uses the Docs tools for each read and each edit of a corpus."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-1": {
+      "id": "wf-use-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use them when a project has a Docs System corpus."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-2": {
+      "id": "wf-use-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use them when the user asks you to document implementation changes, explain documentation, or edit documentation components."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-3": {
+      "id": "wf-use-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never edit "
+        },
+        {
+          "insert": "doc.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " or a Canvas or Sequence sidecar with a filesystem write."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-4": {
+      "id": "wf-use-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep a review-only request read-only. "
+        },
+        {
+          "insert": "docs_tree",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_search",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " need no task."
+        }
+      ],
+      "children": []
+    },
+    "wf-use-5": {
+      "id": "wf-use-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the connection is missing or a tool you need is not available, report that setup gap. Do not rewrite storage files in place of a tool call."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-h": {
+      "id": "wf-start-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Start a Task"
+        }
+      ],
+      "children": []
+    },
+    "wf-start-lead": {
+      "id": "wf-start-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A task is the in-memory record that pins the guidance snapshot for your edits. Each write needs the "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of a live task."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-1": {
+      "id": "wf-start-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Call "
+        },
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the workspace, and use a project id that it returns."
+        }
+      ],
+      "children": [
+        "wf-start-1a"
+      ]
+    },
+    "wf-start-1a": {
+      "id": "wf-start-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For a request on several projects, get each project id through the same connection."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-2": {
+      "id": "wf-start-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Call "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and keep its "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for every call."
+        }
+      ],
+      "children": []
+    },
+    "wf-start-3": {
+      "id": "wf-start-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Read "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with that "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "wf-start-3a"
+      ]
+    },
+    "wf-start-3a": {
+      "id": "wf-start-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The service refuses content writes until the task reads topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". One read in each task is enough."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-h": {
+      "id": "wf-edit-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Edit and Check a Page"
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-lead": {
+      "id": "wf-edit-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Follow these steps for every edit and for each open request on a page. Each edit goes through a typed tool with the current revision hash. A valid edit is saved and visible at once."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-1": {
+      "id": "wf-edit-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Read the page and its neighbors with "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". When requests drive the work, read them with "
+        },
+        {
+          "insert": "docs_annotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "wf-edit-1a"
+      ]
+    },
+    "wf-edit-1a": {
+      "id": "wf-edit-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Choose the block form from the component catalog in topic "
+        },
+        {
+          "insert": "components",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Read "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the full reference of one component."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-2": {
+      "id": "wf-edit-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Edit through typed tools only, and pass the "
+        },
+        {
+          "insert": "docs_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " hash as "
+        },
+        {
+          "insert": "expected_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "wf-edit-2a",
+        "wf-edit-2b",
+        "wf-edit-2c",
+        "wf-edit-2d",
+        "wf-edit-2e"
+      ]
+    },
+    "wf-edit-2a": {
+      "id": "wf-edit-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "For a Canvas or Sequence block, read "
+        },
+        {
+          "insert": "docs_component_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " first. Pass its "
+        },
+        {
+          "insert": "hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "expected_component_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-2b": {
+      "id": "wf-edit-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Edit a block in place. Never delete and recreate a block to change it, and never write structure, arrows, or layout as text."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-2c": {
+      "id": "wf-edit-2c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Fix the "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "component_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " in each result before the next edit. A Sequence edit also returns the saved "
+        },
+        {
+          "insert": "program",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and an "
+        },
+        {
+          "insert": "svg_path",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to open as an image."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-2d": {
+      "id": "wf-edit-2d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "On a revision conflict, read the current page and apply the requested change to it before you retry."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-2e": {
+      "id": "wf-edit-2e",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the same edit is refused twice, read the error and the current page again. If it still fails, report the exact error."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-3": {
+      "id": "wf-edit-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Run "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " on each changed page. Fix its "
+        },
+        {
+          "insert": "lint",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "style_gate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " findings and each failing component."
+        }
+      ],
+      "children": [
+        "wf-edit-3a"
+      ]
+    },
+    "wf-edit-3a": {
+      "id": "wf-edit-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Leave a block alone when its entry has "
+        },
+        {
+          "insert": "touched_by_task: false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Report its findings instead."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-end": {
+      "id": "wf-edit-end",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Call "
+        },
+        {
+          "insert": "docs_end",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to release the task. It does not undo valid edits."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-4": {
+      "id": "wf-edit-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Report what changed and each finding you could not fix."
+        }
+      ],
+      "children": [
+        "wf-edit-4a",
+        "wf-edit-4b"
+      ]
+    },
+    "wf-edit-4a": {
+      "id": "wf-edit-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Never report a partial result as the requested change."
+        }
+      ],
+      "children": []
+    },
+    "wf-edit-4b": {
+      "id": "wf-edit-4b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If one project fails, keep the edits in the other projects and report them apart."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-h": {
+      "id": "wf-style-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Style Rules"
+        }
+      ],
+      "children": []
+    },
+    "wf-style-lead": {
+      "id": "wf-style-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The style rules apply to each block, and the service checks them on each write and on "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-1": {
+      "id": "wf-style-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Apply topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to every block you write."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-2": {
+      "id": "wf-style-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write results carry "
+        },
+        {
+          "insert": "style_findings",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " for the blocks you changed. Fix them before you move on."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-3": {
+      "id": "wf-style-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " blocks on style violations that the task introduced."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-4": {
+      "id": "wf-style-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " pins the guidance snapshot of the task. Treat the "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topics of the task as the authority when the checkout changes after "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-style-5": {
+      "id": "wf-style-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A snapshot mismatch needs a new task and a new read of the guidance."
+        }
+      ],
+      "children": []
+    },
+    "wf-req-h": {
+      "id": "wf-req-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Work Through Requests"
+        }
+      ],
+      "children": []
+    },
+    "wf-req-lead": {
+      "id": "wf-req-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A request is an annotation that asks for a change on a page. "
+        },
+        {
+          "insert": "docs_annotations",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " lists the open requests of a page."
+        }
+      ],
+      "children": []
+    },
+    "wf-req-1": {
+      "id": "wf-req-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Reply with "
+        },
+        {
+          "insert": "docs_annotation_reply",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " when the intent of a request is not clear."
+        }
+      ],
+      "children": []
+    },
+    "wf-req-2": {
+      "id": "wf-req-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Resolve a request only when it needs no edit or when you decline it."
+        }
+      ],
+      "children": []
+    },
+    "wf-req-3": {
+      "id": "wf-req-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Write a reply as plain sentences about what changed and why, with no block IDs or tool names."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-h": {
+      "id": "wf-title-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Page Titles and Headings"
+        }
+      ],
+      "children": []
+    },
+    "wf-title-lead": {
+      "id": "wf-title-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The display title and the body headings are separate. An H1 heading can stand in the body. Do not start the body with an H1 that repeats the display title."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-1": {
+      "id": "wf-title-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A save removes only that repeated opening H1 and keeps its children. It does not demote or remove other H1 headings."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-2": {
+      "id": "wf-title-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The save returns the corrected document, its revision, and a normalization summary. Use that state for the next edit."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-3": {
+      "id": "wf-title-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The edit and the cleanup share one undo patch."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-4": {
+      "id": "wf-title-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do not call a repair tool after ordinary edits. Run "
+        },
+        {
+          "insert": "docs_check",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to review the other findings before you finish."
+        }
+      ],
+      "children": []
+    },
+    "wf-title-legacy": {
+      "id": "wf-title-legacy",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_fix_lints",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " stays available for an untouched legacy document. It removes only a repeated opening H1."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-h": {
+      "id": "wf-move-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Move or Rename Pages"
+        }
+      ],
+      "children": []
+    },
+    "wf-move-lead": {
+      "id": "wf-move-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_move",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "docs_rename",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " move a page or a whole section with its descendants. "
+        },
+        {
+          "insert": "docs_set_title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " changes the display title. Each of these tools first returns a preview of the affected files and the reference rewrites."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-1": {
+      "id": "wf-move-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Review the preview."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-2": {
+      "id": "wf-move-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Apply the reviewed plan with "
+        },
+        {
+          "insert": "preview:false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and its "
+        },
+        {
+          "insert": "tree_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "expected_tree_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": [
+        "wf-move-2a"
+      ]
+    },
+    "wf-move-2a": {
+      "id": "wf-move-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "If the apply refuses with "
+        },
+        {
+          "insert": "changed_paths",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", start a new preview."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-3": {
+      "id": "wf-move-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Check the moved pages and each document in "
+        },
+        {
+          "insert": "rewritten_sources",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-4": {
+      "id": "wf-move-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Keep the "
+        },
+        {
+          "insert": "tree_change_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " of the operation."
+        }
+      ],
+      "children": [
+        "wf-move-4a",
+        "wf-move-4b"
+      ]
+    },
+    "wf-move-4a": {
+      "id": "wf-move-4a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "docs_management_restore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " can restore that operation from its recovery journal if the affected files did not change."
+        }
+      ],
+      "children": []
+    },
+    "wf-move-4b": {
+      "id": "wf-move-4b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "This restore is separate from "
+        },
+        {
+          "insert": "docs_undo",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which reverts content patches."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-h": {
+      "id": "wf-del-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Delete a Page That Owns an Asset"
+        }
+      ],
+      "children": []
+    },
+    "wf-del-lead": {
+      "id": "wf-del-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A page can own a shared Canvas, Sequence, or media asset that other pages use. Move the asset before you delete its page."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-1": {
+      "id": "wf-del-1",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Read the asset hash with "
+        },
+        {
+          "insert": "docs_asset_read",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-2": {
+      "id": "wf-del-2",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Move the asset with "
+        },
+        {
+          "insert": "docs_asset_move",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The service updates the references in other pages."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-3": {
+      "id": "wf-del-3",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Preview "
+        },
+        {
+          "insert": "docs_delete",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Pass "
+        },
+        {
+          "insert": "recursive:true",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only when you intend to delete all descendants."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-4": {
+      "id": "wf-del-4",
+      "type": "list-item",
+      "props": {
+        "ordered": true
+      },
+      "text": [
+        {
+          "insert": "Apply the reviewed preview with "
+        },
+        {
+          "insert": "preview:false",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and its "
+        },
+        {
+          "insert": "tree_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as "
+        },
+        {
+          "insert": "expected_tree_hash",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-del-note": {
+      "id": "wf-del-note",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Remaining external references block the delete, so you can repair them first."
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-h": {
+      "id": "wf-tools-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Create Sidecars and Use Other Tools"
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-lead": {
+      "id": "wf-tools-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each kind of content has its own tool family, and the tool schemas give the arguments and the limits."
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-1": {
+      "id": "wf-tools-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use "
+        },
+        {
+          "insert": "docs_component_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " to create a validated Canvas or Sequence sidecar before you insert its component block."
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-2": {
+      "id": "wf-tools-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the asset upload, read, and delete tools for media and attachments."
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-3": {
+      "id": "wf-tools-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the annotation tools for discussion."
+        }
+      ],
+      "children": []
+    },
+    "wf-tools-4": {
+      "id": "wf-tools-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use the proposal and changeset tools when the task asks for staged review."
+        }
+      ],
+      "children": []
+    },
+    "wf-html-h": {
+      "id": "wf-html-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "HTML Diagrams"
+        }
+      ],
+      "children": []
+    },
+    "wf-html-lead": {
+      "id": "wf-html-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block holds one self-contained HTML and CSS drawing, such as a screen mockup or a physical layout. Its props are "
+        },
+        {
+          "insert": "title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "wf-html-1": {
+      "id": "wf-html-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A script runs only when "
+        },
+        {
+          "insert": "allowScripts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is true."
+        }
+      ],
+      "children": []
+    },
+    "wf-html-2": {
+      "id": "wf-html-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The script runs in a sandbox with fetch blocked, so the file loads nothing from outside."
+        }
+      ],
+      "children": []
+    },
+    "wf-html-3": {
+      "id": "wf-html-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "html-diagrams",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skill says how to draw one. Load it before you insert an "
+        },
+        {
+          "insert": "html",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " block."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-h": {
+      "id": "wf-impl-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Document an Implementation Change"
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-lead": {
+      "id": "wf-impl-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "An implementation page describes the code as it is. Read the relevant source as evidence before you describe current behavior."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-1": {
+      "id": "wf-impl-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep proposed behavior apart from verified behavior."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-2": {
+      "id": "wf-impl-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Publication is a separate action. A docs edit does not deploy a website."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-3": {
+      "id": "wf-impl-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation maps the design to the code and explains the key choices."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-4": {
+      "id": "wf-impl-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Agent definitions belong in Agents."
+        }
+      ],
+      "children": []
+    },
+    "wf-impl-5": {
+      "id": "wf-impl-5",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Keep the page structure, formatting guidance, examples, and detailed rationale when you change a page in these layers."
+        }
+      ],
+      "children": []
+    },
+    "wf-example-h": {
+      "id": "wf-example-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Write a Component Example"
+        }
+      ],
+      "children": []
+    },
+    "wf-example-lead": {
+      "id": "wf-example-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A component example shows the state, the operation signature, and the result of one component."
+        }
+      ],
+      "children": []
+    },
+    "wf-example-1": {
+      "id": "wf-example-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Read the component reference with "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before you create or revise a component example."
+        }
+      ],
+      "children": []
+    },
+    "wf-example-2": {
+      "id": "wf-example-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The component guidance owns the pattern of state, signature, and result for an example."
+        }
+      ],
+      "children": []
+    },
+    "wf-example-3": {
+      "id": "wf-example-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "It also owns the rule that a description adds facts that the names do not show."
+        }
+      ],
+      "children": []
+    }
+  }
+}

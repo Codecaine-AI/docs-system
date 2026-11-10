@@ -26,6 +26,8 @@ let clock: number;
 let project: string;
 let services: ReturnType<typeof createInteractionService>[];
 const now = () => clock;
+/** The reply without its call_id, which differs on every call. */
+const reply = (result: { structuredContent?: Record<string, unknown> }) => { const { call_id: _, ...data } = result.structuredContent as Record<string, any>; return data; };
 const advance = (ms: number) => { clock += ms; };
 
 beforeEach(async () => {
@@ -47,8 +49,7 @@ afterEach(async () => {
 async function open(options: Parameters<typeof createInteractionService>[0] = {}) {
   const service = createInteractionService({ judgmentEngine: null, now, ...options });
   services.push(service);
-  const invoke = async (name: string, args: Record<string, unknown> = {}) =>
-    (await service.call(workspace, name, args)).structuredContent as Record<string, any>;
+  const invoke = async (name: string, args: Record<string, unknown> = {}) => reply(await service.call(workspace, name, args));
   const found = await invoke("docs_discover");
   project = found.projects[0].id;
   const begin = async () => {
@@ -309,7 +310,7 @@ describe("tombstones", () => {
     const id = await begin();
     await invoke("docs_end", { task_id: id });
     const other = join(workspace, "alpha");
-    const elsewhere = async (name: string, args: Record<string, unknown>) => (await service.call(other, name, args)).structuredContent;
+    const elsewhere = async (name: string, args: Record<string, unknown>) => reply(await service.call(other, name, args));
     expect(await elsewhere("docs_guidance", { task_id: id })).toEqual(UNKNOWN);
     expect(await elsewhere("docs_end", { task_id: id })).toEqual(UNKNOWN);
     expect(await invoke("docs_guidance", { task_id: id })).toEqual({ ok: false, detail: endedMessage(id) });

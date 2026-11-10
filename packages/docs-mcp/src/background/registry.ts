@@ -24,6 +24,13 @@ export function mergeDiscovery(registry: Registry, workspace: string, projects: 
   for (const p of projects) next.set(p.docsRoot, { ...p, id: next.get(p.docsRoot)?.id ?? p.id });
   return { schemaVersion: 1, workspaces: [...new Set([...registry.workspaces, workspace])], projects: [...next.values()] };
 }
+/**
+ * The discovery that an /rpc reply gives the registry. A docs_capabilities reply pages only the id and name of each
+ * project, so the complete discovery of its scope.workspace comes from discover. Every other reply is its own
+ * discovery, and the supervisor's remember ignores a reply that is not one.
+ */
+export const replyDiscovery = async (reply: any, discover: (workspace: string) => Promise<unknown>): Promise<unknown> =>
+  reply?.ok && typeof reply.scope?.workspace === 'string' ? discover(reply.scope.workspace) : reply;
 export function projectRoute(pathname: string): { id: string; apiPath?: string; redirect?: string } | null {
   const match = pathname.match(/^\/projects\/([a-z0-9-]+)\/docs(\/.*)?$/);
   if (!match) return null;

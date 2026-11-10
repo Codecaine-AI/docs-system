@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   AUTHORING_BUNDLES,
   STANDARDS_BUNDLES,
   STYLE_GUIDE_BUNDLES,
+  WORKFLOW_BUNDLES,
   assembleAuthoringGuidance,
   componentGuidance,
   guidanceBundleFile,
@@ -21,7 +22,7 @@ export const GUIDANCE_SCHEMA_VERSION = 1;
 export type GuidanceSource = {
   path: string;
   sha256: string;
-  kind: "standard" | "style" | "component-doc" | "component-manifest" | "renderer" | "skill";
+  kind: "standard" | "style" | "workflow" | "component-doc" | "component-manifest" | "renderer";
 };
 export type GuidanceSnapshot = {
   text: string;
@@ -65,7 +66,7 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   for (const input of inputs) sources.push({
     path: `docs/${input.bundle}/doc.json`,
     sha256: hashGuidanceContent(input.content),
-    kind: STANDARDS_BUNDLES.includes(input.bundle) ? "standard" : "style",
+    kind: STANDARDS_BUNDLES.includes(input.bundle) ? "standard" : WORKFLOW_BUNDLES.includes(input.bundle) ? "workflow" : "style",
   });
   const componentReferences: Record<string, string> = {};
   for (const component of components) {
@@ -79,23 +80,33 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
     if (current !== initial.hash && process.env.CODECAINE_DOCS_MANAGED !== "1") throw new Error(`Authoring runtime changed: ${initial.path}. Restart the Docs System service before beginning a new task.`);
     sources.push({ path: initial.path, sha256: initial.hash, kind: initial.path.endsWith("manifest.ts") ? "component-manifest" : "renderer" });
   }
-  const skillPath = join(PACKAGE_ROOT, "skills/docs-system/SKILL.md");
-  sources.push({ path: relative(REPO_ROOT, skillPath), sha256: hashGuidanceContent(await readFile(skillPath, "utf8")), kind: "skill" });
   const text = assembleAuthoringGuidance(docsRoot, inputs);
   // Include the projection itself so a changed projection dependency cannot keep the old identity.
   const snapshotId = `sha256:${hashGuidanceContent(JSON.stringify({ version: GUIDANCE_SCHEMA_VERSION, sources, components, text, componentReferences }))}`;
   return { text, snapshotId, components, sources, componentReferences };
 }
 
-export type GuidanceTopic = { topic: string; covers: string; text: string };
+let servedTextHook: ((text: string) => string) | undefined;
+/** Test hook for the manifest mutation test. It rewrites each served topic text and component reference. The snapshot and the manifest stay unchanged. */
+export function setServedTextHook(hook?: (text: string) => string): void { servedTextHook = hook; }
+/** Guidance text as docs_guidance serves it. */
+export const servedText = (text: string): string => servedTextHook ? servedTextHook(text) : text;
+/** One component's reference as the generated skill file holds it, from the fields docs_guidance serves for that component. */
+export const componentReferenceText = (component: Pick<ComponentGuidance, "whenToUse" | "example" | "docsPath">, reference: string): string =>
+  `${component.whenToUse}\n\nExample: ${component.example}\n\nCanonical document: \`${component.docsPath}\`.\n\n${reference}`;
+
+export type GuidanceTopic = { topic: string; title: string; covers: string; text: string };
 /** Readable topic name for one structure-standards bundle, such as `standards-cross-doc-linking`. */
 const standardsTopic = (bundle: string): string => `standards-${bundle.slice(bundle.lastIndexOf("/") + 1).replace(/^\d+-/, "")}`;
 /** Topic names in index order. Each stays small enough for a client to show inline, except `all`, the unsplit text. */
-export const GUIDANCE_TOPICS: readonly string[] = ["style", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "all"];
+export const GUIDANCE_TOPICS: readonly string[] = ["style", "workflow", "components", ...STANDARDS_BUNDLES.map(standardsTopic), "all"];
 const unescapeAttribute = (value: string): string => value.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
 
 /** Split a snapshot's assembled text into topics. Every topic line is a verbatim line of `snapshot.text`, so a task's topics come from its pinned snapshot. */
 export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] {
+  return splitTopics(snapshot).map(topic => ({ ...topic, text: servedText(topic.text) }));
+}
+function splitTopics(snapshot: Pick<GuidanceSnapshot, "text">): GuidanceTopic[] {
   const lines = snapshot.text.split("\n");
   const section = (tag: string): string[] => {
     const start = lines.findIndex(line => line.startsWith(`<${tag} `) || line === `<${tag}>`);
@@ -113,14 +124,16 @@ export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): Guidan
   };
   const style = section("docs_style_guide");
   const standards = section("docs_structure_standards");
+  const workflow = section("docs_editor_workflow");
   return [
-    { topic: "style", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
-    { topic: "components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
+    { topic: "style", title: "Style Guide", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
+    { topic: "workflow", title: page(workflow, WORKFLOW_BUNDLES[0]!).title, covers: "Editor workflow: the task steps, requests, page titles, page and asset management, and html blocks.", text: workflow.join("\n") },
+    { topic: "components", title: "Components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
     ...STANDARDS_BUNDLES.map(bundle => {
       const doc = page(standards, bundle);
-      return { topic: standardsTopic(bundle), covers: `${doc.title} standard.`, text: [standards[0]!, ...doc.lines, standards.at(-1)!].join("\n") };
+      return { topic: standardsTopic(bundle), title: `${doc.title} Standard`, covers: `${doc.title} standard.`, text: [standards[0]!, ...doc.lines, standards.at(-1)!].join("\n") };
     }),
-    { topic: "all", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
+    { topic: "all", title: "All Guidance", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
   ];
 }
 
@@ -140,7 +153,7 @@ export async function generateSkillReferences(outputDir: string, guidance?: Guid
     writeFile(join(references, "standards.md"), `# Docs Authoring Guidance\n\n${stamp}${snapshot.text}\n`),
     writeFile(join(references, "components.md"), `# Component Selection\n\n${stamp}${catalog}\n`),
     ...snapshot.components.map(component => writeFile(join(references, "components", `${component.name}.md`),
-      `# ${component.name}\n\n${stamp}${component.whenToUse}\n\nExample: ${component.example}\n\nCanonical document: \`${component.docsPath}\`.\n\n${snapshot.componentReferences[component.name]}\n`)),
+      `# ${component.name}\n\n${stamp}${componentReferenceText(component, snapshot.componentReferences[component.name]!)}\n`)),
     writeFile(join(outputDir, "snapshot.json"), JSON.stringify({ schemaVersion: GUIDANCE_SCHEMA_VERSION, snapshotId: snapshot.snapshotId, sources: snapshot.sources }, null, 2) + "\n"),
   ]);
 }
