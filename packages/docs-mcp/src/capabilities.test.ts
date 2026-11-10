@@ -33,7 +33,7 @@ function lineSpanFindings(files: Record<string, string>, units: readonly Manifes
       const [first, last] = unit.lines;
       if (first < 1 || last > lines.length || first > last) { findings.push(`${unit.id}: lines ${first}-${last} are outside ${file} (${lines.length} lines)`); continue; }
       for (let line = first; line <= last; line++) owners[line - 1]!.push(unit.id);
-      if (unit.text !== lines.slice(first - 1, last).join("\n")) findings.push(`${unit.id}: text differs from ${file}:${first}-${last}`);
+      if ((unit.correction?.skillText ?? unit.text) !== lines.slice(first - 1, last).join("\n")) findings.push(`${unit.id}: text differs from ${file}:${first}-${last}`);
       if (unit.sha256 !== pins[file]) findings.push(`${unit.id}: sha256 is not the pin of ${file}`);
       if (unit.kind === "generated" && (first !== 1 || last !== lines.length)) findings.push(`${unit.id}: a generated unit spans the whole file`);
     }

@@ -53,8 +53,13 @@ export type ManifestUnit = {
   lines: readonly [number, number];
   /** sha256 of the whole file, for a unit of a skill that still exists. */
   sha256?: string;
-  /** The unit's lines as the file held them. */
+  /** The unit's lines as the file held them, or the true rule when the unit carries a correction. */
   text: string;
+  /**
+   * Set when the skill stated a rule that the code does not do. `text` then holds the true rule, so the prose judge
+   * compares the served text against it, and `skillText` keeps the skill's lines for the line-span test.
+   */
+  correction?: { skillText: string; source: string };
   /** Exact phrases of the served text that carry the unit's rule. A generated unit has none: its served text must hold every line. */
   anchors: readonly string[];
   scenario: ScenarioId;
@@ -278,7 +283,7 @@ const DOCS_UNITS: readonly UnitSpec[] = [
 export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
   "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
   "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "0d3ec5dc4a826a420e49222e0aef8d0b54f1735cb5ea78e8d6bc2fc5051ecc13",
+  "references/language.md": "035a66c33d04cfbf60fe45dae004a63c0cd8b2d875e531bb7df2dba43635f786",
 };
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
@@ -294,7 +299,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.intro.block", kind: "rule", file: "SKILL.md", lines: [10, 13], scenario: "choose-block", destination: sequenceWriting,
     text: "# Sequence\n\nA sequence diagram is always a block inside the docs page it explains. The\nblock only points at a sidecar file, `assets/sequences/<name>.sequence.json`.",
-    anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block points at its sidecar, `assets/sequences/<name>.sequence.json`"],
+    anchors: ["Put each sequence diagram in a sequence block inside the docs page it explains", "The block only points at its sidecar, `assets/sequences/<name>.sequence.json`"],
   },
   {
     id: "sequence.intro.write-path", kind: "rule", file: "SKILL.md", lines: [14, 16], scenario: "draw-sequence", destination: sequenceWriting,
@@ -354,7 +359,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.workflow.result", kind: "step", file: "SKILL.md", lines: [52, 52], scenario: "draw-sequence", destination: sequenceWriting,
     text: "7. Read the result: the program text, the findings and the SVG path. Open the SVG, fix each finding, and send the whole program again.",
-    anchors: ["Open the `svg_path` of each result as an image, fix each finding, and send the whole program again"],
+    anchors: ["Read the saved `program` text, the findings and the `svg_path` in each result", "Open the `svg_path` as an image, fix each finding, and send the whole program again"],
   },
   {
     id: "sequence.workflow.style", kind: "step", file: "SKILL.md", lines: [53, 53], scenario: "draw-sequence", destination: sequenceWriting,
@@ -410,9 +415,16 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     anchors: ["Values used in labeled fields are bare tokens if and only if they match `/^[A-Za-z0-9_()-]*$/` and contain no space", "All other values are JSON-quoted strings"],
   },
   {
-    id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 82], scenario: "draw-sequence", destination: sequenceWriting,
-    text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.\n  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.",
-    anchors: ["Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "Layout derives each activation bar from sync calls, their matching returns and the turns of each caller", "A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "sync call activates receiver until the matching return", "A caller's turn runs from the message that starts it to its last send or the last reply it gets in that turn", "A sync call with no return gets a short bar over its own row"],
+    id: "sequence.rules.layout", kind: "rule", file: "SKILL.md", lines: [79, 80], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "- Never write coordinates, ids or activation bars. Layout comes from the structure.\n  - A sync call activates its receiver until the matching return.",
+    anchors: ["The language carries no styling, no coordinates, no ids, no activations", "Deterministic layout derives every position, row, frame, and path", "Document ids and item ids are never written in the language", "sync call activates receiver until the matching return"],
+  },
+  {
+    id: "sequence.rules.activation", kind: "rule", file: "SKILL.md", lines: [81, 82], scenario: "draw-sequence", destination: sequenceWriting,
+    text: "  - A caller that no call holds active is active for each turn in which it waits on a sync call: from the message that starts the turn to its last send or the last reply it gets in that turn.\n  - A sync call with no return gets a short bar over its own row, unless a later row on that lifeline extends the bar.",
+    // Correction: the skill text was wrong. The renderer is the source of truth: packages/sequence/src/layout.ts:379-386 (findCallerTurns: a turn belongs to a participant that no call holds active and needs a sync call it waits on) and layout.ts:1406-1408 with 1483-1484 (a bar for a call with no return grows over the next rows its lifeline takes part in).
+    correction: { skillText: "  - A caller that waits on a sync call is active for its turn: from the message that starts the turn to its last send or reply.\n  - A sync call with no return gets a short bar over its own row.", source: "packages/sequence/src/layout.ts:379-386 (findCallerTurns: a turn belongs to a participant that no call holds active and needs a sync call it waits on) and layout.ts:1406-1408 with 1483-1484 (a bar for a call with no return grows over the next rows its lifeline takes part in)" },
+    anchors: ["A caller that no call holds active gets a bar for each turn in which it waits on a sync call", "A caller's turn runs from the message that starts it to its last send or the last reply it gets in that turn", "A sync call with no return gets a short bar over its own row, unless a later row on that lifeline extends the bar"],
   },
   {
     id: "sequence.reader.names", kind: "rule", file: "SKILL.md", lines: [84, 88], scenario: "draw-sequence", destination: sequenceWriting,
@@ -447,7 +459,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.reader.alt", kind: "rule", file: "SKILL.md", lines: [104, 106], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- When an `alt` branches on a call's reply, put each reply inside the branch it starts, as that branch's first step.\n  - Never merge two outcomes into one reply before the `alt`, such as `200 or 409`.\n  - Let each guard name the condition, and draw only the replies the brief lists.",
-    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`", "Let each guard name the condition of its branch"],
+    anchors: ["When an `alt` branches on a reply, put each reply first in the branch it starts", "Never merge two outcomes into one reply before the `alt`, such as `200 or 409`", "In an `alt`, draw only the replies the brief lists", "let each guard name the condition of its branch"],
   },
   {
     id: "sequence.reader.guards", kind: "rule", file: "SKILL.md", lines: [107, 107], scenario: "draw-sequence", destination: sequenceWriting,
