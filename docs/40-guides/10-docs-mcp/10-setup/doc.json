@@ -21,6 +21,7 @@
         "maintenance-9",
         "maintenance-10",
         "maintenance-11",
+        "setup-retired-skills",
         "maintenance-12",
         "maintenance-13",
         "maintenance-14",
@@ -196,6 +197,26 @@
       "text": [
         {
           "insert": "The installer preserves unrelated settings and refuses an unmanaged entry with the same name. It removes the codecaine-docs entries and the pi bridge that earlier installs wrote, and it leaves unmanaged codecaine-docs entries in place. Its --home option supports alternate home directories. Custom Claude paths require installer API options, because the CLI does not expose every custom path setting. Inspect the preview before writing a customized installation."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills": {
+      "id": "setup-retired-skills",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Earlier installs also wrote docs-system and codecaine-docs skill copies. For Codex or pi, the installer checks "
+        },
+        {
+          "insert": "~/.agents/skills",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and for Claude Code it checks the skills folder of the Claude directory. A copy is installer-owned when it is a real directory, its SKILL.md frontmatter names the skill, and its snapshot.json has the generated shape. The installer removes each regular file of an installer-owned copy, except the backups of earlier installs, and keeps a new backup beside it. Doctor reports each of those files as leftover until an install removes it."
         }
       ],
       "children": []
