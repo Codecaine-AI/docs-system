@@ -1,15 +1,9 @@
 /**
- * The rule-unit manifest of the docs-system skill. Every non-blank line of SKILL.md and of each file under
- * references/ sits in one unit, and each unit names the served guidance that now carries it: a docs_guidance
- * topic, a component reference, or a drop with a reason. capabilities.test.ts pins each file's sha256, checks the
- * line spans, runs each unit's contract against the served text and strips each unit to prove its contract fails.
- * cli.ts manifest prints the units as JSON for the prose judge. Unit text stays as the skill wrote it.
+ * The rule-unit manifest of the deleted docs-system skill. Each unit keeps a run of SKILL.md lines as the skill wrote
+ * them, and names the served guidance that now carries it: a docs_guidance topic or a drop with a reason.
+ * capabilities.test.ts runs each unit's contract against the served text and strips each unit to prove its contract
+ * fails. cli.ts manifest prints the units as JSON for the prose judge.
  */
-import { readFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-export const SKILL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../skills/docs-system");
 
 /** The eval scenario that exercises a unit. The gate runners build one task per scenario. */
 export const SCENARIOS = {
@@ -28,8 +22,8 @@ export const SCENARIOS = {
 } as const;
 export type ScenarioId = keyof typeof SCENARIOS;
 
-/** metadata: skill frontmatter. rule, step, link: hand-written prose. generated: a whole generated reference file. */
-export type UnitKind = "metadata" | "rule" | "step" | "link" | "generated";
+/** metadata: skill frontmatter. rule, step, link: hand-written prose. */
+export type UnitKind = "metadata" | "rule" | "step" | "link";
 /** Where the unit is served now. A drop is allowed only for a unit that routes output to another system. */
 export type Destination = { topic: string } | { component: string } | { drop: "instruments"; reason: string };
 /** Recorded behavior gets a structured assertion: each tool is in tools/list, and the service refuses with this exact text. */
@@ -37,49 +31,21 @@ export type Behavior = { tools?: readonly string[]; refusal?: string };
 export type ManifestUnit = {
   id: string;
   kind: UnitKind;
-  /** Path relative to SKILL_ROOT. */
+  /** Path in the deleted skill folder `packages/docs-mcp/skills/docs-system/`. */
   file: string;
   /** First and last line, 1-based and inclusive. */
   lines: readonly [number, number];
-  /** sha256 of the whole file the unit comes from. */
-  sha256: string;
-  /** The unit's lines as the file holds them. */
+  /** The unit's lines as the file held them. */
   text: string;
-  /** Exact phrases of the served text that carry the unit's rule. A generated unit has none: its served text must hold every line. */
+  /** Exact phrases of the served text that carry the unit's rule. */
   anchors: readonly string[];
   scenario: ScenarioId;
   destination: Destination;
   behavior?: Behavior;
 };
-type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
-
-/** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
-export const PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "379ed8430b900ce5dc6f8c5116ca0e979b51ec2afded28090e6cde5ef71122b7",
-  "references/components.md": "e233d53b954cdc200a3c34e98547ff2d64ac16ccb89b16028b2070380bd6b441",
-  "references/components/call-stack.md": "080236ec076eccf391e807eb6e081e101654706debf34a55b4df38c478139292",
-  "references/components/canvas.md": "8af4a659f76966b0b7f464d706e24148c3acafe6dc2849ea390f8707f64ea730",
-  "references/components/code.md": "e60609536a5a0a17c8ea6f5a867d2e833b6e5d3a1441d64d5da254c546a05ba8",
-  "references/components/component-tree.md": "8806ca7f70e856a625d120ba9b0ef701d844384e0b3b2eb066053d32109799d6",
-  "references/components/file-explorer.md": "58522aa236b1a09a92048ca117a907ee8ae86d0044a59dd67f7c5e5b57d0fec7",
-  "references/components/file-tree.md": "608dd2a15372de4e0657633ac6bf8d74dc7a77471dd31802a97379dc1e05f7df",
-  "references/components/interaction-surface.md": "31858ef0147dde7811efe51ab6e96614f04e6bff77a92f0359cba992800c6ce5",
-  "references/components/process-outline.md": "d2bd8a096a871de2d8391af79be23d4610fba2dc6a3b3225014c0e4ab5b1ebe4",
-  "references/components/pseudocode.md": "25ba6810894dd41a3ee417acfdd42f919f3e4ef40b179459c388d85b7e93b12d",
-  "references/components/rich-text.md": "213bcf8730631549285b0e2f7f5c6765f3f6c53dac4f810034f36ed77c610272",
-  "references/components/sequence.md": "80714296037bcb40a0a4dab5a27ef5a005757661e03ee3fa54240717e7ff4474",
-  "references/components/stack.md": "f0000382c254d745a017b5205f8074ba2ebeba6d31e5de1ddefacfc111e8dca1",
-  "references/components/state-shape.md": "35e4ca3247b650c9b26c89bbcc2b141a086801b0bed1a0a4631e753c0e94bc82",
-  "references/components/structured-table.md": "faf2744daa1beaab6ec7f72195ac5a57c9c6ae33dae5f7605660d315d7f2173b",
-  "references/standards.md": "a03d3a40b4c25521adf8269fb1a8cb05da438a02b6905727dec7b4057fd17326",
-};
 
 const workflow = { topic: "workflow" } as const;
-/** A generated reference file is one unit when its destination serves the same text. */
-const generated = (file: string, scenario: ScenarioId, destination: Destination, lines: number): UnitSpec =>
-  ({ id: `reference.${file.replace(/^references\//, "").replace(/\.md$/, "").replace(/\//g, ".")}`, kind: "generated", file, lines: [1, lines], anchors: [], scenario, destination });
-
-const UNITS: readonly UnitSpec[] = [
+const UNITS: readonly ManifestUnit[] = [
   {
     id: "skill.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "edit-page", destination: workflow,
     text: "---\nname: docs-system\ndescription: Read and update Docs System documentation through the connected Docs tools. Use when a project has a Docs System corpus or the user asks to document implementation changes, explain existing documentation, or edit documentation components.\nmetadata:\n  version: \"0.1.0\"\n  product: docs\ncompatibility: Requires the Docs System tool connection. Codex and Claude Code use MCP; pi Agent uses the installed bridge extension.\n---",
@@ -287,31 +253,11 @@ const UNITS: readonly UnitSpec[] = [
     anchors: ["to create a validated Canvas or Sequence sidecar before you insert its component block", "Use the asset upload, read, and delete tools for media and attachments", "Use the annotation tools for discussion", "Use the proposal and changeset tools when the task asks for staged review", "the tool schemas give the arguments and the limits"],
     behavior: { tools: ["docs_component_create"] },
   },
-  generated("references/components.md", "choose-block", { topic: "components" }, 143),
-  generated("references/components/call-stack.md", "choose-block", { component: "call-stack" }, 175),
-  generated("references/components/canvas.md", "choose-block", { component: "canvas" }, 163),
-  generated("references/components/code.md", "choose-block", { component: "code" }, 372),
-  generated("references/components/component-tree.md", "choose-block", { component: "component-tree" }, 161),
-  generated("references/components/file-explorer.md", "choose-block", { component: "file-explorer" }, 152),
-  generated("references/components/file-tree.md", "choose-block", { component: "file-tree" }, 215),
-  generated("references/components/interaction-surface.md", "choose-block", { component: "interaction-surface" }, 502),
-  generated("references/components/process-outline.md", "choose-block", { component: "process-outline" }, 461),
-  generated("references/components/pseudocode.md", "choose-block", { component: "pseudocode" }, 156),
-  generated("references/components/rich-text.md", "choose-block", { component: "rich-text" }, 207),
-  generated("references/components/sequence.md", "choose-block", { component: "sequence" }, 228),
-  generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
-  generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
-  generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1736),
 ];
 
-/** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */
-export async function guidanceManifest(root = SKILL_ROOT): Promise<ManifestUnit[]> {
-  return Promise.all(UNITS.map(async unit => ({
-    ...unit,
-    sha256: PINNED_SHA256[unit.file]!,
-    text: unit.text ?? (await readFile(join(root, unit.file), "utf8")).split("\n").slice(0, unit.lines[1]).join("\n"),
-  })));
+/** The full manifest, a fresh copy on each call. */
+export async function guidanceManifest(): Promise<ManifestUnit[]> {
+  return structuredClone(UNITS) as ManifestUnit[];
 }
 
 /** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
