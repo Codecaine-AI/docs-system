@@ -1,17 +1,10 @@
 /**
- * The rule-unit manifest of two skills. Each unit keeps a run of skill lines as the skill wrote them, and names the
- * served guidance that now carries it: a docs_guidance topic, a drop with a reason, or a keep in the skill remainder.
- * The docs-system skill is deleted, so its units keep only their text. The sequence skill still exists under
- * SEQUENCE_SKILL_ROOT: every non-blank line of its SKILL.md and references/ files sits in one unit, and each unit
- * carries its file's pinned sha256. capabilities.test.ts checks the line spans, runs each unit's contract against the
- * served text and strips each unit to prove its contract fails. cli.ts manifest prints the units as JSON for the prose judge.
+ * The rule-unit manifest of two deleted skills, docs-system and sequence. Each unit keeps a run of skill lines as the
+ * skill wrote them, and names the served guidance that now carries it: a docs_guidance topic, a drop with a reason, or
+ * a keep in the skill remainder. The units are frozen literals: no skill file is read. capabilities.test.ts runs each
+ * unit's contract against the served text and strips each unit to prove its contract fails. cli.ts manifest prints
+ * the units as JSON for the prose judge.
  */
-import { readFile } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-
-/** The sequence skill as the external/sequence submodule pins it, so the pins below move only with a submodule bump. */
-export const SEQUENCE_SKILL_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../external/sequence/packages/sequence/skills/sequence");
 
 /** The eval scenario that exercises a unit. The gate runners build one task per scenario. */
 export const SCENARIOS = {
@@ -31,8 +24,8 @@ export const SCENARIOS = {
 } as const;
 export type ScenarioId = keyof typeof SCENARIOS;
 
-/** metadata: skill frontmatter. rule, step, link: hand-written prose. generated: a whole generated reference file. */
-export type UnitKind = "metadata" | "rule" | "step" | "link" | "generated";
+/** metadata: skill frontmatter. rule, step, link: hand-written prose. */
+export type UnitKind = "metadata" | "rule" | "step" | "link";
 /**
  * Where the unit is served now. A drop to instruments is allowed only for a unit that routes output to another
  * system, and its anchors are phrases of the instruments skill. A drop to skill-folder is allowed only for a unit that
@@ -47,26 +40,24 @@ export type ManifestUnit = {
   /** The skill the unit comes from. */
   skill: "docs-system" | "sequence";
   kind: UnitKind;
-  /** Path in the skill folder: the deleted `packages/docs-mcp/skills/docs-system/`, or SEQUENCE_SKILL_ROOT. */
+  /** Path in the deleted skill folder: `packages/docs-mcp/skills/docs-system/` or the sequence repo's `packages/sequence/skills/sequence/`. */
   file: string;
   /** First and last line, 1-based and inclusive. */
   lines: readonly [number, number];
-  /** sha256 of the whole file, for a unit of a skill that still exists. */
-  sha256?: string;
   /** The unit's lines as the file held them, or the true rule when the unit carries a correction. */
   text: string;
   /**
    * Set when the skill stated a rule that the code does not do. `text` then holds the true rule, so the prose judge
-   * compares the served text against it, and `skillText` keeps the skill's lines for the line-span test.
+   * compares the served text against it, and `skillText` records the skill's lines as written.
    */
   correction?: { skillText: string; source: string };
-  /** Exact phrases of the served text that carry the unit's rule. A generated unit has none: its served text must hold every line. */
+  /** Exact phrases of the served text that carry the unit's rule. A skill-folder drop has none. */
   anchors: readonly string[];
   scenario: ScenarioId;
   destination: Destination;
   behavior?: Behavior;
 };
-type UnitSpec = Omit<ManifestUnit, "skill" | "sha256" | "text"> & { text?: string };
+type UnitSpec = Omit<ManifestUnit, "skill">;
 
 const workflow = { topic: "workflow" } as const;
 const DOCS_UNITS: readonly UnitSpec[] = [
@@ -279,17 +270,11 @@ const DOCS_UNITS: readonly UnitSpec[] = [
   },
 ];
 
-/** The sha256 of each sequence skill file. A changed file fails the line-span test until its units are re-cut and re-pinned. */
-export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
-  "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
-  "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "507b471479318d3440a9193c7751be954134f2b0898448d48359c87a134bad6e",
-};
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
 
 const sequenceWriting = { topic: "sequence-writing" } as const;
-/** The sequence skill units. A prose unit holds its lines as text. A generated reference file is one unit, and its text comes from disk. */
+/** The sequence skill units, as SKILL.md held them before cp8 deleted it. */
 const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.frontmatter", kind: "metadata", file: "SKILL.md", lines: [1, 8], scenario: "choose-block", destination: { drop: "instruments", reason: "The frontmatter only loads the skill. The instruments skill routes an ordered interaction with calls and returns to a sequence block." },
@@ -492,20 +477,14 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
     text: "- `snapshot.json` hashes every source of this folder. If a source hash differs from the file in the sequence repo, regenerate with `bun run skill:write`.",
     anchors: [],
   },
-  { id: "sequence.reference.language", kind: "generated", file: "references/language.md", lines: [1, 305], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
-  { id: "sequence.reference.design-decisions", kind: "generated", file: "references/design-decisions.md", lines: [1, 12], anchors: [], scenario: "draw-sequence", destination: sequenceWriting },
 ];
 
-/** The full manifest, a fresh copy on each call. A sequence unit carries its file's pinned sha256, and a generated unit its whole file as text. */
-export async function guidanceManifest(root = SEQUENCE_SKILL_ROOT): Promise<ManifestUnit[]> {
-  const docs = DOCS_UNITS.map(unit => ({ skill: "docs-system" as const, ...unit, text: unit.text! }));
-  const sequence = await Promise.all(SEQUENCE_UNITS.map(async unit => ({
-    skill: "sequence" as const,
-    ...unit,
-    sha256: SEQUENCE_PINNED_SHA256[unit.file]!,
-    text: unit.text ?? (await readFile(join(root, unit.file), "utf8")).split("\n").slice(0, unit.lines[1]).join("\n"),
-  })));
-  return structuredClone([...docs, ...sequence]);
+/** The full manifest, a fresh copy on each call. */
+export async function guidanceManifest(): Promise<ManifestUnit[]> {
+  return structuredClone([
+    ...DOCS_UNITS.map(unit => ({ skill: "docs-system" as const, ...unit })),
+    ...SEQUENCE_UNITS.map(unit => ({ skill: "sequence" as const, ...unit })),
+  ]);
 }
 
 /** Writes that skip the style gate: tree, annotation, review-decision, asset, undo and restore writes. */
