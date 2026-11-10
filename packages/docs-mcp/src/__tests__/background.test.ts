@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from '../background/registry';
+import { createRegistrySaver, localBrowserRequest, mergeDiscovery, projectRoute, readRegistry, replyDiscovery, writeRegistry } from '../background/registry';
 import { createInteractionService } from '../service';
 import { createDocsStore } from '@codecaine-ai/docs-server/store';
 import { FS_WATCH_ACTOR } from '@codecaine-ai/docs-server/fs-watch';
@@ -57,6 +57,16 @@ test('a docs_capabilities reply registers the complete discovery of its workspac
     const registry = mergeDiscovery(await readRegistry(join(temp, 'projects.json'), temp), discovery.workspace, discovery.projects);
     expect(registry.projects.map(p => projectRoute(`/projects/${p.id}/docs/`)?.id)).toEqual(reply.projects.map((p: any) => p.id));
   } finally { service.close(); await rm(temp, { recursive: true, force: true }); }
+});
+
+test('a failed registry save resolves with a log line, and the next save still runs', async () => {
+  const logs: string[] = [];
+  let saves = 0;
+  const persist = createRegistrySaver(async () => { if (++saves === 1) throw new Error('disk full'); }, message => logs.push(message));
+  await persist();
+  await persist();
+  expect(saves).toBe(2);
+  expect(logs).toEqual(['[docs] Could not save the project registry: Error: disk full']);
 });
 
 test('project registration persists stable IDs and keeps different projects distinct', async () => {
@@ -121,7 +131,6 @@ test('managed projects isolate writes and publish external file changes to the a
     await writeFile(join(a!.docsRoot, 'page/doc.json'), JSON.stringify(doc));
     for (let i = 0; i < 40 && !events.includes(FS_WATCH_ACTOR); i++) await Bun.sleep(25);
     expect(events).toContain(FS_WATCH_ACTOR);
-    await service.call(temp, 'docs_end', { task_id: begin.task_id });
   } finally { unsubscribe(); service.close(); await rm(temp, { recursive: true, force: true }); }
 });
 

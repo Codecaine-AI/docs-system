@@ -25,6 +25,14 @@ export function mergeDiscovery(registry: Registry, workspace: string, projects: 
   return { schemaVersion: 1, workspaces: [...new Set([...registry.workspaces, workspace])], projects: [...next.values()] };
 }
 /**
+ * Serialized registry saves. A failed save is logged and resolves, so it never fails the reply that triggered it,
+ * and the next save still runs.
+ */
+export function createRegistrySaver(save: () => Promise<void>, log: (message: string) => void = message => console.error(message)) {
+  let chain = Promise.resolve();
+  return () => (chain = chain.then(save).catch(error => log(`[docs] Could not save the project registry: ${error}`)));
+}
+/**
  * The discovery that an /rpc reply gives the registry. A docs_capabilities reply pages only the id and name of each
  * project, so the complete discovery of its scope.workspace comes from discover. Every other reply is its own
  * discovery, and the supervisor's remember ignores a reply that is not one.

@@ -61,7 +61,7 @@ export function createActivator<R>(options: ActivatorOptions<R>) {
       for (const workspace of options.workspaces()) {
         if (!exists(workspace)) { unavailable.miss(workspace, `[docs] Registered workspace unavailable: ${workspace}`); continue; }
         unavailable.hit(workspace, `[docs] Registered workspace available again: ${workspace}`);
-        const result = await options.fetchRuntime(next, '/rpc', { workspace, name: 'docs_discover', arguments: {} });
+        const result = await options.fetchRuntime(next, '/rpc', { workspace, name: 'docs_capabilities', arguments: {} });
         if (result?.isError) throw new Error('Replacement could not rediscover registered workspace');
       }
       const reopened = await gate(guards.active());
