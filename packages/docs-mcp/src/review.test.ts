@@ -3,10 +3,8 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
-import { componentGuidance } from "../../docs-model/src/authoring-guidance";
-import { loadGuidance } from "./guidance";
+import { GUIDANCE_TOPICS, loadGuidance } from "./guidance";
 import { createInteractionService } from "./service";
-import { STYLE_DIGEST } from "./style-digest";
 
 const fixture: DocDocument = {
   schemaVersion: 1, id: "review", title: "Service Review", root: "root",
@@ -117,26 +115,15 @@ test("focused guidance returns the canonical component chapter from the task sna
   expect((await invoke("docs_guidance", { task_id: task.task_id, component: "unknown" })).ok).toBe(false);
 });
 
-test("docs_begin fits the style digest into the client preview and leaves full guidance to topics", async () => {
-  const result = await service.call(workspace, "docs_begin");
-  const json = result.content[0]!.text;
-  const begin = result.structuredContent as Record<string, any>;
-  const digest = JSON.stringify(STYLE_DIGEST);
-  // Clients persist large results and show the model a 2 KB preview of this JSON.
-  expect(Object.keys(begin).slice(0, 4)).toEqual(["ok", "task_id", "style_digest", "next"]);
-  expect(json.indexOf(digest)).toBeGreaterThan(0);
-  expect(json.indexOf(digest) + digest.length).toBeLessThanOrEqual(2_000);
-  expect(Buffer.byteLength(json)).toBeLessThan(6_000);
-  expect(begin.next).toContain('topic "style"');
-  expect(begin.guidance).toBeUndefined();
-  expect(begin.components).toEqual(componentGuidance().map(({ name }) => ({ name, when_to_use: expect.stringMatching(/^[^\n]+$/) })));
+test("docs_begin returns task state only", async () => {
+  expect(await invoke("docs_begin")).toEqual({ ok: true, task_id: expect.any(String), snapshot_id: (await loadGuidance()).snapshotId, topics_read: [] });
 });
 
 test("docs_guidance lists topics by default and serves each topic from the task snapshot", async () => {
   const task = await invoke("docs_begin");
   const index = await invoke("docs_guidance", { task_id: task.task_id });
   expect(index.guidance).toBeUndefined();
-  expect(index.topics).toEqual(task.topics);
+  expect(index.topics.map((entry: any) => entry.topic)).toEqual([...GUIDANCE_TOPICS]);
   const listed = service.listTools().find(tool => tool.name === "docs_guidance") as any;
   expect(listed.inputSchema.properties.topic.enum).toEqual([...index.topics.map((entry: any) => entry.topic), "standards"]);
   for (const entry of index.topics) {

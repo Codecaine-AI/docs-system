@@ -313,3 +313,20 @@ export async function guidanceManifest(root = SKILL_ROOT): Promise<ManifestUnit[
     text: unit.text ?? (await readFile(join(root, unit.file), "utf8")).split("\n").slice(0, unit.lines[1]).join("\n"),
   })));
 }
+
+/** Writes that skip the style gate: tree, annotation, review-decision, asset, undo, restore and lint-fix writes. */
+export const STYLE_GATE_EXEMPT: ReadonlySet<string> = new Set(["docs_create", "docs_move", "docs_rename", "docs_delete", "docs_set_title", "docs_annotation_add", "docs_annotation_reply", "docs_annotation_resolve", "docs_annotation_thread", "docs_proposal_accept", "docs_proposal_reject", "docs_changeset_stage", "docs_changeset_accept", "docs_changeset_reject", "docs_asset_upload", "docs_asset_move", "docs_asset_delete", "docs_undo", "docs_management_restore", "docs_fix_lints"]);
+/** The topics a write needs, read in the same task. Every write outside STYLE_GATE_EXEMPT is a content write and needs topic style. The index lists the result as each topic's required_for. */
+export const requiredTopics = (write: string): readonly string[] => STYLE_GATE_EXEMPT.has(write) ? [] : ["style"];
+
+/** The fixed fields of the docs_capabilities index. Each other field is live. */
+export const CAPABILITIES = {
+  guidance_tool: "docs_guidance",
+  entry_tool: "docs_begin",
+  completion_tools: ["docs_check"],
+  operations: ["docs_capabilities", "docs_begin", "docs_guidance", "docs_read", "docs_apply_ops", "docs_check"],
+  discovery_tools: [
+    { name: "docs_tree", purpose: "List the pages of a project." },
+    { name: "docs_search", purpose: "Find pages by title or text in a project." },
+  ],
+} as const;

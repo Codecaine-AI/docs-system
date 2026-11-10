@@ -86,7 +86,7 @@ export async function loadGuidance(options: { docsRoot?: string } = {}): Promise
   return { text, snapshotId, components, sources, componentReferences };
 }
 
-export type GuidanceTopic = { topic: string; covers: string; text: string };
+export type GuidanceTopic = { topic: string; title: string; covers: string; text: string };
 /** Readable topic name for one structure-standards bundle, such as `standards-cross-doc-linking`. */
 const standardsTopic = (bundle: string): string => `standards-${bundle.slice(bundle.lastIndexOf("/") + 1).replace(/^\d+-/, "")}`;
 /** Topic names in index order. Each stays small enough for a client to show inline, except `all`, the unsplit text. */
@@ -114,14 +114,14 @@ export function guidanceTopics(snapshot: Pick<GuidanceSnapshot, "text">): Guidan
   const standards = section("docs_structure_standards");
   const workflow = section("docs_editor_workflow");
   return [
-    { topic: "style", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
-    { topic: "workflow", covers: "Editor workflow: the task steps, requests, page titles, page and asset management, and html blocks.", text: workflow.join("\n") },
-    { topic: "components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
+    { topic: "style", title: "Style Guide", covers: `Style guide pages ${STYLE_GUIDE_BUNDLES.map(bundle => page(style, bundle).title).join(", ").replace(/, ([^,]*)$/, " and $1")}. Required once per task before the first edit.`, text: style.join("\n") },
+    { topic: "workflow", title: page(workflow, WORKFLOW_BUNDLES[0]!).title, covers: "Editor workflow: the task steps, requests, page titles, page and asset management, and html blocks.", text: workflow.join("\n") },
+    { topic: "components", title: "Components", covers: "Visual-component selection and the component catalog. Pass component for one component's full reference.", text: [...section("docs_visual_components"), ...section("docs_component_catalog")].join("\n") },
     ...STANDARDS_BUNDLES.map(bundle => {
       const doc = page(standards, bundle);
-      return { topic: standardsTopic(bundle), covers: `${doc.title} standard.`, text: [standards[0]!, ...doc.lines, standards.at(-1)!].join("\n") };
+      return { topic: standardsTopic(bundle), title: `${doc.title} Standard`, covers: `${doc.title} standard.`, text: [standards[0]!, ...doc.lines, standards.at(-1)!].join("\n") };
     }),
-    { topic: "all", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
+    { topic: "all", title: "All Guidance", covers: "Every topic in one text. Prefer single topics.", text: snapshot.text },
   ];
 }
 

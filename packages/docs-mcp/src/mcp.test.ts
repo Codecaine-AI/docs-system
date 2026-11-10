@@ -19,7 +19,7 @@ test('two MCP clients share one authority; typed edits, UI visibility, stale rej
   const tools=await a.listTools();expect(tools.tools.length).toBeGreaterThan(40);
   const found=await invoke(a,'docs_discover');expect(found.projects.length).toBe(2);const project=found.projects.find((p:any)=>p.name==='a').id;
   expect(a.getInstructions()).toContain('topic "style"');
-  const begun=await invoke(a,'docs_begin');expect(begun.style_digest.length).toBeGreaterThan(5);expect(begun.components.length).toBeGreaterThan(5);
+  const begun=await invoke(a,'docs_begin');expect(Object.keys(begun).sort()).toEqual(['call_id','ok','snapshot_id','task_id','topics_read']);
   expect((await invoke(a,'docs_guidance',{task_id:begun.task_id,topic:'style'})).guidance).toContain('docs_style_guide');
   const before=await invoke(a,'docs_read',{project,path:'page'});
   const saved=await invoke(a,'docs_write_text',{task_id:begun.task_id,project,path:'page',expected_hash:before.hash,blockId:'p',markdown:'Updated through MCP.'});expect(saved.ok).toBe(true);

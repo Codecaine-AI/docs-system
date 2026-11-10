@@ -26,6 +26,7 @@ export async function startMcp(initialWorkspace:string){
   const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args,identity});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
   const result=await response.json() as any;
   if(name==='docs_discover'&&!result.isError&&typeof result.structuredContent?.workspace==='string')workspace=result.structuredContent.workspace;
+  if(name==='docs_capabilities'&&!result.isError&&typeof result.structuredContent?.scope?.workspace==='string')workspace=result.structuredContent.scope.workspace;
   return result;
  };
  server.setRequestHandler(ListToolsRequestSchema,async()=>{

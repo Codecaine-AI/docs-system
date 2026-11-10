@@ -40,7 +40,8 @@ test('a call with an identity writes one record with its thread id and tool', as
 test('docs_begin with thread_id binds the run, so earlier and later calls resolve to the thread', async () => {
  const begun = (await rpc('docs_begin', { thread_id: 'thread-b' }, { runId: 'run-b', threadId: null, agent: null })).structuredContent;
  expect(begun.ok).toBe(true);
- const project = begun.projects[0].id;
+ // Read the project id straight from the service, so no record joins the thread.
+ const project = ((await service.call(workspace, 'docs_capabilities')).structuredContent as any).projects[0].id;
  expect((await rpc('docs_read', { project, path: 'page', task_id: begun.task_id }, { runId: 'run-b', threadId: null, agent: null })).structuredContent.ok).toBe(true);
  const records = openActionLog().query({ threadId: 'thread-b' });
  expect(records.map(r => r.tool)).toEqual(['docs_begin', 'docs_read']);

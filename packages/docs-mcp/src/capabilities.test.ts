@@ -1,10 +1,14 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { serializeDocDocument, type DocDocument } from "@codecaine-ai/docs-model";
 import { componentGuidance } from "../../docs-model/src/authoring-guidance";
-import { GUIDANCE_TOPICS } from "./guidance";
+import { GUIDANCE_TOPICS, loadGuidance } from "./guidance";
 import { PINNED_SHA256, SCENARIOS, SKILL_ROOT, guidanceManifest, type ManifestUnit } from "./guidance-manifest";
+import { createInteractionService } from "./service";
+import pkg from "../package.json";
 
 const manifest = await guidanceManifest();
 const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
@@ -70,5 +74,86 @@ describe("coverage", () => {
       `references/new.md: sha256 ${sha256("# New\n")} is not the pinned (none)`,
       "references/new.md:1 is in no unit",
     ]);
+  });
+});
+
+const STYLE_GATE = 'Read the style guide before your first edit: call docs_guidance with task_id and topic "style". Required once per task.';
+const page: DocDocument = {
+  schemaVersion: 1, id: "page", title: "Page", root: "root",
+  blocks: { root: { id: "root", type: "paragraph", props: {}, children: ["body"] }, body: { id: "body", type: "paragraph", props: {}, children: [], text: [{ insert: "Original." }] } },
+};
+/** A workspace whose members.json lists one docs project per name. */
+async function workspaceWith(names: string[]) {
+  const root = await mkdtemp(join(tmpdir(), "codecaine-capabilities-"));
+  await writeFile(join(root, "members.json"), JSON.stringify(names.map(dir => ({ dir }))));
+  for (const name of names) {
+    await mkdir(join(root, name, "docs/page"), { recursive: true });
+    await writeFile(join(root, name, "docs/page/doc.json"), serializeDocDocument(page));
+  }
+  return root;
+}
+const INDEX_FIELDS = ["ok", "protocol_version", "server_version", "tool_contract_hash", "guidance_snapshot", "scope", "guidance_tool", "entry_tool", "completion_tools", "operations", "topics", "discovery_tools", "projects", "warnings", "next_cursor", "call_id"];
+
+describe("docs_capabilities", () => {
+  let service: ReturnType<typeof createInteractionService>;
+  let workspace: string;
+  beforeAll(async () => { service = createInteractionService({ judgmentEngine: null }); workspace = await workspaceWith(["alpha", "beta"]); });
+  afterAll(async () => { await Bun.sleep(30); service.close(); await rm(workspace, { recursive: true, force: true }); });
+  const call = async (name: string, args: Record<string, unknown> = {}, cwd = workspace) => (await service.call(cwd, name, args)).structuredContent as Record<string, any>;
+
+  test("returns the index fields, each topic with its size and gate, and the projects of the workspace", async () => {
+    const result = await service.call(tmpdir(), "docs_capabilities", { workspace });
+    const { workspace: resolved } = await service.discover(workspace);
+    const index = result.structuredContent as Record<string, any>;
+    expect(Object.keys(index)).toEqual(INDEX_FIELDS);
+    expect(Buffer.byteLength(result.content[0]!.text as string)).toBeLessThanOrEqual(4096);
+    const names = service.listTools().map(tool => tool.name);
+    expect(index).toMatchObject({
+      protocol_version: "1", server_version: pkg.version, guidance_snapshot: (await loadGuidance()).snapshotId, scope: { workspace: resolved },
+      guidance_tool: "docs_guidance", entry_tool: "docs_begin", completion_tools: ["docs_check"], warnings: [], next_cursor: null,
+    });
+    expect(index.tool_contract_hash).toBe(`sha256:${sha256(JSON.stringify(service.listTools()))}`);
+    expect([...index.operations, ...index.discovery_tools.map((tool: any) => tool.name)].filter(name => !names.includes(name))).toEqual([]);
+    expect(index.discovery_tools.map((tool: any) => tool.name)).toEqual(["docs_tree", "docs_search"]);
+    expect(index.topics.map((topic: any) => topic.id)).toEqual([...GUIDANCE_TOPICS]);
+    const discovered = (await service.discover(workspace)).projects.map(({ id, name }) => ({ id, name }));
+    expect(index.projects).toEqual(discovered);
+    // Every other tool accepts a project id that the index returned.
+    expect((await call("docs_read", { project: index.projects[0].id, path: "page" })).ok).toBe(true);
+    const style = index.topics[0];
+    expect(style.bytes).toBe(Buffer.byteLength((await call("docs_guidance", { topic: "style" })).guidance));
+    expect(index.topics.slice(1).map((topic: any) => topic.required_for)).toEqual(index.topics.slice(1).map(() => []));
+    expect(style.required_for).toEqual(expect.arrayContaining(["docs_write_text", "docs_apply_ops", "docs_insert"]));
+  });
+
+  test("required_for lists exactly the writes the service refuses until the task reads the topic", async () => {
+    const { topics, projects } = await call("docs_capabilities");
+    const { task_id } = await call("docs_begin");
+    const gated: string[] = [];
+    for (const { name } of service.listTools()) {
+      if (["docs_discover", "docs_capabilities", "docs_begin", "docs_guidance", "docs_end"].includes(name)) continue;
+      if ((await call(name, { task_id, project: projects[0].id, path: "page" })).detail === STYLE_GATE) gated.push(name);
+    }
+    expect(gated.sort()).toEqual([...topics[0].required_for].sort());
+  });
+
+  test("a workspace with many projects pages the index within 4,096 bytes per page", async () => {
+    const many = await workspaceWith(Array.from({ length: 60 }, (_, i) => `project-with-a-longer-name-${String(i).padStart(2, "0")}`));
+    try {
+      const pages: Record<string, any>[] = [];
+      let cursor: string | undefined;
+      do {
+        const result = await service.call(many, "docs_capabilities", cursor === undefined ? {} : { cursor });
+        expect(Buffer.byteLength(result.content[0]!.text as string)).toBeLessThanOrEqual(4096);
+        const index = result.structuredContent as Record<string, any>;
+        expect(Object.keys(index)).toEqual(INDEX_FIELDS);
+        pages.push(index);
+        cursor = index.next_cursor ?? undefined;
+      } while (cursor !== undefined);
+      expect(pages.length).toBeGreaterThan(1);
+      expect(pages.flatMap(index => index.topics).map((topic: any) => topic.id)).toEqual([...GUIDANCE_TOPICS]);
+      expect(pages.flatMap(index => index.projects)).toEqual((await service.discover(many)).projects.map(({ id, name }) => ({ id, name })));
+      expect(await call("docs_capabilities", { cursor: "-1" }, many)).toMatchObject({ ok: false, detail: expect.stringContaining("Unknown cursor") });
+    } finally { await rm(many, { recursive: true, force: true }); }
   });
 });
