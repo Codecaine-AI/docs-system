@@ -34,6 +34,7 @@
         "mcp-guide-4",
         "mcp-guide-5",
         "ck-workflow",
+        "3e409182-7502-4d64-bc68-b251b78a32b0",
         "mcp-guide-6",
         "mcp-guide-7",
         "mcp-guide-8",
@@ -1217,6 +1218,116 @@
         },
         {
           "insert": " guide. It holds the editor workflow, page titles and headings, page and asset management, and HTML diagrams."
+        }
+      ],
+      "children": []
+    },
+    "3e409182-7502-4d64-bc68-b251b78a32b0": {
+      "id": "3e409182-7502-4d64-bc68-b251b78a32b0",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Topic "
+        },
+        {
+          "insert": "sequence-writing",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " serves "
+        },
+        {
+          "insert": "WRITING_GUIDE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " from "
+        },
+        {
+          "insert": "@codecaine-ai/sequence/language",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It holds the sequence language page with its column order and writing rules, and the sequence design decisions. The service refuses "
+        },
+        {
+          "insert": "docs_sequence_set_program",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs_component_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "component",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " "
+        },
+        {
+          "insert": "sequence",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", until the task reads the topic or topic "
+        },
+        {
+          "insert": "all",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The refusal names its recovery call, "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with "
+        },
+        {
+          "insert": "task_id",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " and topic "
+        },
+        {
+          "insert": "sequence-writing",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
