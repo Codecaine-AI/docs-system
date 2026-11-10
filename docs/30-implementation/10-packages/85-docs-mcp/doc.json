@@ -1531,16 +1531,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The service owns workspace membership and in-memory task state. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace. Each task pins a guidance snapshot, records whether it has read the "
-        },
-        {
-          "insert": "style",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " topic, and keeps one edit baseline per page, without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes keep independent process-local state."
+          "insert": "The service owns workspace membership and in-memory task state. Store operations own structural validation, revision checks, and root-scoped mutation coordination. Task IDs are bound to the workspace. Each task pins a guidance snapshot, records each guidance topic it reads, and keeps one edit baseline per page, without creating a transaction. Direct valid edits persist immediately. The shared workbench proxies to this same daemon. Standalone workbenches and kernel processes keep independent process-local state."
         }
       ],
       "children": []
