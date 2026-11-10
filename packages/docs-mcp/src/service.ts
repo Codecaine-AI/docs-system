@@ -160,6 +160,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
  type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
  const discoveries=new Map<string,Entry>();
+ /** Each scan's generation. A docs_capabilities cursor names it, so a page set never mixes two scans. */
+ const generations=new WeakMap<Discovery,number>();let generation=0;
  /** mtime and size, or missing: a rewrite, an appearance and a removal all change it. A folder's mtime changes when an entry in it is added, removed or renamed. since: an mtime at or after it signs changed-during-scan. */
  const signature=async(file:string,since=Infinity)=>{try{const s=await stat(file);return s.mtimeMs>=since?'changed-during-scan':`${s.mtimeMs}:${s.size}`;}catch{return 'missing';}};
  const projectKey=(p:DocsProject)=>JSON.stringify([p.id,p.root,p.docsRoot,p.products,p.exclude??[]]);
@@ -206,6 +208,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
   const signatures=new Map<string,string>();
   for(const path of paths)signatures.set(path,await signature(path,since));
+  generations.set(discovery,++generation);
   return {discovery,signatures};
  }
  /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (the first docs_capabilities page). */
@@ -254,16 +257,18 @@ export function createInteractionService(options: { managed?: boolean; projectId
    ...discovery.projects.map(p=>['projects',{id:p.id,name:p.name}] as const),
    ...discovery.warnings.map(w=>['warnings',w] as const),
   ];
-  const offset=cursor===undefined?0:typeof cursor==='string'&&/^\d+$/.test(cursor)?Number(cursor):-1;
+  const gen=generations.get(discovery)??0;const parsed=typeof cursor==='string'?/^(\d+):(\d+)$/.exec(cursor):null;
+  if(parsed&&Number(parsed[1])!==gen)throw new Error('The project list changed. Call docs_capabilities without a cursor for the first page.');
+  const offset=cursor===undefined?0:parsed?Number(parsed[2]):-1;
   if(offset<0||offset>=items.length)throw new Error('Unknown cursor. Call docs_capabilities without a cursor for the first page.');
   const page=(end:number,next_cursor:string|null)=>{
    const pick=(list:string)=>items.slice(offset,end).filter(([name])=>name===list).map(([,value])=>value);
    return {ok:true,protocol_version:'1',server_version:manifest.version,tool_contract_hash:`sha256:${createHash('sha256').update(JSON.stringify(listed)).digest('hex')}`,guidance_snapshot:snapshot.snapshotId,scope:{workspace:discovery.workspace},guidance_tool:CAPABILITIES.guidance_tool,entry_tool:CAPABILITIES.entry_tool,completion_tools:CAPABILITIES.completion_tools,operations:CAPABILITIES.operations,topics:pick('topics'),discovery_tools:CAPABILITIES.discovery_tools,projects:pick('projects'),warnings:pick('warnings'),next_cursor};
   };
   // Measure with the widest cursor, so the page still fits once next_cursor is set.
-  const fits=(end:number)=>Buffer.byteLength(JSON.stringify(page(end,String(items.length))))+CALL_ID_BYTES<=CAPABILITIES_PAGE_BYTES;
+  const fits=(end:number)=>Buffer.byteLength(JSON.stringify(page(end,`${gen}:${items.length}`)))+CALL_ID_BYTES<=CAPABILITIES_PAGE_BYTES;
   let end=offset+1;while(end<items.length&&fits(end+1))end++;
-  return page(end,end<items.length?String(end):null);
+  return page(end,end<items.length?`${gen}:${end}`:null);
  }
  /** One tool call inside its own timing context, then one call-timings line for it. */
  async function call(workspace:string,name:string,args:Record<string,unknown>={}):Promise<DocsToolResult>{
