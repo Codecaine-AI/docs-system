@@ -81,12 +81,26 @@ export const SOURCE_ROOT = join(REPO, ".tmp/quality-climb/lint-rules", SOURCE_RE
 /** Every source as an absolute path. Repo sources are relative to the repo root at SOURCE_REF. Absolute sources stay as they are. */
 export const sourcePaths = (brief: Brief) => brief.sources.map((s) => resolve(SOURCE_ROOT, s));
 
+/**
+ * The checkout that holds SOURCE_REF: this one, or HILL_CLIMB_TARGET when this one lacks it. A climb's builder repo has one
+ * root commit and no history, and the climb driver names the target checkout in HILL_CLIMB_TARGET.
+ */
+export function sourceRepo(): string {
+  const repos = [REPO, process.env.HILL_CLIMB_TARGET].filter((r): r is string => !!r);
+  const repo = repos.find((r) => Bun.spawnSync(["git", "-C", r, "cat-file", "-e", `${SOURCE_REF}^{tree}`]).exitCode === 0);
+  if (!repo) throw new Error(`No checkout has SOURCE_REF ${SOURCE_REF}. Looked in ${repos.join(" and ")}.`);
+  return repo;
+}
+
 /** Unpacks each repo source of `briefs` that the snapshot lacks from SOURCE_REF. */
 export async function freezeSources(briefs: Brief[]): Promise<void> {
   const missing = [...new Set(briefs.flatMap((b) => b.sources).filter((s) => !isAbsolute(s) && !existsSync(join(SOURCE_ROOT, s))))];
   if (missing.length === 0) return;
   await mkdir(SOURCE_ROOT, { recursive: true });
-  await $`git -C ${REPO} archive ${SOURCE_REF} ${missing} | tar -x -f - -C ${SOURCE_ROOT}`.quiet();
+  await $`git -C ${sourceRepo()} archive ${SOURCE_REF} ${missing} | tar -x -f - -C ${SOURCE_ROOT}`.quiet();
+  // In a pipe, a tar that reads no input can exit 0 (bsdtar on macOS does), so check the files.
+  const still = missing.filter((s) => !existsSync(join(SOURCE_ROOT, s)));
+  if (still.length) throw new Error(`After unpacking ${SOURCE_REF}, ${still.length} brief source(s) are still missing: ${still.join(", ")}.`);
 }
 export const pagePath = (pageDir: string, brief: Brief) => join(pageDir, "corpus/docs", brief.slug, "doc.json");
 
@@ -215,7 +229,9 @@ if (import.meta.main) {
   const { values: opt } = parseArgs({ options: { briefs: { type: "string" }, out: { type: "string" }, concurrency: { type: "string", default: "3" } } });
   if (!opt.briefs || !opt.out) throw new Error("Pass --briefs <round briefs file> --out <fixtures dir>.");
   const briefs = JSON.parse(await readFile(resolve(opt.briefs), "utf8")) as (Brief & { local?: boolean })[];
-  const failed = await writeAll(briefs, resolve(opt.out), Number(opt.concurrency));
+  const concurrency = Number(opt.concurrency);
+  if (!Number.isInteger(concurrency) || concurrency < 1) throw new Error(`--concurrency must be a positive integer, not ${opt.concurrency}.`);
+  const failed = await writeAll(briefs, resolve(opt.out), concurrency);
   for (const f of failed) console.error(`brief ${f.briefId}: ${f.error}`);
   console.log(`Wrote ${briefs.length - failed.length} of ${briefs.length} page(s) into ${resolve(opt.out)}.`);
   process.exit(failed.length ? 1 : 0);

@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { $ } from "bun";
 import repoBriefs from "./briefs.json";
 import { BLOCK_GROUPS, SETS, type Brief } from "./schema";
-import { SOURCE_REF } from "./write";
+import { SOURCE_REF, sourceRepo } from "./write";
 
 const repo = resolve(import.meta.dir, "../..");
 const lanesDir = join(import.meta.dir, "lanes");
@@ -17,7 +17,7 @@ const KEYS = ["id", "set", "slug", "title", "reader", "prompt", "sources", "bloc
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const GROUPS = new Set<string>(BLOCK_GROUPS);
 // Writers and judges read every source as of SOURCE_REF, so a source must exist there, not in the worktree.
-const atSourceRef = new Set((await $`git -C ${repo} ls-tree -r --name-only ${SOURCE_REF}`.text()).split("\n"));
+const atSourceRef = new Set((await $`git -C ${sourceRepo()} ls-tree -r --name-only ${SOURCE_REF}`.text()).split("\n"));
 
 const lanes = LANES.map((lane) => ({
   lane,
