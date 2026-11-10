@@ -56,22 +56,22 @@ type UnitSpec = Omit<ManifestUnit, "sha256" | "text"> & { text?: string };
 /** The sha256 of each file the manifest covers. A changed file fails the line-span test until its units are re-cut and re-pinned. */
 export const PINNED_SHA256: Readonly<Record<string, string>> = {
   "SKILL.md": "379ed8430b900ce5dc6f8c5116ca0e979b51ec2afded28090e6cde5ef71122b7",
-  "references/components.md": "b998c610c848b9ebcef430e62e94465f6c960feaa04d84e2610a33e85ab2b78f",
-  "references/components/call-stack.md": "6fb853752f360539c8516160eb855e686d743150930ab69a59c2d336ab477517",
-  "references/components/canvas.md": "b234552685bace1beb19d00ee273f03328c56fd28504ec4a9f5991dbd5356425",
-  "references/components/code.md": "3aba07dc6cd46379d6ac12bab41381ad1f89cc648f2d8608b71093ee82a552b3",
-  "references/components/component-tree.md": "ee82e0aa4baa082d5fd8b421245ace393ec5c0b97e2f571c83ff0eecc9aee0f2",
-  "references/components/file-explorer.md": "ef2ac7ad0044b35670ffd0fe96b57f72a4d34b890e4e1995d8f4d8b5f4d1b173",
-  "references/components/file-tree.md": "ab47cd3b071c7ffdfd61a5a5548b3a936b522058af5eb578fe16b0d09ab48258",
-  "references/components/interaction-surface.md": "63a72931fec85e8927f20c96ca615942731f7f55b32b919822fe16e748d07970",
-  "references/components/process-outline.md": "068cd00d64c33cafa5e33c3721234dec4acfd5aeaec872dcbe1813e6aba1110b",
-  "references/components/pseudocode.md": "2230323affd26b271ed038875909634f8213d089d1dec4aaa596bf7d12a2bd5b",
-  "references/components/rich-text.md": "8ace4b6f4f82d81f8865b54c8320e9b1d27d38c9a1e76adaf528afd8fb22dc97",
-  "references/components/sequence.md": "fcb8ffaaf66aa26d6be7d11d59e64d6dcfa66ab14fc5c77bbc17e5f43435feac",
-  "references/components/stack.md": "48d67070cb0dd868546ea73bc9359cb6f3956bdb576df18d97e58ad5c1ec71e5",
-  "references/components/state-shape.md": "c5ed8b07760dbfff21f2a343fe37524d99ba1de0ad190ba535e3445244a63a93",
-  "references/components/structured-table.md": "c339d86162d61c0142314c65a3dbfbd6396023f268b066e0c03109febe3c9829",
-  "references/standards.md": "5a0123615de111377750e661ef7c699092068a92d28323a67c986a46916b53b0",
+  "references/components.md": "e233d53b954cdc200a3c34e98547ff2d64ac16ccb89b16028b2070380bd6b441",
+  "references/components/call-stack.md": "080236ec076eccf391e807eb6e081e101654706debf34a55b4df38c478139292",
+  "references/components/canvas.md": "8af4a659f76966b0b7f464d706e24148c3acafe6dc2849ea390f8707f64ea730",
+  "references/components/code.md": "e60609536a5a0a17c8ea6f5a867d2e833b6e5d3a1441d64d5da254c546a05ba8",
+  "references/components/component-tree.md": "8806ca7f70e856a625d120ba9b0ef701d844384e0b3b2eb066053d32109799d6",
+  "references/components/file-explorer.md": "58522aa236b1a09a92048ca117a907ee8ae86d0044a59dd67f7c5e5b57d0fec7",
+  "references/components/file-tree.md": "608dd2a15372de4e0657633ac6bf8d74dc7a77471dd31802a97379dc1e05f7df",
+  "references/components/interaction-surface.md": "31858ef0147dde7811efe51ab6e96614f04e6bff77a92f0359cba992800c6ce5",
+  "references/components/process-outline.md": "d2bd8a096a871de2d8391af79be23d4610fba2dc6a3b3225014c0e4ab5b1ebe4",
+  "references/components/pseudocode.md": "25ba6810894dd41a3ee417acfdd42f919f3e4ef40b179459c388d85b7e93b12d",
+  "references/components/rich-text.md": "213bcf8730631549285b0e2f7f5c6765f3f6c53dac4f810034f36ed77c610272",
+  "references/components/sequence.md": "80714296037bcb40a0a4dab5a27ef5a005757661e03ee3fa54240717e7ff4474",
+  "references/components/stack.md": "f0000382c254d745a017b5205f8074ba2ebeba6d31e5de1ddefacfc111e8dca1",
+  "references/components/state-shape.md": "35e4ca3247b650c9b26c89bbcc2b141a086801b0bed1a0a4631e753c0e94bc82",
+  "references/components/structured-table.md": "faf2744daa1beaab6ec7f72195ac5a57c9c6ae33dae5f7605660d315d7f2173b",
+  "references/standards.md": "a03d3a40b4c25521adf8269fb1a8cb05da438a02b6905727dec7b4057fd17326",
 };
 
 const workflow = { topic: "workflow" } as const;
@@ -93,7 +93,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.read.discover", kind: "step", file: "SKILL.md", lines: [14, 16], scenario: "multi-project", destination: workflow,
     text: "## Read or Edit\n\n1. Call `docs_capabilities` for the active workspace. It returns the project IDs and the guidance topics. Topics come before projects in pages of at most 4,096 bytes, so pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null. Select the requested project explicitly. For a request covering several projects, get each project ID through the same connection.",
-    anchors: ["use a project id that it returns", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics", "pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null"],
+    anchors: ["use a project id that it returns", "Select the requested project explicitly", "For a request on several projects, get each project id through the same connection", "Call `docs_capabilities` for the workspace", "`docs_capabilities` also lists the guidance topics", "pass `next_cursor` as `cursor` until you find your project or `next_cursor` is null"],
     behavior: { tools: ["docs_capabilities"] },
   },
   {
@@ -219,7 +219,7 @@ const UNITS: readonly UnitSpec[] = [
   {
     id: "skill.implementation.layers", kind: "rule", file: "SKILL.md", lines: [54, 54], scenario: "implementation-change", destination: workflow,
     text: "The reading order is Foundation, System Design, Agents, then Implementation. Implementation briefly maps the design to the actual codebase and explains key implementation choices. Keep agent definitions in Agents. Preserve existing page structure, formatting guidance, examples, and detailed rationale when adjusting these layers.",
-    anchors: ["Foundation, System Design, Agents, then Implementation", "Implementation maps the design to the code and explains the key choices", "Agent definitions belong in Agents", "Keep the page structure, formatting guidance, examples, and detailed rationale"],
+    anchors: ["Foundation, System Design, Agents, then Implementation", "Implementation briefly maps the design to the code and explains the key choices", "Agent definitions belong in Agents", "Keep the page structure, formatting guidance, examples, and detailed rationale"],
   },
   {
     id: "skill.guidance.typed-blocks", kind: "rule", file: "SKILL.md", lines: [56, 58], scenario: "choose-block", destination: {topic: "style"},
@@ -302,7 +302,7 @@ const UNITS: readonly UnitSpec[] = [
   generated("references/components/stack.md", "choose-block", { component: "stack" }, 158),
   generated("references/components/state-shape.md", "choose-block", { component: "state-shape" }, 401),
   generated("references/components/structured-table.md", "choose-block", { component: "structured-table" }, 266),
-  generated("references/standards.md", "edit-page", { topic: "all" }, 1734),
+  generated("references/standards.md", "edit-page", { topic: "all" }, 1736),
 ];
 
 /** The full manifest. Each unit carries its file's pinned sha256, and a generated unit carries its whole file as text. */

@@ -318,10 +318,22 @@
         }
       ],
       "children": [
+        "wf-start-1-select",
         "wf-start-1a",
         "wf-start-1b",
         "wf-start-1c"
       ]
+    },
+    "wf-start-1-select": {
+      "id": "wf-start-1-select",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Select the requested project explicitly. Pass the id of the project that the request names, not the first id in the list."
+        }
+      ],
+      "children": []
     },
     "wf-start-1a": {
       "id": "wf-start-1a",
@@ -1762,7 +1774,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation maps the design to the code and explains the key choices."
+          "insert": "The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation briefly maps the design to the code and explains the key choices."
         }
       ],
       "children": []

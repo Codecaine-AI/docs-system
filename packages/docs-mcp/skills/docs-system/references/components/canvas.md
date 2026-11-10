@@ -1,6 +1,6 @@
 # canvas
 
-Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a721f1637ba900d2f518da00df1b2ad89da143c97`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:e625525c88ab79a905d23877608c0efa6f00c647d7659efecb8d5a3e58e916a9`. Refresh the installation to regenerate these files.
 
 Use Canvas for system connections, ownership boundaries, and dependencies. Use Sequence for individual calls and waits.
 

@@ -1,6 +1,6 @@
 # Docs Authoring Guidance
 
-Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a721f1637ba900d2f518da00df1b2ad89da143c97`. Refresh the installation to regenerate these files.
+Generated from Docs System sources. Snapshot: `sha256:e625525c88ab79a905d23877608c0efa6f00c647d7659efecb8d5a3e58e916a9`. Refresh the installation to regenerate these files.
 
 <docs_visual_components source="docs-model component manifests">
   Choose the visual that answers the reader's question. For a layered explanation, use Canvas for system connections, Process Outline for the expected execution trace, and Sequence for a detailed interaction. Link the views with consistent participant and phase names. Include only the views the explanation needs; do not repeat the same detail in all three.
@@ -155,7 +155,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
   Details: 10-system-design/40-block-vocabulary/30-trees-and-paths/20-file-explorer
 </docs_component_catalog>
 <docs_structure_standards source="docs-system corpus · 10-system-design/10-doc-standards">
-  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
+  <doc path="10-system-design/10-doc-standards/10-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/10-structure/doc.json" title="Structure">
     Within every layer, the docs keep the same substructure.
 
     A tree of bundle folders descending L1–L6
@@ -259,7 +259,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
         - An agent searches along the same explicit structure instead of guessing.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
+  <doc path="10-system-design/10-doc-standards/20-numbering" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/20-numbering/doc.json" title="Numbering">
     Every doc and folder carries a two-digit prefix, and every listing sorts by it identically, whether in the sidebar, the terminal, or a render.
 
     This page states the scheme, the reserved ranges, and what running out of gap space actually means.
@@ -320,7 +320,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - The moment you cannot number a doc, the section needs a subfolder. Packing consecutive numbers silences that signal.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
+  <doc path="10-system-design/10-doc-standards/30-cross-doc-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/30-cross-doc-linking/doc.json" title="Cross-doc linking">
     Docs link to docs with typed reference spans (tracked by the backlinks index, held at zero stale, rewritten when targets move), never with raw paths in prose.
 
     This page states the reference object, which directions links run, and the restraint rules against overlinking.
@@ -412,7 +412,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - Every link points at the concept's one home.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
+  <doc path="10-system-design/10-doc-standards/40-code-linking" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/40-code-linking/doc.json" title="Code linking">
     Docs point at code with typed source references. Code never points back.
 
     This page states the source-link object, how paths are written, and why the docs side pays all of the maintenance.
@@ -487,7 +487,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - The reader arrives at the path with the question already framed.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
+  <doc path="10-system-design/10-doc-standards/50-in-code-docs" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/50-in-code-docs/doc.json" title="In-code docs">
     Documentation does not stop at the doc tree. 
 
     Below the doc tree it continues into the source in three units
@@ -559,7 +559,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - Code is read last, and only where the task lives.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
+  <doc path="10-system-design/10-doc-standards/60-implementation-layer" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/60-implementation-layer/doc.json" title="Implementation layer">
     The implementation layer concisely maps the system design to the current codebase: how the code realizes the design, how it is organized, and why key implementation choices were made. An agent whose change conflicts with a recorded structural decision files a proposal. The agent never silently deviates.
 
     This page states the shape of an area page, the test an entry must pass, and why the layer accretes lazily.
@@ -670,7 +670,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - Sub-pages tracking the source tree file by file go stale with every move. Entries on an area page move with the page.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
+  <doc path="10-system-design/10-doc-standards/70-document-purpose" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/70-document-purpose/doc.json" title="Document Purpose">
     Every document has one primary reader purpose within the corpus's existing layers. Supporting reasons and reference details belong when they help the reader finish that purpose.
 
     ## Structure
@@ -738,7 +738,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
     The Diataxis distinction comes from [Diataxis](https://diataxis.fr). The Technical Writing source skill records a fetch on 2026-07-18. This attribution does not claim a new fetch.
 
   </doc>
-  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
+  <doc path="10-system-design/10-doc-standards/80-authoring-lints" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/10-system-design/10-doc-standards/80-authoring-lints/doc.json" title="Authoring Lints">
     Authoring lints report writing, page structure, and layout problems through one docs-model engine. The corpus defines the rules. Tools display findings and enforce only the checks assigned to their stage.
 
     ## Structure
@@ -994,7 +994,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
   </doc>
 </docs_structure_standards>
 <docs_style_guide source="docs-system corpus · 99-appendix/10-style-guide">
-  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
+  <doc path="99-appendix/10-style-guide/10-writing-style" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/99-appendix/10-style-guide/10-writing-style/doc.json" title="Writing style">
     Write matter-of-fact prose that states what is, in the order the reader needs it. This page defines sentence clarity, punctuation, and the Unslop pattern catalog for the corpus. The STE Profile adds stricter word and sentence limits to these rules.
 
     - Lead with the fact.
@@ -1308,7 +1308,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
     5. Replace inflated language with facts, verify paths and claims, and repair required lint findings.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
+  <doc path="99-appendix/10-style-guide/20-structure" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/99-appendix/10-style-guide/20-structure/doc.json" title="Structure">
     Page structure carries meaning through bullets, lists, headings, titles, and openings. The join test keeps bullet groups complete enough to read as prose.
 
     - **Bullets Carry Prose Meaning**
@@ -1408,7 +1408,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
       - Keep steps that the reader follows as a numbered list, as Number Sequential Actions says.
 
   </doc>
-  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
+  <doc path="99-appendix/10-style-guide/30-ste-profile" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/99-appendix/10-style-guide/30-ste-profile/doc.json" title="STE Profile">
     The STE profile is our software version of ASD-STE100, the Simplified Technical English standard. It sets the word, sentence, and punctuation rules for every page in this corpus. The goal is text that a reader understands on the first read, at a 6th to 7th grade reading level.
 
     > **Proposed: Not enforced yet** — No lint enforces this profile yet. The Open Decisions section at the end needs an owner ruling, and each row shows its proposed default.
@@ -1551,7 +1551,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
   </doc>
 </docs_style_guide>
 <docs_editor_workflow source="docs-system corpus · 40-guides/15-editor-workflow">
-  <doc path="40-guides/15-editor-workflow" file="/Users/Ford/.t3/worktrees/mcp-cap/cp3/docs-system/docs/40-guides/15-editor-workflow/doc.json" title="Editor Workflow">
+  <doc path="40-guides/15-editor-workflow" file="/Users/Ford/.t3/worktrees/mcp-cap/cp6/docs-system/docs/40-guides/15-editor-workflow/doc.json" title="Editor Workflow">
     Agents read and edit a Docs System corpus through the Docs tools. The tools keep the typed document structure, component sidecars, revisions, and validation. Codex and Claude Code reach the tools through MCP, and Pi reaches them through the installed bridge extension. `docs_guidance` serves this page as topic `workflow`.
 
     ## When to Use the Docs Tools
@@ -1573,6 +1573,8 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
     A task is the in-memory record that pins the guidance snapshot for your edits. Each write needs the `task_id` of a live task. A task expires 12 hours after `docs_begin`, or after 30 minutes without a `docs_guidance`, `docs_check`, or write call that passes its `task_id`. Expiry keeps your saved edits.
 
     1. Call `docs_capabilities` for the workspace, and use a project id that it returns.
+
+      - Select the requested project explicitly. Pass the id of the project that the request names, not the first id in the list.
 
       - For a request on several projects, get each project id through the same connection.
 
@@ -1714,7 +1716,7 @@ Generated from Docs System sources. Snapshot: `sha256:166e56d1065c0db1ba5dbc6a72
 
     - Publication is a separate action. A docs edit does not deploy a website.
 
-    - The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation maps the design to the code and explains the key choices.
+    - The layers read in the order Foundation, System Design, Agents, then Implementation. Implementation briefly maps the design to the code and explains the key choices.
 
     - Agent definitions belong in Agents.
 
