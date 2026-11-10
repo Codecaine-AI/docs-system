@@ -1216,7 +1216,7 @@
           }
         },
         {
-          "insert": " guide. It holds the editor workflow, page titles and headings, page and asset management, and HTML diagrams, the chapters that came from the hand-written docs-system SKILL.md."
+          "insert": " guide. It holds the editor workflow, page titles and headings, page and asset management, and HTML diagrams."
         }
       ],
       "children": []
@@ -1264,7 +1264,7 @@
       "props": {},
       "text": [
         {
-          "insert": "From the Docs System repository, run bun packages/docs-mcp/src/cli.ts install to preview the client configuration and skill files. Add --write to install with backups. Run doctor to check those installed files. Restart the coding clients or reload pi after installation."
+          "insert": "From the Docs System repository, run bun packages/docs-mcp/src/cli.ts install to preview the client configuration and the pi extension. Add --write to install with backups. Run doctor to check those installed files. Restart the coding clients or reload pi after installation."
         }
       ],
       "children": []
@@ -1303,8 +1303,8 @@
             "note": "MCP bridge, local service, client setup and typed tools"
           },
           {
-            "path": "packages/docs-mcp/skills/docs-system/SKILL.md",
-            "note": "External authoring workflow"
+            "path": "docs/40-guides/15-editor-workflow/doc.json",
+            "note": "External authoring workflow, served as guidance topic workflow"
           },
           {
             "path": "packages/docs-model/src/authoring-guidance.ts",
@@ -1385,7 +1385,7 @@
           }
         },
         {
-          "insert": " contains the setup, skill-authoring, synchronization, and recovery procedures."
+          "insert": " contains the setup, guidance-authoring, synchronization, and recovery procedures."
         }
       ],
       "children": []
@@ -1486,15 +1486,15 @@
           },
           {
             "path": "packages/docs-mcp/src/install.ts",
-            "note": "Client configuration, skill generation, backups, doctor and restore"
+            "note": "Client configuration, legacy entry removal, backups, doctor and restore"
           },
           {
             "path": "packages/docs-mcp/src/guidance.ts",
-            "note": "Canonical guidance loading, topic split, and generated skill references"
+            "note": "Canonical guidance loading, snapshot hashing, and topic split"
           },
           {
             "path": "packages/docs-mcp/src/guidance-manifest.ts",
-            "note": "Rule-unit manifest of the docs-system skill, the style gate, and the fixed capabilities fields"
+            "note": "Rule units of the former SKILL.md, the style gate, and the fixed capabilities fields"
           },
           {
             "path": "packages/docs-mcp/src/instructions.ts",
@@ -1503,10 +1503,6 @@
           {
             "path": "packages/docs-mcp/src/snapshot.ts",
             "note": "Development source and tool-contract fingerprinting"
-          },
-          {
-            "path": "packages/docs-mcp/skills/docs-system/",
-            "note": "Maintained SKILL.md plus generated references and snapshot"
           },
           {
             "path": "packages/docs-model/src/authoring-guidance.ts",
@@ -1550,7 +1546,34 @@
       "props": {},
       "text": [
         {
-          "insert": "The guidance snapshot hash in guidance.ts leaves SKILL.md out. A skill edit never changes the snapshot ID. The manifest in guidance-manifest.ts pins the sha256 of SKILL.md and of each generated reference, and capabilities.test.ts fails when one changes."
+          "insert": "The guidance snapshot hash in "
+        },
+        {
+          "insert": "guidance.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " covers only the served sources. The manifest in "
+        },
+        {
+          "insert": "guidance-manifest.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " keeps each rule of the former SKILL.md as a unit with its text and the topic that serves it. The test file "
+        },
+        {
+          "insert": "capabilities.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " fails when a served topic loses the anchor phrases of a unit."
         }
       ],
       "children": []
@@ -1585,7 +1608,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical standards, style documents, component references, manifests, and the source skill feed generated knowledge. Installed skill references are copies. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
+          "insert": "Canonical standards, style documents, component references, and manifests feed the served guidance. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
         }
       ],
       "children": []
