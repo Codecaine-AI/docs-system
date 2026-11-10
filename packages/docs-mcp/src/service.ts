@@ -146,7 +146,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
   * workspace that it lacks. A new folder under a glob or a manifest added to a matched folder changes a
   * folder's mtime, and an edit to a manifest that enables docs changes the manifest. Each path is signed
   * after the scan, and one whose mtime is 50 ms before the scan's start or later is signed
-  * changed-during-scan, so a change the scan may have missed rescans once on the next call. A workspace never seen is scanned on first use, calls that arrive during a scan share
+  * changed-during-scan, so a change the scan may have missed rescans once on the next call. The first page of
+  * docs_capabilities always rescans, since a first doc.json inside an existing docs folder changes no signed
+  * path. A workspace never seen is scanned on first use, calls that arrive during a scan share
   * it, and concurrent calls that find one stale entry share one rescan. Nothing else scans: one
   * discoverProjects on the knowledge base costs 4 s of CPU, and it used to run on every tool call. A call
   * stats each signed file and folder once, 47 for 20 projects under packages/*.
@@ -205,11 +207,14 @@ export function createInteractionService(options: { managed?: boolean; projectId
   for(const path of paths)signatures.set(path,await signature(path,since));
   return {discovery,signatures};
  }
- /** The workspace's discovery: cached under the rule above, scanned on first use or after a change. */
- async function discover(workspace:string):Promise<Discovery>{
+ /** The workspace's discovery: cached under the rule above, scanned on first use, after a change, or when rescan is set (the first docs_capabilities page). */
+ async function discover(workspace:string,rescan=false):Promise<Discovery>{
   const key=resolve(workspace);
   await dropDisowned();
-  const cached=discoveries.get(key);
+  const current=discoveries.get(key);
+  // A rescan that arrives while a scan of this workspace runs joins it. Two scans of one workspace would otherwise race to commit its workspace set and its watchers, and the slower one could close a project the faster one found.
+  if(rescan&&current&&!current.settled){try{return (await current.pending).discovery;}catch{/* The failed scan was dropped; scan again. */}}
+  const cached=rescan?undefined:current;
   if(cached){
    try{
     if(!cached.settled)return (await cached.pending).discovery;
@@ -276,7 +281,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
    sweep();
    // Layout lints measure text with the exact HarfBuzz backend; hosts start it at launch, and this waits for it.
    await textMeasureReady();
-   const discovery=await discover(name==='docs_capabilities' && typeof args.workspace==='string'?args.workspace:workspace);
+   // The first docs_capabilities page rescans. A later page keeps the scan of its first page, so one page set stays consistent.
+   const discovery=await discover(name==='docs_capabilities' && typeof args.workspace==='string'?args.workspace:workspace,name==='docs_capabilities'&&args.cursor===undefined);
    if(name==='docs_capabilities')return reply(await capabilities(discovery,args.cursor));
    if(name==='docs_begin'){
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed. Stop and restart the Docs service before beginning a new task.');

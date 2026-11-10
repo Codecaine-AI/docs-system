@@ -8,7 +8,7 @@ import { createInteractionService } from "../service";
 import { treeIndex } from "@codecaine-ai/docs-server/store";
 
 // The discovery cache rule (service.ts): one scan per workspace, reused until a manifest or the registry's
-// listing changes. These tests count discoverProjects calls through a spy and use docs_capabilities,
+// listing changes, and the first docs_capabilities page always rescans. These tests count discoverProjects calls through a spy and use docs_capabilities,
 // docs_tree and the service's discover, which hold no task. The service runs as managed with a
 // build id so it never fingerprints the implementation (snapshot.ts reads sibling repos the worktree lacks).
 // A path whose mtime is within 50 ms of a scan's start is signed changed-during-scan and rescans once, so a
@@ -49,7 +49,7 @@ afterEach(async () => {
 });
 const invoke = (ws: string, name: string, args: Record<string, unknown> = {}) => service.call(ws, name, args).then(r => r.structuredContent as Record<string, any>);
 
-test("one scan serves every call on a workspace, docs_capabilities and concurrent calls included", async () => {
+test("one scan serves every call on a workspace, concurrent calls included; the first docs_capabilities page rescans", async () => {
   const found = await invoke(workspace, "docs_capabilities");
   const project = found.projects[0].id as string;
   expect(scans).toHaveBeenCalledTimes(1);
@@ -59,7 +59,19 @@ test("one scan serves every call on a workspace, docs_capabilities and concurren
   expect(results.every(r => r.ok)).toBe(true);
   expect(scans).toHaveBeenCalledTimes(1);
   expect((await invoke(workspace, "docs_capabilities")).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(1);
+  expect(scans).toHaveBeenCalledTimes(2);
+  expect((await invoke(workspace, "docs_tree", { project })).ok).toBe(true);
+  expect(scans).toHaveBeenCalledTimes(2);
+});
+
+test("a first doc added inside an existing docs folder is in the next docs_capabilities list", async () => {
+  // gamma's docs folder exists but is empty, and a doc.json written inside it changes no signed folder or manifest.
+  await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
+  await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
+  await settle();
+  expect((await invoke(workspace, "docs_capabilities")).projects.map((p: any) => p.name)).toEqual(["alpha"]);
+  await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
+  expect((await invoke(workspace, "docs_capabilities")).projects.map((p: any) => p.name).sort()).toEqual(["alpha", "gamma"]);
 });
 
 test("a workspace never seen is scanned on first use, and concurrent first calls share that scan", async () => {
