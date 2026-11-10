@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
-import { homedir, tmpdir } from "node:os";
+import { lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,12 +16,10 @@ export interface InstallOptions {
   claudeDir?: string;
   claudeConfigFile?: string;
   piDir?: string;
-  /** Pre-rendered skill files, also useful for isolated installer tests. */
-  skillFiles?: Record<string, string>;
 }
 export interface InstallChange {
   path: string;
-  kind: "config" | "skill" | "extension";
+  kind: "config" | "extension";
   action: "create" | "update" | "unchanged" | "remove";
   sha256: string;
   written: boolean;
@@ -98,30 +96,6 @@ export function codexConfig(before: string, command: string, args: string[]): st
   return after;
 }
 
-async function collectFiles(root: string, relative = ""): Promise<Record<string, string>> {
-  const files: Record<string, string> = {};
-  for (const entry of await readdir(join(root, relative), { withFileTypes: true })) {
-    const path = join(relative, entry.name);
-    if (entry.isDirectory()) Object.assign(files, await collectFiles(root, path));
-    else if (entry.isFile()) files[path] = await readFile(join(root, path), "utf8");
-    else throw new Error(`Skill sources must be ordinary files or directories: ${path}`);
-  }
-  return files;
-}
-
-async function skillFiles(options: InstallOptions, root: string): Promise<Record<string, string>> {
-  if (options.skillFiles) return options.skillFiles;
-  const template = await collectFiles(join(root, "skills", SERVER));
-  const temp = await mkdtemp(join(tmpdir(), "codecaine-skills-"));
-  try {
-    const { generateSkillReferences } = await import("./guidance");
-    await generateSkillReferences(temp);
-    return { ...template, ...await collectFiles(temp) };
-  } finally {
-    await rm(temp, { recursive: true, force: true });
-  }
-}
-
 async function plan(options: InstallOptions) {
   const clients = [...new Set(options.clients ?? ["codex", "claude", "pi"])] as ClientName[];
   if (!clients.length || clients.some((name) => !["codex", "claude", "pi"].includes(name))) throw new Error("Choose codex, claude, pi, or all clients");
@@ -170,23 +144,6 @@ async function plan(options: InstallOptions) {
     await retire(join(dir, `extensions/${LEGACY}.ts`), "extension", (before) => before.startsWith("// Managed by Codecaine Docs."));
     await add(join(dir, `extensions/${SERVER}.ts`), "extension", () => `// Managed by Docs System. Re-run install to update this checkout path.\nimport { createPiExtension } from ${JSON.stringify(join(root, "src/pi-extension.ts"))};\nexport default createPiExtension(${JSON.stringify(command)});\n`);
   }
-  const rendered = await skillFiles(options, root);
-  const skillRoots = new Set<string>();
-  if (clients.includes("codex") || clients.includes("pi")) skillRoots.add(join(home, ".agents/skills"));
-  if (clients.includes("claude")) skillRoots.add(join(options.claudeDir ?? join(home, ".claude"), "skills"));
-  for (const skillRoot of skillRoots) {
-    // Remove the legacy skill's installed files only when its SKILL.md still carries the legacy name.
-    const legacy = join(skillRoot, LEGACY);
-    if (!new RegExp(`^name: ${LEGACY}$`, "m").test(await existing(join(legacy, "SKILL.md")) ?? "")) continue;
-    for (const relative of Object.keys(rendered)) await retire(resolve(legacy, relative), "skill", () => true);
-  }
-  for (const destination of [...skillRoots].map((skillRoot) => join(skillRoot, SERVER))) {
-    for (const [relative, content] of Object.entries(rendered)) {
-      const path = resolve(destination, relative);
-      if (!path.startsWith(destination + "/")) throw new Error(`Invalid skill file path: ${relative}`);
-      await add(path, "skill", () => content);
-    }
-  }
   return { clients, command, files };
 }
 
@@ -195,7 +152,7 @@ export async function installClients(options: InstallOptions = {}): Promise<Inst
   const planned = await plan(options);
   const result: InstallResult = {
     mode: options.write ? "write" : "preview", clients: planned.clients, command: planned.command, changes: [],
-    notes: ["Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.", "Each connection discovers its active workspace; no fixed project is written into user configuration.", "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.", "Skills are selected by the host model. Verify automatic guidance and editing in each client before considering setup accepted."],
+    notes: ["Restart Codex and Claude Code after installation. In pi, use /reload or start a new session.", "Each connection discovers its active workspace; no fixed project is written into user configuration.", "pi uses a native extension that forwards the same MCP tools. It has no built-in MCP client.", "Verify that each client calls docs_capabilities and completes a typed edit before considering setup accepted."],
   };
   // Complete parsing and generation for all clients before changing any user file.
   for (const file of planned.files) {
