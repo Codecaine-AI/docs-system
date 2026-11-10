@@ -253,11 +253,12 @@
       "props": {},
       "text": [
         {
-          "insert": "From an installer-owned copy, the installer removes the regular files SKILL.md, snapshot.json, references/standards.md, references/components.md, and each .md file in references/components."
+          "insert": "From an installer-owned copy, the installer removes the regular files references/standards.md, references/components.md, and references/components/<name>.md for each registered component, then snapshot.json and SKILL.md."
         }
       ],
       "children": [
         "setup-retired-skills-backup",
+        "setup-retired-skills-last",
         "setup-retired-skills-kept"
       ]
     },
@@ -268,6 +269,17 @@
       "text": [
         {
           "insert": "It keeps a backup beside each removed file, and restore puts the file back."
+        }
+      ],
+      "children": []
+    },
+    "setup-retired-skills-last": {
+      "id": "setup-retired-skills-last",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "SKILL.md and snapshot.json go last, so an install that stops partway still finds the copy on the next run."
         }
       ],
       "children": []
