@@ -283,7 +283,7 @@ const DOCS_UNITS: readonly UnitSpec[] = [
 export const SEQUENCE_PINNED_SHA256: Readonly<Record<string, string>> = {
   "SKILL.md": "1d0cfae62cb3bfe2c8fa74149e91dfa9a6c4aad04f959c36852df1a77facd1ca",
   "references/design-decisions.md": "b8a2a8f1fd470f0ba33274ad1c333938f63576c2f945fd310dffa8d536f20cfc",
-  "references/language.md": "035a66c33d04cfbf60fe45dae004a63c0cd8b2d875e531bb7df2dba43635f786",
+  "references/language.md": "507b471479318d3440a9193c7751be954134f2b0898448d48359c87a134bad6e",
 };
 /** The refusal of a sequence write in a task that has not read topic sequence-writing. */
 export const SEQUENCE_WRITING_REFUSAL = 'Read the sequence writing guide before you write a sequence: call docs_guidance with task_id and topic "sequence-writing". Required once per task.';
@@ -464,7 +464,7 @@ const SEQUENCE_UNITS: readonly UnitSpec[] = [
   {
     id: "sequence.reader.guards", kind: "rule", file: "SKILL.md", lines: [107, 107], scenario: "draw-sequence", destination: sequenceWriting,
     text: "- Keep a guard to 60 characters or fewer by cutting filler words, never a condition. A note cannot restrict a branch, so a condition never moves to a note. Keep a reason the brief gives with `because` in the guard, in a few words, such as `after a replan`.",
-    anchors: ["Keep a guard to 60 characters or fewer by cutting filler words, never a condition", "A note cannot restrict a branch, so a condition never moves to a note", "Keep a reason the brief gives with `because`, in a few words, such as `after a replan`"],
+    anchors: ["Keep a guard to 60 characters or fewer by cutting filler words, never a condition", "A note cannot restrict a branch, so a condition never moves to a note", "Keep a reason the brief gives with `because` in the guard, in a few words, such as `after a replan`"],
   },
   {
     id: "sequence.reader.size", kind: "rule", file: "SKILL.md", lines: [108, 108], scenario: "draw-sequence", destination: sequenceWriting,
