@@ -60,6 +60,7 @@
         "maintenance-5",
         "maintenance-6",
         "mdf-skill-hash",
+        "mdf-skill-copies",
         "maintenance-7",
         "maintenance-8",
         "maintenance-9",
@@ -2145,7 +2146,7 @@
           },
           {
             "path": "packages/docs-mcp/src/install.ts",
-            "note": "Client configuration, legacy entry removal, backups, doctor and restore"
+            "note": "Client configuration, legacy entry and skill copy removal, backups, doctor and restore"
           },
           {
             "path": "packages/docs-mcp/src/guidance.ts",
@@ -2214,7 +2215,16 @@
           }
         },
         {
-          "insert": " covers only the served sources. The manifest in "
+          "insert": " covers only the served sources. These are the style, workflow, and standards pages, the component docs, the renderer and component manifest files, and the sequence "
+        },
+        {
+          "insert": "WRITING_GUIDE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The manifest in "
         },
         {
           "insert": "guidance-manifest.ts",
@@ -2223,7 +2233,7 @@
           }
         },
         {
-          "insert": " keeps each rule of the former SKILL.md as a unit with its text and the topic that serves it. The test file "
+          "insert": " keeps 76 frozen literal units, 38 from each of the deleted docs-system and sequence skills. Each unit names the topic that serves it, or a drop with its reason, and "
         },
         {
           "insert": "capabilities.test.ts",
@@ -2233,6 +2243,47 @@
         },
         {
           "insert": " fails when a served topic loses the anchor phrases of a unit."
+        }
+      ],
+      "children": []
+    },
+    "mdf-skill-copies": {
+      "id": "mdf-skill-copies",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No build step writes a skill folder. With "
+        },
+        {
+          "insert": "--write",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the install command backs up and removes the skill files that earlier installs wrote for docs-system and codecaine-docs. "
+        },
+        {
+          "insert": "doctor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports each of those files that remains as a leftover. "
+        },
+        {
+          "insert": "Client Setup and Project Discovery",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/10-setup"
+            }
+          }
+        },
+        {
+          "insert": " says which copies the installer owns."
         }
       ],
       "children": []
