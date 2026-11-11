@@ -265,8 +265,8 @@ const DOCS_UNITS: readonly UnitSpec[] = [
   {
     id: "skill.pages.tools", kind: "rule", file: "SKILL.md", lines: [86, 86], scenario: "edit-page", destination: workflow,
     text: "Use `docs_component_create` to create a validated Canvas or Sequence sidecar before inserting its component block. Use asset upload/read/delete tools for media and attachments, annotation tools for discussion, and proposal/changeset tools when the task calls for staged review. Use the advertised schemas for arguments and limits.",
-    anchors: ["to create a validated Canvas or Sequence sidecar before you insert its component block", "Use the asset upload, read, and delete tools for media and attachments", "Use the annotation tools for discussion", "Use the proposal and changeset tools when the task asks for staged review", "the tool schemas give the arguments and the limits"],
-    behavior: { tools: ["docs_component_create"] },
+    anchors: ["to create a validated Canvas or Sequence sidecar before you insert its component block", "Upload media and attachments with `docs_asset_upload`, list or read them with `docs_assets`, and delete an unused one with `docs_delete`", "Use the annotation tools for discussion", "Use the proposal and changeset tools when the task asks for staged review", "the tool schemas give the arguments and the limits"],
+    behavior: { tools: ["docs_component_create", "docs_asset_upload", "docs_assets", "docs_delete"] },
   },
 ];
 

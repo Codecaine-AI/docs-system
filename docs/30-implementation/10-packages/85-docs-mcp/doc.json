@@ -19,6 +19,13 @@
         "mcp-guide-3",
         "mcp-guide-check",
         "mcp-guide-judgment",
+        "tl-h",
+        "tl-lead",
+        "tl-modes-p",
+        "tl-modes",
+        "tl-shape-p",
+        "tl-out",
+        "tl-kept",
         "mcp-jev-h",
         "mcp-jev-lead",
         "mcp-jev-wiring",
@@ -53,6 +60,7 @@
         "maintenance-5",
         "maintenance-6",
         "mdf-skill-hash",
+        "mdf-skill-copies",
         "maintenance-7",
         "maintenance-8",
         "maintenance-9",
@@ -227,7 +235,8 @@
       "children": [
         "rae-task-begin",
         "rae-task-style",
-        "rae-task-refusal"
+        "rae-task-refusal",
+        "rae-task-exempt"
       ]
     },
     "rae-task-begin": {
@@ -296,6 +305,125 @@
       ],
       "children": []
     },
+    "rae-task-exempt": {
+      "id": "rae-task-exempt",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 11 writes in "
+        },
+        {
+          "insert": "STYLE_GATE_EXEMPT",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " skip the style read: "
+        },
+        {
+          "insert": "docs_create",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_move",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_delete",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_set_title",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_annotation_write",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_proposal_decide",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_changeset_stage",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_changeset_decide",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_asset_upload",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_undo",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs_management_restore",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
     "rae-edit": {
       "id": "rae-edit",
       "type": "paragraph",
@@ -331,7 +459,25 @@
           }
         },
         {
-          "insert": " in instructions.ts, of 800 bytes or less. The MCP server, the pi bridge, and "
+          "insert": " in "
+        },
+        {
+          "insert": "instructions.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", of at most 12 lines and 800 bytes, as "
+        },
+        {
+          "insert": "mcp.test.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " checks. The MCP server sends it as its server instructions, and the pi bridge appends it to the system prompt while it has a connection. The agent-config build copies it from the output of "
         },
         {
           "insert": "cli.ts instructions",
@@ -340,7 +486,7 @@
           }
         },
         {
-          "insert": " read the same constant."
+          "insert": "."
         }
       ],
       "children": []
@@ -351,7 +497,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The service rejects invalid structure and stale revisions. Tree, annotation, review-decision, asset, undo, and restore tools skip the style-read requirement. A write result opens with "
+          "insert": "The service rejects invalid structure and stale revisions. A write result opens with "
         },
         {
           "insert": "style_findings",
@@ -449,6 +595,418 @@
         },
         {
           "insert": ", which Authoring Lints describes. jev-engine.ts answers those rules."
+        }
+      ],
+      "children": []
+    },
+    "tl-h": {
+      "id": "tl-h",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Tool List"
+        }
+      ],
+      "children": []
+    },
+    "tl-lead": {
+      "id": "tl-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The server lists 85 tools. "
+        },
+        {
+          "insert": "service.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines "
+        },
+        {
+          "insert": "docs_capabilities",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and "
+        },
+        {
+          "insert": "tools.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " defines 27 more by hand. "
+        },
+        {
+          "insert": "tools.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " also builds 55 typed-block tools from the component actions in "
+        },
+        {
+          "insert": "docs-model",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with 6 Canvas and 3 Sequence sidecar tools among them."
+        }
+      ],
+      "children": []
+    },
+    "tl-modes-p": {
+      "id": "tl-modes-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Six hand-written tools each cover several operations, and one argument selects the operation. The table lists them in tool-list order."
+        }
+      ],
+      "children": []
+    },
+    "tl-modes": {
+      "id": "tl-modes",
+      "type": "structured-table",
+      "props": {
+        "columns": [
+          "Tool",
+          "Operations",
+          "Selected by"
+        ],
+        "rows": [
+          [
+            [
+              {
+                "insert": "docs_move",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Move, rename, or asset move",
+            [
+              {
+                "insert": "to",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "name",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", or an asset "
+              },
+              {
+                "insert": "path",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "docs_delete",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Page delete or asset delete",
+            [
+              {
+                "insert": "An asset "
+              },
+              {
+                "insert": "path",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "docs_assets",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Asset list or one asset read",
+            [
+              {
+                "insert": "An asset "
+              },
+              {
+                "insert": "path",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "docs_proposal_decide",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Accept or reject",
+            [
+              {
+                "insert": "decision",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "docs_changeset_decide",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Accept or reject",
+            [
+              {
+                "insert": "decision",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ],
+          [
+            [
+              {
+                "insert": "docs_annotation_write",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ],
+            "Add, reply, resolve, or thread",
+            [
+              {
+                "insert": "add",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "reply",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", "
+              },
+              {
+                "insert": "resolve",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", or "
+              },
+              {
+                "insert": "thread",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
+          ]
+        ],
+        "title": "Tools that select an operation by argument"
+      },
+      "children": []
+    },
+    "tl-shape-p": {
+      "id": "tl-shape-p",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The list leaves out task-end and lint-repair tools, and it keeps the typed-block and review tools."
+        }
+      ],
+      "children": []
+    },
+    "tl-out": {
+      "id": "tl-out",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tools Left Out",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tl-no-end",
+        "tl-no-fix"
+      ]
+    },
+    "tl-no-end": {
+      "id": "tl-no-end",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No tool ends a task, because by default the service closes a task 30 minutes after the last call that names it, or 12 hours after "
+        },
+        {
+          "insert": "docs_begin",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "tl-no-fix": {
+      "id": "tl-no-fix",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "No tool repairs lints, because a save removes an opening H1 that repeats the display title."
+        }
+      ],
+      "children": []
+    },
+    "tl-kept": {
+      "id": "tl-kept",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Tools Kept",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "tl-typed",
+        "tl-review"
+      ]
+    },
+    "tl-typed": {
+      "id": "tl-typed",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each block action keeps a typed tool with a schema for its "
+        },
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", while a "
+        },
+        {
+          "insert": "componentAction",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " op in "
+        },
+        {
+          "insert": "docs_apply_ops",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " takes "
+        },
+        {
+          "insert": "params",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " as a free record."
+        }
+      ],
+      "children": []
+    },
+    "tl-review": {
+      "id": "tl-review",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The 7 proposal and changeset tools give agent edits a staged review before they apply."
         }
       ],
       "children": []
@@ -1588,7 +2146,7 @@
           },
           {
             "path": "packages/docs-mcp/src/install.ts",
-            "note": "Client configuration, legacy entry removal, backups, doctor and restore"
+            "note": "Client configuration, legacy entry and skill copy removal, backups, doctor and restore"
           },
           {
             "path": "packages/docs-mcp/src/guidance.ts",
@@ -1657,7 +2215,16 @@
           }
         },
         {
-          "insert": " covers only the served sources. The manifest in "
+          "insert": " covers only the served sources. These are the style, workflow, and standards pages, the component docs, the renderer and component manifest files, and the sequence "
+        },
+        {
+          "insert": "WRITING_GUIDE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". The manifest in "
         },
         {
           "insert": "guidance-manifest.ts",
@@ -1666,7 +2233,7 @@
           }
         },
         {
-          "insert": " keeps each rule of the former SKILL.md as a unit with its text and the topic that serves it. The test file "
+          "insert": " keeps 76 frozen literal units, 38 from each of the deleted docs-system and sequence skills. Each unit names the topic that serves it, or a drop with its reason, and "
         },
         {
           "insert": "capabilities.test.ts",
@@ -1676,6 +2243,47 @@
         },
         {
           "insert": " fails when a served topic loses the anchor phrases of a unit."
+        }
+      ],
+      "children": []
+    },
+    "mdf-skill-copies": {
+      "id": "mdf-skill-copies",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "No build step writes a skill folder. With "
+        },
+        {
+          "insert": "--write",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the install command backs up and removes the skill files that earlier installs wrote for docs-system and codecaine-docs. "
+        },
+        {
+          "insert": "doctor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " reports each of those files that remains as a leftover. "
+        },
+        {
+          "insert": "Client Setup and Project Discovery",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/10-docs-mcp/10-setup"
+            }
+          }
+        },
+        {
+          "insert": " says which copies the installer owns."
         }
       ],
       "children": []
@@ -1710,7 +2318,28 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical standards, style documents, component references, and manifests feed the served guidance. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
+          "insert": "Canonical standards, style documents, the "
+        },
+        {
+          "insert": "Editor Workflow",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
+            }
+          }
+        },
+        {
+          "insert": " guide, component references, manifests, and the sequence "
+        },
+        {
+          "insert": "WRITING_GUIDE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " feed the served guidance. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
         }
       ],
       "children": []

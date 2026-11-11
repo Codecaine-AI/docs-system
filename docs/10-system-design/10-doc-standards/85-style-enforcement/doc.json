@@ -811,7 +811,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Writing Skill",
+          "insert": "Prompt Block",
           "attributes": {
             "bold": true
           }
@@ -827,16 +827,34 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
+          "insert": "The Docs MCP prompt block, "
         },
         {
-          "insert": "docs-system",
+          "insert": "INSTRUCTIONS",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " skill tells the agent to write in STE and the house style."
+          "insert": " in "
+        },
+        {
+          "insert": "packages/docs-mcp/src/instructions.ts",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", tells the agent to read topic "
+        },
+        {
+          "insert": "style",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " before its first edit."
         }
       ],
       "children": []
