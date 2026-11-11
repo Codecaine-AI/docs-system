@@ -54,8 +54,9 @@ export type DraftEditorOptions = {
    * `peek`). The panel renders into it through a React portal, so it can sit
    * at page level beside the reading column instead of inside its width. It
    * renders as a page column (DocPeekPanel layout "page"): no frame and no
-   * header bar, the title first with Close and Open in full beside it. The
-   * host gives the element its place, height and surface. Absent, the panel
+   * header bar, Open in full and Close in a pinned row above the scroll, and
+   * the title first in the scroll. The host gives the element its place,
+   * height and surface. Absent, the panel
    * mounts beside the editor as a sticky flex sibling with a header bar.
    */
   peekContainer?: HTMLElement;

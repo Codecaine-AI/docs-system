@@ -31,6 +31,9 @@
         "publish-peek-lead",
         "publish-peek-open",
         "publish-peek-close",
+        "publish-peek-drawer",
+        "publish-peek-page",
+        "publish-peek-close-e",
         "publish-9",
         "publish-10",
         "publish-11",
@@ -521,7 +524,7 @@
             "name": "peek",
             "type": "boolean",
             "required": false,
-            "description": "`true` mounts `DocPeekPanel` beside the editor. Absent, the editor mounts no peek panel."
+            "description": "`true` mounts `DocPeekPanel`, beside the editor or in `peekContainer`. Absent, the editor mounts no peek panel."
           },
           {
             "name": "onNavigate",
@@ -546,6 +549,12 @@
             "type": "(open: boolean) => void",
             "required": false,
             "description": "Reports each open and close of the peek, and `false` once at mount, so the host can hide competing docked UI."
+          },
+          {
+            "name": "peekContainer",
+            "type": "HTMLElement",
+            "required": false,
+            "description": "A host element outside the editor. Read only with `peek`. The panel renders into it through a React portal as a page column. Absent, the panel is a drawer beside the editor."
           }
         ],
         "name": "DraftEditorOptions",
@@ -590,15 +599,6 @@
           }
         },
         {
-          "insert": " beside "
-        },
-        {
-          "insert": "DocEditor",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
           "insert": " only when "
         },
         {
@@ -608,7 +608,25 @@
           }
         },
         {
-          "insert": " is set. The panel reacts to the "
+          "insert": " is set. Without "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the panel is a drawer beside "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". With it, the panel is a page column in the host's element. The panel reacts to the "
         },
         {
           "insert": "spectre:doc-reference-navigate",
@@ -754,7 +772,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Closing and layout",
+          "insert": "Closing",
           "attributes": {
             "bold": true
           }
@@ -762,10 +780,7 @@
       ],
       "children": [
         "publish-peek-close-a",
-        "publish-peek-close-b",
-        "publish-peek-close-c",
-        "publish-peek-close-d",
-        "publish-peek-close-e"
+        "publish-peek-close-b"
       ]
     },
     "publish-peek-close-a": {
@@ -826,6 +841,30 @@
       ],
       "children": []
     },
+    "publish-peek-drawer": {
+      "id": "publish-peek-drawer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drawer layout, without ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-close-c",
+        "publish-peek-close-d"
+      ]
+    },
     "publish-peek-close-c": {
       "id": "publish-peek-close-c",
       "type": "list-item",
@@ -880,6 +919,163 @@
         },
         {
           "insert": " by default."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page": {
+      "id": "publish-peek-page",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Page-column layout, with ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-page-a",
+        "publish-peek-page-b",
+        "publish-peek-page-c",
+        "publish-peek-page-d"
+      ]
+    },
+    "publish-peek-page-a": {
+      "id": "publish-peek-page-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DraftEditorHost",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders the panel into "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through a React portal. A "
+        },
+        {
+          "insert": "docs-draft-editor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wrapper around the panel keeps the editor's style tokens in reach."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-b": {
+      "id": "publish-peek-page-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel uses "
+        },
+        {
+          "insert": "DocPeekPanel",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " layout "
+        },
+        {
+          "insert": "page",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with no frame and no header bar. The host gives the element its place, height and surface."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-c": {
+      "id": "publish-peek-page-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pinned row at the top right holds "
+        },
+        {
+          "insert": "Open in full",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "Close",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", outside the panel's scroll. "
+        },
+        {
+          "insert": "--docs-peek-controls-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets the row's height, "
+        },
+        {
+          "insert": "2.75rem",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " by default."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-d": {
+      "id": "publish-peek-page-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The doc's title starts the scroll, with no top padding. Its "
+        },
+        {
+          "insert": "data-doc-peek-title-row",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wrapper lets the host give it the type of its own page title."
         }
       ],
       "children": []
@@ -949,7 +1145,16 @@
           }
         },
         {
-          "insert": " option. Each version is a compatibility archive, not a clean registry release. "
+          "insert": " option. Version 0.1.0-proof.36 is the first whose "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " panel has the pinned controls row. Each version is a compatibility archive, not a clean registry release. "
         },
         {
           "insert": "dist/provenance.json",
@@ -1027,7 +1232,16 @@
           }
         },
         {
-          "insert": " leaves Escape to the host. The personal-site Docker proof checks both real diagrams, no-JavaScript reading, route behavior, mobile layout, and independence from local authoring APIs."
+          "insert": " leaves Escape to the host. The "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " case checks that the panel opens in the host element with its controls row outside the scroll, and the editor keeps its column. The personal-site Docker proof checks both real diagrams, no-JavaScript reading, route behavior, mobile layout, and independence from local authoring APIs."
         }
       ],
       "children": []
