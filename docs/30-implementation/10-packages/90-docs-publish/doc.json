@@ -24,6 +24,16 @@
         "publish-6",
         "publish-7",
         "publish-8",
+        "publish-editor-heading",
+        "publish-editor-lead",
+        "publish-editor-options",
+        "publish-peek-heading",
+        "publish-peek-lead",
+        "publish-peek-open",
+        "publish-peek-close",
+        "publish-peek-drawer",
+        "publish-peek-page",
+        "publish-peek-close-e",
         "publish-9",
         "publish-10",
         "publish-11",
@@ -82,7 +92,7 @@
       "props": {},
       "text": [
         {
-          "insert": "List markers and ordered counters use the shared list-markers.css stylesheet in both workbench and publisher. Code listings also share code.css, including the hljs token palette, code frame, language header, and annotation formatting. Published article bodies include the docs-markdown scope. A host must include the packaged component stylesheet; token markup and utility classes alone do not supply these styles."
+          "insert": "List markers and ordered counters use the shared list-markers.css stylesheet in both workbench and publisher. Code listings also share code.css, including the hljs token palette, code frame, language header, and annotation formatting. Published article bodies include the docs-markdown scope. A host must include the packaged component stylesheet. Token markup and utility classes alone do not supply these styles."
         }
       ],
       "children": []
@@ -407,6 +417,695 @@
       ],
       "children": []
     },
+    "publish-editor-heading": {
+      "id": "publish-editor-heading",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "Draft Editor"
+        }
+      ],
+      "children": []
+    },
+    "publish-editor-lead": {
+      "id": "publish-editor-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "./editor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " entry exports "
+        },
+        {
+          "insert": "mountDraftEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". It mounts the Docs "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with auto-save over a same-origin proxy of one project's Docs "
+        },
+        {
+          "insert": "/api",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Deployed pages never load this entry. "
+        },
+        {
+          "insert": "DraftEditorOptions",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " holds each option a host passes."
+        }
+      ],
+      "children": []
+    },
+    "publish-editor-options": {
+      "id": "publish-editor-options",
+      "type": "state-shape",
+      "props": {
+        "example": "{\"api\": \"/api/docs/kb-1\", \"path\": \"areas/x/docs/a\", \"projectId\": \"kb-1\", \"peek\": true, \"hostOwnsEscape\": true}",
+        "fields": [
+          {
+            "name": "api",
+            "type": "string",
+            "description": "Same-origin base URL that proxies the project's Docs `/api`. Trailing slashes are dropped."
+          },
+          {
+            "name": "path",
+            "type": "string",
+            "description": "Docs-root-relative bundle path of the doc to edit, such as `publishing-proof`."
+          },
+          {
+            "name": "projectId",
+            "type": "string",
+            "required": false,
+            "description": "The hub project id. Default `local`."
+          },
+          {
+            "name": "onStatus",
+            "type": "(state: DraftEditorStatus, detail?: string) => void",
+            "required": false,
+            "description": "Reports `saved`, `dirty`, `saving`, `error`, `conflict` or `locked`, with a detail line when one is known."
+          },
+          {
+            "name": "appEmbeds",
+            "type": "AppEmbedHost",
+            "required": false,
+            "description": "Resolves `app-embed` blocks to URLs. Absent, or a null answer, shows \"App not available here\"."
+          },
+          {
+            "name": "peek",
+            "type": "boolean",
+            "required": false,
+            "description": "`true` mounts `DocPeekPanel`, beside the editor or in `peekContainer`. Absent, the editor mounts no peek panel."
+          },
+          {
+            "name": "onNavigate",
+            "type": "(ref: SpectreRef) => void",
+            "required": false,
+            "description": "Full navigation to a ref. Read only with `peek`. Absent, a navigate request does nothing."
+          },
+          {
+            "name": "loadPeek",
+            "type": "(ref: SpectreRef) => Promise<DocBundle | null>",
+            "required": false,
+            "description": "Loads a peeked ref in place of the mounted project's `bundle` route, so a ref to another project can peek."
+          },
+          {
+            "name": "hostOwnsEscape",
+            "type": "boolean",
+            "required": false,
+            "description": "`true` adds no Escape listener. The host closes the peek with `DOC_PEEK_CLOSE_EVENT`."
+          },
+          {
+            "name": "onPeekOpenChange",
+            "type": "(open: boolean) => void",
+            "required": false,
+            "description": "Reports each open and close of the peek, and `false` once at mount, so the host can hide competing docked UI."
+          },
+          {
+            "name": "peekContainer",
+            "type": "HTMLElement",
+            "required": false,
+            "description": "A host element outside the editor. Read only with `peek`. The panel renders into it through a React portal as a page column. Absent, the panel is a drawer beside the editor."
+          }
+        ],
+        "name": "DraftEditorOptions",
+        "source": {
+          "path": "packages/docs-publish/src/editor.tsx",
+          "symbol": "DraftEditorOptions"
+        }
+      },
+      "children": []
+    },
+    "publish-peek-heading": {
+      "id": "publish-peek-heading",
+      "type": "heading",
+      "props": {
+        "level": 3
+      },
+      "text": [
+        {
+          "insert": "Side Peek"
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-lead": {
+      "id": "publish-peek-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "DraftEditorHost",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders "
+        },
+        {
+          "insert": "DocPeekPanel",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " only when "
+        },
+        {
+          "insert": "peek",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is set. Without "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", the panel is a drawer beside "
+        },
+        {
+          "insert": "DocEditor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". With it, the panel is a page column in the host's element. The panel reacts to the "
+        },
+        {
+          "insert": "spectre:doc-reference-navigate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " event that each reference chip sends on "
+        },
+        {
+          "insert": "document",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-open": {
+      "id": "publish-peek-open",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Opening and navigation",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-open-a",
+        "publish-peek-open-b",
+        "publish-peek-open-c",
+        "publish-peek-open-d"
+      ]
+    },
+    "publish-peek-open-a": {
+      "id": "publish-peek-open-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A plain click on a doc reference opens the panel."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-open-b": {
+      "id": "publish-peek-open-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Cmd-click, Ctrl-click, a source reference, or "
+        },
+        {
+          "insert": "Open in full",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " calls "
+        },
+        {
+          "insert": "onNavigate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-open-c": {
+      "id": "publish-peek-open-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel loads the peeked doc through "
+        },
+        {
+          "insert": "loadPeek",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", or without it through the client's "
+        },
+        {
+          "insert": "getDocBundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", which reads the "
+        },
+        {
+          "insert": "bundle",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " route of the mounted project."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-open-d": {
+      "id": "publish-peek-open-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A load that returns null or rejects closes the panel and calls "
+        },
+        {
+          "insert": "onNavigate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-close": {
+      "id": "publish-peek-close",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Closing",
+          "attributes": {
+            "bold": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-close-a",
+        "publish-peek-close-b"
+      ]
+    },
+    "publish-peek-close-a": {
+      "id": "publish-peek-close-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Escape closes the panel unless "
+        },
+        {
+          "insert": "hostOwnsEscape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is set."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-close-b": {
+      "id": "publish-peek-close-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A "
+        },
+        {
+          "insert": "spectre:doc-peek-close",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " event on "
+        },
+        {
+          "insert": "document",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " closes the panel in both cases. The entry exports that name as "
+        },
+        {
+          "insert": "DOC_PEEK_CLOSE_EVENT",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-drawer": {
+      "id": "publish-peek-drawer",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Drawer layout, without ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-close-c",
+        "publish-peek-close-d"
+      ]
+    },
+    "publish-peek-close-c": {
+      "id": "publish-peek-close-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel is a right drawer that pushes the doc aside. "
+        },
+        {
+          "insert": "--docs-peek-width",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets its width, "
+        },
+        {
+          "insert": "min(48rem, 45vw)",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " by default."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-close-d": {
+      "id": "publish-peek-close-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel sticks to the top of the host's scroll area at "
+        },
+        {
+          "insert": "--docs-peek-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", "
+        },
+        {
+          "insert": "100vh",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " by default."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page": {
+      "id": "publish-peek-page",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Page-column layout, with ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "bold": true,
+            "code": true
+          }
+        }
+      ],
+      "children": [
+        "publish-peek-page-a",
+        "publish-peek-page-b",
+        "publish-peek-page-c",
+        "publish-peek-page-d"
+      ]
+    },
+    "publish-peek-page-a": {
+      "id": "publish-peek-page-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "DraftEditorHost",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " renders the panel into "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " through a React portal. A "
+        },
+        {
+          "insert": "docs-draft-editor",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wrapper around the panel keeps the editor's style tokens in reach."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-b": {
+      "id": "publish-peek-page-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The panel uses "
+        },
+        {
+          "insert": "DocPeekPanel",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " layout "
+        },
+        {
+          "insert": "page",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", with no frame and no header bar. The host gives the element its place, height and surface."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-c": {
+      "id": "publish-peek-page-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pinned row at the top right holds "
+        },
+        {
+          "insert": "Open in full",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " and "
+        },
+        {
+          "insert": "Close",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": ", outside the panel's scroll. "
+        },
+        {
+          "insert": "--docs-peek-controls-height",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " sets the row's height, "
+        },
+        {
+          "insert": "2.75rem",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " by default."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-page-d": {
+      "id": "publish-peek-page-d",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The doc's title starts the scroll, with no top padding. Its "
+        },
+        {
+          "insert": "data-doc-peek-title-row",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " wrapper lets the host give it the type of its own page title."
+        }
+      ],
+      "children": []
+    },
+    "publish-peek-close-e": {
+      "id": "publish-peek-close-e",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "editor.css",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " compiles the panel's styles from "
+        },
+        {
+          "insert": "docs-viewer/src",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", so a host links no other stylesheet."
+        }
+      ],
+      "children": []
+    },
     "publish-9": {
       "id": "publish-9",
       "type": "heading",
@@ -437,7 +1136,34 @@
       "props": {},
       "text": [
         {
-          "insert": "Version 0.1.0-proof.9 is a compatibility archive built from the current development checkout, which contains uncommitted changes. It is not a clean registry release. The personal-site consumer records exact archive integrity in package-lock.json. Before stable adoption, build from clean tagged sources, pin compatible Canvas and Sequence revisions, and increment the package version for every changed artifact."
+          "insert": "Version 0.1.0-proof.33 is the first archive whose editor entry has the "
+        },
+        {
+          "insert": "peek",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " option. Version 0.1.0-proof.36 is the first whose "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " panel has the pinned controls row. Each version is a compatibility archive, not a clean registry release. "
+        },
+        {
+          "insert": "dist/provenance.json",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " records the docs commit it was built from and whether that checkout was dirty. The personal-site consumer records exact archive integrity in package-lock.json. Before stable adoption, build from clean tagged sources, pin compatible Canvas and Sequence revisions, and increment the package version for every changed artifact."
         }
       ],
       "children": []
@@ -461,7 +1187,61 @@
       "props": {},
       "text": [
         {
-          "insert": "bun test packages/docs-publish/src checks server-rendered text, drafts, metadata, duplicate slugs, unsafe paths and symlinks, Studio-only rejection, and search ranking. The personal-site Docker proof checks both real diagrams, no-JavaScript reading, route behavior, mobile layout, and independence from local authoring APIs."
+          "insert": "bun test packages/docs-publish/src checks server-rendered text, drafts, metadata, duplicate slugs, unsafe paths and symlinks, Studio-only rejection, and search ranking. It also mounts the draft editor with and without "
+        },
+        {
+          "insert": "peek",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". Those cases check that a plain click opens the panel, Cmd-click and "
+        },
+        {
+          "insert": "Open in full",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": " call "
+        },
+        {
+          "insert": "onNavigate",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", a null "
+        },
+        {
+          "insert": "loadPeek",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " navigates, and "
+        },
+        {
+          "insert": "hostOwnsEscape",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " leaves Escape to the host. The "
+        },
+        {
+          "insert": "peekContainer",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " case checks that the panel opens in the host element with its controls row outside the scroll, and the editor keeps its column. The personal-site Docker proof checks both real diagrams, no-JavaScript reading, route behavior, mobile layout, and independence from local authoring APIs."
         }
       ],
       "children": []
@@ -496,7 +1276,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The shared VideoBlock emits provider iframes for YouTube, Vimeo, and Loom when a typed video block supplies url. Other URLs become link cards. Bundle-relative src is copied into published assets and emits a native video element with controls and metadata preload. url takes precedence when both fields are present. Bundle videos need no provider or authoring API. Small compressed clips suit this path; large or frequently replaced recordings increase repository history, deployment size, and transfer costs. Upload and asset reads support the same 64 MiB video limit. Deployed servers should return the video MIME type and support byte ranges for seeking."
+          "insert": "The shared VideoBlock emits provider iframes for YouTube, Vimeo, and Loom when a typed video block supplies url. Other URLs become link cards. Bundle-relative src is copied into published assets and emits a native video element with controls and metadata preload. url takes precedence when both fields are present. Bundle videos need no provider or authoring API. Small compressed clips suit this path. Large or frequently replaced recordings increase repository history, deployment size, and transfer costs. Upload and asset reads support the same 64 MiB video limit. Deployed servers should return the video MIME type and support byte ranges for seeking."
         }
       ],
       "children": []
@@ -529,7 +1309,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Shared code styles live in packages/docs-viewer/src/styles/code.css and are imported by workbench and publisher. The renderer emits highlighted tokens during the build; the stylesheet supplies syntax colors and code fonts, with palette fallbacks for static hosts. The code header defines only a bottom border, including on hosts without Tailwind preflight."
+          "insert": "Shared code styles live in packages/docs-viewer/src/styles/code.css and are imported by workbench and publisher. The renderer emits highlighted tokens during the build. The stylesheet supplies syntax colors and code fonts, with palette fallbacks for static hosts. The code header defines only a bottom border, including on hosts without Tailwind preflight."
         }
       ],
       "children": []

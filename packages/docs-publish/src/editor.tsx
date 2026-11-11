@@ -1,9 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createRoot, type Root } from 'react-dom/client';
 import DocEditor, { type DocEditorSaveState } from '../../docs-viewer/src/editor/DocEditor';
 import { DocsClientProvider, type AcquireDraftLockResult, type CanvasEmbedProps, type DocsClient, type SequenceEmbedProps, type DocsTreeNode, type DraftLockKind } from '../../docs-viewer/src/client';
 import type { DocBlockSaveResult } from '../../docs-viewer/src/render/DocBlockRenderer';
 import type { AppEmbedHost, AppEmbedRef } from '../../docs-viewer/src/components/rich-text/app-embed-host';
+import { DocPeekPanel } from '../../docs-viewer/src/peek/DocPeekPanel';
+import { DOC_PEEK_CLOSE_EVENT, type DocBundle } from '../../docs-viewer/src/peek/peek-state';
+import type { SpectreRef } from '../../docs-model/src/spectre-ref';
 import { resolveBundleAssetSrc, resolveBundleCanvasSrc, resolveBundleSequenceSrc } from '../../docs-viewer/src/render/bundle-src';
 import type { DocDocument } from '../../docs-model/src/doc-schema';
 import type { DocOp } from '../../docs-model/src/doc-ops';
@@ -19,7 +23,9 @@ import { loadPublishedFonts } from './browser-fonts';
  * `/api`. Deployed pages never load this entry; they stay static HTML.
  */
 export type DraftEditorStatus = 'saved' | 'dirty' | 'saving' | 'error' | 'conflict' | 'locked';
-export type { AppEmbedHost, AppEmbedRef };
+export type { AppEmbedHost, AppEmbedRef, DocBundle, SpectreRef };
+/** Dispatch on `document` to close the side peek, e.g. from a host that owns Escape. */
+export { DOC_PEEK_CLOSE_EVENT };
 export type DraftEditorOptions = {
   /** Same-origin base URL proxying the project's Docs `/api` (no trailing slash needed). */
   api: string;
@@ -29,7 +35,35 @@ export type DraftEditorOptions = {
   onStatus?: (state: DraftEditorStatus, detail?: string) => void;
   /** Resolves `app-embed` blocks to URLs. Omit it, or return null, and the block shows "App not available here". */
   appEmbeds?: AppEmbedHost;
+  /**
+   * Mounts the docs-viewer side peek beside the editor: a plain click on a
+   * doc reference opens it read-only in a right drawer. Absent, the editor
+   * mounts no peek panel and reference clicks only send their event.
+   */
+  peek?: boolean;
+  /** Full navigation to a ref: Cmd-click, Ctrl-click, a source ref, Open in full, or a peek that cannot load. */
+  onNavigate?: (ref: SpectreRef) => void;
+  /** Loads a peeked ref instead of this project's `bundle` route, so refs to other projects can peek. */
+  loadPeek?: (ref: SpectreRef) => Promise<DocBundle | null>;
+  /** The host handles Escape and closes the peek with DOC_PEEK_CLOSE_EVENT; the panel adds no Escape listener. */
+  hostOwnsEscape?: boolean;
+  /** Reports when the peek opens or closes, so the host can hide competing docked UI. */
+  onPeekOpenChange?: (open: boolean) => void;
+  /**
+   * A host element, outside the editor, that holds the peek panel (with
+   * `peek`). The panel renders into it through a React portal, so it can sit
+   * at page level beside the reading column instead of inside its width. It
+   * renders as a page column (DocPeekPanel layout "page"): no frame and no
+   * header bar, Open in full and Close in a pinned row above the scroll, and
+   * the title first in the scroll. The host gives the element its place,
+   * height and surface. Absent, the panel
+   * mounts beside the editor as a sticky flex sibling with a header bar.
+   */
+  peekContainer?: HTMLElement;
 };
+/** The side-peek options DraftEditorHost passes to DocPeekPanel. */
+type PeekOptions = Pick<DraftEditorOptions, 'onNavigate' | 'loadPeek' | 'hostOwnsEscape' | 'onPeekOpenChange' | 'peekContainer'>;
+const ignoreNavigate = () => {};
 /**
  * `flush()` saves pending edits now and resolves once every save and lock
  * release it started has settled. `destroy()` unmounts at once (the editor's
@@ -152,39 +186,74 @@ type HostProps = {
   onReloadDoc: () => void;
   onSaveStateChange: (state: DocEditorSaveState) => void;
   appEmbeds?: AppEmbedHost;
+  peek: PeekOptions | null;
 };
 
-function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyOps, onReloadDoc, onSaveStateChange, appEmbeds }: HostProps) {
+function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyOps, onReloadDoc, onSaveStateChange, appEmbeds, peek }: HostProps) {
   const resolveAssetSrc = useCallback((src: string) => isAbsoluteUrl(src) ? src : api.url(`asset?path=${encodeURIComponent(resolveBundleAssetSrc(path, src))}`), [api, path]);
   const renderCanvas = useCallback((input: { id: string; canvasId?: string; src?: string; view?: string; title?: string }) =>
     <ProxyCanvas api={api} input={{ ...input, src: input.src ? resolveBundleCanvasSrc(path, input.src) : undefined }} />, [api, path]);
   const renderSequence = useCallback((input: { id: string; sequenceId?: string; src?: string; title?: string }) =>
     <ProxySequence api={api} input={{ ...input, src: input.src ? resolveBundleSequenceSrc(path, input.src) : undefined }} />, [api, path]);
+  // The panel canonicalizes a peeked doc's srcs against its own path first.
+  const resolvePeekAssetSrc = useCallback((src: string) => isAbsoluteUrl(src) ? src : api.url(`asset?path=${encodeURIComponent(src)}`), [api]);
   const uploadAsset = useCallback(async (file: File) => ({ src: (await api.uploadVideo(path, file)).src }), [api, path]);
   // Provider slots receive srcs already canonicalized by DocBlockRenderer (doc peeks).
   const embeds = useMemo(() => ({
     canvas: (props: CanvasEmbedProps) => <ProxyCanvas api={api} input={props} />,
     sequence: (props: SequenceEmbedProps) => <ProxySequence api={api} input={props} />,
   }), [api]);
+  const editor = (
+    <div className={peek ? 'docs-markdown min-w-0 flex-1' : 'docs-markdown'}>
+      <DocEditor
+        document={doc}
+        projectId={projectId}
+        documentPath={path}
+        renderCanvas={renderCanvas}
+        renderSequence={renderSequence}
+        resolveAssetSrc={resolveAssetSrc}
+        appEmbeds={appEmbeds}
+        uploadAsset={uploadAsset}
+        onApplyOps={onApplyOps}
+        onReloadDoc={onReloadDoc}
+        onSaveStateChange={onSaveStateChange}
+        flushRef={flushRef}
+        autoSave
+      />
+    </div>
+  );
+  const panel = peek ? (
+    <DocPeekPanel
+      layout={peek.peekContainer ? 'page' : 'drawer'}
+      projectId={projectId}
+      onNavigate={peek.onNavigate ?? ignoreNavigate}
+      onOpenChange={peek.onPeekOpenChange}
+      loadPeek={peek.loadPeek}
+      hostOwnsEscape={peek.hostOwnsEscape}
+      resolveAssetSrc={resolvePeekAssetSrc}
+    />
+  ) : null;
   return (
     <DocsClientProvider client={client} canvasEmbed={embeds.canvas} sequenceEmbed={embeds.sequence}>
-      <div className="docs-markdown">
-        <DocEditor
-          document={doc}
-          projectId={projectId}
-          documentPath={path}
-          renderCanvas={renderCanvas}
-          renderSequence={renderSequence}
-          resolveAssetSrc={resolveAssetSrc}
-          appEmbeds={appEmbeds}
-          uploadAsset={uploadAsset}
-          onApplyOps={onApplyOps}
-          onReloadDoc={onReloadDoc}
-          onSaveStateChange={onSaveStateChange}
-          flushRef={flushRef}
-          autoSave
-        />
-      </div>
+      {peek?.peekContainer ? (
+        // The host owns the panel's place on the page: the panel fills the
+        // host element's height and the editor keeps its own column. The
+        // wrapper carries the scope class, so the editor's tokens reach it.
+        <>
+          {editor}
+          {createPortal(<div className="docs-draft-editor flex h-full">{panel}</div>, peek.peekContainer)}
+        </>
+      ) : peek ? (
+        // The peek is a push drawer: a flex sibling of the doc column. It
+        // sticks to the top of the host's scroll area at viewport height
+        // (--docs-peek-height), so it stays in view while the doc scrolls.
+        <div className="flex items-start">
+          {editor}
+          <div className="sticky top-0 flex h-[var(--docs-peek-height,100vh)] shrink-0">
+            {panel}
+          </div>
+        </div>
+      ) : editor}
     </DocsClientProvider>
   );
 }
@@ -195,6 +264,9 @@ function DraftEditorHost({ api, path, projectId, doc, client, flushRef, onApplyO
  */
 export async function mountDraftEditor(container: HTMLElement, options: DraftEditorOptions): Promise<DraftEditorHandle> {
   const { path, onStatus, appEmbeds } = options;
+  const peek: PeekOptions | null = options.peek
+    ? { onNavigate: options.onNavigate, loadPeek: options.loadPeek, hostOwnsEscape: options.hostOwnsEscape, onPeekOpenChange: options.onPeekOpenChange, peekContainer: options.peekContainer }
+    : null;
   // Embedded diagrams measure text: load the measured fonts (they re-lay out when they arrive).
   void loadPublishedFonts();
   const projectId = options.projectId ?? 'local';
@@ -321,7 +393,7 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
   const root: Root = createRoot(container);
   function render() {
     if (destroyed) return;
-    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} flushRef={flushRef} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} appEmbeds={appEmbeds} />);
+    root.render(<DraftEditorHost api={api} path={path} projectId={projectId} doc={doc} client={client} flushRef={flushRef} onApplyOps={onApplyOps} onReloadDoc={onReloadDoc} onSaveStateChange={onSaveStateChange} appEmbeds={appEmbeds} peek={peek} />);
   }
   render();
 

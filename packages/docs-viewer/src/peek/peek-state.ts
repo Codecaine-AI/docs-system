@@ -16,6 +16,20 @@ import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 export const DOC_REFERENCE_NAVIGATE_EVENT = "spectre:doc-reference-navigate";
 
 /**
+ * Closes the side peek. A host that owns Escape (`hostOwnsEscape`) dispatches
+ * it on `document` when its own Escape handling decides the peek is the top
+ * layer, or when it opens competing docked UI.
+ */
+export const DOC_PEEK_CLOSE_EVENT = "spectre:doc-peek-close";
+
+/**
+ * The payload a peek load returns: the parsed doc.json and, when the backend
+ * knows it, the document path for canvas-embed wiring. Same shape as
+ * `DocsClient.getDocBundle`.
+ */
+export type DocBundle = { doc: unknown; documentPath?: string };
+
+/**
  * "peek": open the target read-only in the side panel (plain click on a doc
  * ref). "navigate": the host should perform full navigation (Cmd/Ctrl-click
  * or source refs).
