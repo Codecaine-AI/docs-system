@@ -482,7 +482,35 @@
           [
             "Discovery",
             "Slash menu and block UI",
-            "GET /api/blocks and the docs skill"
+            [
+              {
+                "insert": "GET /api/blocks, "
+              },
+              {
+                "insert": "docs_capabilities",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": ", and "
+              },
+              {
+                "insert": "docs_guidance",
+                "attributes": {
+                  "code": true
+                }
+              },
+              {
+                "insert": " topic "
+              },
+              {
+                "insert": "components",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
           ]
         ]
       },
@@ -494,7 +522,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Neither column is primary. A feature that improves one surface must not degrade the other; when the two pull in different directions, the canonical state grows whatever structure lets each surface stay optimal — that is the point of keeping state and surface separate."
+          "insert": "Neither column is primary. A feature that improves one surface must not degrade the other. When the two pull in different directions, the canonical state grows whatever structure lets each surface stay optimal. That is the point of keeping state and surface separate."
         }
       ],
       "children": []
