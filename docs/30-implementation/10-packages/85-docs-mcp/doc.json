@@ -2318,7 +2318,28 @@
       "props": {},
       "text": [
         {
-          "insert": "Canonical standards, style documents, component references, and manifests feed the served guidance. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
+          "insert": "Canonical standards, style documents, the "
+        },
+        {
+          "insert": "Editor Workflow",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "40-guides/15-editor-workflow"
+            }
+          }
+        },
+        {
+          "insert": " guide, component references, manifests, and the sequence "
+        },
+        {
+          "insert": "WRITING_GUIDE",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " feed the served guidance. Internal contexts share the renderer while keeping their own prompts and staged editing lifecycle. Managed authoring reports the active artifact hash and build-time manifest fingerprints. Standalone runtime fingerprints reject changed implementation sources. Automated release compatibility resolution remains unimplemented."
         }
       ],
       "children": []
