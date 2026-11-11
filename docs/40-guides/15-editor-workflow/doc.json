@@ -1584,7 +1584,34 @@
       "props": {},
       "text": [
         {
-          "insert": "Use the asset upload, read, and delete tools for media and attachments."
+          "insert": "Upload media and attachments with "
+        },
+        {
+          "insert": "docs_asset_upload",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", list or read them with "
+        },
+        {
+          "insert": "docs_assets",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and delete an unused one with "
+        },
+        {
+          "insert": "docs_delete",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": "."
         }
       ],
       "children": []
