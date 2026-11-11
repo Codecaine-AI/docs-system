@@ -690,7 +690,7 @@ style, without changing the four-part contract:
   pattern.
 - **Specialist agents.** Forwarded actions for a complex component may route
   to a dedicated agent rather than a plain handler — e.g. a canvas update
-  arrives and a *canvas agent* (with the canvas skill loaded) performs it.
+  arrives and a *canvas agent* performs it. The agent gets its rules from the Canvas server (`canvas_guidance`).
   The `forward.authority` seam is where such an agent would plug in.
 - **Richer agent context.** The deferred `context.ts` idea (D4): a component
   contributing a structured summary of a specific block instance to an agent's

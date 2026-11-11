@@ -235,7 +235,25 @@
           }
         },
         {
-          "insert": " loads standards only from the docs-system corpus and has no per-project override. The docs-system skill states the reading order as Foundation, System Design, Agents, then Implementation. The "
+          "insert": " loads standards only from the docs-system corpus and has no per-project override. The "
+        },
+        {
+          "insert": "workflow",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " topic of "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " states the reading order as Foundation, System Design, Agents, then Implementation. The "
         },
         {
           "insert": "docs audit",

@@ -286,7 +286,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The "
+          "insert": "The old "
         },
         {
           "insert": "docs-system",
@@ -295,16 +295,25 @@
           }
         },
         {
-          "insert": " skill in "
+          "insert": " skill file never mentioned html. The "
         },
         {
-          "insert": "packages/docs-mcp/skills/docs-system/SKILL.md",
+          "insert": "workflow",
           "attributes": {
             "code": true
           }
         },
         {
-          "insert": " never mentions html."
+          "insert": " topic of "
+        },
+        {
+          "insert": "docs_guidance",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " now serves that content."
         }
       ],
       "children": []
