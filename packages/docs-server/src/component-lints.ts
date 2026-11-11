@@ -28,15 +28,13 @@ export interface ComponentFinding {
 /**
  * The board lints over a canvas sidecar. Edits run the always-on rules and
  * `docs_check` adds the finishing rules, as canvas edits and `canvas_check` do.
- * `baseline` is the board the task started from: the text rules judge only
- * names and details written since it, and stay silent without one.
  */
 export function canvasFindings(
   canvas: InteractiveCanvasDocument,
-  options: { baseline?: InteractiveCanvasDocument; finishing?: boolean } = {},
+  options: { finishing?: boolean } = {},
 ): ComponentFinding[] {
   const rules = options.finishing ? FINISHING_RULES : LAYOUT_RULES;
-  return runDiagnostics(canvas, rules, options.baseline ? { baseline: options.baseline } : {})
+  return runDiagnostics(canvas, rules)
     .map(({ rule, severity, at, message, suggestion }) => ({
       rule, severity, ...(at.length ? { at } : {}), problem: message, ...(suggestion ? { fix: suggestion } : {}),
     }));
