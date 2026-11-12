@@ -4269,13 +4269,12 @@ describe("style rail sequence tokens", () => {
       `--seq-bg: var(--docs-sequence-diagram-bg, ${light["color.surface.page"]});`,
       `--seq-text: var(--docs-sequence-diagram-text, ${light["color.text.body"]});`,
       `--seq-accent: var(--docs-sequence-line, ${light["color.orange.solid"]});`,
-      `--seq-participant-fill: var(--docs-sequence-actor-fill, ${light["color.green.soft"]});`,
-      `--seq-participant-border: var(--docs-sequence-actor-border, var(--docs-sequence-actor-fill, ${light["color.green.soft"]}));`,
-      `--seq-participant-stroke: ${light["color.green.solid"]};`,
+      `--seq-participant-fill: var(--docs-sequence-actor-fill, ${light["color.surface.sunken"]});`,
+      `--seq-participant-stroke: var(--docs-sequence-actor-border, ${light["color.text.muted"]});`,
       `--seq-note-fill: var(--docs-sequence-note-bg, ${light["color.surface.panel"]});`,
       `--seq-fragment-accent: var(--docs-sequence-fragment, ${light["color.blue.solid"]});`,
-      `--seq-activation-fill: ${light["color.gray.solid"]};`,
-      `--seq-activation-stroke: ${light["color.gray.solid"]};`,
+      `--seq-activation-fill: color-mix(in srgb, ${light["color.gray.solid"]} 70%, ${light["color.surface.page"]});`,
+      `--seq-activation-stroke: color-mix(in srgb, ${light["color.gray.solid"]} 70%, ${light["color.surface.page"]});`,
     ]) {
       expect(embedCss).toContain(mapping);
     }
@@ -4292,10 +4291,9 @@ describe("style rail sequence tokens", () => {
       `--docs-sequence-diagram-bg: ${light["color.surface.page"]};`,
       `--docs-sequence-diagram-text: ${light["color.text.body"]};`,
       `--docs-sequence-line: ${light["color.orange.solid"]};`,
-      `--docs-sequence-actor-fill: ${light["color.green.soft"]};`,
+      `--docs-sequence-actor-fill: ${light["color.surface.sunken"]};`,
+      `--docs-sequence-actor-border: ${light["color.text.muted"]};`,
       `--docs-sequence-note-bg: ${light["color.surface.panel"]};`,
-      // Derived defaults track their source until a theme sets them.
-      "--docs-sequence-actor-border: var(--docs-sequence-actor-fill);",
       `--docs-sequence-fragment: ${light["color.blue.solid"]};`,
     ]) {
       expect([declaration, semanticCss.split(declaration).length - 1]).toEqual([declaration, 2]);

@@ -7,8 +7,7 @@ export const layout: Record<string, Record<string, ThemeTokenDefinition>> = {
   // The frame knobs style the inline preview the docs viewer owns. The diagram
   // colors feed the sequence package's own --seq-* vars (mapped in
   // sequence-embed.css), so they recolor the SVG without touching the package;
-  // a color set in the diagram's own style section still wins. Actor border
-  // follows Actor fill until set, so participant boxes show no border.
+  // a color set in the diagram's own style section still wins.
   // The diagram is light-on-white in both modes today, so every default is the
   // same in light and dark.
   sequence: {

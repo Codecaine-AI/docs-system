@@ -7,27 +7,27 @@
  * here, on the two surfaces that host the SVG (inline preview, full-screen
  * dialog). The diagram stays light in both page modes, so every colour is the
  * package's light default as a pinned light token (sequence theme.ts
- * SEQUENCE_THEME_TOKENS: page, body text, orange, blue and green solids,
- * green soft and gray solid); the PDF export, which renders the package's own
+ * SEQUENCE_THEME_TOKENS: page, body text, orange and blue solids, sunken
+ * surface and muted text); the PDF export, which renders the package's own
  * defaults, paints the same colours. A colour set in a diagram's own style
- * section is written on the <svg> itself, so it still wins. Participant boxes
- * are soft green with no border: the box border follows the actor fill until
- * a theme sets it, and the actor figure is pinned to green solid. Notes keep
- * the panel fill. The activation bars are pinned too: unset, the package
- * would follow the page theme (dark bars on the light diagram).
+ * section is written on the <svg> itself, so it still wins. Actor border
+ * takes the lifeline gray, so a box flows into its lifeline. Notes keep the
+ * panel fill. The activation bars are pinned too: unset, the package would
+ * follow the page theme (dark bars on the light diagram). They are a lighter
+ * gray than the package default, so a nested bar, which the package shades
+ * darker, stands out from the bar under it.
  */
 .docs-sequence-preview,
 .docs-sequence-dialog {
   --seq-bg: var(--docs-sequence-diagram-bg, var(--ds-light-color-surface-page));
   --seq-text: var(--docs-sequence-diagram-text, var(--ds-light-color-text-body));
   --seq-accent: var(--docs-sequence-line, var(--ds-light-color-orange-solid));
-  --seq-participant-fill: var(--docs-sequence-actor-fill, var(--ds-light-color-green-soft));
-  --seq-participant-border: var(--docs-sequence-actor-border, var(--docs-sequence-actor-fill, var(--ds-light-color-green-soft)));
-  --seq-participant-stroke: var(--ds-light-color-green-solid);
+  --seq-participant-fill: var(--docs-sequence-actor-fill, var(--ds-light-color-surface-sunken));
+  --seq-participant-stroke: var(--docs-sequence-actor-border, var(--ds-light-color-text-muted));
   --seq-note-fill: var(--docs-sequence-note-bg, var(--ds-light-color-surface-panel));
   --seq-fragment-accent: var(--docs-sequence-fragment, var(--ds-light-color-blue-solid));
-  --seq-activation-fill: var(--ds-light-color-gray-solid);
-  --seq-activation-stroke: var(--ds-light-color-gray-solid);
+  --seq-activation-fill: color-mix(in srgb, var(--ds-light-color-gray-solid) 70%, var(--ds-light-color-surface-page));
+  --seq-activation-stroke: color-mix(in srgb, var(--ds-light-color-gray-solid) 70%, var(--ds-light-color-surface-page));
 }
 
 .docs-sequence-preview {
