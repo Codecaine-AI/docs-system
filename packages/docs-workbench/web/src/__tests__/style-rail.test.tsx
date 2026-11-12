@@ -4270,7 +4270,7 @@ describe("style rail sequence tokens", () => {
       `--seq-text: var(--docs-sequence-diagram-text, ${light["color.text.body"]});`,
       `--seq-accent: var(--docs-sequence-line, ${light["color.orange.solid"]});`,
       `--seq-participant-fill: var(--docs-sequence-actor-fill, ${light["color.surface.panel"]});`,
-      `--seq-participant-stroke: var(--docs-sequence-actor-border, var(--docs-sequence-line, ${light["color.orange.solid"]}));`,
+      `--seq-participant-stroke: var(--docs-sequence-actor-border, ${light["color.violet.solid"]});`,
       `--seq-note-fill: var(--docs-sequence-note-bg, var(--docs-sequence-actor-fill, ${light["color.surface.panel"]}));`,
       `--seq-fragment-accent: var(--docs-sequence-fragment, ${light["color.blue.solid"]});`,
       `--seq-activation-fill: ${light["color.gray.solid"]};`,
@@ -4292,8 +4292,8 @@ describe("style rail sequence tokens", () => {
       `--docs-sequence-diagram-text: ${light["color.text.body"]};`,
       `--docs-sequence-line: ${light["color.orange.solid"]};`,
       `--docs-sequence-actor-fill: ${light["color.surface.panel"]};`,
+      `--docs-sequence-actor-border: ${light["color.violet.solid"]};`,
       // Derived defaults track their source until a theme sets them.
-      "--docs-sequence-actor-border: var(--docs-sequence-line);",
       "--docs-sequence-note-bg: var(--docs-sequence-actor-fill);",
       `--docs-sequence-fragment: ${light["color.blue.solid"]};`,
     ]) {
