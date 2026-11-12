@@ -165,9 +165,9 @@
   --docs-sequence-diagram-bg: var(--ds-light-color-surface-page);
   --docs-sequence-diagram-text: var(--ds-light-color-text-body);
   --docs-sequence-line: var(--ds-light-color-orange-solid);
-  --docs-sequence-actor-fill: var(--ds-light-color-surface-panel);
-  --docs-sequence-actor-border: var(--docs-sequence-line);
-  --docs-sequence-note-bg: var(--docs-sequence-actor-fill);
+  --docs-sequence-actor-fill: var(--ds-light-color-surface-page);
+  --docs-sequence-actor-border: var(--ds-light-color-teal-solid);
+  --docs-sequence-note-bg: var(--ds-light-color-surface-panel);
   --docs-sequence-fragment: var(--ds-light-color-blue-solid);
   /* Canvas embed frame: same contract as the light block. */
   --docs-canvas-border: var(--border);
