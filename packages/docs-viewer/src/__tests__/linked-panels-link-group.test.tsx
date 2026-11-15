@@ -70,17 +70,8 @@ describe("LinkGroup linking engine", () => {
       expect(getByTestId(id).getAttribute("data-pinned")).toBe("true");
       expect(getByTestId(id).getAttribute("data-lit")).toBe("true");
     }
-    // Pinned adds the 1.5px ring in the pin color.
-    expect(getByTestId("a1").className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
-    // The pinned shadow keeps the rail at its own width token with the stock
-    // page-link pin (light / dark), and cn() leaves exactly one light + one
-    // dark shadow utility (the pinned pair).
-    expect(getByTestId("a1").className).toContain(
-      "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#245a81),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#245a81)]",
-    );
-    expect(getByTestId("a1").className).toContain(
-      "dark:shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#4493f8),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#4493f8)]",
-    );
+    // A pin paints the same rail as a lit target, with no ring.
+    expect(getByTestId("a1").className).not.toContain("--docs-link-ring-width");
     expect(getByTestId("a1").className.match(/(^| )shadow-\[/g)?.length).toBe(1);
     expect(getByTestId("a1").className.match(/ dark:shadow-\[/g)?.length).toBe(1);
     fireEvent.click(getByTestId("a2"));

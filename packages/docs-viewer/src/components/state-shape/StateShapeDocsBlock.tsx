@@ -11,7 +11,7 @@ import { DescriptionsSwitch, FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, 
 export { classifyTypeText, splitTypeUnion, type TypeTextClassification } from "./field-ledger";
 
 export const STATE_SHAPE_LABEL = "State Shape";
-export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). A string-literal union of 4 or more values shows its first 2 values and a muted +N while its row is closed. Field descriptions are hidden by default: clicking a described row (a button with aria-expanded and a chevron on hover) opens its description under its type, and clicking again closes it. A Descriptions switch at the right of the head shows every description in every ledger on the page; it is not saved and resets on reload. A shown description sits in a third column when the ledger is 600px wide or more, and under the type when it is narrower. Static markup without JS prints every description beside its type. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
+export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). A string-literal union of 4 or more values shows its first 2 values and a muted +N while its row is closed. Field descriptions are hidden by default: clicking a described row (a button with aria-expanded and a chevron on hover) opens its description under its type, and clicking again closes it. A Descriptions switch at the right of the head shows only its track until hover or focus slides out the word Descriptions; it shows every description in every ledger on the page; it is not saved and resets on reload. A shown description sits in a third column when the ledger is 600px wide or more, and under the type when it is narrower. Static markup without JS prints every description beside its type. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
 export type StateShapeSourceProps = { path: string; symbol?: string };
 
 /**
@@ -53,8 +53,6 @@ export const STATE_SHAPE_STYLE = `
 [data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}
 [data-docs-block-type="state-shape"] [data-json-pair]{white-space:pre}[data-docs-block-type="state-shape"] [data-json-pair]>[data-json-token]:last-child{white-space:pre-wrap}[data-docs-block-type="state-shape"] [data-json-glue]{white-space:nowrap}[data-docs-block-type="state-shape"] [data-field-token="optional"]{margin-left:0}[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}
 [data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}[data-docs-block-type="state-shape"] [data-note-code="long"]{white-space:normal;overflow-wrap:anywhere}
-[data-shape-legend]{margin:0;padding:var(--ds-space-1) var(--docs-shape-pad-x,16px) var(--ds-space-1-5);font-size:var(--ds-font-size-ui-xs);line-height:var(--ds-line-height-ui);color:var(--docs-shape-desc-fg,var(--docs-muted,#666562));box-shadow:inset 0 calc(-1 * var(--docs-shape-rule-width,1px)) 0 0 var(--docs-shape-rule,var(--docs-rule-soft,#efeeec))}
-[data-shape-legend-mark]{margin-right:var(--ds-space-0-5);font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))}
 `;
 
 /**
@@ -323,17 +321,6 @@ export function exampleIsShort(rows: readonly FieldLedgerRow[], exampleLines: nu
   return exampleLines < ledgerLines * 0.55;
 }
 
-/**
- * The ledger's key to optionality. A row marks only an optional field (`?`), so a shape whose fields are all
- * required shows no marker at all; the legend says which case the reader sees.
- */
-function OptionalityLegend({ rows }: { rows: readonly FieldLedgerRow[] }) {
-  const optional = rows.some((row) => row.field.required === false);
-  return <p data-shape-legend={optional ? "optional" : "all-required"}>
-    {optional ? <><span data-shape-legend-mark aria-hidden="true">?</span> marks an optional field. Every other field is required.</> : rows.length === 1 ? "The field is required." : "Every field is required."}
-  </p>;
-}
-
 export function StateShapeBlock({ id, name, description, source, fields, example }: { id: string; name?: string; description?: string; source?: StateShapeSourceProps; fields: Field[]; example?: string }) {
   const model = useMemo(() => buildShapeModel(fields, example, (path, depth, field) => ({ "data-shape-field": field.name, "data-shape-path": path, "data-shape-depth": depth })), [fields, example]);
   const sourceRef = source ? source.symbol ? `${source.path}#${source.symbol}` : source.path : undefined;
@@ -355,7 +342,7 @@ export function StateShapeBlock({ id, name, description, source, fields, example
     <LinkGroup>
       <div data-shape-grid="true" data-has-example={model.exampleLines ? "true" : undefined} data-example-short={model.exampleColumns !== undefined && model.exampleLines && exampleIsShort(model.rows, model.exampleLines.length, model.exampleColumns) ? "true" : undefined}>
         <div data-shape-tree="true">
-          {fields.length > 0 ? <><OptionalityLegend rows={model.rows} /><FieldLedger rows={model.rows} inlineNotes renderNote={noteWithCode} data-shape-ledger="true" /></> : <p data-shape-empty="true">(no fields)</p>}
+          {fields.length > 0 ? <FieldLedger rows={model.rows} inlineNotes renderNote={noteWithCode} data-shape-ledger="true" /> : <p data-shape-empty="true">(no fields)</p>}
         </div>
         {model.exampleLines && <div data-shape-example-pane="true" data-code-surface="true" data-ref-code="true">
           <CodeLines data-shape-example="true" lines={model.exampleLines} tabIndex={0} role="region" aria-label={`${label} example`} />

@@ -512,25 +512,8 @@ describe("StateShapeBlock — name column fit", () => {
   });
 });
 
-describe("StateShapeBlock — optionality legend and path wrapping", () => {
-  const legend = () => document.querySelector("[data-shape-legend]");
+describe("StateShapeBlock — path wrapping", () => {
 
-  it("puts the legend above the field list, where a reader starts", () => {
-    render(<StateShapeBlock id="top" fields={[{ name: "url", type: "string" }]} />);
-    const tree = document.querySelector("[data-shape-tree]")!;
-    expect(tree.firstElementChild?.hasAttribute("data-shape-legend")).toBe(true);
-  });
-
-  it("says every field is required when no field is optional", () => {
-    render(<StateShapeBlock id="req" fields={[{ name: "url", type: "string" }, { name: "pid", type: "number" }]} />);
-    expect(legend()?.textContent).toBe("Every field is required.");
-  });
-
-  it("explains the ? marker when a nested field is optional", () => {
-    render(<StateShapeBlock id="opt" fields={[{ name: "source", type: "object", fields: [{ name: "symbol", type: "string", required: false }] }]} />);
-    expect(legend()?.getAttribute("data-shape-legend")).toBe("optional");
-    expect(legend()?.textContent).toBe("? marks an optional field. Every other field is required.");
-  });
 
   it("breaks a path value only after a slash, and leaves prose strings whole", () => {
     render(<StateShapeBlock id="path" fields={[{ name: "root", type: "string" }, { name: "note", type: "string" }]} example={JSON.stringify({ root: "packages/docs-mcp/src", note: "a and/or b" })} />);

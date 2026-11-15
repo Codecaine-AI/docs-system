@@ -190,7 +190,6 @@ describe("CodeLines", () => {
     fireEvent.click(line(container, 3));
     expect(line(container, 5).getAttribute("data-pinned")).toBe("true");
     expect(getByTestId("note").getAttribute("data-pinned")).toBe("true");
-    expect(line(container, 3).className).toContain("0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin");
     fireEvent.keyDown(window, { key: "Escape" });
     expect(line(container, 5).hasAttribute("data-pinned")).toBe(false);
     expect(getByTestId("note").hasAttribute("data-pinned")).toBe(false);

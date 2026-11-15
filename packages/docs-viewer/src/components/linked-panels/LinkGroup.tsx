@@ -16,7 +16,6 @@ import { cn } from "../../ui/cn";
 import {
   LINK_TARGET_CLASSES,
   LINK_TARGET_LIT_CLASSES,
-  LINK_TARGET_PINNED_CLASSES,
 } from "./classes";
 
 /**
@@ -27,7 +26,9 @@ import {
  *    in the group (`data-lit="true"` + the lit wash/rail classes);
  *  - click (or Enter/Space) toggles a pin for the key — the pin survives
  *    hover-out; a second click, or pinning another key, unpins;
- *  - Escape clears all pins in all groups (each group listens globally);
+ *  - Escape, or a click outside every linked target, clears the pin;
+ *  - a pinned key paints the same wash and rail as a lit one, so a pinned
+ *    span reads as one highlighted section, not a ring around each line;
  *  - linkable targets get tabIndex=0, so the whole scheme is keyboard
  *    reachable.
  *
@@ -56,8 +57,17 @@ export function LinkGroup({ children }: { children: ReactNode }) {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setPinnedKey(null);
     };
+    // A click outside every linked target clears the pin. A click on a target runs its own toggle.
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Element && event.target.closest("[data-link-key]")) return;
+      setPinnedKey(null);
+    };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("pointerdown", onPointerDown);
+    };
   }, []);
 
   const value = useMemo<LinkGroupContextValue>(
@@ -155,7 +165,6 @@ export function useLinkTarget(
     className: cn(
       LINK_TARGET_CLASSES,
       lit && LINK_TARGET_LIT_CLASSES,
-      pinned && LINK_TARGET_PINNED_CLASSES,
     ),
     targetProps,
   };

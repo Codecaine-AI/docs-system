@@ -1388,7 +1388,21 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field row shows a name and a type. The name takes the key color with a punctuation-colored "
+          "insert": "Every field row shows a name and a type."
+        }
+      ],
+      "children": [
+        "b-25-state-shape-dr-tree-2a",
+        "b-25-state-shape-dr-tree-2b"
+      ]
+    },
+    "b-25-state-shape-dr-tree-2a": {
+      "id": "b-25-state-shape-dr-tree-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The name takes the key color with a punctuation-colored "
         },
         {
           "insert": "?",
@@ -1397,7 +1411,27 @@
           }
         },
         {
-          "insert": " right after it when the field is optional, and a legend above the rows says which fields are required."
+          "insert": " right after it when the field is optional."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-tree-2b": {
+      "id": "b-25-state-shape-dr-tree-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A field with no "
+        },
+        {
+          "insert": "?",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " is required, and the block prints no legend line for this."
         }
       ],
       "children": []
@@ -1544,6 +1578,7 @@
       "children": [
         "b-25-state-shape-dr-link-1",
         "b-25-state-shape-dr-link-2",
+        "b-25-state-shape-dr-link-unpin",
         "b-25-state-shape-dr-link-3"
       ]
     },
@@ -1564,7 +1599,43 @@
       "props": {},
       "text": [
         {
-          "insert": "Hover or pin paints the field's full extent in both panes. Activating an ancestor lights its whole brace-to-brace range."
+          "insert": "Hover or pin paints the field's full extent in both panes with the link wash and the left rail."
+        }
+      ],
+      "children": [
+        "b-25-state-shape-dr-link-2a",
+        "b-25-state-shape-dr-link-2b"
+      ]
+    },
+    "b-25-state-shape-dr-link-2a": {
+      "id": "b-25-state-shape-dr-link-2a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A pin draws no ring around each line, so a pinned span reads as one section."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-link-2b": {
+      "id": "b-25-state-shape-dr-link-2b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Activating an ancestor lights its whole brace-to-brace range."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-link-unpin": {
+      "id": "b-25-state-shape-dr-link-unpin",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Escape clears the pin. A click outside every linked row and line also clears it."
         }
       ],
       "children": []
@@ -1713,8 +1784,20 @@
         }
       ],
       "children": [
+        "b-25-state-shape-dr-desc-switch-2",
         "b-25-state-shape-dr-desc-switch-1"
       ]
+    },
+    "b-25-state-shape-dr-desc-switch-2": {
+      "id": "b-25-state-shape-dr-desc-switch-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The switch shows only its track, and its label Descriptions slides out over 320 ms on hover or keyboard focus. Reduced motion turns the slide off."
+        }
+      ],
+      "children": []
     },
     "b-25-state-shape-dr-desc-switch-1": {
       "id": "b-25-state-shape-dr-desc-switch-1",

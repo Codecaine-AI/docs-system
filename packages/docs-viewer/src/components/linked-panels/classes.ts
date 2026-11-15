@@ -8,8 +8,8 @@
  * System rules encoded here (approved design, state-shape docs v2):
  *  - R1: every code panel is line-numbered; numbering is local per panel.
  *  - R3: extents are painted, not implied — lit targets get a background
- *    wash plus an inset gutter rail (3px by default); pinned targets add a
- *    ring (1.5px by default). The pin is the page link color.
+ *    wash plus an inset gutter rail (3px by default); pinned targets look
+ *    the same, so a pinned span reads as one section. The pin is the page link color.
  *  - R4: prose rows divide with hairlines and never stripe; code panels do
  *    not stripe either by default (--docs-zebra is transparent; the zebra
  *    knob can bring even-line stripes back). Hover/pin highlight overrides
@@ -26,7 +26,6 @@
  *                                mixes it off the pin at --docs-link-wash %)
  *  --docs-link-pin               pin/rail accent (gutter rail, ring, lit numbers)
  *  --docs-link-rail-width        width of the lit target's inset rail
- *  --docs-link-ring-width        width of the pinned target's ring
  *  --docs-link-text-size         CodeLines code text size (13px)
  *  --docs-link-line-height       CodeLines row height / leading / zebra period
  *  --docs-link-gutter-text-size  CodeLines line-number size
@@ -62,9 +61,6 @@ export const LINK_TARGET_CLASSES =
 export const LINK_TARGET_LIT_CLASSES =
   "bg-[color:var(--docs-link-bg,color-mix(in_srgb,#245a81_14%,transparent))] shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#245a81)] dark:bg-[color:var(--docs-link-bg,color-mix(in_srgb,#4493f8_12%,transparent))] dark:shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#4493f8)]";
 
-/** Pinned target: the rail plus a --docs-link-ring-width ring (1.5px default), both in the pin color (applied after LIT — the combined shadow wins via cn()). */
-export const LINK_TARGET_PINNED_CLASSES =
-  "shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#245a81),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#245a81)] dark:shadow-[inset_var(--docs-link-rail-width,3px)_0_0_var(--docs-link-pin,#4493f8),0_0_0_var(--docs-link-ring-width,1.5px)_var(--docs-link-pin,#4493f8)]";
 
 /** CodeLines scroll container — soft wrap OFF, horizontal scroll (R1 panels never wrap). Callers that make the pane a focusable region (tabIndex + role + aria-label) get the shared focus ring. */
 export const CODE_LINES_PANEL_CLASSES =
