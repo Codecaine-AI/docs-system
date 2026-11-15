@@ -1411,7 +1411,7 @@
       "props": {},
       "text": [
         {
-          "insert": "A described parameter name carries a dotted underline, and its description opens as a tooltip on hover or keyboard focus."
+          "insert": "A described parameter row is a button that opens its description under its type, and the panel head's Descriptions switch opens every description on the page."
         }
       ],
       "children": []
@@ -1460,7 +1460,8 @@
       ],
       "children": [
         "b-22-is-fam-docr-link-1",
-        "b-22-is-fam-docr-link-2"
+        "b-22-is-fam-docr-link-2",
+        "b-22-is-fam-docr-link-3"
       ]
     },
     "b-22-is-fam-docr-link-1": {
@@ -1480,7 +1481,18 @@
       "props": {},
       "text": [
         {
-          "insert": "Hovering or focusing a note lights the param's signature lines and vice versa. A click pins, Escape clears pins."
+          "insert": "Hovering or focusing a param row lights the param's signature lines and the reverse."
+        }
+      ],
+      "children": []
+    },
+    "b-22-is-fam-docr-link-3": {
+      "id": "b-22-is-fam-docr-link-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A click pins with the same wash and rail and no ring. Escape or a click outside every linked row clears the pin."
         }
       ],
       "children": []
@@ -1506,28 +1518,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Parameter and returned-field descriptions use the "
-        },
-        {
-          "insert": "State Shape tooltip",
-          "attributes": {
-            "reference": {
-              "kind": "doc",
-              "path": "10-system-design/40-block-vocabulary/40-structured-reference/10-state-shape"
-            }
-          }
-        },
-        {
-          "insert": ", with a dotted underline on the name, a 450 ms hover dwell or keyboard focus, a "
-        },
-        {
-          "insert": "role=\"tooltip\"",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " bubble, and inline text in print media. The rows show only names and types, so the inputs ledger scans as a table."
+          "insert": "Parameter and returned-field rows use the State Shape ledger: each row shows only its name and type, and a click on a described row opens its description. The Descriptions switch in the panel head is the same page-wide switch as State Shape's."
         }
       ],
       "children": []
@@ -1549,7 +1540,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Why: the two blocks share one ledger reading pattern, so a reader learns the underline cue once and every field row stays one line tall."
+          "insert": "The two blocks share one ledger reading pattern, so a reader learns the row toggle once and every closed field row stays one line tall."
         }
       ],
       "children": []
@@ -1948,7 +1939,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Content uses the shared field ledger and the code theme's syntax colors. Only the kind badge varies by kind. Linking uses the shared linked-panels behavior."
+          "insert": "Content uses the shared field ledger and the code theme's syntax colors. A ledger type colors string literals, numbers, keywords, keys, and punctuation by role, the same way State Shape does. Only the kind badge varies by kind. Linking uses the shared linked-panels behavior."
         }
       ],
       "children": []
