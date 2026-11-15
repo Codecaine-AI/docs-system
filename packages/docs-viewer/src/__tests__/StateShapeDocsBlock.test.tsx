@@ -252,7 +252,7 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(optional.querySelector("[data-sr-only]")?.textContent).toBe(" (optional)");
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
     // A shown note sits in a third column when the ledger is 600px wide, else under the type.
-    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([hidden])){display:flex');
+    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([data-closed])){display:flex');
   });
 
   it("colors type text as Dark+ colors a TS type: literals by role, pipes and braces as punctuation", () => {

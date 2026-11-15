@@ -111,7 +111,7 @@ function hiddenUnionMembers(parts: readonly string[]): number {
 /**
  * Type text in the type color; union pipes are muted punctuation. With
  * `collapsed`, a long string-literal union shows its first two members and a
- * muted `+N`; the other members stay in the markup as `hidden`, so print
+ * muted `+N`; the other members stay in the markup with `data-closed`, which hides them on screen only, so print
  * shows the whole union.
  */
 export function FieldType({ value, collapsed = false }: { value?: string; collapsed?: boolean }) {
@@ -121,7 +121,7 @@ export function FieldType({ value, collapsed = false }: { value?: string; collap
   const shownParts = COLLAPSED_UNION_MEMBERS * 2;
   return <span data-field-token="type">{parts.length === 1 ? <TypeMemberTokens text={value} camel={!/\s/.test(value)} /> : <>
     {parts.map((part, index) => {
-      const extra = hidden > 0 && index >= shownParts - 1 ? { hidden: true, "data-type-extra": "" } : {};
+      const extra = hidden > 0 && index >= shownParts - 1 ? { "data-closed": "", "data-type-extra": "" } : {};
       return index % 2 === 0 ? <span key={index} data-type-member {...extra}><TypeMemberTokens text={part} /></span> : <span key={index} data-type-sep {...extra}>{part}</span>;
     })}
     {hidden > 0 && <><span data-type-sep data-type-more-sep>{parts[shownParts - 1]}</span><span data-type-more title={value}><span aria-hidden="true">+{hidden}</span><span data-sr-only>and {hidden} more</span></span></>}
@@ -232,7 +232,7 @@ function ToggleFieldRow({ row, guides, noteId, showAll, renderNote }: { row: Fie
     </span>
     <span data-field-def>
       <FieldType value={field.type} collapsed={described && !expanded} />
-      {described && <span data-field-token="note" id={noteId} hidden={!expanded}>{renderNote ? renderNote(field.description!) : field.description}</span>}
+      {described && <span data-field-token="note" id={noteId} data-closed={expanded ? undefined : ""}>{renderNote ? renderNote(field.description!) : field.description}</span>}
     </span>
   </>;
   // A click anywhere on the row but its open description toggles it. The switch holds every row open, so a click then changes nothing.
@@ -325,7 +325,7 @@ export const FIELD_LEDGER_STYLE = DESCRIBED_NAME_STYLE + TREE_GUIDES_CSS + `
 [data-field-token="type"] [data-type-sep]{color:var(--fl-muted)}
 [data-field-token="note"]{display:block;margin-top:var(--ds-space-0-5);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--fl-desc-size,13.5px);line-height:var(--ds-line-height-ui);color:var(--fl-desc,var(--docs-muted,#666562));overflow-wrap:break-word}
 [data-field-ledger]:has([data-field-token="note"]){container-type:inline-size}
-@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([hidden])){display:flex;align-items:baseline;column-gap:var(--ds-space-6)}[data-field-def]>[data-field-token="type"]{flex:0 0 var(--fl-type-w,20ch);min-width:0}[data-field-def]>[data-field-token="note"]{flex:1 1 0;min-width:0;margin-top:0}}
+@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([data-closed])){display:flex;align-items:baseline;column-gap:var(--ds-space-6)}[data-field-def]>[data-field-token="type"]{flex:0 0 var(--fl-type-w,20ch);min-width:0}[data-field-def]>[data-field-token="note"]{flex:1 1 0;min-width:0;margin-top:0}}
 [data-type-tok="string"]{color:var(--fl-type-string,inherit)}
 [data-type-tok="number"]{color:var(--fl-type-number,inherit)}
 [data-type-tok="keyword"]{color:var(--fl-type-keyword,inherit)}
@@ -350,6 +350,7 @@ export const FIELD_LEDGER_STYLE = DESCRIBED_NAME_STYLE + TREE_GUIDES_CSS + `
 [data-descriptions-switch][aria-checked="true"] [data-switch-track]{background:color-mix(in srgb,var(--docs-accent,#0078df) 35%,transparent)}
 [data-descriptions-switch][aria-checked="true"] [data-switch-track]::after{left:12px;background:var(--docs-accent,#0078df)}
 @media (prefers-reduced-motion:reduce){[data-field-chevron],[data-switch-track]::after,[data-switch-label],[data-descriptions-switch]{transition:none}}
-@media print{[data-field-token="note"][hidden]{display:block}[data-field-token="type"] [data-type-extra][hidden]{display:inline}[data-type-more],[data-type-more-sep],[data-field-chevron],[data-descriptions-switch]{display:none}}
+@media not print{[data-field-token="note"][data-closed],[data-field-token="type"] [data-type-extra][data-closed]{display:none}}
+@media print{[data-type-more],[data-type-more-sep],[data-field-chevron],[data-descriptions-switch]{display:none}}
 [data-sr-only]{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 `;

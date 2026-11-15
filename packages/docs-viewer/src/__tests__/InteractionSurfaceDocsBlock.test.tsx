@@ -252,10 +252,10 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     const toggle = opts.querySelector("button[data-field-toggle]") as HTMLElement;
     const note = document.getElementById(toggle.getAttribute("aria-controls")!) as HTMLElement;
     expect(note.textContent).toBe("Traversal options");
-    expect(note.hidden).toBe(true);
+    expect(note.hasAttribute("data-closed")).toBe(true);
     fireEvent.click(toggle);
     expect(toggle.getAttribute("aria-expanded")).toBe("true");
-    expect(note.hidden).toBe(false);
+    expect(note.hasAttribute("data-closed")).toBe(false);
     // Nested params hang off their parent with the file tree's elbows.
     expect(Array.from(rows[1]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["tee"]);
     expect(Array.from(rows[2]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["end"]);
