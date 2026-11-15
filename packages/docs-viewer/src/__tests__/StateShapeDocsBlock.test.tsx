@@ -151,9 +151,9 @@ describe("StateShapeBlock — plain reference panel", () => {
     const header = section.querySelector(":scope > [data-shape-header]") as HTMLElement;
     expect(header.tagName).toBe("HEADER");
     const parts = Array.from(header.children).map((child) =>
-      child.hasAttribute("data-ref-tile") ? "tile" : child.hasAttribute("data-shape-name") ? "name" : child.querySelector(":scope > [data-shape-source-ref]") ? "source" : "other",
+      child.hasAttribute("data-ref-tile") ? "tile" : child.hasAttribute("data-shape-name") ? "name" : child.querySelector(":scope > [data-shape-source-ref]") ? "source" : child.getAttribute("role") === "switch" ? "switch" : "other",
     );
-    expect(parts).toEqual(["tile", "name", "source"]);
+    expect(parts).toEqual(["tile", "name", "source", "switch"]);
     expect(header.querySelector("[data-ref-tile]")?.getAttribute("aria-hidden")).toBe("true");
     expect(header.querySelector("[data-shape-name]")?.textContent).toBe("StateShapeState");
     // The source is a source reference showing only basename#Symbol; the full
@@ -241,7 +241,7 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(union.querySelectorAll("wbr")).toHaveLength(0);
   });
 
-  it("renders names, types, an accessible optional mark, and prints each description beside its type", () => {
+  it("renders names, types, and an accessible optional mark", () => {
     renderTwoPane();
     const row = treeRow("source.symbol") as HTMLElement;
     expect(row.querySelector('[data-field-token="name"]')?.textContent).toBe("symbol");
@@ -251,18 +251,8 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(optional.querySelector('[aria-hidden="true"]')?.textContent).toBe("?");
     expect(optional.querySelector("[data-sr-only]")?.textContent).toBe(" (optional)");
     expect(treeRow("fields.name")?.querySelector('[data-field-token="optional"]')).toBeNull();
-    // A static or touch reader sees the description: it prints in the type
-    // column, after the type, and is never a hover-only tooltip.
-    const described = treeRow("name") as HTMLElement;
-    const note = described.querySelector('[data-field-token="note"]') as HTMLElement;
-    expect(note.textContent).toBe("Shape display name");
-    expect(note.closest("[data-field-def]")?.querySelector('[data-field-token="type"]')?.textContent).toBe("string");
-    expect(described.querySelector('[role="tooltip"]')).toBeNull();
-    expect(described.querySelector('[data-field-token="name"]')?.getAttribute("tabindex")).toBeNull();
-    // An undescribed field prints no note.
-    expect(row.querySelector('[data-field-token="note"]')).toBeNull();
-    // Notes sit in a third column when the ledger is 600px wide, else under the type.
-    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]){display:flex');
+    // A shown note sits in a third column when the ledger is 600px wide, else under the type.
+    expect(sheet()).toContain('@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([hidden])){display:flex');
   });
 
   it("colors type text as Dark+ colors a TS type: literals by role, pipes and braces as punctuation", () => {

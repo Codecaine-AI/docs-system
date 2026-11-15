@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useId, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useId, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
 import type { Field } from "@codecaine-ai/docs-model";
 import { LinkTarget } from "../linked-panels";
 import { DESCRIBED_NAME_STYLE, DescribedName } from "../described-name";
@@ -14,9 +15,14 @@ import { monoBreaks } from "../mono-breaks";
  * operation's returned fields all render through this ledger, so every field
  * row in the corpus has the same columns: a fixed name column (name in the
  * property color, a punctuation `?` when optional) and a type column (type
- * text lexed into code roles). A described name has a dotted underline and
- * opens its description as a hover / focus tooltip (../described-name),
- * printed inline beneath the name in print media. Nesting steps the name in
+ * text lexed into code roles). Descriptions are hidden by default: a row with
+ * a description is a toggle (a button with aria-expanded, and a chevron on
+ * hover) that opens its own description under its type, and the page-wide
+ * Descriptions switch ({@link DescriptionsSwitch}) opens every description in
+ * every ledger on the page. Static markup has no JS to run a toggle, so there
+ * a host's static fallback stands: `inlineNotes` prints every description,
+ * otherwise a described name opens it as a hover / focus tooltip
+ * (../described-name). Print shows every description. Nesting steps the name in
  * by one indent per level, joined to its parent by the file tree's elbow
  * connectors (../outline-rows/tree-rows `elbowGuides` / `TreeGuides`).
  *
@@ -91,11 +97,78 @@ function TypeMemberTokens({ text, camel = false }: { text: string; camel?: boole
   })}</>;
 }
 
-/** Type text in the type color; union pipes are muted punctuation. */
-export function FieldType({ value }: { value?: string }) {
+/** A collapsed string-literal union shows this many members, then a muted `+N`. */
+const COLLAPSED_UNION_MEMBERS = 2;
+const STRING_LITERAL_PATTERN = /^(["'`]).*\1$/;
+
+/** How many members a collapsed row hides: the members past the first two of a string-literal union of 4 or more. */
+function hiddenUnionMembers(parts: readonly string[]): number {
+  const members = parts.filter((_, index) => index % 2 === 0);
+  if (members.length <= COLLAPSED_UNION_MEMBERS + 1 || !members.every((member) => STRING_LITERAL_PATTERN.test(member))) return 0;
+  return members.length - COLLAPSED_UNION_MEMBERS;
+}
+
+/**
+ * Type text in the type color; union pipes are muted punctuation. With
+ * `collapsed`, a long string-literal union shows its first two members and a
+ * muted `+N`; the other members stay in the markup as `hidden`, so print
+ * shows the whole union.
+ */
+export function FieldType({ value, collapsed = false }: { value?: string; collapsed?: boolean }) {
   if (!value) return null;
   const parts = splitTypeUnion(value);
-  return <span data-field-token="type">{parts.length === 1 ? <TypeMemberTokens text={value} camel={!/\s/.test(value)} /> : parts.map((part, index) => index % 2 === 0 ? <span key={index} data-type-member><TypeMemberTokens text={part} /></span> : <span key={index} data-type-sep>{part}</span>)}</span>;
+  const hidden = collapsed ? hiddenUnionMembers(parts) : 0;
+  const shownParts = COLLAPSED_UNION_MEMBERS * 2;
+  return <span data-field-token="type">{parts.length === 1 ? <TypeMemberTokens text={value} camel={!/\s/.test(value)} /> : <>
+    {parts.map((part, index) => {
+      const extra = hidden > 0 && index >= shownParts - 1 ? { hidden: true, "data-type-extra": "" } : {};
+      return index % 2 === 0 ? <span key={index} data-type-member {...extra}><TypeMemberTokens text={part} /></span> : <span key={index} data-type-sep {...extra}>{part}</span>;
+    })}
+    {hidden > 0 && <><span data-type-sep data-type-more-sep>{parts[shownParts - 1]}</span><span data-type-more title={value}><span aria-hidden="true">+{hidden}</span><span data-sr-only>and {hidden} more</span></span></>}
+  </>}</span>;
+}
+
+/*
+ * The page-wide Descriptions switch. One value for the whole page (every
+ * ledger in every block reads it), held in memory only: it starts off and a
+ * reload resets it.
+ */
+let showAllDescriptions = false;
+const switchListeners = new Set<() => void>();
+function subscribeSwitch(listener: () => void) {
+  switchListeners.add(listener);
+  return () => { switchListeners.delete(listener); };
+}
+function setShowAllDescriptions(on: boolean) {
+  showAllDescriptions = on;
+  for (const listener of switchListeners) listener();
+}
+/** True when the page-wide Descriptions switch is on. Static markup reads false. */
+function useShowAllDescriptions(): boolean {
+  return useSyncExternalStore(subscribeSwitch, () => showAllDescriptions, () => false);
+}
+const subscribeNothing = () => () => {};
+/** True in a live React tree; false in static markup, which has no JS to run a toggle. */
+function useInteractive(): boolean {
+  return useSyncExternalStore(subscribeNothing, () => true, () => false);
+}
+
+/**
+ * The block-head switch that shows every field description on the page. It
+ * renders only in a live React tree; static markup keeps its fallback.
+ */
+export function DescriptionsSwitch() {
+  const interactive = useInteractive();
+  const on = useShowAllDescriptions();
+  if (!interactive) return null;
+  return <button type="button" role="switch" aria-checked={on} data-descriptions-switch="" onClick={() => setShowAllDescriptions(!on)}>
+    <span data-switch-track="" aria-hidden="true" />Descriptions
+  </button>;
+}
+
+/** True when any row has a description, so its block head shows the Descriptions switch. */
+export function hasDescribedRows(rows: readonly Pick<FieldLedgerRow, "field">[]): boolean {
+  return rows.some((row) => Boolean(row.field.description));
 }
 
 type DataAttributes = { [Key in `data-${string}`]?: string | number | boolean | undefined };
@@ -138,7 +211,40 @@ export function ledgerGuides(rows: readonly Pick<FieldLedgerRow, "depth">[]): Tr
 /** Renders a field description's text. A host without one prints the description as plain text. */
 export type NoteRenderer = (description: string) => ReactNode;
 
-function FieldRow({ row, guides, tipId, inline, renderNote }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string; inline: boolean; renderNote?: NoteRenderer }) {
+/** Enter / Space on the row toggle stay on the button, so the row's link handler cannot cancel its click. */
+function keepToggleKeys(event: KeyboardEvent) {
+  if (event.key === "Enter" || event.key === " ") event.stopPropagation();
+}
+
+function ToggleFieldRow({ row, guides, noteId, showAll, renderNote }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; noteId: string; showAll: boolean; renderNote?: NoteRenderer }) {
+  const { field, depth } = row;
+  const [open, setOpen] = useState(false);
+  const described = Boolean(field.description);
+  const expanded = described && (open || showAll);
+  const optional = field.required === false && <span data-field-token="optional"><span aria-hidden="true">?</span><span data-sr-only> (optional)</span></span>;
+  const name = <span data-field-token="name">{monoBreaks(field.name, { underscore: true })}</span>;
+  const content: ReactNode = <>
+    <TreeGuides guides={guides} />
+    <span data-field-name-cell>
+      {described
+        ? <button type="button" data-field-toggle="" aria-expanded={expanded} aria-controls={noteId} onKeyDown={keepToggleKeys}><ChevronRight aria-hidden="true" data-field-chevron="" />{name}{optional}</button>
+        : <>{name}{optional}</>}
+    </span>
+    <span data-field-def>
+      <FieldType value={field.type} collapsed={described && !expanded} />
+      {described && <span data-field-token="note" id={noteId} hidden={!expanded}>{renderNote ? renderNote(field.description!) : field.description}</span>}
+    </span>
+  </>;
+  // A click anywhere on the row but its open description toggles it. The switch holds every row open, so a click then changes nothing.
+  const toggle = (event: MouseEvent) => {
+    if (showAll || (event.target as Element).closest('[data-field-token="note"]')) return;
+    setOpen((value) => !value);
+  };
+  const props = { ...row.attrs, "data-field-row": row.path, "data-field-depth": depth, "data-field-open": expanded ? "true" : undefined, onClickCapture: described ? toggle : undefined, style: { "--field-depth": depth } as CSSProperties };
+  return row.linkKey ? <LinkTarget linkKey={row.linkKey} {...props}>{content}</LinkTarget> : <div {...props}>{content}</div>;
+}
+
+function StaticFieldRow({ row, guides, tipId, inline, renderNote }: { row: FieldLedgerRow; guides: readonly TreeGuide[]; tipId: string; inline: boolean; renderNote?: NoteRenderer }) {
   const { field, depth } = row;
   const optional = field.required === false && <span data-field-token="optional"><span aria-hidden="true">?</span><span data-sr-only> (optional)</span></span>;
   const content: ReactNode = <>
@@ -159,14 +265,21 @@ function FieldRow({ row, guides, tipId, inline, renderNote }: { row: FieldLedger
 
 /**
  * A field ledger: one row per field, in document order. A row shows the name
- * and type. A field's description opens as a tooltip on its name
- * (DescribedName) and prints inline in print media. With `inlineNotes`, the
- * description prints under the type on screen too, so a static reader sees it.
+ * and type only. In a live React tree, a described row toggles its own
+ * description open under its type, and the page-wide Descriptions switch
+ * opens them all. Static markup cannot toggle, so it keeps the static
+ * fallback: with `inlineNotes` each description prints under its type,
+ * otherwise it opens as a tooltip on the name (DescribedName). Print shows
+ * every description.
  */
 export function FieldLedger({ rows, inlineNotes = false, renderNote, ...rest }: { rows: readonly FieldLedgerRow[]; inlineNotes?: boolean; renderNote?: NoteRenderer } & DataAttributes) {
-  const tipBase = useId();
+  const idBase = useId();
+  const interactive = useInteractive();
+  const showAll = useShowAllDescriptions();
   const guides = ledgerGuides(rows);
-  return <div {...rest} data-field-ledger>{rows.map((row, index) => <FieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${tipBase}-tip-${index}`} inline={inlineNotes} renderNote={renderNote} />)}</div>;
+  return <div {...rest} data-field-ledger data-field-toggles={interactive ? "true" : undefined}>{rows.map((row, index) => interactive
+    ? <ToggleFieldRow key={row.path} row={row} guides={guides[index]!} noteId={`${idBase}-note-${index}`} showAll={showAll} renderNote={renderNote} />
+    : <StaticFieldRow key={row.path} row={row} guides={guides[index]!} tipId={`${idBase}-tip-${index}`} inline={inlineNotes} renderNote={renderNote} />)}</div>;
 }
 
 /**
@@ -212,11 +325,28 @@ export const FIELD_LEDGER_STYLE = DESCRIBED_NAME_STYLE + TREE_GUIDES_CSS + `
 [data-field-token="type"] [data-type-sep]{color:var(--fl-muted)}
 [data-field-token="note"]{display:block;margin-top:var(--ds-space-0-5);font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--fl-desc-size,13.5px);line-height:var(--ds-line-height-ui);color:var(--fl-desc,var(--docs-muted,#666562));overflow-wrap:break-word}
 [data-field-ledger]:has([data-field-token="note"]){container-type:inline-size}
-@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]){display:flex;align-items:baseline;column-gap:var(--ds-space-6)}[data-field-def]>[data-field-token="type"]{flex:0 0 var(--fl-type-w,20ch);min-width:0}[data-field-def]>[data-field-token="note"]{flex:1 1 0;min-width:0;margin-top:0}}
+@container (min-width:600px){[data-field-def]:has(>[data-field-token="note"]:not([hidden])){display:flex;align-items:baseline;column-gap:var(--ds-space-6)}[data-field-def]>[data-field-token="type"]{flex:0 0 var(--fl-type-w,20ch);min-width:0}[data-field-def]>[data-field-token="note"]{flex:1 1 0;min-width:0;margin-top:0}}
 [data-type-tok="string"]{color:var(--fl-type-string,inherit)}
 [data-type-tok="number"]{color:var(--fl-type-number,inherit)}
 [data-type-tok="keyword"]{color:var(--fl-type-keyword,inherit)}
 [data-type-tok="key"]{color:var(--fl-type-key,inherit)}
 [data-type-tok="punct"]{color:var(--fl-type-punct,inherit)}
+[data-field-toggle]{position:relative;display:inline-flex;align-items:baseline;max-width:100%;margin:0;padding:0;border:0;border-radius:var(--ds-radius-base);background:none;color:inherit;font:inherit;line-height:inherit;text-align:left;cursor:pointer}
+[data-field-toggle]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:var(--ds-focus-ring-offset)}
+[data-field-chevron]{position:absolute;right:calc(100% + var(--ds-space-0-5));top:calc((1lh - var(--ds-space-3)) / 2);width:var(--ds-space-3);height:var(--ds-space-3);color:var(--fl-muted);transition:opacity 120ms var(--ds-motion-easing-standard),rotate 120ms var(--ds-motion-easing-standard)}
+[data-field-ledger] [data-field-toggle]>svg[data-field-chevron]{opacity:0}
+[data-field-ledger] [data-field-row]:is(:hover,[data-field-open]) [data-field-toggle]>svg[data-field-chevron],[data-field-ledger] [data-field-toggle]:focus-visible>svg[data-field-chevron]{opacity:1}
+[data-field-open] [data-field-chevron]{rotate:90deg}
+[data-field-toggles] [data-field-row]:has([data-field-toggle]){cursor:pointer}
+[data-field-token="type"] [data-type-more]{color:var(--fl-muted)}
+[data-descriptions-switch]{display:inline-flex;flex:none;align-items:center;gap:var(--ds-space-1-5);margin:0;padding:var(--ds-space-0-5) var(--ds-space-2) var(--ds-space-0-5) var(--ds-space-1);border:var(--ds-border-width-hairline) solid var(--docs-rule,#e6e5e3);border-radius:var(--ds-radius-pill);background:none;font-family:var(--docs-font-body,var(--font-sans,ui-sans-serif,system-ui,sans-serif));font-size:var(--ds-font-size-ui-xs);line-height:1.4;color:var(--docs-muted,#666562);cursor:pointer}
+[data-descriptions-switch]:hover,[data-descriptions-switch][aria-checked="true"]{color:var(--docs-ink,#1f1f1f)}
+[data-descriptions-switch]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:var(--ds-focus-ring-offset)}
+[data-switch-track]{position:relative;width:22px;height:var(--ds-space-3);border-radius:var(--ds-radius-pill);background:var(--docs-rule,#e6e5e3)}
+[data-switch-track]::after{content:"";position:absolute;left:2px;top:2px;width:8px;height:8px;border-radius:50%;background:var(--docs-muted,#666562);transition:left 120ms var(--ds-motion-easing-standard)}
+[data-descriptions-switch][aria-checked="true"] [data-switch-track]{background:color-mix(in srgb,var(--docs-accent,#0078df) 35%,transparent)}
+[data-descriptions-switch][aria-checked="true"] [data-switch-track]::after{left:12px;background:var(--docs-accent,#0078df)}
+@media (prefers-reduced-motion:reduce){[data-field-chevron],[data-switch-track]::after{transition:none}}
+@media print{[data-field-token="note"][hidden]{display:block}[data-field-token="type"] [data-type-extra][hidden]{display:inline}[data-type-more],[data-type-more-sep],[data-field-chevron],[data-descriptions-switch]{display:none}}
 [data-sr-only]{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 `;

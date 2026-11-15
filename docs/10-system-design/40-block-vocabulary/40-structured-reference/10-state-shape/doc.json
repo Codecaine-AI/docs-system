@@ -1388,7 +1388,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Every field row shows a name, a type, and the field's description when it has one. The name takes the key color with a punctuation-colored "
+          "insert": "Every field row shows a name and a type. The name takes the key color with a punctuation-colored "
         },
         {
           "insert": "?",
@@ -1651,6 +1651,10 @@
       ],
       "children": [
         "b-25-state-shape-dr-desc-1",
+        "b-25-state-shape-dr-desc-switch",
+        "b-25-state-shape-dr-desc-union",
+        "b-25-state-shape-dr-desc-layout",
+        "b-25-state-shape-dr-desc-static",
         "b-25-state-shape-dr-desc-2"
       ]
     },
@@ -1660,7 +1664,107 @@
       "props": {},
       "text": [
         {
-          "insert": "A field's description prints beside its type at a ledger width of 600px or more, and under the type below that. Each backtick span in a description renders as inline code."
+          "insert": "A row hides its description until the reader opens the row."
+        }
+      ],
+      "children": [
+        "b-25-state-shape-dr-desc-1a",
+        "b-25-state-shape-dr-desc-1b"
+      ]
+    },
+    "b-25-state-shape-dr-desc-1a": {
+      "id": "b-25-state-shape-dr-desc-1a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A click on a described row opens its description under its type, and a second click closes it."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-1b": {
+      "id": "b-25-state-shape-dr-desc-1b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The row toggle is a button with "
+        },
+        {
+          "insert": "aria-expanded",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", and a chevron shows on hover. A row without a description has no toggle."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-switch": {
+      "id": "b-25-state-shape-dr-desc-switch",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The Descriptions switch at the right of the header shows every description in every ledger on the page."
+        }
+      ],
+      "children": [
+        "b-25-state-shape-dr-desc-switch-1"
+      ]
+    },
+    "b-25-state-shape-dr-desc-switch-1": {
+      "id": "b-25-state-shape-dr-desc-switch-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The switch value lives in memory only, so a reload turns it off. Interaction Surface ledgers read the same switch."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-union": {
+      "id": "b-25-state-shape-dr-desc-union",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "While a described row is closed, a string-literal union of 4 or more values shows its first 2 values and a muted "
+        },
+        {
+          "insert": "+N",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ". A row without a description shows its whole union."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-layout": {
+      "id": "b-25-state-shape-dr-desc-layout",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "An open description sits beside its type at a ledger width of 600px or more, and under the type below that. Each backtick span in a description renders as inline code."
+        }
+      ],
+      "children": []
+    },
+    "b-25-state-shape-dr-desc-static": {
+      "id": "b-25-state-shape-dr-desc-static",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Static markup, such as a published page, has no JS to run a toggle. It prints every description beside its type and shows no switch."
         }
       ],
       "children": []
@@ -1671,7 +1775,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description."
+          "insert": "Print media, which PDF export uses, prints every description and every union value, so an exported page carries them all."
         }
       ],
       "children": []

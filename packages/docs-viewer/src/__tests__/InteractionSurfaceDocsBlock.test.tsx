@@ -238,7 +238,7 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(signatureTail({ name: 'reduce(state, { type: "open" })', params: [{ name: "state" }], returns: "S" })).toBe(" → S");
   });
 
-  it("gives every param a shared ledger row with its type, the description as a name tooltip", () => {
+  it("gives every param a shared ledger row with its type; the description opens when the reader clicks the row", () => {
     render(<InteractionSurfaceBlock id="surface-notes" operations={OPERATIONS} />);
     const op = opRow("table.walk")!;
     expect(op.querySelector('[data-op-card="params"] > [data-op-card-head]')?.textContent).toBe("Parameters");
@@ -248,16 +248,20 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     const opts = rows[0]!;
     expect(opts.querySelector('[data-field-token="name"]')?.textContent).toBe("opts");
     expect(opts.querySelector('[data-field-token="optional"] [data-sr-only]')?.textContent).toBe(" (optional)");
-    // The shared ledger: the description opens as a tooltip on the focusable name.
-    const tip = opts.querySelector('[data-field-token="description"]') as HTMLElement;
-    expect(tip.textContent).toBe("Traversal options");
-    expect(tip.getAttribute("role")).toBe("tooltip");
-    expect(opts.querySelector('[data-field-token="name"]')?.getAttribute("aria-describedby")).toBe(tip.id);
+    // The shared ledger: the description is hidden until the reader opens the row.
+    const toggle = opts.querySelector("button[data-field-toggle]") as HTMLElement;
+    const note = document.getElementById(toggle.getAttribute("aria-controls")!) as HTMLElement;
+    expect(note.textContent).toBe("Traversal options");
+    expect(note.hidden).toBe(true);
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-expanded")).toBe("true");
+    expect(note.hidden).toBe(false);
     // Nested params hang off their parent with the file tree's elbows.
     expect(Array.from(rows[1]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["tee"]);
     expect(Array.from(rows[2]!.querySelectorAll(".docs-tree__guides > i")).map((guide) => guide.getAttribute("data-g"))).toEqual(["end"]);
     expect(rows[2]!.querySelector('[data-field-token="type"]')?.textContent).toBe("string");
-    expect(rows[2]!.querySelector('[data-field-token="description"]')).toBeNull();
+    expect(rows[2]!.querySelector('[data-field-token="note"]')).toBeNull();
+    expect(rows[2]!.querySelector("button[data-field-toggle]")).toBeNull();
     // No parameters and no example call: no Parameters card, no empty ledger.
     expect(opRow("table.changed")?.querySelector('[data-op-card="params"]')).toBeNull();
     expect(opRow("table.changed")?.querySelector("[data-op-params]")).toBeNull();
@@ -349,7 +353,7 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     expect(card.querySelectorAll("details")).toHaveLength(1);
     const output = card.querySelector("[data-operation-body] [data-operation-output]") as HTMLElement;
     expect(output.querySelector("[data-op-return-type]")?.textContent).toBe("Prepared");
-    expect(output.querySelector('[data-shape-path="path"] [data-field-token="description"]')?.textContent).toBe("Where it landed.");
+    expect(output.querySelector('[data-shape-path="path"] [data-field-token="note"]')?.textContent).toBe("Where it landed.");
     const example = card.querySelector("[data-op-example]") as HTMLElement;
     expect(example.hasAttribute("data-code-surface")).toBe(true);
     expect(example.querySelector("[data-shape-example]")?.getAttribute("aria-label")).toBe("Prepared example");

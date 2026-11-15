@@ -6,12 +6,12 @@ import { printJsonLines, type Field } from "@codecaine-ai/docs-model";
 import { DescribedName } from "../described-name";
 import { CodeLines, LinkGroup, type LinkedCodeLine } from "../linked-panels";
 import { monoBreaks } from "../mono-breaks";
-import { FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, type FieldLedgerRow } from "./field-ledger";
+import { DescriptionsSwitch, FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, hasDescribedRows, type FieldLedgerRow } from "./field-ledger";
 
 export { classifyTypeText, splitTypeUnion, type TypeTextClassification } from "./field-ledger";
 
 export const STATE_SHAPE_LABEL = "State Shape";
-export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). Each field's description prints on the page beside its type: in a third column when the ledger is 600px wide or more, and under the type when it is narrower. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
+export const STATE_SHAPE_AGENT_DESCRIPTION = "A bounded field inspector with a linked JSON companion. A plain panel head shows the reference family tile, the shape name in mono, and, at the right, the source as a muted basename#Symbol source reference whose full path#Symbol opens in a tooltip on hover or focus; the shape's own description prints beneath the head. The whole panel is a dark code panel colored like a TypeScript type in VS Code Dark+. Every field is one ledger row: the name in the property color with a punctuation ? when optional, then the type (type names teal, string literals orange, punctuation plain). A string-literal union of 4 or more values shows its first 2 values and a muted +N while its row is closed. Field descriptions are hidden by default: clicking a described row (a button with aria-expanded and a chevron on hover) opens its description under its type, and clicking again closes it. A Descriptions switch at the right of the head shows every description in every ledger on the page; it is not saved and resets on reload. A shown description sits in a third column when the ledger is 600px wide or more, and under the type when it is narrower. Static markup without JS prints every description beside its type. Nested fields hang off their parent with file-tree elbow connectors. The JSON example sits in a code pane beside the fields; hover, focus, click, Enter, Space, and Escape coordinate field paths with every matching JSON occurrence. The shape is always open.";
 export type StateShapeSourceProps = { path: string; symbol?: string };
 
 /**
@@ -22,9 +22,9 @@ export type StateShapeSourceProps = { path: string; symbol?: string };
  * type: names --syntax-key, types --syntax-type, string-literal types
  * --syntax-string, the ? marker and type punctuation --syntax-punctuation
  * (VS Code Dark+ by default; each literal fallback is the Dark+ value).
- * Field descriptions print on the page beside their types (the ledger's
- * inlineNotes), so a static or touch reader sees every note, as in the
- * Interaction Surface ledgers. The head's source shows basename#Symbol with
+ * Field descriptions are hidden until a reader opens a row or turns on the
+ * head's page-wide Descriptions switch; static markup prints them beside
+ * their types (the ledger's inlineNotes fallback). The head's source shows basename#Symbol with
  * the full path in a tooltip (../described-name). Nested fields use the file tree's elbow connectors, colored by
  * --docs-shape-child-rule. Every visual value reads a --docs-shape-*
  * knob (the style rail's State shape pane, THEME_TOKEN_REGISTRY
@@ -36,6 +36,8 @@ export const STATE_SHAPE_STYLE = `
 [data-shape-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--docs-shape-header-pad-y,6px) var(--docs-shape-pad-x,16px);background:var(--docs-shape-header-bg,var(--docs-panel,#f8f8f7));border-bottom:var(--docs-shape-header-rule-width,1px) solid var(--docs-shape-header-rule,var(--docs-rule-soft,#efeeec))}
 [data-shape-name]{margin:0;min-width:0;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--docs-shape-header-text-size,13px);font-weight:var(--docs-shape-header-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-shape-header-fg,var(--docs-ink,#1f1f1f));overflow-wrap:normal}
 [data-shape-header]>[data-described]{margin-left:auto;min-width:0}
+[data-shape-header]>[data-descriptions-switch]{margin-left:auto}
+[data-shape-header]>[data-described]+[data-descriptions-switch]{margin-left:var(--ds-space-3)}
 [data-shape-source-ref]{display:inline-block;font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);line-height:1.4;color:var(--docs-muted,#666562);overflow-wrap:normal}
 [data-shape-header] [data-description-tip]{left:auto;right:calc(-1 * var(--ds-space-2));max-width:min(var(--ds-layout-lane-text),calc(100cqi - var(--ds-space-6)));font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:var(--ds-font-size-ui-xs);color:var(--docs-text,#2a2a2a);overflow-wrap:anywhere}
 @media print{[data-shape-header] [data-description-tip]{display:none}}
@@ -340,12 +342,14 @@ export function StateShapeBlock({ id, name, description, source, fields, example
   const sourceTipId = useId();
   const label = name ?? sourceRef ?? "State shape";
   const nameFit = { "--shape-name-fit": `${fitNameColumn(model.rows)}ch` } as CSSProperties;
+  const described = hasDescribedRows(model.rows);
   return <section className="not-prose w-full min-w-0" data-docs-block-type="state-shape" data-source-id={id} data-shape-source={sourceRef} data-code-surface="true" style={nameFit}>
     <style>{SHAPE_SHEET}</style>
-    {(name || sourceRef) && <header data-shape-header="true">
+    {(name || sourceRef || described) && <header data-shape-header="true">
       <span data-ref-tile aria-hidden="true"><Braces aria-hidden="true" data-shape-icon="true" /></span>
       {name && <h3 data-shape-name="true">{monoBreaks(name)}</h3>}
       {source && <DescribedName id={sourceTipId} name={sourceShort} tip={sourceRef} nameAttrs={{ "data-shape-source-ref": "true", "data-spectre-ref": "true", "data-ref-kind": "source", "data-ref-path": source.path, "data-ref-symbol": source.symbol }} tipAttrs={{ "data-shape-source-tip": "true" }} />}
+      {described && <DescriptionsSwitch />}
     </header>}
     {description && <p data-shape-description="true">{description}</p>}
     <LinkGroup>
