@@ -1,19 +1,19 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import { Plug, Radio, Search, Zap, type LucideIcon } from "lucide-react";
 import { isCallFormName, type Field } from "@codecaine-ai/docs-model";
 import { CodeLines, LinkGroup, type LinkedCodeLine } from "../linked-panels";
 import { DescribedName } from "../described-name";
 import { monoBreaks } from "../mono-breaks";
 import { DISCLOSURE_STYLE, DisclosureChevron, syncDisclosureExpanded } from "../disclosure";
-import { DescriptionsSwitch, FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, hasDescribedRows, type FieldLedgerRow } from "../state-shape/field-ledger";
-import { REF_CODE_PANE_STYLE, REF_TILE_STYLE, buildShapeModel, hangingLine } from "../state-shape/StateShapeDocsBlock";
+import { DescriptionsSwitch, FIELD_LEDGER_STYLE, FieldLedger, flattenFieldRows, hasDescribedRows, useInteractive, type FieldLedgerRow } from "../state-shape/field-ledger";
+import { REF_CODE_PANE_STYLE, REF_TILE_STYLE, buildShapeModel, exampleFitWidth, fitNameColumn, foldedExampleLines, hangingLine } from "../state-shape/StateShapeDocsBlock";
 import { tokenizeExampleCall, tokenizeSigType } from "./signature-tokens";
 
 export const INTERACTION_SURFACE_LABEL = "Interaction Surface";
 export const INTERACTION_SURFACE_AGENT_DESCRIPTION =
-  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Operations start collapsed as rows: chevron, the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType with params elided, and a kind chip (icon and the word action, query, or event, colored by kind) at the row end. A return type too long for the line wraps under the name, never truncated. Rows open on click, Enter, or Space. The name is a described name: hover or focus shows a tooltip with the kind badge above the purpose. Open, the operation is its own card and its body is indented under the operation line: a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, and type; a described row opens its description under its type on click, and the Descriptions switch in the panel head shows every description on the page. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
+  'Operations on state as rows of one reference panel; the surface title heads the panel. The whole panel is a dark code surface colored like VS Code Dark+. Operations start collapsed as rows: chevron, the real dotted name in mono (never humanized) as receiver.method(…) → ReturnType with params elided, and a kind chip (icon and the word action, query, or event, colored by kind) at the row end. A return type too long for the line wraps under the name, never truncated. Rows open on click, Enter, or Space. The name is a described name: hover or focus shows a tooltip with the kind badge above the purpose. Open, the operation is its own card and its body is indented under the operation line: a Parameters card holds the params ledger beside the authored example call (exampleCall), and a Returns card headed by the return type holds the returned-fields ledger beside the returned example. Ledgers share the State Shape field rows: name, muted ? when optional, and type, with one name column per operation that fits its longest name up to 32ch; a code pane is as wide as its widest line, up to 48 columns and 56% of its card; a long returned-example array folds to its first item and a … N more button; a described row opens its description under its type on click, and the Descriptions switch in the panel head shows every description on the page. Typed props: { title?: string; operations: Array<{ name: string; description?: string; params?: Array<{ name: string; type?: string; required?: boolean; description?: string; fields?: Param[] }>; returns?: string; returnShape?: { fields: Field[]; example?: string }; exampleCall?: string; kind?: "action" | "query" | "event" }> }.';
 
 export type InteractionSurfaceParam = Field;
 export type InteractionSurfaceOperation = {
@@ -180,7 +180,7 @@ function domId(...parts: string[]): string {
  * grain mask never see the hidden code panes as on-screen code.
  */
 const SURFACE_STYLE = `
-[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge);--op-radius:var(--docs-interaction-radius,var(--radius,2px));--op-pad-x:var(--docs-interaction-pad-x,16px);--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)));--op-rule-w:var(--docs-interaction-rule-width,1px);--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)));--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)));--op-raise-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 7%,var(--op-bg));--op-list-inset:var(--ds-space-1);--op-zone-inset:var(--ds-space-3);--op-list-take:calc(var(--ds-space-8) + var(--ds-space-1));--fl-pad-x:var(--op-pad-x);--fl-row-pad:var(--docs-interaction-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--op-rule);--fl-rule-w:var(--op-rule-w);--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));--fl-indent:var(--docs-interaction-indent,16px);--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-interaction-note-name,var(--docs-shape-name,var(--syntax-key,var(--docs-syn-prop,#0d7164))));--fl-name-weight:var(--docs-interaction-note-name-weight,500);--fl-name-size:var(--docs-interaction-note-name-text-size,13px);--fl-type:var(--docs-interaction-note-type,var(--docs-shape-type,var(--syntax-type,var(--docs-syn-type,#805f01))));--fl-type-size:var(--docs-interaction-note-type-text-size,13px);--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--syntax-punctuation,#d4d4d4);--fl-muted:var(--docs-shape-muted,var(--docs-muted,#666562));--fl-optional:var(--docs-shape-optional-fg,var(--docs-muted,#666562));--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)));--fl-desc-size:var(--docs-interaction-desc-text-size,13.5px)}
+[data-docs-block-type="interaction-surface"]{container-type:inline-size;margin:var(--ds-space-4) 0;color:var(--docs-text,#2a2a2a);background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge);--op-radius:var(--docs-interaction-radius,var(--radius,2px));--op-pad-x:var(--docs-interaction-pad-x,16px);--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)));--op-rule-w:var(--docs-interaction-rule-width,1px);--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)));--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)));--op-raise-bg:color-mix(in srgb,var(--docs-ink,#1f1f1f) 7%,var(--op-bg));--op-list-inset:var(--ds-space-1);--op-zone-inset:var(--ds-space-3);--op-list-take:calc(var(--ds-space-8) + var(--ds-space-1));--fl-pad-x:var(--op-pad-x);--fl-row-pad:var(--docs-interaction-row-pad,5px);--fl-row-min-h:var(--docs-shape-row-min-height,28px);--fl-rule:var(--op-rule);--fl-rule-w:var(--op-rule-w);--fl-name-w:calc(min(calc(var(--docs-shape-name-width,24ch) + 8ch),var(--shape-name-fit,var(--docs-shape-name-width,24ch))) - var(--ds-space-1));--fl-indent:var(--docs-interaction-indent,16px);--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)));--fl-guide-w:var(--docs-shape-child-rule-width,1px);--fl-name:var(--docs-interaction-note-name,var(--docs-shape-name,var(--syntax-key,var(--docs-syn-prop,#0d7164))));--fl-name-weight:var(--docs-interaction-note-name-weight,500);--fl-name-size:var(--docs-interaction-note-name-text-size,13px);--fl-type:var(--docs-interaction-note-type,var(--docs-shape-type,var(--syntax-type,var(--docs-syn-type,#805f01))));--fl-type-size:var(--docs-interaction-note-type-text-size,13px);--fl-type-string:var(--syntax-string,#ce9178);--fl-type-number:var(--syntax-number,#b5cea8);--fl-type-keyword:var(--syntax-keyword,#569cd6);--fl-type-key:var(--fl-name);--fl-type-punct:var(--syntax-punctuation,#d4d4d4);--fl-muted:var(--docs-shape-muted,var(--docs-muted,#666562));--fl-optional:var(--docs-shape-optional-fg,var(--docs-muted,#666562));--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)));--fl-desc-size:var(--docs-interaction-desc-text-size,13.5px)}
 [data-operations-header]{display:flex;align-items:center;gap:var(--ds-space-2);min-height:var(--ds-space-8);padding:var(--ds-space-1-5) var(--op-pad-x);border-bottom:var(--op-rule-w) solid var(--op-rule)}
 [data-operations-header]>[data-descriptions-switch]{margin-left:auto}
 [data-operations-title]{margin:0;min-width:0;font-size:var(--docs-interaction-title-text-size,13.5px);font-weight:var(--docs-interaction-title-weight,600);line-height:var(--ds-line-height-tight);color:var(--docs-interaction-title-fg,var(--docs-ink,#1f1f1f));overflow-wrap:anywhere}
@@ -232,6 +232,8 @@ const SURFACE_STYLE = `
 [data-op-row]>[data-op-code]:first-child{border-top:0}
 [data-op-code] [data-code-line]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace)}
 @container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)}[data-op-row][data-has-list][data-has-code]>[data-op-code]{border-top:0;border-left:var(--op-rule-w) solid var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))}}
+@container (min-width:560px){[data-op-row][data-has-list][data-has-code][data-example-fit]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),1fr) minmax(260px,min(var(--shape-example-w),56%))}}
+@container (max-width:559px){[data-op-list] [data-field-ledger]{--fl-name-w:calc(min(var(--docs-shape-name-width,24ch),var(--shape-name-fit,var(--docs-shape-name-width,24ch))) - var(--ds-space-1))}}
 @media print{[data-operation-name]>[data-described]{display:block}[data-operation-tip-kind]{display:inline-block;margin:0 var(--ds-space-2) 0 0}[data-operation-tip-purpose]{display:inline}}
 @media(prefers-reduced-motion:reduce){[data-docs-block-type="interaction-surface"] *{scroll-behavior:auto;transition-duration:.01ms}}
 `;
@@ -246,11 +248,25 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
   const rows = paramRows(operation);
   const callLines = operation.exampleCall ? exampleCallLines(operation, rows) : undefined;
   const shape = operation.returnShape ? buildShapeModel(operation.returnShape.fields, operation.returnShape.example, (path) => ({ "data-shape-path": path })) : undefined;
+  const interactive = useInteractive();
+  const [openFolds, setOpenFolds] = useState<ReadonlySet<number>>(() => new Set());
+  const toggleFold = (fold: number) => setOpenFolds((current) => {
+    const next = new Set(current);
+    if (!next.delete(fold)) next.add(fold);
+    return next;
+  });
+  // Static markup has no JS to open a fold, so it prints every line.
+  const returnLines = shape?.exampleLines && interactive ? foldedExampleLines(shape.exampleLines, shape.folds, openFolds, toggleFold, `${operation.returns ?? operation.name} example`) : shape?.exampleLines;
+  // One name column for both cards, so the Parameters and Returns type columns start at the same x.
+  const nameFit = { "--shape-name-fit": `${fitNameColumn([...rows, ...(shape?.rows ?? [])])}ch` } as CSSProperties;
+  const callColumns = (operation.exampleCall ?? "").split("\n").reduce((max, line) => Math.max(max, line.replace(/\t/g, "  ").length), 0);
+  const callFit = { "--shape-example-w": exampleFitWidth(callColumns) } as CSSProperties;
+  const returnFit = shape?.exampleColumns !== undefined ? { "--shape-example-w": exampleFitWidth(shape.exampleColumns) } as CSSProperties : undefined;
   const hasCall = rows.length > 0 || Boolean(callLines);
   const hasReturnRow = Boolean(shape && (shape.rows.length > 0 || shape.exampleLines));
   const hasReturns = Boolean(operation.returns || operation.returnShape);
   const nameId = domId(blockId, operation.name, "name"); const kindId = domId(blockId, operation.name, "kind"); const purposeId = domId(blockId, operation.name, "purpose");
-  return <div data-interaction-operation={operation.name} data-operation-kind={kind}>
+  return <div data-interaction-operation={operation.name} data-operation-kind={kind} style={nameFit}>
     {/* No `open` attribute is ever rendered, so a re-render (the workbench node view re-renders on every selection change) never resets a row the reader toggled. */}
     <details ref={syncDisclosureExpanded} data-disclosure="true" data-operation-disclosure="true">
       {/* Collapsed or open: chevron, `receiver.method(…) → Type` (a long type wraps under the name), and the kind chip at the row end. The name is a described name: its tooltip (hover dwell, or the summary's keyboard focus) shows the kind badge and the purpose; the summary is labelled by name + kind and described by the purpose for assistive tech. */}
@@ -276,7 +292,7 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
           {hasCall && <section data-op-card="params" aria-label={`${operation.name} parameters`}>
             <h4 data-op-card-head="params">Parameters</h4>
             <LinkGroup>
-              <div data-op-row="call" data-has-list={rows.length > 0 ? "true" : undefined} data-has-code={callLines ? "true" : undefined}>
+              <div data-op-row="call" data-has-list={rows.length > 0 ? "true" : undefined} data-has-code={callLines ? "true" : undefined} data-example-fit={callLines ? "true" : undefined} style={callLines ? callFit : undefined}>
                 {rows.length > 0 && <div data-op-list="true" data-op-params="true"><FieldLedger rows={rows} /></div>}
                 {callLines && <div data-op-code="true" data-op-call="true" data-code-surface="true" data-ref-code="true">
                   <CodeLines data-op-example-call="true" lines={callLines} tabIndex={0} role="region" aria-label={`${operation.name} example call`} />
@@ -287,10 +303,10 @@ function OperationRow({ blockId, operation }: { blockId: string; operation: Inte
           {hasReturns && <section data-op-card="returns" data-op-returns="true" data-operation-output="true" aria-label={`${operation.name} returns`}>
             <h4 data-op-card-head="returns">Returns{operation.returns && <span data-op-return-type="true"><TypeToken text={operation.returns} /></span>}</h4>
             {shape && hasReturnRow && <LinkGroup>
-              <div data-op-row="returns" data-has-list={shape.rows.length > 0 ? "true" : undefined} data-has-code={shape.exampleLines ? "true" : undefined}>
+              <div data-op-row="returns" data-has-list={shape.rows.length > 0 ? "true" : undefined} data-has-code={shape.exampleLines ? "true" : undefined} data-example-fit={shape.exampleLines ? "true" : undefined} style={returnFit}>
                 {shape.rows.length > 0 && <div data-op-list="true"><FieldLedger rows={shape.rows} data-return-ledger="true" /></div>}
                 {shape.exampleLines && <div data-op-code="true" data-op-example="true" data-code-surface="true" data-ref-code="true">
-                  <CodeLines data-shape-example="true" lines={shape.exampleLines} tabIndex={0} role="region" aria-label={`${operation.returns ?? operation.name} example`} />
+                  <CodeLines data-shape-example="true" lines={returnLines!} tabIndex={0} role="region" aria-label={`${operation.returns ?? operation.name} example`} />
                 </div>}
               </div>
             </LinkGroup>}

@@ -1509,6 +1509,7 @@
       "children": [
         "b-22-is-fam-docr-desc-1",
         "b-22-is-fam-docr-desc-2",
+        "26e7df46-8da3-40ca-86d9-f7a0385730cc",
         "b-22-is-fam-docr-desc-3"
       ]
     },
@@ -1530,6 +1531,26 @@
       "text": [
         {
           "insert": "The operation purpose and kind badge share one tooltip on the operation name. Print media prints both inline under the name."
+        }
+      ],
+      "children": []
+    },
+    "26e7df46-8da3-40ca-86d9-f7a0385730cc": {
+      "id": "26e7df46-8da3-40ca-86d9-f7a0385730cc",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Each operation fits one name column to its longest name, up to 32ch, and each code pane fits its widest line, up to 48 columns. A long returned-example array folds to its first item and a "
+        },
+        {
+          "insert": "… N more",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " button, as in State Shape."
         }
       ],
       "children": []
