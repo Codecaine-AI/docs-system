@@ -533,7 +533,7 @@ describe("InteractionSurfaceBlock — State Shape parity", () => {
 
   it("folds a long returned-example array to its first item and a more button", () => {
     render(<InteractionSurfaceBlock id="parity" operations={[operation]} />);
-    const pane = () => document.querySelector('[data-op-example] [data-shape-example="true"]')!.textContent ?? "";
+    const pane = () => Array.from(document.querySelectorAll('[data-op-example] [data-code-line]')).filter((line) => !line.querySelector("[data-fold-hidden]")).map((line) => line.textContent).join("\n");
     expect(pane()).toContain('"s1"');
     expect(pane()).not.toContain('"s3"');
     fireEvent.click(document.querySelector("[data-fold-more]") as HTMLButtonElement);

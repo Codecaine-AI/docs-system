@@ -98,7 +98,8 @@ export const REF_CODE_PANE_STYLE = `
 [data-fold-more]{display:inline;margin:0;padding:0 var(--ds-space-1);border:0;border-radius:var(--ds-radius-base);background:color-mix(in srgb,var(--syntax-punctuation,#d4d4d4) 12%,transparent);font:inherit;color:var(--syntax-punctuation,#d4d4d4);cursor:pointer}
 [data-fold-more]:hover{background:color-mix(in srgb,var(--syntax-punctuation,#d4d4d4) 22%,transparent)}
 @media (prefers-reduced-motion:reduce){[data-fold-toggle]>svg{transition:none}}
-@media print{[data-fold-toggle],[data-fold-more-line]{display:none}}
+@media not print{[data-ref-code] [data-code-line]:has(>[data-line-text]>[data-fold-hidden]){display:none}}
+@media print{[data-fold-toggle],[data-code-line]:has([data-fold-more-line]){display:none}}
 `;
 
 /**
@@ -296,15 +297,19 @@ function keepFoldEvent(event: MouseEvent | KeyboardEvent) {
 }
 
 /**
- * The example lines a live pane shows: each closed fold keeps its first item and puts one `… N more` button line in
- * place of the other items. The line that opens a fold gets a chevron that opens or closes it.
+ * The example lines a live pane shows: each closed fold keeps its first item and puts one `… N more` button line after
+ * it. The other items stay in the markup, hidden on screen only, so print shows every line. The line that opens a fold gets a chevron that opens or closes it.
  */
 export function foldedExampleLines(lines: readonly LinkedCodeLine[], folds: readonly ExampleFold[], open: ReadonlySet<number>, toggle: (fold: number) => void, label: string): LinkedCodeLine[] {
   if (folds.length === 0) return [...lines];
   const closed = folds.filter((fold) => !open.has(fold.open));
   const output: LinkedCodeLine[] = [];
   lines.forEach((line, index) => {
-    if (closed.some((fold) => index > fold.firstEnd && index < fold.close)) return;
+    // A folded line stays in the markup, hidden on screen only, so print shows the whole example.
+    if (closed.some((fold) => index > fold.firstEnd && index < fold.close)) {
+      output.push({ ...line, content: <span data-fold-hidden="">{line.content}</span> });
+      return;
+    }
     const fold = folds.find((candidate) => candidate.open === index);
     if (!fold) {
       output.push(line);

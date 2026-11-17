@@ -604,7 +604,8 @@ describe("StateShapeBlock — folded example arrays", () => {
   const step = (id: string) => ({ id, kind: "code-review", instructions: "Review the diff.", provision: "none", evidence: ["findings"] });
   const fields: Field[] = [{ name: "steps", type: "Step[]", fields: [{ name: "id", type: "string" }, { name: "kind", type: "string" }] }, { name: "tags", type: "string[]" }];
   const example = JSON.stringify({ steps: [step("s1"), step("s2"), step("s3"), step("s4")], tags: ["a", "b", "c"] });
-  const exampleText = () => document.querySelector('[data-shape-example="true"]')!.textContent ?? "";
+  // The text a reader sees on screen: folded lines stay in the markup for print, hidden on screen.
+  const exampleText = () => Array.from(document.querySelectorAll('[data-shape-example="true"] [data-code-line]')).filter((line) => !line.querySelector("[data-fold-hidden]")).map((line) => line.textContent).join("\n");
 
   it("shows a long array's first item and a more button, and the button opens the rest", () => {
     render(<StateShapeBlock id="fold" fields={fields} example={example} />);
@@ -615,6 +616,12 @@ describe("StateShapeBlock — folded example arrays", () => {
     fireEvent.click(more);
     expect(exampleText()).toContain('"s4"');
     expect(document.querySelector("[data-fold-more]")).toBeNull();
+  });
+
+  it("keeps folded items in the markup, so print shows the whole example", () => {
+    render(<StateShapeBlock id="fold" fields={fields} example={example} />);
+    expect(document.querySelector('[data-shape-example="true"]')!.textContent).toContain('"s4"');
+    expect(sheet()).toContain("@media not print{[data-ref-code] [data-code-line]:has(>[data-line-text]>[data-fold-hidden]){display:none}}");
   });
 
   it("closes an open array again from the chevron on its opening line", () => {
