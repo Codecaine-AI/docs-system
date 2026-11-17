@@ -300,7 +300,7 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     // column, which pays them from spacing (pad, gap, right padding) and 4px
     // of the name column, so the code pane and the type column keep their width.
     expect(css).toContain("@container (min-width:560px){[data-op-row][data-has-list][data-has-code]{grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)}");
-    expect(css).toContain("--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1));");
+    expect(css).toContain("--fl-name-w:calc(min(calc(var(--docs-shape-name-width,24ch) + 8ch),var(--shape-name-fit,var(--docs-shape-name-width,24ch))) - var(--ds-space-1));");
     expect(css).toContain("[data-op-list]{min-width:0;padding:var(--ds-space-0-5) 0 var(--ds-space-1-5);--fl-pad-x:var(--ds-space-3)}");
     expect(css).toContain("[data-op-list] [data-field-row]{column-gap:var(--ds-space-3);padding-right:var(--ds-space-1)}");
   });
@@ -425,7 +425,7 @@ describe("InteractionSurfaceBlock style-rail tokens", () => {
       "--op-radius:var(--docs-interaction-radius,var(--radius,2px))",
       "background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);",
       "--op-pad-x:var(--docs-interaction-pad-x,16px)",
-      "--fl-name-w:calc(var(--docs-shape-name-width,24ch) - var(--ds-space-1))",
+      "--fl-name-w:calc(min(calc(var(--docs-shape-name-width,24ch) + 8ch),var(--shape-name-fit,var(--docs-shape-name-width,24ch))) - var(--ds-space-1))",
       "--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)))",
       "--op-rule-w:var(--docs-interaction-rule-width,1px)",
       // Title in the head.
@@ -515,5 +515,34 @@ describe("native return-shape descriptor", () => {
       expect(container.textContent).toContain("Invalid Interaction Surface block");
       unmount();
     }
+  });
+});
+
+describe("InteractionSurfaceBlock — State Shape parity", () => {
+  const item = (id: string) => ({ id, kind: "code-review", instructions: "Review the diff.", provision: "none", evidence: ["findings"] });
+  const operation = {
+    name: "plan.read",
+    kind: "query" as const,
+    params: [{ name: "id", type: "string" }],
+    returns: "Plan",
+    returnShape: {
+      fields: [{ name: "steps", type: "Step[]", fields: [{ name: 'kind "code-review" adds', type: "{ model?: string }" }] }],
+      example: JSON.stringify({ steps: [item("s1"), item("s2"), item("s3"), item("s4")] }),
+    },
+  };
+
+  it("folds a long returned-example array to its first item and a more button", () => {
+    render(<InteractionSurfaceBlock id="parity" operations={[operation]} />);
+    const pane = () => Array.from(document.querySelectorAll('[data-op-example] [data-code-line]')).filter((line) => !line.querySelector("[data-fold-hidden]")).map((line) => line.textContent).join("\n");
+    expect(pane()).toContain('"s1"');
+    expect(pane()).not.toContain('"s3"');
+    fireEvent.click(document.querySelector("[data-fold-more]") as HTMLButtonElement);
+    expect(pane()).toContain('"s4"');
+  });
+
+  it("gives both cards one name column that fits the operation's longest name", () => {
+    render(<InteractionSurfaceBlock id="parity" operations={[operation]} />);
+    const op = document.querySelector('[data-interaction-operation="plan.read"]') as HTMLElement;
+    expect(op.style.getPropertyValue("--shape-name-fit")).toBe("27ch");
   });
 });

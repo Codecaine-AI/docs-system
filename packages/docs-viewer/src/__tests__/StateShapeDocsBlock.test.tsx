@@ -7,7 +7,7 @@ import {
   STATE_SHAPE_LABEL,
   StateShapeBlock,
   buildShapeModel,
-  exampleIsShort,
+  exampleFitWidth,
   exampleHang,
   classifyTypeText,
   splitTypeUnion,
@@ -499,10 +499,10 @@ describe("StateShapeBlock — name column fit", () => {
     expect(shapeStyle([{ name: "id", type: "number" }, { name: "url", type: "string" }])).toBe("10ch");
   });
 
-  it("widens the column for a long or nested name, up to the shared 24ch column", () => {
+  it("widens the column for a long or nested name, up to 32ch", () => {
     expect(shapeStyle([{ name: "entries", type: "Entry[]", fields: [{ name: "packageRoot", type: "string", required: false }] }])).toBe("16ch");
     cleanup();
-    expect(shapeStyle([{ name: "aVeryLongFieldNameThatPassesTheCap", type: "string" }])).toBe("24ch");
+    expect(shapeStyle([{ name: "aVeryLongFieldNameThatPassesTheCap", type: "string" }])).toBe("32ch");
   });
 
   it("keeps a string literal of a union type on one line", () => {
@@ -583,23 +583,59 @@ describe("StateShapeBlock — wrapped example values", () => {
   });
 });
 
-describe("StateShapeBlock — short example beside a long field list", () => {
-  const long = "A description long enough to wrap onto a second and a third line of the field column.";
-  const rows = Array.from({ length: 8 }, (_, i) => ({ path: `f${i}`, depth: 0, field: { name: `f${i}`, type: "string", description: long } }));
+describe("StateShapeBlock — example pane fit", () => {
+  it("sizes the example pane to its widest line, up to 48 columns", () => {
+    expect(exampleFitWidth(20)).toBe("calc(21 * 0.6 * var(--docs-shape-text-size,13px) + 2 * var(--fl-pad-x,16px))");
+    expect(exampleFitWidth(90)).toBe("calc(49 * 0.6 * var(--docs-shape-text-size,13px) + 2 * var(--fl-pad-x,16px))");
+  });
+});
 
-  it("widens the field list when a narrow example ends far above it", () => {
-    expect(exampleIsShort(rows, 9, 30)).toBe(true);
+describe("StateShapeBlock — variant names", () => {
+  it("colors a quoted word as a string literal and each later word as a keyword", () => {
+    render(<StateShapeBlock id="variant" fields={[{ name: 'kind "code-review" adds', type: "{ model?: string }" }, { name: "plain", type: "string" }]} />);
+    const [variant, plain] = Array.from(document.querySelectorAll('[data-field-token="name"]'));
+    expect(variant!.textContent).toBe('kind "code-review" adds');
+    expect(Array.from(variant!.querySelectorAll("[data-name-tok]")).map((node) => [node.getAttribute("data-name-tok"), node.textContent])).toEqual([["string", '"code-review"'], ["keyword", "adds"]]);
+    expect(plain!.querySelector("[data-name-tok]")).toBeNull();
+  });
+});
+
+describe("StateShapeBlock — folded example arrays", () => {
+  const step = (id: string) => ({ id, kind: "code-review", instructions: "Review the diff.", provision: "none", evidence: ["findings"] });
+  const fields: Field[] = [{ name: "steps", type: "Step[]", fields: [{ name: "id", type: "string" }, { name: "kind", type: "string" }] }, { name: "tags", type: "string[]" }];
+  const example = JSON.stringify({ steps: [step("s1"), step("s2"), step("s3"), step("s4")], tags: ["a", "b", "c"] });
+  // The text a reader sees on screen: folded lines stay in the markup for print, hidden on screen.
+  const exampleText = () => Array.from(document.querySelectorAll('[data-shape-example="true"] [data-code-line]')).filter((line) => !line.querySelector("[data-fold-hidden]")).map((line) => line.textContent).join("\n");
+
+  it("shows a long array's first item and a more button, and the button opens the rest", () => {
+    render(<StateShapeBlock id="fold" fields={fields} example={example} />);
+    expect(exampleText()).toContain('"s1"');
+    expect(exampleText()).not.toContain('"s2"');
+    const more = document.querySelector("[data-fold-more]") as HTMLButtonElement;
+    expect(more.textContent).toBe("… 3 more");
+    fireEvent.click(more);
+    expect(exampleText()).toContain('"s4"');
+    expect(document.querySelector("[data-fold-more]")).toBeNull();
   });
 
-  it("keeps the split when the example is as tall as the field list, or too wide for a narrower pane", () => {
-    expect(exampleIsShort(rows, 30, 30)).toBe(false);
-    expect(exampleIsShort(rows, 9, 43)).toBe(false);
+  it("keeps folded items in the markup, so print shows the whole example", () => {
+    render(<StateShapeBlock id="fold" fields={fields} example={example} />);
+    expect(document.querySelector('[data-shape-example="true"]')!.textContent).toContain('"s4"');
+    expect(sheet()).toContain("@media not print{[data-ref-code] [data-code-line]:has(>[data-line-text]>[data-fold-hidden]){display:none}}");
   });
 
-  it("marks the grid so the field list takes 8% more of the block", () => {
-    const fields = rows.map((row) => row.field);
-    render(<StateShapeBlock id="short" fields={fields} example={JSON.stringify({ f0: "a" })} />);
-    expect(document.querySelector("[data-shape-grid]")?.getAttribute("data-example-short")).toBe("true");
-    expect(sheet()).toContain("calc(var(--docs-pane-split,44%) + 8%)");
+  it("closes an open array again from the chevron on its opening line", () => {
+    render(<StateShapeBlock id="fold" fields={fields} example={example} />);
+    const chevron = document.querySelector("[data-fold-toggle]") as HTMLButtonElement;
+    expect(chevron.getAttribute("aria-expanded")).toBe("false");
+    fireEvent.click(chevron);
+    expect(chevron.getAttribute("aria-expanded")).toBe("true");
+    expect(exampleText()).toContain('"s3"');
+    fireEvent.click(chevron);
+    expect(exampleText()).not.toContain('"s3"');
+  });
+
+  it("keeps a short array open", () => {
+    expect(buildShapeModel(fields, example).folds.map((fold) => fold.hidden)).toEqual([3]);
   });
 });
