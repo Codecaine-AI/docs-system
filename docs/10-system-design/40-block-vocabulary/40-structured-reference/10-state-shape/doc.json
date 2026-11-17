@@ -1349,6 +1349,7 @@
       "children": [
         "b-25-state-shape-dr-tree-1",
         "b-25-state-shape-dr-tree-2",
+        "dd3fe352-2032-421f-b4ec-8c47d6dbee87",
         "b-25-state-shape-dr-tree-3",
         "b-25-state-shape-dr-tree-4"
       ]
@@ -1436,6 +1437,26 @@
       ],
       "children": []
     },
+    "dd3fe352-2032-421f-b4ec-8c47d6dbee87": {
+      "id": "dd3fe352-2032-421f-b4ec-8c47d6dbee87",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A name of several words, such as "
+        },
+        {
+          "insert": "kind \"command\" adds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": ", colors a quoted word as a string literal and each later word as a keyword."
+        }
+      ],
+      "children": []
+    },
     "b-25-state-shape-dr-tree-3": {
       "id": "b-25-state-shape-dr-tree-3",
       "type": "list-item",
@@ -1453,7 +1474,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The name column fits the longest name at its depth, from 10ch to the 24ch of "
+          "insert": "The name column fits the longest name at its depth, from 10ch to 8ch past the 24ch of "
         },
         {
           "insert": "--docs-shape-name-width",
@@ -1462,16 +1483,7 @@
           }
         },
         {
-          "insert": ". The ledger takes the theme's column split, 52% by default, plus 8% when "
-        },
-        {
-          "insert": "exampleIsShort",
-          "attributes": {
-            "code": true
-          }
-        },
-        {
-          "insert": " finds an example far shorter than the ledger and no wider than 36 columns."
+          "insert": ". In a block narrower than 560px, the knob alone caps it."
         }
       ],
       "children": []
@@ -1511,6 +1523,34 @@
           "insert": " canon with no line numbers. An object or array folds onto one line when that line fits in 42 columns."
         }
       ],
+      "children": [
+        "b38bd064-3670-4a57-907e-48c8122e34d9"
+      ]
+    },
+    "b38bd064-3670-4a57-907e-48c8122e34d9": {
+      "id": "b38bd064-3670-4a57-907e-48c8122e34d9",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "exampleFolds",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " folds an array of 3 or more items when its items after the first take 8 or more lines. A folded array shows its first item and a "
+        },
+        {
+          "insert": "… N more",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " button, and the chevron on its opening line opens or closes it."
+        }
+      ],
       "children": []
     },
     "b-25-state-shape-dr-example-2": {
@@ -1531,6 +1571,19 @@
       "text": [
         {
           "insert": "A long line soft-wraps instead of scrolling, and each key stays on the line of its value."
+        }
+      ],
+      "children": [
+        "918da520-1c2a-481c-a9f0-36a381d9d4ec"
+      ]
+    },
+    "918da520-1c2a-481c-a9f0-36a381d9d4ec": {
+      "id": "918da520-1c2a-481c-a9f0-36a381d9d4ec",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "In a block 560px wide or more, the pane fits its widest line, up to 48 columns and 56% of the block."
         }
       ],
       "children": []
