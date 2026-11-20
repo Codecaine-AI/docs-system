@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, it } from "bun:test";
-import { renderHook } from "@testing-library/react";
+import { cleanup, renderHook } from "@testing-library/react";
 import { useViewerMotion } from "../useViewerMotion";
 
 type Recorded = { element: Element; frames: Keyframe[]; finish: () => void };
@@ -18,6 +18,7 @@ beforeEach(() => {
   window.matchMedia = (() => ({ matches: false })) as unknown as typeof window.matchMedia;
 });
 afterEach(() => {
+  cleanup();
   HTMLElement.prototype.animate = originalAnimate;
   window.matchMedia = originalMatchMedia;
   document.body.replaceChildren();
@@ -50,8 +51,8 @@ function viewerWithImage() {
 
 /** Where the viewer transform sends a rect, with transform-origin top left at the viewer's corner (0, 0). */
 function project(transform: string, rect: { x: number; y: number; width: number; height: number }) {
-  const [, tx, ty, sx, sy] = transform.match(/translate\((.+)px, (.+)px\) scale\((.+), (.+)\)/)!.map(Number);
-  return { x: tx! + sx! * rect.x, y: ty! + sy! * rect.y, width: sx! * rect.width, height: sy! * rect.height };
+  const [, tx, ty, s] = transform.match(/translate\((.+)px, (.+)px\) scale\((.+)\)/)!.map(Number);
+  return { x: tx! + s! * rect.x, y: ty! + s! * rect.y, width: s! * rect.width, height: s! * rect.height };
 }
 
 it("lands the viewer's image on the inline image, not the whole viewer on the preview", async () => {
@@ -67,7 +68,7 @@ it("lands the viewer's image on the inline image, not the whole viewer on the pr
   const faded = (element: Element) => animations.some(animation => animation.element === element && animation.frames.at(-1)!.opacity === 0);
   expect(faded(header)).toBe(true);
   expect(faded(image)).toBe(true);
-  expect(animations.some(animation => animation.element === viewer && animation.frames.at(-1)!.backgroundColor === "transparent")).toBe(true);
+  expect(animations.some(animation => animation.element === viewer && animation.frames.at(-1)!.backgroundColor === "transparent" && animation.frames.at(-1)!.outlineColor === "transparent")).toBe(true);
 
   shrink.finish();
   await Promise.resolve();
@@ -81,12 +82,13 @@ it("fades the whole viewer out when the caller names no content", () => {
   expect(animations.some(animation => animation.element === viewer && animation.frames.at(-1)!.opacity === 0)).toBe(true);
 });
 
-it("lands only the fitted drawing when the content draws a smaller box of a known aspect", () => {
+it("lands only the fitted drawing, at one scale and centered, when the content draws a smaller box of a known aspect", () => {
   const { viewer, image, preview } = viewerWithImage();
   const { result } = renderHook(() => useViewerMotion());
   // A 2:1 drawing fitted in the 400 by 600 stage is 400 by 200, centered at y 300.
+  // In the 120 by 180 preview it lands 120 by 60, centered at y 460.
   result.current.animateClose(viewer, preview, () => {}, { content: image, contentAspect: 2 });
   const shrink = animations.find(animation => animation.element === viewer && "transform" in animation.frames[1]!)!;
   expect(project(shrink.frames[1]!.transform as string, { x: 300, y: 300, width: 400, height: 200 }))
-    .toEqual({ x: 50, y: 400, width: 120, height: 180 });
+    .toEqual({ x: 50, y: 460, width: 120, height: 60 });
 });

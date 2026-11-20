@@ -72,16 +72,19 @@ export function StandaloneCanvasEmbed({
   const previewRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  // A ref, so a re-laid-out document does not change closeViewer and restart the open effect.
+  const aspectRef = useRef<number | undefined>(undefined);
+  const size = viewerDocument?.size;
+  aspectRef.current = size ? size.width / size.height : undefined;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
   const closeViewer = useCallback(() => {
     // The drawing lands on the inline drawing, and the header and page fade around it.
-    const size = viewerDocument?.size;
     animateClose(viewerRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false), {
       content: stageRef.current?.firstElementChild as HTMLElement | null,
-      contentAspect: size ? size.width / size.height : undefined,
+      contentAspect: aspectRef.current,
     });
-  }, [animateClose, expansionSource, viewerDocument]);
+  }, [animateClose, expansionSource]);
   const openViewer = (trigger: HTMLButtonElement) => {
     triggerRef.current = trigger;
     captureOrigin(previewRef.current);

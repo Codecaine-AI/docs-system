@@ -121,17 +121,19 @@ function transformTo(viewer: HTMLElement, target: DOMRect): string {
 }
 
 /**
- * The viewer transform that puts `content` (now at `from`) on `target`.
+ * The viewer transform that puts `content` (now at `from`) on `target`, with
+ * one scale for both axes, centered in `target`, so the content never stretches.
  * With transform-origin top left, a point p moves to V + t + s * (p - V),
  * where V is the viewer's top left corner. Solve that for `from` to land on `target`.
  */
 function landContentOn(viewer: HTMLElement, from: Rect, target: DOMRect): string {
   const bounds = viewer.getBoundingClientRect();
-  const scaleX = target.width / from.width;
-  const scaleY = target.height / from.height;
-  const x = target.x - bounds.x - scaleX * (from.x - bounds.x);
-  const y = target.y - bounds.y - scaleY * (from.y - bounds.y);
-  return `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`;
+  const scale = Math.min(target.width / from.width, target.height / from.height);
+  const left = target.x + (target.width - scale * from.width) / 2;
+  const top = target.y + (target.height - scale * from.height) / 2;
+  const x = left - bounds.x - scale * (from.x - bounds.x);
+  const y = top - bounds.y - scale * (from.y - bounds.y);
+  return `translate(${x}px, ${y}px) scale(${scale})`;
 }
 
 type Rect = { x: number; y: number; width: number; height: number };
@@ -147,7 +149,7 @@ function fitted(box: DOMRect, aspect: number | undefined): Rect {
 /**
  * Fades everything in the viewer that is not `content`: each sibling on the
  * path from `content` up to the viewer fades out, and each box on that path
- * drops its background, so only the content is left to land on the preview.
+ * drops its background and its outline, so only the content is left to land on the preview.
  */
 function fadeChrome(viewer: HTMLElement, content: HTMLElement): Animation[] {
   const fades: Animation[] = [];
@@ -157,7 +159,12 @@ function fadeChrome(viewer: HTMLElement, content: HTMLElement): Animation[] {
     for (const sibling of Array.from(box.children)) {
       if (sibling !== node && sibling instanceof HTMLElement) fades.push(sibling.animate([{ opacity: 1 }, { opacity: 0 }], timing));
     }
-    fades.push(box.animate([{ backgroundColor: getComputedStyle(box).backgroundColor }, { backgroundColor: "transparent" }], timing));
+    const style = getComputedStyle(box);
+    // A focused viewport draws a focus ring, so its outline fades with its background.
+    fades.push(box.animate([
+      { backgroundColor: style.backgroundColor, outlineColor: style.outlineColor },
+      { backgroundColor: "transparent", outlineColor: "transparent" },
+    ], timing));
   }
   return fades;
 }
