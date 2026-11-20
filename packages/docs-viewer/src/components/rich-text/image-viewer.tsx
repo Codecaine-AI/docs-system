@@ -74,10 +74,15 @@ type ImageViewerDialogProps = {
 export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }: ImageViewerDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [size, setSize] = useState(() => naturalSize(expansionSource?.querySelector("img")));
   const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
   const closeViewer = useCallback(() => {
-    animateClose(dialogRef.current, expansionSource, onClose);
+    // The full-size image lands on the inline image, and the header and page fade around it.
+    animateClose(dialogRef.current, expansionSource, onClose, {
+      content: imageRef.current,
+      target: expansionSource?.querySelector("img") ?? expansionSource,
+    });
   }, [animateClose, expansionSource, onClose]);
   useViewerEscape(true, closeViewer);
 
@@ -128,6 +133,7 @@ export function ImageViewerDialog({ src, alt, title, expansionSource, onClose }:
         {...panZoom.viewportProps}
       >
         <img
+          ref={imageRef}
           className="docs-image-expanded"
           src={src}
           alt={alt}

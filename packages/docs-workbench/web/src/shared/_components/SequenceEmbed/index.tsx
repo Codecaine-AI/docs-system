@@ -50,9 +50,15 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previewRef = useRef<HTMLButtonElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
+  const expandedRef = useRef<HTMLDivElement>(null);
   const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
   const closeViewer = useCallback(() => {
-    animateClose(dialogRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
+    const preview = expansionSource ?? previewRef.current;
+    // The diagram lands on the inline diagram, and the header and page fade around it.
+    animateClose(dialogRef.current, preview, () => setViewerOpen(false), {
+      content: expandedRef.current,
+      target: preview?.querySelector<HTMLElement>("svg.sequence-diagram") ?? preview,
+    });
   }, [animateClose, expansionSource]);
   useViewerEscape(viewerOpen, closeViewer);
 
@@ -234,6 +240,7 @@ export function StandaloneSequenceEmbed({ src, sequenceId, id, title, initialDoc
             {...panZoom.viewportProps}
           >
             <div
+              ref={expandedRef}
               className="docs-sequence-expanded"
               style={{ width: diagramSize.width, height: diagramSize.height, transform: panZoom.transform }}
             >
