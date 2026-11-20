@@ -71,11 +71,17 @@ export function StandaloneCanvasEmbed({
   );
   const previewRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const { captureOrigin, animateOpen, animateClose, cancel } = useViewerMotion();
   const closeViewer = useCallback(() => {
-    animateClose(viewerRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false));
-  }, [animateClose, expansionSource]);
+    // The drawing lands on the inline drawing, and the header and page fade around it.
+    const size = viewerDocument?.size;
+    animateClose(viewerRef.current, expansionSource ?? previewRef.current, () => setViewerOpen(false), {
+      content: stageRef.current?.firstElementChild as HTMLElement | null,
+      contentAspect: size ? size.width / size.height : undefined,
+    });
+  }, [animateClose, expansionSource, viewerDocument]);
   const openViewer = (trigger: HTMLButtonElement) => {
     triggerRef.current = trigger;
     captureOrigin(previewRef.current);
@@ -271,7 +277,7 @@ export function StandaloneCanvasEmbed({
                 </button>
               </div>
             </header>
-            <div className="min-h-0 flex-1 bg-muted/30 p-4">
+            <div ref={stageRef} className="min-h-0 flex-1 bg-muted/30 p-4">
               <InteractiveCanvasViewer
                 document={viewerDocument}
                 view={view}
