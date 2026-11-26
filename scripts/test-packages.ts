@@ -220,6 +220,9 @@ export function keeperSuites(changedFiles: string[]): string[] {
  * (an unowned file there is handled above).
  */
 const ALL_SUITES_FILES = [
+  // Every keeper flow reads and writes docs through these two packages.
+  "packages/docs-model/**",
+  "packages/docs-server/**",
   "packages/docs-workbench/web/{index.html,playground.html,vite.config.ts}",
   "playwright.config.ts",
   "e2e/fixtures.ts",

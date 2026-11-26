@@ -73,11 +73,11 @@ flow below. `bun scripts/test-packages.ts --keepers` reads this table.
 | Area | Main user flows | Keeper suite | Package globs |
 | --- | --- | --- | --- |
 | Viewer and navigation | Open a doc from the tree, follow a doc link, side peek, hash routes | `e2e/viewer.spec.ts` | `packages/docs-viewer/src/render/**`, `packages/docs-viewer/src/peek/**`, `packages/docs-viewer/src/styles/{rich-text,list-markers}.css`, `packages/docs-workbench/web/src/_components/{AppShell,RouterShell,TopbarTitle,TopbarActions}/**`, `packages/docs-workbench/web/src/_lib/hash-route.ts`, `packages/docs-workbench/web/src/shared/doc-title.ts`, `packages/docs-index/**` |
-| Editing and autosave | Edit text in place, autosave, undo, page title edit, stale-save and draft-lock conflicts, live updates | `e2e/editor.spec.ts` | `packages/docs-viewer/src/editor/**`, `packages/docs-workbench/web/src/_components/DocPage/**`, `packages/docs-workbench/web/src/data/api/{docs,draft-lock,events}.ts`, `packages/docs-workbench/web/src/data/{client,session,shared-events}.ts`, `packages/docs-server/**`, `packages/docs-model/**` |
+| Editing and autosave | Edit text in place, autosave, undo, page title edit, stale-save and draft-lock conflicts, live updates | `e2e/editor.spec.ts` | `packages/docs-viewer/src/editor/**`, `packages/docs-workbench/web/src/_components/DocPage/**`, `packages/docs-workbench/web/src/data/api/{docs,draft-lock,events}.ts`, `packages/docs-workbench/web/src/data/{client,session,shared-events}.ts` |
 | Style rail and themes | Open Style, move a knob, save, export and import a theme, reset, code theme | `e2e/style-rail.spec.ts` | `packages/docs-workbench/web/src/_components/{StyleRailPanel,StyleRailOverlay}/**`, `packages/docs-workbench/web/src/theme/**`, `packages/docs-workbench/web/src/shared/style-rail-settings/**`, `packages/docs-workbench/web/src/shared/{docs-fonts,useCodeTheme}.ts`, `packages/docs-workbench/web/src/_lib/{style-rail-*,theme-boot*,useStyleInspector*,useTheme*,code-theme-style,grain-code-mask}.ts`, `packages/docs-workbench/web/src/data/api/{themes,config}.ts`, `packages/docs-workbench/web/src/data/project-storage.ts`, `themes/**` |
-| Structured blocks | Read and edit a structured table, state shape, interaction surface, file tree and code block | `e2e/blocks.spec.ts` | `packages/docs-viewer/src/components/**`, `packages/docs-viewer/src/styles/code.css`, `packages/docs-model/src/components/**` |
+| Structured blocks | Read and edit a structured table, state shape, interaction surface, file tree and code block | `e2e/blocks.spec.ts` | `packages/docs-viewer/src/components/**`, `packages/docs-viewer/src/styles/code.css` |
 | Embeds and full-screen viewers | Open a sequence, canvas or image embed full screen, zoom, Fit, close with Escape | `e2e/embeds.spec.ts` | `packages/docs-workbench/web/src/shared/_components/{SequenceEmbed,CanvasEmbed}/**`, `packages/docs-viewer/src/transitions/**`, `packages/docs-viewer/src/styles/{image-grid,image-viewer}.css` |
-| AI panel and annotations | Show the AI panel, annotate a block, stage, accept and reject a proposal | `e2e/ai-panel.spec.ts` | `packages/docs-workbench/web/src/_components/DocPage/lab/**`, `packages/docs-viewer/src/lab/**`, `packages/docs-viewer/src/annotate/**`, `packages/docs-workbench/web/src/data/api/{annotations,changesets,proposals}.ts`, `packages/docs-server/src/changesets/**` |
+| AI panel and annotations | Show the AI panel, annotate a block, stage, accept and reject a proposal | `e2e/ai-panel.spec.ts` | `packages/docs-workbench/web/src/_components/DocPage/lab/**`, `packages/docs-viewer/src/lab/**`, `packages/docs-viewer/src/annotate/**`, `packages/docs-workbench/web/src/data/api/{annotations,changesets,proposals}.ts` |
 | Export and publish | Export the open page as one PDF, export selected pages as a ZIP of PDFs (the static-site export is CLI-only and docs-publish has no workbench UI: their Bun areas own them) | `e2e/export.spec.ts` | `packages/docs-workbench/web/src/_components/ExportDialog/**`, `packages/docs-workbench/src/{export,pdf-export}.ts`, `packages/docs-publish/**` |
 | MCP, CLI and writing style | Agent tools, CLI commands and prose-style lints (no browser flow) | None: the docs-mcp, docs-cli and docs-style Bun areas own these flows | `packages/docs-mcp/**`, `packages/docs-cli/**`, `packages/docs-style/**` |
 
@@ -105,6 +105,9 @@ Routing rules:
   - The SPA build files `packages/docs-workbench/web/{index.html,playground.html,vite.config.ts}`.
   - The e2e support files: `playwright.config.ts`, `e2e/fixtures.ts`,
     `e2e/fixtures/**` and `e2e/support/**`.
+  - The shared document packages `packages/docs-model/**` and
+    `packages/docs-server/**`: every keeper flow reads and writes docs
+    through them.
   - The dependency files: the root `package.json` and `bun.lock`, and
     `packages/docs-workbench/package.json` and
     `packages/docs-viewer/package.json`.
