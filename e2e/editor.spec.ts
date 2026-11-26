@@ -25,10 +25,19 @@ async function writeAs(request: APIRequestContext, path: string, text: string, s
   });
 }
 
-/** Puts the caret at the end of the doc's text and types. */
+/**
+ * Puts the caret at the end of the paragraph and types. The click lands in the
+ * paragraph block to the right of its last line, so the caret is at the end
+ * from the click itself. A click on the text followed by ControlOrMeta+End
+ * raced: the editor syncs the click's selection to the DOM after the click,
+ * and that sync could undo the End key, so the text went in mid-line
+ * ("Keep this l Oops.ine as it is.").
+ */
 async function typeAtEnd(page: Page, paragraph: string, text: string) {
-  await page.getByRole("main").getByText(paragraph).click();
-  await page.keyboard.press("ControlOrMeta+End");
+  const block = page.getByRole("main").getByRole("paragraph").filter({ hasText: paragraph });
+  const box = await block.boundingBox();
+  if (!box) throw new Error(`paragraph not laid out: ${paragraph}`);
+  await block.click({ position: { x: box.width - 2, y: box.height - 2 } });
   await page.keyboard.type(text);
 }
 
