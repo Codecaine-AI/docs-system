@@ -30,7 +30,7 @@ export function useDocSave({
   path: string;
   expectedHashRef: RefObject<string | undefined>;
   pathRef: RefObject<string>;
-  fetchBundle: (options?: { showLoading?: boolean }) => Promise<void>;
+  fetchBundle: (options?: { showLoading?: boolean; keepPageOnError?: boolean }) => Promise<void>;
   setBundle: Dispatch<SetStateAction<BundleState | null>>;
   setLastPatch: Dispatch<SetStateAction<{ patchId: string; changedIds: string[] } | null>>;
   setUndoNotice: Dispatch<SetStateAction<string | null>>;
@@ -95,7 +95,7 @@ export function useDocSave({
   );
 
   const handleReloadDoc = useCallback(() => {
-    void fetchBundle();
+    void fetchBundle({ keepPageOnError: true });
   }, [fetchBundle]);
 
   return { handleApplyOps, handleReloadDoc };

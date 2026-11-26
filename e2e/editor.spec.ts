@@ -95,6 +95,12 @@ test("keeps the draft when the doc changed elsewhere, reloads on request, and sa
   await expect(main.getByText("Both keepers write here. Mine too.")).toBeVisible();
   expect(blockText(await bundle(request, "52-stale"))).toBe("The other keeper got here first.");
 
+  // A reload that fails keeps the page and the draft, and the banner can try again.
+  await page.route("**/api/bundle*", (route) => route.abort(), { times: 1 });
+  await main.getByRole("button", { name: "Reload doc" }).click();
+  await expect(main.getByText("Both keepers write here. Mine too.")).toBeVisible();
+  await expect(main.getByRole("button", { name: "Reload doc" })).toBeVisible();
+
   await main.getByRole("button", { name: "Reload doc" }).click();
   await expect(main.getByText("The other keeper got here first.")).toBeVisible();
   // The draft waits beside the fresh page and is never saved on its own.
