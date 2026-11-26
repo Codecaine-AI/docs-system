@@ -18,7 +18,7 @@ import { defaultJudgmentEngine } from './jev-engine';
 import type { JudgmentEngine } from './lint-feedback';
 import { openBacklinksDb, rescanAll } from '@codecaine-ai/docs-index/backlinks';
 import { primeBacklinksDb } from '@codecaine-ai/docs-server';
-import { readOnlyMessage, rootAccess } from './root-marker';
+import { ROOT_MARKER, readOnlyMessage, requiredRoots, rootAccess } from './root-marker';
 
 const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,...(error?{isError:true}:{})});
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
@@ -162,6 +162,11 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
  const MTIME_MARGIN_MS=50;
  const memoryBacklinks=new Set<string>();
+ /** A read-only root keeps its backlinks index in memory, so a read writes no .index/backlinks.db below it. Checked at discovery and before each backlinks read, since a root can turn read-only later. */
+ const memoryBacklinksIfReadOnly=(docsRoot:string)=>{
+  const access=rootAccess(docsRoot);
+  if((!access.open||access.readOnly)&&!memoryBacklinks.has(docsRoot)){memoryBacklinks.add(docsRoot);primeBacklinksDb(docsRoot,openBacklinksDb(':memory:').then(async db=>{await rescanAll(docsRoot,db);return db;}));}
+ };
  type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
  /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
  type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
@@ -197,10 +202,12 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const since=Date.now()-MTIME_MARGIN_MS;
   const discovery=await discoverProjects(workspace);
   // The root marker and the read-only guard (root-marker.ts): a refused root never opens, and a read-only root keeps its backlinks index in memory, so nothing is written below it.
+  const markers=new Set([discovery.workspace,...requiredRoots()].map(folder=>join(folder,ROOT_MARKER)));
   discovery.projects=discovery.projects.filter(project=>{
+   markers.add(join(project.docsRoot,ROOT_MARKER));
    const access=rootAccess(project.docsRoot);
    if(!access.open){discovery.warnings.push(`Refused ${project.name}: ${access.reason}`);return false;}
-   if(access.readOnly&&!memoryBacklinks.has(project.docsRoot)){memoryBacklinks.add(project.docsRoot);primeBacklinksDb(project.docsRoot,openBacklinksDb(':memory:').then(async db=>{await rescanAll(project.docsRoot,db);return db;}));}
+   memoryBacklinksIfReadOnly(project.docsRoot);
    return true;
   });
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
@@ -219,7 +226,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
    for(const ids of workspaces.values())for(const id of ids){const root=projects.get(id)?.docsRoot;if(root)live.add(root);}
    for(const [root,watcher] of watchers)if(!live.has(root)){watcher.close();watchers.delete(root);treeWatches.get(root)?.();treeWatches.delete(root);}
   }
-  const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
+  // A marker that appears, changes or goes away changes the result too.
+  const paths=new Set([...markers,...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
   const signatures=new Map<string,string>();
   for(const path of paths)signatures.set(path,await signature(path,since));
   const listing=JSON.stringify([discovery.projects.map(p=>[p.id,p.name]),discovery.warnings]);const last=listings.get(discovery.workspace);
@@ -250,7 +258,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const metadataTools=[
   {name:'docs_capabilities',description:'The capabilities index: the project ids and names of the workspace, discovery warnings, versions, the guidance snapshot, the tool order, and each guidance topic with its size and the writes it unlocks. Call first, and use a returned project ID. A page holds at most 4,096 bytes. Pass next_cursor as cursor for the next page.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'},cursor:{...string,description:'next_cursor from the previous page.'}})},
-  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'}})},
+  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'},project:{...string,description:'Optional. The project id you will edit. In remote mode the client uses it to pick the server of the task.'}})},
   {name:'docs_guidance',description:'Read maintained guidance one topic at a time. Supply task_id to read the task\'s pinned snapshot. Without topic or component it lists topics and sizes. Reading topic "style" with task_id is required once per task before the first edit. Pass component for one component\'s full reference.',inputSchema:schema({task_id:string,topic:{type:'string',enum:[...GUIDANCE_TOPICS,'standards'],description:'Guidance topic. "standards" lists the per-page standards topics. "all" is the full unsplit text.'},component:string})},
  ];
  function listTools(){return [...metadataTools,...tools.map(({name,description,inputSchema})=>{
@@ -351,6 +359,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
     if(!pin(liveTask(task_id,discovery.workspace)))throw new Error('Unknown task for this workspace.');
     return await tool.execute(toolArgs,{taskId});
    }
+   if(name==='docs_backlinks')memoryBacklinksIfReadOnly(projects.get(args.project)!.docsRoot);
    return await tool.execute(toolArgs);
   }catch(error){return reply({ok:false,detail:error instanceof Error?error.message:String(error)},true);}
   finally{if(pinned){pinned.inFlight--;pinned.lastUsedAt=now();}}
@@ -363,8 +372,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  async function uiRequest(projectId:string,request:Request){
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
-  // Under the read-only guard only GET and HEAD pass. The one POST read, export-pdf, is answered before this by the managed runtime.
-  if(!['GET','HEAD'].includes(request.method)){const access=rootAccess(project.docsRoot);if(!access.open||access.readOnly)return Response.json({error:readOnlyMessage(access),detail:readOnlyMessage(access)},{status:403});}
+  // Under the read-only guard only GET, HEAD and an OPTIONS preflight pass. The one POST read, export-pdf, is answered before this by the managed runtime.
+  if(new URL(request.url).pathname.endsWith('/api/backlinks'))memoryBacklinksIfReadOnly(project.docsRoot);
+  if(!['GET','HEAD','OPTIONS'].includes(request.method)){const access=rootAccess(project.docsRoot);if(!access.open||access.readOnly)return Response.json({error:readOnlyMessage(access),detail:readOnlyMessage(access)},{status:403});}
   let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot,{exclude:project.exclude??[]}),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));

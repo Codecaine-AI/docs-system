@@ -5,8 +5,6 @@ import { readFileSync } from 'node:fs';
 import { timingSafeEqual, createHash } from 'node:crypto';
 
 export const UPSTREAM_KEY_HEADER = 'x-kb-upstream-key';
-/** /health stays open, so a gateway or job can check that the server runs. It shows no project data. */
-const OPEN_PATHS = new Set(['/health']);
 
 /** The key, or null when the setting is unset. A missing or empty key file throws: the supervisor exits 78. */
 export function loadUpstreamKey(env: NodeJS.ProcessEnv = process.env): string | null {
@@ -21,13 +19,17 @@ export function loadUpstreamKey(env: NodeJS.ProcessEnv = process.env): string | 
 /** Hashing both sides first gives equal lengths, so the compare takes the same time for any header value. */
 const digest = (value: string) => createHash('sha256').update(value).digest();
 
+/** The request carries the key, or the guard is off. */
+export function hasUpstreamKey(request: Request, key: string | null): boolean {
+  if (key === null) return true;
+  const sent = request.headers.get(UPSTREAM_KEY_HEADER);
+  return sent !== null && timingSafeEqual(digest(sent), digest(key));
+}
+
 /** The 401 for a request without the right key, or null when it may pass. The log line names the path, never the header. */
 export function upstreamRefusal(request: Request, key: string | null, log: (line: string) => void = line => console.error(line)): Response | null {
-  if (key === null) return null;
+  if (hasUpstreamKey(request, key)) return null;
   const { pathname } = new URL(request.url);
-  if (OPEN_PATHS.has(pathname)) return null;
-  const sent = request.headers.get(UPSTREAM_KEY_HEADER);
-  if (sent !== null && timingSafeEqual(digest(sent), digest(key))) return null;
   log(`[docs] Refused ${request.method} ${pathname}: no valid upstream key`);
   return new Response('Unauthorized', { status: 401 });
 }

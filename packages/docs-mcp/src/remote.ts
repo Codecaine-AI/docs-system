@@ -1,10 +1,11 @@
-// Remote mode: the docs tools call a docs server on another machine and never start a local one.
+// Remote mode: the docs tools call a docs server on another machine and never start a local one for it.
 // Every setting is unset by default, and then the tools use the local daemon as before.
-import { readFileSync } from 'node:fs';
-import { delimiter, isAbsolute, relative, resolve, sep } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { inside } from './paths';
 
 export interface RemoteSettings {
- /** CODECAINE_DOCS_REMOTE_URL: the base URL of the remote docs server. */
+ /** CODECAINE_DOCS_REMOTE_URL: the base URL of the remote docs server. A base path is kept. */
  url: string;
  /** CODECAINE_DOCS_REMOTE_TOKEN_FILE: a file that holds the bearer token to send. Unset: send none (a gateway adds it). */
  token?: string;
@@ -12,7 +13,7 @@ export interface RemoteSettings {
  pathMap: [local: string, remote: string][];
  /** CODECAINE_DOCS_REMOTE_WORKSPACE: the remote workspace of a call with no mapped path. */
  workspace?: string;
- /** CODECAINE_DOCS_REMOTE_PROJECTS: project ids that use the remote route. Empty: every call uses it. */
+ /** CODECAINE_DOCS_REMOTE_PROJECTS: project ids that use the remote route (hybrid mode). Empty: every call uses it. */
  projects: string[];
 }
 
@@ -37,45 +38,89 @@ export function remoteSettings(env: NodeJS.ProcessEnv = process.env): RemoteSett
  });
  const workspace = env.CODECAINE_DOCS_REMOTE_WORKSPACE?.trim() || undefined;
  if (workspace && !isAbsolute(workspace)) throw new Error('CODECAINE_DOCS_REMOTE_WORKSPACE must be an absolute path');
- return { url: url.href.replace(/\/$/, ''), token, pathMap, workspace, projects: list(env.CODECAINE_DOCS_REMOTE_PROJECTS?.replaceAll(',', delimiter)) };
+ return { url: url.href, token, pathMap, workspace: workspace && resolve(workspace), projects: list(env.CODECAINE_DOCS_REMOTE_PROJECTS?.replaceAll(',', delimiter)) };
 }
 
-const under = (path: string, prefix: string) => { const rel = relative(prefix, path); return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel)); };
+/** An endpoint below a base URL, keeping the base path: https://host/docs + /rpc is https://host/docs/rpc. */
+export function endpoint(base: string, pathname: string): URL {
+ const url = new URL(base);
+ if (!url.pathname.endsWith('/')) url.pathname += '/';
+ return new URL(pathname.replace(/^\/+/, ''), url);
+}
 
 /** The remote path of a local path under a mapped prefix (the longest prefix wins), or undefined. */
 export function mapPath(settings: RemoteSettings, path: string): string | undefined {
  const absolute = resolve(path);
- const match = settings.pathMap.filter(([local]) => under(absolute, local)).sort((a, b) => b[0].length - a[0].length)[0];
- if (!match) return undefined;
- const rest = relative(match[0], absolute);
- return rest ? `${match[1]}${sep}${rest}` : match[1];
+ const match = settings.pathMap.filter(([local]) => inside(local, absolute)).sort((a, b) => b[0].length - a[0].length)[0];
+ return match ? join(match[1], relative(match[0], absolute)) : undefined;
 }
 
-export type Route = { remote: true; workspace: string } | { remote: false; workspace: string };
+export type Route = { remote: boolean; workspace: string };
+
+/** A workspace that routes remote: its mapped path, or itself when it is already a remote path. */
+function remoteWorkspace(settings: RemoteSettings, workspace: string): string | undefined {
+ const mapped = mapPath(settings, workspace);
+ if (mapped) return mapped;
+ const remotePath = settings.pathMap.some(([, remote]) => inside(remote, workspace)) || (settings.workspace !== undefined && inside(settings.workspace, workspace));
+ return remotePath ? workspace : undefined;
+}
 
 /**
- * The route of one call. Remote: a workspace under a mapped local prefix (sent as its remote path), a workspace that is
- * already a remote path, or a call that names a remote project (sent with the default remote workspace). With no
- * remote projects set, every call is remote. Every other call keeps the local daemon and its local workspace.
+ * The route of one call. `workspace` is the current workspace, `localWorkspace` the client's own one (default: the same).
+ * - A call with a remembered task route follows its task.
+ * - A named workspace (the docs_capabilities argument) routes by that path.
+ * - In hybrid mode (a remote project list), a call that names a listed project goes remote, a call that names another
+ *   project stays local on the local workspace, and a call with no project routes by the current workspace.
+ * - With no remote project list, every call is remote.
+ * A remote call sends a mapped path, a remote path, or the default remote workspace.
  */
-export function routeCall(settings: RemoteSettings | null, workspace: string, args: Record<string, unknown> = {}): Route {
- const local = resolve(workspace);
- if (!settings) return { remote: false, workspace: local };
- const named = typeof args.workspace === 'string' ? args.workspace : undefined;
- const target = named ?? local;
- const mapped = mapPath(settings, target);
- if (mapped) return { remote: true, workspace: mapped };
- const remotePath = settings.pathMap.some(([, remote]) => under(target, remote)) || (settings.workspace !== undefined && under(target, settings.workspace));
- if (remotePath) return { remote: true, workspace: target };
- const remoteProject = typeof args.project === 'string' && settings.projects.includes(args.project);
- if (remoteProject || settings.projects.length === 0) {
-  if (named !== undefined && !settings.workspace) return { remote: true, workspace: named };
-  return { remote: true, workspace: settings.workspace ?? local };
+export function routeCall(settings: RemoteSettings | null, workspace: string, args: Record<string, unknown> = {}, options: { localWorkspace?: string; known?: Route } = {}): Route {
+ const current = resolve(workspace), local = resolve(options.localWorkspace ?? workspace);
+ if (!settings) return { remote: false, workspace: current };
+ if (options.known) return options.known;
+ const hybrid = settings.projects.length > 0;
+ if (typeof args.workspace === 'string') {
+  const named = resolve(args.workspace);
+  const remote = remoteWorkspace(settings, named);
+  if (remote) return { remote: true, workspace: remote };
+  return hybrid ? { remote: false, workspace: named } : { remote: true, workspace: settings.workspace ?? named };
  }
- return { remote: false, workspace: local };
+ const routed = remoteWorkspace(settings, current);
+ if (hybrid && typeof args.project === 'string') {
+  if (!settings.projects.includes(args.project)) return { remote: false, workspace: local };
+  return { remote: true, workspace: routed ?? settings.workspace ?? current };
+ }
+ if (routed) return { remote: true, workspace: routed };
+ return hybrid ? { remote: false, workspace: current } : { remote: true, workspace: settings.workspace ?? current };
 }
 
-/** The arguments of a remote call: a docs_capabilities workspace argument goes as its remote path. */
-export function remoteArguments(route: Route, args: Record<string, unknown>): Record<string, unknown> {
- return route.remote && typeof args.workspace === 'string' ? { ...args, workspace: route.workspace } : args;
+/** The arguments of a call: a docs_capabilities workspace goes as its routed path, and the docs_begin project hint stays on the client. */
+export function routedArguments(name: string, route: Route, args: Record<string, unknown>): Record<string, unknown> {
+ let out = args;
+ if (typeof out.workspace === 'string') out = { ...out, workspace: route.workspace };
+ if (name === 'docs_begin' && 'project' in out) { const { project: _hint, ...rest } = out; out = rest; }
+ return out;
+}
+
+/**
+ * Task routes: the route of each docs_begin, so docs_guidance and every later call with its task_id reach the same
+ * server. The MCP bridge keeps them in memory. The CLI runs one process per call, so it keeps them in a file.
+ */
+export function taskRoutes(file?: string) {
+ const routes = new Map<string, Route>();
+ const load = () => { if (!file) return; try { for (const [id, route] of Object.entries(JSON.parse(readFileSync(file, 'utf8')) as Record<string, Route>)) routes.set(id, route); } catch {} };
+ load();
+ let latest: Route | undefined;
+ return {
+  get: (id: unknown) => typeof id === 'string' ? routes.get(id) : undefined,
+  /** The route of the most recent task of this process, for a guidance read with no task_id. */
+  latest: () => latest,
+  set(id: string, route: Route) {
+   routes.set(id, route); latest = route;
+   if (!file) return;
+   const kept = [...routes].slice(-200);
+   mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+   writeFileSync(file, JSON.stringify(Object.fromEntries(kept)), { mode: 0o600 });
+  },
+ };
 }

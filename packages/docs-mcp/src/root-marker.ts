@@ -5,13 +5,15 @@
 //  - CODECAINE_DOCS_REQUIRED_ROOTS: root paths, separated by the path list delimiter. A project under a listed root
 //    opens only when that root has a valid marker with role live or mirror. The server refuses to start (exit 78)
 //    when a listed root has no valid marker.
-//  - CODECAINE_DOCS_ROOT_ID: the marker id that each listed root must carry.
+//  - CODECAINE_DOCS_ROOT_ID: the marker id that each listed root must carry. Unlisted markers are not checked for it.
 //  - CODECAINE_DOCS_READ_ONLY=1: every project opens read-only.
 //  - CODECAINE_DOCS_CENTRAL_SITE: the central site that a read-only refusal names, such as a host name.
-// With no listed root, a marker at or above a docs root still counts: role mirror opens the project read-only, and
-// role live or backup refuses it, so this server can never write a live root by accident.
+// The nearest marker at or above a docs root always counts. When no listed root holds it (no listed root, or a copy
+// deeper inside a listed root), role mirror opens the project read-only, and role live or backup, or a marker that is
+// not valid, refuses it, so this server can never write a live root or a copy by accident.
 import { readFileSync, statSync } from 'node:fs';
-import { delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { delimiter, dirname, join } from 'node:path';
+import { inside, realOrResolved } from './paths';
 
 export const ROOT_MARKER = '.knowledge-root.json';
 /** The exit code of a start check that fails (EX_CONFIG). */
@@ -22,12 +24,11 @@ export type RootMarker = { kind: 'knowledge-root'; id: string; role: RootRole; n
 export type RootAccess = { open: false; reason: string } | { open: true; readOnly: boolean; reason?: string };
 
 const ROLES: RootRole[] = ['live', 'mirror', 'backup'];
-const under = (path: string, root: string) => { const rel = relative(root, path); return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel)); };
-export const requiredRoots = (env: NodeJS.ProcessEnv = process.env) => (env.CODECAINE_DOCS_REQUIRED_ROOTS ?? '').split(delimiter).map(s => s.trim()).filter(Boolean).map(p => resolve(p));
+export const requiredRoots = (env: NodeJS.ProcessEnv = process.env) => (env.CODECAINE_DOCS_REQUIRED_ROOTS ?? '').split(delimiter).map(s => s.trim()).filter(Boolean).map(realOrResolved);
 export const readOnlySetting = (env: NodeJS.ProcessEnv = process.env) => env.CODECAINE_DOCS_READ_ONLY === '1';
 
 /** The marker in a folder: null when the folder has no marker file, else the marker or the reason it is not valid. */
-export function readRootMarker(folder: string, env: NodeJS.ProcessEnv = process.env): { marker: RootMarker } | { problem: string } | null {
+export function readRootMarker(folder: string, env: NodeJS.ProcessEnv = process.env, checkId = true): { marker: RootMarker } | { problem: string } | null {
  const file = join(folder, ROOT_MARKER);
  let text: string;
  try { text = readFileSync(file, 'utf8'); } catch (error: any) { if (error.code === 'ENOENT' || error.code === 'ENOTDIR') return null; return { problem: `${file} cannot be read: ${error.code ?? error}` }; }
@@ -36,7 +37,7 @@ export function readRootMarker(folder: string, env: NodeJS.ProcessEnv = process.
  if (value?.kind !== 'knowledge-root') return { problem: `${file} must have kind "knowledge-root"` };
  if (typeof value.id !== 'string' || !value.id) return { problem: `${file} has no id` };
  if (!ROLES.includes(value.role)) return { problem: `${file} must have role live, mirror or backup` };
- const expected = env.CODECAINE_DOCS_ROOT_ID?.trim();
+ const expected = checkId ? env.CODECAINE_DOCS_ROOT_ID?.trim() : undefined;
  if (expected && value.id !== expected) return { problem: `${file} has id ${value.id}, not CODECAINE_DOCS_ROOT_ID ${expected}` };
  return { marker: value as RootMarker };
 }
@@ -66,8 +67,8 @@ export function exitOnRootMarkerProblems(env: NodeJS.ProcessEnv = process.env) {
 
 /** The nearest marker at or above a folder, with the folder that holds it. */
 function nearestMarker(docsRoot: string, env: NodeJS.ProcessEnv) {
- for (let folder = resolve(docsRoot); ; folder = dirname(folder)) {
-  const found = readRootMarker(folder, env);
+ for (let folder = docsRoot; ; folder = dirname(folder)) {
+  const found = readRootMarker(folder, env, false);
   if (found) return { folder, found };
   if (dirname(folder) === folder) return null;
  }
@@ -75,18 +76,26 @@ function nearestMarker(docsRoot: string, env: NodeJS.ProcessEnv) {
 
 /** How this server may open a docs root, read at each call so a lost or changed marker counts at once. */
 export function rootAccess(docsRoot: string, env: NodeJS.ProcessEnv = process.env): RootAccess {
+ const real = realOrResolved(docsRoot);
  const setting = readOnlySetting(env);
- const listed = requiredRoots(env).filter(root => under(resolve(docsRoot), root)).sort((a, b) => b.length - a.length)[0];
- const located = listed ? { folder: listed, found: readRootMarker(listed, env) } : nearestMarker(docsRoot, env);
- if (listed && !located!.found) return { open: false, reason: `${listed} is a required root and has no ${ROOT_MARKER}` };
- if (!located) return setting ? { open: true, readOnly: true, reason: 'setting' } : { open: true, readOnly: false };
- const found = located.found!;
+ const writable: RootAccess = setting ? { open: true, readOnly: true, reason: 'setting' } : { open: true, readOnly: false };
+ const listed = requiredRoots(env).filter(root => inside(root, real)).sort((a, b) => b.length - a.length)[0];
+ const nearest = nearestMarker(real, env);
+ if (listed && nearest?.folder === listed) {
+  // The listed root's own marker, with the id check.
+  const found = readRootMarker(listed, env)!;
+  if ('problem' in found) return { open: false, reason: found.problem };
+  if (found.marker.role === 'backup') return { open: false, reason: `${listed} is a backup copy; no docs server opens it` };
+  return found.marker.role === 'mirror' ? { open: true, readOnly: true, reason: 'mirror' } : writable;
+ }
+ if (listed && !(nearest && inside(listed, nearest.folder))) return { open: false, reason: `${listed} is a required root and has no ${ROOT_MARKER}` };
+ if (!nearest) return writable;
+ // A marker that no listed root holds: no root of it is named, so only a mirror opens, read-only.
+ const { folder, found } = nearest;
  if ('problem' in found) return { open: false, reason: found.problem };
- const { role } = found.marker;
- if (role === 'backup') return { open: false, reason: `${located.folder} is a backup copy; no docs server opens it` };
- if (role === 'live' && !listed) return { open: false, reason: `${located.folder} is a live root, and CODECAINE_DOCS_REQUIRED_ROOTS does not name it` };
- if (role === 'mirror') return { open: true, readOnly: true, reason: 'mirror' };
- return setting ? { open: true, readOnly: true, reason: 'setting' } : { open: true, readOnly: false };
+ if (found.marker.role === 'backup') return { open: false, reason: `${folder} is a backup copy; no docs server opens it` };
+ if (found.marker.role === 'live') return { open: false, reason: `${folder} is a live root, and CODECAINE_DOCS_REQUIRED_ROOTS does not name it` };
+ return { open: true, readOnly: true, reason: 'mirror' };
 }
 
 /** The refusal text of a write under the read-only guard. */

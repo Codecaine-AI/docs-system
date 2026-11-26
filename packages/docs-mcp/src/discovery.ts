@@ -4,13 +4,13 @@ import { isExcludedDocPath } from '@codecaine-ai/docs-index/paths';
 import { readDocsProjectConfig, type DocsProjectConfig } from '@codecaine-ai/docs-index/project-policy';
 import { docsFs, realDocsRootPath } from '@codecaine-ai/docs-index/safe-path';
 import { readFile, realpath, stat } from 'node:fs/promises';
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { inside } from './paths';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 
 /** exclude: docsRoot-relative globs from codecaine.docs.json whose matches are not part of the project. */
 export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[]; exclude?: string[] }
 /** folders: every folder the scan looked for projects in (the workspace, declared and glob-matched folders and their ancestors, each glob's static prefix, each folder a shorter prefix of a nested glob matches). A change to any of their entries can change the result. */
 export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[]; folders: string[] }
-const inside = (root: string, target: string) => target === root || (!relative(root, target).startsWith(`..${sep}`) && relative(root, target) !== '..' && !isAbsolute(relative(root, target)));
 async function json(file: string): Promise<any | undefined> {
   try { return JSON.parse(await readFile(file, 'utf8')); } catch (e: any) { if (e.code === 'ENOENT') return undefined; throw new Error(`Cannot read ${file}: ${e.message}`); }
 }

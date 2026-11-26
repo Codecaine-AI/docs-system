@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
-import { mkdir, mkdtemp, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { createInteractionService } from '../service';
@@ -120,3 +120,66 @@ test('the docs daemon refuses to start with exit 78 when a required root has no 
   expect(wrongId.exitCode).toBe(78);
   expect(wrongId.stderr.toString()).toContain('not CODECAINE_DOCS_ROOT_ID kbr_test');
 }, 30000);
+
+const marker = (role: string) => JSON.stringify({ kind: 'knowledge-root', id: 'kbr_test', role });
+
+test('a backup root is refused, with or without a listing', async () => {
+  const root = await knowledgeRoot('backup');
+  const stray = await open(root);
+  try { expect(stray.found.projects).toEqual([]); expect(stray.found.warnings.join('\n')).toContain('is a backup copy'); } finally { stray.service.close(); }
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = root;
+  const listed = await open(root);
+  try { expect(listed.found.projects).toEqual([]); } finally { listed.service.close(); }
+});
+
+test('a marker deeper inside a listed live root counts: a backup copy is refused and a mirror copy opens read-only', async () => {
+  // A listed live folder that holds a docs project one level down, so the copy is its own project.
+  const live = await realpath(await mkdtemp(join(tmpdir(), 'docs-listed-live-'))); temps.push(live);
+  await writeFile(join(live, ROOT_MARKER), marker('live'));
+  const copy = join(live, 'kb'); await mkdir(join(copy, 'alpha'), { recursive: true });
+  await writeFile(join(copy, 'codecaine.docs.json'), JSON.stringify({ name: 'copy', docsRoot: '.' }));
+  await writeFile(join(copy, 'alpha', 'doc.json'), JSON.stringify(page('alpha', 'Copy text.')));
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = live;
+  const plain = await open(copy);
+  try { expect((await tryWrite(plain.call, plain.project!)).ok).toBe(true); } finally { plain.service.close(); }
+  await writeFile(join(copy, ROOT_MARKER), marker('backup'));
+  const backup = await open(copy);
+  try { expect(backup.found.projects).toEqual([]); } finally { backup.service.close(); }
+  await writeFile(join(copy, ROOT_MARKER), marker('mirror'));
+  const mirror = await open(copy);
+  try { expect((await tryWrite(mirror.call, mirror.project!))).toMatchObject({ ok: false, status: 403 }); } finally { mirror.service.close(); }
+});
+
+test('a listed root named through a symlink opens like its real path', async () => {
+  const root = await knowledgeRoot('live');
+  const link = `${root}-link`; temps.push(link); await symlink(root, link);
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = link;
+  const listed = await open(root);
+  try { expect((await tryWrite(listed.call, listed.project!)).ok).toBe(true); } finally { listed.service.close(); }
+});
+
+test('a read-only root refuses docs_create, docs_set_title and docs_apply_ops, and lets an OPTIONS preflight through', async () => {
+  const root = await knowledgeRoot('mirror');
+  const { service, call, project } = await open(root);
+  try {
+    const task = (await call('docs_begin')).task_id;
+    for (const [name, args] of [['docs_create', { path: 'new' }], ['docs_set_title', { path: 'alpha', title: 'New' }], ['docs_apply_ops', { path: 'alpha', ops: [] }]] as const)
+      expect(await call(name, { task_id: task, project, ...args })).toMatchObject({ ok: false, status: 403 });
+    const preflight = await service.uiRequest(project!, new Request(`http://127.0.0.1/projects/${project}/api/ops`, { method: 'OPTIONS' }));
+    expect(preflight.status).not.toBe(403);
+  } finally { service.close(); }
+});
+
+test('a root that turns read-only after discovery writes no backlinks index, and a live marker that appears closes the project', async () => {
+  const root = await knowledgeRoot();
+  const { service, call, project } = await open(root);
+  try {
+    await writeFile(join(root, ROOT_MARKER), marker('mirror'));
+    const before = await manifest(root);
+    expect((await call('docs_backlinks', { project, path: 'alpha' })).ok).toBe(true);
+    expect((await service.uiRequest(project!, new Request(`http://127.0.0.1/projects/${project}/api/backlinks?target=alpha`))).status).toBe(200);
+    expect(await manifest(root)).toEqual(before);
+    await writeFile(join(root, ROOT_MARKER), marker('live'));
+    expect((await call('docs_read', { project, path: 'alpha' })).detail).toContain('Project is not in this workspace');
+  } finally { service.close(); }
+});

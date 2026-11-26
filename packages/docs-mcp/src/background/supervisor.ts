@@ -10,7 +10,7 @@ import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type Devic
 import { loadCodecaineEnv } from '../codecaine-env';
 import { createActivator } from './activation';
 import { canActivate, createBackoff, createStateLog, rotateLog } from './activation-policy';
-import { loadUpstreamKey, upstreamRefusal, viewerEnabled } from './upstream-guard';
+import { hasUpstreamKey, loadUpstreamKey, UPSTREAM_KEY_HEADER, upstreamRefusal, viewerEnabled } from './upstream-guard';
 import { exitOnRootMarkerProblems, ROOT_MARKER_EXIT } from '../root-marker';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
 loadCodecaineEnv();
@@ -176,7 +176,7 @@ async function proxyRuntime(request: Request, pathname: string) {
   const url = new URL(request.url);
   const headers = new Headers(request.headers);
   headers.set('authorization', `Bearer ${token}`);
-  headers.delete('host'); headers.delete('origin');
+  headers.delete('host'); headers.delete('origin'); headers.delete(UPSTREAM_KEY_HEADER);
   activeRequests++;
   requestRevision++;
   try {
@@ -232,10 +232,12 @@ async function registerDevice() {
 type SocketData = { url: string; upstream?: WebSocket; pending: (string | Buffer)[] };
 const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<Response | undefined> => {
   const url = new URL(request.url);
-  // The upstream key check runs first, before the Host check and every route, the viewer WebSocket upgrade included.
+  const authenticated = request.headers.get('authorization') === `Bearer ${token}`;
+  // /health without the bearer token and the upstream key (when set) answers only whether the server runs: no paths, no pid.
+  if (url.pathname === '/health' && !(authenticated && hasUpstreamKey(request, upstreamKey))) { const { service, ready, viewer } = status(); return Response.json({ service, ready, viewer }); }
+  // The upstream key check runs before the Host check and every other route, the viewer WebSocket upgrade included.
   const refused = upstreamRefusal(request, upstreamKey); if (refused) return refused;
   if (!localBrowserRequest(request)) return new Response('Forbidden origin', { status: 403 });
-  const authenticated = request.headers.get('authorization') === `Bearer ${token}`;
   if (['/rpc', '/tools', '/health', '/shutdown'].includes(url.pathname) || /^\/projects\/[^/]+\/api\//.test(url.pathname)) {
     if (!authenticated) return new Response('Unauthorized', { status: 401 });
     if (url.pathname === '/health') {
@@ -261,9 +263,9 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
   const project = projectRoute(url.pathname);
   if (project) {
     if (!registry.projects.some(p => p.id === project.id)) return new Response('Project is not registered.', { status: 404 });
+    if (!viewerOn && !project.apiPath) return new Response('Not found', { status: 404 });
     if (project.redirect) return Response.redirect(new URL(project.redirect, url), 307);
     if (project.apiPath) return proxyRuntime(request, project.apiPath);
-    if (!viewerOn) return new Response('Not found', { status: 404 });
     if (!viteUrl) return new Response('Viewer is starting.', { status: 503 });
     const response = await fetch(`${viteUrl}/__viewer/`);
     return new Response(await response.text(), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
