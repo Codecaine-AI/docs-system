@@ -417,8 +417,9 @@ export default function DocEditor({
     if (serializeDocDocument(document) === serializeDocDocument(baseDocRef.current)) {
       baseDocRef.current = document;
       setSaveError(null);
-      // The page did not change, so the draft is still in the editor.
-      setKeptDraft(null);
+      // A reload that found the page unchanged leaves the draft in the editor. Any other
+      // same-content refresh (an event echo) keeps a draft that was set aside.
+      if (isDirtyRef.current) setKeptDraft(null);
       return;
     }
     baseDocRef.current = document;
@@ -667,8 +668,10 @@ export default function DocEditor({
   // (`window.document` throughout — the `document` PROP shadows the global.)
   useEffect(() => {
     if (!autoSave) return;
+    // Paused like the debounce: a known conflict is never retried by a blur or tab switch.
     const flush = () => {
-      if (isDirtyRef.current) void handleSaveRef.current();
+      if (!isDirtyRef.current || saveErrorRef.current?.stale || lockConflictRef.current) return;
+      void handleSaveRef.current();
     };
     const onVisibilityChange = () => {
       if (window.document.visibilityState === "hidden") flush();
@@ -718,8 +721,9 @@ export default function DocEditor({
   // lock doesn't sit held until its TTL expires.
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      if (projectId && documentPath) {
+      // A draft set aside after a stale reload is unsaved work too.
+      if (!isDirty && !keptDraft) return;
+      if (isDirty && projectId && documentPath) {
         void client?.releaseDraftLock?.(projectId, documentPath, "doc", sessionId).catch(
           () => {},
         );
@@ -729,7 +733,7 @@ export default function DocEditor({
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isDirty, projectId, documentPath, sessionId, client]);
+  }, [isDirty, keptDraft, projectId, documentPath, sessionId, client]);
 
   const nodeViewContextValue = useMemo(
     () => ({ renderCanvas, renderSequence, resolveAssetSrc, appEmbeds }),

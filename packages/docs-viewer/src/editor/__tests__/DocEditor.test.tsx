@@ -509,6 +509,15 @@ describe("DocEditor save boundary", () => {
     expect(screen.getByText(/Your draft is kept/)).toBeTruthy();
     expect(saves).toHaveLength(1);
 
+    // A refresh with the same content (an event echo) keeps the draft that waits.
+    view.rerender(ui(structuredClone(fresh)));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByText(/Your draft is kept/)).toBeTruthy();
+    // Leaving the page while the draft waits asks first.
+    const leave = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(leave);
+    expect(leave.defaultPrevented).toBe(true);
+
     fireEvent.click(screen.getByRole("button", { name: "Use my draft" }));
     await waitFor(() => expect(screen.getByText("My precious draft")).toBeTruthy());
     expect(screen.getByText("Unsaved changes")).toBeTruthy();
@@ -930,6 +939,12 @@ describe("auto-save", () => {
       editorInstance!.commands.insertContentAt(1, "b");
     });
     await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(batches.length).toBe(1);
+    // A window blur or a tab switch does not retry the known conflict either.
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
     expect(batches.length).toBe(1);
 
     // Host reload: a NEW document object reseeds the editor, clears the
