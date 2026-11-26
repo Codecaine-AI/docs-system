@@ -64,9 +64,29 @@ One session identity threads through all of this. Each editing session (a browse
 
 ## Atomicity and the Validation Gate
 
-The write authority serializes the whole read–check–apply–write sequence per document, and the `expected_hash` comparison occurs inside that critical section — two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a `patch_id`, a change event broadcasts, and the new document and hash return to the caller. On any refusal, nothing is written.
+The write authority serializes the whole read–check–apply–write sequence per document, and the `expected_hash` comparison occurs inside that critical section. Two writers holding the same baseline cannot both pass and overwrite one another. Writes to different documents proceed concurrently, and a refused batch does not poison the writers queued behind it. A batch is all-or-nothing: on success every op applies, the inverse batch is recorded under a `patch_id`, a change event broadcasts, and the new document and hash return to the caller. On any refusal, nothing is written.
 
-> **Write gate: Invalid post-op documents never reach disk** — Applying ops cannot by itself establish that every span and cross-reference is reloadable, so the authority validates the complete post-op document before persistence. Failure refuses the batch (`422` over HTTP) with typed issue paths; the existing file, undo ledger, and derived indexes stay untouched. What persists on success is the validator's normalized document, so the returned hash matches the next load's canonical bytes — an editor or agent bug cannot save a document the next load refuses.
+> **Write gate: Invalid post-op documents never reach disk** — Applying ops cannot by itself establish that every span and cross-reference is reloadable, so the authority validates the complete post-op document before persistence. Failure refuses the batch (`422` over HTTP) with typed issue paths. The existing file, undo ledger, and derived indexes stay untouched. What persists on success is the validator's normalized document, so the returned hash matches the next load's canonical bytes. An editor or agent bug cannot save a document the next load refuses.
+
+## Concurrency
+
+One runtime serves every agent on a corpus. A tree change waits only for writers that touch its read set.
+
+- **A one-doc write keeps its per-doc lock and `expected_hash`.**
+
+  - A shared mode of the store lock for writes comes only if the measured wait on that lock is over 1 s.
+
+- **A tree change checks only its read set.**
+
+  - A tree change is a move, rename, delete, title change, asset move, or restore.
+
+  - Its read set is the files it moves, deletes, or rewrites, and each file that references them.
+
+  - It takes locks in one order: `proposals.json`, `doc.json`, sidecars, then `annotations.json`, destination paths included.
+
+- **A read takes no store lock.**
+
+  - Each file write is an atomic rename, so a read sees the old bytes or the new bytes.
 
 ## Component Actions (the Seventh Op)
 
@@ -77,10 +97,15 @@ Rich text has one action for a scalar prop, `list-item.setChecked`. It gives age
 **componentAction examples**
 
 ```
-structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> updateBlock props patch (standard inverse)  # Set one cell, addressing the column by name (column) or position (columnIndex)
+[action] structured-table.updateCell(rowIndex: number, column?: string, columnIndex?: number, value: string) -> updateBlock props patch (standard inverse)  # Set one cell, addressing the column by name (column) or position (columnIndex)
+  rowIndex: number
   column?: string  # exactly one of column/columnIndex
-code.setAnnotation(lines: string, note: string, label?: string) -> updateBlock props patch (standard inverse)  # Upsert a line annotation keyed by its exact "lines" string
+  columnIndex?: number
+  value: string
+[action] code.setAnnotation(lines: string, note: string, label?: string) -> updateBlock props patch (standard inverse)  # Upsert a line annotation keyed by its exact "lines" string
   lines: string  # line range key, e.g. "4-9"
+  note: string
+  label?: string
 ```
 
 Canvas and sequence actions are the exception that proves the authority boundary: they carry their owning engine's schema truth and forward to that engine's authority instead of patching document props.
@@ -93,11 +118,11 @@ Canvas and sequence actions are the exception that proves the authority boundary
 
 A successful apply broadcasts an SSE change event carrying the ids of blocks whose content or placement changed. Consumers use that id set to flash the affected blocks. The event is a notification of the applied patch, not a second write path.
 
-The event carries `{ path, changedIds, patchId, actor }` and publishes only after the mutation commits — never for a refused write. It is a hint, not state: canonical content stays on disk and consumers re-fetch it. Out-of-band filesystem edits enter the same stream under the actor `fs`. Derived indexes such as backlinks update best-effort after the commit; a broken or unavailable index can make derived lookups stale but can never veto a valid save.
+The event carries `{ path, changedIds, patchId, actor }` and publishes only after the mutation commits, never for a refused write. It is a hint, not state: canonical content stays on disk and consumers re-fetch it. Out-of-band filesystem edits enter the same stream under the actor `fs`. Derived indexes such as backlinks update best-effort after the commit. A broken or unavailable index can make derived lookups stale but can never veto a valid save.
 
 Auto-apply of incoming change events is held while a consumer has an unsaved or dirty draft. Remote changes therefore never clobber local work. If both sides touched overlapping state, the overlap appears as the `409` when the dirty draft is saved against its stale `expected_hash`.
 
-> **Gotcha: Why didn't the live update apply?** — SSE auto-apply is suppressed while your editor is dirty or a save is in flight — incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge.
+> **Gotcha: Why didn't the live update apply?** — SSE auto-apply is suppressed while your editor is dirty or a save is in flight. Incoming remote changes are held rather than clobbering your unsaved draft. Nothing is lost: once you save (or reload), any true overlap surfaces as the save-time 409 instead of a silent merge.
 
 ## Discovery
 

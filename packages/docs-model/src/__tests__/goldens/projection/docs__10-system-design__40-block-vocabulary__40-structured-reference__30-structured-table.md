@@ -2,6 +2,32 @@ The structured-table family owns one block type, `structured-table`: a columns Ã
 
 When creating or revising a worked component example, show the relevant state shape with a concrete instance, the real operation signature, and its returned shape beside example data. Use one consistent scenario across all three. Verify fields and return semantics against source. Identify whether the result is a props patch, full state, or response envelope. For void, primitive, or event results, document the actual result or payload instead of inventing an object. Descriptions should add non-obvious information.
 
+## Writing a Table
+
+A reader looks up a row by its first cell and then reads across it. The renderer never draws the `title`, so a heading or a sentence just before the table must say what its rows are.
+
+- **Rows**
+
+  - Give each row a short key in the first column that no other row shares. Merge two rows that would share a key, or add a qualifier.
+
+  - Put the rows in one order, such as the source order, and say which order in the sentence before the table.
+
+- **Columns**
+
+  - Give each column one property, in the same form and unit in every cell.
+
+  - Mark each literal name, path, flag or value as code in every row.
+
+  - Keep a flag and its value in one code span, such as `--root <path>`.
+
+- **Cells**
+
+  - Keep each cell to one value or a short phrase.
+
+  - Put an explanation, a list or a condition in the text before or after the table.
+
+  - Give None one meaning in a column. When a value is missing for a reason, such as a required option, write the reason.
+
 ## Example
 
 A live instance of the type, the `docs-system-classic` repo theme's five structured-table overrides (`themes/docs-system-classic/components/structured-table.json`), with code-marked CSS-variable cells:
@@ -119,7 +145,19 @@ Five verbs cover the grid and form the family's whole agent write surface for ce
 
 The read surface and the editor at rest share one light-grid look. The table is a panel that shrinks to its content inside a thin outer border. A header rule tinted by the header-rule tokens sits under the header row, light rules split the body rows, and a hover wash marks the current row. Column rules are `0px` wide by default, so only row rules show. A theme that widens them with `--docs-table-column-rule-width` gets the row-rule color and opacity unless it sets its own. The block's `title` is never drawn. It only names the table for screen readers through `aria-label`.
 
-Every cell is padded on both sides so text never touches a rule. Columns size to their content, one prose column wraps at 60ch, and the first column stays pinned when the table scrolls, as described in Block Widths and Lanes. The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
+Every cell is padded on both sides so text never touches a rule. Columns size to their content, as Block Widths and Lanes describes.
+
+- A text column stays on one line while its longest cell has 24 characters or fewer.
+
+- One prose column wraps at 60ch and never gets narrower than 30ch.
+
+- A second sentence column also wraps at 60ch. Other long columns wrap at 30ch, so the prose column gets the spare width.
+
+- The first column stays pinned when the table scrolls.
+
+The class strings live in `table-classes.ts` and are imported verbatim by both the read renderer (`StructuredTableDocsBlock.tsx`) and the editor grid, so the two surfaces cannot drift. Header cells keep a 60px minimum width so a new empty column stays visible. A block with missing or malformed columns renders the invalid-block placeholder. The contract is Doc renderer.
+
+Inline code in a cell is plain mono with no chip, in the chip ink, 0.5px under the body size. A literal then looks the same whether it fills its cell or sits in a sentence. A code span of up to 40 characters breaks only after a `,` or a `|`, so `--root <path>` stays on one line. `column-layout.ts` holds the column rules, and `cell-render.tsx` holds the code rule.
 
 The `layout.table-fit` warning checks each table at stock theme settings, with its text measured in the bundled Inter and IBM Plex Mono faces. Like every layout rule in Authoring Lints, it never blocks a save. It flags two cases:
 

@@ -50,6 +50,10 @@ Images and videos stay in the document instead of passing through the canvas vie
 
   - The dialog owns the only header; the viewer remains a bare diagram surface. Canvas preview and exploration never nest Studio or another canvas application in an iframe.
 
+  - The canvas, sequence, image, and HTML viewers fill the host's viewer area, the CSS `inset` value in `--docs-viewer-inset`. With no value set, the area is the whole window.
+
+  - Each viewer opens non-modal, so a host's sidebar and tabs outside the viewer area stay usable. An open viewer carries `data-docs-viewer`, so a host can raise its chrome over the viewer only while one is open.
+
   - Escape or the close action returns to the same place in the document.
 
 - **The docs repo owns the board file**

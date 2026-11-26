@@ -53,8 +53,9 @@ import type { DocBlock, DocDocument } from "./doc-schema";
  *   `name(param: type, optional?: type) -> returns` — params render
  *   `name[?][: type]` (the `?` marks `required === false`), ` -> returns`
  *   appears only when `returns` is present, a `  # description` suffix
- *   appends when present, and a `[kind] ` prefix appears only for
- *   query/event operations (actions are the default and render bare).
+ *   appends when present, and every line starts with a `[kind] ` prefix
+ *   (`[action]` when unset). Param detail lines follow when any param has a
+ *   description or nested fields (components/interaction-surface/agent-view.ts).
  * - `file-tree` -> a literal tree-command rendering inside a bare fenced
  *   ``` block: a nested tree
  *   derived from the v2 entry paths (`{ path, note?, change?, from? }`) with

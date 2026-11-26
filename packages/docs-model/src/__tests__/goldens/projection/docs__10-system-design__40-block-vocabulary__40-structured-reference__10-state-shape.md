@@ -276,31 +276,51 @@ Four actions instantiate the Typed actions contract element. Params validate aga
 
 ## Doc Renderer
 
-StateShapeBlock renders one dark code panel with a header, a field ledger, and an Example pane. The whole panel is a code surface, so it stays dark on both the light and the dark page and takes the code theme's colors, as Code Colors From Your Editor describes. The ledger and the Example pane split 44/56 when the block is at least 560px wide. The ledger keeps at least 360px and the Example pane at least 260px, and a narrower block stacks them. Both panes have 16px of inner padding and render as follows:
+`StateShapeBlock` renders one dark code panel with a header, a field ledger, and an Example pane. The panel is a code surface, so it stays dark on both the light and the dark page. It takes the code theme's colors, as Code Colors From Your Editor describes. At 560px wide or more, the ledger and the Example pane sit side by side, and each pane has 16px of inner padding.
 
 - Tree pane
 
   - The header shows the shape name in monospace and, at the right, the source as `file#Symbol`. Hover or keyboard focus on the source opens the full `path#Symbol` in a tooltip.
 
-  - Every field row shows only a name and a type. The name takes the key color with a punctuation-colored `?` when the field is optional, and the type takes the type color.
+  - Every field row shows a name and a type.
+
+    - The name takes the key color with a punctuation-colored `?` right after it when the field is optional.
+
+    - A field with no `?` is required, and the block prints no legend line for this.
+
+  - A name of several words, such as `kind "command" adds`, colors a quoted word as a string literal and each later word as a keyword.
 
   - Nested fields hang off their parent with the file tree's elbow connectors, a tee for a middle child and an end for the last child.
 
-  - Every field ledger uses one 24ch name column, so type columns line up across blocks. A long name wraps inside that column, also at `_`.
+  - The name column fits the longest name at its depth, from 10ch to 8ch past the 24ch of `--docs-shape-name-width`. In a block narrower than 560px, the knob alone caps it.
 
 - Example pane
 
-  - The example pretty-prints through the shared `printJsonLines` canon: line numbers, zebra stripes.
+  - The example pretty-prints through the shared `printJsonLines` canon with no line numbers. An object or array folds onto one line when that line fits in 42 columns.
+
+    - `exampleFolds` folds an array of 3 or more items when its items after the first take 8 or more lines. A folded array shows its first item and a `… N more` button, and the chevron on its opening line opens or closes it.
 
   - JSON token toning is deterministic, a tiny line tokenizer over the canonical print, no highlight.js.
 
-  - A long line soft-wraps with a hanging indent instead of scrolling.
+  - A long line soft-wraps instead of scrolling, and each key stays on the line of its value.
+
+    - In a block 560px wide or more, the pane fits its widest line, up to 48 columns and 56% of the block.
+
+  - A path value whose parts are 32 characters or shorter breaks only after a `/`.
+
+  - A wrapped string value with no space continues under the first character inside its opening quote.
 
 - Cross-linking
 
   - Field rows and example lines link by field dot-path. Array indices normalize away, so a field matches its path at every array position.
 
-  - Hover or pin paints the field's full extent in both panes. Activating an ancestor lights its whole brace-to-brace range.
+  - Hover or pin paints the field's full extent in both panes with the link wash and the left rail.
+
+    - A pin draws no ring around each line, so a pinned span reads as one section.
+
+    - Activating an ancestor lights its whole brace-to-brace range.
+
+  - Escape clears the pin. A click outside every linked row and line also clears it.
 
   - Without an example the card is the single-pane tree, nothing linkable.
 
@@ -312,9 +332,25 @@ StateShapeBlock renders one dark code panel with a header, a field ledger, and a
 
 - Descriptions
 
-  - A field's description prints on the page beside its type. When the ledger is 600px wide or more, it sits in a third column. When the ledger is narrower, it sits under the type.
+  - A row hides its description until the reader opens the row.
 
-  - Print media, which PDF export uses, prints each description inline beneath its name, so an exported page carries every description.
+    - A click on a described row opens its description under its type, and a second click closes it.
+
+    - The row toggle is a button with `aria-expanded`, and a chevron shows on hover. A row without a description has no toggle.
+
+  - The Descriptions switch at the right of the header shows every description in every ledger on the page.
+
+    - The switch shows only its track, and its label Descriptions slides out over 320 ms on hover or keyboard focus. Reduced motion turns the slide off.
+
+    - The switch value lives in memory only, so a reload turns it off. Interaction Surface ledgers read the same switch.
+
+  - While a described row is closed, a string-literal union of 4 or more values shows its first 2 values and a muted `+N`. A row without a description shows its whole union.
+
+  - An open description sits beside its type at a ledger width of 600px or more, and under the type below that. Each backtick span in a description renders as inline code.
+
+  - Static markup, such as a published page, has no JS to run a toggle. It prints every description beside its type and shows no switch.
+
+  - Print media, which PDF export uses, prints every description and every union value, so an exported page carries them all.
 
 In the editor the block is a ProseMirror atom leaf (`docStateShape`) rendered read-only through the shared `AtomBlockView`, the same `StateShapeBlock` output as the reader. The block has no slash-menu entry. Instances enter through agent ops or existing content.
 

@@ -122,6 +122,7 @@ operations: Operation[]  # Operation signatures, in document order.
   returnShape?: ReturnShape  # Known object result; omit for void, primitive values, or an unsubscribe function.
     fields: Field[]  # Uses the same recursive field nodes as State Shape.
     example?: string  # JSON instance of the returned object.
+  exampleCall?: string  # Code text of one real call with literal values, shown beside the parameters of an open row. An empty string is dropped. The interaction-surface lint flags an operation without one.
 ```
 
 ```json
@@ -160,7 +161,7 @@ Three actions maintain the `operations` array. The surface below documents itsel
 **interaction-surface operation actions**
 
 ```
-[action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape) -> InteractionSurfacePatch  # Rejects duplicate operation names.
+[action] interaction-surface.addOperation(name: string, description?: string, params?: array, returns?: string, kind?: string, returnShape?: ReturnShape, exampleCall?: string) -> InteractionSurfacePatch  # Rejects duplicate operation names.
   name: string
   description?: string
   params?: array
@@ -169,6 +170,7 @@ Three actions maintain the `operations` array. The surface below documents itsel
   returnShape?: ReturnShape
     fields: Field[]
     example?: string
+  exampleCall?: string  # One real call with literal values. Leave it out or pass a nonempty string, because the action refuses an empty one.
   Example call:
     interaction-surface.addOperation({
       name: "file-tree.removeEntry",
@@ -203,7 +205,16 @@ Three actions maintain the `operations` array. The surface below documents itsel
         }
       ]
     }
-[action] interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place; null clears description, params, returns, returnShape, or kind.
+[action] interaction-surface.updateOperation(name: string, patch: object) -> InteractionSurfacePatch  # Renames in place. Null clears description, params, returns, returnShape, exampleCall, or kind.
+  name: string
+  patch: object
+    name?: string  # New operation name.
+    description?: string | null
+    params?: Field[] | null
+    returns?: string | null
+    returnShape?: ReturnShape | null
+    exampleCall?: string | null  # One real call with literal values. Null removes it.
+    kind?: "action" | "query" | "event" | null
   Example call:
     interaction-surface.updateOperation({
       name: "file-tree.removeEntry",
@@ -284,7 +295,7 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
 - **Descriptions appear only when they add information**
 
-  - A described parameter name carries a dotted underline, and its description opens as a tooltip on hover or keyboard focus.
+  - A described parameter row is a button that opens its description under its type, and the panel head's Descriptions switch opens every description on the page.
 
   - The operation purpose shows in the tooltip on the operation name.
 
@@ -296,15 +307,19 @@ On the doc surface, reader and editor alike, the block renders through `Interact
 
   - One link group per operation, line numbering is per-operation, so keys would collide across operations.
 
-  - Hovering or focusing a note lights the param's signature lines and vice versa. A click pins, Escape clears pins.
+  - Hovering or focusing a param row lights the param's signature lines and the reverse.
+
+  - A click pins with the same wash and rail and no ring. Escape or a click outside every linked row clears the pin.
 
 - Descriptions
 
-  - Parameter and returned-field descriptions use the State Shape tooltip, with a dotted underline on the name, a 450 ms hover dwell or keyboard focus, a `role="tooltip"` bubble, and inline text in print media. The rows show only names and types, so the inputs ledger scans as a table.
+  - Parameter and returned-field rows use the State Shape ledger: each row shows only its name and type, and a click on a described row opens its description. The Descriptions switch in the panel head is the same page-wide switch as State Shape's.
 
   - The operation purpose and kind badge share one tooltip on the operation name. Print media prints both inline under the name.
 
-  - Why: the two blocks share one ledger reading pattern, so a reader learns the underline cue once and every field row stays one line tall.
+  - Each operation fits one name column to its longest name, up to 32ch, and each code pane fits its widest line, up to 48 columns. A long returned-example array folds to its first item and a `… N more` button, as in State Shape.
+
+  - The two blocks share one ledger reading pattern, so a reader learns the row toggle once and every closed field row stays one line tall.
 
 In the editor the type is a non-editable atom leaf node (`DocInteractionSurface`). The node view calls the same descriptor render, so a surface looks identical in view and edit mode. No slash-menu entry, surfaces enter through agent ops or existing content.
 
@@ -351,7 +366,7 @@ The Theming contract element: theme file `components/interaction-surface.json` i
 | State Shape tokens | --docs-shape-* | Shared content colors, hierarchy, and separators |
 | Legacy interaction tokens | --docs-interaction-* | Retained for compatibility; shared content follows State Shape |
 
-Content uses the shared field ledger and the code theme's syntax colors. Only the kind badge varies by kind. Linking uses the shared linked-panels behavior.
+Content uses the shared field ledger and the code theme's syntax colors. A ledger type colors string literals, numbers, keywords, keys, and punctuation by role, the same way State Shape does. Only the kind badge varies by kind. Linking uses the shared linked-panels behavior.
 
 ## Agent Adapter
 

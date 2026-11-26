@@ -16,7 +16,11 @@ When creating or revising a worked component example, show the relevant state sh
 
 - callout
 
-  - Toned admonition with a tone icon, a printed label, and an optional title. `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants currently render the same rail note.
+  - Toned admonition with a tone icon, a printed label, and an optional title.
+
+    - `props.tone` accepts only `info` (default), `decision`, `risk`, `warning`, or `success`.
+
+    - `props.variant` accepts `eyebrow` (default), `hairline`, `rail`, or `tab`, and all four variants render the same rail note.
 
 - divider
 
@@ -159,7 +163,7 @@ Whether a type carries delta text is a per-type fact, declared as `carriesText` 
 The rich-text types have one typed action, `list-item.setChecked`, which sets a list item's task state. Task state is the exception to the rule that scalar props change through `updateBlock`, because agents look for a named verb to tick a box. The action returns a props patch, so `updateBlock` with `props.checked` has the same result. Every other rich-text edit uses the generic block ops and delta text edits.
 
 ```
-list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
+[action] list-item.setChecked(checked: boolean) -> ListItemCheckedPatch  # Make a list item a checklist task and set its state. The block keeps its id. The MCP tool is docs_list_item_set_checked.
   checked: boolean  # A true value marks the task done (- [x]), and false marks it open (- [ ]).
   Example call:
     list-item.setChecked({

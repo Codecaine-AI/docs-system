@@ -16,7 +16,7 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 ## Styles
 
-`props.variant` accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can add a fill or a frame to every variant with the tint and hairline knobs.
+`props.variant` accepts eyebrow, hairline, rail, and tab, and a missing or unknown value reads as eyebrow. All four variants render the same rail note, so the examples below look alike. A theme can clear the fill or add a frame to every variant with the tint and hairline knobs.
 
 > **INFO: Eyebrow is the default** — The default variant renders the shared rail note: a 3px tone rail, the icon and label line, and the body.
 
@@ -24,7 +24,7 @@ The five supported tones are info, decision, risk, warning, and success. Each ex
 
 > **WARNING: Rail renders the same note** — The tone, not the variant, sets the color of the rail, the icon, and the label.
 
-> **SUCCESS: Tab renders the same note** — Set the tint and hairline knobs in the theme to add a fill or a frame to every callout.
+> **SUCCESS: Tab renders the same note** — Set the tint and hairline knobs in the theme to change the fill or add a frame on every callout.
 
 ## State Schema
 
@@ -50,7 +50,7 @@ Carries delta text (`carriesText: true`) as the callout body.
 
 ### The Coercion Target
 
-> **Decision: Retired types never break a corpus** — After legacy `flavour` aliasing, any block whose type is a string but not one of the canonical block types coerces to a callout, preserving the old type name as `props.kind` (unless the block already carries its own non-empty `kind`). Props, text, and children carry over verbatim, and the block canonicalizes to the coerced form on its next save. One render rule covers them all.
+> **Decision: Retired types never break a corpus** — After legacy `flavour` aliasing, a block of an unknown type coerces to a callout and keeps its old type name in `props.kind`, unless it has a `kind`. Props, text, and children carry over unchanged, and the next save writes the coerced form.
 
 ## Doc Renderer
 
@@ -58,7 +58,7 @@ The slash menu lists **Callout** (aliases: note, info, tip). No input rule, type
 
 The editable view and the read view share `CalloutDocsBlock`, including the rail, the icon, the printed label, the optional title, and the body. In the editor, ProseMirror owns the body while the head row stays outside the editable text. Typing, formatting, undo, nested content, and clipboard metadata keep the existing document schema. Both views support info, decision, risk, warning, and success, and unknown tones fall back to info.
 
-Every callout is one rail note: a 3px left rail in the tone color, with no fill and no frame by default.
+Every callout is one rail note: a 3px left rail in the tone color over the tone's soft fill, with no frame by default.
 
 - The first line opens with the tone icon and the printed label in the tone color, at body size and weight 600.
 
@@ -74,7 +74,17 @@ Every callout is one rail note: a 3px left rail in the tone color, with no fill 
 
 ## Agent Notes
 
-- Keep the body to one or two sentences, the labeled fact itself. Mechanics, rationale, history, and examples go in a heading-led section (`heading` level 2 or 3 plus paragraphs) placed after the callout; a callout that scrolls is a section wearing a border.
+- Keep the body to one or two sentences, the labeled fact itself.
+
+  - Mechanics, rationale, history, and examples go in a section after the callout, under a `heading` of level 2 or 3.
+
+  - A callout that scrolls is a section wearing a border.
+
+- Give a title only when it names a fact that the body does not state.
+
+  - The printed label already says the tone, so a title never opens with it, as in "Decided:".
+
+  - Leave the title out when it would repeat the body's first sentence.
 
 - Decision records are two parts: a short dated callout stating the call, then an H3 section holding the reasoning and consequences.
 
@@ -95,13 +105,13 @@ This block's theme file is `components/callout.json` in the active theme folder.
 | border | --docs-callout-border | Frame color, drawn only when hairlineWidth is above 0px |
 | fg | --docs-callout-fg | Body text color |
 | <tone>Accent | --docs-callout-<tone>-accent | Rail, icon, and label color per tone |
-| <tone>Tint | --docs-callout-<tone>-tint | Fill behind the note, transparent by default |
+| <tone>Tint | --docs-callout-<tone>-tint | Fill behind the note, the tone's soft color by default |
 | <tone>TitleFg | --docs-callout-<tone>-title-fg | Title color, the ink by default |
 | railWidth | --docs-callout-rail-width | Left rail thickness, 3px by default |
 | hairlineWidth | --docs-callout-hairline-width | Frame thickness, 0px by default |
 | radius | --docs-callout-radius | Corner radius, following the global radius |
 | padX | --docs-callout-pad-x | Horizontal padding, 14px by default |
-| padY | --docs-callout-pad-y | Vertical padding, 2px by default |
+| padY | --docs-callout-pad-y | Vertical padding, 12px by default |
 | titleTextSize | --docs-callout-title-text-size | Size of the label and title line, the body size by default |
 | titleWeight | --docs-callout-title-weight | Title weight, 600 by default |
 | iconSize | --docs-callout-icon-size | Tone icon size, 16px by default |

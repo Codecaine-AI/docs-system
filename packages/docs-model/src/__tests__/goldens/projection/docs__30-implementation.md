@@ -8,7 +8,7 @@ How the current docs-system code realizes the system design: how the source is o
 
 - external/: the independently owned Canvas and Sequence projects, mounted as submodules. Boundary decisions live under External Canvas and Sequence.
 
-- evals/: the quality climb, which writes, renders and scores pages to measure the docs tools. Its method and results live under Quality Climb.
+- evals/: the quality-climb writer and its briefs, which UI Hill Climb calls through the adapter in hill-climb/. The method and the results live under Quality Climb.
 
 - themes/: theme folders and component style knobs. Decisions live under Theming.
 
