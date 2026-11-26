@@ -48,8 +48,9 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
 
 test("tall HTML keeps its scale inline, scrolls inside the capped area, and keeps its scroll across Expand", () => {
   const rect = HTMLElement.prototype.getBoundingClientRect;
+  let width = 800;
   HTMLElement.prototype.getBoundingClientRect = function () {
-    return { x: 0, y: 0, top: 0, left: 0, right: 800, bottom: 0, width: 800, height: 0, toJSON() {} } as DOMRect;
+    return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: 0, width, height: 0, toJSON() {} } as DOMRect;
   };
   try {
     const { container, getByRole } = render(<HtmlBlock html="<p>Tall</p>" title="Tall" />);
@@ -70,6 +71,21 @@ test("tall HTML keeps its scale inline, scrolls inside the capped area, and keep
     fireEvent.click(getByRole("button", { name: "Close HTML viewer" }));
     // Closing returns the inline area to where the reader had scrolled it.
     expect(area.scrollTop).toBe(700);
+    // The body scroll unlock can change the column width: the resize clears
+    // the measurement and the browser clamps scrollTop to 0. The remeasure
+    // brings the position back.
+    width = 780;
+    act(() => window.dispatchEvent(new Event("resize")));
+    area.scrollTop = 0;
+    report(frame, 780, 3000);
+    expect(area.scrollTop).toBe(700);
+    // A scroll the reader starts inline ends the restore.
+    fireEvent.wheel(area);
+    area.scrollTop = 40;
+    width = 800;
+    act(() => window.dispatchEvent(new Event("resize")));
+    report(frame, 800, 3000);
+    expect(area.scrollTop).toBe(40);
   } finally {
     HTMLElement.prototype.getBoundingClientRect = rect;
   }

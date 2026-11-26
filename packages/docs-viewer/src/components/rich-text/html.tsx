@@ -81,7 +81,10 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const layoutWidthRef = useRef(0);
   const [windowHeight, setWindowHeight] = useState(800);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
-  // The inline area's scroll position, kept while the viewer is open.
+  // The inline area's scroll position from before Expand: a pending restore.
+  // It holds until the reader scrolls the area or expands again, so a
+  // remeasure after close (the body scroll unlock can change the column
+  // width) does not lose it.
   const inlineScrollRef = useRef<number | null>(null);
   const [area, setArea] = useState<Size>({ width: 0, height: 0 });
   const [measured, setMeasured] = useState<Size | null>(null);
@@ -164,13 +167,6 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     };
   }, [expanded, animateOpen, cancel]);
 
-  // Back inline, return the area to where the reader had scrolled it.
-  useLayoutEffect(() => {
-    if (expanded || inlineScrollRef.current === null || !areaRef.current) return;
-    areaRef.current.scrollTop = inlineScrollRef.current;
-    inlineScrollRef.current = null;
-  }, [expanded]);
-
   const naturalWidth = Math.max(1, width, measured?.width ?? 0);
   const naturalHeight = measured?.height ?? initialHeight;
   // Inline, the artifact fits the column width only, so its text stays
@@ -179,6 +175,17 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const inlineScale = inline?.scale ?? 1;
   const scale = expanded ? zoom ?? fitHtmlScale(naturalWidth, naturalHeight, area.width || naturalWidth, area.height || naturalHeight) : inlineScale;
   const previewHeight = inline?.areaHeight ?? initialHeight;
+  const inlineScrollRoom = naturalHeight * inlineScale - previewHeight;
+
+  // Back inline, return the area to where the reader had scrolled it, once a
+  // measured layout is tall enough to hold that position.
+  useLayoutEffect(() => {
+    const pending = inlineScrollRef.current;
+    if (expanded || pending === null || !measured || inlineScrollRoom < pending || !areaRef.current) return;
+    areaRef.current.scrollTop = pending;
+  }, [expanded, measured, inlineScrollRoom]);
+  // A scroll the reader starts inline ends the pending restore.
+  const clearPendingScroll = () => { if (!expanded) inlineScrollRef.current = null; };
 
   // This dialog and iframe never move or remount: expanding fixes the existing
   // element over the host's viewer area, preserving the artifact's DOM and script state.
@@ -213,7 +220,9 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Zoom in" onClick={() => setZoom(Math.min(4, scale * 1.25))}>+</button>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Close HTML viewer" onClick={closeViewer}><XIcon size={12} strokeWidth={2} aria-hidden />Close</button>
           </div>}
-          <div ref={areaRef} data-docs-html-area="" style={{ minHeight: 0, flex: expanded ? 1 : undefined,
+          <div ref={areaRef} data-docs-html-area=""
+            onWheel={clearPendingScroll} onTouchMove={clearPendingScroll} onPointerDown={clearPendingScroll} onKeyDown={clearPendingScroll}
+            style={{ minHeight: 0, flex: expanded ? 1 : undefined,
             overflowX: expanded ? "auto" : "hidden", overflowY: expanded || inline?.scrolls ? "auto" : "hidden",
             height: expanded ? undefined : previewHeight }}>
             <div style={{ position: "relative", width: width ? naturalWidth * scale : "100%", height: naturalHeight * scale, margin: "0 auto", overflow: "hidden" }}>
