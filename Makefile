@@ -1,7 +1,7 @@
 # docs-system — common commands.
 # Ports match .claude/launch.json: 4801 canvas, 4802 self-docs, 4803 self-docs dev (HMR), 4805 docs-lab UI.
 
-.PHONY: help install link test typecheck check serve dev dev-web docs app canvas spa \
+.PHONY: help install link test test-changed typecheck check serve dev dev-web docs app canvas spa \
 	test-docs-model test-docs-style test-docs-index test-docs-cli test-docs-server \
 	test-docs-viewer test-docs-workbench test-docs-mcp test-docs-publish test-repo
 
@@ -13,6 +13,9 @@ install: ## Install workspace dependencies
 
 test: ## Run every test area (scripts/test-packages.ts; never bare `bun test`)
 	bun run test
+
+test-changed: ## Tier 2 local gate: the areas this tree's changes against origin/main reach (CI runs every area)
+	bun scripts/test-packages.ts --changed origin/main
 
 link: ## Link this tree's packages so a worktree tests its own code; print resolution
 	bun scripts/link-packages.ts

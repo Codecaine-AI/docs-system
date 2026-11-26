@@ -8,6 +8,8 @@
  *   bun scripts/test-packages.ts --list          print the area names as a JSON array
  *   git diff --name-only ... | bun scripts/test-packages.ts --affected
  *                                                print the areas a change set must run
+ *   bun scripts/test-packages.ts --changed [base] run the areas this tree's changes against
+ *                                                base (default origin/main) reach; local only
  *
  * Every run passes explicit paths; a bare `bun test` would sweep external/,
  * hill-climb/ and other trees that are not suites. Packages with their own
@@ -149,6 +151,27 @@ function packageGraph(): Map<string, Set<string>> | null {
   return graph;
 }
 
+/**
+ * The areas for the files this tree changed against `base`: committed,
+ * staged, unstaged and untracked. Uses affectedAreas, so it is a local gate
+ * with the same blind spots; CI runs every area.
+ */
+function changedAreas(base: string): string[] {
+  const git = (...args: string[]) => {
+    const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "inherit" });
+    if (result.exitCode !== 0) throw new Error(`git ${args.join(" ")} failed`);
+    return result.stdout.toString().split("\n");
+  };
+  const files = [
+    ...git("diff", "--name-only", `${base}...HEAD`),
+    ...git("diff", "--name-only", "HEAD"),
+    ...git("ls-files", "--others", "--exclude-standard"),
+  ].filter(Boolean);
+  const areas = affectedAreas(files);
+  console.log(`${new Set(files).size} files changed against ${base}; areas: ${areas.join(", ")}`);
+  return areas;
+}
+
 function runArea(name: string): number {
   const area = AREAS[name];
   if (!area) throw new Error(`Unknown test area "${name}". Areas: ${Object.keys(AREAS).join(", ")}`);
@@ -170,7 +193,7 @@ if (import.meta.main) {
   } else {
     // A worktree must test its own packages, not the main checkout's copies.
     linkPackages();
-    const names = args.length > 0 ? args : Object.keys(AREAS);
+    const names = args[0] === "--changed" ? changedAreas(args[1] ?? "origin/main") : args.length > 0 ? args : Object.keys(AREAS);
     const failed = names.filter((name) => runArea(name) !== 0);
     if (names.length > 1) {
       console.log(`\n${names.length - failed.length}/${names.length} areas passed.${failed.length ? ` Failed: ${failed.join(", ")}` : ""}`);
