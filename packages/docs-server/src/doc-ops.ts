@@ -60,6 +60,8 @@ export type ApplyDocOpsResult =
       held_by?: DraftLockInfo;
     };
 
+/** The refusal text of a page write with no hash under CODECAINE_DOCS_REQUIRE_HASH=1 (428). */
+export const PAGE_HASH_REQUIRED = "This docs server requires the page hash: read the page and send its hash as expected_hash.";
 /**
  * CODECAINE_DOCS_REQUIRE_HASH=1: a page write that sends no hash is refused
  * with 428. Off by default, so a write with no hash lands as before.
@@ -96,7 +98,7 @@ export async function applyDocOpsToBundle(
       return {
         ok: false,
         status: 428,
-        detail: "This docs server requires the page hash: read the page and send its hash as expected_hash.",
+        detail: PAGE_HASH_REQUIRED,
         current_hash: loaded.docHash,
       };
     }

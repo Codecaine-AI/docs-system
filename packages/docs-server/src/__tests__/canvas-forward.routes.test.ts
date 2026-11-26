@@ -132,6 +132,20 @@ describe("POST /api/ops forwarded canvas actions", () => {
     });
   }
 
+  test("with CODECAINE_DOCS_REQUIRE_HASH=1, a forwarded action with no page hash gets 428 and writes nothing", async () => {
+    const saved = process.env.CODECAINE_DOCS_REQUIRE_HASH;
+    process.env.CODECAINE_DOCS_REQUIRE_HASH = "1";
+    try {
+      const response = await forward();
+      expect(response.status).toBe(428);
+      expect(((await response.json()) as { detail: string }).detail).toContain("requires the page hash");
+      expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
+    } finally {
+      if (saved === undefined) delete process.env.CODECAINE_DOCS_REQUIRE_HASH;
+      else process.env.CODECAINE_DOCS_REQUIRE_HASH = saved;
+    }
+  });
+
   test("forwards one addObject, persists it, and publishes a canvas event", async () => {
     const { docHash, canvasHash } = await currentHashes();
     const events: DocsChangeEvent[] = [];
