@@ -143,15 +143,6 @@ export const chrome: Record<string, Record<string, ThemeTokenDefinition>> = {
       unit: "px",
       defaultValue: dsNumber("border.width.rail", "px"),
     },
-    ringWidth: {
-      vars: ["--docs-link-ring-width"],
-      kind: "length",
-      min: 0,
-      max: 4,
-      step: 0.5,
-      unit: "px",
-      defaultValue: dsNumber("border.width.ring", "px"),
-    },
     // The CodeLines panel (state-shape example, interaction-surface
     // signature): its own metrics, independent of the code block's.
     textSize: {

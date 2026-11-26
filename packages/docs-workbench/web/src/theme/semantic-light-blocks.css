@@ -94,7 +94,6 @@
   --docs-link-bg: color-mix(in srgb, var(--docs-link-pin) calc(var(--docs-link-wash) * 1%), transparent);
   --docs-link-pin: var(--docs-link);
   --docs-link-rail-width: var(--ds-border-width-rail);
-  --docs-link-ring-width: var(--ds-border-width-ring);
   --docs-link-text-size: var(--ds-font-size-code);
   --docs-link-line-height: var(--ds-line-height-code);
   --docs-link-gutter-text-size: var(--ds-font-size-ui-xs);

@@ -205,7 +205,6 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   pin: "Pin & rail",
   washStrength: "Highlight strength",
   railWidth: "Rail width",
-  ringWidth: "Pin ring width",
   ink: "Ink",
   deepInk: "Deep ink",
   rail: "Rail",
