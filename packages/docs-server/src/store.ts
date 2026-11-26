@@ -17,6 +17,7 @@ import type { DocsTreeNode } from "./docs-tree";
 import { treeIndex, type TreeSnapshot } from "./tree-index";
 import {
   loadDocBundle,
+  loadDocWithHash,
   loadDocProjection,
   type DocBundleLoadError,
   type DocBundleLoadResult,
@@ -795,6 +796,7 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
         // concept, so it is dropped here.
         applyDocOps: (docsRootArg, path, ops, expectedHash, _scope) =>
           applyDocOpsToBundle(docsRootArg, path, ops, expectedHash, undefined),
+        loadDoc: loadDocWithHash,
         // Rewrites go through the docs-root chokepoint: a source that is excluded,
         // or that a symbolic link carries into an excluded folder or out of the
         // root, is refused at the read and at the write.

@@ -81,7 +81,7 @@ test("renames the page from its title", async ({ page, request }) => {
   await expect(page.getByRole("main").getByRole("heading", { level: 1 })).toHaveText("Harbor Log");
 });
 
-test("keeps the draft when the doc changed elsewhere, and reloads on request", async ({ page, request }) => {
+test("keeps the draft when the doc changed elsewhere, reloads on request, and saves the draft only when asked", async ({ page, request }) => {
   // The page misses the other writer's change: its live event stream is down.
   await page.route("**/api/events*", (route) => route.abort());
   await page.goto("/#/52-stale");
@@ -97,6 +97,14 @@ test("keeps the draft when the doc changed elsewhere, and reloads on request", a
 
   await main.getByRole("button", { name: "Reload doc" }).click();
   await expect(main.getByText("The other keeper got here first.")).toBeVisible();
+  // The draft waits beside the fresh page and is never saved on its own.
+  await expect(main.getByText(/Your draft is kept and not saved/)).toBeVisible();
+  expect(blockText(await bundle(request, "52-stale"))).toBe("The other keeper got here first.");
+
+  const saved = opsSaved(page);
+  await main.getByRole("button", { name: "Use my draft" }).click();
+  await saved;
+  expect(blockText(await bundle(request, "52-stale"))).toBe("Both keepers write here. Mine too.");
 });
 
 test("pauses saving while another session holds the draft lock", async ({ page, request }) => {

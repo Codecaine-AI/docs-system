@@ -6,6 +6,18 @@ import { ApiError, applyDocOps } from "../../data/api";
 import type { BundleState } from "./types";
 import { docSaveApiErrorMessage } from "./utils";
 
+/** How long a save waits for the first page load to set the page hash. */
+const HASH_WAIT_MS = 10_000;
+
+/** Resolves the page hash once the first page load has set it, or undefined after the wait. */
+async function waitForHash(ref: RefObject<string | undefined>): Promise<string | undefined> {
+  const deadline = Date.now() + HASH_WAIT_MS;
+  while (ref.current === undefined && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return ref.current;
+}
+
 export function useDocSave({
   path,
   expectedHashRef,
@@ -30,7 +42,12 @@ export function useDocSave({
   const handleApplyOps = useCallback(
     async (ops: DocOp[]): Promise<DocBlockSaveResult> => {
       try {
-        const response = await applyDocOps(path, ops, expectedHashRef.current);
+        // Every page write carries the hash it read. A save never goes out without one.
+        const expectedHash = await waitForHash(expectedHashRef);
+        if (expectedHash === undefined) {
+          return { ok: false, stale: false, message: "The page has not loaded yet. Your edits are kept." };
+        }
+        const response = await applyDocOps(path, ops, expectedHash);
         // A late response from an unmount flush must not clobber the state
         // (bundle, hash, undo ledger) of a doc we have since navigated to —
         // the save itself still landed server-side.
@@ -50,7 +67,9 @@ export function useDocSave({
         // `document` prop after setBundle) skip the cursor-resetting reseed.
         return { ok: true, doc: response.doc, normalization: response.normalization };
       } catch (saveError) {
-        if (saveError instanceof ApiError && saveError.status === 409) {
+        // 409: the page changed after the read. 428: the server needs a hash.
+        // Both keep the draft and pause auto-save until the user reloads.
+        if (saveError instanceof ApiError && (saveError.status === 409 || saveError.status === 428)) {
           return { ok: false, stale: true, message: "Document changed elsewhere." };
         }
         if (saveError instanceof ApiError && saveError.status === 423) {

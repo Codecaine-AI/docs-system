@@ -56,6 +56,12 @@ export type ApplyDocOpsFn = (
   | { ok: false; status: number; detail: string; current_hash?: string; expected_hash?: string; issues?: unknown }
 >;
 
+/** Reads a doc bundle and the content hash a later write must send. */
+export type LoadDocFn = (
+  docsRoot: string,
+  path: string,
+) => Promise<{ ok: true; doc: DocDocument; hash: string } | { ok: false; detail: string }>;
+
 export type LoadCanvasFn = (
   docsRoot: string,
   canvasRelPath: string,
@@ -79,6 +85,7 @@ function bundlePathFromDocSource(sourcePath: string): string {
 
 export type MoveDocDeps = {
   applyDocOps: ApplyDocOpsFn;
+  loadDoc: LoadDocFn;
   loadCanvas: LoadCanvasFn;
   saveCanvas: SaveCanvasFn;
   /** Open backlinks db handle (caller owns lifecycle/closing). */
@@ -279,9 +286,9 @@ export async function moveDocBundle(
       failures.push({ sourcePath: effectiveSourcePath, reason: recheck.detail });
       continue;
     }
-    // Fresh read + fresh hash every time (no expectedHash) — accepted
-    // non-atomicity: a concurrent editor could race this, see module doc.
-    const current = await deps.applyDocOps(docsRoot, bundlePath, [], undefined, deps.projectId);
+    // A fresh read and its hash for every source. The rewrite sends that hash,
+    // so a concurrent edit after the read gets 409 and lands in failures[].
+    const current = await deps.loadDoc(docsRoot, bundlePath);
     if (!current.ok) {
       failures.push({ sourcePath: effectiveSourcePath, reason: current.detail });
       continue;

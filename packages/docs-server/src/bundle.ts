@@ -156,6 +156,16 @@ export async function loadDocBundle(
   };
 }
 
+/** A page and its content hash, for a caller that reads before it writes (the move-doc link rewrite). */
+export async function loadDocWithHash(
+  docsRoot: string,
+  path: string,
+): Promise<{ ok: true; doc: DocDocument; hash: string } | { ok: false; detail: string }> {
+  const loaded = await loadDocBundle(docsRoot, path);
+  if ("error" in loaded) return { ok: false, detail: loaded.error.detail };
+  return { ok: true, doc: loaded.document, hash: loaded.docHash };
+}
+
 /**
  * The wire shape both `GET /api/bundle` and exported per-bundle JSON
  * snapshots use.
