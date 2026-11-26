@@ -12,7 +12,7 @@ Diff base for the changed-files gate: `origin/main`.
 | Check | Command |
 | --- | --- |
 | Typecheck | `make typecheck` |
-| Lint | No code lint. (`bun run docs audit` lints documents, not code.) |
+| Lint | No code lint |
 | Focused tests on changed files | The command below |
 
 ```bash
@@ -39,6 +39,7 @@ Diff base for the changed-files gate: `origin/main`.
   `packages/` runs every area.
 - CI (`.github/workflows/test.yml`) runs on every pull request, push to main
   and manual run:
+  - one `typecheck` job with `make typecheck`;
   - all 10 Bun areas, one job per area, with `make test-<area>`: docs-model,
     docs-style, docs-index, docs-cli, docs-server, docs-viewer,
     docs-workbench, docs-mcp, docs-publish and repo

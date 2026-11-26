@@ -1,6 +1,6 @@
-# Tier 2: the Bun test suites of every docs-system package, one job per area,
-# and one e2e job that runs every Playwright keeper suite except quarantined
-# tests.
+# The typecheck, the Bun test suites of every docs-system package (one job per
+# area), and one e2e job that runs every Playwright keeper suite except
+# quarantined tests.
 #
 # docs-system builds inside Codecaine Core: core's bun workspace links the
 # members it imports (canvas, sequence, annotations, design-system, ...). This
@@ -201,3 +201,69 @@ jobs:
       - name: bunx playwright test --grep-invert @quarantine
         working-directory: core/docs-system
         run: bunx playwright test --grep-invert @quarantine
+
+  # Tier 1 typecheck, the same `make typecheck` agents run. Same layout as the
+  # test jobs, so every workspace package resolves for tsc.
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Codecaine Core
+        uses: actions/checkout@v4
+        with:
+          repository: Codecaine-AI/codecaine-core
+          ref: ${{ env.CORE_SHA }}
+          path: core
+
+      - name: Check out docs-system (the tree under test)
+        uses: actions/checkout@v4
+        with:
+          path: core/docs-system
+          submodules: true
+
+      - name: Check out Core members
+        working-directory: core
+        run: |
+          while read -r dir sha; do
+            git init -q "$dir"
+            git -C "$dir" fetch -q --depth 1 "https://github.com/Codecaine-AI/$dir.git" "$sha"
+            git -C "$dir" checkout -q --detach FETCH_HEAD
+            echo "$dir $(git -C "$dir" rev-parse HEAD)"
+          done <<'EOF'
+          annotations 6c33213fdda4869522457d93cd695177b4bda271
+          prompt-kit ca8aebebf3a79bfcdd9e8418c6aa4e34b6aa551c
+          canvas fb4760cd5f16d1b2731c96633758f9c4c0788d5a
+          sequence 16e1b9e40a3b137d6870d259bf75b1029cd7b06a
+          agent-kernel bf042f7044c4acc9ff7e055bd830289b27aa0130
+          observatory 6e2ba736e82866951e5b6530ddd8c7ba9cccd222
+          design-system 5c6f794c244dd883e69785513e61c6658fce984f
+          EOF
+
+      - name: Stub trace-viewer workspace packages
+        working-directory: core
+        run: |
+          while read -r dir name; do
+            mkdir -p "trace-viewer/packages/$dir"
+            printf '{ "name": "%s", "version": "0.0.0", "private": true }\n' "$name" > "trace-viewer/packages/$dir/package.json"
+          done <<'EOF'
+          read-service @codecaine-ai/agent-kernel-viewer-read-service
+          viewer-core @codecaine-ai/agent-kernel-viewer-core
+          viewer-shell @codecaine-ai/agent-kernel-viewer-shell
+          viewer-ui @codecaine-ai/agent-kernel-viewer-ui
+          EOF
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install workspace dependencies
+        working-directory: core
+        run: bun install
+
+      - name: Link packages and print where they resolve
+        working-directory: core/docs-system
+        run: make link
+
+      - name: make typecheck
+        working-directory: core/docs-system
+        run: make typecheck
