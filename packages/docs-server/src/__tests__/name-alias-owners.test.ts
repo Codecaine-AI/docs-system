@@ -36,6 +36,13 @@ const DOC = (id: string) => `${JSON.stringify({
 
 let temp: string;
 let kb: string;
+/**
+ * `Sessions/S1` is another case of an ALLOWED ancestor that holds the frozen
+ * inputs. It opens the stored folder only on a case-insensitive volume, where
+ * owners must refuse it (403). On a case-sensitive volume it names no page, so
+ * owners answer not found (404) and reach nothing.
+ */
+let ancestorAliasStatus: 403 | 404;
 
 async function write(rel: string, bytes: string) {
   await mkdir(join(kb, rel, ".."), { recursive: true });
@@ -68,6 +75,7 @@ beforeEach(async () => {
   await write(`${FROZEN}/assets/canvases/c.canvas.json`, "{\"frozen\":true}\n");
   await write(`archive/${CAFE_NFC}/doc.json`, DOC("cafe"));
   await write("notes/real/doc.json", DOC("real"));
+  ancestorAliasStatus = existsSync(join(kb, "SESSIONS")) ? 403 : 404;
 });
 
 afterEach(async () => {
@@ -94,7 +102,6 @@ describe("B7-3-01: owners refuse case and Unicode spellings of the frozen inputs
     for (const treeOps of [
       [{ kind: "delete-doc", docPath: "sessions/s1/outputs/INPUTS/p1", position: 0 }],
       [{ kind: "delete-doc", docPath: "Sessions/S1/Outputs/Inputs/p1", position: 0 }],
-      [{ kind: "delete-doc", docPath: "Sessions/S1", position: 0 }],
       [{ kind: "delete-doc", docPath: `archive/${CAFE_NFD}`, position: 0 }],
       [{ kind: "move-doc", from: "sessions/s1/outputs/INPUTS/p1", to: "notes/stolen", position: 0 }],
       [{ kind: "move-doc", from: `archive/${CAFE_NFD}`, to: "notes/stolen", position: 0 }],
@@ -106,6 +113,8 @@ describe("B7-3-01: owners refuse case and Unicode spellings of the frozen inputs
     ]) {
       expect({ treeOps, result: await accept(store, treeOps) }).toMatchObject({ treeOps, result: { ok: false, status: 403 } });
     }
+    expect(await accept(store, [{ kind: "delete-doc", docPath: "Sessions/S1", position: 0 }]))
+      .toMatchObject({ ok: false, status: ancestorAliasStatus });
     expect(await deleteDocBundle(kb, "sessions/s1/outputs/INPUTS/p1")).toMatchObject({ ok: false, status: 403 });
     expect(await moveDocTreeBundle(kb, "Sessions/S1/Outputs/Inputs/p1", "notes/moved")).toMatchObject({ ok: false, status: 403 });
     expect(await moveDocTreeBundle(kb, "notes/real", `archive/${CAFE_NFD}/real`)).toMatchObject({ ok: false, status: 403 });
@@ -123,7 +132,6 @@ describe("B7-3-01: owners refuse case and Unicode spellings of the frozen inputs
     for (const [from, to, stored] of [
       ["sessions/s1/outputs/INPUTS/p1", "notes/stolen", ["sessions/s1/outputs/inputs/p1", "notes/stolen"]],
       ["Sessions/S1/Outputs/Inputs/p1", "notes/stolen", ["sessions/s1/outputs/inputs/p1", "notes/stolen"]],
-      ["Sessions/S1", "notes/archive", ["sessions/s1", "notes/archive"]],
       [`archive/${CAFE_NFD}`, "notes/stolen", [`archive/${CAFE_NFC}`, "notes/stolen"]],
       ["notes/real", "sessions/s1/outputs/INPUTS/p2", ["notes/real", "sessions/s1/outputs/inputs/p2"]],
       ["notes/real", "SESSIONS/S9/OUTPUTS/INPUTS/real", ["notes/real", "sessions/s9/outputs/inputs/real"]],
@@ -133,7 +141,8 @@ describe("B7-3-01: owners refuse case and Unicode spellings of the frozen inputs
       expect(control).toBeGreaterThanOrEqual(400);
       expect({ from, to, status }).toEqual({ from, to, status: control });
     }
-    expect((await move(store, "Sessions/S1", "notes/archive")).status).toBe(403);
+    expect((await move(store, "sessions/s1", "notes/archive")).status).toBe(403);
+    expect((await move(store, "Sessions/S1", "notes/archive")).status).toBe(ancestorAliasStatus);
     const app = createDocsRoutes(store);
     for (const path of ["sessions/s1/outputs/INPUTS/p1", "Sessions/S1/Outputs/Inputs/p1", `archive/${CAFE_NFD}`]) {
       const response = await app.handle(new Request(`http://localhost/api/bundle?path=${encodeURIComponent(path)}`));
@@ -152,13 +161,16 @@ describe("B7-3-01: owners refuse case and Unicode spellings of the frozen inputs
       { kind: "page" as const, path: "Sessions/S1/Outputs/Inputs/p1", to: "sessions/s1/outputs/INPUTS/p1-renamed" },
       { kind: "page" as const, path: "sessions/s1/OUTPUTS/inputs/p1", recursive: true },
       { kind: "page" as const, path: `archive/${CAFE_NFD}`, recursive: true },
-      { kind: "page" as const, path: "Sessions/S1", recursive: true },
       { kind: "page" as const, path: "notes/real", to: "sessions/s1/outputs/Inputs/real" },
     ]) {
       for (const preview of [true, false]) {
         const result = await store.manageFiles({ ...input, expected_hash: hash, preview, expected_tree_hash: "any" });
         expect({ input, preview, result }).toMatchObject({ input, preview, result: { ok: false, status: 403 } });
       }
+    }
+    for (const preview of [true, false]) {
+      const result = await store.manageFiles({ kind: "page", path: "Sessions/S1", recursive: true, expected_hash: hash, preview, expected_tree_hash: "any" });
+      expect({ preview, result }).toMatchObject({ preview, result: { ok: false, status: ancestorAliasStatus } });
     }
     expect(await frozenState()).toEqual(before);
     expect(await readdir(join(kb, "notes"))).toEqual(["real"]);

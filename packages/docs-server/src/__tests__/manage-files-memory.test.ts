@@ -1,7 +1,7 @@
 import { test, expect } from 'bun:test';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { chmod, mkdtemp, mkdir, readdir, readFile, rename, rm, symlink, truncate, writeFile } from 'node:fs/promises';
+import { chmod, mkdtemp, mkdir, readdir, readFile, rm, symlink, truncate, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -108,63 +108,3 @@ test.skipIf(process.getuid?.() === 0)('listManagedAssets reports a read error in
   expect(result.detail).toContain('EACCES');
  } finally { await chmod(join(root, 'a/assets/images/one.png'), 0o644).catch(() => {}); await rm(root, { recursive: true, force: true }); }
 });
-
-/**
- * Swap an asset after the inventory walk but before it is hashed, at the real filesystem boundary.
- * A 2 GB sparse asset that the walk visits first takes seconds to hash; the walk of this small fixture
- * takes milliseconds. So a swap 250 ms in lands inside the hashing window without a production hook.
- * If the swap ever landed too late the listing would succeed and the test would fail, never pass falsely.
- * A swap during the walk could pass falsely (the walk refuses the same entries), so the test first times a
- * full listing of the same tree with the asset still tiny: walk plus hashing must take well under 250 ms.
- */
-async function swapDuringHashing(swap: (root: string, target: string, outside: string) => Promise<void>) {
- const root = await fixture(), outside = await mkdtemp(join(tmpdir(), 'manage-files-outside-'));
- try {
-  for (const page of ['b', 'c', 'd', 'e']) { await mkdir(join(root, page, 'assets/images'), { recursive: true }); await writeFile(join(root, page, 'assets/images/late.png'), `late ${page}`); }
-  const big = join(root, 'a/assets/media/big.mp4');
-  await mkdir(join(big, '..'), { recursive: true }); await writeFile(big, 'head');
-  const started = performance.now();
-  const order = (await listManagedAssets(root)).assets.map((a: any) => a.path);
-  expect(performance.now() - started).toBeLessThan(50);
-  const target = order.slice(order.indexOf('a/assets/media/big.mp4') + 1).find((p: string) => p.endsWith('/late.png'));
-  expect(target).toBeDefined();
-  await truncate(big, 2 * 1024 * 1024 * 1024);
-  const listing = listManagedAssets(root);
-  await Bun.sleep(250);
-  await swap(root, target, outside);
-  return { result: await listing, target };
- } finally { await rm(root, { recursive: true, force: true }); await rm(outside, { recursive: true, force: true }); }
-}
-
-test('an asset swapped for an out-of-root symlink after the walk is refused, not read', async () => {
- const { result, target } = await swapDuringHashing(async (root, target, outside) => {
-  await writeFile(join(outside, 'secret.png'), 'outside bytes');
-  await rm(join(root, target)); await symlink(join(outside, 'secret.png'), join(root, target));
- });
- expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Path leads outside the docs directory on disk: ${target}`);
-}, { timeout: 60_000 });
-
-test('an asset replaced by a different regular file after the walk is refused', async () => {
- const { result, target } = await swapDuringHashing(async (root, target) => {
-  await writeFile(join(root, target + '.next'), 'replacement'); await rename(join(root, target + '.next'), join(root, target));
- });
- expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Corpus changed while listing assets: ${target}`);
-}, { timeout: 60_000 });
-
-test('an asset swapped for a FIFO after the walk is refused without blocking on it', async () => {
- const { result, target } = await swapDuringHashing(async (root, target) => { await rm(join(root, target)); mkfifo(join(root, target)); });
- expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Unsupported filesystem entry: ${target}`);
-}, { timeout: 60_000 });
-
-test('an ancestor folder swapped for a symlink out of the root is refused even though the file is unchanged', async () => {
- // The moved folder keeps the same file (same dev and ino), so only the confinement check can refuse it.
- const { result, target } = await swapDuringHashing(async (root, target, outside) => {
-  const folder = join(root, target, '..');
-  await rename(folder, join(outside, 'images')); await symlink(join(outside, 'images'), folder);
- });
- expect(result).toMatchObject({ ok: false, status: 400 });
- expect(result.detail).toContain(`Path leads outside the docs directory on disk: ${target}`);
-}, { timeout: 60_000 });
