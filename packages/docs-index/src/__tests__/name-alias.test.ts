@@ -152,10 +152,24 @@ describe("B7-3-01: case and Unicode spellings of excluded folders", () => {
       expect({ label, refused: isDocsPathRefusal(error), status: (error as { status?: number } | undefined)?.status })
         .toEqual({ label, refused: true, status: 403 });
     };
+    // Another case of an ALLOWED ancestor opens the stored folder only on a
+    // case-insensitive volume, where it must be refused. On a case-sensitive
+    // volume it names no entry, so the call fails as missing and reaches nothing.
+    const refusedOrMissing = async (label: string, run: () => Promise<unknown>) => {
+      if (caseInsensitive) return refused(label, run);
+      let error: unknown;
+      try {
+        await run();
+      } catch (caught) {
+        error = caught;
+      }
+      expect({ label, refused: isDocsPathRefusal(error), code: (error as { code?: string } | undefined)?.code })
+        .toEqual({ label, refused: false, code: "ENOENT" });
+    };
     // Delete and recursive delete (the reviewer's reproduction: rm of outputs/INPUTS reached the syscall).
     await refused("rm -r outputs/INPUTS", () => fs.rm("sessions/s1/outputs/INPUTS", { recursive: true }));
     await refused("rm -r Outputs/Inputs", () => fs.rm("Sessions/S1/Outputs/Inputs", { recursive: true, force: true }));
-    await refused("rm -r an allowed ancestor in another case", () => fs.rm("Sessions/S1", { recursive: true }));
+    await refusedOrMissing("rm -r an allowed ancestor in another case", () => fs.rm("Sessions/S1", { recursive: true }));
     await refused("rm file", () => fs.rm("sessions/s1/outputs/INPUTS/p1/sentinel.txt"));
     await refused("unlink", () => fs.unlink("sessions/s1/Outputs/Inputs/p1/doc.json"));
     await refused("rmdir", () => fs.rmdir("sessions/s1/outputs/INPUTS/p1/assets/canvases"));
@@ -165,7 +179,7 @@ describe("B7-3-01: case and Unicode spellings of excluded folders", () => {
     // Move source (the folder itself and an allowed ancestor holding it) and move destination.
     await refused("rename from outputs/INPUTS", () => fs.rename("sessions/s1/outputs/INPUTS", "notes/stolen"));
     await refused("rename from Outputs/Inputs/p1", () => fs.rename("Sessions/S1/Outputs/Inputs/p1", "notes/stolen"));
-    await refused("rename an allowed ancestor in another case", () => fs.rename("sessions/S1/OUTPUTS", "notes/moved"));
+    await refusedOrMissing("rename an allowed ancestor in another case", () => fs.rename("sessions/S1/OUTPUTS", "notes/moved"));
     await refused("rename from NFD", () => fs.rename(`archive/${CAFE_NFD}`, "notes/stolen"));
     await refused("rename to an existing alias", () => fs.rename("notes/real", "sessions/s1/outputs/INPUTS/p2"));
     await refused("rename to a creation alias", () => fs.rename("notes/real", "Sessions/S2/Outputs/Inputs"));
@@ -183,8 +197,12 @@ describe("B7-3-01: case and Unicode spellings of excluded folders", () => {
     await refused("readFile NFD", () => fs.readFile(`archive/${CAFE_NFD}/menu.txt`, "utf8"));
     await refused("readdir", () => fs.readdir("Sessions/S1/Outputs/Inputs"));
     // A listing of the allowed parent omits the excluded child in any spelling of the parent.
-    expect(await fs.readdir("sessions/s1/OUTPUTS")).toEqual([]);
-    expect(await fs.readdir("ARCHIVE")).toEqual([]);
+    expect(await fs.readdir("sessions/s1/outputs")).toEqual([]);
+    expect(await fs.readdir("archive")).toEqual([]);
+    if (caseInsensitive) {
+      expect(await fs.readdir("sessions/s1/OUTPUTS")).toEqual([]);
+      expect(await fs.readdir("ARCHIVE")).toEqual([]);
+    }
 
     expect(await frozenState()).toEqual(before);
     expect(existsSync(join(kb, "drafts"))).toBe(false);
