@@ -102,6 +102,12 @@ export {
   type StoredPatch,
 } from "./patch-ledger";
 
+// A canvas patch spells a clear as `null` (CanvasClearablePatch). Read each
+// `null` back as an own `undefined`, as the canvas reducer does.
+function clearsAsUndefined<Patch extends object>(patch: Patch): { [K in keyof Patch]: Exclude<Patch[K], null> } {
+  return Object.fromEntries(Object.entries(patch).map(([key, value]) => [key, value === null ? undefined : value])) as { [K in keyof Patch]: Exclude<Patch[K], null> };
+}
+
 // ---------------------------------------------------------------------------
 // doc_get
 // ---------------------------------------------------------------------------
@@ -265,7 +271,7 @@ function applyCanvasPatchOperation(
         changed = true;
         return {
           ...object,
-          ...operation.patch,
+          ...clearsAsUndefined(operation.patch),
           id: object.id,
           // Mirror the client reducer's `canvas.updateObject` semantics:
           // `style` is DEEP-merged so a partial style patch (e.g.
@@ -327,7 +333,7 @@ function applyCanvasPatchOperation(
       const connections = document.connections.map((connection) => {
         if (connection.id !== operation.connectionId) return connection;
         changed = true;
-        return { ...connection, ...operation.patch, id: connection.id };
+        return { ...connection, ...clearsAsUndefined(operation.patch), id: connection.id };
       });
       return {
         document: { ...document, connections },
