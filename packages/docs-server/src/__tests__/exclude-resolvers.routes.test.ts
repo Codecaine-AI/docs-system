@@ -153,7 +153,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/canvas-by-doc?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/canvases/c.canvas.json")}`)).status).toBe(200);
     expect((await send("PUT", "/api/canvas", { src: twinCanvas, canvas: valid })).status).toBe(200);
     expect((await send("PUT", "/api/canvas", { path: `${TWIN}/doc.json`, src: "./assets/canvases/c.canvas.json", canvas: valid })).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [addObject] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [addObject] })).status).toBe(200);
     expect((await send("POST", "/api/canvas", { path: `${TWIN}/doc.json`, src: "./assets/canvases/new.canvas.json", canvas: valid })).status).toBe(201);
     expect((await send("DELETE", `/api/canvas?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/canvases/new.canvas.json")}`, undefined)).status).toBe(200);
     expect(await frozenBytes()).toEqual(before);
@@ -183,7 +183,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/sequence?src=${q(twinSequence)}`)).status).toBe(200);
     expect((await get(`/api/sequence-by-doc?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/sequences/q.sequence.json")}`)).status).toBe(200);
     expect((await send("PUT", "/api/sequence", { path: `${TWIN}/doc.json`, src: "./assets/sequences/q.sequence.json", sequence: valid })).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [setTitle] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [setTitle] })).status).toBe(200);
     expect((await send("POST", "/api/sequence", { path: `${TWIN}/doc.json`, src: "./assets/sequences/new.sequence.json", sequence: valid })).status).toBe(201);
     expect((await send("DELETE", `/api/sequence?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/sequences/new.sequence.json")}`, undefined)).status).toBe(200);
     expect(await frozenBytes()).toEqual(before);

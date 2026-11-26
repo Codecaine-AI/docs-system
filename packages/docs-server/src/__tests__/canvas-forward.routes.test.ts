@@ -97,7 +97,9 @@ describe("POST /api/ops forwarded canvas actions", () => {
     await rm(docsRoot, { recursive: true, force: true });
   });
 
-  function postJson(path: string, body: unknown): Promise<Response> {
+  async function postJson(path: string, body: unknown): Promise<Response> {
+    // A page write sends the page hash it read, unless the test sets expected_hash itself.
+    if (path === "/api/ops" && !("expected_hash" in (body as object))) body = { ...(body as object), expected_hash: await pageHash(docsRoot, BUNDLE_PATH) };
     return app.handle(
       new Request(`http://localhost${path}`, {
         method: "POST",
@@ -128,6 +130,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
       path: BUNDLE_PATH,
       ops: [ADD_OBJECT_OP],
       session_id: "agent-session",
+      expected_hash: await pageHash(docsRoot, BUNDLE_PATH),
       ...body,
     });
   }
@@ -136,7 +139,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
     const saved = process.env.CODECAINE_DOCS_REQUIRE_HASH;
     process.env.CODECAINE_DOCS_REQUIRE_HASH = "1";
     try {
-      const response = await forward();
+      const response = await forward({ expected_hash: undefined });
       expect(response.status).toBe(428);
       expect(((await response.json()) as { detail: string }).detail).toContain("requires the page hash");
       expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
@@ -362,7 +365,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
       forwardedPromise = store.forwardCanvasAction(
         BUNDLE_PATH,
         ADD_OBJECT_OP as Extract<DocOp, { type: "componentAction" }>,
-        undefined,
+        docHash,
         undefined,
         "agent-session",
       );
