@@ -58,7 +58,7 @@ export const structuredTable: Record<string, Record<string, ThemeTokenDefinition
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: dsNumber("border.width.ring", "px"),
+      defaultValue: dsNumber("border.width.focus", "px"),
     },
     headerRuleOpacity: {
       vars: ["--docs-table-header-rule-opacity"],

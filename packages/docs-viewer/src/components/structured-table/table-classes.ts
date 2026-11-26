@@ -98,7 +98,7 @@ export const TABLE_STICKY_BODY_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[
 
 /** The header band: a sunken fill over one heavier rule. */
 export const TABLE_HEAD_CLASSES =
-  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,1.5px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))_calc(var(--docs-table-header-rule-opacity,1)*100%),transparent)] bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))] text-[color:var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))]";
+  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,2px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))_calc(var(--docs-table-header-rule-opacity,1)*100%),transparent)] bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))] text-[color:var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))]";
 
 /**
  * The 60px floor (AFFiNE's ColumnMinWidth) keeps freshly added — still

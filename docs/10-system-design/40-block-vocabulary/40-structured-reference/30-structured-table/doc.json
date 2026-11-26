@@ -993,7 +993,7 @@
       "props": {},
       "text": [
         {
-          "insert": "The read surface and the editor at rest share one grid look. The table is a panel that shrinks to its content inside a thin outer border in the strong rule color. The header row is ink text at weight 600 on a sunken fill, over a 1.5px header rule. Strong 1px rules split the body rows, and a hover wash marks the current row. The first column's sans cells are ink at weight 500, so a reader can scan the row titles."
+          "insert": "The read surface and the editor at rest share one grid look. The table is a panel that shrinks to its content inside a thin outer border in the strong rule color. The header row is ink text at weight 600 on a sunken fill, over a 2px header rule. Strong 1px rules split the body rows, and a hover wash marks the current row. The first column's sans cells are ink at weight 500, so a reader can scan the row titles."
         }
       ],
       "children": []
@@ -1940,7 +1940,7 @@
             "headerRuleWidth",
             "--docs-table-header-rule-width",
             "length",
-            "Header rule thickness (default 1.5px)"
+            "Header rule thickness (default 2px)"
           ],
           [
             "headerRuleOpacity",

@@ -89,7 +89,7 @@ describe("StructuredTableBlock", () => {
       "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
     );
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,1.5px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
     );
     expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
     // One rule under the header row: no boxed frame around it.

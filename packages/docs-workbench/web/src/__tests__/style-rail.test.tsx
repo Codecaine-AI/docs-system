@@ -2002,7 +2002,7 @@ describe("style rail component token kinds", () => {
     expect(width).toHaveProperty("min", "0");
     expect(width).toHaveProperty("max", "4");
     expect(width).toHaveProperty("step", "0.5");
-    expect(width).toHaveProperty("value", "1");
+    expect(width).toHaveProperty("value", "2");
     expect(opacity).toHaveProperty("min", "0");
     expect(opacity).toHaveProperty("max", "1");
     expect(opacity).toHaveProperty("step", "0.05");
@@ -2076,7 +2076,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleWidth: {
       cssVar: "--docs-table-header-rule-width",
       label: "Header rule width",
-      range: [0, 4, 0.5, 1.5],
+      range: [0, 4, 0.5, 2],
     },
     rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
     columnRuleWidth: {

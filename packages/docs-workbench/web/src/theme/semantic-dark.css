@@ -291,7 +291,7 @@
   --docs-table-header-bg: var(--docs-sunken);
   --docs-table-header-fg: var(--docs-ink);
   --docs-table-header-rule: var(--docs-border-strong);
-  --docs-table-header-rule-width: var(--ds-border-width-ring);
+  --docs-table-header-rule-width: var(--ds-border-width-focus);
   --docs-table-header-rule-opacity: 1;
   --docs-table-row-rule: var(--docs-border-strong);
   --docs-table-row-rule-width: var(--ds-border-width-hairline);

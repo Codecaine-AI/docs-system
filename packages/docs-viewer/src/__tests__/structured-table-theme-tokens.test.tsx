@@ -74,7 +74,7 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
   // Header band: muted text over one rule
   ["thead", "bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))]"],
   ["thead", "text-[color:var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))]"],
-  ["thead", "border-b-[length:var(--docs-table-header-rule-width,1.5px)]"],
+  ["thead", "border-b-[length:var(--docs-table-header-rule-width,2px)]"],
   ["thead", "var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))"],
   ["thead", "calc(var(--docs-table-header-rule-opacity,1)*100%)"],
   [
