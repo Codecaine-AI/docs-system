@@ -127,12 +127,9 @@ Routing rules:
 
 ### Quarantine
 
-| Test | Owner | Expiry |
-| --- | --- | --- |
-| docs-viewer: "DocEditor save boundary > the DOM-mutation + input-event pipeline reaches ProseMirror state (dom-sync)" | Ford | 2026-12-10 |
+None.
 
-- This is a Bun test, not a Playwright keeper flow. The `@quarantine` title tag
-  and `--grep-invert @quarantine` apply to keeper flows only, so this test is
-  listed here and still runs in Tier 2 and CI.
-- It times out at 10 s in about 2 of 7 runs, locally and in CI. Fix it before
-  the expiry. If it is deleted, its flow must keep an owner test first.
+- To quarantine a flaky keeper flow, tag its title `@quarantine` and add a row
+  here with the title, the owner and a 14-day expiry. Tier 2 leaves it out
+  with `--grep-invert @quarantine`; Tier 3 runs it. Fix it before the expiry.
+  If you delete it, give its flow another owner test first.
