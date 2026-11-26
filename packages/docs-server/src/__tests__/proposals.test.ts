@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { getStoredPatch } from "../patch-ledger";
 import { createDocsRoutes } from "../routes";
 import { createDocsStore } from "../store";
+import { pageHash } from "./fixtures/page-hash";
 
 const SAMPLE_DOC = {
   schemaVersion: 1,
@@ -137,6 +138,7 @@ describe("proposal staging routes", () => {
 
     const competing = await postJson("/api/ops", {
       path: "guide",
+      expected_hash: await pageHash(docsRoot, "guide"),
       ops: [{ type: "updateBlock", blockId: "h1", props: { level: 3 } }],
       session_id: "other-session",
     });

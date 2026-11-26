@@ -61,6 +61,14 @@ export type ApplyDocOpsResult =
     };
 
 /**
+ * CODECAINE_DOCS_REQUIRE_HASH=1: a page write that sends no hash is refused
+ * with 428. Off by default, so a write with no hash lands as before.
+ */
+export function pageHashRequired(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.CODECAINE_DOCS_REQUIRE_HASH === "1";
+}
+
+/**
  * Applies a batch of typed DocOp mutations to a bundle's doc.json. The
  * `inverse` ops returned by applyOps are recorded in the shared undo ledger
  * keyed by a freshly minted `patchId`, so ANY successful apply — a UI save,
@@ -83,6 +91,14 @@ export async function applyDocOpsToBundle(
     const loaded = await loadDocBundle(docsRoot, path);
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    if (!expectedHash && pageHashRequired()) {
+      return {
+        ok: false,
+        status: 428,
+        detail: "This docs server requires the page hash: read the page and send its hash as expected_hash.",
+        current_hash: loaded.docHash,
+      };
     }
     if (expectedHash && expectedHash !== loaded.docHash) {
       return {

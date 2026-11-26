@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { canvas_get, sequence_get } from "../agent-tools";
 import { createDocsRoutes } from "../routes";
 import { createDocsStore, type DocsStore } from "../store";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * B7-02: every document, sidecar and asset resolver honors the project's
@@ -211,7 +212,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/bundle?path=${q(TWIN)}`)).status).toBe(200);
     expect((await get(`/api/markdown?path=${q(TWIN)}`)).status).toBe(200);
     expect((await get(`/api/annotations?path=${q(TWIN)}`)).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [insert] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [insert] })).status).toBe(200);
     expect((await get(`/api/asset?path=${q(`${TWIN}/assets/images/i.png`)}`)).status).toBe(200);
     expect((await upload(TWIN)).status).toBe(201);
     expect(await frozenBytes()).toEqual(before);

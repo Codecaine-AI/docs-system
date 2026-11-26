@@ -119,7 +119,9 @@ test("a lint rule that throws cannot block a save: it leaves one warning and the
       const real = await import(${JSON.stringify(core)});
       mock.module(${JSON.stringify(core)}, () => ({ ...real, fitText: () => { throw new Error("fixture: fitText failed"); } }));
       const { applyDocOpsToBundle } = await import(${JSON.stringify(join(src, "doc-ops.ts"))});
-      const saved = await applyDocOpsToBundle(${JSON.stringify(docsRoot)}, "page", [{ type: "updateBlock", blockId: "p", text: [{ insert: "Edited." }] }], undefined, undefined, { lintPhase: "complete" });
+      const { loadDocBundle } = await import(${JSON.stringify(join(src, "bundle.ts"))});
+      const read = await loadDocBundle(${JSON.stringify(docsRoot)}, "page");
+      const saved = await applyDocOpsToBundle(${JSON.stringify(docsRoot)}, "page", [{ type: "updateBlock", blockId: "p", text: [{ insert: "Edited." }] }], read.docHash, undefined, { lintPhase: "complete" });
       console.log(JSON.stringify({ ok: saved.ok, blocking: saved.lint?.blocking, failures: saved.lint?.findings.filter((f) => f.evidence.startsWith("internal error")) }));
     `);
     expect(output.ok).toBe(true);

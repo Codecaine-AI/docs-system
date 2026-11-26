@@ -10,6 +10,7 @@ import { createDocsStore, type DocsStore } from "../store";
 import { draftLockStore } from "../draft-locks";
 import type { DocsChangeEvent } from "../docs-events";
 import { withPathLock } from "../path-mutex";
+import { pageHash } from "./fixtures/page-hash";
 
 const BUNDLE_PATH = "guide";
 const CANVAS_SRC = "./assets/canvases/flow.canvas.json";
@@ -342,6 +343,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
 
     let forwardedPromise: ReturnType<DocsStore["forwardCanvasAction"]> | undefined;
     let docMutationPromise: ReturnType<DocsStore["applyDocOps"]> | undefined;
+    const docHash = await pageHash(docsRoot, BUNDLE_PATH);
     try {
       forwardedPromise = store.forwardCanvasAction(
         BUNDLE_PATH,
@@ -356,7 +358,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
         .applyDocOps(
           BUNDLE_PATH,
           [{ type: "deleteBlock", blockId: "canvas-1", mode: "subtree" }],
-          undefined,
+          docHash,
           "editor-session",
         )
         .then((result) => {
@@ -569,6 +571,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
   test("keeps ordinary doc-op batches on the existing response path", async () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
+      expected_hash: await pageHash(docsRoot, BUNDLE_PATH),
       ops: [{ type: "updateBlock", blockId: "p1", text: [{ insert: "After" }] }],
     });
     expect(response.status).toBe(200);

@@ -11,6 +11,7 @@ import { createChangeSetRecord } from "../changesets/changesets-sidecar";
 import { getBundleProposals } from "../proposal-ops";
 import { createDocsRoutes } from "../routes";
 import { createDocsStore } from "../store";
+import { pageHash } from "./fixtures/page-hash";
 
 const roots: string[] = [];
 afterEach(async () => { await Promise.all(roots.splice(0).map(root => rm(root, { recursive: true, force: true }))); });
@@ -62,7 +63,7 @@ test("old required finding permits unrelated edits; fresh required finding still
 
 test("blank intermediate opening saves and stages; virtual staging returns the same diagnostics", async () => {
   const root = await setup();
-  const saved = await applyDocOpsToBundle(root, "guide", [edit("")], undefined);
+  const saved = await applyDocOpsToBundle(root, "guide", [edit("")], await pageHash(root, "guide"));
   expect(saved.ok).toBe(true); if (!saved.ok) return;
   expect(saved.lint.findings.some(f => f.ruleId === "structure.opening-paragraph")).toBe(true);
   const staged = await stageBundleProposalAgainstDocument(root, "new", { ops: [edit("")], summary: "Draft" }, document());
@@ -79,7 +80,7 @@ test("HTTP save and accept responses preserve lint findings", async () => {
   const rejected = await post(`/api/proposals/${body.proposal.id}/accept`, { path: "guide" });
   expect(rejected.status).toBe(422);
   expect((await rejected.json() as any).lint.blocking.length).toBeGreaterThan(0);
-  const saved = await post("/api/ops", { path: "guide", ops: [edit("")] });
+  const saved = await post("/api/ops", { path: "guide", expected_hash: await pageHash(root, "guide"), ops: [edit("")] });
   expect(saved.status).toBe(200);
   expect((await saved.json() as any).lint.findings.some((f: any) => f.ruleId === "structure.opening-paragraph")).toBe(true);
 });
