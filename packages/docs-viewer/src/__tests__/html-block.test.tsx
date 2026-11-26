@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
-import { HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH, fitHtmlScale } from "../components/rich-text/html-frame";
+import { HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH, fitHtmlScale, inlineHtmlLayout } from "../components/rich-text/html-frame";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { HtmlBlock, htmlEmbedDocument } from "../components/rich-text/html";
@@ -55,9 +55,19 @@ describe("portable HTML block", () => {
     expect(source).toContain(`script-src 'sha256-${HTML_FRAME_BRIDGE_HASH}'`);
     expect(source.indexOf('Content-Security-Policy')).toBeLessThan(source.indexOf('<script>'));
   });
-  it("fits both axes without enlarging small content", () => {
+  it("fits both axes without enlarging small content in the expanded viewer", () => {
     expect(fitHtmlScale(1600, 1000, 800, 600)).toBe(0.5);
     expect(fitHtmlScale(800, 2000, 800, 600)).toBe(0.3);
     expect(fitHtmlScale(200, 100, 800, 600)).toBe(1);
+  });
+  it("fits the inline preview to the width only and scrolls past min(600px, 70vh)", () => {
+    // Tall content keeps scale 1 (readable text) and scrolls inside a 600px area.
+    expect(inlineHtmlLayout(800, 2000, 800, 1000)).toEqual({ scale: 1, areaHeight: 600, scrolls: true });
+    // A wide artifact still scales down to the column; the scaled height decides the scroll.
+    expect(inlineHtmlLayout(1600, 1000, 800, 1000)).toEqual({ scale: 0.5, areaHeight: 500, scrolls: false });
+    // A short window caps the area at 70% of its height.
+    expect(inlineHtmlLayout(800, 2000, 800, 500)).toEqual({ scale: 1, areaHeight: 350, scrolls: true });
+    // Small content never scales up and sits at its own height.
+    expect(inlineHtmlLayout(200, 100, 800, 1000)).toEqual({ scale: 1, areaHeight: 100, scrolls: false });
   });
 });

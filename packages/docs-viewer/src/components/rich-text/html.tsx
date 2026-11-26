@@ -2,7 +2,7 @@
 
 import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
-import { fitHtmlScale, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
+import { fitHtmlScale, inlineHtmlLayout, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
@@ -162,9 +162,12 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
 
   const naturalWidth = Math.max(1, width, measured?.width ?? 0);
   const naturalHeight = measured?.height ?? initialHeight;
-  const inlineScale = width ? fitHtmlScale(naturalWidth, naturalHeight, width, Math.min(600, windowHeight * 0.7)) : 1;
+  // Inline, the artifact fits the column width only, so its text stays
+  // readable; the area stops at min(600px, 70vh) and scrolls inside.
+  const inline = width ? inlineHtmlLayout(naturalWidth, naturalHeight, width, windowHeight) : null;
+  const inlineScale = inline?.scale ?? 1;
   const scale = expanded ? zoom ?? fitHtmlScale(naturalWidth, naturalHeight, area.width || naturalWidth, area.height || naturalHeight) : inlineScale;
-  const previewHeight = naturalHeight * inlineScale;
+  const previewHeight = inline?.areaHeight ?? initialHeight;
 
   // This dialog and iframe never move or remount: expanding fixes the existing
   // element over the host's viewer area, preserving the artifact's DOM and script state.
@@ -198,7 +201,9 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Zoom in" onClick={() => setZoom(Math.min(4, scale * 1.25))}>+</button>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Close HTML viewer" onClick={closeViewer}><XIcon size={12} strokeWidth={2} aria-hidden />Close</button>
           </div>}
-          <div ref={areaRef} style={{ minHeight: 0, flex: expanded ? 1 : undefined, overflow: expanded ? "auto" : "hidden", height: expanded ? undefined : (width ? previewHeight : initialHeight) }}>
+          <div ref={areaRef} data-docs-html-area="" style={{ minHeight: 0, flex: expanded ? 1 : undefined,
+            overflowX: expanded ? "auto" : "hidden", overflowY: expanded || inline?.scrolls ? "auto" : "hidden",
+            height: expanded ? undefined : previewHeight }}>
             <div style={{ position: "relative", width: width ? naturalWidth * scale : "100%", height: naturalHeight * scale, margin: "0 auto", overflow: "hidden" }}>
               <iframe ref={frameRef} title={label} srcDoc={srcDoc} data-docs-html-frame=""
                 className={HTML_FRAME_CLASSES}
@@ -216,7 +221,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
 
 export const htmlDescriptor: DocBlockDescriptor = {
   type: "html", targetKind: "html", label: "HTML",
-  agentDescription: "Self-contained HTML/CSS artifact. Props: html (max 1 MiB), title (required; heads the panel and labels the frame), height? (120–2000px; default 400), allowScripts? (default false). Fits interactive HTML within the document width and a 600px/70vh height cap. The host draws a panel whose head shows the title, a sandbox note, and an Expand button that opens Fit and zoom controls without resetting state. Height is the initial layout height and no-JavaScript fallback. The frame follows the page's light or dark color-scheme on a transparent background; the host adds no caption and no padding inside the artifact. Put any visible captions inside html. Inline CSS and data: media work offline. Explicit scripts run only inside an opaque-origin sandbox; fetch, external subresources, nested frames, forms, popups, and parent access are blocked. No external or relative assets. Use code for displayed source examples. Insert/update through typed block operations.",
+  agentDescription: "Self-contained HTML/CSS artifact. Props: html (max 1 MiB), title (required; heads the panel and labels the frame), height? (120–2000px; default 400), allowScripts? (default false). The inline preview fits the document width (never scaling up), stops at a 600px/70vh height, and scrolls inside when the content is taller. Expand opens it full screen, with Fit, 100% (full size) and zoom controls, without resetting state. The host draws a panel whose head shows the title, a sandbox note, and the Expand button. Height is the initial layout height and no-JavaScript fallback. The frame follows the page's light or dark color-scheme on a transparent background; the host adds no caption and no padding inside the artifact. Put any visible captions inside html. Inline CSS and data: media work offline. Explicit scripts run only inside an opaque-origin sandbox; fetch, external subresources, nested frames, forms, popups, and parent access are blocked. No external or relative assets. Use code for displayed source examples. Insert/update through typed block operations.",
   patchOps: STRUCTURAL_OPS, layout: WIDE_LEFT_BLOCK_LAYOUT,
   render: (block, ctx) => el("div", { key: block.id, ...blockAttrs(block) }, createElement(HtmlBlock, {
     html: stringProp(block, "html") ?? "", title: stringProp(block, "title") ?? "HTML content",

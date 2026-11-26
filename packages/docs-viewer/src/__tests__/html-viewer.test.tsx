@@ -45,3 +45,25 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
   expect(document.activeElement).toBe(expand);
   expect(document.body.style.overflow).not.toBe("hidden");
 });
+
+test("tall HTML keeps its scale inline and scrolls inside the capped area", () => {
+  const rect = HTMLElement.prototype.getBoundingClientRect;
+  HTMLElement.prototype.getBoundingClientRect = function () {
+    return { x: 0, y: 0, top: 0, left: 0, right: 800, bottom: 0, width: 800, height: 0, toJSON() {} } as DOMRect;
+  };
+  try {
+    const { container } = render(<HtmlBlock html="<p>Tall</p>" title="Tall" />);
+    const frame = container.querySelector("iframe")!;
+    const area = container.querySelector<HTMLElement>("[data-docs-html-area]")!;
+    report(frame, 800, 3000);
+    const cap = Math.min(600, window.innerHeight * 0.7);
+    expect(frame.style.transform).toBe("scale(1)");
+    expect(parseFloat(area.style.height)).toBeCloseTo(cap);
+    expect(area.style.overflowY).toBe("auto");
+    report(frame, 800, 200);
+    expect(area.style.height).toBe("200px");
+    expect(area.style.overflowY).toBe("hidden");
+  } finally {
+    HTMLElement.prototype.getBoundingClientRect = rect;
+  }
+});

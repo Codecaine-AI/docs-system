@@ -24,7 +24,7 @@ allowScripts?: boolean  # Defaults to false. Explicit true permits inline script
 
 ## Typed Actions
 
-Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Both the editor and read view fit the artifact within the document and provide a separate Expand button. Put visible labels and captions inside the HTML source. Edit the title, HTML source, initial height, and script setting through the block props.
+Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Both the editor and read view fit the artifact to the document width and provide a separate Expand button. Put visible labels and captions inside the HTML source. Edit the title, HTML source, initial height, and script setting through the block props.
 
 ## Doc Renderer
 
@@ -40,7 +40,21 @@ The read view, editor preview, static Docs export, and article publisher use the
 
 - Embed CSS, JavaScript, and data assets directly. Relative files, CDN libraries, and external API calls do not work. The sandbox is not a complete network isolation boundary because frame self-navigation can still request another URL. Do not include secrets in HTML.
 
-- The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds. Closing returns over 220 milliseconds. Reduced-motion preferences disable both animations.
+- The inline preview fits the artifact to the document width and stops at a height cap.
+
+  - A wide artifact scales down to the column width, and an artifact never scales up past its natural size.
+
+  - The preview area is at most 600 pixels tall, or 70% of the window height when that is less. Taller content scrolls inside the area at its readable size.
+
+  - Content changes and window resizing update the fit.
+
+- Expand opens the same iframe in a full-screen viewer and keeps its interaction state.
+
+  - The viewer opens at Fit. The 100% control shows the artifact at full size, and the zoom controls scale it.
+
+  - The viewer scrolls when zoomed content is larger than its area. Close or Escape returns focus to Expand.
+
+  - Expansion animates from the inline block over 260 milliseconds, and closing returns over 220 milliseconds. Reduced-motion preferences turn off both animations.
 
 > **HTML: Interactive HTML example**
 

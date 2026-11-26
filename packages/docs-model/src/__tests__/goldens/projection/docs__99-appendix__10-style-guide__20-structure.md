@@ -81,6 +81,7 @@ Typed blocks are the main value of this docs system. A typed block shows a shape
 | Calls and returns between participants | `sequence` |
 | Rows that compare the same fields | `structured-table` |
 | A screen or a physical layout | `html` |
+| Two or more images of one thing from different angles or stages | `image-grid` |
 
 - **Use the Typed Block When the Shape Is There**
 
@@ -89,6 +90,8 @@ Typed blocks are the main value of this docs system. A typed block shows a shape
   - Specs, plans, and design pages need typed blocks most. Readers align on these pages, and they align faster when they can see the shape.
 
   - A spec that lists the nine fields of a record as bullets breaks this rule. One `state-shape` block with the fields and a JSON example follows it.
+
+  - Put related images side by side in one `image-grid` with a heading on each image, such as a sketch and the result or a before and after view. Never stack single image blocks for them.
 
 - **Keep Lists Where Lists Fit**
 

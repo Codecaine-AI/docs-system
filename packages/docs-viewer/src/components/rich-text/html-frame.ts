@@ -45,3 +45,21 @@ export const HTML_FRAME_BRIDGE_HASH = 'oyQVu8Z6vX93Lhkf6syh+AFcxCO44w47Kwo81suaa
 export function fitHtmlScale(width: number, height: number, availableWidth: number, availableHeight: number): number {
   return Math.min(1, availableWidth / Math.max(1, width), availableHeight / Math.max(1, height));
 }
+
+/** The inline preview's height cap in px: 600px, or 70% of the window when that is less. */
+export function inlineHtmlCap(windowHeight: number): number {
+  return Math.min(600, windowHeight * 0.7);
+}
+
+/**
+ * The inline preview fits the column width only (never scaling up past 1),
+ * and its area stops at the height cap. Taller content scrolls inside the area.
+ */
+export function inlineHtmlLayout(width: number, height: number, availableWidth: number, windowHeight: number): {
+  scale: number; areaHeight: number; scrolls: boolean;
+} {
+  const scale = Math.min(1, availableWidth / Math.max(1, width));
+  const scaledHeight = height * scale;
+  const cap = inlineHtmlCap(windowHeight);
+  return { scale, areaHeight: Math.min(scaledHeight, cap), scrolls: scaledHeight > cap };
+}

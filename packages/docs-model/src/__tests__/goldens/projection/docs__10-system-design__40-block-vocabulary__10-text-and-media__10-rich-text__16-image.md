@@ -85,4 +85,4 @@ This block's theme file is `components/image.json` in the active theme folder. B
 | margin | --docs-image-margin | Space above and below the block |
 | maxHeight | --docs-image-max-height | Tallest inline image height, 480px at stock and never above 60vh |
 
-For related processing stages or result sets, use Image Grid to keep the images together with individual headings. Keep standalone illustrations as image blocks.
+Some images show the same thing from different angles or stages, such as a shape drawing and its render. Put 2 or more of them side by side in one Image Grid with a heading on each image, and do not stack single image blocks. Keep standalone illustrations as image blocks.
