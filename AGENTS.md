@@ -84,7 +84,7 @@ does not exist yet.
 
 | Test | Owner | Expiry |
 | --- | --- | --- |
-| docs-viewer: "DocEditor save boundary > the DOM-mutation + input-event pipeline reaches ProseMirror state (dom-sync)" | Ford | 2026-12-26 |
+| docs-viewer: "DocEditor save boundary > the DOM-mutation + input-event pipeline reaches ProseMirror state (dom-sync)" | Ford | 2026-12-10 |
 
 - This is a Bun test, not a Playwright keeper flow. The `@quarantine` title tag
   and `--grep-invert @quarantine` apply to keeper flows only, so this test is
