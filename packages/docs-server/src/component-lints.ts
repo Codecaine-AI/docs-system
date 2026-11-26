@@ -8,6 +8,7 @@
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { Resvg as ResvgClass } from "@resvg/resvg-js";
 import { FINISHING_RULES, LAYOUT_RULES, runDiagnostics, type Severity } from "@codecaine-ai/canvas/lints";
 import type { InteractiveCanvasDocument } from "@codecaine-ai/canvas/schema";
 import { atomicWriteFile } from "./atomic-write";
@@ -85,6 +86,62 @@ export const blockingFindings = (findings: readonly ComponentFinding[]): Compone
 
 /** The program text of a saved sequence, as `setProgram` would read it back. */
 export const sequenceProgram = (sequence: SequenceDocument): string => serializeSequenceProgram(sequence);
+
+/** A rendered image for a tool result: PNG bytes as base64. */
+export interface RenderedImage { data: string; mimeType: "image/png"; width: number; height: number }
+
+/**
+ * The SVG paints with CSS variables and their fallbacks, as in `var(--seq-bg, var(--ds-color-surface-page, #fdfdfd))`,
+ * so a page theme can restyle it. A rasterizer has no page, so each variable takes its fallback, innermost first.
+ */
+function resolveCssVariables(svg: string): string {
+  let out = svg;
+  for (let previous = ""; previous !== out;) {
+    previous = out;
+    out = out.replace(/var\(--[\w-]+\s*,\s*([^()]*)\)/g, (_, fallback: string) => fallback.trim());
+  }
+  return out;
+}
+
+let resvg: Promise<typeof ResvgClass> | undefined;
+/**
+ * resvg is a native module, and the supervisor bundles the managed runtime into one JavaScript file, which
+ * cannot hold it. So it loads at run time from the docs-server package: the managed runtime names the
+ * docs-mcp package root in CODECAINE_DOCS_PACKAGE_ROOT, and an unbundled server resolves from this file.
+ */
+function loadResvg(): Promise<typeof ResvgClass> {
+  const packageRoot = process.env.CODECAINE_DOCS_PACKAGE_ROOT;
+  const from = packageRoot ? join(packageRoot, "..", "docs-server", "src") : import.meta.dir;
+  resvg ??= import(Bun.resolveSync("@resvg/resvg-js", from)).then((module) => module.Resvg as typeof ResvgClass);
+  return resvg;
+}
+
+/** The longest edge of a sequence image. Vision models scale larger images down to about this size. */
+export const SEQUENCE_IMAGE_MAX_EDGE = 1568;
+/** The largest PNG a tool result carries. Model image limits sit near 5 MB, and base64 adds a third. */
+export const SEQUENCE_IMAGE_MAX_BYTES = 3 * 1024 * 1024;
+
+/**
+ * Render a saved sequence to a PNG that a tool result carries as image content, so an
+ * agent on any machine sees the diagram. A small diagram scales up to 2x for legibility,
+ * the longest edge stays at or below SEQUENCE_IMAGE_MAX_EDGE, and a PNG above
+ * SEQUENCE_IMAGE_MAX_BYTES renders again at half the size until it fits.
+ */
+export async function renderSequencePng(sequence: SequenceDocument): Promise<RenderedImage> {
+  const Resvg = await loadResvg();
+  const svg = resolveCssVariables(renderSequenceSvgString(sequence));
+  const options = { font: { loadSystemFonts: true, defaultFontFamily: "Helvetica", sansSerifFamily: "Helvetica" } };
+  const natural = new Resvg(svg, options);
+  let zoom = Math.min(2, SEQUENCE_IMAGE_MAX_EDGE / Math.max(natural.width, natural.height, 1));
+  for (;;) {
+    const rendered = new Resvg(svg, { ...options, fitTo: { mode: "zoom", value: zoom } }).render();
+    const png = rendered.asPng();
+    if (png.byteLength <= SEQUENCE_IMAGE_MAX_BYTES || zoom < 0.1) {
+      return { data: Buffer.from(png).toString("base64"), mimeType: "image/png", width: rendered.width, height: rendered.height };
+    }
+    zoom /= 2;
+  }
+}
 
 /**
  * Render a saved sequence to an SVG file the server owns, outside the docs

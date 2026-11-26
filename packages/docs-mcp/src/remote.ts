@@ -102,6 +102,22 @@ export function routedArguments(name: string, route: Route, args: Record<string,
  return out;
 }
 
+/** Result fields that name a file on the server that answered. A client on another machine cannot open them. */
+const SERVER_FILE_FIELDS = ['svg_path'];
+
+/**
+ * A tool reply as a client sees it. A reply from the remote server drops the fields that name a server file,
+ * and keeps its image content. A local reply stays as it is.
+ */
+export function clientReply<T>(result: T, route: Route): T {
+ const reply = result as { structuredContent?: Record<string, unknown>; content?: { type: string }[] };
+ const data = reply?.structuredContent;
+ if (!route.remote || !data || !SERVER_FILE_FIELDS.some((field) => field in data)) return result;
+ const kept = Object.fromEntries(Object.entries(data).filter(([field]) => !SERVER_FILE_FIELDS.includes(field)));
+ const content = [{ type: 'text', text: JSON.stringify(kept) }, ...(reply.content ?? []).filter((item) => item.type !== 'text')];
+ return { ...reply, structuredContent: kept, content } as T;
+}
+
 /**
  * Task routes: the route of each docs_begin, so docs_guidance and every later call with its task_id reach the same
  * server. The MCP bridge keeps them in memory. The CLI runs one process per call, so it keeps them in a file.

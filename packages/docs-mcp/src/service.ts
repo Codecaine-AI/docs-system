@@ -55,7 +55,7 @@ const CALL_TIMINGS_MAX_BYTES=5*1024*1024;
 const named=(result:DocsToolResult,callId:string):DocsToolResult=>{
  if(!result.structuredContent)return result;
  const data={...result.structuredContent,call_id:callId};
- return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)}]};
+ return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)},...result.content.filter(item=>item.type!=='text')]};
 };
 /** Appends one JSON line per tool call to CODECAINE_DOCS_CALL_TIMINGS_FILE (default ~/.codecaine/call-timings.jsonl),
  * moving the file to <file>.1 once it passes 5 MB. Never fails the call it records. */

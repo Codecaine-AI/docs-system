@@ -4,7 +4,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSche
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 import { daemonFetch, routeState, type DaemonState } from './lifecycle';
-import { remoteSettings, routeCall, routedArguments, taskRoutes } from './remote';
+import { clientReply, remoteSettings, routeCall, routedArguments, taskRoutes } from './remote';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import manifest from '../package.json';
 import { INSTRUCTIONS } from './instructions';
@@ -30,7 +30,7 @@ export async function startMcp(initialWorkspace:string){
   const route=routeCall(remote,workspace,args,{localWorkspace,known});
   const response=await fetchOn(route.remote,'/rpc',{workspace:route.workspace,name,arguments:routedArguments(name,route,args),identity});
   if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
-  const result=await response.json() as any;
+  const result=clientReply(await response.json() as any,route);
   if(name==='docs_begin'&&typeof result.structuredContent?.task_id==='string')tasks.set(result.structuredContent.task_id,route);
   if(name==='docs_capabilities'&&!result.isError&&typeof result.structuredContent?.scope?.workspace==='string'){
    // A remote reply names the server path. Keep the client path, which routes to it again. A local reply also sets the local workspace.
