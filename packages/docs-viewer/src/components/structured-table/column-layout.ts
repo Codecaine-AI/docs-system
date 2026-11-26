@@ -2,6 +2,7 @@ import { tableCellToPlainText, type TableCell } from "@codecaine-ai/docs-model";
 import type { TableCellKind } from "./cell-kind";
 import {
   TABLE_COLUMN_FIT_CLASSES,
+  TABLE_LEAD_CELL_CLASSES,
   TABLE_PROSE_FLOOR_CLASS,
   TABLE_PROSE_MEASURE_CLASS,
   TABLE_STICKY_BODY_CELL_CLASSES,
@@ -86,7 +87,8 @@ export function tableColumnFits(
 
 /**
  * The column-placement classes one th/td carries on both surfaces: its
- * column's fit, and — first column only — the sticky pin.
+ * column's fit, and — first column only — the sticky pin and, on body
+ * cells, the lead column's ink.
  */
 export function columnCellClasses(
   fit: TableColumnFit | undefined,
@@ -97,7 +99,7 @@ export function columnCellClasses(
     columnIndex === 0
       ? header
         ? TABLE_STICKY_HEADER_CELL_CLASSES
-        : TABLE_STICKY_BODY_CELL_CLASSES
+        : `${TABLE_STICKY_BODY_CELL_CLASSES} ${TABLE_LEAD_CELL_CLASSES}`
       : "";
   return [TABLE_COLUMN_FIT_CLASSES[fit ?? "fit"], pin].filter(Boolean).join(" ");
 }

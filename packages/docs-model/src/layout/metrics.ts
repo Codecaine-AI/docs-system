@@ -235,7 +235,7 @@ export const TABLE_METRICS = {
   /** Identifier (mono) cells: 0.5px under the body size, in the code font. */
   identifierFontSizePx: 13,
   bodyWeight: 400,
-  headerWeight: 500,
+  headerWeight: 600,
   /** Unitless multiplier of the cell font size. */
   lineHeight: 1.45,
   /** Cell padding, each side. */

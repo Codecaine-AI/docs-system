@@ -48,7 +48,7 @@ export const structuredTable: Record<string, Record<string, ThemeTokenDefinition
       min: 300,
       max: 900,
       step: 50,
-      defaultValue: dsNumber("font.weight.medium", ""),
+      defaultValue: dsNumber("font.weight.semibold", ""),
     },
     headerRule: color("--docs-table-header-rule"),
     headerRuleWidth: {
@@ -58,7 +58,7 @@ export const structuredTable: Record<string, Record<string, ThemeTokenDefinition
       max: 4,
       step: 0.5,
       unit: "px",
-      defaultValue: dsNumber("border.width.hairline", "px"),
+      defaultValue: dsNumber("border.width.ring", "px"),
     },
     headerRuleOpacity: {
       vars: ["--docs-table-header-rule-opacity"],
@@ -166,6 +166,16 @@ export const structuredTable: Record<string, Record<string, ThemeTokenDefinition
     fg: color("--docs-table-fg"),
     // Identifier (mono) cells in the first column; other mono cells stay ink.
     keyFg: color("--docs-table-key-fg"),
+    // The lead (first) column's sans cells: the row's title.
+    leadFg: color("--docs-table-lead-fg"),
+    leadWeight: {
+      vars: ["--docs-table-lead-weight"],
+      kind: "number",
+      min: 300,
+      max: 900,
+      step: 50,
+      defaultValue: dsNumber("font.weight.medium", ""),
+    },
     handleRadius: {
       vars: ["--docs-table-handle-radius"],
       kind: "length",

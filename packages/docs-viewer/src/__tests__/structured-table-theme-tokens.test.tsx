@@ -67,24 +67,24 @@ const SURFACES: Surface[] = [
 /** [element selector, the var() reference that element's class must carry]. */
 const TOKEN_CONSUMERS: Array<[string, string]> = [
   // Frame: the panel's rule-colored border on the panel fill
-  ["div:has(> table)", "border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]"],
+  ["div:has(> table)", "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]"],
   ["div:has(> table)", "border-[length:var(--docs-table-border-width,1px)]"],
   ["div:has(> table)", "rounded-[var(--docs-table-radius,var(--radius,2px))]"],
   ["div:has(> table)", "bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]"],
   // Header band: muted text over one rule
-  ["thead", "bg-[color:var(--docs-table-header-bg,transparent)]"],
-  ["thead", "text-[color:var(--docs-table-header-fg,var(--docs-muted,#666562))]"],
-  ["thead", "border-b-[length:var(--docs-table-header-rule-width,1px)]"],
-  ["thead", "var(--docs-table-header-rule,var(--docs-rule,#e6e5e3))"],
+  ["thead", "bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))]"],
+  ["thead", "text-[color:var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))]"],
+  ["thead", "border-b-[length:var(--docs-table-header-rule-width,1.5px)]"],
+  ["thead", "var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))"],
   ["thead", "calc(var(--docs-table-header-rule-opacity,1)*100%)"],
   [
     "thead th",
     "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
   ],
-  ["thead th", "font-[var(--docs-table-header-weight,500)]"],
+  ["thead th", "font-[var(--docs-table-header-weight,600)]"],
   // Rows: the soft rule
   ["tbody tr", "border-b-[length:var(--docs-table-row-rule-width,1px)]"],
-  ["tbody tr", "var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))"],
+  ["tbody tr", "var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc))"],
   ["tbody tr", "calc(var(--docs-table-row-rule-opacity,1)*100%)"],
   ["tbody tr", "hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]"],
   ["tbody tr", "h-[var(--docs-table-row-min-height,28px)]"],
@@ -92,7 +92,7 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
   ["tbody td", "border-r-[length:var(--docs-table-column-rule-width,0px)]"],
   [
     "tbody td",
-    "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec)))",
+    "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc)))",
   ],
   [
     "tbody td",
@@ -113,6 +113,9 @@ const TOKEN_CONSUMERS: Array<[string, string]> = [
     "data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
   ],
   ["table", "leading-[var(--docs-table-line-height,1.45)]"],
+  // The lead column's sans cells: the row's title in ink
+  ["tbody td", "not-data-[cell-kind]:font-[var(--docs-table-lead-weight,500)]"],
+  ["tbody td", "not-data-[cell-kind]:text-[color:var(--docs-table-lead-fg,var(--docs-ink,#1f1f1f))]"],
 ];
 
 describe("structured-table theme tokens reach the DOM", () => {
