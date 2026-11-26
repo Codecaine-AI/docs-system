@@ -89,11 +89,11 @@ describe("TableGrid", () => {
 
     const wrapper = container.querySelector("div");
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]",
+      "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
     );
     const header = container.querySelector("thead");
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,1px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
     );
     expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
 

@@ -86,22 +86,22 @@ describe("StructuredTableBlock", () => {
     const bodyCells = container.querySelectorAll("tbody td");
 
     expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))]",
+      "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
     );
     expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,1px)]",
+      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
     );
     expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
     // One rule under the header row: no boxed frame around it.
     expect(header?.className).not.toContain("box-shadow");
     expect(header?.className).toContain(
-      "bg-[color:var(--docs-table-header-bg,transparent)]",
+      "bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))]",
     );
     expect(headerCells[0]?.className).toContain(
       "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
     );
     expect(headerCells[0]?.className).toContain(
-      "font-[var(--docs-table-header-weight,500)]",
+      "font-[var(--docs-table-header-weight,600)]",
     );
     expect(headerCells[0]?.className).not.toContain("uppercase");
     expect(bodyCells[0]?.className).toContain(

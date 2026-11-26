@@ -2002,7 +2002,7 @@ describe("style rail component token kinds", () => {
     expect(width).toHaveProperty("min", "0");
     expect(width).toHaveProperty("max", "4");
     expect(width).toHaveProperty("step", "0.5");
-    expect(width).toHaveProperty("value", "1");
+    expect(width).toHaveProperty("value", "2");
     expect(opacity).toHaveProperty("min", "0");
     expect(opacity).toHaveProperty("max", "1");
     expect(opacity).toHaveProperty("step", "0.05");
@@ -2076,7 +2076,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleWidth: {
       cssVar: "--docs-table-header-rule-width",
       label: "Header rule width",
-      range: [0, 4, 0.5, 1],
+      range: [0, 4, 0.5, 2],
     },
     rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
     columnRuleWidth: {
@@ -2097,7 +2097,7 @@ describe("style rail structured-table tokens", () => {
     },
   } as const;
   const TABLE_NUMBERS = {
-    headerWeight: { cssVar: "--docs-table-header-weight", label: "Header weight", range: [300, 900, 50, 500] },
+    headerWeight: { cssVar: "--docs-table-header-weight", label: "Header weight", range: [300, 900, 50, 600] },
     headerRuleOpacity: {
       cssVar: "--docs-table-header-rule-opacity",
       label: "Header rule opacity",
@@ -2115,6 +2115,11 @@ describe("style rail structured-table tokens", () => {
     },
     lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.45] },
     bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
+    leadWeight: {
+      cssVar: "--docs-table-lead-weight",
+      label: "Lead column weight",
+      range: [300, 900, 50, 500],
+    },
   } as const;
   const TABLE_COLORS = {
     border: { cssVar: "--docs-table-border", label: "Border" },
@@ -2127,6 +2132,7 @@ describe("style rail structured-table tokens", () => {
     rowHoverBg: { cssVar: "--docs-table-row-hover-bg", label: "Row hover background" },
     fg: { cssVar: "--docs-table-fg", label: "Text" },
     keyFg: { cssVar: "--docs-table-key-fg", label: "Key column text" },
+    leadFg: { cssVar: "--docs-table-lead-fg", label: "Lead column text" },
   } as const;
   // Tokens whose semantic.css default is DERIVED from another token, so the
   // declaration is an expression rather than the registry's stock number.
@@ -2246,16 +2252,17 @@ describe("style rail structured-table tokens", () => {
     }
     for (const reference of [
       // Each color falls back through its role token to the light app value.
-      "var(--docs-table-border,var(--docs-rule,#e6e5e3))",
+      "var(--docs-table-border,var(--docs-border-strong,#d0cfcc))",
       "var(--docs-table-bg,var(--docs-panel,#f8f8f7))",
-      "var(--docs-table-header-bg,transparent)",
-      "var(--docs-table-header-fg,var(--docs-muted,#666562))",
-      "var(--docs-table-header-rule,var(--docs-rule,#e6e5e3))",
-      "var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))",
-      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec)))",
+      "var(--docs-table-header-bg,var(--docs-sunken,#ededec))",
+      "var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))",
+      "var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))",
+      "var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc))",
+      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc)))",
       "var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))",
       "var(--docs-table-fg,var(--docs-text,#2a2a2a))",
       "var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))",
+      "var(--docs-table-lead-fg,var(--docs-ink,#1f1f1f))",
     ]) {
       expect(tableClasses).toContain(reference);
     }

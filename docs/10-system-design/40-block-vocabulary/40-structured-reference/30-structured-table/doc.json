@@ -34,6 +34,7 @@
         "b-20-structured-table-actions-10",
         "b-20-structured-table-proj-h-6",
         "b-stfam-docrender-read",
+        "b-stfam-docrender-rules",
         "b-stfam-docrender-columns",
         "b-stfam-docrender-col-1",
         "b-stfam-docrender-col-2",
@@ -992,7 +993,18 @@
       "props": {},
       "text": [
         {
-          "insert": "The read surface and the editor at rest share one light-grid look. The table is a panel that shrinks to its content inside a thin outer border. A header rule tinted by the header-rule tokens sits under the header row, light rules split the body rows, and a hover wash marks the current row. Column rules are "
+          "insert": "The read surface and the editor at rest share one grid look. The table is a panel that shrinks to its content inside a thin outer border in the strong rule color. The header row is ink text at weight 600 on a sunken fill, over a 2px header rule. Strong 1px rules split the body rows, and a hover wash marks the current row. The first column's sans cells are ink at weight 500, so a reader can scan the row titles."
+        }
+      ],
+      "children": []
+    },
+    "b-stfam-docrender-rules": {
+      "id": "b-stfam-docrender-rules",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Column rules are "
         },
         {
           "insert": "0px",
@@ -1904,43 +1916,43 @@
             "border",
             "--docs-table-border",
             "color",
-            "Outer wrapper border (default: the row-rule grey)"
+            "Outer wrapper border (default: the strong rule, --docs-border-strong)"
           ],
           [
             "headerBg",
             "--docs-table-header-bg",
             "color",
-            "Header row background (default transparent)"
+            "Header row background (default: the sunken fill, --docs-sunken)"
           ],
           [
             "headerFg",
             "--docs-table-header-fg",
             "color",
-            "Header text color"
+            "Header text color (default: ink)"
           ],
           [
             "headerRule",
             "--docs-table-header-rule",
             "color",
-            "Header rule color (falls back to headerFg)"
+            "Header rule color (default: the strong rule)"
           ],
           [
             "headerRuleWidth",
             "--docs-table-header-rule-width",
             "length",
-            "Header rule thickness (default 1.5px)"
+            "Header rule thickness (default 2px)"
           ],
           [
             "headerRuleOpacity",
             "--docs-table-header-rule-opacity",
             "number",
-            "Header rule opacity (default 0.5)"
+            "Header rule opacity (default 1)"
           ],
           [
             "rowRule",
             "--docs-table-row-rule",
             "color",
-            "Row rule color (falls back to the UI border color)"
+            "Row rule color (default: the strong rule)"
           ],
           [
             "rowRuleWidth",
@@ -1989,6 +2001,18 @@
             "--docs-table-font-size",
             "length",
             "Cell text size (default 13.5px, and headers follow it)"
+          ],
+          [
+            "leadFg",
+            "--docs-table-lead-fg",
+            "color",
+            "Text color of the first column's sans cells (default: ink)"
+          ],
+          [
+            "leadWeight",
+            "--docs-table-lead-weight",
+            "number",
+            "Weight of the first column's sans cells (default 500)"
           ],
           [
             "handleRadius",
