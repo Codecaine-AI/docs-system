@@ -6,9 +6,9 @@
 # under test at core/docs-system, and runs `make test-<area>` (the areas live in
 # scripts/test-packages.ts). No secret is needed.
 #
-# Pull requests run the areas their changed files reach
-# (`scripts/test-packages.ts --affected`). Push to main and manual runs run
-# every area.
+# Every event runs every area. A full area job takes about a minute and the
+# jobs run in parallel, so selecting areas by changed files saves little and
+# could skip a consumer that reaches a package through a computed import.
 name: docs-system tests
 
 on:
@@ -31,30 +31,19 @@ env:
 
 jobs:
   areas:
-    name: Pick test areas
+    # Reads the area list from scripts/test-packages.ts, its one source.
+    name: List test areas
     runs-on: ubuntu-latest
     outputs:
-      areas: ${{ steps.pick.outputs.areas }}
+      areas: ${{ steps.list.outputs.areas }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history, so a pull request can diff against its base SHA.
-          fetch-depth: 0
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - id: pick
-        env:
-          EVENT: ${{ github.event_name }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      - id: list
         run: |
-          if [ "$EVENT" = "pull_request" ]; then
-            git diff --name-only "$BASE_SHA"...HEAD > changed.txt
-            echo "Changed files:"; cat changed.txt
-            areas=$(bun scripts/test-packages.ts --affected < changed.txt)
-          else
-            areas=$(bun scripts/test-packages.ts --list)
-          fi
+          areas=$(bun scripts/test-packages.ts --list)
           echo "Areas: $areas"
           echo "areas=$areas" >> "$GITHUB_OUTPUT"
 

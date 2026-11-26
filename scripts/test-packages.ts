@@ -54,6 +54,10 @@ function areaPackageDirs(): Map<string, string> {
 }
 
 /**
+ * A heuristic for local runs only; CI never uses it and runs every area. It
+ * reads references from source text, so it can miss computed imports, such as
+ * a test that builds an absolute import of another package into a temp script.
+ *
  * The areas a change set must run. A file in one package selects that
  * package's area and the area of every docs-system package that depends on
  * it, directly or through other packages. Any file outside packages/ (root
