@@ -34,7 +34,7 @@ type CloseOptions = {
   contentAspect?: number;
 };
 
-const CLOSE_MS = 240;
+export const CLOSE_MS = 240;
 
 /** Shared inline-to-viewer motion. The caller owns mounting, focus, and modal state. */
 export function useViewerMotion() {

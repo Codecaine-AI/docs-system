@@ -49,6 +49,12 @@ The doc renderer draws the block as one framed panel with a light-gray head row 
 
   - A raster image fills the panel body. A click on the image also opens the full-screen viewer.
 
+  - The `maxHeight` theme key caps the image height at 480px by default, and the image is never taller than 60% of the viewport height.
+
+    - The width follows the aspect ratio, and the panel shrinks to fit the image.
+
+    - The full-screen viewer shows the image at full size.
+
 - **Caption**
 
   - The caption is not drawn on the page. It is the alt fallback, the viewer title, and the accessible name of the **Expand** button.
@@ -77,5 +83,6 @@ This block's theme file is `components/image.json` in the active theme folder. B
 | borderWidth | --docs-image-border-width | Panel border width |
 | radius | --docs-image-radius | Panel corner radius |
 | margin | --docs-image-margin | Space above and below the block |
+| maxHeight | --docs-image-max-height | Tallest inline image height, 480px at stock and never above 60vh |
 
-For related processing stages or result sets, use Image Grid to keep the images together with individual headings. Keep standalone illustrations as image blocks.
+Some images show the same thing from different angles or stages, such as a shape drawing and its render. Put 2 or more of them side by side in one Image Grid with a heading on each image, and do not stack single image blocks. Keep standalone illustrations as image blocks.

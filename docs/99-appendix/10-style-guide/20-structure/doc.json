@@ -589,6 +589,17 @@
                 }
               }
             ]
+          ],
+          [
+            "Two or more images of one thing from different angles or stages",
+            [
+              {
+                "insert": "image-grid",
+                "attributes": {
+                  "code": true
+                }
+              }
+            ]
           ]
         ],
         "title": "Shapes and the typed block for each"
@@ -610,7 +621,8 @@
       "children": [
         "sg-struct-shape-use",
         "sg-struct-shape-specs",
-        "sg-struct-shape-example"
+        "sg-struct-shape-example",
+        "sg-struct-shape-image-grid"
       ]
     },
     "sg-struct-shape-use": {
@@ -651,6 +663,26 @@
         },
         {
           "insert": " block with the fields and a JSON example follows it."
+        }
+      ],
+      "children": []
+    },
+    "sg-struct-shape-image-grid": {
+      "id": "sg-struct-shape-image-grid",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put related images side by side in one "
+        },
+        {
+          "insert": "image-grid",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " with a heading on each image, such as a sketch and the result or a before and after view. Never stack single image blocks for them."
         }
       ],
       "children": []

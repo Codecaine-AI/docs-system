@@ -1,5 +1,17 @@
 The image-grid block groups related images so readers can compare processing stages or results. Each image has its own heading above it and an optional caption below it. The grid accepts images only.
 
+## When to Use
+
+Put 2 or more images side by side in one image grid when they show the same thing from different angles or stages. Give each image a heading that names its angle or stage.
+
+- A shape drawing and its render, a sketch and the result, and a before and after view each belong in one grid.
+
+- Do not stack single image blocks for these images. A stack hides the comparison and makes the reader scroll between the images.
+
+- Place the grid next to the text that explains it, and walk the reader through the steps one at a time.
+
+- Use a single Image block for a standalone illustration.
+
 ## State Schema
 
 **ImageGridState** — packages/docs-model/src/components/rich-text/state.ts#ImageGridState

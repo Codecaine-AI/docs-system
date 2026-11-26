@@ -251,6 +251,7 @@
   --docs-image-border-width: var(--ds-border-width-hairline);
   --docs-image-radius: var(--radius);
   --docs-image-margin: var(--ds-space-6);
+  --docs-image-max-height: 480px;
   --docs-video-border: var(--docs-rule);
   --docs-video-caption-fg: var(--docs-muted);
   --docs-video-border-width: var(--ds-border-width-hairline);

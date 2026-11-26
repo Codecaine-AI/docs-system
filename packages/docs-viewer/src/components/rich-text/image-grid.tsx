@@ -32,7 +32,7 @@ export function ImageGrid({ images, columns = "auto", resolveAssetSrc }: ImageGr
 
 export const imageGridDescriptor: DocBlockDescriptor = {
   type: "image-grid", targetKind: "image-grid", label: "Image Grid",
-  agentDescription: "An ordered image-only comparison grid. Props: images [{src, heading?, alt?, caption?}], columns? (auto or integer 1 to 4). Rows grow automatically; narrow containers reduce columns. Preserve original proportions. Use a heading above each image to identify the step or variant. Edit through typed insert/update block operations. No arbitrary text columns.",
+  agentDescription: "An ordered image-only comparison grid that puts related images side by side. Use it, not stacked image blocks, when 2 or more images show the same thing from different angles or stages: a shape drawing and its render, a sketch and the result, before and after. Give each image a heading that names its step or variant, place the grid next to the text that explains it, and walk the reader through the steps one at a time. Props: images [{src, heading?, alt?, caption?}], columns? (auto or integer 1 to 4). Rows grow automatically; narrow containers reduce columns. Preserve original proportions. Edit through typed insert/update block operations. No arbitrary text columns.",
   patchOps: STRUCTURAL_OPS, layout: WIDE_LEFT_BLOCK_LAYOUT,
   render: (block, ctx) => el("div", { key: block.id, ...blockAttrs(block) }, createElement(ImageGrid, {
     images: (block.props.images ?? []) as ImageGridItem[],

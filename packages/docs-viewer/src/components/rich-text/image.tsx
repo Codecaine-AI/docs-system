@@ -30,12 +30,15 @@ export const DocImage = atomBlockNode("docImage");
  * since the editor's atom node view renders this same descriptor. Every image
  * knob keeps its LIGHT default as the literal fallback: `border` /
  * `borderWidth` / `radius` draw the panel frame (the one hairline: the img
- * itself carries no border, so nothing is framed twice), `margin` the block.
+ * itself carries no border, so nothing is framed twice), `margin` the block,
+ * `maxHeight` caps the img's height (never above 60vh). The width follows the
+ * aspect ratio, and the w-fit figure shrinks to it; the full-screen viewer
+ * still opens at full size.
  */
 const IMAGE_FIGURE_CLASSES = `not-prose docs-image-block ${MEDIA_PANEL_CLASS} my-[var(--docs-image-margin,24px)] w-fit max-w-full ${MEDIA_PANEL_FILL} rounded-[var(--docs-image-radius,var(--radius,2px))] border-[length:var(--docs-image-border-width,1px)] border-[color:var(--docs-image-border,#e6e5e3)]`;
 const IMAGE_HEAD_ROW_CLASSES = `${MEDIA_HEAD_CLASSES} gap-x-2`;
 const IMAGE_EXPAND_CLASSES = `ml-auto ${MEDIA_GHOST_BUTTON} ${MEDIA_FOCUS_RING}`;
-const IMAGE_CLASSES = "block h-auto max-w-full";
+const IMAGE_CLASSES = "block h-auto w-auto max-w-full max-h-[min(var(--docs-image-max-height,480px),60vh)]";
 /* A vector brings its own canvas and rounded frame: pad it inside the body
  * so that frame does not butt against the panel's. A raster fills the body. */
 const IMAGE_BODY_SVG_CLASSES = "max-w-full p-3";

@@ -21,6 +21,7 @@
         "html-contract-9",
         "html-contract-10",
         "html-contract-11",
+        "html-contract-11x",
         "html-contract-12",
         "html-contract-13",
         "html-contract-14",
@@ -126,7 +127,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Both the editor and read view fit the artifact within the document and provide a separate Expand button. Put visible labels and captions inside the HTML source. Edit the title, HTML source, initial height, and script setting through the block props."
+          "insert": "Insert and update the block through the generic typed block operations. The editor slash menu includes HTML. Both the editor and read view fit the artifact to the document width and provide a separate Expand button. Put visible labels and captions inside the HTML source. Edit the title, HTML source, initial height, and script setting through the block props."
         }
       ],
       "children": []
@@ -219,7 +220,92 @@
       "props": {},
       "text": [
         {
-          "insert": "The interactive inline preview scales proportionally to fit the document width and the smaller of 600 pixels or 70% of the window height. Small artifacts stay at their natural size. Content changes and window resizing update the fit. Expand opens the same iframe in a full-screen viewer with Fit, 100%, and zoom controls, preserving its interaction state. Close or Escape returns focus to Expand. Scrolling belongs to the expanded viewer when zoomed content exceeds its available space. Expansion animates from the inline block over 260 milliseconds. Closing returns over 220 milliseconds. Reduced-motion preferences disable both animations."
+          "insert": "The inline preview fits the artifact to the document width and stops at a height cap."
+        }
+      ],
+      "children": [
+        "html-contract-11-a",
+        "html-contract-11-b",
+        "html-contract-11-c"
+      ]
+    },
+    "html-contract-11-a": {
+      "id": "html-contract-11-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A wide artifact scales down to the column width, and an artifact never scales up past its natural size."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11-b": {
+      "id": "html-contract-11-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The preview area is at most 600 pixels tall, or 70% of the window height when that is less. Taller content scrolls inside the area at its readable size."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11-c": {
+      "id": "html-contract-11-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Content changes and window resizing update the fit."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11x": {
+      "id": "html-contract-11x",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Expand opens the same iframe in a full-screen viewer and keeps its interaction state."
+        }
+      ],
+      "children": [
+        "html-contract-11x-a",
+        "html-contract-11x-b",
+        "html-contract-11x-c"
+      ]
+    },
+    "html-contract-11x-a": {
+      "id": "html-contract-11x-a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The viewer opens at Fit. The 100% control shows the artifact at full size, and the zoom controls scale it."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11x-b": {
+      "id": "html-contract-11x-b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The viewer scrolls when zoomed content is larger than its area. Close or Escape returns focus to Expand."
+        }
+      ],
+      "children": []
+    },
+    "html-contract-11x-c": {
+      "id": "html-contract-11x-c",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Expansion animates from the inline block over 260 milliseconds, and closing returns over 240 milliseconds. Reduced-motion preferences turn off both animations."
         }
       ],
       "children": []

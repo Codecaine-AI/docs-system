@@ -10,6 +10,12 @@
       "props": {},
       "children": [
         "grid-doc-1789403403163-0",
+        "grid-when-h",
+        "grid-when-lead",
+        "grid-when-1",
+        "grid-when-2",
+        "grid-when-3",
+        "grid-when-4",
         "grid-doc-1789403403163-1",
         "grid-doc-1789403403163-2",
         "grid-doc-1789403403163-3",
@@ -34,6 +40,86 @@
       "text": [
         {
           "insert": "The image-grid block groups related images so readers can compare processing stages or results. Each image has its own heading above it and an optional caption below it. The grid accepts images only."
+        }
+      ],
+      "children": []
+    },
+    "grid-when-h": {
+      "id": "grid-when-h",
+      "type": "heading",
+      "props": {
+        "level": 2
+      },
+      "text": [
+        {
+          "insert": "When to Use"
+        }
+      ],
+      "children": []
+    },
+    "grid-when-lead": {
+      "id": "grid-when-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Put 2 or more images side by side in one image grid when they show the same thing from different angles or stages. Give each image a heading that names its angle or stage."
+        }
+      ],
+      "children": []
+    },
+    "grid-when-1": {
+      "id": "grid-when-1",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "A shape drawing and its render, a sketch and the result, and a before and after view each belong in one grid."
+        }
+      ],
+      "children": []
+    },
+    "grid-when-2": {
+      "id": "grid-when-2",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Do not stack single image blocks for these images. A stack hides the comparison and makes the reader scroll between the images."
+        }
+      ],
+      "children": []
+    },
+    "grid-when-3": {
+      "id": "grid-when-3",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Place the grid next to the text that explains it, and walk the reader through the steps one at a time."
+        }
+      ],
+      "children": []
+    },
+    "grid-when-4": {
+      "id": "grid-when-4",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "Use a single "
+        },
+        {
+          "insert": "Image",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-system-design/40-block-vocabulary/10-text-and-media/10-rich-text/16-image"
+            }
+          }
+        },
+        {
+          "insert": " block for a standalone illustration."
         }
       ],
       "children": []

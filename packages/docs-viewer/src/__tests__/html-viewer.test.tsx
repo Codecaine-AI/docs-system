@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
-import { HtmlBlock } from "../components/rich-text/html";
+import { HtmlBlock, RESTORE_WINDOW_MS } from "../components/rich-text/html";
 
 afterEach(cleanup);
 
@@ -44,4 +44,59 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
   expect(container.querySelector("iframe")).toBe(frame);
   expect(document.activeElement).toBe(expand);
   expect(document.body.style.overflow).not.toBe("hidden");
+});
+
+test("tall HTML keeps its scale inline, scrolls inside the capped area, and keeps its scroll across Expand", async () => {
+  const rect = HTMLElement.prototype.getBoundingClientRect;
+  let width = 800;
+  HTMLElement.prototype.getBoundingClientRect = function () {
+    return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: 0, width, height: 0, toJSON() {} } as DOMRect;
+  };
+  try {
+    const { container, getByRole } = render(<HtmlBlock html="<p>Tall</p>" title="Tall" />);
+    const frame = container.querySelector("iframe")!;
+    const area = container.querySelector<HTMLElement>("[data-docs-html-area]")!;
+    report(frame, 800, 3000);
+    const cap = Math.min(600, window.innerHeight * 0.7);
+    expect(frame.style.transform).toBe("scale(1)");
+    expect(parseFloat(area.style.height)).toBeCloseTo(cap);
+    expect(area.style.overflowY).toBe("auto");
+    report(frame, 800, 200);
+    expect(area.style.height).toBe("200px");
+    expect(area.style.overflowY).toBe("hidden");
+    report(frame, 800, 3000);
+    area.scrollTop = 700;
+    fireEvent.click(getByRole("button", { name: "Expand HTML content" }));
+    area.scrollTop = 0;
+    fireEvent.click(getByRole("button", { name: "Close HTML viewer" }));
+    // Closing returns the inline area to where the reader had scrolled it.
+    expect(area.scrollTop).toBe(700);
+    // The body scroll unlock can change the column width: the resize clears
+    // the measurement and the browser clamps scrollTop to 0. The remeasure
+    // brings the position back.
+    width = 780;
+    act(() => window.dispatchEvent(new Event("resize")));
+    area.scrollTop = 0;
+    report(frame, 780, 3000);
+    expect(area.scrollTop).toBe(700);
+    // A scroll the reader starts inline ends the restore.
+    fireEvent.wheel(area);
+    area.scrollTop = 40;
+    width = 800;
+    act(() => window.dispatchEvent(new Event("resize")));
+    report(frame, 800, 3000);
+    expect(area.scrollTop).toBe(40);
+    // Once the close reflow settles, a scroll with no input on the area (a
+    // wheel over the iframe, find in page) is kept on the next size message.
+    area.scrollTop = 900;
+    fireEvent.click(getByRole("button", { name: "Expand HTML content" }));
+    fireEvent.click(getByRole("button", { name: "Close HTML viewer" }));
+    expect(area.scrollTop).toBe(900);
+    await act(() => Bun.sleep(RESTORE_WINDOW_MS + 50));
+    area.scrollTop = 40;
+    report(frame, 800, 3100);
+    expect(area.scrollTop).toBe(40);
+  } finally {
+    HTMLElement.prototype.getBoundingClientRect = rect;
+  }
 });

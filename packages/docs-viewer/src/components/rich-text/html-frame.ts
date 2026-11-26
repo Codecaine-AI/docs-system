@@ -45,3 +45,34 @@ export const HTML_FRAME_BRIDGE_HASH = 'oyQVu8Z6vX93Lhkf6syh+AFcxCO44w47Kwo81suaa
 export function fitHtmlScale(width: number, height: number, availableWidth: number, availableHeight: number): number {
   return Math.min(1, availableWidth / Math.max(1, width), availableHeight / Math.max(1, height));
 }
+
+/** The inline preview's height cap in px: 600px, or 70% of the window when that is less. */
+export function inlineHtmlCap(windowHeight: number): number {
+  return Math.min(600, windowHeight * 0.7);
+}
+
+/**
+ * The inline preview fits the column width only (never scaling up past 1),
+ * and its area stops at the height cap. Taller content scrolls inside the area,
+ * and then fits the width the vertical scrollbar leaves (scrollbarWidth px).
+ */
+export function inlineHtmlLayout(width: number, height: number, availableWidth: number, windowHeight: number, scrollbarWidth = 0): {
+  scale: number; areaHeight: number; scrolls: boolean;
+} {
+  const fit = (room: number) => Math.min(1, Math.max(1, room) / Math.max(1, width));
+  const cap = inlineHtmlCap(windowHeight);
+  const scrolls = height * fit(availableWidth) > cap;
+  const scale = scrolls ? fit(availableWidth - scrollbarWidth) : fit(availableWidth);
+  return { scale, areaHeight: Math.min(height * scale, cap), scrolls };
+}
+
+/** The width a classic vertical scrollbar takes in this browser, 0 for overlay scrollbars. */
+export function measureScrollbarWidth(): number {
+  if (typeof document === "undefined" || !document.body) return 0;
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:absolute;top:-9999px;width:100px;height:100px;overflow:scroll";
+  document.body.appendChild(probe);
+  const width = probe.offsetWidth - probe.clientWidth;
+  probe.remove();
+  return Math.max(0, width);
+}

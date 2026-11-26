@@ -150,7 +150,7 @@ export const media: Record<string, Record<string, ThemeTokenDefinition>> = {
   // Image and video share one media panel (docs-viewer media-panel.tsx):
   // `border` / `borderWidth` / `radius` frame the panel, `margin` spaces the
   // block. Image: the block is the framed panel only, with no head row, so it
-  // has no caption knobs. Video: the caption knobs (unchanged) set the muted
+  // has no caption knobs; `maxHeight` caps the inline image. Video: the caption knobs (unchanged) set the muted
   // line below the panel. `radius` follows the global --radius in
   // semantic.css (2px at stock).
   image: {
@@ -181,6 +181,16 @@ export const media: Record<string, Record<string, ThemeTokenDefinition>> = {
       step: 1,
       unit: "px",
       defaultValue: dsNumber("space.6", "px"),
+    },
+    // Cap on the inline image's height; the 60vh viewport cap still applies.
+    maxHeight: {
+      vars: ["--docs-image-max-height"],
+      kind: "length",
+      min: 160,
+      max: 1200,
+      step: 20,
+      unit: "px",
+      defaultValue: 480,
     },
   },
   video: {

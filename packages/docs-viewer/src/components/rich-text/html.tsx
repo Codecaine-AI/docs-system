@@ -1,8 +1,8 @@
 "use client";
 
-import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
-import { fitHtmlScale, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
+import { createElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { CLOSE_MS, useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
+import { fitHtmlScale, inlineHtmlLayout, measureScrollbarWidth, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
@@ -65,6 +65,8 @@ function usePageColorScheme(): HtmlColorScheme {
 const HTML_PANEL_CLASSES = `not-prose my-6 min-w-0 rounded-[var(--radius,2px)] border border-[color:var(--docs-rule,#e6e5e3)] ${MEDIA_PANEL_CLASS} ${MEDIA_PANEL_FILL}`;
 const HTML_BUTTON_CLASSES = `${MEDIA_GHOST_BUTTON} ${MEDIA_FOCUS_RING}`;
 const HTML_FRAME_CLASSES = "block border-0 bg-transparent";
+/** How long after close the inline scroll position is restored on a remeasure. */
+export const RESTORE_WINDOW_MS = CLOSE_MS + 500;
 
 export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   html: string; title: string; height?: number; allowScripts?: boolean;
@@ -80,6 +82,12 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const [width, setWidth] = useState(0);
   const layoutWidthRef = useRef(0);
   const [windowHeight, setWindowHeight] = useState(800);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  // The inline area's scroll position from before Expand: a pending restore.
+  // It holds through the reflow the close triggers (the body scroll unlock
+  // can change the column width and force a remeasure), then clears after
+  // RESTORE_WINDOW_MS, on an inline scroll input, or on the next Expand.
+  const inlineScrollRef = useRef<number | null>(null);
   const [area, setArea] = useState<Size>({ width: 0, height: 0 });
   const [measured, setMeasured] = useState<Size | null>(null);
   const [zoom, setZoom] = useState<number | null>(null);
@@ -98,6 +106,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   useEffect(() => { setMeasured(null); }, [srcDoc, initialHeight]);
   useEffect(() => {
     setReady(true);
+    setScrollbarWidth(measureScrollbarWidth());
     // The slot is the in-flow box the inline iframe occupies (inside the
     // panel's border and body padding); it keeps its place while expanded.
     const slot = slotRef.current;
@@ -162,9 +171,31 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
 
   const naturalWidth = Math.max(1, width, measured?.width ?? 0);
   const naturalHeight = measured?.height ?? initialHeight;
-  const inlineScale = width ? fitHtmlScale(naturalWidth, naturalHeight, width, Math.min(600, windowHeight * 0.7)) : 1;
+  // Inline, the artifact fits the column width only, so its text stays
+  // readable; the area stops at min(600px, 70vh) and scrolls inside.
+  const inline = width ? inlineHtmlLayout(naturalWidth, naturalHeight, width, windowHeight, scrollbarWidth) : null;
+  const inlineScale = inline?.scale ?? 1;
   const scale = expanded ? zoom ?? fitHtmlScale(naturalWidth, naturalHeight, area.width || naturalWidth, area.height || naturalHeight) : inlineScale;
-  const previewHeight = naturalHeight * inlineScale;
+  const previewHeight = inline?.areaHeight ?? initialHeight;
+  const inlineScrollRoom = naturalHeight * inlineScale - previewHeight;
+
+  // Back inline, return the area to where the reader had scrolled it, once a
+  // measured layout is tall enough to hold that position.
+  useLayoutEffect(() => {
+    const pending = inlineScrollRef.current;
+    if (expanded || pending === null || !measured || inlineScrollRoom < pending || !areaRef.current) return;
+    areaRef.current.scrollTop = pending;
+  }, [expanded, measured, inlineScrollRoom]);
+  // The close reflow settles within the close motion plus a remeasure; after
+  // that, a scroll the area gets without an input on it (a wheel over the
+  // iframe, find in page) must not snap back.
+  useEffect(() => {
+    if (expanded || inlineScrollRef.current === null) return;
+    const timer = setTimeout(() => { inlineScrollRef.current = null; }, RESTORE_WINDOW_MS);
+    return () => clearTimeout(timer);
+  }, [expanded]);
+  // A scroll the reader starts inline ends the pending restore.
+  const clearPendingScroll = () => { if (!expanded) inlineScrollRef.current = null; };
 
   // This dialog and iframe never move or remount: expanding fixes the existing
   // element over the host's viewer area, preserving the artifact's DOM and script state.
@@ -174,6 +205,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
         {/* Static pages never hydrate, so the control appears only once it works. */}
         {ready && <button ref={expandRef} type="button" className={HTML_BUTTON_CLASSES} aria-label="Expand HTML content"
           onClick={() => {
+            inlineScrollRef.current = areaRef.current?.scrollTop ?? null;
             captureOrigin(dialogRef.current);
             setZoom(null);
             setExpanded(true);
@@ -198,7 +230,11 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Zoom in" onClick={() => setZoom(Math.min(4, scale * 1.25))}>+</button>
             <button type="button" className={HTML_BUTTON_CLASSES} aria-label="Close HTML viewer" onClick={closeViewer}><XIcon size={12} strokeWidth={2} aria-hidden />Close</button>
           </div>}
-          <div ref={areaRef} style={{ minHeight: 0, flex: expanded ? 1 : undefined, overflow: expanded ? "auto" : "hidden", height: expanded ? undefined : (width ? previewHeight : initialHeight) }}>
+          <div ref={areaRef} data-docs-html-area=""
+            onWheel={clearPendingScroll} onTouchMove={clearPendingScroll} onPointerDown={clearPendingScroll} onKeyDown={clearPendingScroll}
+            style={{ minHeight: 0, flex: expanded ? 1 : undefined,
+            overflowX: expanded ? "auto" : "hidden", overflowY: expanded || inline?.scrolls ? "auto" : "hidden",
+            height: expanded ? undefined : previewHeight }}>
             <div style={{ position: "relative", width: width ? naturalWidth * scale : "100%", height: naturalHeight * scale, margin: "0 auto", overflow: "hidden" }}>
               <iframe ref={frameRef} title={label} srcDoc={srcDoc} data-docs-html-frame=""
                 className={HTML_FRAME_CLASSES}
@@ -216,7 +252,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
 
 export const htmlDescriptor: DocBlockDescriptor = {
   type: "html", targetKind: "html", label: "HTML",
-  agentDescription: "Self-contained HTML/CSS artifact. Props: html (max 1 MiB), title (required; heads the panel and labels the frame), height? (120–2000px; default 400), allowScripts? (default false). Fits interactive HTML within the document width and a 600px/70vh height cap. The host draws a panel whose head shows the title, a sandbox note, and an Expand button that opens Fit and zoom controls without resetting state. Height is the initial layout height and no-JavaScript fallback. The frame follows the page's light or dark color-scheme on a transparent background; the host adds no caption and no padding inside the artifact. Put any visible captions inside html. Inline CSS and data: media work offline. Explicit scripts run only inside an opaque-origin sandbox; fetch, external subresources, nested frames, forms, popups, and parent access are blocked. No external or relative assets. Use code for displayed source examples. Insert/update through typed block operations.",
+  agentDescription: "Self-contained HTML/CSS artifact. Props: html (max 1 MiB), title (required; heads the panel and labels the frame), height? (120–2000px; default 400), allowScripts? (default false). The inline preview fits the document width (never scaling up), stops at a 600px/70vh height, and scrolls inside when the content is taller. Expand opens it full screen, with Fit, 100% (full size) and zoom controls, without resetting state. The host draws a panel whose head shows the title, a sandbox note, and the Expand button. Height is the initial layout height and no-JavaScript fallback. The frame follows the page's light or dark color-scheme on a transparent background; the host adds no caption and no padding inside the artifact. Put any visible captions inside html. Inline CSS and data: media work offline. Explicit scripts run only inside an opaque-origin sandbox; fetch, external subresources, nested frames, forms, popups, and parent access are blocked. No external or relative assets. Use code for displayed source examples. Insert/update through typed block operations.",
   patchOps: STRUCTURAL_OPS, layout: WIDE_LEFT_BLOCK_LAYOUT,
   render: (block, ctx) => el("div", { key: block.id, ...blockAttrs(block) }, createElement(HtmlBlock, {
     html: stringProp(block, "html") ?? "", title: stringProp(block, "title") ?? "HTML content",
