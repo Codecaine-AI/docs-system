@@ -66,6 +66,6 @@ It is built for precision, not reading: stable ids make every block addressable,
 | Search | Sidebar tree, backlinks, in-app navigation | docs grep across rendered docs |
 | Write | Direct manipulation in the editor | Typed block operations via CLI/API |
 | Safety | Autosave, live updates, single-use undo | Hash preconditions, draft locks |
-| Discovery | Slash menu and block UI | GET /api/blocks and the docs skill |
+| Discovery | Slash menu and block UI | GET /api/blocks, `docs_capabilities`, and `docs_guidance` topic `components` |
 
-Neither column is primary. A feature that improves one surface must not degrade the other; when the two pull in different directions, the canonical state grows whatever structure lets each surface stay optimal — that is the point of keeping state and surface separate.
+Neither column is primary. A feature that improves one surface must not degrade the other. When the two pull in different directions, the canonical state grows whatever structure lets each surface stay optimal. That is the point of keeping state and surface separate.

@@ -16,3 +16,7 @@ docs-migrate-report.json
 .agent-kernel/pi-sessions/
 .agent-kernel/state/
 .tmp/
+
+# Playwright e2e output (fixture roots live under test-results/)
+test-results/
+playwright-report/

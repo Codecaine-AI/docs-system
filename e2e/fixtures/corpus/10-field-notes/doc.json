@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "10-field-notes",
+  "title": "Field Notes",
+  "root": "b-root",
+  "blocks": {
+    "b-root": {
+      "id": "b-root",
+      "type": "paragraph",
+      "props": {},
+      "children": ["b-intro"]
+    },
+    "b-intro": {
+      "id": "b-intro",
+      "type": "paragraph",
+      "props": {},
+      "text": [{ "insert": "Lighthouse keepers log the weather at dawn." }],
+      "children": []
+    }
+  }
+}

@@ -98,7 +98,7 @@ export const PX_PER_MM = 96 / 25.4;
 
 /** Stock body size and leading (style rail Font size and Line height). */
 export const BODY_FONT_SIZE_PX = 18;
-export const BODY_LINE_HEIGHT = 1.45;
+export const BODY_LINE_HEIGHT = 1.5;
 
 /** The page lanes a block type can claim (docs-viewer render/block-layout.ts). */
 export type LaneName = "text" | "code" | "wide" | "full";
@@ -236,8 +236,8 @@ export const TABLE_METRICS = {
   identifierFontSizePx: 13,
   bodyWeight: 400,
   headerWeight: 600,
-  /** Unitless multiplier of the cell font size. */
-  lineHeight: 1.45,
+  /** Unitless multiplier of the cell font size (design-system line-height.reading). */
+  lineHeight: 1.5,
   /** Cell padding, each side. */
   cellPadXPx: 12,
   cellPadYPx: 4,

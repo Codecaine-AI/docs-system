@@ -85,7 +85,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   if (options.dev) {
-    startDocsServe({
+    const api = startDocsServe({
       sharedApi,
       docsRoot,
       themesRoot: options.themesRoot,
@@ -98,8 +98,9 @@ export async function runServe(options: RunServeOptions): Promise<void> {
       watchFs: true,
       themeLocked: options.themeLocked,
     });
-    log(`[docs-workbench] API listening on http://${displayHost}:${port} (docs root: ${docsRoot})`);
-    log(`[docs-workbench] Starting vite dev server (proxying /api -> :${port})...`);
+    const apiPort = api.server?.port ?? port;
+    log(`[docs-workbench] API listening on http://${displayHost}:${apiPort} (docs root: ${docsRoot})`);
+    log(`[docs-workbench] Starting vite dev server (proxying /api -> :${apiPort})...`);
     const viteArgs =
       options.uiPort === undefined
         ? ["bun", "x", "vite"]
@@ -109,7 +110,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     }
     const proc = Bun.spawn(viteArgs, {
       cwd: webDir(),
-      env: { ...process.env, DOCS_API: `http://localhost:${port}` },
+      env: { ...process.env, DOCS_API: `http://localhost:${apiPort}` },
       stdout: "inherit",
       stderr: "inherit",
     });
@@ -125,7 +126,7 @@ export async function runServe(options: RunServeOptions): Promise<void> {
   }
 
   const staticDir = await ensureSpaBuilt({ mode: "serve", force: options.forceBuild, log });
-  startDocsServe({
+  const app = startDocsServe({
     sharedApi,
     docsRoot,
     themesRoot: options.themesRoot,
@@ -138,5 +139,6 @@ export async function runServe(options: RunServeOptions): Promise<void> {
     themeLocked: options.themeLocked,
   });
   log(`[docs-workbench] Serving docs from ${docsRoot}`);
-  log(`[docs-workbench] http://${displayHost}:${port}`);
+  // The bound port, so `--port 0` (an OS-chosen free port) logs its real URL.
+  log(`[docs-workbench] http://${displayHost}:${app.server?.port ?? port}`);
 }

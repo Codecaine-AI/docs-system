@@ -1,0 +1,130 @@
+# Tier 2: the Bun test suites of every docs-system package, one job per area.
+#
+# docs-system builds inside Codecaine Core: core's bun workspace links the
+# members it imports (canvas, sequence, annotations, design-system, ...). This
+# workflow rebuilds that layout from public repos at pinned SHAs, puts the tree
+# under test at core/docs-system, and runs `make test-<area>` (the areas live in
+# scripts/test-packages.ts). No secret is needed.
+#
+# Every event runs every area. A full area job takes about a minute and the
+# jobs run in parallel, so selecting areas by changed files saves little and
+# could skip a consumer that reaches a package through a computed import.
+name: docs-system tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  BUN_VERSION: 1.4.2 # the version dev-01 runs
+  # Codecaine Core, pinned. Its package.json holds the bun workspace list.
+  CORE_SHA: 1b510bd98c7434440ec0c5bcba40ff0278be198b
+
+jobs:
+  areas:
+    # Reads the area list from scripts/test-packages.ts, its one source.
+    name: List test areas
+    runs-on: ubuntu-latest
+    outputs:
+      areas: ${{ steps.list.outputs.areas }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - id: list
+        run: |
+          areas=$(bun scripts/test-packages.ts --list)
+          echo "Areas: $areas"
+          echo "areas=$areas" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: test ${{ matrix.area }}
+    needs: areas
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        area: ${{ fromJSON(needs.areas.outputs.areas) }}
+    steps:
+      - name: Check out Codecaine Core
+        uses: actions/checkout@v4
+        with:
+          repository: Codecaine-AI/codecaine-core
+          ref: ${{ env.CORE_SHA }}
+          path: core
+
+      - name: Check out docs-system (the tree under test)
+        uses: actions/checkout@v4
+        with:
+          path: core/docs-system
+          # Full history: the quality-climb evals (repo area) read their brief
+          # sources from a pinned older commit (evals/quality-climb/write.ts SOURCE_REF).
+          fetch-depth: 0
+          # external/annotations, external/canvas and external/sequence, pinned
+          # by this tree's gitlinks. import-boundaries and docs-publish read them.
+          submodules: true
+
+      # Members docs-system builds against, at pinned SHAs. Member submodules
+      # are left out: none is a workspace docs-system uses.
+      - name: Check out Core members
+        working-directory: core
+        run: |
+          while read -r dir sha; do
+            git init -q "$dir"
+            git -C "$dir" fetch -q --depth 1 "https://github.com/Codecaine-AI/$dir.git" "$sha"
+            git -C "$dir" checkout -q --detach FETCH_HEAD
+            echo "$dir $(git -C "$dir" rev-parse HEAD)"
+          done <<'EOF'
+          annotations 6c33213fdda4869522457d93cd695177b4bda271
+          prompt-kit ca8aebebf3a79bfcdd9e8418c6aa4e34b6aa551c
+          canvas fb4760cd5f16d1b2731c96633758f9c4c0788d5a
+          sequence 16e1b9e40a3b137d6870d259bf75b1029cd7b06a
+          agent-kernel bf042f7044c4acc9ff7e055bd830289b27aa0130
+          observatory 6e2ba736e82866951e5b6530ddd8c7ba9cccd222
+          design-system 5c6f794c244dd883e69785513e61c6658fce984f
+          EOF
+
+      # trace-viewer is private and docs-system never imports it, but an
+      # agent-kernel example depends on three of its workspace packages. Empty
+      # stubs let a plain `bun install` resolve them. session-kit is private
+      # and not a Core workspace, so it is skipped.
+      - name: Stub trace-viewer workspace packages
+        working-directory: core
+        run: |
+          while read -r dir name; do
+            mkdir -p "trace-viewer/packages/$dir"
+            printf '{ "name": "%s", "version": "0.0.0", "private": true }\n' "$name" > "trace-viewer/packages/$dir/package.json"
+          done <<'EOF'
+          read-service @codecaine-ai/agent-kernel-viewer-read-service
+          viewer-core @codecaine-ai/agent-kernel-viewer-core
+          viewer-shell @codecaine-ai/agent-kernel-viewer-shell
+          viewer-ui @codecaine-ai/agent-kernel-viewer-ui
+          EOF
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      # Not --frozen-lockfile: core's lock at CORE_SHA need not match the tree
+      # under test (a new docs-system dependency is not in it yet).
+      - name: Install workspace dependencies
+        working-directory: core
+        run: bun install
+
+      - name: Link packages and print where they resolve
+        working-directory: core/docs-system
+        run: make link
+
+      - name: make test-${{ matrix.area }}
+        working-directory: core/docs-system
+        run: make test-${{ matrix.area }}

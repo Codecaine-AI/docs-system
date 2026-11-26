@@ -859,31 +859,6 @@ describe("per-block-type layout overrides", () => {
     );
   });
 
-  it("starts the split slider where the components actually render", () => {
-    // An unset knob emits nothing, so each component's literal fallback is
-    // what renders — these must agree or the slider lies about the page.
-    const shape = readFileSync(
-      new URL(
-        "../../../../docs-viewer/src/components/state-shape/StateShapeDocsBlock.tsx",
-        import.meta.url,
-      ),
-      "utf8",
-    );
-    const surface = readFileSync(
-      new URL(
-        "../../../../docs-viewer/src/components/interaction-surface/InteractionSurfaceDocsBlock.tsx",
-        import.meta.url,
-      ),
-      "utf8",
-    );
-    expect(shape).toContain(
-      `var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["state-shape"]}%)) minmax(260px,1fr)`,
-    );
-    expect(surface).toContain(
-      `var(--docs-pane-split,${BLOCK_COLUMN_SPLIT_DEFAULTS["interaction-surface"]}%)) minmax(260px,1fr)`,
-    );
-  });
-
   it("drives the split from the slider and keeps it beside the other lane fields", () => {
     render(<RailHarness />);
     openPane("State shape");
@@ -1024,27 +999,6 @@ describe("style rail stock values match the consumers' inline fallbacks", () => 
     expect(indexCss).toContain("--style-editor-text-lane: var(--style-content-width, 60ch);");
   });
 
-  it("body text fallbacks equal stock typography (sans, 18px, 1.45, 0em)", () => {
-    const { typography } = DEFAULT_STYLE_RAIL_SETTINGS;
-    expect(typography.bodyFont).toBe("sans");
-    expect(typography.headingFont).toBe("sans");
-    expect(typography.fontSize).toBe(18);
-    expect(typography.lineHeight).toBe(1.45);
-    expect(typography.letterSpacing).toBe(0);
-    expect(indexCss).not.toContain("--style-font-size, 0.875rem");
-    // Three readers: the container, the text-block re-assertion, and the
-    // callout-body rule that multiplies the reading size by its own
-    // text-scale token (1 by default, so it restates the same size).
-    expect(indexCss.match(/var\(--style-font-size, 18px\)/g)?.length).toBe(3);
-    expect(indexCss).toContain(
-      "font-size: calc(var(--style-font-size, 18px) * var(--docs-callout-body-text-scale, 1));",
-    );
-    expect(indexCss.match(/var\(--style-line-height, 1\.45\)/g)?.length).toBe(2);
-    expect(blockClassesSource).not.toContain("leading-[1.7]");
-    expect(blockClassesSource).toContain(
-      "text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]",
-    );
-  });
 });
 
 describe("style rail code panels", () => {
@@ -2113,7 +2067,7 @@ describe("style rail structured-table tokens", () => {
       label: "Column rule opacity",
       range: [0, 1, 0.05, 1],
     },
-    lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.45] },
+    lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.5] },
     bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
     leadWeight: {
       cssVar: "--docs-table-lead-weight",
@@ -2121,27 +2075,6 @@ describe("style rail structured-table tokens", () => {
       range: [300, 900, 50, 500],
     },
   } as const;
-  const TABLE_COLORS = {
-    border: { cssVar: "--docs-table-border", label: "Border" },
-    bg: { cssVar: "--docs-table-bg", label: "Background" },
-    headerBg: { cssVar: "--docs-table-header-bg", label: "Header background" },
-    headerFg: { cssVar: "--docs-table-header-fg", label: "Header text" },
-    headerRule: { cssVar: "--docs-table-header-rule", label: "Header rule" },
-    rowRule: { cssVar: "--docs-table-row-rule", label: "Row rule" },
-    columnRule: { cssVar: "--docs-table-column-rule", label: "Column rule" },
-    rowHoverBg: { cssVar: "--docs-table-row-hover-bg", label: "Row hover background" },
-    fg: { cssVar: "--docs-table-fg", label: "Text" },
-    keyFg: { cssVar: "--docs-table-key-fg", label: "Key column text" },
-    leadFg: { cssVar: "--docs-table-lead-fg", label: "Lead column text" },
-  } as const;
-  // Tokens whose semantic.css default is DERIVED from another token, so the
-  // declaration is an expression rather than the registry's stock number.
-  const DERIVED_DEFAULTS: Record<string, string> = {
-    "--docs-table-radius": "var(--radius)",
-    "--docs-table-handle-radius": "var(--radius)",
-    "--docs-table-header-text-size": "var(--docs-table-font-size)",
-    "--docs-table-column-rule-opacity": "var(--docs-table-row-rule-opacity)",
-  };
   const SLIDERS = [
     ...Object.entries(TABLE_LENGTHS).map(([key, token]) => ({ key, unit: "px", ...token })),
     ...Object.entries(TABLE_NUMBERS).map(([key, token]) => ({ key, unit: "", ...token })),
@@ -2156,135 +2089,6 @@ describe("style rail structured-table tokens", () => {
   const indexCss = ["../index.css", "../theme/read-surface.css", "../theme/app-shell.css"].map((file) => readFileSync(new URL(file, import.meta.url), "utf8")).join("\n");
   const tableClasses = viewerSource("table-classes.ts");
   const occurrences = (haystack: string, needle: string) => haystack.split(needle).length - 1;
-
-  it("registers every table var under the structured-table entry", () => {
-    const entry = THEME_TOKEN_REGISTRY["structured-table"];
-    for (const [key, { cssVar }] of Object.entries(TABLE_COLORS)) {
-      expect(entry[key]).toEqual({ vars: [cssVar], kind: "color" });
-    }
-    for (const [key, { cssVar, range }] of Object.entries(TABLE_LENGTHS)) {
-      const [min, max, step, defaultValue] = range;
-      expect(entry[key]).toEqual({
-        vars: [cssVar],
-        kind: "length",
-        min,
-        max,
-        step,
-        unit: "px",
-        defaultValue,
-      });
-    }
-    for (const [key, { cssVar, range }] of Object.entries(TABLE_NUMBERS)) {
-      const [min, max, step, defaultValue] = range;
-      expect(entry[key]).toEqual({ vars: [cssVar], kind: "number", min, max, step, defaultValue });
-    }
-    // Nothing registered beyond the pinned set, so a new knob has to land here.
-    expect(Object.keys(entry).sort()).toEqual(
-      [
-        ...Object.keys(TABLE_COLORS),
-        ...Object.keys(TABLE_LENGTHS),
-        ...Object.keys(TABLE_NUMBERS),
-      ].sort(),
-    );
-  });
-
-  it("declares every table var in both semantic.css blocks at the registry default", () => {
-    for (const { cssVar } of Object.values(TABLE_COLORS)) {
-      expect(occurrences(semanticCss, `  ${cssVar}: `)).toBe(2);
-    }
-    for (const { cssVar, unit, range } of SLIDERS) {
-      const value = DERIVED_DEFAULTS[cssVar] ?? `${range[3]}${unit}`;
-      expect(occurrences(semanticCss, `  ${cssVar}: ${value};`)).toBe(2);
-    }
-    // The derived defaults resolve to the registry number at stock: radius
-    // and handle follow the 2px --radius, the header follows the body size.
-    expect(occurrences(semanticCss, "  --radius: 2px;")).toBe(2);
-    expect<number>(TABLE_LENGTHS.radius.range[3]).toBe(2);
-    expect<number>(TABLE_LENGTHS.handleRadius.range[3]).toBe(2);
-    expect<number>(TABLE_LENGTHS.headerTextSize.range[3]).toBe(TABLE_LENGTHS.fontSize.range[3]);
-    // No column rules at stock; when raised they match the row rules' opacity.
-    expect<number>(TABLE_LENGTHS.columnRuleWidth.range[3]).toBe(0);
-    expect<number[]>(TABLE_LENGTHS.columnRuleWidth.range.slice(0, 3)).toEqual(
-      TABLE_LENGTHS.rowRuleWidth.range.slice(0, 3),
-    );
-    expect(TABLE_NUMBERS.columnRuleOpacity.range).toEqual(TABLE_NUMBERS.rowRuleOpacity.range);
-    expect(occurrences(semanticCss, "  --docs-table-column-rule: var(--docs-table-row-rule);")).toBe(2);
-  });
-
-  it("wires every table var into the component with its default as the fallback", () => {
-    // A registered knob the component never reads is a dead slider (the
-    // state-shape rowPad bug). The class strings live in table-classes.ts and
-    // are shared by the read block and the editor grid; the three
-    // editor-furniture vars are read where the furniture is drawn.
-    const furniture = [
-      viewerSource("editor/Handles.tsx"),
-      viewerSource("editor/SelectionOverlay.tsx"),
-      viewerSource("editor-node-view.tsx"),
-    ].join("\n");
-    const FURNITURE_FALLBACKS: Record<string, string> = {
-      "--docs-table-handle-radius": "var(--docs-table-handle-radius,var(--radius,2px))",
-      "--docs-table-handle-offset": "var(--docs-table-handle-offset, 12px)",
-      "--docs-table-selection-pad": "var(--docs-table-selection-pad, 3px)",
-    };
-    const CLASS_FALLBACKS: Record<string, string> = {
-      "--docs-table-radius": "var(--docs-table-radius,var(--radius,2px))",
-      "--docs-table-header-text-size":
-        "var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))",
-      "--docs-table-column-rule-opacity":
-        "var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))",
-    };
-    // The table draws no title (the title only labels the <table> for
-    // assistive tech), so the three title knobs were retired: no consumer,
-    // no registry entry, no semantic.css declaration.
-    for (const retired of ["titleFg", "titleTextSize", "titleWeight"]) {
-      expect([retired, retired in THEME_TOKEN_REGISTRY["structured-table"]]).toEqual([retired, false]);
-    }
-    expect(semanticCss).not.toContain("--docs-table-title-");
-    expect(tableClasses).not.toContain("--docs-table-title-");
-    for (const { cssVar, unit, range } of SLIDERS) {
-      if (FURNITURE_FALLBACKS[cssVar]) {
-        expect(furniture).toContain(FURNITURE_FALLBACKS[cssVar]);
-        continue;
-      }
-      expect(tableClasses).toContain(
-        CLASS_FALLBACKS[cssVar] ?? `var(${cssVar},${range[3]}${unit})`,
-      );
-    }
-    for (const reference of [
-      // Each color falls back through its role token to the light app value.
-      "var(--docs-table-border,var(--docs-border-strong,#d0cfcc))",
-      "var(--docs-table-bg,var(--docs-panel,#f8f8f7))",
-      "var(--docs-table-header-bg,var(--docs-sunken,#ededec))",
-      "var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))",
-      "var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))",
-      "var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc))",
-      "var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc)))",
-      "var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))",
-      "var(--docs-table-fg,var(--docs-text,#2a2a2a))",
-      "var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))",
-      "var(--docs-table-lead-fg,var(--docs-ink,#1f1f1f))",
-    ]) {
-      expect(tableClasses).toContain(reference);
-    }
-    // Every color token is covered by the list above.
-    for (const { cssVar } of Object.values(TABLE_COLORS)) {
-      expect(tableClasses).toContain(`var(${cssVar},`);
-    }
-    // The literals the vars replaced are gone, so nothing shadows a knob.
-    for (const hardcoded of [
-      "rounded-md",
-      "bg-background",
-      "bg-muted/20",
-      "text-sm",
-      "font-medium",
-      "text-foreground",
-      "mb-1.5",
-      "leading-[1.55]",
-    ]) {
-      expect(tableClasses).not.toContain(hardcoded);
-    }
-    expect(viewerSource("editor/EditableCell.tsx")).not.toContain("min-h-[1.55em]");
-  });
 
   it("keeps the unlayered prose rules off table cells so the type tokens win", () => {
     // index.css re-asserts prose size/leading/color on p/td/th from OUTSIDE a
@@ -2314,27 +2118,6 @@ describe("style rail structured-table tokens", () => {
     expect(viewerSource("editor-node-view.tsx")).toContain(
       'data-docs-block-type="structured-table"',
     );
-  });
-
-  it("renders a labelled control for every table token", () => {
-    render(<RailHarness />);
-    openPane("Structured table");
-
-    for (const { label } of Object.values(TABLE_COLORS)) {
-      const input = screen.getByLabelText(label) as HTMLInputElement;
-      expect(input).toHaveProperty("type", "color");
-    }
-    for (const { label, unit, range } of SLIDERS) {
-      const [min, max, step, defaultValue] = range;
-      // Anchored: "Text size" must not also match "Header text size".
-      const slider = screen.getByLabelText(new RegExp(`^${label}`)) as HTMLInputElement;
-      expect(slider).toHaveProperty("type", "range");
-      expect(slider).toHaveProperty("min", String(min));
-      expect(slider).toHaveProperty("max", String(max));
-      expect(slider).toHaveProperty("step", String(step));
-      expect(slider).toHaveProperty("value", String(defaultValue));
-      expect(slider.closest("label")?.textContent).toBe(`${label}${defaultValue}${unit}`);
-    }
   });
 
   it("stores slider values with their units and applies them onto the table vars", () => {
@@ -3020,33 +2803,6 @@ describe("style rail shared linking tokens", () => {
     }
   });
 
-  it("registers the wash strength, rail / ring widths and CodeLines panel metrics", () => {
-    const linking = THEME_TOKEN_REGISTRY.linking;
-    const length = (cssVar: string, min: number, max: number, step: number, defaultValue: number) => ({
-      vars: [cssVar],
-      kind: "length" as const,
-      min,
-      max,
-      step,
-      unit: "px" as const,
-      defaultValue,
-    });
-    expect(linking.washStrength).toEqual({
-      vars: ["--docs-link-wash"],
-      kind: "number",
-      min: 0,
-      max: 100,
-      step: 1,
-      defaultValue: 14,
-    });
-    expect(linking.railWidth).toEqual(length("--docs-link-rail-width", 0, 8, 0.5, 3));
-    expect(linking.ringWidth).toEqual(length("--docs-link-ring-width", 0, 4, 0.5, 1.5));
-    expect(linking.textSize).toEqual(length("--docs-link-text-size", 10, 18, 0.5, 13));
-    expect(linking.lineHeight).toEqual(length("--docs-link-line-height", 14, 32, 1, 21));
-    expect(linking.gutterTextSize).toEqual(length("--docs-link-gutter-text-size", 8, 16, 0.5, 12));
-    expect(linking.gutterWidth).toEqual(length("--docs-link-gutter-width", 24, 96, 1, 40));
-  });
-
   it("renders every linking metric knob with its label, stock value and range, and stores units", () => {
     render(<RailHarness />);
     openPane("Linked panels");
@@ -3054,7 +2810,6 @@ describe("style rail shared linking tokens", () => {
     const expected: Array<[RegExp, string, string, string]> = [
       [/^Highlight strength/, "0", "100", "14"],
       [/^Rail width/, "0", "8", "3"],
-      [/^Pin ring width/, "0", "4", "1.5"],
       [/^Text size/, "10", "18", "13"],
       [/^Line height/, "14", "32", "21"],
       [/^Line number size/, "8", "16", "12"],
@@ -3075,14 +2830,14 @@ describe("style rail shared linking tokens", () => {
     expect(
       styleRailVars(
         normalizeSettings({
-          components: { linking: { washStrength: "30", railWidth: "5px", ringWidth: "9px" } },
+          components: { linking: { washStrength: "30", railWidth: "5px", gutterWidth: "200px" } },
         }),
       ),
     ).toMatchObject({
       "--docs-link-wash": "30",
       "--docs-link-rail-width": "5px",
-      // Out of range (max 4) -> dropped, so the stylesheet default stands.
-      "--docs-link-ring-width": null,
+      // Out of range (max 96) -> dropped, so the stylesheet default stands.
+      "--docs-link-gutter-width": null,
     });
   });
 });

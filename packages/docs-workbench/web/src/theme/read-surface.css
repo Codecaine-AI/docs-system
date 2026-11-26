@@ -186,7 +186,7 @@
 
 /* Style-rail typography hooks — the vars are only set on <html> while the
    corresponding knob is off its STOCK default (StyleRail.tsx
-   DEFAULT_STYLE_RAIL_SETTINGS: 18px / 1.45 / 0em), so these fallbacks MUST
+   DEFAULT_STYLE_RAIL_SETTINGS: 18px / 1.5 / 0em), so these fallbacks MUST
    equal that stock — they are what renders when no var is emitted. */
 .docs-markdown.prose {
   font-size: var(--style-font-size, var(--ds-font-size-reading));

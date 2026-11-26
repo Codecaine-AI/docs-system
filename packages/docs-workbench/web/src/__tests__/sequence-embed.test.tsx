@@ -114,8 +114,10 @@ describe("StandaloneSequenceEmbed sidecar src loading", () => {
       expect(queryByRole("dialog")).toBeNull();
       expect(window.document.body.style.overflow).not.toBe("hidden");
       expect(window.document.activeElement).toBe(preview);
+      // The viewer opens non-modal (#19), so it gets no cancel event: Escape closes it.
       fireEvent.click(preview);
-      fireEvent(getByRole("dialog"), new Event("cancel"));
+      expect(getByRole("dialog", { name: "Login flow sequence viewer" })).toBeTruthy();
+      fireEvent.keyDown(window, { key: "Escape" });
       expect(queryByRole("dialog")).toBeNull();
     } finally {
       globalThis.fetch = originalFetch;

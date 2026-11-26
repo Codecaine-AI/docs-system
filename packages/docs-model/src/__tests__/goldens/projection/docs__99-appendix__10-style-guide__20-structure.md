@@ -10,7 +10,7 @@ Page structure carries meaning through bullets, lists, headings, titles, and ope
 
 - **Separate the Lead From Its Gloss**
 
-  - Put a bold label, a link, or a short phrase in the parent bullet. Put supporting facts in sub-bullets.
+  - Put a bold label, a link, or a short phrase in a parent bullet that has 3 or more facts in sub-bullets. Write 1 or 2 facts as plain bullets, and name a section of the page with a heading, not a bullet.
 
   - Nest a second independent idea instead of packing the line. Never split one thought into fragments to manufacture nesting.
 
@@ -18,9 +18,19 @@ Page structure carries meaning through bullets, lists, headings, titles, and ope
 
   - Writing before a table or state-shape orients the reader. Bullets that restate its rows are duplication that will drift.
 
+  - A structured block draws only what the source does. A step that returns early is a branch, an arrow is a real import or call, and a count in the prose equals the count in the block.
+
 - **Number Sequential Actions**
 
-  - Use a numbered list for multi-step work, with one bounded action per step.
+  - Use a numbered list for multi-step work, with one bounded action per step through the last action.
+
+    - A child item of a step adds detail to that step only. A later action, such as the closing call, is the next numbered step.
+
+    - Bullets that open with order words, such as "Start with" and "Then", are a sequence. Number them.
+
+  - A code block, note, or callout that belongs to a step is a child of that step. It renders inside the step, and the next step keeps its number. Between two steps, it restarts the numbering at 1.
+
+  - A numbered procedure holds only the steps of its one task, in order. A step that applies only after a later change, such as a rebuild or an undo, goes after the procedure under its own heading.
 
   - Lists cap at about five items. Split or rank longer lists.
 
@@ -53,3 +63,35 @@ Headings and lists expose the order in which a reader needs information.
 - Preserve the established page template. Supporting reasons or reference details can serve the page's primary purpose, as defined in Document Purpose.
 
 - Give every image nonempty alt text that describes the information it contributes.
+
+## Show the Shape in a Typed Block
+
+Typed blocks are the main value of this docs system. A typed block shows a shape that bullets can only describe. Before you write a section as prose or bullets, check whether it describes one of the shapes in this table.
+
+**Shapes and the typed block for each**
+
+| Shape in the section | Typed block |
+| --- | --- |
+| Data fields and an example instance | `state-shape` |
+| Files and folders | `file-tree` |
+| Expected execution path of a system | `process-outline` |
+| Operations on a state | `interaction-surface` |
+| Layers and the rule at each line | `stack` |
+| Connections, ownership, or a pipeline | `canvas` |
+| Calls and returns between participants | `sequence` |
+| Rows that compare the same fields | `structured-table` |
+| A screen or a physical layout | `html` |
+
+- **Use the Typed Block When the Shape Is There**
+
+  - If the section describes a shape, use its typed block. Put one or two sentences around the block to orient the reader.
+
+  - Specs, plans, and design pages need typed blocks most. Readers align on these pages, and they align faster when they can see the shape.
+
+  - A spec that lists the nine fields of a record as bullets breaks this rule. One `state-shape` block with the fields and a JSON example follows it.
+
+- **Keep Lists Where Lists Fit**
+
+  - Keep a short list of plain facts as a list. Never force a fact into a diagram only to have one.
+
+  - Keep steps that the reader follows as a numbered list, as Number Sequential Actions says.

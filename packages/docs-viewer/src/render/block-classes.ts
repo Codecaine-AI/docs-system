@@ -25,7 +25,7 @@
  * preview in it, so every surface renders docs identically by construction.
  */
 export const DOC_SURFACE_TYPOGRAPHY_CLASSES =
-  "docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)]";
+  "docs-markdown prose prose-sm dark:prose-invert relative max-w-none font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.5)]";
 
 /*
  * STYLE-RAIL KNOBS ON THE TEXT BLOCKS — two rules the constants below rely on.
@@ -58,7 +58,7 @@ export const DOC_SURFACE_TYPOGRAPHY_CLASSES =
  * publish) renders the same page.
  */
 export const PARAGRAPH_CLASSES =
-  "mt-[calc(var(--docs-paragraph-spacing,1)*1em)] mb-[calc(var(--docs-paragraph-spacing,1)*1em)] text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-paragraph-fg,#2a2a2a)] text-pretty";
+  "mt-[calc(var(--docs-paragraph-spacing,1)*1em)] mb-[calc(var(--docs-paragraph-spacing,1)*1em)] text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.5)] text-[color:var(--docs-paragraph-fg,#2a2a2a)] text-pretty";
 
 /**
  * `heading` — what every level shares: weight and ink follow the heading
@@ -96,7 +96,7 @@ export const HEADING_LEVEL_CLASSES: Record<1 | 2 | 3 | 4 | 5 | 6, string> = {
 
 /** `list-item` — the flex row container (registry `div[role=listitem]`, editor `<li>`; `flex` also suppresses the `<li>`'s native marker). The item gap and text color follow the list-item tokens. An item that holds child items reads as a label for them (600, ink) — derived in styles/list-markers.css, so authors never bold it by hand. */
 export const LIST_ITEM_CLASSES =
-  "mt-[var(--docs-list-item-gap,4px)] mb-[var(--docs-list-item-gap,4px)] flex text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-list-item-fg,#2a2a2a)]";
+  "mt-[var(--docs-list-item-gap,4px)] mb-[var(--docs-list-item-gap,4px)] flex text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.5)] text-[color:var(--docs-list-item-fg,#2a2a2a)]";
 
 /**
  * `list-item` — the marker box (Notion metrics: a 24px fallback column whose
@@ -215,4 +215,4 @@ export const SEMANTIC_CARD_CLASSES = `${CARD_BASE_CLASSES} ${CARD_TONE_PRIMARY_C
 
 /** Body text inside a card block (the editor's callout node body). Text color follows the callout token; the currentColor fallback preserves the old behavior (inherit). */
 export const CARD_BODY_TEXT_CLASSES =
-  "font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.45)] text-[color:var(--docs-callout-fg,currentColor)]";
+  "font-sans text-[length:var(--style-font-size,18px)] leading-[var(--style-line-height,1.5)] text-[color:var(--docs-callout-fg,currentColor)]";

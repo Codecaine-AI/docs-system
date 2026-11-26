@@ -52,7 +52,7 @@ A reader acts on what the page says, so each claim must hold in the code or docu
 
     - Before you write the claim, read that function's whole body. An early return, a thrown error, a guard for a missing value, a check for a repeated value, or a branch for another mode can change the claim.
 
-    - A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses, such as `layout?.width` for a layout that can be missing.
+    - A pseudocode line or a call-stack row keeps each condition and guard of the source line it condenses. A call-stack row writes `layout?.width` for a missing layout, and a pseudocode line writes "the width of the layout, if there is one".
 
     - A fix you tell the reader to make passes every check in the code that refused.
 

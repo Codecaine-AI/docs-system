@@ -1,7 +1,9 @@
 # docs-system — common commands.
 # Ports match .claude/launch.json: 4801 canvas, 4802 self-docs, 4803 self-docs dev (HMR), 4805 docs-lab UI.
 
-.PHONY: help install test typecheck check serve dev dev-web docs app canvas spa
+.PHONY: help install link test typecheck check serve dev dev-web docs app canvas spa \
+	test-docs-model test-docs-style test-docs-index test-docs-cli test-docs-server \
+	test-docs-viewer test-docs-workbench test-docs-mcp test-docs-publish test-repo
 
 help: ## List available commands
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
@@ -9,8 +11,33 @@ help: ## List available commands
 install: ## Install workspace dependencies
 	cd .. && bun install
 
-test: ## Run the full test suite (scoped to packages/ — never bare `bun test`)
+test: ## Run every test area (scripts/test-packages.ts; never bare `bun test`)
 	bun run test
+
+link: ## Link this tree's packages so a worktree tests its own code; print resolution
+	bun scripts/link-packages.ts
+
+# One target per test area (scripts/test-packages.ts). CI runs these.
+test-docs-model: ## Test area: docs-model
+	bun scripts/test-packages.ts docs-model
+test-docs-style: ## Test area: docs-style
+	bun scripts/test-packages.ts docs-style
+test-docs-index: ## Test area: docs-index
+	bun scripts/test-packages.ts docs-index
+test-docs-cli: ## Test area: docs-cli
+	bun scripts/test-packages.ts docs-cli
+test-docs-server: ## Test area: docs-server
+	bun scripts/test-packages.ts docs-server
+test-docs-viewer: ## Test area: docs-viewer
+	bun scripts/test-packages.ts docs-viewer
+test-docs-workbench: ## Test area: docs-workbench (src and web/src)
+	bun scripts/test-packages.ts docs-workbench
+test-docs-mcp: ## Test area: docs-mcp (runs from its folder, own bunfig)
+	bun scripts/test-packages.ts docs-mcp
+test-docs-publish: ## Test area: docs-publish
+	bun scripts/test-packages.ts docs-publish
+test-repo: ## Test area: root suites (evals/quality-climb, import-boundaries)
+	bun scripts/test-packages.ts repo
 
 typecheck: ## Typecheck the whole workspace
 	bun run typecheck

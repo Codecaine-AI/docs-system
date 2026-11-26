@@ -546,7 +546,7 @@ async function main() {
         flagValue(args, "--themes-root") ?? path.resolve(import.meta.dir, "../../../themes"),
       );
       const port = Number(flagValue(args, "--port") ?? "4800");
-      if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+      if (!Number.isInteger(port) || port < 0 || port > 65535) {
         console.error(`Invalid --port: ${flagValue(args, "--port")}`);
         process.exitCode = 1;
         return;
