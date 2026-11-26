@@ -40,7 +40,9 @@
     "packages/docs-viewer/src/**/*",
     "packages/docs-workbench/src/**/*",
     "packages/docs-workbench/web/src/**/*",
-    "evals/**/*"
+    "evals/**/*",
+    "playwright.config.ts",
+    "e2e/**/*"
   ],
   "exclude": ["node_modules", "dist", "external/canvas"]
 }
