@@ -381,7 +381,12 @@ export function createInteractionService(options: { managed?: boolean; projectId
   return {projects:projects.size,workspaces:workspaces.size,discoveries:discoveries.size,tasks:tasks.size,newestTaskUseMs,textMeasure:textMeasureBackend(),drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)};
  }
  async function uiRequest(projectId:string,request:Request){
-  const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
+  const project=projects.get(projectId);
+  if(!project){
+   // A write to a project whose root marker went away or changed answers 503, as a tool write does.
+   const closed=['GET','HEAD','OPTIONS'].includes(request.method)?undefined:closedProjects.get(projectId);
+   return closed?Response.json({error:closed,detail:closed},{status:503}):Response.json({error:'Unknown project. Discover it first.'},{status:404});
+  }
   // Under the read-only guard only GET, HEAD and an OPTIONS preflight pass. The one POST read, export-pdf, is answered before this by the managed runtime.
   if(new URL(request.url).pathname.endsWith('/api/backlinks'))memoryBacklinksIfReadOnly(project.docsRoot);
   if(!['GET','HEAD','OPTIONS'].includes(request.method)){const refused=writeRefusal(rootAccess(project.docsRoot));if(refused)return Response.json({error:refused.detail,detail:refused.detail},{status:refused.status});}

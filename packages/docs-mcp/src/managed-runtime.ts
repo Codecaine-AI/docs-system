@@ -53,6 +53,8 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
     const match = url.pathname.match(/^\/projects\/([^/]+)\/api(?:\/|$)/);
     if (match) {
       const project = service.project(match[1]!);
+      // A write to a project the last scan closed (its root marker is gone or changed) gets the service's 503.
+      if (!project && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return service.uiRequest(match[1]!, request);
       if (!project) return Response.json({ detail: 'Unknown project; register its workspace first.' }, { status: 404 });
       if (url.pathname.endsWith('/api/export-pdf')) return handlePdfExport(request);
       if (url.pathname.endsWith('/api/serve-config')) return Response.json({ themeLocked: false, globalTheme: true });
