@@ -66,11 +66,11 @@ Diff base for the changed-files gate: `origin/main`.
 ### Product areas
 
 Each area's keeper suite is its known-flow registry. A suite marked "planned"
-does not exist yet; until it does, `e2e/smoke.spec.ts` is the only keeper flow.
+does not exist yet (see the routing rules below).
 
 | Area | Main user flows | Keeper suite | Package globs |
 | --- | --- | --- | --- |
-| Viewer and navigation | Open a doc from the tree, follow a doc link, side peek, hash routes | `e2e/viewer.spec.ts` (planned; `e2e/smoke.spec.ts` today) | `packages/docs-viewer/src/render/**`, `packages/docs-viewer/src/peek/**`, `packages/docs-viewer/src/styles/{rich-text,list-markers}.css`, `packages/docs-workbench/web/src/_components/{AppShell,RouterShell,TopbarTitle,TopbarActions}/**`, `packages/docs-workbench/web/src/_lib/hash-route.ts`, `packages/docs-workbench/web/src/shared/doc-title.ts`, `packages/docs-index/**` |
+| Viewer and navigation | Open a doc from the tree, follow a doc link, side peek, hash routes | `e2e/viewer.spec.ts` (planned) | `packages/docs-viewer/src/render/**`, `packages/docs-viewer/src/peek/**`, `packages/docs-viewer/src/styles/{rich-text,list-markers}.css`, `packages/docs-workbench/web/src/_components/{AppShell,RouterShell,TopbarTitle,TopbarActions}/**`, `packages/docs-workbench/web/src/_lib/hash-route.ts`, `packages/docs-workbench/web/src/shared/doc-title.ts`, `packages/docs-index/**` |
 | Editing and autosave | Edit text in place, autosave, undo, page title edit, stale-save and draft-lock conflicts, live updates | `e2e/editor.spec.ts` (planned) | `packages/docs-viewer/src/editor/**`, `packages/docs-workbench/web/src/_components/DocPage/**`, `packages/docs-workbench/web/src/data/api/{docs,draft-lock,events}.ts`, `packages/docs-workbench/web/src/data/{client,session,shared-events}.ts`, `packages/docs-server/**`, `packages/docs-model/**` |
 | Style rail and themes | Open Style, move a knob, save, export and import a theme, reset, code theme | `e2e/style-rail.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/{StyleRailPanel,StyleRailOverlay}/**`, `packages/docs-workbench/web/src/theme/**`, `packages/docs-workbench/web/src/shared/style-rail-settings/**`, `packages/docs-workbench/web/src/shared/{docs-fonts,useCodeTheme}.ts`, `packages/docs-workbench/web/src/_lib/{style-rail-*,theme-boot*,useStyleInspector*,useTheme*,code-theme-style,grain-code-mask}.ts`, `packages/docs-workbench/web/src/data/api/{themes,config}.ts`, `packages/docs-workbench/web/src/data/project-storage.ts`, `themes/**` |
 | Structured blocks | Read and edit a structured table, state shape, interaction surface, file tree and code block | `e2e/blocks.spec.ts` (planned) | `packages/docs-viewer/src/components/**`, `packages/docs-viewer/src/styles/code.css`, `packages/docs-model/src/components/**` |
@@ -84,13 +84,23 @@ the CLI runs. No UI flow reaches it, so its owner tests are its Bun area.
 
 Routing rules:
 
+- Until cp7 builds a planned suite, its area runs `e2e/smoke.spec.ts`.
 - A file that matches more than one area runs every matched keeper suite.
-- A UI file under `packages/docs-viewer/src` or `packages/docs-workbench/web/src`
-  that matches no area runs all keeper suites. This fails toward running more.
-  It covers the shared shell: `App.tsx`, `main.tsx`, `index.css`,
-  `globals.d.ts`, `playground/**`, `data/api/{http,index}.ts`,
-  `_lib/{constants,utils,useDocsShellEffects}.ts`, and docs-viewer's
-  `client.tsx`, `index.ts` and `ui/**`.
+- These files match no single area and run all keeper suites. This fails
+  toward running more.
+  - A UI file under `packages/docs-viewer/src` or
+    `packages/docs-workbench/web/src` that matches no area. That covers the
+    shared shell: `App.tsx`, `main.tsx`, `index.css`, `globals.d.ts`,
+    `playground/**`, `data/api/{http,index}.ts`,
+    `_lib/{constants,utils,useDocsShellEffects}.ts`, and docs-viewer's
+    `client.tsx`, `index.ts` and `ui/**`.
+  - Any file under `packages/docs-workbench/src` except `export.ts` and
+    `pdf-export.ts`, which the Export area owns: the server, `run-serve.ts`,
+    `spa.ts`, `shared-api.ts`, `central-service.ts` and `index.ts`. Every
+    keeper flow starts this server through `e2e/fixtures.ts`.
+  - The SPA build files `packages/docs-workbench/web/{index.html,playground.html,vite.config.ts}`.
+  - The e2e support files: `playwright.config.ts`, `e2e/fixtures.ts`,
+    `e2e/fixtures/**` and `e2e/support/**`.
 
 ### Budget, parallelism and runner setup
 
