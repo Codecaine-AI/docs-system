@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "id": "40-embeds",
+  "title": "Embeds",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-lead",
+        "b-seq",
+        "b-canvas",
+        "b-img"
+      ]
+    },
+    "b-lead": {
+      "id": "b-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "A sequence, a canvas and an image."
+        }
+      ],
+      "children": []
+    },
+    "b-seq": {
+      "id": "b-seq",
+      "type": "sequence",
+      "props": {
+        "src": "assets/sequences/login-flow.sequence.json",
+        "title": "Login flow"
+      },
+      "children": []
+    },
+    "b-canvas": {
+      "id": "b-canvas",
+      "type": "canvas",
+      "props": {
+        "src": "./assets/canvases/interaction-surfaces.canvas.json",
+        "title": "One state, two readers",
+        "view": "one-state-two-readers"
+      },
+      "children": []
+    },
+    "b-img": {
+      "id": "b-img",
+      "type": "image",
+      "props": {
+        "alt": "A doc.json box with arrows to two renders.",
+        "caption": "One doc.json, two renders.",
+        "src": "./assets/images/two-renders.svg"
+      },
+      "children": []
+    }
+  }
+}

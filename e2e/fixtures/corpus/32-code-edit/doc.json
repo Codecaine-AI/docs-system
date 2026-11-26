@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "32-code-edit",
+  "title": "Tide Script",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-code"
+      ]
+    },
+    "b-code": {
+      "id": "b-code",
+      "type": "code",
+      "props": {
+        "language": "ts"
+      },
+      "text": [
+        {
+          "insert": "const tide = readTide(\"Gull Rock\");"
+        }
+      ],
+      "children": []
+    }
+  }
+}

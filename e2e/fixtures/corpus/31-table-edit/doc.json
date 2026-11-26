@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "31-table-edit",
+  "title": "Keeper Roster",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-table"
+      ]
+    },
+    "b-table": {
+      "id": "b-table",
+      "type": "structured-table",
+      "props": {
+        "title": "Keepers",
+        "columns": [
+          "Station",
+          "Keeper"
+        ],
+        "rows": [
+          [
+            "North Point",
+            "Ada"
+          ],
+          [
+            "Gull Rock",
+            "Ben"
+          ]
+        ]
+      },
+      "children": []
+    }
+  }
+}

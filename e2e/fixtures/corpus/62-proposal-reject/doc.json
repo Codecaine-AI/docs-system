@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "62-proposal-reject",
+  "title": "Reject Notes",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-1"
+      ]
+    },
+    "b-1": {
+      "id": "b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The bell rings at noon."
+        }
+      ],
+      "children": []
+    }
+  }
+}

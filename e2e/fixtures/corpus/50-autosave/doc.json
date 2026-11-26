@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "50-autosave",
+  "title": "Autosave Log",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-1"
+      ]
+    },
+    "b-1": {
+      "id": "b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "The lamp burns until dawn."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -46,8 +46,12 @@ export const test = base.extend<{}, { docsServer: DocsServer }>({
         `worker-${workerInfo.workerIndex}`,
       );
       const docsRoot = path.join(workerDir, "docs");
+      // The repo themes are copied too: a Style rail save writes the active
+      // theme, and it must land in this worker's copy, never in themes/.
+      const themesRoot = path.join(workerDir, "themes");
       await mkdir(workerDir, { recursive: true });
       await cp(corpus, docsRoot, { recursive: true });
+      await cp(path.join(repoRoot, "themes"), themesRoot, { recursive: true });
 
       // Playwright sets FORCE_COLOR for workers. Without it removed, Bun wraps
       // the server's log lines in ANSI codes and the ready line never matches.
@@ -55,7 +59,10 @@ export const test = base.extend<{}, { docsServer: DocsServer }>({
         process.env;
       const child = spawn(
         "bun",
-        ["packages/docs-cli/src/index.ts", "serve", "--standalone", "--root", docsRoot, "--port", "0"],
+        [
+          "packages/docs-cli/src/index.ts", "serve", "--standalone",
+          "--root", docsRoot, "--themes-root", themesRoot, "--port", "0",
+        ],
         {
           cwd: repoRoot,
           // An empty state dir keeps the machine's global themes and docs service out of the run.

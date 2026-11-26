@@ -1,7 +1,7 @@
 # docs-system — common commands.
 # Ports match .claude/launch.json: 4801 canvas, 4802 self-docs, 4803 self-docs dev (HMR), 4805 docs-lab UI.
 
-.PHONY: help install link test test-changed typecheck check serve dev dev-web docs app canvas spa \
+.PHONY: help install link test test-changed test-keepers-changed typecheck check serve dev dev-web docs app canvas spa \
 	test-docs-model test-docs-style test-docs-index test-docs-cli test-docs-server \
 	test-docs-viewer test-docs-workbench test-docs-mcp test-docs-publish test-repo
 
@@ -16,6 +16,11 @@ test: ## Run every test area (scripts/test-packages.ts; never bare `bun test`)
 
 test-changed: ## Tier 2 local gate: the areas this tree's changes against origin/main reach (CI runs every area)
 	bun scripts/test-packages.ts --changed origin/main
+
+test-keepers-changed: ## Tier 2 local: the e2e keeper suites this tree's changes against origin/main reach, without @quarantine
+	@suites="$$(bun scripts/test-packages.ts --keepers origin/main | tr '\n' ' ')"; \
+	if [ -z "$$suites" ]; then echo "No keeper suite reached by the changes against origin/main."; \
+	else echo "Keeper suites: $$suites"; bunx playwright test $$suites --grep-invert @quarantine; fi
 
 link: ## Link this tree's packages so a worktree tests its own code; print resolution
 	bun scripts/link-packages.ts
