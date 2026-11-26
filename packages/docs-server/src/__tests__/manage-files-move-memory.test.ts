@@ -30,7 +30,9 @@ async function moveInChild(root: string) {
  const [out, code] = await Promise.all([new Response(child.stdout).text(), child.exited]);
  expect(code).toBe(0);
  const { result, maxRSS } = JSON.parse(out.trim().split('\n').at(-1)!);
- expect(result).toMatchObject({ ok: true, applied: true, rewritten_sources: ['reader/doc.json', 'section/moved/doc.json'] });
+ expect(result).toMatchObject({ ok: true, applied: true });
+ // Walk order, which differs by filesystem; the set of rewritten sources is the contract.
+ expect([...result.rewritten_sources].sort()).toEqual(['reader/doc.json', 'section/moved/doc.json']);
  return maxRSS as number;
 }
 
