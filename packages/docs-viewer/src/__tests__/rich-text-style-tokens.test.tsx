@@ -242,6 +242,12 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
     ],
   },
   {
+    label: "image",
+    read: 'figure[data-block-id="image"] img',
+    edit: 'figure[data-block-id="image"] img',
+    tokens: ["var(--docs-image-max-height,480px)"],
+  },
+  {
     label: "video figure",
     read: 'figure[data-docs-block-type="video"]',
     edit: 'figure[data-docs-block-type="video"]',

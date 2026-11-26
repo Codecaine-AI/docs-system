@@ -4258,6 +4258,10 @@ describe("style rail rich-text block tokens", () => {
           }
         : {}),
       margin: { cssVar: `${prefix}-margin`, min: 0, max: 64, step: 1, defaultValue: 24 },
+      // The inline image's height cap; the 60vh viewport cap still applies.
+      ...(caption
+        ? {}
+        : { maxHeight: { cssVar: `${prefix}-max-height`, min: 160, max: 1200, step: 20, defaultValue: 480 } }),
     },
     numbers: {},
   });
@@ -4481,6 +4485,7 @@ describe("style rail rich-text block tokens", () => {
     thickness: "Thickness",
     captionTextSize: "Caption text size",
     captionGap: "Caption gap",
+    maxHeight: "Max preview height",
   };
 
   const viewerSource = (path: string) =>
@@ -4601,6 +4606,8 @@ describe("style rail rich-text block tokens", () => {
         );
       }
     }
+    // The image's viewport cap survives next to the knob.
+    expect(CONSUMERS.image).toContain("max-h-[min(var(--docs-image-max-height,480px),60vh)]");
     // The retired variator corner rule forced the radius onto all four
     // corners; the variants now round only their filled edge.
     expect(calloutSource).not.toContain("!important");
@@ -4704,7 +4711,7 @@ describe("style rail rich-text block tokens", () => {
         },
         divider: { thickness: "3px", spacing: "1.5" },
         // captionTextSize is a retired image knob: a saved setting drops.
-        image: { radius: "0px", margin: "16px", captionTextSize: "14px" },
+        image: { radius: "0px", margin: "16px", maxHeight: "640px", captionTextSize: "14px" },
         video: { borderWidth: "2px", margin: "32px" },
       },
     });
@@ -4724,7 +4731,7 @@ describe("style rail rich-text block tokens", () => {
         bodyTextScale: "0.8",
       },
       divider: { thickness: "3px", spacing: "1.5" },
-      image: { radius: "0px", margin: "16px" },
+      image: { radius: "0px", margin: "16px", maxHeight: "640px" },
       video: { borderWidth: "2px", margin: "32px" },
     });
     expect(styleRailVars(settings)).toMatchObject({
@@ -4746,6 +4753,7 @@ describe("style rail rich-text block tokens", () => {
       "--docs-divider-spacing": "1.5",
       "--docs-image-radius": "0px",
       "--docs-image-margin": "16px",
+      "--docs-image-max-height": "640px",
       "--docs-video-border-width": "2px",
       "--docs-video-margin": "32px",
     });

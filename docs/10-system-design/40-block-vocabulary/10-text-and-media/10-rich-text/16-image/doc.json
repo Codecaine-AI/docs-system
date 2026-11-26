@@ -327,7 +327,8 @@
       ],
       "children": [
         "b-30-image-render-body-1",
-        "b-30-image-render-body-2"
+        "b-30-image-render-body-2",
+        "764abf87-dbb1-4f53-a972-4874cc4ce2aa"
       ]
     },
     "b-30-image-render-body-1": {
@@ -348,6 +349,51 @@
       "text": [
         {
           "insert": "A raster image fills the panel body. A click on the image also opens the full-screen viewer."
+        }
+      ],
+      "children": []
+    },
+    "764abf87-dbb1-4f53-a972-4874cc4ce2aa": {
+      "id": "764abf87-dbb1-4f53-a972-4874cc4ce2aa",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The "
+        },
+        {
+          "insert": "maxHeight",
+          "attributes": {
+            "code": true
+          }
+        },
+        {
+          "insert": " theme key caps the image height at 480px by default, and the image is never taller than 60% of the viewport height."
+        }
+      ],
+      "children": [
+        "b-30-image-render-body-3a",
+        "b-30-image-render-body-3b"
+      ]
+    },
+    "b-30-image-render-body-3a": {
+      "id": "b-30-image-render-body-3a",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The width follows the aspect ratio, and the panel shrinks to fit the image."
+        }
+      ],
+      "children": []
+    },
+    "b-30-image-render-body-3b": {
+      "id": "b-30-image-render-body-3b",
+      "type": "list-item",
+      "props": {},
+      "text": [
+        {
+          "insert": "The full-screen viewer shows the image at full size."
         }
       ],
       "children": []
@@ -764,6 +810,11 @@
             "margin",
             "--docs-image-margin",
             "Space above and below the block"
+          ],
+          [
+            "maxHeight",
+            "--docs-image-max-height",
+            "Tallest inline image height, 480px at stock and never above 60vh"
           ]
         ]
       },
