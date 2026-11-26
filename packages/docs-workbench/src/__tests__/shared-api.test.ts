@@ -1,12 +1,23 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import { afterAll, beforeAll, afterEach, describe, expect, test } from "bun:test";
 import { createDocsServeApp } from "../server";
 import { createSharedDocsApiProxy, sharedDocsApiFromEnvironment } from "../shared-api";
 
-// These are server transport tests. Happy DOM replaces fetch with browser
-// CORS behavior; restore Bun networking for the duration of this file.
-beforeAll(() => GlobalRegistrator.unregister());
-afterAll(() => GlobalRegistrator.register());
+// These are server transport tests. Happy DOM replaces fetch, Request,
+// Response and Headers with browser versions (CORS, forbidden headers such as
+// Origin). Use Bun's own versions, which the root happydom.ts preload captured,
+// for the duration of this file. Unregistering Happy DOM instead left a new
+// window behind that the web tests run later in the same process could not drive.
+const bunFetchApi = (globalThis as Record<symbol, Record<string, unknown> | undefined>)[Symbol.for("docs-system.bunFetchApi")] ?? {};
+const domFetchApi: Record<string, unknown> = {};
+beforeAll(() => {
+  for (const [name, bunValue] of Object.entries(bunFetchApi)) {
+    domFetchApi[name] = (globalThis as Record<string, unknown>)[name];
+    (globalThis as Record<string, unknown>)[name] = bunValue;
+  }
+});
+afterAll(() => {
+  Object.assign(globalThis, domFetchApi);
+});
 
 const servers: Array<ReturnType<typeof Bun.serve>> = [];
 afterEach(() => { for (const server of servers.splice(0)) server.stop(true); });
