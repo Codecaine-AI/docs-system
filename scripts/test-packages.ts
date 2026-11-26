@@ -10,6 +10,9 @@
  *                                                print the areas a change set must run
  *   bun scripts/test-packages.ts --changed [base] run the areas this tree's changes against
  *                                                base (default origin/main) reach; local only
+ *   bun scripts/test-packages.ts --keepers [base] print the e2e keeper suites those changes
+ *                                                reach, by the AGENTS.md product-area map
+ *                                                ("-" as base reads paths from stdin)
  *
  * Every run passes explicit paths; a bare `bun test` would sweep external/,
  * hill-climb/ and other trees that are not suites. Packages with their own
@@ -157,18 +160,91 @@ function packageGraph(): Map<string, Set<string>> | null {
  * with the same blind spots; CI runs every area.
  */
 function changedAreas(base: string): string[] {
+  const files = changedFiles(base);
+  const areas = affectedAreas(files);
+  console.log(`${files.length} files changed against ${base}; areas: ${areas.join(", ")}`);
+  return areas;
+}
+
+/** Files this tree changed against `base`: committed, staged, unstaged and untracked. */
+function changedFiles(base: string): string[] {
   const git = (...args: string[]) => {
     const result = Bun.spawnSync(["git", ...args], { cwd: root, stdout: "pipe", stderr: "inherit" });
     if (result.exitCode !== 0) throw new Error(`git ${args.join(" ")} failed`);
     return result.stdout.toString().split("\n");
   };
-  const files = [
-    ...git("diff", "--name-only", `${base}...HEAD`),
-    ...git("diff", "--name-only", "HEAD"),
-    ...git("ls-files", "--others", "--exclude-standard"),
-  ].filter(Boolean);
-  const areas = affectedAreas(files);
-  console.log(`${new Set(files).size} files changed against ${base}; areas: ${areas.join(", ")}`);
+  return [
+    ...new Set(
+      [
+        ...git("diff", "--name-only", `${base}...HEAD`),
+        ...git("diff", "--name-only", "HEAD"),
+        ...git("ls-files", "--others", "--exclude-standard"),
+      ].filter(Boolean),
+    ),
+  ];
+}
+
+/**
+ * The keeper suites (e2e/*.spec.ts) a change set must run, by the AGENTS.md
+ * product-area map. The area rows (keeper suite and package globs) are read
+ * from the AGENTS.md table, its one source. The routing rules:
+ * - a file that matches several areas runs every matched suite;
+ * - a changed keeper suite runs itself;
+ * - the all-suites files below run every suite (fails toward running more).
+ * Any other file (docs-mcp, docs-cli, docs-style, docs/, scripts) runs no
+ * keeper suite; its Bun area owns it.
+ */
+export function keeperSuites(changedFiles: string[]): string[] {
+  const areas = keeperAreas();
+  const allSuites = [...new Set(areas.map((area) => area.suite))].sort();
+  const glob = (pattern: string) => new Bun.Glob(pattern);
+  const matches = (file: string, patterns: string[]) => patterns.some((pattern) => glob(pattern).match(file));
+  const picked = new Set<string>();
+  for (const file of changedFiles.map((f) => f.trim()).filter(Boolean)) {
+    if (/^e2e\/[^/]+\.spec\.ts$/.test(file)) {
+      picked.add(file);
+      continue;
+    }
+    const owners = areas.filter((area) => matches(file, area.globs));
+    const uiTree = file.startsWith("packages/docs-viewer/src/") || file.startsWith("packages/docs-workbench/web/src/");
+    // Every keeper flow starts this server; Export owns export.ts and pdf-export.ts.
+    const serverFile = file.startsWith("packages/docs-workbench/src/") && owners.length === 0;
+    if (matches(file, ALL_SUITES_FILES) || serverFile || (uiTree && owners.length === 0)) return allSuites;
+    for (const area of owners) picked.add(area.suite);
+  }
+  return [...picked].sort();
+}
+
+/**
+ * The AGENTS.md all-suites files outside the UI trees and docs-workbench/src
+ * (an unowned file there is handled above).
+ */
+const ALL_SUITES_FILES = [
+  "packages/docs-workbench/web/{index.html,playground.html,vite.config.ts}",
+  "playwright.config.ts",
+  "e2e/fixtures.ts",
+  "e2e/fixtures/**",
+  "e2e/support/**",
+  "package.json",
+  "bun.lock",
+  "packages/docs-workbench/package.json",
+  "packages/docs-viewer/package.json",
+];
+
+/** The product-area rows with a keeper suite, read from AGENTS.md "Product areas". */
+function keeperAreas(): { area: string; suite: string; globs: string[] }[] {
+  const text = readFileSync(join(root, "AGENTS.md"), "utf8");
+  const section = text.slice(text.indexOf("### Product areas"));
+  const table = section.slice(0, section.indexOf("\n\n", section.indexOf("| --- |")));
+  const rows = table.split("\n").filter((line) => line.startsWith("| ") && !line.startsWith("| Area") && !line.startsWith("| ---"));
+  const areas = rows.flatMap((row) => {
+    const cells = row.split(" | ");
+    const suite = cells[2]?.match(/`(e2e\/[^`]+\.spec\.ts)`/)?.[1];
+    if (!suite) return [];
+    const globs = [...(cells[3] ?? "").matchAll(/`([^`]+)`/g)].map((match) => match[1]!);
+    return [{ area: cells[0]!.replace(/^\|\s*/, ""), suite, globs }];
+  });
+  if (areas.length === 0) throw new Error("No keeper suites found in the AGENTS.md product-area table.");
   return areas;
 }
 
@@ -190,6 +266,11 @@ if (import.meta.main) {
   } else if (args[0] === "--affected") {
     // Changed file paths (relative to docs-system), one per line, on stdin.
     console.log(JSON.stringify(affectedAreas((await Bun.stdin.text()).split("\n"))));
+  } else if (args[0] === "--keepers") {
+    // The keeper suites this tree's changes against base reach, one per line.
+    // With "-" as base, the changed paths come one per line on stdin instead.
+    const files = args[1] === "-" ? (await Bun.stdin.text()).split("\n") : changedFiles(args[1] ?? "origin/main");
+    for (const suite of keeperSuites(files)) console.log(suite);
   } else {
     // A worktree must test its own packages, not the main checkout's copies.
     linkPackages();

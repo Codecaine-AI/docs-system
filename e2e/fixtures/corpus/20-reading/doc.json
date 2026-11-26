@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "20-reading",
+  "title": "Reading Room",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-1"
+      ]
+    },
+    "b-1": {
+      "id": "b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Start with "
+        },
+        {
+          "insert": "Field Notes",
+          "attributes": {
+            "reference": {
+              "kind": "doc",
+              "path": "10-field-notes"
+            }
+          }
+        },
+        {
+          "insert": " before the tide turns."
+        }
+      ],
+      "children": []
+    }
+  }
+}

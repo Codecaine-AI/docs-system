@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { DOMParser as PMDOMParser } from "@tiptap/pm/model";
 import type { Editor } from "@tiptap/react";
 import type { ReactElement } from "react";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
@@ -353,7 +354,9 @@ describe("DocEditor save boundary", () => {
 
   // The browser path that dropped the bold: a DOM change inside the block
   // makes ProseMirror re-parse the whole textblock from the DOM, and the
-  // stock code mark's parse rule stripped bold from the code run.
+  // stock code mark's parse rule stripped bold from the code run. The test
+  // runs that re-parse with the editor's own schema parser, so it does not
+  // wait for happy-dom to deliver mutation records.
   it("a DOM re-parse of a block keeps its bold+code run", async () => {
     const doc: DocDocument = {
       schemaVersion: 1,
@@ -390,17 +393,16 @@ describe("DocEditor save boundary", () => {
     );
     await waitFor(() => expect(editorInstance).toBeTruthy());
 
-    const tail = screen.getByText(/now$/);
-    const textNode = Array.from(tail.childNodes).find((node) => node.textContent?.endsWith("now"))!;
+    const editor = editorInstance!;
+    const block = screen.getByText(/now$/);
+    const textNode = Array.from(block.childNodes).find((node) => node.textContent?.endsWith("now"))!;
     textNode.textContent = `${textNode.textContent}!`;
-    const proseMirror = document.querySelector('[data-doc-editor="true"]') as HTMLElement;
-    await waitFor(
-      () => {
-        fireEvent.input(proseMirror);
-        expect(editorInstance!.getText()).toContain("now!");
-      },
-      { timeout: 10_000 },
-    );
+    act(() => {
+      const $start = editor.state.doc.resolve(editor.view.posAtDOM(block, 0));
+      const reparsed = PMDOMParser.fromSchema(editor.schema).parse(block, { topNode: $start.parent.type.create() });
+      editor.view.dispatch(editor.state.tr.replaceWith($start.start(), $start.end(), reparsed.content));
+    });
+    expect(editor.getText()).toContain("now!");
     fireEvent.click(await screen.findByRole("button", { name: "Save" }));
     await waitFor(() => expect(batches).toHaveLength(1));
     expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
@@ -414,7 +416,7 @@ describe("DocEditor save boundary", () => {
         ],
       },
     ]);
-  }, 12_000);
+  });
 
   it("a stale (409) save keeps the in-progress edit and shows the reload prompt", async () => {
     const doc = loadFixture();

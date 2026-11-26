@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "52-stale",
+  "title": "Shared Notes",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-1"
+      ]
+    },
+    "b-1": {
+      "id": "b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Both keepers write here."
+        }
+      ],
+      "children": []
+    }
+  }
+}

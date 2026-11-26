@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "id": "30-blocks",
+  "title": "Block Gallery",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-lead",
+        "b-table",
+        "b-shape",
+        "b-surface",
+        "b-tree",
+        "b-code"
+      ]
+    },
+    "b-lead": {
+      "id": "b-lead",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Every structured block on one page."
+        }
+      ],
+      "children": []
+    },
+    "b-table": {
+      "id": "b-table",
+      "type": "structured-table",
+      "props": {
+        "title": "Tide stations",
+        "columns": [
+          "Station",
+          "High tide",
+          "Keeper"
+        ],
+        "rows": [
+          [
+            "North Point",
+            "06:40",
+            "Ada"
+          ],
+          [
+            "Gull Rock",
+            "07:15",
+            "Ben"
+          ]
+        ]
+      },
+      "children": []
+    },
+    "b-shape": {
+      "id": "b-shape",
+      "type": "state-shape",
+      "props": {
+        "name": "TideReading",
+        "description": "One reading at one station.",
+        "fields": [
+          {
+            "name": "station",
+            "type": "string",
+            "description": "Station name."
+          },
+          {
+            "name": "heightMeters",
+            "type": "number",
+            "required": false,
+            "description": "Water height above datum."
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-surface": {
+      "id": "b-surface",
+      "type": "interaction-surface",
+      "props": {
+        "title": "Tide log",
+        "operations": [
+          {
+            "name": "log.record",
+            "description": "Record one reading.",
+            "params": [
+              {
+                "name": "reading",
+                "type": "TideReading",
+                "required": true,
+                "description": "The reading to store."
+              }
+            ],
+            "returns": "void"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-tree": {
+      "id": "b-tree",
+      "type": "file-tree",
+      "props": {
+        "entries": [
+          {
+            "path": "stations/",
+            "note": "One folder per station"
+          },
+          {
+            "path": "stations/north-point.json",
+            "note": "North Point readings"
+          }
+        ]
+      },
+      "children": []
+    },
+    "b-code": {
+      "id": "b-code",
+      "type": "code",
+      "props": {
+        "language": "ts"
+      },
+      "text": [
+        {
+          "insert": "const tide = readTide(\"North Point\");"
+        }
+      ],
+      "children": []
+    }
+  }
+}

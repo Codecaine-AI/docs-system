@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "61-proposal-accept",
+  "title": "Accept Notes",
+  "root": "root",
+  "blocks": {
+    "root": {
+      "id": "root",
+      "type": "paragraph",
+      "props": {},
+      "children": [
+        "b-1"
+      ]
+    },
+    "b-1": {
+      "id": "b-1",
+      "type": "paragraph",
+      "props": {},
+      "text": [
+        {
+          "insert": "Someone keeps the lamp."
+        }
+      ],
+      "children": []
+    }
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "version": 1,
+  "id": "login-flow",
+  "participants": [
+    {
+      "id": "p1",
+      "name": "user",
+      "kind": "actor"
+    },
+    {
+      "id": "p2",
+      "name": "login",
+      "kind": "participant",
+      "label": "Login page"
+    },
+    {
+      "id": "p3",
+      "name": "db",
+      "kind": "participant",
+      "label": "Database server",
+      "stereotype": "servlet"
+    }
+  ],
+  "items": [
+    {
+      "kind": "message",
+      "id": "m1",
+      "from": "p1",
+      "to": "p2",
+      "line": "sync",
+      "text": "input(username, password)"
+    },
+    {
+      "kind": "message",
+      "id": "m2",
+      "from": "p2",
+      "to": "p3",
+      "line": "sync",
+      "text": "fetch(username, password)"
+    },
+    {
+      "kind": "fragment",
+      "id": "f1",
+      "op": "alt",
+      "operands": [
+        {
+          "guard": "fetching",
+          "items": [
+            {
+              "kind": "message",
+              "id": "m3",
+              "from": "p3",
+              "to": "p2",
+              "line": "return",
+              "text": "end fetching"
+            },
+            {
+              "kind": "message",
+              "id": "m4",
+              "from": "p2",
+              "to": "p1",
+              "line": "sync",
+              "text": "success"
+            }
+          ]
+        },
+        {
+          "items": [
+            {
+              "kind": "message",
+              "id": "m5",
+              "from": "p2",
+              "to": "p1",
+              "line": "return",
+              "text": "incorrect input"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "fragment",
+      "id": "f2",
+      "op": "opt",
+      "operands": [
+        {
+          "guard": "needs confirmation",
+          "items": [
+            {
+              "kind": "message",
+              "id": "m6",
+              "from": "p2",
+              "to": "p3",
+              "line": "async",
+              "text": "confirm"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "note",
+      "id": "n1",
+      "anchor": "p2",
+      "side": "over",
+      "text": "validates first"
+    }
+  ],
+  "style": {
+    "accent": "#C77D2E"
+  }
+}
