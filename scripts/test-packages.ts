@@ -13,8 +13,8 @@
  * hill-climb/ and other trees that are not suites. Packages with their own
  * bunfig.toml run from their own folder so their preload list applies.
  */
-import { readdirSync, readFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 import { linkPackages } from "./link-packages";
 
@@ -65,34 +65,16 @@ export function affectedAreas(changedFiles: string[]): string[] {
   const files = changedFiles.map((file) => file.trim()).filter(Boolean);
   if (files.some((file) => !file.startsWith("packages/"))) return all;
 
-  // Package folder → names of the docs-system packages its source and tests
-  // import. Read from the code, not package.json: some tests import packages
-  // their package.json does not declare.
-  const nameOf = new Map<string, string>();
-  const depsOf = new Map<string, string[]>();
-  const importPattern = /["'](@codecaine-ai\/docs-[a-z-]+)/g;
-  for (const entry of readdirSync(join(root, "packages"), { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const dir = `packages/${entry.name}`;
-    try {
-      nameOf.set(dir, JSON.parse(readFileSync(join(root, dir, "package.json"), "utf8")).name);
-    } catch {
-      continue;
-    }
-    const imports = new Set<string>();
-    for (const file of new Bun.Glob("**/*.{ts,tsx,mts,js,mjs}").scanSync({ cwd: join(root, dir) })) {
-      if (file.includes("node_modules/") || file.includes("dist/")) continue;
-      for (const match of readFileSync(join(root, dir, file), "utf8").matchAll(importPattern)) imports.add(match[1]!);
-    }
-    depsOf.set(dir, [...imports]);
-  }
+  const graph = packageGraph();
+  if (!graph) return all; // A cross-package reference did not resolve: run everything.
+
   const changed = new Set(files.map((file) => file.split("/").slice(0, 2).join("/")));
   let grew = true;
   while (grew) {
     grew = false;
-    for (const [dir, deps] of depsOf) {
+    for (const [dir, deps] of graph) {
       if (changed.has(dir)) continue;
-      if ([...changed].some((changedDir) => deps.includes(nameOf.get(changedDir) ?? ""))) {
+      if ([...deps].some((dep) => changed.has(dep))) {
         changed.add(dir);
         grew = true;
       }
@@ -100,6 +82,67 @@ export function affectedAreas(changedFiles: string[]): string[] {
   }
   const dirs = areaPackageDirs();
   return all.filter((name) => name === "repo" || changed.has(dirs.get(name) ?? ""));
+}
+
+const SOURCE_EXTENSIONS = ["", ".ts", ".tsx", ".mts", ".js", ".mjs", ".json", "/index.ts", "/index.tsx", "/index.js"];
+
+/**
+ * Package folder → the other docs-system package folders its source and tests
+ * reach. Read from the code, not package.json (some tests use packages their
+ * package.json does not declare), counting three kinds of reference:
+ * - `@codecaine-ai/docs-*` imports;
+ * - relative imports and re-exports that climb into another package
+ *   (`../../docs-viewer/src/...`);
+ * - `new URL("../...", import.meta.url)` paths, which tests use to read another
+ *   package's files; a template literal counts by its static prefix.
+ * Returns null when a reference into packages/ resolves to no package or file,
+ * so the caller fails toward running every area.
+ */
+function packageGraph(): Map<string, Set<string>> | null {
+  const packagesDir = join(root, "packages");
+  const dirOfName = new Map<string, string>();
+  for (const entry of readdirSync(packagesDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    try {
+      const name = JSON.parse(readFileSync(join(packagesDir, entry.name, "package.json"), "utf8")).name;
+      dirOfName.set(name, `packages/${entry.name}`);
+    } catch {}
+  }
+  const known = new Set(dirOfName.values());
+  const namePattern = /["'](@codecaine-ai\/docs-[a-z-]+)/g;
+  const relativePattern =
+    /(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+|\brequire\s*\(\s*)["'](\.{1,2}\/[^"']*)["']|\bnew URL\(\s*(["'`])(\.{1,2}\/[^"'`]*?)(?:\$\{[^`]*)?\3?\s*,\s*import\.meta\.url/g;
+
+  const graph = new Map<string, Set<string>>();
+  for (const dir of known) {
+    const deps = new Set<string>();
+    for (const file of new Bun.Glob("**/*.{ts,tsx,mts,js,mjs}").scanSync({ cwd: join(root, dir) })) {
+      if (file.includes("node_modules/") || file.includes("dist/")) continue;
+      const source = readFileSync(join(root, dir, file), "utf8");
+      for (const match of source.matchAll(namePattern)) {
+        const target = dirOfName.get(match[1]!);
+        if (target && target !== dir) deps.add(target);
+      }
+      for (const match of source.matchAll(relativePattern)) {
+        const spec = match[1] ?? match[3]!;
+        const target = relative(root, resolve(join(root, dir, file, ".."), spec));
+        if (!target.startsWith("packages/")) continue; // Root files: a change there already runs every area.
+        const targetDir = target.split("/").slice(0, 2).join("/");
+        if (targetDir === dir) continue;
+        // A third-party module reached through another package's node_modules
+        // (docs-publish's build.ts loads docs-workbench's vite plugins) is no
+        // dependency on that package's code, and bun may hoist it elsewhere.
+        if (target.split("/")[2] === "node_modules") continue;
+        if (!known.has(targetDir)) return null;
+        // A template literal's prefix names a folder; anything else must name a real file.
+        const isPrefix = match[3] !== undefined && match[0].includes("${");
+        if (!isPrefix && !SOURCE_EXTENSIONS.some((ext) => existsSync(join(root, target + ext)))) return null;
+        deps.add(targetDir);
+      }
+    }
+    graph.set(dir, deps);
+  }
+  return graph;
 }
 
 function runArea(name: string): number {
