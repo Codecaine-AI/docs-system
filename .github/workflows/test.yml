@@ -78,6 +78,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: core/docs-system
+          # Full history: the quality-climb evals (repo area) read their brief
+          # sources from a pinned older commit (evals/quality-climb/write.ts SOURCE_REF).
+          fetch-depth: 0
           # external/annotations, external/canvas and external/sequence, pinned
           # by this tree's gitlinks. import-boundaries and docs-publish read them.
           submodules: true
