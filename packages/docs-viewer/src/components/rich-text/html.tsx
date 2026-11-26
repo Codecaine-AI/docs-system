@@ -1,7 +1,7 @@
 "use client";
 
 import { createElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
+import { CLOSE_MS, useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
 import { fitHtmlScale, inlineHtmlLayout, measureScrollbarWidth, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
@@ -65,6 +65,8 @@ function usePageColorScheme(): HtmlColorScheme {
 const HTML_PANEL_CLASSES = `not-prose my-6 min-w-0 rounded-[var(--radius,2px)] border border-[color:var(--docs-rule,#e6e5e3)] ${MEDIA_PANEL_CLASS} ${MEDIA_PANEL_FILL}`;
 const HTML_BUTTON_CLASSES = `${MEDIA_GHOST_BUTTON} ${MEDIA_FOCUS_RING}`;
 const HTML_FRAME_CLASSES = "block border-0 bg-transparent";
+/** How long after close the inline scroll position is restored on a remeasure. */
+export const RESTORE_WINDOW_MS = CLOSE_MS + 500;
 
 export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   html: string; title: string; height?: number; allowScripts?: boolean;
@@ -82,9 +84,9 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const [windowHeight, setWindowHeight] = useState(800);
   const [scrollbarWidth, setScrollbarWidth] = useState(0);
   // The inline area's scroll position from before Expand: a pending restore.
-  // It holds until the reader scrolls the area or expands again, so a
-  // remeasure after close (the body scroll unlock can change the column
-  // width) does not lose it.
+  // It holds through the reflow the close triggers (the body scroll unlock
+  // can change the column width and force a remeasure), then clears after
+  // RESTORE_WINDOW_MS, on an inline scroll input, or on the next Expand.
   const inlineScrollRef = useRef<number | null>(null);
   const [area, setArea] = useState<Size>({ width: 0, height: 0 });
   const [measured, setMeasured] = useState<Size | null>(null);
@@ -184,6 +186,14 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     if (expanded || pending === null || !measured || inlineScrollRoom < pending || !areaRef.current) return;
     areaRef.current.scrollTop = pending;
   }, [expanded, measured, inlineScrollRoom]);
+  // The close reflow settles within the close motion plus a remeasure; after
+  // that, a scroll the area gets without an input on it (a wheel over the
+  // iframe, find in page) must not snap back.
+  useEffect(() => {
+    if (expanded || inlineScrollRef.current === null) return;
+    const timer = setTimeout(() => { inlineScrollRef.current = null; }, RESTORE_WINDOW_MS);
+    return () => clearTimeout(timer);
+  }, [expanded]);
   // A scroll the reader starts inline ends the pending restore.
   const clearPendingScroll = () => { if (!expanded) inlineScrollRef.current = null; };
 

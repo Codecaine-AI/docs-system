@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
-import { HtmlBlock } from "../components/rich-text/html";
+import { HtmlBlock, RESTORE_WINDOW_MS } from "../components/rich-text/html";
 
 afterEach(cleanup);
 
@@ -46,7 +46,7 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
   expect(document.body.style.overflow).not.toBe("hidden");
 });
 
-test("tall HTML keeps its scale inline, scrolls inside the capped area, and keeps its scroll across Expand", () => {
+test("tall HTML keeps its scale inline, scrolls inside the capped area, and keeps its scroll across Expand", async () => {
   const rect = HTMLElement.prototype.getBoundingClientRect;
   let width = 800;
   HTMLElement.prototype.getBoundingClientRect = function () {
@@ -85,6 +85,16 @@ test("tall HTML keeps its scale inline, scrolls inside the capped area, and keep
     width = 800;
     act(() => window.dispatchEvent(new Event("resize")));
     report(frame, 800, 3000);
+    expect(area.scrollTop).toBe(40);
+    // Once the close reflow settles, a scroll with no input on the area (a
+    // wheel over the iframe, find in page) is kept on the next size message.
+    area.scrollTop = 900;
+    fireEvent.click(getByRole("button", { name: "Expand HTML content" }));
+    fireEvent.click(getByRole("button", { name: "Close HTML viewer" }));
+    expect(area.scrollTop).toBe(900);
+    await act(() => Bun.sleep(RESTORE_WINDOW_MS + 50));
+    area.scrollTop = 40;
+    report(frame, 800, 3100);
     expect(area.scrollTop).toBe(40);
   } finally {
     HTMLElement.prototype.getBoundingClientRect = rect;
