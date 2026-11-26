@@ -1,10 +1,11 @@
 import { afterEach, expect, test } from 'bun:test';
-import { mkdir, mkdtemp, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { createInteractionService } from '../service';
 import { CLI_PATH } from '../lifecycle';
 import { ROOT_MARKER } from '../root-marker';
+import { docsFs } from '@codecaine-ai/docs-index/safe-path';
 
 const SETTINGS = ['CODECAINE_DOCS_READ_ONLY', 'CODECAINE_DOCS_REQUIRED_ROOTS', 'CODECAINE_DOCS_CENTRAL_SITE', 'CODECAINE_DOCS_ROOT_ID'];
 const saved = Object.fromEntries(SETTINGS.map(name => [name, process.env[name]]));
@@ -181,5 +182,51 @@ test('a root that turns read-only after discovery writes no backlinks index, and
     expect(await manifest(root)).toEqual(before);
     await writeFile(join(root, ROOT_MARKER), marker('live'));
     expect((await call('docs_read', { project, path: 'alpha' })).detail).toContain('Project is not in this workspace');
+  } finally { service.close(); }
+});
+
+test('a listed root that loses its marker or gets one with another id refuses each write with 503, and writes again when the marker is back', async () => {
+  const root = await knowledgeRoot('live');
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = root;
+  process.env.CODECAINE_DOCS_ROOT_ID = 'kbr_test';
+  const { service, call, project } = await open(root);
+  const alpha = () => readFile(join(root, 'alpha', 'doc.json'), 'utf8');
+  const ui = (method: string, path: string, body?: unknown) => service.uiRequest(project!, new Request(`http://127.0.0.1/projects/${project}/api/${path}`, { method, headers: { 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) }));
+  try {
+    const task = (await call('docs_begin')).task_id;
+    await call('docs_guidance', { task_id: task, topic: 'style' });
+    const hash = (await call('docs_read', { project, path: 'alpha' })).hash;
+    const before = await alpha();
+    for (const lose of [() => rm(join(root, ROOT_MARKER)), () => writeFile(join(root, ROOT_MARKER), JSON.stringify({ kind: 'knowledge-root', id: 'kbr_other', role: 'live' }))]) {
+      await lose();
+      // A tool write, a project API write, and any other write through the guarded filesystem.
+      const refused = await call('docs_write_text', { task_id: task, project, path: 'alpha', expected_hash: hash, blockId: 'p', markdown: 'Changed.' });
+      expect(refused).toMatchObject({ ok: false, status: 503 });
+      expect(refused.detail).toContain('The docs root is lost or changed');
+      const post = await ui('POST', 'title', { path: 'alpha', title: 'New', expected_hash: hash });
+      expect(post.status).toBe(503);
+      expect((await post.json() as any).detail).toContain('refuses each write until the root marker is back');
+      await expect(docsFs(root).atomicWrite('alpha/doc.json', '{}')).rejects.toMatchObject({ status: 503, reason: 'root-lost' });
+      expect(await alpha()).toBe(before);
+      // Reads still answer.
+      expect(await docsFs(root).readFile('alpha/doc.json', 'utf8')).toBe(before);
+    }
+    await writeFile(join(root, ROOT_MARKER), marker('live'));
+    expect((await call('docs_write_text', { task_id: task, project, path: 'alpha', expected_hash: hash, blockId: 'p', markdown: 'Changed.' })).ok).toBe(true);
+  } finally { service.close(); }
+});
+
+test('a project API write to a project whose marker was missing at discovery answers 503, and a read answers 404', async () => {
+  const root = await knowledgeRoot();
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = root;
+  const { service, found } = await open(root);
+  try {
+    expect(found.projects).toEqual([]);
+    const id = (await (await import('../discovery')).discoverProjects(root)).projects[0]!.id;
+    const ui = (method: string) => service.uiRequest(id, new Request(`http://127.0.0.1/projects/${id}/api/title`, { method, headers: { 'content-type': 'application/json' }, body: method === 'GET' ? undefined : JSON.stringify({ path: 'alpha', title: 'New' }) }));
+    const post = await ui('POST');
+    expect(post.status).toBe(503);
+    expect((await post.json() as any).detail).toContain('The docs root is lost or changed');
+    expect((await ui('GET')).status).toBe(404);
   } finally { service.close(); }
 });

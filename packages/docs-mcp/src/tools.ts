@@ -15,7 +15,7 @@ import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
 import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
-import { checkDocsPath, docsFs, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
+import { checkDocsPath, docsFs, isDocsPathRefusal, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
 import { normalizeBundlePath } from "@codecaine-ai/docs-server/bundle";
 import { createDocsStore, type DocsStore } from "@codecaine-ai/docs-server/store";
 import {
@@ -23,12 +23,13 @@ import {
   resolveSequenceSidecarRelativePath, resolveSequenceSidecarRootRelativePath,
 } from "@codecaine-ai/docs-server/confine";
 import {
-  blockingFindings, canvasFindings, installedSequenceLinter, sequenceFindings, sequenceLintFindings,
+  blockingFindings, canvasFindings, installedSequenceLinter, renderSequencePng, sequenceFindings, sequenceLintFindings,
   type ComponentFinding, type SequenceLinter,
 } from "@codecaine-ai/docs-server/component-lints";
 
+export type DocsToolContent = { type: "text"; text: string } | { type: "image"; data: string; mimeType: string };
 export interface DocsToolResult {
-  content: Array<{ type: "text"; text: string }>;
+  content: DocsToolContent[];
   structuredContent?: Record<string, unknown>;
   isError?: boolean;
 }
@@ -119,9 +120,12 @@ function writtenView(before: DocDocument | null, after: DocDocument, named: Iter
   return { doc: { ...after, blocks }, doc_omitted_blocks: omitted };
 }
 
-function response(data: Record<string, unknown>): DocsToolResult {
-  return { content: [{ type: "text", text: JSON.stringify(data) }], structuredContent: data,
-    ...(data.ok === false ? { isError: true } : {}) };
+/** Image content a result carries after its JSON text. A symbol key, so the bytes never enter the text or structuredContent. */
+const RESULT_IMAGES = Symbol("result images");
+function response(result: Record<string, unknown>): DocsToolResult {
+  const { [RESULT_IMAGES]: images, ...data } = result as Record<string | symbol, unknown>;
+  const content: DocsToolContent[] = [{ type: "text", text: JSON.stringify(data) }, ...((images as DocsToolContent[] | undefined) ?? [])];
+  return { content, structuredContent: data, ...(data.ok === false ? { isError: true } : {}) };
 }
 function failure(detail: string, status = 400): Record<string, unknown> { return { ok: false, status, detail }; }
 /** A refusal in the shape of a schema validation failure, for a rule the schema cannot state. */
@@ -228,7 +232,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           for (const entry of input.entries ?? []) await storeFor({project:input.project,path:entry.docPath});
         }
         return response(await run(input, store, ctx));
-      } catch (error) { return response(failure(error instanceof Error ? error.message : String(error))); }
+      } catch (error) { return response(failure(error instanceof Error ? error.message : String(error), isDocsPathRefusal(error) ? error.status : 400)); }
     } };
   }
   /** The document a write replaces: null when the bundle does not exist yet, undefined when unreadable. */
@@ -529,8 +533,14 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           // A program or document the sequence diagnostics flag is refused; its findings say why.
           if (!result.ok) return { ...result, ...(Array.isArray(result.issues) ? { component_findings: findingList(sequenceFindings(result.issues)) } : {}) };
           const { program, svg, ...rest } = result;
-          return componentApplied(store, args.path, rest, sequenceLintFindings(result.sequence, lintSequence),
-            { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program }, SEQUENCE_WARNINGS_NEXT);
+          // The diagram travels as image content, so a client on another machine sees it. svg_path names a file on the server.
+          let image: Awaited<ReturnType<typeof renderSequencePng>> | undefined;
+          let imageError: string | undefined;
+          try { image = await renderSequencePng(result.sequence); } catch (error) { imageError = error instanceof Error ? error.message : String(error); }
+          const saved = await componentApplied(store, args.path, rest, sequenceLintFindings(result.sequence, lintSequence),
+            { ...("path" in svg ? { svg_path: svg.path } : { svg_error: svg.error }), program,
+              ...(image ? { image: { mimeType: image.mimeType, width: image.width, height: image.height } } : { image_error: imageError }) }, SEQUENCE_WARNINGS_NEXT);
+          return image ? { ...saved, [RESULT_IMAGES]: [{ type: "image", data: image.data, mimeType: image.mimeType }] } : saved;
         }
         const result = await store.forwardCanvasAction(args.path, op, args.expected_hash, args.expected_component_hash);
         if (!result.ok || read.type !== "canvas") return applied(store, args.path, result);

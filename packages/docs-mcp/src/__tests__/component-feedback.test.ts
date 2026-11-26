@@ -74,7 +74,7 @@ describe("component feedback", () => {
     expect(saved.program).toBe(`title "Flow"\n${PROGRAM.trimEnd()}`);
     expect(saved.component_findings).toEqual({ shown: [], omitted: 0 });
     // Feedback and the render lead, so a client that shows only the start of a result still sees them.
-    expect(Object.keys(saved).slice(0, 5)).toEqual(["ok", "component_findings", "svg_path", "program", "next"]);
+    expect(Object.keys(saved).slice(0, 6)).toEqual(["ok", "component_findings", "svg_path", "program", "image", "next"]);
     expect((await stat(saved.svg_path)).isFile()).toBe(true);
     const svg = await readFile(saved.svg_path, "utf8");
     expect(svg).toStartWith("<svg");
@@ -82,6 +82,24 @@ describe("component feedback", () => {
     // The render lives in the server's cache, never in the docs root as a corpus asset.
     expect(saved.svg_path.startsWith(temp)).toBe(false);
     await rm(saved.svg_path);
+  });
+
+  test("a sequence edit carries the diagram as PNG image content that names no server file", async () => {
+    const tool = tools.find((entry) => entry.name === "docs_sequence_set_program")!;
+    const result = await tool.execute({ project: "a", path: "page", ...await hashes("flow"), params: { program: PROGRAM } }, task);
+    const images = result.content.filter((item) => item.type === "image");
+    expect(images).toHaveLength(1);
+    const image = images[0] as { data: string; mimeType: string };
+    expect(image.mimeType).toBe("image/png");
+    const png = Buffer.from(image.data, "base64");
+    // The PNG signature, then the IHDR width and height.
+    expect([...png.subarray(1, 4)].map((byte) => String.fromCharCode(byte)).join("")).toBe("PNG");
+    const [width, height] = [png.readUInt32BE(16), png.readUInt32BE(20)];
+    expect(Math.max(width, height)).toBeLessThanOrEqual(1568);
+    expect(result.structuredContent?.image).toEqual({ mimeType: "image/png", width, height });
+    // The bytes travel only as image content, never inside the JSON text.
+    expect(result.content[0]!.type === "text" && result.content[0]!.text.includes(image.data)).toBe(false);
+    await rm(result.structuredContent?.svg_path as string);
   });
 
   test("a sequence program the sequence diagnostics flag is refused with its findings, and a flagged sidecar shows in docs_check", async () => {

@@ -20,6 +20,7 @@ import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { serializeDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 
 import { getBacklinksDb } from "../backlinks-cache";
+import { loadDocWithHash } from "../bundle";
 import { applyDocOpsToBundle } from "../doc-ops";
 import type { DocChangeSetTreeOp } from "./changesets-sidecar";
 
@@ -849,6 +850,7 @@ async function executeMove(
     return await moveDocBundle(docsRoot, from, to, {
       applyDocOps: (docsRootArg, path, ops, expectedHash, _projectId) =>
         applyDocOpsToBundle(docsRootArg, path, ops, expectedHash, undefined),
+      loadDoc: loadDocWithHash,
       // Rewrites go through the docs-root chokepoint: a source that is excluded,
       // or that a symbolic link carries into an excluded folder or out of the
       // root, is refused at the read and at the write.

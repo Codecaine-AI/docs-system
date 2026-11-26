@@ -158,6 +158,9 @@ export default function DocEditor({
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<{ stale: boolean; message: string } | null>(null);
+  // The draft a stale-banner reload set aside: the editor shows the fresh page,
+  // and this keeps the draft until the user restores or discards it.
+  const [keptDraft, setKeptDraft] = useState<Record<string, unknown> | null>(null);
 
   // CP9 (TG9.3) draft locks — D22: best-effort dumb TTL locks, not a
   // correctness mechanism (the backend's hash-precondition check on save is
@@ -414,6 +417,9 @@ export default function DocEditor({
     if (serializeDocDocument(document) === serializeDocDocument(baseDocRef.current)) {
       baseDocRef.current = document;
       setSaveError(null);
+      // A reload that found the page unchanged leaves the draft in the editor. Any other
+      // same-content refresh (an event echo) keeps a draft that was set aside.
+      if (isDirtyRef.current) setKeptDraft(null);
       return;
     }
     baseDocRef.current = document;
@@ -662,8 +668,10 @@ export default function DocEditor({
   // (`window.document` throughout — the `document` PROP shadows the global.)
   useEffect(() => {
     if (!autoSave) return;
+    // Paused like the debounce: a known conflict is never retried by a blur or tab switch.
     const flush = () => {
-      if (isDirtyRef.current) void handleSaveRef.current();
+      if (!isDirtyRef.current || saveErrorRef.current?.stale || lockConflictRef.current) return;
+      void handleSaveRef.current();
     };
     const onVisibilityChange = () => {
       if (window.document.visibilityState === "hidden") flush();
@@ -713,8 +721,9 @@ export default function DocEditor({
   // lock doesn't sit held until its TTL expires.
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
-      if (!isDirty) return;
-      if (projectId && documentPath) {
+      // A draft set aside after a stale reload is unsaved work too.
+      if (!isDirty && !keptDraft) return;
+      if (isDirty && projectId && documentPath) {
         void client?.releaseDraftLock?.(projectId, documentPath, "doc", sessionId).catch(
           () => {},
         );
@@ -724,7 +733,7 @@ export default function DocEditor({
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [isDirty, projectId, documentPath, sessionId, client]);
+  }, [isDirty, keptDraft, projectId, documentPath, sessionId, client]);
 
   const nodeViewContextValue = useMemo(
     () => ({ renderCanvas, renderSequence, resolveAssetSrc, appEmbeds }),
@@ -778,7 +787,11 @@ export default function DocEditor({
                   <button
                     type="button"
                     className="rounded-[var(--radius)] border border-destructive/40 px-1.5 py-0.5 font-medium hover:bg-destructive/10"
-                    onClick={onReloadDoc}
+                    onClick={() => {
+                      // Set the draft aside before the fresh page replaces it.
+                      if (editor && isDirtyRef.current) setKeptDraft(editor.getJSON() as Record<string, unknown>);
+                      onReloadDoc();
+                    }}
                   >
                     Reload doc
                   </button>
@@ -787,6 +800,33 @@ export default function DocEditor({
             ) : (
               saveError.message
             )}
+          </div>
+        )}
+        {keptDraft && !saveError && (
+          <div
+            data-doc-editor-kept-draft="true"
+            className="mb-2 flex flex-wrap items-center gap-2 rounded-[var(--radius)] border border-status-warning-border bg-status-warning-fill p-2 text-[length:var(--ds-font-size-ui-xs)]"
+          >
+            <span>This is the newest version of the page. Your draft is kept and not saved.</span>
+            <button
+              type="button"
+              className="rounded-[var(--radius)] border border-border px-1.5 py-0.5 font-medium hover:bg-muted"
+              onClick={() => {
+                const draft = keptDraft;
+                setKeptDraft(null);
+                // A user action: the draft replaces the page and saves with the fresh hash.
+                editor?.commands.setContent(draft);
+              }}
+            >
+              Use my draft
+            </button>
+            <button
+              type="button"
+              className="rounded-[var(--radius)] border border-border px-1.5 py-0.5 font-medium hover:bg-muted"
+              onClick={() => setKeptDraft(null)}
+            >
+              Discard draft
+            </button>
           </div>
         )}
         <EditorContent editor={editor} />

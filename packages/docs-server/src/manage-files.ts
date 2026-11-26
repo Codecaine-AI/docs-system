@@ -6,7 +6,7 @@ import { canonicalBundleSrc } from '@codecaine-ai/docs-model/bundle-src';
 import { validateDocDocument, serializeDocDocument } from '@codecaine-ai/docs-model/doc-schema';
 import { rescanSources } from '@codecaine-ai/docs-index/backlinks';
 import { guardWholeFolderOperation } from '@codecaine-ai/docs-index/subtree-guard';
-import { checkDocsPath, docsFs, type DocsPreflightTarget } from '@codecaine-ai/docs-index/safe-path';
+import { checkDocsPath, docsFs, isDocsPathRefusal, type DocsPreflightTarget } from '@codecaine-ai/docs-index/safe-path';
 import { getBacklinksDb } from './backlinks-cache';
 import { withPathLock } from './path-mutex';
 import { draftLockStore } from './draft-locks';
@@ -259,12 +259,12 @@ export async function manageFiles(root:string,input:ManageFilesInput):Promise<Re
           await reindex(root,[...affected,...[...affected].map(map)]);
           await fs.writeFile(join(journal,'manifest.json'),JSON.stringify({...manifest,status:'rolled-back'},null,2));
           if(error instanceof ReferenceAppeared)return {...failure(REFERENCE_APPEARED,409),changed_paths:error.paths,rolled_back:true,recovery_journal:relative(root,journal)};
-          return {...failure(String(error),500),rolled_back:true,recovery_journal:relative(root,journal)};
-        }catch(rollback){return {...failure(String(error),500),rolled_back:false,rollback_error:String(rollback),recovery_journal:relative(root,journal)};}
+          return {...failure(String(error),isDocsPathRefusal(error)?error.status:500),rolled_back:true,recovery_journal:relative(root,journal)};
+        }catch(rollback){return {...failure(String(error),isDocsPathRefusal(error)?error.status:500),rolled_back:false,rollback_error:String(rollback),recovery_journal:relative(root,journal)};}
       }
     }
     return acquire(0);
-  }catch(error){return failure(error instanceof Error?error.message:String(error),400);}
+  }catch(error){return failure(error instanceof Error?error.message:String(error),isDocsPathRefusal(error)?error.status:400);}
  });
 }
 

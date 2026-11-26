@@ -17,6 +17,7 @@ import type { DocsTreeNode } from "./docs-tree";
 import { treeIndex, type TreeSnapshot } from "./tree-index";
 import {
   loadDocBundle,
+  loadDocWithHash,
   loadDocProjection,
   type DocBundleLoadError,
   type DocBundleLoadResult,
@@ -26,6 +27,8 @@ import {
   addBundleAnnotation,
   addBundleAnnotationReply,
   applyDocOpsToBundle,
+  PAGE_HASH_REQUIRED,
+  pageHashRequired,
   attachAgentRunToAnnotation,
   getBundleAnnotations,
   resolveBundleAnnotation,
@@ -327,6 +330,10 @@ async function forwardCanvasAction(
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
     }
+    // A forwarded Canvas or Sequence action is a page write too: with CODECAINE_DOCS_REQUIRE_HASH=1 it needs the page hash.
+    if (!expectedDocHash && pageHashRequired()) {
+      return { ok: false, status: 428, detail: PAGE_HASH_REQUIRED, current_hash: loaded.docHash };
+    }
     if (expectedDocHash && expectedDocHash !== loaded.docHash) {
       return {
         ok: false,
@@ -483,6 +490,10 @@ async function forwardSequenceAction(
     const loaded = await loadDocBundle(docsRoot, path);
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    // A forwarded Canvas or Sequence action is a page write too: with CODECAINE_DOCS_REQUIRE_HASH=1 it needs the page hash.
+    if (!expectedDocHash && pageHashRequired()) {
+      return { ok: false, status: 428, detail: PAGE_HASH_REQUIRED, current_hash: loaded.docHash };
     }
     if (expectedDocHash && expectedDocHash !== loaded.docHash) {
       return {
@@ -795,6 +806,7 @@ export function createDocsStore(docsRoot: string, options: { exclude?: readonly 
         // concept, so it is dropped here.
         applyDocOps: (docsRootArg, path, ops, expectedHash, _scope) =>
           applyDocOpsToBundle(docsRootArg, path, ops, expectedHash, undefined),
+        loadDoc: loadDocWithHash,
         // Rewrites go through the docs-root chokepoint: a source that is excluded,
         // or that a symbolic link carries into an excluded folder or out of the
         // root, is refused at the read and at the write.

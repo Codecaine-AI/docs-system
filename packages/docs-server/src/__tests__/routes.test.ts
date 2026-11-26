@@ -10,6 +10,7 @@ import { uploadDocVideoAsset } from "../assets";
 import { MAX_VIDEO_ASSET_BYTES } from "../confine";
 import { draftLockStore } from "../draft-locks";
 import type { DocsChangeEvent } from "../docs-events";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * Route-factory CONTRACT tests: the write routes must mirror the reference
@@ -209,6 +210,7 @@ describe("createDocsRoutes (write contracts)", () => {
     const blockedRes = await postJson("/api/ops", {
       path: "guide",
       ops: [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
+      expected_hash: await pageHash(docsRoot, "guide"),
       session_id: "session-b",
     });
     expect(blockedRes.status).toBe(423);
@@ -225,6 +227,7 @@ describe("createDocsRoutes (write contracts)", () => {
     const allowedRes = await postJson("/api/ops", {
       path: "guide",
       ops: [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
+      expected_hash: await pageHash(docsRoot, "guide"),
       session_id: "session-a",
     });
     expect(allowedRes.status).toBe(200);
@@ -240,6 +243,7 @@ describe("createDocsRoutes (write contracts)", () => {
     const afterRelease = await postJson("/api/ops", {
       path: "guide",
       ops: [{ type: "updateBlock", blockId: "h1", props: { level: 3 } }],
+      expected_hash: await pageHash(docsRoot, "guide"),
       session_id: "session-b",
     });
     expect(afterRelease.status).toBe(200);
@@ -414,6 +418,7 @@ describe("createDocsRoutes (write contracts)", () => {
     const opsRes = await postJson("/api/ops", {
       path: "guide",
       ops: [{ type: "updateBlock", blockId: "h1", props: { level: 4 } }],
+      expected_hash: await pageHash(docsRoot, "guide"),
     });
     expect(opsRes.status).toBe(200);
     const { patch_id } = (await opsRes.json()) as { patch_id: string };
@@ -442,6 +447,7 @@ describe("createDocsRoutes (write contracts)", () => {
       const res = await postJson("/api/ops", {
         path: "guide",
         ops: [{ type: "updateBlock", blockId: "h1", props: { level: 5 } }],
+        expected_hash: await pageHash(docsRoot, "guide"),
         session_id: "session-a",
       });
       expect(res.status).toBe(200);

@@ -18,7 +18,7 @@ import {
   validateAnnotationsDocument,
 } from "@codecaine-ai/docs-model/annotations-schema";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
-import { docsFs } from "@codecaine-ai/docs-index/safe-path";
+import { docsFs, isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
 import { withPathLock } from "./path-mutex";
 import { createContentHash } from "./content-hash";
@@ -60,6 +60,16 @@ export type ApplyDocOpsResult =
       held_by?: DraftLockInfo;
     };
 
+/** The refusal text of a page write with no hash under CODECAINE_DOCS_REQUIRE_HASH=1 (428). */
+export const PAGE_HASH_REQUIRED = "This docs server requires the page hash: read the page and send its hash as expected_hash.";
+/**
+ * CODECAINE_DOCS_REQUIRE_HASH=1: a page write that sends no hash is refused
+ * with 428. Off by default, so a write with no hash lands as before.
+ */
+export function pageHashRequired(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.CODECAINE_DOCS_REQUIRE_HASH === "1";
+}
+
 /**
  * Applies a batch of typed DocOp mutations to a bundle's doc.json. The
  * `inverse` ops returned by applyOps are recorded in the shared undo ledger
@@ -83,6 +93,14 @@ export async function applyDocOpsToBundle(
     const loaded = await loadDocBundle(docsRoot, path);
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
+    }
+    if (!expectedHash && pageHashRequired()) {
+      return {
+        ok: false,
+        status: 428,
+        detail: PAGE_HASH_REQUIRED,
+        current_hash: loaded.docHash,
+      };
     }
     if (expectedHash && expectedHash !== loaded.docHash) {
       return {
@@ -159,7 +177,13 @@ export async function applyDocOpsToBundle(
 
     const serialized = serializeDocDocument(validated.document);
     // Through the docs-root chokepoint: re-checked inside the path lock, at the write.
-    await docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized);
+    try {
+      await docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized);
+    } catch (error) {
+      // A refused write (a lost root answers 503) keeps its status.
+      if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
+      throw error;
+    }
     const hash = createContentHash(serialized);
     const patchId = randomUUID();
     recordDocPatch(patchId, loaded.bundlePath, inverse, hash, docsRoot);

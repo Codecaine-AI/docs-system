@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { endpoint, mapPath, remoteSettings, routeCall } from './remote';
+import { clientReply, endpoint, mapPath, remoteSettings, routeCall } from './remote';
 
 const settings = (env: Record<string, string>) => remoteSettings({ CODECAINE_DOCS_REMOTE_URL: 'https://docs.example.test', ...env })!;
 
@@ -33,4 +33,13 @@ test('an endpoint keeps the base path of the remote URL', () => {
   expect(endpoint('https://host.test/docs', '/rpc').href).toBe('https://host.test/docs/rpc');
   expect(endpoint('https://host.test/docs/', '/health').href).toBe('https://host.test/docs/health');
   expect(endpoint('https://host.test', '/tools').href).toBe('https://host.test/tools');
+});
+
+test('a remote reply drops the server file path and keeps its image, and a local reply keeps both', () => {
+  const data = { ok: true, svg_path: '/srv/tmp/flow.svg', program: 'seq' };
+  const reply = { content: [{ type: 'text', text: JSON.stringify(data) }, { type: 'image', data: 'iVBORw0K', mimeType: 'image/png' }], structuredContent: data };
+  const remote = clientReply(reply, { remote: true, workspace: '/srv/kb' });
+  expect(remote.structuredContent).toEqual({ ok: true, program: 'seq' });
+  expect(remote.content).toEqual([{ type: 'text', text: JSON.stringify({ ok: true, program: 'seq' }) }, reply.content[1]!]);
+  expect(clientReply(reply, { remote: false, workspace: '/home/u/kb' })).toBe(reply);
 });

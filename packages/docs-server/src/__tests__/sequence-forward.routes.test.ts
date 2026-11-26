@@ -8,6 +8,7 @@ import { createDocsRoutes } from "../routes";
 import { createDocsStore, type DocsStore } from "../store";
 import { draftLockStore } from "../draft-locks";
 import type { DocsChangeEvent } from "../docs-events";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * Sequence counterpart of canvas-forward.routes.test.ts: the doc-relative
@@ -103,13 +104,16 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
     );
   }
 
-  const postJson = (path: string, body: unknown) => sendJson("POST", path, body);
+  // A page write sends the page hash it read, unless the test sets expected_hash itself.
+  const postJson = async (path: string, body: unknown) =>
+    sendJson("POST", path, path === "/api/ops" && !("expected_hash" in (body as object)) ? { ...(body as object), expected_hash: await pageHash(docsRoot, BUNDLE_PATH) } : body);
 
   async function forward(body: Record<string, unknown> = {}): Promise<Response> {
     return postJson("/api/ops", {
       path: BUNDLE_PATH,
       ops: [SET_TITLE_OP],
       session_id: "agent-session",
+      expected_hash: await pageHash(docsRoot, BUNDLE_PATH),
       ...body,
     });
   }
@@ -248,6 +252,20 @@ describe("sequence sidecar routes + forwarded sequence actions", () => {
   });
 
   // -- forwarded actions -----------------------------------------------------
+
+  test("with CODECAINE_DOCS_REQUIRE_HASH=1, a forwarded action with no page hash gets 428 and writes nothing", async () => {
+    const saved = process.env.CODECAINE_DOCS_REQUIRE_HASH;
+    process.env.CODECAINE_DOCS_REQUIRE_HASH = "1";
+    try {
+      const response = await forward({ expected_hash: undefined });
+      expect(response.status).toBe(428);
+      expect(((await response.json()) as { detail: string }).detail).toContain("requires the page hash");
+      expect(await readFile(join(docsRoot, SEQUENCE_REL_PATH), "utf8")).toBe(initialSequenceBytes);
+    } finally {
+      if (saved === undefined) delete process.env.CODECAINE_DOCS_REQUIRE_HASH;
+      else process.env.CODECAINE_DOCS_REQUIRE_HASH = saved;
+    }
+  });
 
   test("forwards setTitle, persists it, and publishes a sequence event", async () => {
     const bundleResponse = await get(`/api/bundle?path=${BUNDLE_PATH}`);

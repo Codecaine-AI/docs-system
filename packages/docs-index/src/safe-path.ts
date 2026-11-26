@@ -95,7 +95,9 @@ export type DocsPathRefusalReason =
   | "excluded"
   | "symlink"
   | "unresolvable"
-  | "policy-invalid";
+  | "policy-invalid"
+  /** The served root lost its root marker, or the marker changed (503). */
+  | "root-lost";
 
 export type DocsPathTarget = {
   /** Lexical absolute path under the served root. */
@@ -287,6 +289,9 @@ function excludedByPolicy(docsRoot: string, rel: string): boolean {
  */
 export function checkDocsPath(docsRoot: string, target: string, intent: DocsPathIntent = "read"): DocsPathCheck {
   const shown = typeof target === "string" ? target : String(target);
+  // A write to a lost or changed root is refused first, so a preflight refuses it before any write starts.
+  const lost = intent === "read" || intent === "inspect" ? null : rootWriteCheck?.(docsRoot);
+  if (lost) return refusal(503, "root-lost", shown, lost);
   if (typeof target !== "string" || target.includes("\0")) {
     return refusal(400, "unsafe", shown, `Invalid docs path: ${shown}`);
   }
@@ -553,6 +558,16 @@ export type DocsFs = {
   /** Recursive watch of the served root; events for refused paths are dropped. */
   watch(listener: DocsWatchListener): FSWatcher;
 };
+
+/**
+ * A process-wide check that a docs root may still take writes: null lets the write go on, a message refuses it
+ * with 503. A server that knows its root markers sets it, so a write never reaches a lost or changed root, such
+ * as an empty mount point. Unset by default: every write goes on as before.
+ */
+let rootWriteCheck: ((docsRoot: string) => string | null) | null = null;
+export function setDocsRootWriteCheck(check: ((docsRoot: string) => string | null) | null): void {
+  rootWriteCheck = check;
+}
 
 /** The guarded filesystem for `docsRoot`. */
 export function docsFs(docsRoot: string): DocsFs {

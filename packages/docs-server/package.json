@@ -35,6 +35,7 @@
     "@codecaine-ai/docs-model": "workspace:*",
     "@codecaine-ai/sequence": "workspace:*",
     "@codecaine-ai/text-measure": "workspace:*",
+    "@resvg/resvg-js": "^2.6.2",
     "elysia": "^1.2.0"
   },
   "devDependencies": {

@@ -1,11 +1,13 @@
 #!/usr/bin/env bun
 import { resolve, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import { startMcp } from './mcp';
 import { runDaemon } from './daemon';
 import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint, routeState } from './lifecycle';
-import { endpoint, remoteSettings, routeCall, routedArguments, taskRoutes } from './remote';
+import { clientReply, endpoint, remoteSettings, routeCall, routedArguments, taskRoutes } from './remote';
 import { installClients, doctorClients, restoreInstallation } from './install';
 import { loadGuidance } from './guidance';
 import { guidanceManifest } from './guidance-manifest';
@@ -21,6 +23,17 @@ const args=process.argv.slice(2);const command=args.shift()??'help';
 function option(name:string,fallback?:string){const i=args.indexOf(name);return i>=0?args[i+1]:fallback;}
 const workspace=resolve(option('--workspace',process.env.CLAUDE_PROJECT_DIR||process.cwd())!);
 const out=(value:unknown)=>console.log(JSON.stringify(value,null,2));
+/** The CLI prints JSON, so each image of a reply goes to a file on this machine, and the reply names that file. */
+async function savedImages(result:any){
+ if(!Array.isArray(result?.content)||!result.content.some((item:any)=>item.type==='image'))return result;
+ const folder=join(tmpdir(),'codecaine-docs-images');await mkdir(folder,{recursive:true});
+ const content=await Promise.all(result.content.map(async(item:any)=>{
+  if(item.type!=='image')return item;
+  const path=join(folder,`${randomUUID()}.png`);await writeFile(path,Buffer.from(item.data,'base64'));
+  return {type:'image',mimeType:item.mimeType,path};
+ }));
+ return {...result,content};
+}
 /** The id and name of every project in the workspace, read from each docs_capabilities page. */
 async function capabilityProjects(state:Awaited<ReturnType<typeof ensureDaemon>>,workspace:string){
  const projects:{id:string,name:string}[]=[];let cursor:string|undefined;
@@ -61,7 +74,7 @@ try{
    const route=command==='tools'?{remote:!!remote,workspace}:routeCall(remote,workspace,toolArgs,{known:tasks.get(toolArgs.task_id)});
    const state=await routeState(route.remote);
    const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace:route.workspace,name,arguments:routedArguments(name,route,toolArgs),identity:{runId:newRunId(),...identityFromEnv()}});
-   const result=await response.json() as any;out(result);if(!response.ok||result.isError)process.exitCode=1;
+   const result=await savedImages(clientReply(await response.json() as any,route));out(result);if(!response.ok||result.isError)process.exitCode=1;
    if(name==='docs_begin'&&typeof result.structuredContent?.task_id==='string')tasks.set(result.structuredContent.task_id,route);
    break;
   }

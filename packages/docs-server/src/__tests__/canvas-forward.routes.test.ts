@@ -10,6 +10,7 @@ import { createDocsStore, type DocsStore } from "../store";
 import { draftLockStore } from "../draft-locks";
 import type { DocsChangeEvent } from "../docs-events";
 import { withPathLock } from "../path-mutex";
+import { pageHash } from "./fixtures/page-hash";
 
 const BUNDLE_PATH = "guide";
 const CANVAS_SRC = "./assets/canvases/flow.canvas.json";
@@ -96,7 +97,9 @@ describe("POST /api/ops forwarded canvas actions", () => {
     await rm(docsRoot, { recursive: true, force: true });
   });
 
-  function postJson(path: string, body: unknown): Promise<Response> {
+  async function postJson(path: string, body: unknown): Promise<Response> {
+    // A page write sends the page hash it read, unless the test sets expected_hash itself.
+    if (path === "/api/ops" && !("expected_hash" in (body as object))) body = { ...(body as object), expected_hash: await pageHash(docsRoot, BUNDLE_PATH) };
     return app.handle(
       new Request(`http://localhost${path}`, {
         method: "POST",
@@ -127,9 +130,24 @@ describe("POST /api/ops forwarded canvas actions", () => {
       path: BUNDLE_PATH,
       ops: [ADD_OBJECT_OP],
       session_id: "agent-session",
+      expected_hash: await pageHash(docsRoot, BUNDLE_PATH),
       ...body,
     });
   }
+
+  test("with CODECAINE_DOCS_REQUIRE_HASH=1, a forwarded action with no page hash gets 428 and writes nothing", async () => {
+    const saved = process.env.CODECAINE_DOCS_REQUIRE_HASH;
+    process.env.CODECAINE_DOCS_REQUIRE_HASH = "1";
+    try {
+      const response = await forward({ expected_hash: undefined });
+      expect(response.status).toBe(428);
+      expect(((await response.json()) as { detail: string }).detail).toContain("requires the page hash");
+      expect(await readFile(join(docsRoot, CANVAS_REL_PATH), "utf8")).toBe(initialCanvasBytes);
+    } finally {
+      if (saved === undefined) delete process.env.CODECAINE_DOCS_REQUIRE_HASH;
+      else process.env.CODECAINE_DOCS_REQUIRE_HASH = saved;
+    }
+  });
 
   test("forwards one addObject, persists it, and publishes a canvas event", async () => {
     const { docHash, canvasHash } = await currentHashes();
@@ -342,11 +360,12 @@ describe("POST /api/ops forwarded canvas actions", () => {
 
     let forwardedPromise: ReturnType<DocsStore["forwardCanvasAction"]> | undefined;
     let docMutationPromise: ReturnType<DocsStore["applyDocOps"]> | undefined;
+    const docHash = await pageHash(docsRoot, BUNDLE_PATH);
     try {
       forwardedPromise = store.forwardCanvasAction(
         BUNDLE_PATH,
         ADD_OBJECT_OP as Extract<DocOp, { type: "componentAction" }>,
-        undefined,
+        docHash,
         undefined,
         "agent-session",
       );
@@ -356,7 +375,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
         .applyDocOps(
           BUNDLE_PATH,
           [{ type: "deleteBlock", blockId: "canvas-1", mode: "subtree" }],
-          undefined,
+          docHash,
           "editor-session",
         )
         .then((result) => {
@@ -569,6 +588,7 @@ describe("POST /api/ops forwarded canvas actions", () => {
   test("keeps ordinary doc-op batches on the existing response path", async () => {
     const response = await postJson("/api/ops", {
       path: BUNDLE_PATH,
+      expected_hash: await pageHash(docsRoot, BUNDLE_PATH),
       ops: [{ type: "updateBlock", blockId: "p1", text: [{ insert: "After" }] }],
     });
     expect(response.status).toBe(200);
