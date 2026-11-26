@@ -195,9 +195,14 @@ describe("shared global theme", () => {
 
     render(<App />);
     await waitForRail();
-    // Stock, not the stale per-project 13px / 390px cache.
-    expect(styleVar("--style-font-size")).toBe("");
-    expect(styleVar("--docs-action-pane-width")).toBe("");
+    // Stock, not the stale per-project 13px / 390px cache. With no remembered
+    // global flag, the first frame paints that cache (project-storage.ts) until
+    // api/serve-config answers; "Save global style" appears only after it does.
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "Save global style" })).toBeTruthy();
+      expect(styleVar("--style-font-size")).toBe("");
+      expect(styleVar("--docs-action-pane-width")).toBe("");
+    });
 
     changeAiPanelWidth("644");
 
