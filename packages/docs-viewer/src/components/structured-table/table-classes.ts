@@ -39,7 +39,7 @@ export const TABLE_WRAPPER_CLASSES =
 
 /** Auto width: the table is as wide as its columns' content, never stretched to the frame. */
 export const TABLE_ELEMENT_CLASSES =
-  "border-collapse text-left leading-[var(--docs-table-line-height,1.45)]";
+  "border-collapse text-left leading-[var(--docs-table-line-height,1.5)]";
 
 /**
  * Per-column sizing classes (column-layout.ts), on every th/td of the column.
@@ -150,7 +150,7 @@ export const TABLE_ROW_RULE_CLASSES =
 export const TABLE_BODY_CELL_TEXT_CLASSES = [
   TABLE_CELL_CODE_CLASSES,
   "align-top text-[length:var(--docs-table-font-size,13.5px)] font-[var(--docs-table-body-weight,400)] text-[color:var(--docs-table-fg,var(--docs-text,#2a2a2a))]",
-  "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.45))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
+  "data-[cell-kind]:font-[family-name:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace)] data-[cell-kind]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)] data-[cell-kind]:leading-[calc(var(--docs-table-font-size,13.5px)*var(--docs-table-line-height,1.5))] data-[cell-kind]:whitespace-nowrap data-[cell-kind]:**:whitespace-nowrap",
   "data-[cell-kind=mono]:text-[color:var(--docs-ink,#1f1f1f)] data-[cell-kind=key]:text-[color:var(--docs-table-key-fg,var(--docs-syn-prop,#0d7164))]",
   "data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor]",
 ].join(" ");
@@ -171,4 +171,4 @@ export const TABLE_COLUMN_RULE_CLASSES =
  * the line-height token — the read and edit cell islands both carry it.
  */
 export const TABLE_CELL_MIN_HEIGHT_CLASS =
-  "min-h-[calc(var(--docs-table-line-height,1.45)*1em)]";
+  "min-h-[calc(var(--docs-table-line-height,1.5)*1em)]";
