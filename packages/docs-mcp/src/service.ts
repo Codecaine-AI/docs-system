@@ -18,7 +18,8 @@ import { defaultJudgmentEngine } from './jev-engine';
 import type { JudgmentEngine } from './lint-feedback';
 import { openBacklinksDb, rescanAll } from '@codecaine-ai/docs-index/backlinks';
 import { primeBacklinksDb } from '@codecaine-ai/docs-server';
-import { ROOT_MARKER, readOnlyMessage, requiredRoots, rootAccess } from './root-marker';
+import { ROOT_MARKER, requiredRoots, rootAccess, writeRefusal } from './root-marker';
+import { setDocsRootWriteCheck } from '@codecaine-ai/docs-index/safe-path';
 
 const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,...(error?{isError:true}:{})});
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
@@ -78,6 +79,8 @@ async function recordCallTiming(line:Record<string,unknown>){
 /** registryFile: the supervisor's projects.json. A rewrite that no longer lists a cached workspace's projects unchanged, or lists a project under it that its discovery lacks, drops that workspace's discovery (see the discovery cache rule). */
 /** Tasks expire after taskIdleMs without a call naming them (CODECAINE_DOCS_TASK_IDLE_MS, default 30 min) or taskMaxAgeMs after docs_begin (CODECAINE_DOCS_TASK_MAX_AGE_MS, default 12 h); a task inside a call never expires. now, maxTasks and maxRetired (tombstones kept, default 5,000) are for tests. */
 export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; registryFile?: string; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string; judgmentEngine?: JudgmentEngine | null; now?: () => number; taskIdleMs?: number; taskMaxAgeMs?: number; maxTasks?: number; maxRetired?: number } = {}) {
+ // With listed roots, each write through docsFs reads the root marker first, so no write reaches a lost or changed root (503).
+ setDocsRootWriteCheck(requiredRoots().length?docsRoot=>{const refused=writeRefusal(rootAccess(docsRoot));return refused?.status===503?refused.detail:null;}:null);
  const startupFingerprint=options.managed && process.env.CODECAINE_DOCS_BUILD ? Promise.resolve(process.env.CODECAINE_DOCS_BUILD) : implementationFingerprint();
  const projects=new Map<string,DocsProject>();
  const workspaces=new Map<string,Set<string>>();
@@ -162,6 +165,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
  const MTIME_MARGIN_MS=50;
  const memoryBacklinks=new Set<string>();
+ /** Project id to the 503 refusal of a project the last scan refused because its root marker is missing or not valid. */
+ const closedProjects=new Map<string,string>();
  /** A read-only root keeps its backlinks index in memory, so a read writes no .index/backlinks.db below it. Checked at discovery and before each backlinks read, since a root can turn read-only later. */
  const memoryBacklinksIfReadOnly=(docsRoot:string)=>{
   const access=rootAccess(docsRoot);
@@ -206,7 +211,9 @@ export function createInteractionService(options: { managed?: boolean; projectId
   discovery.projects=discovery.projects.filter(project=>{
    markers.add(join(project.docsRoot,ROOT_MARKER));
    const access=rootAccess(project.docsRoot);
-   if(!access.open){discovery.warnings.push(`Refused ${project.name}: ${access.reason}`);return false;}
+   const id=options.projectIds?.get(project.docsRoot)??project.id;
+   if(!access.open){discovery.warnings.push(`Refused ${project.name}: ${access.reason}`);closedProjects.set(id,writeRefusal(access)!.detail);return false;}
+   closedProjects.delete(id);
    memoryBacklinksIfReadOnly(project.docsRoot);
    return true;
   });
@@ -341,12 +348,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
     return reply({ok:true,snapshot_id:snapshot.snapshotId,topic:topic.topic,covers:topic.covers,chars:topic.text.length,guidance:topic.text,...(topic.topic==='all'?{components:snapshot.components,sources:snapshot.sources.map(({path,sha256})=>({path,sha256}))}:{})});
    }
    const tool=tools.find(t=>t.name===name);if(!tool)throw new Error(`Unknown tool ${name}`);
+   // A write to a project whose root marker went away or changed answers 503, not "not in this workspace".
+   const closed=typeof args.project==='string'&&!MUTATION_READS.has(name)?closedProjects.get(args.project):undefined;
+   if(closed&&!workspaces.get(discovery.workspace)?.has(args.project))return reply({ok:false,status:503,detail:closed},true);
    if(typeof args.project!=='string'||!workspaces.get(discovery.workspace)?.has(args.project))throw new Error('Project is not in this workspace. Call docs_capabilities and use a returned project ID.');
    const {task_id,...toolArgs}=args;
    const taskId=typeof task_id==='string'?task_id:'';
    if(!MUTATION_READS.has(name)){
-    const access=rootAccess(projects.get(args.project)!.docsRoot);
-    if(!access.open||access.readOnly)return reply({ok:false,status:403,detail:readOnlyMessage(access)},true);
+    const refused=writeRefusal(rootAccess(projects.get(args.project)!.docsRoot));
+    if(refused)return reply({ok:false,...refused},true);
     const task=pin(liveTask(task_id,discovery.workspace));
     if(!task)throw new Error(task_id===undefined?'Call docs_begin in this workspace before editing, then include task_id.':'Unknown or ended task_id for this workspace. Call docs_begin in this workspace before editing and use its task_id.');
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed during this task. Restart the Docs service and begin a new task before further edits.');
@@ -374,7 +384,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
   // Under the read-only guard only GET, HEAD and an OPTIONS preflight pass. The one POST read, export-pdf, is answered before this by the managed runtime.
   if(new URL(request.url).pathname.endsWith('/api/backlinks'))memoryBacklinksIfReadOnly(project.docsRoot);
-  if(!['GET','HEAD','OPTIONS'].includes(request.method)){const access=rootAccess(project.docsRoot);if(!access.open||access.readOnly)return Response.json({error:readOnlyMessage(access),detail:readOnlyMessage(access)},{status:403});}
+  if(!['GET','HEAD','OPTIONS'].includes(request.method)){const refused=writeRefusal(rootAccess(project.docsRoot));if(refused)return Response.json({error:refused.detail,detail:refused.detail},{status:refused.status});}
   let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot,{exclude:project.exclude??[]}),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));

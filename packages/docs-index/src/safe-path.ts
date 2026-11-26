@@ -95,7 +95,9 @@ export type DocsPathRefusalReason =
   | "excluded"
   | "symlink"
   | "unresolvable"
-  | "policy-invalid";
+  | "policy-invalid"
+  /** The served root lost its root marker, or the marker changed (503). */
+  | "root-lost";
 
 export type DocsPathTarget = {
   /** Lexical absolute path under the served root. */
@@ -554,9 +556,23 @@ export type DocsFs = {
   watch(listener: DocsWatchListener): FSWatcher;
 };
 
+/**
+ * A process-wide check that a docs root may still take writes: null lets the write go on, a message refuses it
+ * with 503. A server that knows its root markers sets it, so a write never reaches a lost or changed root, such
+ * as an empty mount point. Unset by default: every write goes on as before.
+ */
+let rootWriteCheck: ((docsRoot: string) => string | null) | null = null;
+export function setDocsRootWriteCheck(check: ((docsRoot: string) => string | null) | null): void {
+  rootWriteCheck = check;
+}
+
 /** The guarded filesystem for `docsRoot`. */
 export function docsFs(docsRoot: string): DocsFs {
-  const guard = (path: string, intent: DocsPathIntent = "read") => guardDocsPath(docsRoot, path, intent);
+  const guard = (path: string, intent: DocsPathIntent = "read") => {
+    const lost = intent === "read" || intent === "inspect" ? null : rootWriteCheck?.(docsRoot);
+    if (lost) throw new DocsPathRefusedError(refusal(503, "root-lost", path, lost));
+    return guardDocsPath(docsRoot, path, intent);
+  };
   const listing = async (path: string) => {
     const dir = guard(path, "read");
     return classifyEntries(docsRoot, dir, await fsp.readdir(dir.canonical, { withFileTypes: true }));

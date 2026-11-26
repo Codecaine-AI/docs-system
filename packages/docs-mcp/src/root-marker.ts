@@ -106,3 +106,14 @@ export function readOnlyMessage(access: RootAccess, env: NodeJS.ProcessEnv = pro
  if (access.reason === 'mirror') return `This copy of the knowledge base is a read-only mirror, so this docs server refuses each write.${where}`;
  return `This docs server is read-only (CODECAINE_DOCS_READ_ONLY=1), so it refuses each write.${where}`;
 }
+
+/** The refusal text of a write to a root that lost its marker, or whose marker changed, since it opened (503). */
+export function lostRootMessage(access: RootAccess & { open: false }): string {
+ return `The docs root is lost or changed: ${access.reason}. This docs server refuses each write until the root marker is back.`;
+}
+
+/** A write to a closed root answers 503 with lostRootMessage. A read-only root answers 403 with readOnlyMessage. */
+export function writeRefusal(access: RootAccess, env: NodeJS.ProcessEnv = process.env): { status: 503 | 403; detail: string } | null {
+ if (!access.open) return { status: 503, detail: lostRootMessage(access) };
+ return access.readOnly ? { status: 403, detail: readOnlyMessage(access, env) } : null;
+}
