@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -16,6 +16,24 @@ import { normalizeRepoUrl, runExport } from "../export";
 
 let docsRoot: string;
 let app: ReturnType<typeof createDocsServeApp>;
+
+// The export tests need a static SPA build newer than the SPA sources, or
+// runExport runs a real vite build. A developer's own web/dist-static is
+// often older than the sources, so it is moved aside for this file and a
+// fresh shell build is seeded; the original comes back afterwards.
+const staticDist = join(import.meta.dir, "..", "..", "web", "dist-static");
+const staticDistAside = `${staticDist}.serve-routes-test-${process.pid}`;
+let movedStaticDist = false;
+beforeAll(async () => {
+  movedStaticDist = await Bun.file(join(staticDist, "index.html")).exists();
+  if (movedStaticDist) await rename(staticDist, staticDistAside);
+  await mkdir(staticDist, { recursive: true });
+  await writeFile(join(staticDist, "index.html"), "<html><head><title>Docs</title></head></html>");
+});
+afterAll(async () => {
+  await rm(staticDist, { recursive: true, force: true });
+  if (movedStaticDist) await rename(staticDistAside, staticDist);
+});
 
 const DOC_JSON = (id: string, title: string) => ({
   schemaVersion: 1,
