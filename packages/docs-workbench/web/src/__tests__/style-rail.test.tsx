@@ -1956,7 +1956,7 @@ describe("style rail component token kinds", () => {
     expect(width).toHaveProperty("min", "0");
     expect(width).toHaveProperty("max", "4");
     expect(width).toHaveProperty("step", "0.5");
-    expect(width).toHaveProperty("value", "1");
+    expect(width).toHaveProperty("value", "2");
     expect(opacity).toHaveProperty("min", "0");
     expect(opacity).toHaveProperty("max", "1");
     expect(opacity).toHaveProperty("step", "0.05");
@@ -2030,7 +2030,7 @@ describe("style rail structured-table tokens", () => {
     headerRuleWidth: {
       cssVar: "--docs-table-header-rule-width",
       label: "Header rule width",
-      range: [0, 4, 0.5, 1],
+      range: [0, 4, 0.5, 2],
     },
     rowRuleWidth: { cssVar: "--docs-table-row-rule-width", label: "Row rule width", range: [0, 3, 0.5, 1] },
     columnRuleWidth: {
@@ -2051,7 +2051,7 @@ describe("style rail structured-table tokens", () => {
     },
   } as const;
   const TABLE_NUMBERS = {
-    headerWeight: { cssVar: "--docs-table-header-weight", label: "Header weight", range: [300, 900, 50, 500] },
+    headerWeight: { cssVar: "--docs-table-header-weight", label: "Header weight", range: [300, 900, 50, 600] },
     headerRuleOpacity: {
       cssVar: "--docs-table-header-rule-opacity",
       label: "Header rule opacity",
@@ -2069,6 +2069,11 @@ describe("style rail structured-table tokens", () => {
     },
     lineHeight: { cssVar: "--docs-table-line-height", label: "Line height", range: [1, 2.2, 0.05, 1.5] },
     bodyWeight: { cssVar: "--docs-table-body-weight", label: "Body weight", range: [300, 900, 50, 400] },
+    leadWeight: {
+      cssVar: "--docs-table-lead-weight",
+      label: "Lead column weight",
+      range: [300, 900, 50, 500],
+    },
   } as const;
   const SLIDERS = [
     ...Object.entries(TABLE_LENGTHS).map(([key, token]) => ({ key, unit: "px", ...token })),

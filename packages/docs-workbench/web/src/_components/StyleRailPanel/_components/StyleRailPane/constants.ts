@@ -165,6 +165,8 @@ const TOKEN_KEY_LABELS: Record<string, string> = {
   bodyWeight: "Body weight",
   titleFg: "Title text",
   keyFg: "Key column text",
+  leadFg: "Lead column text",
+  leadWeight: "Lead column weight",
   titleTextSize: "Title text size",
   titleWeight: "Title weight",
   radius: "Corner radius",

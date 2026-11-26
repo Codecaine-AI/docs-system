@@ -10,8 +10,9 @@
  * The table is a panel: one rule-colored frame on the panel background that
  * shrinks to its content (the lane is a maximum, never a target). The frame
  * starts at the header row — a block title is never drawn; it only labels
- * the `<table>` for assistive tech. The header row is muted sans over one
- * rule, body rows are split by the soft rule, and there are no column rules
+ * the `<table>` for assistive tech. The header row is ink sans on a sunken
+ * band over a heavier rule, body rows are split by the strong rule, the lead
+ * column's sans cells are ink at medium weight, and there are no column rules
  * at stock. Column sizing (column-layout.ts): identifier and short columns
  * fit their content on one line, one prose column takes the remaining width
  * and wraps at a 60ch measure. When even that overflows the lane, the frame
@@ -35,7 +36,7 @@ export const TABLE_SECTION_CLASSES = "not-prose my-4";
  * (use-table-overflow.ts), which shows the pinned column's edge rule.
  */
 export const TABLE_WRAPPER_CLASSES =
-  "w-fit max-w-full overflow-auto rounded-[var(--docs-table-radius,var(--radius,2px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]";
+  "w-fit max-w-full overflow-auto rounded-[var(--docs-table-radius,var(--radius,2px))] border-[length:var(--docs-table-border-width,1px)] border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]";
 
 /** Auto width: the table is as wide as its columns' content, never stretched to the frame. */
 export const TABLE_ELEMENT_CLASSES =
@@ -89,15 +90,15 @@ export const TABLE_WRAP_MEASURE_CLASS = "max-w-[calc(var(--ds-layout-lane-text)/
  * marks its right edge. Without overflow, `sticky` changes nothing.
  */
 const TABLE_STICKY_BASE_CLASSES =
-  "sticky left-0 z-1 after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-[length:var(--docs-table-border-width,1px)] after:bg-[color:var(--docs-table-border,var(--docs-rule,#e6e5e3))] after:opacity-0 [[data-table-overflow]_&]:after:opacity-100";
+  "sticky left-0 z-1 after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:w-[length:var(--docs-table-border-width,1px)] after:bg-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))] after:opacity-0 [[data-table-overflow]_&]:after:opacity-100";
 
-export const TABLE_STICKY_HEADER_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[image:linear-gradient(var(--docs-table-header-bg,transparent),var(--docs-table-header-bg,transparent))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]`;
+export const TABLE_STICKY_HEADER_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[image:linear-gradient(var(--docs-table-header-bg,var(--docs-sunken,#ededec)),var(--docs-table-header-bg,var(--docs-sunken,#ededec)))] bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))]`;
 
 export const TABLE_STICKY_BODY_CELL_CLASSES = `${TABLE_STICKY_BASE_CLASSES} bg-[color:var(--docs-table-bg,var(--docs-panel,#f8f8f7))] [tr:hover>&]:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]`;
 
-/** One rule under the header row — no box, no texture. */
+/** The header band: a sunken fill over one heavier rule. */
 export const TABLE_HEAD_CLASSES =
-  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-rule,#e6e5e3))_calc(var(--docs-table-header-rule-opacity,1)*100%),transparent)] bg-[color:var(--docs-table-header-bg,transparent)] text-[color:var(--docs-table-header-fg,var(--docs-muted,#666562))]";
+  "border-b border-solid border-b-[length:var(--docs-table-header-rule-width,2px)] border-b-[color:color-mix(in_srgb,var(--docs-table-header-rule,var(--docs-border-strong,#d0cfcc))_calc(var(--docs-table-header-rule-opacity,1)*100%),transparent)] bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))] text-[color:var(--docs-table-header-fg,var(--docs-ink,#1f1f1f))]";
 
 /**
  * The 60px floor (AFFiNE's ColumnMinWidth) keeps freshly added — still
@@ -118,7 +119,7 @@ export const TABLE_CELL_CODE_CLASSES =
   "[--docs-inline-code-bg:transparent] [--docs-inline-code-pad-x:0] [--docs-inline-code-pad-y:0] [--docs-inline-code-border-width:0px] [&_code]:[--docs-chip-kind-fg:var(--docs-inline-code-fg,var(--ds-color-code-chip-ink))] [&_code]:text-[length:calc(var(--docs-table-font-size,13.5px)-0.5px)]";
 
 export const TABLE_HEADER_CELL_TEXT_CLASSES =
-  `${TABLE_CELL_CODE_CLASSES} min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,500)]`;
+  `${TABLE_CELL_CODE_CLASSES} min-w-15 align-top text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))] font-[var(--docs-table-header-weight,600)]`;
 
 export const TABLE_ROW_HOVER_CLASSES =
   "transition-colors hover:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]";
@@ -130,7 +131,7 @@ export const TABLE_ROW_HOVER_CLASSES =
 export const TABLE_ROW_MIN_HEIGHT_CLASS = "h-[var(--docs-table-row-min-height,28px)]";
 
 export const TABLE_ROW_RULE_CLASSES =
-  "border-b border-solid border-b-[length:var(--docs-table-row-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]";
+  "border-b border-solid border-b-[length:var(--docs-table-row-rule-width,1px)] border-b-[color:color-mix(in_srgb,var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc))_calc(var(--docs-table-row-rule-opacity,1)*100%),transparent)]";
 
 /**
  * Body cell type, with TABLE_CELL_CODE_CLASSES for its inline code.
@@ -155,6 +156,14 @@ export const TABLE_BODY_CELL_TEXT_CLASSES = [
   "data-[cell-kind]:[--docs-inline-code-fg:currentColor] data-[cell-kind]:[&_code]:[--docs-chip-kind-fg:currentColor]",
 ].join(" ");
 
+/**
+ * The lead (first) column's body cells: the row's title, in ink at medium
+ * weight so a reader can scan down it. An identifier cell (`data-cell-kind`)
+ * keeps its own mono color and weight.
+ */
+export const TABLE_LEAD_CELL_CLASSES =
+  "not-data-[cell-kind]:font-[var(--docs-table-lead-weight,500)] not-data-[cell-kind]:text-[color:var(--docs-table-lead-fg,var(--docs-ink,#1f1f1f))]";
+
 export const TABLE_CELL_SPACING_CLASS =
   "py-[length:var(--docs-table-cell-pad-y,4px)] px-[length:var(--docs-table-cell-pad-x,12px)]";
 
@@ -164,7 +173,7 @@ export const TABLE_CELL_SPACING_CLASS =
  * opacity fall back to their row-rule twins.
  */
 export const TABLE_COLUMN_RULE_CLASSES =
-  "border-r border-solid border-r-[length:var(--docs-table-column-rule-width,0px)] border-r-[color:color-mix(in_srgb,var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-rule-soft,#efeeec)))_calc(var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))*100%),transparent)]";
+  "border-r border-solid border-r-[length:var(--docs-table-column-rule-width,0px)] border-r-[color:color-mix(in_srgb,var(--docs-table-column-rule,var(--docs-table-row-rule,var(--docs-border-strong,#d0cfcc)))_calc(var(--docs-table-column-rule-opacity,var(--docs-table-row-rule-opacity,1))*100%),transparent)]";
 
 /**
  * One text line tall, so an empty cell keeps its row from collapsing. Tracks

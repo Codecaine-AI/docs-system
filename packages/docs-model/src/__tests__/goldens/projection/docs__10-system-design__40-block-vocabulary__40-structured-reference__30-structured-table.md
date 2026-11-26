@@ -143,7 +143,9 @@ Five verbs cover the grid and form the family's whole agent write surface for ce
 
 ## Doc Renderer
 
-The read surface and the editor at rest share one light-grid look. The table is a panel that shrinks to its content inside a thin outer border. A header rule tinted by the header-rule tokens sits under the header row, light rules split the body rows, and a hover wash marks the current row. Column rules are `0px` wide by default, so only row rules show. A theme that widens them with `--docs-table-column-rule-width` gets the row-rule color and opacity unless it sets its own. The block's `title` is never drawn. It only names the table for screen readers through `aria-label`.
+The read surface and the editor at rest share one grid look. The table is a panel that shrinks to its content inside a thin outer border in the strong rule color. The header row is ink text at weight 600 on a sunken fill, over a 2px header rule. Strong 1px rules split the body rows, and a hover wash marks the current row. The first column's sans cells are ink at weight 500, so a reader can scan the row titles.
+
+Column rules are `0px` wide by default, so only row rules show. A theme that widens them with `--docs-table-column-rule-width` gets the row-rule color and opacity unless it sets its own. The block's `title` is never drawn. It only names the table for screen readers through `aria-label`.
 
 Every cell is padded on both sides so text never touches a rule. Columns size to their content, as Block Widths and Lanes describes.
 
@@ -229,13 +231,13 @@ This block's theme file is `components/structured-table.json` in the active them
 
 | Key | CSS variable | Kind | Notes |
 | --- | --- | --- | --- |
-| border | --docs-table-border | color | Outer wrapper border (default: the row-rule grey) |
-| headerBg | --docs-table-header-bg | color | Header row background (default transparent) |
-| headerFg | --docs-table-header-fg | color | Header text color |
-| headerRule | --docs-table-header-rule | color | Header rule color (falls back to headerFg) |
-| headerRuleWidth | --docs-table-header-rule-width | length | Header rule thickness (default 1.5px) |
-| headerRuleOpacity | --docs-table-header-rule-opacity | number | Header rule opacity (default 0.5) |
-| rowRule | --docs-table-row-rule | color | Row rule color (falls back to the UI border color) |
+| border | --docs-table-border | color | Outer wrapper border (default: the strong rule, --docs-border-strong) |
+| headerBg | --docs-table-header-bg | color | Header row background (default: the sunken fill, --docs-sunken) |
+| headerFg | --docs-table-header-fg | color | Header text color (default: ink) |
+| headerRule | --docs-table-header-rule | color | Header rule color (default: the strong rule) |
+| headerRuleWidth | --docs-table-header-rule-width | length | Header rule thickness (default 2px) |
+| headerRuleOpacity | --docs-table-header-rule-opacity | number | Header rule opacity (default 1) |
+| rowRule | --docs-table-row-rule | color | Row rule color (default: the strong rule) |
 | rowRuleWidth | --docs-table-row-rule-width | length | Row rule thickness (default 1px) |
 | rowRuleOpacity | --docs-table-row-rule-opacity | number | Row rule opacity (default 1) |
 | columnRule | --docs-table-column-rule | color | Column rule color (falls back to rowRule) |
@@ -244,6 +246,8 @@ This block's theme file is `components/structured-table.json` in the active them
 | cellPaddingY | --docs-table-cell-pad-y | length | Vertical cell padding (default 4px) |
 | cellPaddingX | --docs-table-cell-pad-x | length | Horizontal cell padding on each side (default 12px) |
 | fontSize | --docs-table-font-size | length | Cell text size (default 13.5px, and headers follow it) |
+| leadFg | --docs-table-lead-fg | color | Text color of the first column's sans cells (default: ink) |
+| leadWeight | --docs-table-lead-weight | number | Weight of the first column's sans cells (default 500) |
 | handleRadius | --docs-table-handle-radius | length | Corner radius of the column/row grab handles (default 3px) |
 | handleOffset | --docs-table-handle-offset | length | How far outside the table edge the grab handles sit (default 12px) |
 | selectionPadding | --docs-table-selection-pad | length | Outward padding of the column/row selection outline (default 3px) |

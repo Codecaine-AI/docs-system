@@ -284,15 +284,16 @@
   --docs-stack-red: var(--docs-cat-6);
   --docs-stack-pink: var(--docs-cat-6);
   --docs-stack-gray: var(--docs-stack-muted);
-  /* Structured table: a panel on the role neutrals (frame --docs-rule, fill
-     --docs-panel), muted header over one rule, soft row rules. */
-  --docs-table-border: var(--docs-rule);
-  --docs-table-header-bg: transparent;
-  --docs-table-header-fg: var(--docs-muted);
-  --docs-table-header-rule: var(--docs-rule);
-  --docs-table-header-rule-width: var(--ds-border-width-hairline);
+  /* Structured table: a panel on the role neutrals (frame --docs-border-strong,
+     fill --docs-panel). The header is ink on a sunken band over a heavier
+     rule, rows are split by the strong rule, and the lead column is ink. */
+  --docs-table-border: var(--docs-border-strong);
+  --docs-table-header-bg: var(--docs-sunken);
+  --docs-table-header-fg: var(--docs-ink);
+  --docs-table-header-rule: var(--docs-border-strong);
+  --docs-table-header-rule-width: var(--ds-border-width-focus);
   --docs-table-header-rule-opacity: 1;
-  --docs-table-row-rule: var(--docs-rule-soft);
+  --docs-table-row-rule: var(--docs-border-strong);
   --docs-table-row-rule-width: var(--ds-border-width-hairline);
   --docs-table-row-rule-opacity: 1;
   --docs-table-cell-pad-y: var(--ds-space-1);
@@ -303,13 +304,16 @@
   --docs-table-fg: var(--docs-text);
   /* Identifier cells in the first (key) column; other identifiers stay ink. */
   --docs-table-key-fg: var(--docs-syn-prop);
+  /* The lead (first) column's sans cells: the row's title, in ink. */
+  --docs-table-lead-fg: var(--docs-ink);
+  --docs-table-lead-weight: var(--ds-font-weight-medium);
   --docs-table-bg: var(--docs-panel);
   --docs-table-border-width: var(--ds-border-width-hairline);
   /* The radius follows the global --radius (2px at stock). */
   --docs-table-radius: var(--radius);
   /* The header follows the body size until it is set on its own. */
   --docs-table-header-text-size: var(--docs-table-font-size);
-  --docs-table-header-weight: var(--ds-font-weight-medium);
+  --docs-table-header-weight: var(--ds-font-weight-semibold);
   /* No column rules at stock; their color and opacity follow the row rules. */
   --docs-table-column-rule: var(--docs-table-row-rule);
   --docs-table-column-rule-width: var(--ds-border-width-none);
