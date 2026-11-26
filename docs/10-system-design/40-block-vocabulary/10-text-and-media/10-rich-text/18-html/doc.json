@@ -305,7 +305,7 @@
       "props": {},
       "text": [
         {
-          "insert": "Expansion animates from the inline block over 260 milliseconds, and closing returns over 220 milliseconds. Reduced-motion preferences turn off both animations."
+          "insert": "Expansion animates from the inline block over 260 milliseconds, and closing returns over 240 milliseconds. Reduced-motion preferences turn off both animations."
         }
       ],
       "children": []

@@ -54,7 +54,7 @@ The read view, editor preview, static Docs export, and article publisher use the
 
   - The viewer scrolls when zoomed content is larger than its area. Close or Escape returns focus to Expand.
 
-  - Expansion animates from the inline block over 260 milliseconds, and closing returns over 220 milliseconds. Reduced-motion preferences turn off both animations.
+  - Expansion animates from the inline block over 260 milliseconds, and closing returns over 240 milliseconds. Reduced-motion preferences turn off both animations.
 
 > **HTML: Interactive HTML example**
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { createElement, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useViewerEscape, useViewerMotion } from "../../transitions/useViewerMotion";
-import { fitHtmlScale, inlineHtmlLayout, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
+import { fitHtmlScale, inlineHtmlLayout, measureScrollbarWidth, HTML_FRAME_BRIDGE, HTML_FRAME_BRIDGE_HASH } from "./html-frame";
 import type { DocBlockDescriptor } from "../../render/block-registry";
 import { STRUCTURAL_OPS, blockAttrs, el, stringProp } from "../../render/descriptor-helpers";
 import { WIDE_LEFT_BLOCK_LAYOUT } from "../../render/block-layout";
@@ -80,6 +80,9 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   const [width, setWidth] = useState(0);
   const layoutWidthRef = useRef(0);
   const [windowHeight, setWindowHeight] = useState(800);
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  // The inline area's scroll position, kept while the viewer is open.
+  const inlineScrollRef = useRef<number | null>(null);
   const [area, setArea] = useState<Size>({ width: 0, height: 0 });
   const [measured, setMeasured] = useState<Size | null>(null);
   const [zoom, setZoom] = useState<number | null>(null);
@@ -98,6 +101,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
   useEffect(() => { setMeasured(null); }, [srcDoc, initialHeight]);
   useEffect(() => {
     setReady(true);
+    setScrollbarWidth(measureScrollbarWidth());
     // The slot is the in-flow box the inline iframe occupies (inside the
     // panel's border and body padding); it keeps its place while expanded.
     const slot = slotRef.current;
@@ -160,11 +164,18 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
     };
   }, [expanded, animateOpen, cancel]);
 
+  // Back inline, return the area to where the reader had scrolled it.
+  useLayoutEffect(() => {
+    if (expanded || inlineScrollRef.current === null || !areaRef.current) return;
+    areaRef.current.scrollTop = inlineScrollRef.current;
+    inlineScrollRef.current = null;
+  }, [expanded]);
+
   const naturalWidth = Math.max(1, width, measured?.width ?? 0);
   const naturalHeight = measured?.height ?? initialHeight;
   // Inline, the artifact fits the column width only, so its text stays
   // readable; the area stops at min(600px, 70vh) and scrolls inside.
-  const inline = width ? inlineHtmlLayout(naturalWidth, naturalHeight, width, windowHeight) : null;
+  const inline = width ? inlineHtmlLayout(naturalWidth, naturalHeight, width, windowHeight, scrollbarWidth) : null;
   const inlineScale = inline?.scale ?? 1;
   const scale = expanded ? zoom ?? fitHtmlScale(naturalWidth, naturalHeight, area.width || naturalWidth, area.height || naturalHeight) : inlineScale;
   const previewHeight = inline?.areaHeight ?? initialHeight;
@@ -177,6 +188,7 @@ export function HtmlBlock({ html, title, height = 400, allowScripts = false }: {
         {/* Static pages never hydrate, so the control appears only once it works. */}
         {ready && <button ref={expandRef} type="button" className={HTML_BUTTON_CLASSES} aria-label="Expand HTML content"
           onClick={() => {
+            inlineScrollRef.current = areaRef.current?.scrollTop ?? null;
             captureOrigin(dialogRef.current);
             setZoom(null);
             setExpanded(true);

@@ -46,13 +46,13 @@ test("expansion, zoom, and Escape reuse the iframe and restore focus", () => {
   expect(document.body.style.overflow).not.toBe("hidden");
 });
 
-test("tall HTML keeps its scale inline and scrolls inside the capped area", () => {
+test("tall HTML keeps its scale inline, scrolls inside the capped area, and keeps its scroll across Expand", () => {
   const rect = HTMLElement.prototype.getBoundingClientRect;
   HTMLElement.prototype.getBoundingClientRect = function () {
     return { x: 0, y: 0, top: 0, left: 0, right: 800, bottom: 0, width: 800, height: 0, toJSON() {} } as DOMRect;
   };
   try {
-    const { container } = render(<HtmlBlock html="<p>Tall</p>" title="Tall" />);
+    const { container, getByRole } = render(<HtmlBlock html="<p>Tall</p>" title="Tall" />);
     const frame = container.querySelector("iframe")!;
     const area = container.querySelector<HTMLElement>("[data-docs-html-area]")!;
     report(frame, 800, 3000);
@@ -63,6 +63,13 @@ test("tall HTML keeps its scale inline and scrolls inside the capped area", () =
     report(frame, 800, 200);
     expect(area.style.height).toBe("200px");
     expect(area.style.overflowY).toBe("hidden");
+    report(frame, 800, 3000);
+    area.scrollTop = 700;
+    fireEvent.click(getByRole("button", { name: "Expand HTML content" }));
+    area.scrollTop = 0;
+    fireEvent.click(getByRole("button", { name: "Close HTML viewer" }));
+    // Closing returns the inline area to where the reader had scrolled it.
+    expect(area.scrollTop).toBe(700);
   } finally {
     HTMLElement.prototype.getBoundingClientRect = rect;
   }

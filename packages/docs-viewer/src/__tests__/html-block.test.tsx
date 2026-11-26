@@ -69,5 +69,8 @@ describe("portable HTML block", () => {
     expect(inlineHtmlLayout(800, 2000, 800, 500)).toEqual({ scale: 1, areaHeight: 350, scrolls: true });
     // Small content never scales up and sits at its own height.
     expect(inlineHtmlLayout(200, 100, 800, 1000)).toEqual({ scale: 1, areaHeight: 100, scrolls: false });
+    // A scrolling area fits the width its vertical scrollbar leaves, so the right edge stays visible.
+    expect(inlineHtmlLayout(800, 2000, 800, 1000, 16)).toEqual({ scale: 0.98, areaHeight: 600, scrolls: true });
+    expect(inlineHtmlLayout(1600, 1000, 800, 1000, 16)).toEqual({ scale: 0.5, areaHeight: 500, scrolls: false });
   });
 });
