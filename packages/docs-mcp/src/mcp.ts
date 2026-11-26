@@ -3,24 +3,34 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { CallToolRequestSchema, ListToolsRequestSchema, ListResourcesRequestSchema, ReadResourceRequestSchema, RootsListChangedNotificationSchema } from '@modelcontextprotocol/sdk/types.js';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
-import { ensureDaemon, daemonFetch } from './lifecycle';
+import { daemonFetch, routeState, type DaemonState } from './lifecycle';
+import { remoteArguments, remoteSettings, routeCall } from './remote';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import manifest from '../package.json';
 import { INSTRUCTIONS } from './instructions';
 
 export async function startMcp(initialWorkspace:string){
- const state=await ensureDaemon();let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();
+ let workspace=resolve(initialWorkspace);let rootsReady:Promise<void>=Promise.resolve();
+ // Each call takes the remote route or the local one (remote.ts). The remote route never starts a local daemon.
+ const remote=remoteSettings();const servers=new Map<boolean,Promise<DaemonState>>();
+ const connect=(isRemote:boolean)=>{let pending=servers.get(isRemote);if(!pending){pending=routeState(isRemote);servers.set(isRemote,pending);pending.catch(()=>servers.delete(isRemote));}return pending;};
+ if(!remote)await connect(false);
  const identity={runId:newRunId(),...identityFromEnv()};
  const server=new Server({name:'docs-system',version:manifest.version},{capabilities:{tools:{},resources:{}},instructions:INSTRUCTIONS});
  const call=async(name:string,args:Record<string,unknown>={})=>{
   await rootsReady;
-  const response=await daemonFetch(state,'/rpc',{workspace,name,arguments:args,identity});if(!response.ok)throw new Error(`Docs service error: ${response.status}`);
+  const route=routeCall(remote,workspace,args);
+  let response:Response;
+  try{response=await daemonFetch(await connect(route.remote),'/rpc',{workspace:route.workspace,name,arguments:remoteArguments(route,args),identity});}
+  catch(error){servers.delete(route.remote);throw error;}
+  if(!response.ok){if(route.remote&&response.status>=500)servers.delete(true);throw new Error(`Docs service error: ${response.status}`);}
   const result=await response.json() as any;
-  if(name==='docs_capabilities'&&!result.isError&&typeof result.structuredContent?.scope?.workspace==='string')workspace=result.structuredContent.scope.workspace;
+  // A remote reply names the server path. Keep the client path, which maps to it again, so the next call takes the same route.
+  if(name==='docs_capabilities'&&!result.isError&&typeof result.structuredContent?.scope?.workspace==='string')workspace=route.remote?(typeof args.workspace==='string'?resolve(args.workspace):workspace):result.structuredContent.scope.workspace;
   return result;
  };
  server.setRequestHandler(ListToolsRequestSchema,async()=>{
-  const response=await daemonFetch(state,'/tools');if(!response.ok)throw new Error('Docs service unavailable');return await response.json() as any;
+  const response=await daemonFetch(await connect(!!remote),'/tools');if(!response.ok)throw new Error('Docs service unavailable');return await response.json() as any;
  });
  server.setRequestHandler(CallToolRequestSchema,async request=>call(request.params.name,request.params.arguments??{}));
  server.setRequestHandler(ListResourcesRequestSchema,async()=>({resources:[{uri:'codecaine://docs/guidance',name:'docs-authoring-guidance',description:'Current shared writing standards, style guide, and full component selection catalog in one text. Use docs_begin to pin it for editing.',mimeType:'text/markdown'}]}));

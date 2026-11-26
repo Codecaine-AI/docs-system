@@ -4,9 +4,12 @@ import { createInteractionService } from './service';
 import { textMeasureReady } from '@codecaine-ai/docs-server';
 import { PACKAGE_ROOT, writeDaemonState, implementationFingerprint, stateDirectory } from './lifecycle';
 import { join } from 'node:path';
+import { exitOnRootMarkerProblems } from './root-marker';
 import { unlink, mkdir, open, readFile } from 'node:fs/promises';
 
 export async function runDaemon(){
+ // The root marker start check runs before the lock and every file write (root-marker.ts).
+ exitOnRootMarkerProblems();
  await mkdir(stateDirectory(),{recursive:true,mode:0o700});
  const lockPath=join(stateDirectory(),'daemon.lock');
  let lock: Awaited<ReturnType<typeof open>>;

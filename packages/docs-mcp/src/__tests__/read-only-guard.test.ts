@@ -1,0 +1,122 @@
+import { afterEach, expect, test } from 'bun:test';
+import { mkdir, mkdtemp, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, relative } from 'node:path';
+import { createInteractionService } from '../service';
+import { CLI_PATH } from '../lifecycle';
+import { ROOT_MARKER } from '../root-marker';
+
+const SETTINGS = ['CODECAINE_DOCS_READ_ONLY', 'CODECAINE_DOCS_REQUIRED_ROOTS', 'CODECAINE_DOCS_CENTRAL_SITE', 'CODECAINE_DOCS_ROOT_ID'];
+const saved = Object.fromEntries(SETTINGS.map(name => [name, process.env[name]]));
+const temps: string[] = [];
+afterEach(async () => {
+  for (const name of SETTINGS) { if (saved[name] === undefined) delete process.env[name]; else process.env[name] = saved[name]; }
+  await Promise.all(temps.splice(0).map(dir => rm(dir, { recursive: true, force: true })));
+});
+
+const page = (id: string, text: string, link?: string) => ({ schemaVersion: 1, id, title: id, root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: ['p'] }, p: { id: 'p', type: 'paragraph', props: {}, children: [], text: [link ? { insert: text, attributes: { link } } : { insert: text }] } } });
+/** A whole-folder knowledge root with 2 pages, one linking to the other, and an optional root marker. */
+async function knowledgeRoot(role?: string) {
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'docs-read-only-'))); temps.push(root);
+  await writeFile(join(root, 'codecaine.docs.json'), JSON.stringify({ name: 'knowledge-base', docsRoot: '.' }));
+  for (const [path, doc] of [['alpha', page('alpha', 'Alpha text.')], ['beta', page('beta', 'See alpha.', '../alpha')]] as const) {
+    await mkdir(join(root, path), { recursive: true }); await writeFile(join(root, path, 'doc.json'), JSON.stringify(doc));
+  }
+  if (role) await writeFile(join(root, ROOT_MARKER), JSON.stringify({ kind: 'knowledge-root', id: 'kbr_test', role, name: 'Test', created: '2026-11-26T00:00:00Z' }));
+  return root;
+}
+/** Every file below a root with its size and modified time. */
+async function manifest(root: string) {
+  const lines: string[] = [];
+  for (const entry of await readdir(root, { recursive: true, withFileTypes: true })) {
+    const path = join(entry.parentPath, entry.name); const s = await stat(path);
+    lines.push(`${relative(root, path)} ${entry.isDirectory() ? 'dir' : `${s.size} ${s.mtimeMs}`}`);
+  }
+  return lines.sort();
+}
+async function open(root: string) {
+  const service = createInteractionService({ judgmentEngine: null });
+  const call = async (name: string, args: Record<string, unknown> = {}) => (await service.call(root, name, args)).structuredContent as any;
+  const found = await call('docs_capabilities');
+  return { service, call, found, project: found.projects[0]?.id as string | undefined };
+}
+async function tryWrite(call: (name: string, args?: Record<string, unknown>) => Promise<any>, project: string) {
+  const read = await call('docs_read', { project, path: 'alpha' });
+  const task = (await call('docs_begin')).task_id;
+  await call('docs_guidance', { task_id: task, topic: 'style' });
+  return call('docs_write_text', { task_id: task, project, path: 'alpha', expected_hash: read.hash, blockId: 'p', markdown: 'Changed.' });
+}
+
+test('a mirror root serves every read and metadata tool, refuses each write with 403, and writes nothing below the root', async () => {
+  process.env.CODECAINE_DOCS_CENTRAL_SITE = 'knowledge.example.test';
+  const root = await knowledgeRoot('mirror');
+  const before = await manifest(root);
+  const { service, call, found, project } = await open(root);
+  try {
+    expect(found.ok).toBe(true);
+    expect((await call('docs_read', { project, path: 'alpha' })).markdown).toContain('Alpha text.');
+    expect((await call('docs_tree', { project })).ok).toBe(true);
+    expect((await call('docs_search', { project, query: 'Alpha' })).ok).toBe(true);
+    expect((await call('docs_backlinks', { project, path: 'alpha' })).ok).toBe(true);
+    expect((await call('docs_check', { project, path: 'alpha' })).ok).toBe(true);
+    const refused = await tryWrite(call, project!);
+    expect(refused).toMatchObject({ ok: false, status: 403 });
+    expect(refused.detail).toContain('read-only mirror');
+    expect(refused.detail).toContain('https://knowledge.example.test');
+    const ui = (method: string, path: string, body?: unknown) => service.uiRequest(project!, new Request(`http://127.0.0.1/projects/${project}/api/${path}`, { method, headers: { 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) }));
+    expect((await ui('GET', 'bundle?path=alpha')).status).toBe(200);
+    const post = await ui('POST', 'title', { path: 'alpha', title: 'New' });
+    expect(post.status).toBe(403);
+    expect((await post.json() as any).detail).toContain('read-only mirror');
+  } finally { service.close(); }
+  expect(await manifest(root)).toEqual(before);
+});
+
+test('CODECAINE_DOCS_READ_ONLY=1 refuses writes on a root with no marker, and the same root writes without it', async () => {
+  const root = await knowledgeRoot();
+  process.env.CODECAINE_DOCS_READ_ONLY = '1';
+  const guarded = await open(root);
+  try {
+    const refused = await tryWrite(guarded.call, guarded.project!);
+    expect(refused).toMatchObject({ ok: false, status: 403 });
+    expect(refused.detail).toContain('CODECAINE_DOCS_READ_ONLY=1');
+  } finally { guarded.service.close(); }
+  delete process.env.CODECAINE_DOCS_READ_ONLY;
+  const open_ = await open(root);
+  try { expect((await tryWrite(open_.call, open_.project!)).ok).toBe(true); } finally { open_.service.close(); }
+});
+
+test('a live root opens only when CODECAINE_DOCS_REQUIRED_ROOTS names it', async () => {
+  const root = await knowledgeRoot('live');
+  const stray = await open(root);
+  try {
+    expect(stray.found.projects).toEqual([]);
+    expect(stray.found.warnings.join('\n')).toContain('is a live root, and CODECAINE_DOCS_REQUIRED_ROOTS does not name it');
+  } finally { stray.service.close(); }
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = root;
+  const listed = await open(root);
+  try { expect((await tryWrite(listed.call, listed.project!)).ok).toBe(true); } finally { listed.service.close(); }
+});
+
+test('a required root with no marker or a marker that does not parse refuses its project', async () => {
+  const root = await knowledgeRoot();
+  process.env.CODECAINE_DOCS_REQUIRED_ROOTS = root;
+  const missing = await open(root);
+  try { expect(missing.found.projects).toEqual([]); expect(missing.found.warnings.join('\n')).toContain(`has no ${ROOT_MARKER}`); } finally { missing.service.close(); }
+  await writeFile(join(root, ROOT_MARKER), '{not json');
+  const broken = await open(root);
+  try { expect(broken.found.projects).toEqual([]); expect(broken.found.warnings.join('\n')).toContain('is not valid JSON'); } finally { broken.service.close(); }
+});
+
+test('the docs daemon refuses to start with exit 78 when a required root has no valid marker', async () => {
+  const root = await knowledgeRoot();
+  const state = join(root, '..', `${relative(join(root, '..'), root)}-state`); temps.push(state);
+  const start = (env: Record<string, string>) => Bun.spawnSync([process.execPath, CLI_PATH, 'daemon'], { env: { ...process.env, CODECAINE_ENV_FILE: join(root, 'no-env'), CODECAINE_DOCS_STATE_DIR: state, ...env } as Record<string, string>, timeout: 15000 });
+  const missing = start({ CODECAINE_DOCS_REQUIRED_ROOTS: root });
+  expect(missing.exitCode).toBe(78);
+  expect(missing.stderr.toString()).toContain(`has no ${ROOT_MARKER}`);
+  await writeFile(join(root, ROOT_MARKER), JSON.stringify({ kind: 'knowledge-root', id: 'kbr_other', role: 'live' }));
+  const wrongId = start({ CODECAINE_DOCS_REQUIRED_ROOTS: root, CODECAINE_DOCS_ROOT_ID: 'kbr_test' });
+  expect(wrongId.exitCode).toBe(78);
+  expect(wrongId.stderr.toString()).toContain('not CODECAINE_DOCS_ROOT_ID kbr_test');
+}, 30000);

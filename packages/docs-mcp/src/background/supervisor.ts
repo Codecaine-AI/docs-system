@@ -10,8 +10,15 @@ import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type Devic
 import { loadCodecaineEnv } from '../codecaine-env';
 import { createActivator } from './activation';
 import { canActivate, createBackoff, createStateLog, rotateLog } from './activation-policy';
+import { loadUpstreamKey, upstreamRefusal, viewerEnabled } from './upstream-guard';
+import { exitOnRootMarkerProblems, ROOT_MARKER_EXIT } from '../root-marker';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
 loadCodecaineEnv();
+// Start checks, before any lock or file write: each CODECAINE_DOCS_REQUIRED_ROOTS root has a valid marker, and a set key file holds a key.
+exitOnRootMarkerProblems();
+let upstreamKey: string | null = null;
+try { upstreamKey = loadUpstreamKey(); } catch (e) { console.error(`[docs] ${e instanceof Error ? e.message : e}`); process.exit(ROOT_MARKER_EXIT); }
+const viewerOn = viewerEnabled();
 
 type Config = { sourceRoot: string; workspace: string; port: number; stateDirectory: string; legacyPort?: number };
 type Runtime = { process: ReturnType<typeof Bun.spawn>; url: string; hash: string; file: string };
@@ -58,7 +65,7 @@ const persist = createRegistrySaver(() => writeRegistry(registryFile, registry))
 const watchers: ReturnType<typeof watch>[] = [];
 const version = (await Bun.file(join(packageRoot, 'package.json')).json()).version;
 const startedAt = new Date().toISOString();
-function status() { return { service: 'codecaine-docs', pid: process.pid, version, startedAt, packageRoot, central: true, ready: !!active && !!viteUrl, build: active?.hash, buildState, error, port: server.port, projects: registry.projects.length, sourceRoot: config.sourceRoot }; }
+function status() { return { service: 'codecaine-docs', pid: process.pid, version, startedAt, packageRoot, central: true, ready: !!active && (!viewerOn || !!viteUrl), viewer: viewerOn, build: active?.hash, buildState, error, port: server.port, projects: registry.projects.length, sourceRoot: config.sourceRoot }; }
 async function runtimeFetch(runtime: Runtime, path: string, body?: unknown) {
   return fetch(new URL(path, runtime.url), { method: body === undefined ? 'GET' : 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(15000) });
 }
@@ -225,6 +232,8 @@ async function registerDevice() {
 type SocketData = { url: string; upstream?: WebSocket; pending: (string | Buffer)[] };
 const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<Response | undefined> => {
   const url = new URL(request.url);
+  // The upstream key check runs first, before the Host check and every route, the viewer WebSocket upgrade included.
+  const refused = upstreamRefusal(request, upstreamKey); if (refused) return refused;
   if (!localBrowserRequest(request)) return new Response('Forbidden origin', { status: 403 });
   const authenticated = request.headers.get('authorization') === `Bearer ${token}`;
   if (['/rpc', '/tools', '/health', '/shutdown'].includes(url.pathname) || /^\/projects\/[^/]+\/api\//.test(url.pathname)) {
@@ -254,11 +263,13 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
     if (!registry.projects.some(p => p.id === project.id)) return new Response('Project is not registered.', { status: 404 });
     if (project.redirect) return Response.redirect(new URL(project.redirect, url), 307);
     if (project.apiPath) return proxyRuntime(request, project.apiPath);
+    if (!viewerOn) return new Response('Not found', { status: 404 });
     if (!viteUrl) return new Response('Viewer is starting.', { status: 503 });
     const response = await fetch(`${viteUrl}/__viewer/`);
     return new Response(await response.text(), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
   }
   if (url.pathname.startsWith('/__viewer/') || url.pathname.startsWith('/@')) {
+    if (!viewerOn) return new Response('Not found', { status: 404 });
     if (!viteUrl) return new Response('Viewer is starting.', { status: 503 });
     if (request.headers.get('upgrade')?.toLowerCase() === 'websocket') {
       const upstream = new URL(url.pathname + url.search, viteUrl); upstream.protocol = 'ws:';
@@ -319,7 +330,7 @@ async function startViewer() {
     }
   } finally { clearTimeout(timeout); }
 }
-await startViewer();
+if (viewerOn) await startViewer();
 for (const workspace of registry.workspaces) {
   await remember(await discoverOn(active!, workspace).catch(() => undefined));
 }

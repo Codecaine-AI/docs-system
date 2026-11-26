@@ -16,6 +16,9 @@ import { implementationFingerprint } from './lifecycle';
 import { textMeasureBackend, textMeasureReady, watchDocsRoot } from '@codecaine-ai/docs-server';
 import { defaultJudgmentEngine } from './jev-engine';
 import type { JudgmentEngine } from './lint-feedback';
+import { openBacklinksDb, rescanAll } from '@codecaine-ai/docs-index/backlinks';
+import { primeBacklinksDb } from '@codecaine-ai/docs-server';
+import { readOnlyMessage, rootAccess } from './root-marker';
 
 const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,...(error?{isError:true}:{})});
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
@@ -158,6 +161,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  const WORKSPACE_MANIFESTS=['members.json','package.json'];
  /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
  const MTIME_MARGIN_MS=50;
+ const memoryBacklinks=new Set<string>();
  type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
  /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
  type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
@@ -192,6 +196,13 @@ export function createInteractionService(options: { managed?: boolean; projectId
  async function scan(workspace:string):Promise<CachedDiscovery>{
   const since=Date.now()-MTIME_MARGIN_MS;
   const discovery=await discoverProjects(workspace);
+  // The root marker and the read-only guard (root-marker.ts): a refused root never opens, and a read-only root keeps its backlinks index in memory, so nothing is written below it.
+  discovery.projects=discovery.projects.filter(project=>{
+   const access=rootAccess(project.docsRoot);
+   if(!access.open){discovery.warnings.push(`Refused ${project.name}: ${access.reason}`);return false;}
+   if(access.readOnly&&!memoryBacklinks.has(project.docsRoot)){memoryBacklinks.add(project.docsRoot);primeBacklinksDb(project.docsRoot,openBacklinksDb(':memory:').then(async db=>{await rescanAll(project.docsRoot,db);return db;}));}
+   return true;
+  });
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
   // Every store, watcher and resolver of a docs root honors its project's exclude globs.
   for(const project of discovery.projects)setDocsRootExclude(project.docsRoot,project.exclude);
@@ -326,6 +337,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
    const {task_id,...toolArgs}=args;
    const taskId=typeof task_id==='string'?task_id:'';
    if(!MUTATION_READS.has(name)){
+    const access=rootAccess(projects.get(args.project)!.docsRoot);
+    if(!access.open||access.readOnly)return reply({ok:false,status:403,detail:readOnlyMessage(access)},true);
     const task=pin(liveTask(task_id,discovery.workspace));
     if(!task)throw new Error(task_id===undefined?'Call docs_begin in this workspace before editing, then include task_id.':'Unknown or ended task_id for this workspace. Call docs_begin in this workspace before editing and use its task_id.');
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed during this task. Restart the Docs service and begin a new task before further edits.');
@@ -350,6 +363,8 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  async function uiRequest(projectId:string,request:Request){
   const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
+  // Under the read-only guard only GET and HEAD pass. The one POST read, export-pdf, is answered before this by the managed runtime.
+  if(!['GET','HEAD'].includes(request.method)){const access=rootAccess(project.docsRoot);if(!access.open||access.readOnly)return Response.json({error:readOnlyMessage(access),detail:readOnlyMessage(access)},{status:403});}
   let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot,{exclude:project.exclude??[]}),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));

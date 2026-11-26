@@ -4,7 +4,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import { startMcp } from './mcp';
 import { runDaemon } from './daemon';
-import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint } from './lifecycle';
+import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint, routeState } from './lifecycle';
+import { remoteArguments, remoteSettings, routeCall } from './remote';
 import { installClients, doctorClients, restoreInstallation } from './install';
 import { loadGuidance } from './guidance';
 import { guidanceManifest } from './guidance-manifest';
@@ -52,9 +53,12 @@ try{
    break;
   }
   case 'capabilities':case 'call':case 'tools':{
-   const state=await ensureDaemon();
    const name=command==='capabilities'?'docs_capabilities':args[0];
-   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='capabilities'?{}:JSON.parse(option('--args','{}')!),identity:{runId:newRunId(),...identityFromEnv()}});
+   const toolArgs=command==='capabilities'?{}:JSON.parse(option('--args','{}')!);
+   // The remote route (remote.ts) never starts a local daemon. tools asks the remote server whenever remote mode is on.
+   const remote=remoteSettings();const route=command==='tools'?{remote:!!remote,workspace}:routeCall(remote,workspace,toolArgs);
+   const state=await routeState(route.remote);
+   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace:route.workspace,name,arguments:remoteArguments(route,toolArgs),identity:{runId:newRunId(),...identityFromEnv()}});
    const result=await response.json();out(result);if(!response.ok||(result as any).isError)process.exitCode=1;break;
   }
   case 'install':{

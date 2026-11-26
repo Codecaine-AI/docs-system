@@ -6,6 +6,10 @@ import { memoryReport, startMemoryLog } from './runtime-health';
 import type { DocsProject } from './discovery';
 import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
 import { dirname, join, resolve } from 'node:path';
+import { exitOnRootMarkerProblems } from './root-marker';
+
+// The supervisor passes its env, so the runtime repeats its root marker start check.
+exitOnRootMarkerProblems();
 
 const token = process.env.CODECAINE_DOCS_RUNTIME_TOKEN!;
 const supervisorPid = process.ppid;
