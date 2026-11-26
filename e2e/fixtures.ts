@@ -1,6 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { cp, mkdir } from "node:fs/promises";
-import { createServer } from "node:net";
 import path from "node:path";
 
 import { test as base } from "@playwright/test";
@@ -14,27 +13,18 @@ export type DocsServer = {
   url: string;
 };
 
-function freePort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const server = createServer();
-    server.once("error", reject);
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      server.close(() => {
-        if (address && typeof address === "object") resolve(address.port);
-        else reject(new Error("Could not read a free port"));
-      });
-    });
-  });
-}
-
-/** Resolves when `docs serve` logs its URL; rejects if it exits first. */
-function serverListening(child: ChildProcess, url: string): Promise<void> {
+/**
+ * Resolves with the URL `docs serve` logs once it is listening; rejects if it
+ * exits first. With `--port 0` the server binds an OS-chosen port itself, so
+ * no other process can take the port between choosing and binding it.
+ */
+function serverUrl(child: ChildProcess): Promise<string> {
   return new Promise((resolve, reject) => {
     let output = "";
     const onData = (chunk: Buffer) => {
       output += chunk.toString();
-      if (output.includes(url)) resolve();
+      const ready = /\[docs-workbench\] (http:\/\/127\.0\.0\.1:\d+)\n/.exec(output);
+      if (ready?.[1]) resolve(ready[1]);
     };
     child.stdout?.on("data", onData);
     child.stderr?.on("data", onData);
@@ -59,24 +49,28 @@ export const test = base.extend<{}, { docsServer: DocsServer }>({
       await mkdir(workerDir, { recursive: true });
       await cp(corpus, docsRoot, { recursive: true });
 
-      const port = await freePort();
-      const url = `http://127.0.0.1:${port}`;
-      const { DOCS_SHARED_API_URL, DOCS_SHARED_PROJECT_ID, DOCS_SHARED_API_TOKEN, ...env } = process.env;
+      // Playwright sets FORCE_COLOR for workers. Without it removed, Bun wraps
+      // the server's log lines in ANSI codes and the ready line never matches.
+      const { DOCS_SHARED_API_URL, DOCS_SHARED_PROJECT_ID, DOCS_SHARED_API_TOKEN, FORCE_COLOR, ...env } =
+        process.env;
       const child = spawn(
         "bun",
-        ["packages/docs-cli/src/index.ts", "serve", "--standalone", "--root", docsRoot, "--port", String(port)],
+        ["packages/docs-cli/src/index.ts", "serve", "--standalone", "--root", docsRoot, "--port", "0"],
         {
           cwd: repoRoot,
           // An empty state dir keeps the machine's global themes and docs service out of the run.
-          env: { ...env, CODECAINE_DOCS_STATE_DIR: path.join(workerDir, "state") },
+          env: { ...env, NO_COLOR: "1", CODECAINE_DOCS_STATE_DIR: path.join(workerDir, "state") },
           stdio: ["ignore", "pipe", "pipe"],
         },
       );
+      // A worker torn down mid-setup skips the finally below; never leave the server behind.
+      const killOnWorkerExit = () => child.kill();
+      process.once("exit", killOnWorkerExit);
       const exited = new Promise((resolve) => child.once("exit", resolve));
       try {
-        await serverListening(child, url);
-        await use({ docsRoot, url });
+        await use({ docsRoot, url: await serverUrl(child) });
       } finally {
+        process.off("exit", killOnWorkerExit);
         child.kill();
         await exited;
       }
