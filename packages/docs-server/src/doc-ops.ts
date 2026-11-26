@@ -18,7 +18,7 @@ import {
   validateAnnotationsDocument,
 } from "@codecaine-ai/docs-model/annotations-schema";
 import { resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
-import { docsFs } from "@codecaine-ai/docs-index/safe-path";
+import { docsFs, isDocsPathRefusal } from "@codecaine-ai/docs-index/safe-path";
 
 import { withPathLock } from "./path-mutex";
 import { createContentHash } from "./content-hash";
@@ -175,7 +175,13 @@ export async function applyDocOpsToBundle(
 
     const serialized = serializeDocDocument(validated.document);
     // Through the docs-root chokepoint: re-checked inside the path lock, at the write.
-    await docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized);
+    try {
+      await docsFs(docsRoot).atomicWrite(loaded.jsonAbs, serialized);
+    } catch (error) {
+      // A refused write (a lost root answers 503) keeps its status.
+      if (isDocsPathRefusal(error)) return { ok: false, status: error.status, detail: error.message };
+      throw error;
+    }
     const hash = createContentHash(serialized);
     const patchId = randomUUID();
     recordDocPatch(patchId, loaded.bundlePath, inverse, hash, docsRoot);

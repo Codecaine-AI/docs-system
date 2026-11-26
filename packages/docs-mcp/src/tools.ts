@@ -15,7 +15,7 @@ import {
   canonicalBundleSrc, classifyBlockSrc, resolveBundleRelativeSrc,
 } from "@codecaine-ai/docs-model/bundle-src";
 import { isExcludedOnDiskUnderDocsRoot, resolveDocBundleJsonPath } from "@codecaine-ai/docs-index/paths";
-import { checkDocsPath, docsFs, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
+import { checkDocsPath, docsFs, isDocsPathRefusal, realDocsRootPath } from "@codecaine-ai/docs-index/safe-path";
 import { normalizeBundlePath } from "@codecaine-ai/docs-server/bundle";
 import { createDocsStore, type DocsStore } from "@codecaine-ai/docs-server/store";
 import {
@@ -232,7 +232,7 @@ export function createDocsTools(context: DocsToolContext): DocsTool[] {
           for (const entry of input.entries ?? []) await storeFor({project:input.project,path:entry.docPath});
         }
         return response(await run(input, store, ctx));
-      } catch (error) { return response(failure(error instanceof Error ? error.message : String(error))); }
+      } catch (error) { return response(failure(error instanceof Error ? error.message : String(error), isDocsPathRefusal(error) ? error.status : 400)); }
     } };
   }
   /** The document a write replaces: null when the bundle does not exist yet, undefined when unreadable. */

@@ -289,6 +289,9 @@ function excludedByPolicy(docsRoot: string, rel: string): boolean {
  */
 export function checkDocsPath(docsRoot: string, target: string, intent: DocsPathIntent = "read"): DocsPathCheck {
   const shown = typeof target === "string" ? target : String(target);
+  // A write to a lost or changed root is refused first, so a preflight refuses it before any write starts.
+  const lost = intent === "read" || intent === "inspect" ? null : rootWriteCheck?.(docsRoot);
+  if (lost) return refusal(503, "root-lost", shown, lost);
   if (typeof target !== "string" || target.includes("\0")) {
     return refusal(400, "unsafe", shown, `Invalid docs path: ${shown}`);
   }
@@ -568,11 +571,7 @@ export function setDocsRootWriteCheck(check: ((docsRoot: string) => string | nul
 
 /** The guarded filesystem for `docsRoot`. */
 export function docsFs(docsRoot: string): DocsFs {
-  const guard = (path: string, intent: DocsPathIntent = "read") => {
-    const lost = intent === "read" || intent === "inspect" ? null : rootWriteCheck?.(docsRoot);
-    if (lost) throw new DocsPathRefusedError(refusal(503, "root-lost", path, lost));
-    return guardDocsPath(docsRoot, path, intent);
-  };
+  const guard = (path: string, intent: DocsPathIntent = "read") => guardDocsPath(docsRoot, path, intent);
   const listing = async (path: string) => {
     const dir = guard(path, "read");
     return classifyEntries(docsRoot, dir, await fsp.readdir(dir.canonical, { withFileTypes: true }));
