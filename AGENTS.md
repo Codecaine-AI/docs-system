@@ -31,22 +31,28 @@ Diff base for the changed-files gate: `origin/main`.
 | Check | Command |
 | --- | --- |
 | Changed-files gate | `make test-changed` |
-| Touched-area keeper suites, without quarantined tests | `bunx playwright test <keeper suite> --grep-invert @quarantine` |
+| Keeper suites, without quarantined tests | `bunx playwright test --grep-invert @quarantine` |
 
 - `make test-changed` runs the Bun areas that the files changed against
   `origin/main` reach, including uncommitted and untracked files. It reads
   imports from source text, so it can miss a computed import. A change outside
   `packages/` runs every area.
-- CI (`.github/workflows/test.yml`) runs all 10 Bun areas on every pull
-  request, push to main and manual run, one job per area, with
-  `make test-<area>`. The areas are docs-model, docs-style, docs-index,
-  docs-cli, docs-server, docs-viewer, docs-workbench, docs-mcp, docs-publish
-  and repo. `bun scripts/test-packages.ts --list` prints them.
-- The keeper suites are listed in the product-area map below. Until an area's
-  suite exists, `e2e/smoke.spec.ts` is the only keeper flow.
+- CI (`.github/workflows/test.yml`) runs on every pull request, push to main
+  and manual run:
+  - all 10 Bun areas, one job per area, with `make test-<area>`: docs-model,
+    docs-style, docs-index, docs-cli, docs-server, docs-viewer,
+    docs-workbench, docs-mcp, docs-publish and repo
+    (`bun scripts/test-packages.ts --list` prints them);
+  - one `e2e` job that runs every keeper suite with
+    `bunx playwright test --grep-invert @quarantine`, so CI needs no area
+    selection.
+- Locally, run the keeper suites of the areas you touched, picked with the
+  product-area map and routing rules below:
+  `bunx playwright test <keeper suite> --grep-invert @quarantine`.
 - Before a PR, also run the agent check: start the real app with
   `bun run docs serve --standalone --root <scratch docs root> --port <port>`
-  and use the changed flow. Never point it at real user docs.
+  and use the changed flow. Never point it at real user docs. Attach its PR
+  evidence with the ui-proof skill. The agent check runs outside CI.
 
 ### Tier 3: before a release or a big merge
 
@@ -59,26 +65,54 @@ Diff base for the changed-files gate: `origin/main`.
 ### Product areas
 
 Each area's keeper suite is its known-flow registry. A suite marked "planned"
-does not exist yet.
+does not exist yet; until it does, `e2e/smoke.spec.ts` is the only keeper flow.
 
 | Area | Main user flows | Keeper suite | Package globs |
 | --- | --- | --- | --- |
-| Viewer and navigation | Open a doc from the tree, follow a doc link, side peek, hash routes | `e2e/viewer.spec.ts` (planned; `e2e/smoke.spec.ts` today) | `packages/docs-viewer/src/render/**`, `packages/docs-workbench/web/src/_components/{AppShell,RouterShell,TopbarTitle,TopbarActions}/**`, `packages/docs-index/**` |
-| Editing and autosave | Edit text in place, autosave, undo, page title edit, stale-save and draft-lock conflicts | `e2e/editor.spec.ts` (planned) | `packages/docs-viewer/src/editor/**`, `packages/docs-workbench/web/src/_components/DocPage/**`, `packages/docs-server/**`, `packages/docs-model/**` |
-| Style rail and themes | Open Style, move a knob, save, export and import a theme, reset | `e2e/style-rail.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/{StyleRailPanel,StyleRailOverlay}/**`, `packages/docs-workbench/web/src/theme/**`, `themes/**` |
-| Structured blocks | Read and edit a structured table, state shape, interaction surface and file tree | `e2e/blocks.spec.ts` (planned) | `packages/docs-viewer/src/components/**`, `packages/docs-model/src/components/**` |
-| Embeds and full-screen viewers | Open a sequence or canvas embed full screen, zoom, Fit, close with Escape | `e2e/embeds.spec.ts` (planned) | `packages/docs-workbench/web/src/shared/_components/{SequenceEmbed,CanvasEmbed}/**`, `packages/docs-viewer/src/transitions/**` |
-| AI panel and annotations | Show the AI panel, annotate a block, stage, accept and reject a proposal | `e2e/ai-panel.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/DocPage/lab/**`, `packages/docs-server/src/changesets/**` |
+| Viewer and navigation | Open a doc from the tree, follow a doc link, side peek, hash routes | `e2e/viewer.spec.ts` (planned; `e2e/smoke.spec.ts` today) | `packages/docs-viewer/src/render/**`, `packages/docs-viewer/src/peek/**`, `packages/docs-viewer/src/styles/{rich-text,list-markers}.css`, `packages/docs-workbench/web/src/_components/{AppShell,RouterShell,TopbarTitle,TopbarActions}/**`, `packages/docs-workbench/web/src/_lib/hash-route.ts`, `packages/docs-workbench/web/src/shared/doc-title.ts`, `packages/docs-index/**` |
+| Editing and autosave | Edit text in place, autosave, undo, page title edit, stale-save and draft-lock conflicts, live updates | `e2e/editor.spec.ts` (planned) | `packages/docs-viewer/src/editor/**`, `packages/docs-workbench/web/src/_components/DocPage/**`, `packages/docs-workbench/web/src/data/api/{docs,draft-lock,events}.ts`, `packages/docs-workbench/web/src/data/{client,session,shared-events}.ts`, `packages/docs-server/**`, `packages/docs-model/**` |
+| Style rail and themes | Open Style, move a knob, save, export and import a theme, reset, code theme | `e2e/style-rail.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/{StyleRailPanel,StyleRailOverlay}/**`, `packages/docs-workbench/web/src/theme/**`, `packages/docs-workbench/web/src/shared/style-rail-settings/**`, `packages/docs-workbench/web/src/shared/{docs-fonts,useCodeTheme}.ts`, `packages/docs-workbench/web/src/_lib/{style-rail-*,theme-boot*,useStyleInspector*,useTheme*,code-theme-style,grain-code-mask}.ts`, `packages/docs-workbench/web/src/data/api/{themes,config}.ts`, `packages/docs-workbench/web/src/data/project-storage.ts`, `themes/**` |
+| Structured blocks | Read and edit a structured table, state shape, interaction surface, file tree and code block | `e2e/blocks.spec.ts` (planned) | `packages/docs-viewer/src/components/**`, `packages/docs-viewer/src/styles/code.css`, `packages/docs-model/src/components/**` |
+| Embeds and full-screen viewers | Open a sequence, canvas or image embed full screen, zoom, Fit, close with Escape | `e2e/embeds.spec.ts` (planned) | `packages/docs-workbench/web/src/shared/_components/{SequenceEmbed,CanvasEmbed}/**`, `packages/docs-viewer/src/transitions/**`, `packages/docs-viewer/src/styles/{image-grid,image-viewer}.css` |
+| AI panel and annotations | Show the AI panel, annotate a block, stage, accept and reject a proposal | `e2e/ai-panel.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/DocPage/lab/**`, `packages/docs-viewer/src/lab/**`, `packages/docs-viewer/src/annotate/**`, `packages/docs-workbench/web/src/data/api/{annotations,changesets,proposals}.ts`, `packages/docs-server/src/changesets/**` |
 | Export and publish | Export a static site or a PDF, publish a draft editor | `e2e/export.spec.ts` (planned) | `packages/docs-workbench/web/src/_components/ExportDialog/**`, `packages/docs-workbench/src/{export,pdf-export}.ts`, `packages/docs-publish/**` |
-| MCP and CLI | Agent tools and CLI commands (no browser flow) | None: the docs-mcp and docs-cli Bun areas own these flows | `packages/docs-mcp/**`, `packages/docs-cli/**` |
+| MCP, CLI and writing style | Agent tools, CLI commands and prose-style lints (no browser flow) | None: the docs-mcp, docs-cli and docs-style Bun areas own these flows | `packages/docs-mcp/**`, `packages/docs-cli/**`, `packages/docs-style/**` |
 
-### Fallback
+`packages/docs-style` is the prose-style rule engine (rules, judge, sweep) that
+the CLI runs. No UI flow reaches it, so its owner tests are its Bun area.
+
+Routing rules:
+
+- A file that matches more than one area runs every matched keeper suite.
+- A UI file under `packages/docs-viewer/src` or `packages/docs-workbench/web/src`
+  that matches no area runs all keeper suites. This fails toward running more.
+  It covers the shared shell: `App.tsx`, `main.tsx`, `index.css`,
+  `globals.d.ts`, `playground/**`, `data/api/{http,index}.ts`,
+  `_lib/{constants,utils,useDocsShellEffects}.ts`, and docs-viewer's
+  `client.tsx`, `index.ts` and `ui/**`.
+
+### Budget, parallelism and runner setup
+
+- Budget: 10 to 15 minutes of Tier 2 CI wall time. The Bun area jobs and the
+  e2e job run in parallel.
+- Measured 2026-11-26 on PR #62: the longest Bun area job took 73 s.
+- Playwright (`playwright.config.ts`) runs one chromium project with
+  `fullyParallel: true` and `retries: 0`. Each worker gets a fresh isolated
+  fixture docs root per run, copied from `e2e/fixtures/corpus` into
+  `test-results/fixture-roots/<run id>/worker-<n>`, and starts its own server
+  on it (`e2e/fixtures.ts`). Tests never share or write the real corpus.
+- An over-budget run is a finding. Never add retries or cut keeper flows to fit.
+
+### Fallbacks
 
 - Without a changed-files gate, Tier 2 runs the full suite of every touched
   package (`make test-<area>` for each).
 - With no stated commands, read the CI workflow, package scripts and task
   runner config, and use the commands CI runs. Do not invent a command CI
   never runs.
+- `scripts/prune inventory` saves this section as `instructions` in
+  `commands.json` without setting commands. Edit `commands.json` to match
+  before `verify --baseline`.
 
 ### Quarantine
 
@@ -91,9 +125,3 @@ does not exist yet.
   listed here and still runs in Tier 2 and CI.
 - It times out at 10 s in about 2 of 7 runs, locally and in CI. Fix it before
   the expiry. If it is deleted, its flow must keep an owner test first.
-
-### Tier 2 budget
-
-- Budget: 10 to 15 minutes of CI wall time. The jobs run in parallel.
-- Measured 2026-11-26 on PR #62: the longest job took 73 s.
-- An over-budget run is a finding. Never add retries or cut keeper flows to fit.
