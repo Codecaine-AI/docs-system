@@ -15,4 +15,14 @@ const bunFetchApi = {
 };
 (globalThis as Record<symbol, unknown>)[Symbol.for("docs-system.bunFetchApi")] = bunFetchApi;
 
-GlobalRegistrator.register();
+GlobalRegistrator.register({
+  settings: {
+    // Tests never load a page from the network. An iframe page (a video or
+    // app embed) or a new page opened by a modified link click would
+    // otherwise load the real site, and its parse errors (scripts are not
+    // loaded) reach console.error whenever the response lands, inside
+    // whichever later test is running.
+    disableIframePageLoading: true,
+    navigation: { disableChildPageNavigation: true },
+  },
+});

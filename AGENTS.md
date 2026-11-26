@@ -101,6 +101,9 @@ Routing rules:
   - The SPA build files `packages/docs-workbench/web/{index.html,playground.html,vite.config.ts}`.
   - The e2e support files: `playwright.config.ts`, `e2e/fixtures.ts`,
     `e2e/fixtures/**` and `e2e/support/**`.
+  - The dependency files: the root `package.json` and `bun.lock`, and
+    `packages/docs-workbench/package.json` and
+    `packages/docs-viewer/package.json`.
 
 ### Budget, parallelism and runner setup
 

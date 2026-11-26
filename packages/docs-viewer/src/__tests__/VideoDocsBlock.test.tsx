@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -60,10 +60,7 @@ describe("parseVideoEmbed — provider URL parsing", () => {
 });
 
 describe("VideoBlock — provider urls (link card, player on request)", () => {
-  // happy-dom would otherwise fetch the provider page into the swapped iframe.
-  const dom = (window as unknown as { happyDOM?: { settings: { disableIframePageLoading: boolean } } }).happyDOM;
-  beforeAll(() => { if (dom) dom.settings.disableIframePageLoading = true; });
-  afterAll(() => { if (dom) dom.settings.disableIframePageLoading = false; });
+  // The root happydom.ts preload never fetches an iframe's page.
   afterEach(cleanup);
 
   it("renders a provider url as a link card until the reader asks for the player", () => {

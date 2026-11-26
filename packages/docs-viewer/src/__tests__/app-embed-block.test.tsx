@@ -1,4 +1,4 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "bun:test";
+import { afterEach, describe, expect, it } from "bun:test";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { validateDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { checkStateProps } from "../../../docs-model/src/components/validate";
@@ -10,10 +10,7 @@ import type { ReactNodeViewProps } from "@tiptap/react";
 import { AppEmbedEditorNodeView } from "../components/rich-text/app-embed-editor-node-view";
 import { DocEditorNodeViewProvider } from "../editor/views/node-view-context";
 
-// happy-dom would otherwise fetch every app URL into its iframe.
-const dom = (window as unknown as { happyDOM?: { settings: { disableIframePageLoading: boolean } } }).happyDOM;
-beforeAll(() => { if (dom) dom.settings.disableIframePageLoading = true; });
-afterAll(() => { if (dom) dom.settings.disableIframePageLoading = false; });
+// The root happydom.ts preload never fetches an iframe's page.
 afterEach(cleanup);
 
 /** A host serving every app at `https://apps.test/<app>/<view>?<params>`, with a change channel per app. */
