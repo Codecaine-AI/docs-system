@@ -233,8 +233,8 @@ describe("DocEditor save boundary", () => {
     // The SUBJECT here is the save boundary (diff -> exactly one correct
     // updateBlock op), not the DOM-sync pipeline — so the edit is driven
     // deterministically through the real Editor's transaction seam
-    // (`onEditorReady`), same as the draft-lock suite. The dom-sync
-    // pipeline has its own dedicated test below.
+    // (`onEditorReady`), same as the draft-lock suite. Typing into the real
+    // contenteditable belongs to the editor keeper flow in a browser.
     act(() => {
       const { to } = findTextRange(editorInstance!, "Docs Model Sample");
       editorInstance!.commands.insertContentAt(to, " (edited)");
@@ -465,51 +465,6 @@ describe("DocEditor save boundary", () => {
     expect(reloaded).toBe(1);
   });
 
-  it("the DOM-mutation + input-event pipeline reaches ProseMirror state (dom-sync)", async () => {
-    // The ONE test whose subject genuinely is the DOM -> PM sync path
-    // (happy-dom MutationObserver -> PM domObserver -> editor state), i.e.
-    // how a real contenteditable keystroke lands. happy-dom's mutation
-    // records can be delivered late under full-suite load, so this is
-    // written slow-but-deterministic: each poll re-fires `input` (each
-    // firing drains freshly-queued records via PM's takeRecords-based
-    // flush) under a generous ceiling — CONVERGENCE is the assertion, not
-    // latency. The save-boundary/lock tests above deliberately avoid this
-    // pipeline (it's not their subject) via the `onEditorReady`
-    // transaction seam; this test is why that seam isn't a coverage loss.
-    const doc = loadFixture();
-    let editorInstance: Editor | null = null;
-    renderWithClient(
-      <DocEditor
-        document={doc}
-        onApplyOps={async () => ({ ok: true })}
-        onEditorReady={(e) => {
-          editorInstance = e;
-        }}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(editorInstance).toBeTruthy();
-      expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
-    });
-
-    const heading = screen.getByText("Docs Model Sample");
-    heading.textContent = "Docs Model Sample (dom)";
-    const proseMirror = document.querySelector('[data-doc-editor="true"]') as HTMLElement;
-
-    await waitFor(
-      () => {
-        fireEvent.input(proseMirror);
-        expect(editorInstance!.getText()).toContain("Docs Model Sample (dom)");
-      },
-      { timeout: 10_000 },
-    );
-
-    // And the React side (dirty indicator) reflects the PM-state change.
-    await waitFor(() => {
-      expect(screen.getByText("Unsaved changes")).toBeTruthy();
-    });
-  }, 12_000);
 });
 
 /**
