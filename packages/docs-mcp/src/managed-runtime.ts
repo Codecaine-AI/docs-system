@@ -7,6 +7,7 @@ import type { DocsProject } from './discovery';
 import { handlePdfExport } from '@codecaine-ai/docs-workbench/pdf-export';
 import { dirname, join, resolve } from 'node:path';
 import { exitOnRootMarkerProblems } from './root-marker';
+import { inside } from './paths';
 
 // The supervisor passes its env, so the runtime repeats its root marker start check.
 exitOnRootMarkerProblems();
@@ -25,10 +26,19 @@ const codeThemesRoot = resolve(process.env.CODECAINE_DOCS_CODE_THEMES || join(di
 // Layout lints measure with text-measure's exact HarfBuzz backend: load it before serving (health reports it as textMeasure).
 await textMeasureReady();
 const service = createInteractionService({ managed: true, watchFs: true, globalThemesRoot, codeThemesRoot, projectIds: new Map(registry.projects.map(p => [p.docsRoot, p.id])), registryFile: process.env.CODECAINE_DOCS_REGISTRY! });
-for (const workspace of registry.workspaces) {
-  try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }
-}
 await loadGuidance();
+// The scan of the registered workspaces runs after the ready line, so no workspace holds the start. It opens one file watcher
+// per docs root: 457 roots took 97 s on 2026-11-26, past the supervisor's 30 s start limit.
+let scanning = true;
+/** The project of a request. While the startup scan runs, a registered project not scanned yet gets the workspaces that hold it scanned first, the deepest first. */
+async function projectFor(id: string) {
+  const registered = scanning && !service.project(id) ? registry.projects.find(p => p.id === id) : undefined;
+  if (registered) for (const workspace of registry.workspaces.filter(w => inside(w, registered.root)).sort((a, b) => b.length - a.length)) {
+    if (service.project(id)) break;
+    await service.discover(workspace).catch(() => undefined);
+  }
+  return service.project(id);
+}
 const record = createRpcRecorder();
 const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, async fetch(request) {
   if (request.headers.get('authorization') !== `Bearer ${token}`) return new Response('Unauthorized', { status: 401 });
@@ -52,7 +62,7 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
     }
     const match = url.pathname.match(/^\/projects\/([^/]+)\/api(?:\/|$)/);
     if (match) {
-      const project = service.project(match[1]!);
+      const project = await projectFor(match[1]!);
       // A write to a project the last scan closed (its root marker is gone or changed) gets the service's 503.
       if (!project && !['GET', 'HEAD', 'OPTIONS'].includes(request.method)) return service.uiRequest(match[1]!, request);
       if (!project) return Response.json({ detail: 'Unknown project; register its workspace first.' }, { status: 404 });
@@ -64,6 +74,12 @@ const server = Bun.serve({ hostname: '127.0.0.1', port: 0, idleTimeout: 120, asy
   } catch (error) { return Response.json({ detail: String(error) }, { status: 500 }); }
 } });
 console.log(JSON.stringify({ ready: true, port: server.port }));
+void (async () => {
+  for (const workspace of registry.workspaces) {
+    try { await service.discover(workspace); } catch (error) { console.error(`Unavailable workspace ${workspace}: ${error}`); }
+  }
+  scanning = false;
+})();
 // One memory line every 10 minutes in the supervisor's background.log.
 startMemoryLog();
 process.on('SIGTERM', () => { service.close(); server.stop(true); process.exit(0); });

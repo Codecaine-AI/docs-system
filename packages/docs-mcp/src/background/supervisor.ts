@@ -120,18 +120,19 @@ async function startRuntime(build: { hash: string; file: string }): Promise<Runt
 const activationBackoff = createBackoff();
 const updateBackoff = createBackoff();
 const waitLog = createStateLog();
+async function swap(next: Runtime) {
+  const previous = active;
+  active = next; candidate = undefined;
+  if (previous) previousBuild = { hash: previous.hash, file: previous.file };
+  buildState = 'ready'; error = null;
+  await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: next.hash, file: next.file }), { mode: 0o600 });
+  if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
+  console.error(`[docs] Activated ${next.hash.slice(0, 12)}`);
+}
 const activator = createActivator<Runtime>({
   fetchRuntime: async (runtime, path, body) => (await runtimeFetch(runtime, path, body)).json(),
   workspaces: () => registry.workspaces,
-  swap: async next => {
-    const previous = active;
-    active = next; candidate = undefined;
-    if (previous) previousBuild = { hash: previous.hash, file: previous.file };
-    buildState = 'ready'; error = null;
-    await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: next.hash, file: next.file }), { mode: 0o600 });
-    if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
-    console.error(`[docs] Activated ${next.hash.slice(0, 12)}`);
-  },
+  swap,
 });
 const activationGuards = {
   candidate: () => candidate,
@@ -164,6 +165,8 @@ async function rebuild() {
     const build = await buildRuntime();
     if (build.hash === active?.hash) { buildState = 'ready'; error = null; return; }
     const next = await startRuntime(build);
+    // With no runtime serving there is nothing to protect, so the new one serves at once. It scans the registered workspaces by itself.
+    if (!active) { await swap(next); return; }
     setCandidate(next);
     await activate();
   } catch (e) { error = String(e); buildState = active ? 'build-failed-serving-previous' : 'failed'; console.error(`[docs] ${error}`); }
@@ -333,11 +336,15 @@ async function startViewer() {
   } finally { clearTimeout(timeout); }
 }
 if (viewerOn) await startViewer();
-for (const workspace of registry.workspaces) {
-  await remember(await discoverOn(active!, workspace).catch(() => undefined));
-}
 await writeFile(join(stateDir, 'daemon.json'), JSON.stringify({ url: `http://127.0.0.1:${server.port}`, token, pid: process.pid, packageRoot, startedAt }), { mode: 0o600 });
 console.log(JSON.stringify({ ready: true, port: server.port, build: active!.hash }));
+// The registry refresh runs after the ready line, so a slow workspace never holds the clients that wait for daemon.json.
+void (async () => {
+  for (const workspace of registry.workspaces) {
+    if (!active || closing) return;
+    await remember(await discoverOn(active, workspace).catch(() => undefined));
+  }
+})();
 let debounce: ReturnType<typeof setTimeout>;
 const runtimeRoots = ['packages/docs-mcp/src', 'packages/docs-model/src', 'packages/docs-server/src', 'packages/docs-index/src'].map(p => join(config.sourceRoot, p));
 runtimeRoots.push(join(coreRoot, 'canvas/packages/canvas/src'), join(coreRoot, 'sequence/packages/sequence/src'), join(coreRoot, 'annotations/src'));
