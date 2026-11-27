@@ -9,7 +9,7 @@ import {
   isCanonicalTargetExcluded,
   resolveSequenceSidecarRelativePath,
 } from "./confine";
-import { loadDocsSourceFile } from "./canvas-sidecar";
+import { hashRequiredRefusal, loadDocsSourceFile } from "./canvas-sidecar";
 import { withPathLock } from "./path-mutex";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
@@ -216,6 +216,8 @@ export async function saveSequenceSidecar(
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
     }
+    const hashRequired = hashRequiredRefusal(input.originalHash, loaded.sequenceContentHash);
+    if (hashRequired) return hashRequired;
     if (input.originalHash && input.originalHash !== loaded.sequenceContentHash) {
       return {
         ok: false,

@@ -9,7 +9,7 @@ import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 
 /** exclude: docsRoot-relative globs from codecaine.docs.json whose matches are not part of the project. */
 export interface DocsProject { id: string; name: string; root: string; docsRoot: string; products: string[]; exclude?: string[] }
-/** folders: every folder the scan looked for projects in (the workspace, declared and glob-matched folders and their ancestors, each glob's static prefix, each folder a shorter prefix of a nested glob matches). A change to any of their entries can change the result. */
+/** folders: every folder the scan looked for projects in (the workspace, the whole-folder project that holds it, each related registered root, declared and glob-matched folders and their ancestors, each glob's static prefix, each folder a shorter prefix of a nested glob matches). A change to any of their entries can change the result. */
 export interface Discovery { workspace: string; projects: DocsProject[]; warnings: string[]; folders: string[] }
 async function json(file: string): Promise<any | undefined> {
   try { return JSON.parse(await readFile(file, 'utf8')); } catch (e: any) { if (e.code === 'ENOENT') return undefined; throw new Error(`Cannot read ${file}: ${e.message}`); }
@@ -24,11 +24,22 @@ const wholeFolderProject = (config: DocsProjectConfig | undefined) => config?.do
  * outside its folder or an invalid exclude all refuse, here and in every host.
  */
 const projectConfig = (folder: string) => readDocsProjectConfig(join(folder, 'codecaine.docs.json'));
-export async function discoverProjects(input: string): Promise<Discovery> {
+/**
+ * registered: project roots another scan found (the supervisor's registry). A registered root that holds the
+ * workspace, or that the workspace holds, is a candidate too and passes the same checks. Every other registered
+ * root stays out. A registered root that fails a check adds no warning: the registry keeps old entries.
+ */
+export async function discoverProjects(input: string, options: { registered?: string[] } = {}): Promise<Discovery> {
   const workspace = await realpath(resolve(input));
   if (!await directory(workspace)) throw new Error('Workspace must be a directory');
   const warnings: string[] = [];
   const candidates = new Set<string>([workspace]);
+  const quiet = new Set<string>();
+  for (const listed of options.registered ?? []) {
+    let root: string; try { root = await realpath(listed); } catch { continue; }
+    if (candidates.has(root) || !(inside(root, workspace) || inside(workspace, root))) continue;
+    candidates.add(root); quiet.add(root);
+  }
   const manifestConfig = await projectConfig(workspace);
   const manifest: any = manifestConfig?.record;
   const members = await json(join(workspace, 'members.json'));
@@ -85,17 +96,21 @@ export async function discoverProjects(input: string): Promise<Discovery> {
       if (folder === dirname(folder)) return undefined;
     }
   };
-  for (const root of [...candidates].sort()) {
+  // A workspace inside a whole-folder project lists that project: the workspace is part of it.
+  const enclosing = await wholeFolderAncestor(workspace);
+  if (enclosing !== undefined) { candidates.add(enclosing); quiet.delete(enclosing); }
+  const warn = (root: string, warning: string) => { if (!quiet.has(root)) warnings.push(warning); };
+  const consider = async (root: string) => {
     const ancestor = await wholeFolderAncestor(root);
-    if (ancestor !== undefined) { warnings.push(`Inside docs project ${ancestor}: ${root}`); continue; }
+    if (ancestor !== undefined) { warn(root, `Inside docs project ${ancestor}: ${root}`); return; }
     const validated = root === workspace ? manifestConfig : await projectConfig(root);
     const config: any = validated?.record;
     const products: string[] = validated?.products ?? ['docs'];
-    if (!products.includes('docs')) continue;
+    if (!products.includes('docs')) return;
     const exclude = validated?.exclude ?? [];
     const docs = validated?.docsRootPath ?? resolve(root, 'docs');
     if (!inside(root, docs)) throw new Error(`docsRoot must be inside project: ${root}`);
-    if (!await directory(docs)) continue;
+    if (!await directory(docs)) return;
     // The docs root's canonical identity comes from the chokepoint module.
     const docsRoot = realDocsRootPath(docs);
     if (!inside(root, docsRoot)) throw new Error(`docsRoot symlink escapes project: ${root}`);
@@ -106,17 +121,21 @@ export async function discoverProjects(input: string): Promise<Discovery> {
       // An excluded doc.json is not part of the corpus, so it cannot make one.
       if (isExcludedDocPath(file, exclude)) continue;
       // The document itself is read through the docs-root chokepoint (refused paths read as malformed).
-      let doc; try { doc = JSON.parse(await docsFs(docsRoot).readFile(file, 'utf8')); } catch { warnings.push(`Malformed document skipped during discovery: ${join(docsRoot,file)}`); continue; }
+      let doc; try { doc = JSON.parse(await docsFs(docsRoot).readFile(file, 'utf8')); } catch { warn(root, `Malformed document skipped during discovery: ${join(docsRoot,file)}`); continue; }
       if (validateDocDocument(doc).ok) { found = true; break; }
     }
-    if (!found) { warnings.push(`No normalized doc.json corpus found: ${docs}`); continue; }
-    if (roots.has(docsRoot)) continue;
+    if (!found) { warn(root, `No normalized doc.json corpus found: ${docs}`); return; }
+    if (roots.has(docsRoot)) return;
     roots.add(docsRoot);
     const name = config?.name ?? basename(root);
     if (typeof name !== 'string') throw new Error(`Invalid project name: ${root}`);
     const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-');
     const id = `${slug}-${createHash('sha256').update(docsRoot).digest('hex').slice(0, 8)}`;
     projects.push({ id, name, root, docsRoot, products, ...(exclude.length ? { exclude } : {}) });
+  };
+  for (const root of [...candidates].sort()) {
+    // A registered root that fails a check is skipped, so one stale registry entry never fails the workspace.
+    try { await consider(root); } catch (error) { if (!quiet.has(root)) throw error; }
   }
   return { workspace, projects, warnings, folders: [...new Set([...candidates, ...prefixes])] };
 }
