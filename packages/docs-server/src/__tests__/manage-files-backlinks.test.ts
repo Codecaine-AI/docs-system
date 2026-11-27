@@ -79,18 +79,19 @@ beforeEach(async () => {
 });
 afterEach(async () => { await rm(root, { recursive: true, force: true }); });
 
-test("a move reindexes the moved sources at both paths and the rewritten referrer", async () => {
-  const before = untouchedRows();
-  expect(await operate({ kind: "page", path: "page", to: "moved" })).toMatchObject({ ok: true, applied: true });
-  await expectRows([...under("moved"), "other/doc.json"], under("page"), before);
-  expect(rows(db, "other/doc.json")).toEqual([expect.objectContaining({ target_path: "moved/child" })]);
-});
-
-test("a rename reindexes the renamed sources at both paths and the rewritten referrer", async () => {
-  const before = untouchedRows();
-  expect(await operate({ kind: "page", path: "page", to: "renamed" })).toMatchObject({ ok: true, applied: true });
-  await expectRows([...under("renamed"), "other/doc.json"], under("page"), before);
-});
+test.each([
+  ["a move reindexes the moved sources at both paths and the rewritten referrer", async () => {
+    const before = untouchedRows();
+    expect(await operate({ kind: "page", path: "page", to: "moved" })).toMatchObject({ ok: true, applied: true });
+    await expectRows([...under("moved"), "other/doc.json"], under("page"), before);
+    expect(rows(db, "other/doc.json")).toEqual([expect.objectContaining({ target_path: "moved/child" })]);
+  }],
+  ["a rename reindexes the renamed sources at both paths and the rewritten referrer", async () => {
+    const before = untouchedRows();
+    expect(await operate({ kind: "page", path: "page", to: "renamed" })).toMatchObject({ ok: true, applied: true });
+    await expectRows([...under("renamed"), "other/doc.json"], under("page"), before);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("a delete removes the rows of every deleted source", async () => {
   await write("other/doc.json", page("other"));

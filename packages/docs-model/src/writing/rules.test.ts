@@ -61,62 +61,75 @@ test("code blocks, their descendants and embedded payloads are excluded", () => 
     ),
   ).toEqual([]);
 });
-test("doc-authored descriptions are included, source paths and example literals excluded", () => {
-  const b: DocBlock = {
-    id: "shape",
-    type: "state-shape",
-    children: [],
-    props: {
-      name: "Type—Name",
-      description: "Shape — description.",
-      source: { path: "path—literal" },
-      example: '{"value":"literal—value"}',
-      fields: [
-        {
-          name: "field—name",
-          type: "literal—type",
-          description: "Field — description.",
-          fields: [{ name: "nested", description: "Nested — description." }],
-        },
-      ],
-    },
-  };
-  expect(writing(b).map((f) => f.field)).toEqual([
-    "props.description",
-    "props.fields[0].description",
-    "props.fields[0].fields[0].description",
-  ]);
-});
-test("authored component fields cover table, files, operations, steps, media and callouts", () => {
-  const block = (
-    id: string,
-    type: DocBlock["type"],
-    props: Record<string, unknown>,
-  ): DocBlock => ({ id, type, props, children: [] });
-  const findings = writing(
-    block("table", "structured-table", {
-      columns: ["Name"],
-      rows: [["Value — description."]],
-    }),
-    block("file", "file-tree", {
-      entries: [{ path: "a—b", note: "File — note." }],
-    }),
-    block("op", "interaction-surface", {
-      operations: [
-        {
-          name: "op—name",
-          description: "Operation — description.",
-          params: [{ description: "Param — description." }],
-        },
-      ],
-    }),
-    block("step", "process-outline", { steps: [{ text: "Run — step." }] }),
-    block("image", "image", { src: "a—b", alt: "Image — description." }),
-    block("video", "video", { url: "a—b", caption: "Video — caption." }),
-    block("callout", "callout", { title: "Callout — title." }),
-  );
-  expect(findings).toHaveLength(8);
-});
+test.each([
+  ["doc-authored descriptions are included, source paths and example literals excluded", () => {
+    const b: DocBlock = {
+      id: "shape",
+      type: "state-shape",
+      children: [],
+      props: {
+        name: "Type—Name",
+        description: "Shape — description.",
+        source: { path: "path—literal" },
+        example: '{"value":"literal—value"}',
+        fields: [
+          {
+            name: "field—name",
+            type: "literal—type",
+            description: "Field — description.",
+            fields: [{ name: "nested", description: "Nested — description." }],
+          },
+        ],
+      },
+    };
+    expect(writing(b).map((f) => f.field)).toEqual([
+      "props.description",
+      "props.fields[0].description",
+      "props.fields[0].fields[0].description",
+    ]);
+  }],
+  ["authored component fields cover table, files, operations, steps, media and callouts", () => {
+    const block = (
+      id: string,
+      type: DocBlock["type"],
+      props: Record<string, unknown>,
+    ): DocBlock => ({ id, type, props, children: [] });
+    const findings = writing(
+      block("table", "structured-table", {
+        columns: ["Name"],
+        rows: [["Value — description."]],
+      }),
+      block("file", "file-tree", {
+        entries: [{ path: "a—b", note: "File — note." }],
+      }),
+      block("op", "interaction-surface", {
+        operations: [
+          {
+            name: "op—name",
+            description: "Operation — description.",
+            params: [{ description: "Param — description." }],
+          },
+        ],
+      }),
+      block("step", "process-outline", { steps: [{ text: "Run — step." }] }),
+      block("image", "image", { src: "a—b", alt: "Image — description." }),
+      block("video", "video", { url: "a—b", caption: "Video — caption." }),
+      block("callout", "callout", { title: "Callout — title." }),
+    );
+    expect(findings).toHaveLength(8);
+  }],
+  ["Canvas and Sequence wrapper titles are doc-authored prose", () => {
+    const make = (type: "canvas" | "sequence"): DocBlock => ({
+      id: type,
+      type,
+      props: { title: "Wrapper — title.", src: "path—literal" },
+      children: [],
+    });
+    expect(writing(make("canvas"), make("sequence")).map((f) => f.field)).toEqual(
+      ["props.title", "props.title"],
+    );
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 test("an em dash inside backticks is not prose; document title is authored prose", () => {
   const doc = document(paragraph("p", "Use `a—b` here."));
   doc.title = "Title — prose";
@@ -142,16 +155,4 @@ test("malformed optional component items are left for schema validation", () => 
     children: [],
   };
   expect(() => writing(block)).not.toThrow();
-});
-
-test("Canvas and Sequence wrapper titles are doc-authored prose", () => {
-  const make = (type: "canvas" | "sequence"): DocBlock => ({
-    id: type,
-    type,
-    props: { title: "Wrapper — title.", src: "path—literal" },
-    children: [],
-  });
-  expect(writing(make("canvas"), make("sequence")).map((f) => f.field)).toEqual(
-    ["props.title", "props.title"],
-  );
 });

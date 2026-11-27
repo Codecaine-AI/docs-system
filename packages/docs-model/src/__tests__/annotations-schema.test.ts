@@ -30,39 +30,64 @@ const doc: DocDocument = {
 };
 
 describe("annotations schema", () => {
-  it("accepts valid block and canvas annotations", () => {
-    const value: AnnotationsDocument = {
-      schemaVersion: 1,
-      annotations: [
-        {
-          id: "c1",
-          target: { kind: "block", blockId: "b1" },
-          body: "Note",
-          intent: "note",
-          author: "Ford",
-          status: "open",
-          createdAt: "2026-07-03T00:00:00.000Z",
-        },
-        {
-          id: "c2",
-          target: { kind: "canvas-object", canvasSrc: "canvas-a", objectId: "obj1" },
-          body: "Please change",
-          intent: "agent-request",
-          author: "Ford",
-          status: "resolved",
-          createdAt: "2026-07-03T00:00:01.000Z",
-          agentRun: { sessionId: "s1", patchId: "p1", summary: "Changed it" },
-        },
-      ],
-    };
+  it.each([
+    ["accepts valid block and canvas annotations", () => {
+      const value: AnnotationsDocument = {
+        schemaVersion: 1,
+        annotations: [
+          {
+            id: "c1",
+            target: { kind: "block", blockId: "b1" },
+            body: "Note",
+            intent: "note",
+            author: "Ford",
+            status: "open",
+            createdAt: "2026-07-03T00:00:00.000Z",
+          },
+          {
+            id: "c2",
+            target: { kind: "canvas-object", canvasSrc: "canvas-a", objectId: "obj1" },
+            body: "Please change",
+            intent: "agent-request",
+            author: "Ford",
+            status: "resolved",
+            createdAt: "2026-07-03T00:00:01.000Z",
+            agentRun: { sessionId: "s1", patchId: "p1", summary: "Changed it" },
+          },
+        ],
+      };
 
-    const result = validateAnnotationsDocument(value);
+      const result = validateAnnotationsDocument(value);
 
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.document.annotations).toEqual(value.annotations);
-    }
-  });
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.document.annotations).toEqual(value.annotations);
+      }
+    }],
+    ["accepts a valid text-range annotation", () => {
+      const value: AnnotationsDocument = {
+        schemaVersion: 1,
+        annotations: [
+          {
+            id: "r1",
+            target: { kind: "text-range", blockId: "b1", start: 3, end: 8, quote: "lo fr" },
+            body: "Reword this",
+            intent: "agent-request",
+            author: "Ford",
+            status: "open",
+            createdAt: "2026-07-30T00:00:00.000Z",
+          },
+        ],
+      };
+
+      const result = validateAnnotationsDocument(value);
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.document.annotations).toEqual(value.annotations);
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("accepts reply threads and rejects malformed replies with engine-compatible issues", () => {
     const base = {
@@ -139,98 +164,97 @@ describe("annotations schema", () => {
     })).toBe(true);
   });
 
-  it("rejects a retired comments-keyed sidecar with a typed issue (no throw)", () => {
-    const retired = {
-      schemaVersion: 1,
-      comments: [
-        {
-          id: "old-1",
-          target: { kind: "block", blockId: "b1" },
-          body: "Written before the rename",
-          intent: "agent-request",
-          author: "Ford",
-          status: "open",
-          createdAt: "2026-07-03T00:00:00.000Z",
-        },
-      ],
-    };
+  it.each([
+    ["rejects a retired comments-keyed sidecar with a typed issue (no throw)", () => {
+      const retired = {
+        schemaVersion: 1,
+        comments: [
+          {
+            id: "old-1",
+            target: { kind: "block", blockId: "b1" },
+            body: "Written before the rename",
+            intent: "agent-request",
+            author: "Ford",
+            status: "open",
+            createdAt: "2026-07-03T00:00:00.000Z",
+          },
+        ],
+      };
 
-    const result = validateAnnotationsDocument(retired);
+      const result = validateAnnotationsDocument(retired);
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.issues).toContainEqual({
-        path: "$.annotations",
-        message: "Annotations must be an array.",
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues).toContainEqual({
+          path: "$.annotations",
+          message: "Annotations must be an array.",
+        });
+      }
+    }],
+    ["rejects bad schemaVersion", () => {
+      const result = validateAnnotationsDocument({ schemaVersion: 2, annotations: [] });
+
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues).toContainEqual({
+          path: "$.schemaVersion",
+          message: "Annotations schemaVersion must be 1.",
+        });
+      }
+    }],
+    ["rejects duplicate annotation ids", () => {
+      const result = validateAnnotationsDocument({
+        schemaVersion: 1,
+        annotations: [
+          {
+            id: "c1",
+            target: { kind: "block", blockId: "b1" },
+            body: "One",
+            intent: "note",
+            author: "Ford",
+            status: "open",
+            createdAt: "2026-07-03T00:00:00.000Z",
+          },
+          {
+            id: "c1",
+            target: { kind: "block", blockId: "b1" },
+            body: "Two",
+            intent: "note",
+            author: "Ford",
+            status: "open",
+            createdAt: "2026-07-03T00:00:01.000Z",
+          },
+        ],
       });
-    }
-  });
 
-  it("rejects bad schemaVersion", () => {
-    const result = validateAnnotationsDocument({ schemaVersion: 2, annotations: [] });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.issues).toContainEqual({
-        path: "$.schemaVersion",
-        message: "Annotations schemaVersion must be 1.",
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[1].id");
+      }
+    }],
+    ["rejects unknown intent and status", () => {
+      const result = validateAnnotationsDocument({
+        schemaVersion: 1,
+        annotations: [
+          {
+            id: "c1",
+            target: { kind: "block", blockId: "b1" },
+            body: "One",
+            intent: "unknown",
+            author: "Ford",
+            status: "stale",
+            createdAt: "2026-07-03T00:00:00.000Z",
+          },
+        ],
       });
-    }
-  });
 
-  it("rejects duplicate annotation ids", () => {
-    const result = validateAnnotationsDocument({
-      schemaVersion: 1,
-      annotations: [
-        {
-          id: "c1",
-          target: { kind: "block", blockId: "b1" },
-          body: "One",
-          intent: "note",
-          author: "Ford",
-          status: "open",
-          createdAt: "2026-07-03T00:00:00.000Z",
-        },
-        {
-          id: "c1",
-          target: { kind: "block", blockId: "b1" },
-          body: "Two",
-          intent: "note",
-          author: "Ford",
-          status: "open",
-          createdAt: "2026-07-03T00:00:01.000Z",
-        },
-      ],
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[1].id");
-    }
-  });
-
-  it("rejects unknown intent and status", () => {
-    const result = validateAnnotationsDocument({
-      schemaVersion: 1,
-      annotations: [
-        {
-          id: "c1",
-          target: { kind: "block", blockId: "b1" },
-          body: "One",
-          intent: "unknown",
-          author: "Ford",
-          status: "stale",
-          createdAt: "2026-07-03T00:00:00.000Z",
-        },
-      ],
-    });
-
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[0].intent");
-      expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[0].status");
-    }
-  });
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[0].intent");
+        expect(result.issues.map((issue) => issue.path)).toContain("$.annotations[0].status");
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects canvas object targets with both selectors or no selectors", () => {
     const result = validateAnnotationsDocument({
@@ -362,30 +386,6 @@ describe("annotations schema", () => {
       annotationId: "existing-block",
       reason: 'Block "b1" no longer exists.',
     });
-  });
-
-  it("accepts a valid text-range annotation", () => {
-    const value: AnnotationsDocument = {
-      schemaVersion: 1,
-      annotations: [
-        {
-          id: "r1",
-          target: { kind: "text-range", blockId: "b1", start: 3, end: 8, quote: "lo fr" },
-          body: "Reword this",
-          intent: "agent-request",
-          author: "Ford",
-          status: "open",
-          createdAt: "2026-07-30T00:00:00.000Z",
-        },
-      ],
-    };
-
-    const result = validateAnnotationsDocument(value);
-
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.document.annotations).toEqual(value.annotations);
-    }
   });
 
   it("rejects text-range targets with bad offsets or an empty quote", () => {

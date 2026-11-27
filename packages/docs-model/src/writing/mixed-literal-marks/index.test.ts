@@ -12,16 +12,17 @@ test("flags a sentence that codes one literal and quotes another", () => {
   expect(check(doc).map((m) => m.message)).toEqual(['The sentence marks a literal as code but quotes "to". Give both literals the code mark.']);
 });
 
-test("accepts quotes with no code in the sentence, long quotations, and code-only sentences", () => {
-  expect(check(document(para("p", [{ insert: 'Write "must" or "can".' }])))).toEqual([]);
-  expect(check(document(para("p", [{ insert: "The " }, { insert: "lint", attributes: { code: true } }, { insert: ' rule reports "Prose contains a semicolon here."' }])))).toEqual([]);
-  expect(check(document(para("p", [{ insert: "Replace " }, { insert: "in order to", attributes: { code: true } }, { insert: " with " }, { insert: "to", attributes: { code: true } }, { insert: "." }])))).toEqual([]);
-});
-
-test("a doc reference is not a code literal, so a sentence with a reference and a quote passes", () => {
-  const doc = document(para("p", [{ insert: "The " }, { insert: "Settings", attributes: { reference: { kind: "doc", path: "docs/settings" } } }, { insert: ' page calls this "automatic".' }]));
-  expect(check(doc)).toEqual([]);
-});
+test.each([
+  ["accepts quotes with no code in the sentence, long quotations, and code-only sentences", () => {
+    expect(check(document(para("p", [{ insert: 'Write "must" or "can".' }])))).toEqual([]);
+    expect(check(document(para("p", [{ insert: "The " }, { insert: "lint", attributes: { code: true } }, { insert: ' rule reports "Prose contains a semicolon here."' }])))).toEqual([]);
+    expect(check(document(para("p", [{ insert: "Replace " }, { insert: "in order to", attributes: { code: true } }, { insert: " with " }, { insert: "to", attributes: { code: true } }, { insert: "." }])))).toEqual([]);
+  }],
+  ["a doc reference is not a code literal, so a sentence with a reference and a quote passes", () => {
+    const doc = document(para("p", [{ insert: "The " }, { insert: "Settings", attributes: { reference: { kind: "doc", path: "docs/settings" } } }, { insert: ' page calls this "automatic".' }]));
+    expect(check(doc)).toEqual([]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("a structured-table cell with a coded literal and a quoted one is flagged too", () => {
   const table: DocBlock = { id: "t", type: "structured-table", props: { columns: ["Swap"], rows: [[[{ insert: "in order to", attributes: { code: true } }, { insert: ' to "to"' }]]] }, children: [] };

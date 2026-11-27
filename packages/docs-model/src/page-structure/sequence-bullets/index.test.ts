@@ -12,14 +12,15 @@ test("flags a bullet run whose later item opens with an order word", () => {
   expect(check(doc).map((m) => m.blockId)).toEqual(["a"]);
 });
 
-test("accepts plain fact bullets, numbered steps and task items", () => {
-  expect(check(document(item("a", "The viewer renders pages."), item("b", "The host saves them.")))).toEqual([]);
-  expect(check(document(item("a", "Start with the types.", { ordered: true }), item("b", "Then read the sweep.", { ordered: true })))).toEqual([]);
-  expect(check(document(item("a", "Install the CLI.", { checked: false }), item("b", "Then run the check.", { checked: false })))).toEqual([]);
-});
-
-test("names and facts that start with an order word do not make a sequence", () => {
-  expect(check(document(item("a", "React renders the page."), item("b", "Next.js renders pages on the server.")))).toEqual([]);
-  expect(check(document(item("a", "Each login is stored."), item("b", "Last login is recorded per user.")))).toEqual([]);
-  expect(check(document(item("a", "The cache is local."), item("b", "First-class plugins load at start.")))).toEqual([]);
-});
+test.each([
+  ["accepts plain fact bullets, numbered steps and task items", () => {
+    expect(check(document(item("a", "The viewer renders pages."), item("b", "The host saves them.")))).toEqual([]);
+    expect(check(document(item("a", "Start with the types.", { ordered: true }), item("b", "Then read the sweep.", { ordered: true })))).toEqual([]);
+    expect(check(document(item("a", "Install the CLI.", { checked: false }), item("b", "Then run the check.", { checked: false })))).toEqual([]);
+  }],
+  ["names and facts that start with an order word do not make a sequence", () => {
+    expect(check(document(item("a", "React renders the page."), item("b", "Next.js renders pages on the server.")))).toEqual([]);
+    expect(check(document(item("a", "Each login is stored."), item("b", "Last login is recorded per user.")))).toEqual([]);
+    expect(check(document(item("a", "The cache is local."), item("b", "First-class plugins load at start.")))).toEqual([]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());

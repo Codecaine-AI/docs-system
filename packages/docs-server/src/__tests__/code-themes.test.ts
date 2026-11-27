@@ -236,23 +236,31 @@ describe("code theme routes", () => {
       body: JSON.stringify(body),
     });
 
-  test("GET active defaults to dark-plus; PUT switches it and survives a new host", async () => {
-    const app = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
-    const initial = await (await app.handle(new Request("http://localhost/api/code-themes/active"))).json();
-    expect(initial.id).toBe("dark-plus");
-    expect(initial.codeTheme.roles).toEqual(DARK_PLUS_CODE_THEME.roles);
+  test.each([
+    ["GET active defaults to dark-plus; PUT switches it and survives a new host", async () => {
+      const app = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
+      const initial = await (await app.handle(new Request("http://localhost/api/code-themes/active"))).json();
+      expect(initial.id).toBe("dark-plus");
+      expect(initial.codeTheme.roles).toEqual(DARK_PLUS_CODE_THEME.roles);
 
-    const switched = await app.handle(put({ id: "light-plus" }));
-    expect(switched.status).toBe(200);
-    expect((await switched.json()).codeTheme.type).toBe("light");
-    expect(JSON.parse(await readFile(join(codeThemesRoot, "active.json"), "utf8"))).toEqual({ id: "light-plus" });
+      const switched = await app.handle(put({ id: "light-plus" }));
+      expect(switched.status).toBe(200);
+      expect((await switched.json()).codeTheme.type).toBe("light");
+      expect(JSON.parse(await readFile(join(codeThemesRoot, "active.json"), "utf8"))).toEqual({ id: "light-plus" });
 
-    const fresh = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
-    expect((await (await fresh.handle(new Request("http://localhost/api/code-themes/active"))).json()).id).toBe("light-plus");
-    // The pointer file is not a code theme.
-    const list = await (await fresh.handle(new Request("http://localhost/api/code-themes"))).json();
-    expect(list.codeThemes.map((entry: { id: string }) => entry.id)).toEqual(["dark-plus", "light-plus"]);
-  });
+      const fresh = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
+      expect((await (await fresh.handle(new Request("http://localhost/api/code-themes/active"))).json()).id).toBe("light-plus");
+      // The pointer file is not a code theme.
+      const list = await (await fresh.handle(new Request("http://localhost/api/code-themes"))).json();
+      expect(list.codeThemes.map((entry: { id: string }) => entry.id)).toEqual(["dark-plus", "light-plus"]);
+    }],
+    ["an active pointer to a deleted theme falls back to dark-plus", async () => {
+      await mkdir(codeThemesRoot, { recursive: true });
+      await writeFile(join(codeThemesRoot, "active.json"), JSON.stringify({ id: "gone" }));
+      const app = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
+      expect((await (await app.handle(new Request("http://localhost/api/code-themes/active"))).json()).id).toBe("dark-plus");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("PUT active validates the id, obeys themeLocked, and needs a root", async () => {
     const app = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
@@ -264,13 +272,6 @@ describe("code theme routes", () => {
     expect((await rootless.handle(put({ id: "light-plus" }))).status).toBe(409);
     expect((await (await rootless.handle(new Request("http://localhost/api/code-themes/active"))).json()).id).toBe("dark-plus");
     expect(existsSync(join(codeThemesRoot, "active.json"))).toBe(false);
-  });
-
-  test("an active pointer to a deleted theme falls back to dark-plus", async () => {
-    await mkdir(codeThemesRoot, { recursive: true });
-    await writeFile(join(codeThemesRoot, "active.json"), JSON.stringify({ id: "gone" }));
-    const app = createDocsRoutes(createDocsStore(docsRoot), { codeThemesRoot });
-    expect((await (await app.handle(new Request("http://localhost/api/code-themes/active"))).json()).id).toBe("dark-plus");
   });
 
   test("POST import refuses file paths, locked hosts, and hosts without a root", async () => {

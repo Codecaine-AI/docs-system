@@ -9,14 +9,21 @@ import {
 import { BUNDLE_SRC_FIXTURES } from "../bundle-src.fixtures";
 
 describe("bundle src", () => {
-  it("resolves the shared fixture table", () => {
-    for (const fixture of BUNDLE_SRC_FIXTURES) {
-      expect(
-        resolveBundleRelativeSrc(fixture.bundlePath, fixture.src),
-        `${fixture.bundlePath ?? "null"}: ${fixture.src}`,
-      ).toBe(fixture.expected);
-    }
-  });
+  it.each([
+    ["resolves the shared fixture table", () => {
+      for (const fixture of BUNDLE_SRC_FIXTURES) {
+        expect(
+          resolveBundleRelativeSrc(fixture.bundlePath, fixture.src),
+          `${fixture.bundlePath ?? "null"}: ${fixture.src}`,
+        ).toBe(fixture.expected);
+      }
+    }],
+    ["strips every leading dot-slash when resolving", () => {
+      expect(resolveBundleRelativeSrc("10-s/page", "././assets/x")).toBe(
+        "10-s/page/assets/x",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("classifies src forms in precedence order", () => {
     expect(classifyBlockSrc("https://example.com/x.png")).toBe("url");
@@ -40,12 +47,6 @@ describe("bundle src", () => {
     expect(canonicalBundleSrc("./assets/x")).toBe("./assets/x");
     expect(canonicalBundleSrc("https://example.com/x.png")).toBe(
       "https://example.com/x.png",
-    );
-  });
-
-  it("strips every leading dot-slash when resolving", () => {
-    expect(resolveBundleRelativeSrc("10-s/page", "././assets/x")).toBe(
-      "10-s/page/assets/x",
     );
   });
 });

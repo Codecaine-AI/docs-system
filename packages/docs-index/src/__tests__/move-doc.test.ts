@@ -375,41 +375,42 @@ describe("moveDocBundle", () => {
     expect(canvas.links?.[0]?.target.path).toBe("00-foundation/15-purpose-renamed");
   });
 
-  test("rejects a move onto an existing path", async () => {
-    await writeBundle("00-foundation/10-purpose", targetDoc("purpose"));
-    await writeBundle("00-foundation/20-principles", targetDoc("principles"));
-    db = await openBacklinksDb(docsRoot);
-    await rescanAll(docsRoot, db);
+  test.each([
+    ["rejects a move onto an existing path", async () => {
+      await writeBundle("00-foundation/10-purpose", targetDoc("purpose"));
+      await writeBundle("00-foundation/20-principles", targetDoc("principles"));
+      db = await openBacklinksDb(docsRoot);
+      await rescanAll(docsRoot, db);
 
-    const result = await moveDocBundle(
-      docsRoot,
-      "00-foundation/10-purpose",
-      "00-foundation/20-principles",
-      {
+      const result = await moveDocBundle(
+        docsRoot,
+        "00-foundation/10-purpose",
+        "00-foundation/20-principles",
+        {
+          applyDocOps: applyDocOpsToBundle,
+          loadCanvas,
+          saveCanvas,
+          backlinksDb: db,
+          projectId: "test-project",
+        },
+      );
+
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.status).toBe(409);
+    }],
+    ["rejects a move when fromPath is not a bundle", async () => {
+      db = await openBacklinksDb(docsRoot);
+      const result = await moveDocBundle(docsRoot, "00-foundation/does-not-exist", "00-foundation/new", {
         applyDocOps: applyDocOpsToBundle,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,
         projectId: "test-project",
-      },
-    );
-
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.status).toBe(409);
-  });
-
-  test("rejects a move when fromPath is not a bundle", async () => {
-    db = await openBacklinksDb(docsRoot);
-    const result = await moveDocBundle(docsRoot, "00-foundation/does-not-exist", "00-foundation/new", {
-      applyDocOps: applyDocOpsToBundle,
-      loadCanvas,
-      saveCanvas,
-      backlinksDb: db,
-      projectId: "test-project",
-    });
-    expect(result.ok).toBe(false);
-    if (result.ok) return;
-    expect(result.status).toBe(404);
-  });
+      });
+      expect(result.ok).toBe(false);
+      if (result.ok) return;
+      expect(result.status).toBe(404);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

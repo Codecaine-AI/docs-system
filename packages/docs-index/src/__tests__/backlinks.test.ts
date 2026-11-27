@@ -377,66 +377,64 @@ describe("backlinks: queryInboundTolerant (heterogeneous stored forms)", () => {
     db.close();
   });
 
-  test("finds rows stored under a pre-migration docs/-prefixed .md form when queried by canonical bundle path", () => {
-    upsertForSource(db, "10-system-design/00-overview/doc.json", [
-      { sourceBlockId: "p1", targetKind: "doc", targetPath: "docs/foo/bar.md" },
-    ]);
+  test.each([
+    ["finds rows stored under a pre-migration docs/-prefixed .md form when queried by canonical bundle path", () => {
+      upsertForSource(db, "10-system-design/00-overview/doc.json", [
+        { sourceBlockId: "p1", targetKind: "doc", targetPath: "docs/foo/bar.md" },
+      ]);
 
-    expect(queryInbound(db, "foo/bar")).toEqual([]);
+      expect(queryInbound(db, "foo/bar")).toEqual([]);
 
-    const rows = queryInboundTolerant(db, "foo/bar");
-    expect(rows).toHaveLength(1);
-    expect(rows[0].sourcePath).toBe("10-system-design/00-overview/doc.json");
-    expect(rows[0].targetPath).toBe("docs/foo/bar.md");
-  });
+      const rows = queryInboundTolerant(db, "foo/bar");
+      expect(rows).toHaveLength(1);
+      expect(rows[0].sourcePath).toBe("10-system-design/00-overview/doc.json");
+      expect(rows[0].targetPath).toBe("docs/foo/bar.md");
+    }],
+    ["unions every stored alias and dedupes rows found under multiple query forms", () => {
+      upsertForSource(db, "a/doc.json", [
+        { sourceBlockId: "p1", targetKind: "doc", targetPath: "docs/foo/bar.md" },
+        { sourceBlockId: "p2", targetKind: "doc", targetPath: "foo/bar" },
+        { sourceBlockId: "p3", targetKind: "doc", targetPath: "docs/foo/bar/doc.json" },
+      ]);
 
-  test("unions every stored alias and dedupes rows found under multiple query forms", () => {
-    upsertForSource(db, "a/doc.json", [
-      { sourceBlockId: "p1", targetKind: "doc", targetPath: "docs/foo/bar.md" },
-      { sourceBlockId: "p2", targetKind: "doc", targetPath: "foo/bar" },
-      { sourceBlockId: "p3", targetKind: "doc", targetPath: "docs/foo/bar/doc.json" },
-    ]);
+      const rows = queryInboundTolerant(db, "docs/foo/bar.md");
+      expect(rows).toHaveLength(3);
+    }],
+    ["finds a legacy 00-overview target when queried by the new section path", () => {
+      upsertForSource(db, "source-a/doc.json", [
+        {
+          sourceBlockId: "p1",
+          targetKind: "doc",
+          targetPath: "docs/10-system-design/00-overview.md",
+        },
+      ]);
 
-    const rows = queryInboundTolerant(db, "docs/foo/bar.md");
-    expect(rows).toHaveLength(3);
-  });
+      const rows = queryInboundTolerant(db, "10-system-design");
+      expect(rows).toHaveLength(1);
+      expect(rows[0].targetPath).toBe("docs/10-system-design/00-overview.md");
+    }],
+    ["still matches exact source-kind targets verbatim", () => {
+      upsertForSource(db, "a/doc.json", [
+        { sourceBlockId: "p1", targetKind: "source", targetPath: "apps/frontend/src/lib/types.ts" },
+      ]);
 
-  test("finds a legacy 00-overview target when queried by the new section path", () => {
-    upsertForSource(db, "source-a/doc.json", [
-      {
-        sourceBlockId: "p1",
-        targetKind: "doc",
-        targetPath: "docs/10-system-design/00-overview.md",
-      },
-    ]);
+      const rows = queryInboundTolerant(db, "apps/frontend/src/lib/types.ts");
+      expect(rows).toHaveLength(1);
+    }],
+    ["finds a new canonical target when queried by its legacy 00-overview path", () => {
+      upsertForSource(db, "source-b/doc.json", [
+        {
+          sourceBlockId: "p1",
+          targetKind: "doc",
+          targetPath: "10-system-design",
+        },
+      ]);
 
-    const rows = queryInboundTolerant(db, "10-system-design");
-    expect(rows).toHaveLength(1);
-    expect(rows[0].targetPath).toBe("docs/10-system-design/00-overview.md");
-  });
-
-  test("finds a new canonical target when queried by its legacy 00-overview path", () => {
-    upsertForSource(db, "source-b/doc.json", [
-      {
-        sourceBlockId: "p1",
-        targetKind: "doc",
-        targetPath: "10-system-design",
-      },
-    ]);
-
-    const rows = queryInboundTolerant(db, "10-system-design/00-overview");
-    expect(rows).toHaveLength(1);
-    expect(rows[0].targetPath).toBe("10-system-design");
-  });
-
-  test("still matches exact source-kind targets verbatim", () => {
-    upsertForSource(db, "a/doc.json", [
-      { sourceBlockId: "p1", targetKind: "source", targetPath: "apps/frontend/src/lib/types.ts" },
-    ]);
-
-    const rows = queryInboundTolerant(db, "apps/frontend/src/lib/types.ts");
-    expect(rows).toHaveLength(1);
-  });
+      const rows = queryInboundTolerant(db, "10-system-design/00-overview");
+      expect(rows).toHaveLength(1);
+      expect(rows[0].targetPath).toBe("10-system-design");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("backlinks: queryInboundToBlocks", () => {
@@ -450,72 +448,73 @@ describe("backlinks: queryInboundToBlocks", () => {
     db.close();
   });
 
-  test("matches selected block anchors in target_section or target_symbol only", () => {
-    upsertForSource(db, "source/doc.json", [
-      {
-        sourceBlockId: "source-block",
-        targetKind: "doc",
-        targetPath: "docs/target/doc.json",
-        targetSection: "moved-section",
-      },
-      {
-        sourceBlockId: "source-block",
-        targetKind: "doc",
-        targetPath: "docs/target/doc.json",
-        targetSymbol: "moved-symbol",
-      },
-      {
-        sourceBlockId: "source-block",
-        targetKind: "doc",
-        targetPath: "docs/target/doc.json",
-        targetSection: "stays-put",
-      },
-      {
-        sourceBlockId: "source-block",
-        targetKind: "doc",
-        targetPath: "docs/target/doc.json",
-      },
-      {
-        sourceBlockId: "source-block",
-        targetKind: "source",
-        targetPath: "docs/target/doc.json",
-        targetSymbol: "moved-symbol",
-      },
-    ]);
+  test.each([
+    ["matches selected block anchors in target_section or target_symbol only", () => {
+      upsertForSource(db, "source/doc.json", [
+        {
+          sourceBlockId: "source-block",
+          targetKind: "doc",
+          targetPath: "docs/target/doc.json",
+          targetSection: "moved-section",
+        },
+        {
+          sourceBlockId: "source-block",
+          targetKind: "doc",
+          targetPath: "docs/target/doc.json",
+          targetSymbol: "moved-symbol",
+        },
+        {
+          sourceBlockId: "source-block",
+          targetKind: "doc",
+          targetPath: "docs/target/doc.json",
+          targetSection: "stays-put",
+        },
+        {
+          sourceBlockId: "source-block",
+          targetKind: "doc",
+          targetPath: "docs/target/doc.json",
+        },
+        {
+          sourceBlockId: "source-block",
+          targetKind: "source",
+          targetPath: "docs/target/doc.json",
+          targetSymbol: "moved-symbol",
+        },
+      ]);
 
-    const rows = queryInboundToBlocks(db, "target", ["moved-section", "moved-symbol"]);
+      const rows = queryInboundToBlocks(db, "target", ["moved-section", "moved-symbol"]);
 
-    expect(rows).toHaveLength(2);
-    expect(rows.map((row) => row.targetSection ?? row.targetSymbol).sort()).toEqual([
-      "moved-section",
-      "moved-symbol",
-    ]);
-  });
+      expect(rows).toHaveLength(2);
+      expect(rows.map((row) => row.targetSection ?? row.targetSymbol).sort()).toEqual([
+        "moved-section",
+        "moved-symbol",
+      ]);
+    }],
+    ["empty blockIds returns doc-level references only for merge discovery", () => {
+      upsertForSource(db, "source/doc.json", [
+        {
+          sourceBlockId: "doc-link",
+          targetKind: "doc",
+          targetPath: "docs/target.md",
+        },
+        {
+          sourceBlockId: "block-link",
+          targetKind: "doc",
+          targetPath: "docs/target.md",
+          targetSection: "block-1",
+        },
+      ]);
 
-  test("empty blockIds returns doc-level references only for merge discovery", () => {
-    upsertForSource(db, "source/doc.json", [
-      {
+      const rows = queryInboundToBlocks(db, "target", []);
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
         sourceBlockId: "doc-link",
-        targetKind: "doc",
-        targetPath: "docs/target.md",
-      },
-      {
-        sourceBlockId: "block-link",
-        targetKind: "doc",
-        targetPath: "docs/target.md",
-        targetSection: "block-1",
-      },
-    ]);
-
-    const rows = queryInboundToBlocks(db, "target", []);
-
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({
-      sourceBlockId: "doc-link",
-      targetSection: null,
-      targetSymbol: null,
-    });
-  });
+        targetSection: null,
+        targetSymbol: null,
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("returns no doc-level rows when a block list is provided", () => {
     upsertForSource(db, "source/doc.json", [

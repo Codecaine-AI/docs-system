@@ -45,53 +45,52 @@ async function waitFor(predicate: () => boolean, timeoutMs = 5000): Promise<void
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("fs-watch: changeTargetForRelPath filter/mapping", () => {
-  test("doc.json and annotations.json map to their bundle folder", () => {
-    expect(changeTargetForRelPath(docsRoot, "10-guide/doc.json")).toBe("10-guide");
-    expect(changeTargetForRelPath(docsRoot, "10-guide/annotations.json")).toBe("10-guide");
-    expect(changeTargetForRelPath(docsRoot, "20-section/30-topic/doc.json")).toBe(
-      "20-section/30-topic",
-    );
-    // A doc.json at the docs root maps to the root bundle path "".
-    expect(changeTargetForRelPath(docsRoot, "doc.json")).toBe("");
-  });
+  test.each([
+    ["doc.json and annotations.json map to their bundle folder", () => {
+      expect(changeTargetForRelPath(docsRoot, "10-guide/doc.json")).toBe("10-guide");
+      expect(changeTargetForRelPath(docsRoot, "10-guide/annotations.json")).toBe("10-guide");
+      expect(changeTargetForRelPath(docsRoot, "20-section/30-topic/doc.json")).toBe(
+        "20-section/30-topic",
+      );
+      // A doc.json at the docs root maps to the root bundle path "".
+      expect(changeTargetForRelPath(docsRoot, "doc.json")).toBe("");
+    }],
+    ["canvas sidecars map to the canvas rel path itself", () => {
+      expect(changeTargetForRelPath(docsRoot, "10-guide/assets/canvases/flow.canvas.json")).toBe(
+        "10-guide/assets/canvases/flow.canvas.json",
+      );
+    }],
+    ["a directory event on a bundle folder maps to that bundle", () => {
+      expect(changeTargetForRelPath(docsRoot, "10-guide")).toBe("10-guide");
+    }],
+    ["files outside any bundle fall back to their own rel path", () => {
+      expect(changeTargetForRelPath(docsRoot, "20-section/40-loose.md")).toBe(
+        "20-section/40-loose.md",
+      );
+    }],
+    ["assets map to the nearest enclosing bundle", () => {
+      expect(changeTargetForRelPath(docsRoot, "10-guide/assets/images/pic.png")).toBe("10-guide");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  test("canvas sidecars map to the canvas rel path itself", () => {
-    expect(changeTargetForRelPath(docsRoot, "10-guide/assets/canvases/flow.canvas.json")).toBe(
-      "10-guide/assets/canvases/flow.canvas.json",
-    );
-  });
-
-  test("assets map to the nearest enclosing bundle", () => {
-    expect(changeTargetForRelPath(docsRoot, "10-guide/assets/images/pic.png")).toBe("10-guide");
-  });
-
-  test("a directory event on a bundle folder maps to that bundle", () => {
-    expect(changeTargetForRelPath(docsRoot, "10-guide")).toBe("10-guide");
-  });
-
-  test("dot segments are ignored — especially .index (backlinks sqlite)", () => {
-    expect(changeTargetForRelPath(docsRoot, ".index")).toBeNull();
-    expect(changeTargetForRelPath(docsRoot, ".index/backlinks.db")).toBeNull();
-    expect(changeTargetForRelPath(docsRoot, ".index/backlinks.db-journal")).toBeNull();
-    expect(changeTargetForRelPath(docsRoot, "10-guide/.DS_Store")).toBeNull();
-    expect(changeTargetForRelPath(docsRoot, ".drafts/wip/doc.json")).toBeNull();
-    expect(changeTargetForRelPath(docsRoot, "node_modules/pkg/doc.json")).toBeNull();
-  });
-
-  test("atomic-write temp files are ignored (no double-fire on temp+rename)", () => {
-    expect(
-      changeTargetForRelPath(
-        docsRoot,
-        "10-guide/doc.json.tmp-01234567-89ab-cdef-0123-456789abcdef",
-      ),
-    ).toBeNull();
-  });
-
-  test("files outside any bundle fall back to their own rel path", () => {
-    expect(changeTargetForRelPath(docsRoot, "20-section/40-loose.md")).toBe(
-      "20-section/40-loose.md",
-    );
-  });
+  test.each([
+    ["dot segments are ignored — especially .index (backlinks sqlite)", () => {
+      expect(changeTargetForRelPath(docsRoot, ".index")).toBeNull();
+      expect(changeTargetForRelPath(docsRoot, ".index/backlinks.db")).toBeNull();
+      expect(changeTargetForRelPath(docsRoot, ".index/backlinks.db-journal")).toBeNull();
+      expect(changeTargetForRelPath(docsRoot, "10-guide/.DS_Store")).toBeNull();
+      expect(changeTargetForRelPath(docsRoot, ".drafts/wip/doc.json")).toBeNull();
+      expect(changeTargetForRelPath(docsRoot, "node_modules/pkg/doc.json")).toBeNull();
+    }],
+    ["atomic-write temp files are ignored (no double-fire on temp+rename)", () => {
+      expect(
+        changeTargetForRelPath(
+          docsRoot,
+          "10-guide/doc.json.tmp-01234567-89ab-cdef-0123-456789abcdef",
+        ),
+      ).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("fs-watch: watchDocsRoot integration (recursive fs.watch)", () => {

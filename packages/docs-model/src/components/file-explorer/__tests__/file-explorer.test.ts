@@ -9,16 +9,10 @@ describe("file-explorer", () => {
     ["a non-positive maxRows", { maxRows: 0 }, false],
     ["a fractional maxRows", { maxRows: 2.5 }, false],
     ["the file-tree display prop", { display: "explorer" }, false],
+    ["an entry with a roster color", { entries: [{ path: "src/", color: "blue" }] }, true],
+    ["an entry with a color outside the roster", { entries: [{ path: "src/", color: "magenta" }] }, false],
   ])("validates %s", (_label, extra, valid) => {
     const issues = checkStateProps("file-explorer", { entries: [{ path: "src/index.ts" }], ...extra });
-    expect(issues.length === 0).toBe(valid);
-  });
-
-  it.each([
-    ["a roster color", "blue", true],
-    ["a color outside the roster", "magenta", false],
-  ])("validates an entry with %s", (_label, color, valid) => {
-    const issues = checkStateProps("file-explorer", { entries: [{ path: "src/", color }] });
     expect(issues.length === 0).toBe(valid);
   });
 

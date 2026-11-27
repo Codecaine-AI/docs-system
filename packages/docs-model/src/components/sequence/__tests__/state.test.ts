@@ -11,13 +11,14 @@ const fixtureBlock = sampleFixture.blocks["sequence-1"] as DocBlock;
 const context = { listDepth: 0, listIndex: 0 };
 
 describe("sequence state", () => {
-  it("accepts the fixture sequence props", () => {
-    expect(Value.Check(SequenceState, fixtureBlock.props)).toBe(true);
-  });
-
-  it("accepts a placeholder with neither sequenceId nor src", () => {
-    expect(Value.Check(SequenceState, {})).toBe(true);
-  });
+  it.each([
+    ["accepts the fixture sequence props", () => {
+      expect(Value.Check(SequenceState, fixtureBlock.props)).toBe(true);
+    }],
+    ["accepts a placeholder with neither sequenceId nor src", () => {
+      expect(Value.Check(SequenceState, {})).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects an empty sequenceId", () => {
     expect(Value.Check(SequenceState, { sequenceId: "" })).toBe(false);
@@ -29,24 +30,24 @@ describe("sequence state", () => {
 });
 
 describe("sequence agent view", () => {
-  it("projects the fixture byte-for-byte", () => {
-    expect(sequenceAgentView(fixtureBlock, context)).toBe(
-      '<!-- sequence: ./assets/sequences/sample.sequence.json title="Login flow" -->',
-    );
-  });
-
-  it("projects a missing-src placeholder", () => {
-    const block: DocBlock = { id: "sequence-empty", type: "sequence", props: {}, children: [] };
-    expect(sequenceAgentView(block, context)).toBe("<!-- sequence: (missing src) -->");
-  });
-
-  it("projects a central sequenceId when no sidecar src is present", () => {
-    const block: DocBlock = {
-      id: "sequence-central",
-      type: "sequence",
-      props: { sequenceId: "login-flow" },
-      children: [],
-    };
-    expect(sequenceAgentView(block, context)).toBe("<!-- sequence: login-flow -->");
-  });
+  it.each([
+    ["projects the fixture byte-for-byte", () => {
+      expect(sequenceAgentView(fixtureBlock, context)).toBe(
+        '<!-- sequence: ./assets/sequences/sample.sequence.json title="Login flow" -->',
+      );
+    }],
+    ["projects a missing-src placeholder", () => {
+      const block: DocBlock = { id: "sequence-empty", type: "sequence", props: {}, children: [] };
+      expect(sequenceAgentView(block, context)).toBe("<!-- sequence: (missing src) -->");
+    }],
+    ["projects a central sequenceId when no sidecar src is present", () => {
+      const block: DocBlock = {
+        id: "sequence-central",
+        type: "sequence",
+        props: { sequenceId: "login-flow" },
+        children: [],
+      };
+      expect(sequenceAgentView(block, context)).toBe("<!-- sequence: login-flow -->");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

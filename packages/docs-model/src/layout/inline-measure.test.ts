@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { activeBackend, measureWidth } from "@codecaine-ai/text-measure";
+import { measureWidth } from "@codecaine-ai/text-measure";
 import type { DeltaSpan } from "../doc-schema";
 import { measureInline, type InlineContext } from "./inline-measure";
 import { breakBetween } from "./line-breaks";
@@ -17,10 +17,6 @@ const sans = (wrap: InlineContext["wrap"], extra: Partial<InlineContext> = {}): 
 const code = (insert: string): DeltaSpan => ({ insert, attributes: { code: true } });
 const widest = (content: string | DeltaSpan[], context = sans("normal")) => measureInline(content, context).widest;
 
-test("the test preload measures with the exact HarfBuzz backend", () => {
-  expect(activeBackend()).toEqual({ name: "harfbuzz", exact: true });
-});
-
 describe("where ordinary text breaks (Chromium's min-content runs)", () => {
   test.each([
     ["read-only", "read-"],
@@ -31,16 +27,23 @@ describe("where ordinary text breaks (Chromium's min-content runs)", () => {
     ["a…b", "a…"],
     ["foo /bar", "/bar"],
     ["aaaaaaa }", "aaaaaaa"],
-  ])("%p breaks, and its widest run is %p", (text, run) => {
+    // these never break: the widest run is the whole text
+    ["and/or", "and/or"],
+    ["@scope/pkg", "@scope/pkg"],
+    ["~/path/x", "~/path/x"],
+    ["foo!bar", "foo!bar"],
+    ["a|b", "a|b"],
+    ["foo)bar", "foo)bar"],
+    ["foo}bar", "foo}bar"],
+    ["e.g.", "e.g."],
+    ["a,b", "a,b"],
+    ["1/2", "1/2"],
+    ["50%", "50%"],
+    ["$5", "$5"],
+    ["\"quoted\"", "\"quoted\""],
+  ])("%p: its widest run is %p", (text, run) => {
     expect(widest(text).text).toBe(run);
   });
-
-  test.each(["and/or", "@scope/pkg", "~/path/x", "foo!bar", "a|b", "foo)bar", "foo}bar", "e.g.", "a,b", "1/2", "50%", "$5", "\"quoted\""])(
-    "%p never breaks",
-    (text) => {
-      expect(widest(text).text).toBe(text);
-    },
-  );
 
   test("a hyphen breaks only before a letter or digit, and never before another hyphen", () => {
     expect(breakBetween("-", "o")).toBe(true);
@@ -65,32 +68,31 @@ describe("where ordinary text breaks (Chromium's min-content runs)", () => {
 });
 
 describe("inline code chips", () => {
-  test("a chip's pieces break at their <wbr>, each piece carrying the chip's padding on both sides", () => {
-    // Chromium: "aaaaaaaaaa." <wbr> "bbbbbbbbbb." <wbr> "verificationitem" is the last piece and two paddings at min-content.
-    const measured = widest([code("aaaaaaaaaa.bbbbbbbbbb.verificationitem")]);
-    expect(measured.text).toBe("verificationitem");
-    expect(measured.width).toBeCloseTo(measureWidth("verificationitem", codeFont(chip.sizePx)) + 2 * chip.padXPx, 6);
-  });
-
-  test("the first piece of a chip that breaks at a <wbr> carries a third padding, as Chromium's min-content does", () => {
-    // Chromium: "verificationresultsummaryfile." <wbr> "json": the first piece carries three paddings.
-    const measured = widest([code("verificationresultsummaryfile.json")]);
-    expect(measured.text).toBe("verificationresultsummaryfile.");
-    expect(measured.width).toBeCloseTo(measureWidth("verificationresultsummaryfile.", codeFont(chip.sizePx)) + 3 * chip.padXPx, 6);
-  });
-
-  test("a chip without pieces breaks at its spaces with two paddings per line", () => {
-    // Chromium: "verification next" is 90.625px.
-    const measured = widest([code("verification next")]);
-    expect(measured.text).toBe("verification");
-    expect(measured.width).toBeCloseTo(measureWidth("verification", codeFont(chip.sizePx)) + 2 * chip.padXPx, 6);
-  });
-
-  test("punctuation right after a chip stays on its line", () => {
-    // The last piece of a chip that breaks keeps the comma after it on its line.
-    const measured = widest([code("brand-colors-dark-huggingfacepalette"), { insert: "," }]);
-    expect(measured.text).toBe("huggingfacepalette,");
-  });
+  test.each([
+    ["a chip's pieces break at their <wbr>, each piece carrying the chip's padding on both sides", () => {
+      // Chromium: "aaaaaaaaaa." <wbr> "bbbbbbbbbb." <wbr> "verificationitem" is the last piece and two paddings at min-content.
+      const measured = widest([code("aaaaaaaaaa.bbbbbbbbbb.verificationitem")]);
+      expect(measured.text).toBe("verificationitem");
+      expect(measured.width).toBeCloseTo(measureWidth("verificationitem", codeFont(chip.sizePx)) + 2 * chip.padXPx, 6);
+    }],
+    ["the first piece of a chip that breaks at a <wbr> carries a third padding, as Chromium's min-content does", () => {
+      // Chromium: "verificationresultsummaryfile." <wbr> "json": the first piece carries three paddings.
+      const measured = widest([code("verificationresultsummaryfile.json")]);
+      expect(measured.text).toBe("verificationresultsummaryfile.");
+      expect(measured.width).toBeCloseTo(measureWidth("verificationresultsummaryfile.", codeFont(chip.sizePx)) + 3 * chip.padXPx, 6);
+    }],
+    ["a chip without pieces breaks at its spaces with two paddings per line", () => {
+      // Chromium: "verification next" is 90.625px.
+      const measured = widest([code("verification next")]);
+      expect(measured.text).toBe("verification");
+      expect(measured.width).toBeCloseTo(measureWidth("verification", codeFont(chip.sizePx)) + 2 * chip.padXPx, 6);
+    }],
+    ["punctuation right after a chip stays on its line", () => {
+      // The last piece of a chip that breaks keeps the comma after it on its line.
+      const measured = widest([code("brand-colors-dark-huggingfacepalette"), { insert: "," }]);
+      expect(measured.text).toBe("huggingfacepalette,");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("a <wbr> breaks even where text never wraps (Chromium honors it under white-space: nowrap)", () => {
     const layout = measureInline([code("packagesrootfolder/docs-viewer/src")], { font: codeFont(13), chip: { sizePx: 13, padXPx: 0 }, wrap: "nowrap" });

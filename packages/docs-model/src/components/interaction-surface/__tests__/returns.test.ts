@@ -4,13 +4,47 @@ import {InteractionSurfaceState,readInteractionSurfaceOperations} from '../state
 import {addOperation,updateOperation,removeOperation,interactionSurfaceAgentView} from '../index';
 import {checkParams} from '../../define';
 import type {DocBlock} from '../../../doc-schema';
+import sampleFixture from "../../../__fixtures__/sample.doc.json";
+
+// From state.test.ts, for a case carried here.
+const fixtureBlock = sampleFixture.blocks["interaction-surface-1"] as DocBlock;
 const shape={fields:[{name:'source',type:'object',fields:[{name:'path',type:'string'}]}],example:'{"source":{"path":"src/a.ts"}}'};
 const block=():DocBlock=>({id:'surface',type:'interaction-surface',props:{operations:[{name:'prepare',returns:'Prepared',returnShape:structuredClone(shape)}]},children:[]});
-test('native return shapes are recursive and closed; legacy returns remain valid',()=>{
- expect(Value.Check(InteractionSurfaceState,block().props)).toBe(true);
- for(const returnShape of [{fields:[{name:'x',extra:1}]},{fields:[],extra:1},{fields:[],example:1}])expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',returnShape}]})).toBe(false);
- expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',returns:'void'},{name:'y',returnShape:{fields:[],example:'{}'}}]})).toBe(true);
-});
+test.each([
+  ['native return shapes are recursive and closed; legacy returns remain valid', ()=>{
+   expect(Value.Check(InteractionSurfaceState,block().props)).toBe(true);
+   for(const returnShape of [{fields:[{name:'x',extra:1}]},{fields:[],extra:1},{fields:[],example:1}])expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',returnShape}]})).toBe(false);
+   expect(Value.Check(InteractionSurfaceState,{operations:[{name:'x',returns:'void'},{name:'y',returnShape:{fields:[],example:'{}'}}]})).toBe(true);
+  }],
+  ["accepts the fixture props, including operation params", () => {
+    expect(Value.Check(InteractionSurfaceState, fixtureBlock.props)).toBe(true);
+  }],
+  ["rejects a stray operation property", () => {
+    const operations = structuredClone(fixtureBlock.props.operations) as Array<Record<string, unknown>>;
+    operations[0] = { ...operations[0], stray: true };
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, operations })).toBe(false);
+  }],
+  ["rejects a missing operations property", () => {
+    expect(Value.Check(InteractionSurfaceState, { title: fixtureBlock.props.title })).toBe(false);
+  }],
+  ["rejects a stray top-level property", () => {
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, stray: true })).toBe(false);
+  }],
+  ["accepts nested param fields (shared recursive Field node)", () => {
+    const operations = structuredClone(fixtureBlock.props.operations) as Array<Record<string, unknown>>;
+    (operations[0].params as Array<Record<string, unknown>>)[0].fields = [
+      { name: "segment", type: "string", fields: [{ name: "leaf", required: false }] },
+    ];
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, operations })).toBe(true);
+  }],
+  ["rejects a stray property on a nested param field", () => {
+    const operations = structuredClone(fixtureBlock.props.operations) as Array<Record<string, unknown>>;
+    (operations[0].params as Array<Record<string, unknown>>)[0].fields = [
+      { name: "segment", stray: true },
+    ];
+    expect(Value.Check(InteractionSurfaceState, { ...fixtureBlock.props, operations })).toBe(false);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 test('read and all mutations preserve return fields without sharing source references',()=>{
  const source=block();const read=readInteractionSurfaceOperations(source);read[0]!.returnShape!.fields[0]!.fields![0]!.name='changed';expect(source.props).toEqual(block().props);
  for(const [action,args] of [[addOperation,{name:'status',kind:'query',returnShape:shape}],[updateOperation,{name:'prepare',patch:{description:'Only after capture'}}],[removeOperation,{name:'other'}]] as const){

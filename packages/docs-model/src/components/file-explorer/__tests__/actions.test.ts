@@ -65,17 +65,24 @@ describe("file-explorer.addEntry", () => {
     expect(props.entries as unknown[]).toHaveLength(4);
   });
 
-  it("rejects a duplicate path", () => {
-    mustFail(
-      run(addEntry, explorerBlock(), { path: "src/a.ts" }),
-      "$.params.path",
-      'File-explorer entry "src/a.ts" already exists.',
-    );
-  });
-
-  it.each(["./src/x.ts", "/src/x.ts", "src//x.ts"])("rejects the malformed path %s", (path) => {
-    mustFail(run(addEntry, explorerBlock(), { path }), "$.params.path");
-  });
+  it.each([
+    ["rejects a duplicate path", () => {
+      mustFail(
+        run(addEntry, explorerBlock(), { path: "src/a.ts" }),
+        "$.params.path",
+        'File-explorer entry "src/a.ts" already exists.',
+      );
+    }],
+    ["rejects the malformed path ./src/x.ts", () => {
+      mustFail(run(addEntry, explorerBlock(), { path: "./src/x.ts" }), "$.params.path");
+    }],
+    ["rejects the malformed path /src/x.ts", () => {
+      mustFail(run(addEntry, explorerBlock(), { path: "/src/x.ts" }), "$.params.path");
+    }],
+    ["rejects the malformed path src//x.ts", () => {
+      mustFail(run(addEntry, explorerBlock(), { path: "src//x.ts" }), "$.params.path");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects an unknown change marker through checkParams", () => {
     mustFail(run(addEntry, explorerBlock(), { path: "src/c.ts", change: "edited" }), "$.params.change");
@@ -104,33 +111,33 @@ describe("file-explorer.removeEntry", () => {
 });
 
 describe("file-explorer.updateEntry", () => {
-  it("renames in place and records the rename", () => {
-    const props = mustOk(
-      run(updateEntry, explorerBlock(), { path: "src/a.ts", newPath: "src/a2.ts", change: "renamed", from: "src/a.ts" }),
-    );
-    expect((props.entries as unknown[])[0]).toEqual({
-      path: "src/a2.ts",
-      note: "alpha",
-      change: "renamed",
-      from: "src/a.ts",
-    });
-  });
-
-  it("clears note, change and from when null is passed", () => {
-    const block = explorerBlock();
-    block.props.entries = [{ path: "src/a.ts", note: "alpha", change: "renamed", from: "src/old-a.ts" }];
-    const props = mustOk(run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }), block);
-    expect(props.entries).toEqual([{ path: "src/a.ts" }]);
-  });
-
-  it("sets and clears a color", () => {
-    const set = mustOk(run(updateEntry, explorerBlock(), { path: "docs/", color: "orange" }));
-    expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "orange" });
-    const block = explorerBlock();
-    block.props.entries = set.entries;
-    const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }), block);
-    expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
-  });
+  it.each([
+    ["renames in place and records the rename", () => {
+      const props = mustOk(
+        run(updateEntry, explorerBlock(), { path: "src/a.ts", newPath: "src/a2.ts", change: "renamed", from: "src/a.ts" }),
+      );
+      expect((props.entries as unknown[])[0]).toEqual({
+        path: "src/a2.ts",
+        note: "alpha",
+        change: "renamed",
+        from: "src/a.ts",
+      });
+    }],
+    ["clears note, change and from when null is passed", () => {
+      const block = explorerBlock();
+      block.props.entries = [{ path: "src/a.ts", note: "alpha", change: "renamed", from: "src/old-a.ts" }];
+      const props = mustOk(run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }), block);
+      expect(props.entries).toEqual([{ path: "src/a.ts" }]);
+    }],
+    ["sets and clears a color", () => {
+      const set = mustOk(run(updateEntry, explorerBlock(), { path: "docs/", color: "orange" }));
+      expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "orange" });
+      const block = explorerBlock();
+      block.props.entries = set.entries;
+      const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }), block);
+      expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a newPath collision and a malformed newPath", () => {
     mustFail(

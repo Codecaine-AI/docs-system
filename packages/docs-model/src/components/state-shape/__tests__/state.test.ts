@@ -33,13 +33,14 @@ function shapeProps(): Record<string, unknown> {
 }
 
 describe("state-shape component state", () => {
-  it("accepts a full recursive props object", () => {
-    expect(Value.Check(StateShapeState, shapeProps())).toBe(true);
-  });
-
-  it("accepts the minimal props object", () => {
-    expect(Value.Check(StateShapeState, { fields: [] })).toBe(true);
-  });
+  it.each([
+    ["accepts a full recursive props object", () => {
+      expect(Value.Check(StateShapeState, shapeProps())).toBe(true);
+    }],
+    ["accepts the minimal props object", () => {
+      expect(Value.Check(StateShapeState, { fields: [] })).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a missing fields property", () => {
     expect(Value.Check(StateShapeState, { name: "X" })).toBe(false);
@@ -73,26 +74,27 @@ describe("state-shape component state", () => {
     expect(Value.Check(StateShapeState, props)).toBe(false);
   });
 
-  it("reports duplicate sibling field names via the custom check", () => {
-    const props = {
-      fields: [
-        { name: "title" },
-        { name: "operations", fields: [{ name: "name" }, { name: "name" }] },
-      ],
-    };
-    expect(Value.Check(StateShapeState, props)).toBe(true);
-    expect(stateShapeState.check?.(props, "$.op.props")).toEqual([
-      {
-        path: "$.op.props.fields[1].fields[1].name",
-        message: 'Duplicate sibling field name "name".',
-      },
-    ]);
-  });
-
-  it("passes the custom check when names repeat only across levels", () => {
-    const props = shapeProps();
-    expect(stateShapeState.check?.(props, "$.op.props")).toEqual([]);
-  });
+  it.each([
+    ["reports duplicate sibling field names via the custom check", () => {
+      const props = {
+        fields: [
+          { name: "title" },
+          { name: "operations", fields: [{ name: "name" }, { name: "name" }] },
+        ],
+      };
+      expect(Value.Check(StateShapeState, props)).toBe(true);
+      expect(stateShapeState.check?.(props, "$.op.props")).toEqual([
+        {
+          path: "$.op.props.fields[1].fields[1].name",
+          message: 'Duplicate sibling field name "name".',
+        },
+      ]);
+    }],
+    ["passes the custom check when names repeat only across levels", () => {
+      const props = shapeProps();
+      expect(stateShapeState.check?.(props, "$.op.props")).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("accepts a JSON example string", () => {
     const props = { ...shapeProps(), example: '{ "title": "Ops", "operations": [] }' };

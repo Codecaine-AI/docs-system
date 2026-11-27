@@ -11,13 +11,14 @@ const fixtureBlock = sampleFixture.blocks["canvas-1"] as DocBlock;
 const context = { listDepth: 0, listIndex: 0 };
 
 describe("canvas state", () => {
-  it("accepts the fixture canvas props", () => {
-    expect(Value.Check(CanvasState, fixtureBlock.props)).toBe(true);
-  });
-
-  it("accepts a placeholder with neither canvasId nor src", () => {
-    expect(Value.Check(CanvasState, {})).toBe(true);
-  });
+  it.each([
+    ["accepts the fixture canvas props", () => {
+      expect(Value.Check(CanvasState, fixtureBlock.props)).toBe(true);
+    }],
+    ["accepts a placeholder with neither canvasId nor src", () => {
+      expect(Value.Check(CanvasState, {})).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects an empty canvasId", () => {
     expect(Value.Check(CanvasState, { canvasId: "" })).toBe(false);
@@ -29,26 +30,26 @@ describe("canvas state", () => {
 });
 
 describe("canvas agent view", () => {
-  it("projects the fixture byte-for-byte", () => {
-    expect(canvasAgentView(fixtureBlock, context)).toBe(
-      '<!-- canvas: ./assets/canvases/sample.canvas.json view=container-architecture title="Architecture overview" -->',
-    );
-  });
-
-  it("projects a missing-src placeholder", () => {
-    const block: DocBlock = { id: "canvas-empty", type: "canvas", props: {}, children: [] };
-    expect(canvasAgentView(block, context)).toBe("<!-- canvas: (missing src) -->");
-  });
-
-  it("projects a central canvasId when no sidecar src is present", () => {
-    const block: DocBlock = {
-      id: "canvas-central",
-      type: "canvas",
-      props: { canvasId: "interaction-surfaces", view: "one-state-two-readers" },
-      children: [],
-    };
-    expect(canvasAgentView(block, context)).toBe(
-      "<!-- canvas: interaction-surfaces view=one-state-two-readers -->",
-    );
-  });
+  it.each([
+    ["projects the fixture byte-for-byte", () => {
+      expect(canvasAgentView(fixtureBlock, context)).toBe(
+        '<!-- canvas: ./assets/canvases/sample.canvas.json view=container-architecture title="Architecture overview" -->',
+      );
+    }],
+    ["projects a missing-src placeholder", () => {
+      const block: DocBlock = { id: "canvas-empty", type: "canvas", props: {}, children: [] };
+      expect(canvasAgentView(block, context)).toBe("<!-- canvas: (missing src) -->");
+    }],
+    ["projects a central canvasId when no sidecar src is present", () => {
+      const block: DocBlock = {
+        id: "canvas-central",
+        type: "canvas",
+        props: { canvasId: "interaction-surfaces", view: "one-state-two-readers" },
+        children: [],
+      };
+      expect(canvasAgentView(block, context)).toBe(
+        "<!-- canvas: interaction-surfaces view=one-state-two-readers -->",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

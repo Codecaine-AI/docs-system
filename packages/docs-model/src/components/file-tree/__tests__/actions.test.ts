@@ -59,53 +59,54 @@ function mustFail(
 }
 
 describe("file-tree.addEntry", () => {
-  it("appends a new entry with stable ordering, note, and change", () => {
-    const props = mustOk(
-      run(addEntry, fileTreeBlock(), { path: "src/c.ts", note: "new", change: "added" }),
-    );
-    expect(props.entries).toEqual([
-      { path: "src/a.ts", note: "alpha", change: "added" },
-      { path: "src/b.ts" },
-      { path: "docs/" },
-      { path: "src/c.ts", note: "new", change: "added" },
-    ]);
-  });
+  it.each([
+    ["appends a new entry with stable ordering, note, and change", () => {
+      const props = mustOk(
+        run(addEntry, fileTreeBlock(), { path: "src/c.ts", note: "new", change: "added" }),
+      );
+      expect(props.entries).toEqual([
+        { path: "src/a.ts", note: "alpha", change: "added" },
+        { path: "src/b.ts" },
+        { path: "docs/" },
+        { path: "src/c.ts", note: "new", change: "added" },
+      ]);
+    }],
+    ["accepts a trailing-slash explicit directory entry", () => {
+      const props = mustOk(run(addEntry, fileTreeBlock(), { path: "assets/" }));
+      expect((props.entries as unknown[]).at(-1)).toEqual({ path: "assets/" });
+    }],
+    ["adds an entry with a roster color", () => {
+      const props = mustOk(run(addEntry, fileTreeBlock(), { path: "packages/", color: "teal" }));
+      expect((props.entries as unknown[]).at(-1)).toEqual({ path: "packages/", color: "teal" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("accepts a trailing-slash explicit directory entry", () => {
-    const props = mustOk(run(addEntry, fileTreeBlock(), { path: "assets/" }));
-    expect((props.entries as unknown[]).at(-1)).toEqual({ path: "assets/" });
-  });
-
-  it("rejects a duplicate path", () => {
-    mustFail(
-      run(addEntry, fileTreeBlock(), { path: "src/a.ts" }),
-      "$.params.path",
-      'File-tree entry "src/a.ts" already exists.',
-    );
-  });
-
-  it("rejects all three invalid path grammar forms with legacy messages", () => {
-    mustFail(
-      run(addEntry, fileTreeBlock(), { path: "./src/x.ts" }),
-      "$.params.path",
-      'File-tree paths must not start with "./": "./src/x.ts".',
-    );
-    mustFail(
-      run(addEntry, fileTreeBlock(), { path: "/src/x.ts" }),
-      "$.params.path",
-      'File-tree paths are relative (no leading "/"): "/src/x.ts".',
-    );
-    mustFail(
-      run(addEntry, fileTreeBlock(), { path: "src//x.ts" }),
-      "$.params.path",
-      'File-tree path has empty segments: "src//x.ts".',
-    );
-  });
-
-  it("adds an entry with a roster color", () => {
-    const props = mustOk(run(addEntry, fileTreeBlock(), { path: "packages/", color: "teal" }));
-    expect((props.entries as unknown[]).at(-1)).toEqual({ path: "packages/", color: "teal" });
-  });
+  it.each([
+    ["rejects a duplicate path", () => {
+      mustFail(
+        run(addEntry, fileTreeBlock(), { path: "src/a.ts" }),
+        "$.params.path",
+        'File-tree entry "src/a.ts" already exists.',
+      );
+    }],
+    ["rejects all three invalid path grammar forms with legacy messages", () => {
+      mustFail(
+        run(addEntry, fileTreeBlock(), { path: "./src/x.ts" }),
+        "$.params.path",
+        'File-tree paths must not start with "./": "./src/x.ts".',
+      );
+      mustFail(
+        run(addEntry, fileTreeBlock(), { path: "/src/x.ts" }),
+        "$.params.path",
+        'File-tree paths are relative (no leading "/"): "/src/x.ts".',
+      );
+      mustFail(
+        run(addEntry, fileTreeBlock(), { path: "src//x.ts" }),
+        "$.params.path",
+        'File-tree path has empty segments: "src//x.ts".',
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a color outside the roster through checkParams", () => {
     mustFail(run(addEntry, fileTreeBlock(), { path: "packages/", color: "magenta" }), "$.params.color");
@@ -139,48 +140,64 @@ describe("file-tree.removeEntry", () => {
 });
 
 describe("file-tree.updateEntry", () => {
-  it("patches note, change, and from in place", () => {
-    const props = mustOk(
-      run(updateEntry, fileTreeBlock(), {
-        path: "src/b.ts",
-        note: "beta",
+  it.each([
+    ["patches note, change, and from in place", () => {
+      const props = mustOk(
+        run(updateEntry, fileTreeBlock(), {
+          path: "src/b.ts",
+          note: "beta",
+          change: "renamed",
+          from: "src/old-b.ts",
+        }),
+      );
+      expect(props.entries).toEqual([
+        { path: "src/a.ts", note: "alpha", change: "added" },
+        { path: "src/b.ts", note: "beta", change: "renamed", from: "src/old-b.ts" },
+        { path: "docs/" },
+      ]);
+    }],
+    ["clears note, change, and from when null is passed", () => {
+      const block = fileTreeBlock();
+      block.props.entries = [
+        { path: "src/a.ts", note: "alpha", change: "renamed", from: "src/old-a.ts" },
+        { path: "src/b.ts" },
+        { path: "docs/" },
+      ];
+      const props = mustOk(
+        run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }),
+      );
+      expect((props.entries as unknown[])[0]).toEqual({ path: "src/a.ts" });
+    }],
+    ["sets, replaces, and clears a color", () => {
+      const set = mustOk(run(updateEntry, fileTreeBlock(), { path: "docs/", color: "blue" }));
+      expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "blue" });
+
+      const block = fileTreeBlock();
+      block.props.entries = set.entries;
+      const replaced = mustOk(run(updateEntry, block, { path: "docs/", color: "pink" }));
+      expect((replaced.entries as unknown[])[2]).toEqual({ path: "docs/", color: "pink" });
+
+      block.props.entries = replaced.entries;
+      const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }));
+      expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
+    }],
+    ["renames in place via newPath", () => {
+      const props = mustOk(
+        run(updateEntry, fileTreeBlock(), {
+          path: "src/a.ts",
+          newPath: "src/a2.ts",
+          change: "renamed",
+          from: "src/a.ts",
+        }),
+      );
+      expect((props.entries as unknown[])[0]).toEqual({
+        path: "src/a2.ts",
+        note: "alpha",
         change: "renamed",
-        from: "src/old-b.ts",
-      }),
-    );
-    expect(props.entries).toEqual([
-      { path: "src/a.ts", note: "alpha", change: "added" },
-      { path: "src/b.ts", note: "beta", change: "renamed", from: "src/old-b.ts" },
-      { path: "docs/" },
-    ]);
-  });
-
-  it("clears note, change, and from when null is passed", () => {
-    const block = fileTreeBlock();
-    block.props.entries = [
-      { path: "src/a.ts", note: "alpha", change: "renamed", from: "src/old-a.ts" },
-      { path: "src/b.ts" },
-      { path: "docs/" },
-    ];
-    const props = mustOk(
-      run(updateEntry, block, { path: "src/a.ts", note: null, change: null, from: null }),
-    );
-    expect((props.entries as unknown[])[0]).toEqual({ path: "src/a.ts" });
-  });
-
-  it("sets, replaces, and clears a color", () => {
-    const set = mustOk(run(updateEntry, fileTreeBlock(), { path: "docs/", color: "blue" }));
-    expect((set.entries as unknown[])[2]).toEqual({ path: "docs/", color: "blue" });
-
-    const block = fileTreeBlock();
-    block.props.entries = set.entries;
-    const replaced = mustOk(run(updateEntry, block, { path: "docs/", color: "pink" }));
-    expect((replaced.entries as unknown[])[2]).toEqual({ path: "docs/", color: "pink" });
-
-    block.props.entries = replaced.entries;
-    const cleared = mustOk(run(updateEntry, block, { path: "docs/", color: null }));
-    expect((cleared.entries as unknown[])[2]).toEqual({ path: "docs/" });
-  });
+        from: "src/a.ts",
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps the color when other fields change, and rejects an unknown color", () => {
     const block = fileTreeBlock();
@@ -190,38 +207,22 @@ describe("file-tree.updateEntry", () => {
     mustFail(run(updateEntry, block, { path: "docs/", color: "magenta" }), "$.params.color");
   });
 
-  it("renames in place via newPath", () => {
-    const props = mustOk(
-      run(updateEntry, fileTreeBlock(), {
-        path: "src/a.ts",
-        newPath: "src/a2.ts",
-        change: "renamed",
-        from: "src/a.ts",
-      }),
-    );
-    expect((props.entries as unknown[])[0]).toEqual({
-      path: "src/a2.ts",
-      note: "alpha",
-      change: "renamed",
-      from: "src/a.ts",
-    });
-  });
-
-  it("rejects a newPath collision", () => {
-    mustFail(
-      run(updateEntry, fileTreeBlock(), { path: "src/a.ts", newPath: "src/b.ts" }),
-      "$.params.newPath",
-      'File-tree entry "src/b.ts" already exists.',
-    );
-  });
-
-  it("rejects an empty newPath in the domain validator", () => {
-    mustFail(
-      run(updateEntry, fileTreeBlock(), { path: "src/a.ts", newPath: "" }),
-      "$.params.newPath",
-      'File-tree path has empty segments: "".',
-    );
-  });
+  it.each([
+    ["rejects a newPath collision", () => {
+      mustFail(
+        run(updateEntry, fileTreeBlock(), { path: "src/a.ts", newPath: "src/b.ts" }),
+        "$.params.newPath",
+        'File-tree entry "src/b.ts" already exists.',
+      );
+    }],
+    ["rejects an empty newPath in the domain validator", () => {
+      mustFail(
+        run(updateEntry, fileTreeBlock(), { path: "src/a.ts", newPath: "" }),
+        "$.params.newPath",
+        'File-tree path has empty segments: "".',
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a missing entry", () => {
     mustFail(

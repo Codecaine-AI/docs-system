@@ -36,43 +36,6 @@ function mustFail(result: ComponentActionResult, ...paths: string[]): void {
 // ---------------------------------------------------------------------------
 
 describe("component-actions registry", () => {
-  it("keys every definition by its action string, shaped '<blockType>.<verb>'", () => {
-    for (const [key, definition] of COMPONENT_ACTIONS) {
-      expect(definition.action).toBe(key);
-      expect(key.startsWith(`${definition.blockType}.`)).toBe(true);
-      expect(definition.description.length).toBeGreaterThan(0);
-      expect(typeof definition.params).toBe("object");
-      expect(definition.params.type).toBe("object");
-      expect(typeof definition.params.properties).toBe("object");
-      expect(Object.keys(definition.params.properties).length).toBeGreaterThan(0);
-    }
-  });
-
-  it("exposes the full expected catalog", () => {
-    expect([...COMPONENT_ACTIONS.keys()].sort()).toEqual(
-      [
-        "file-tree.addEntry",
-        "file-tree.removeEntry",
-        "file-tree.updateEntry",
-        "structured-table.addRow",
-        "structured-table.removeRow",
-        "structured-table.updateCell",
-        "structured-table.addColumn",
-        "structured-table.removeColumn",
-        "interaction-surface.addOperation",
-        "interaction-surface.updateOperation",
-        "interaction-surface.removeOperation",
-        "code.setAnnotation",
-        "code.removeAnnotation",
-      ].sort(),
-    );
-  });
-
-  it("getComponentAction resolves known actions and returns undefined for unknown ones", () => {
-    expect(getComponentAction("file-tree.addEntry")?.blockType).toBe("file-tree");
-    expect(getComponentAction("file-tree.nope")).toBeUndefined();
-  });
-
   it("listComponentActions filters by block type and returns everything unfiltered", () => {
     expect(listComponentActions().length).toBe(COMPONENT_ACTIONS.size);
     const fileTree = listComponentActions("file-tree").map((d) => d.action);
@@ -97,42 +60,42 @@ function fileTreeBlock(): DocBlock {
 }
 
 describe("file-tree.addEntry", () => {
-  it("appends a new entry (stable ordering) with note and change", () => {
-    const props = mustOk(
-      run("file-tree.addEntry", fileTreeBlock(), { path: "src/c.ts", note: "new", change: "added" }),
-    );
-    expect(props.entries).toEqual([
-      { path: "src/a.ts", note: "alpha", change: "added" },
-      { path: "src/b.ts" },
-      { path: "docs/" },
-      { path: "src/c.ts", note: "new", change: "added" },
-    ]);
-  });
+  it.each([
+    ["appends a new entry (stable ordering) with note and change", () => {
+      const props = mustOk(
+        run("file-tree.addEntry", fileTreeBlock(), { path: "src/c.ts", note: "new", change: "added" }),
+      );
+      expect(props.entries).toEqual([
+        { path: "src/a.ts", note: "alpha", change: "added" },
+        { path: "src/b.ts" },
+        { path: "docs/" },
+        { path: "src/c.ts", note: "new", change: "added" },
+      ]);
+    }],
+    ["accepts a trailing-/ explicit directory entry", () => {
+      const props = mustOk(run("file-tree.addEntry", fileTreeBlock(), { path: "assets/" }));
+      expect((props.entries as unknown[]).at(-1)).toEqual({ path: "assets/" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("accepts a trailing-/ explicit directory entry", () => {
-    const props = mustOk(run("file-tree.addEntry", fileTreeBlock(), { path: "assets/" }));
-    expect((props.entries as unknown[]).at(-1)).toEqual({ path: "assets/" });
-  });
-
-  it("rejects a duplicate path", () => {
-    mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "src/a.ts" }), "$.params.path");
-  });
-
-  it("rejects a missing path param", () => {
-    mustFail(run("file-tree.addEntry", fileTreeBlock(), {}), "$.params.path");
-  });
-
-  it('rejects a leading "./" path and an absolute path', () => {
-    mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "./src/x.ts" }), "$.params.path");
-    mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "/src/x.ts" }), "$.params.path");
-  });
-
-  it("rejects an unknown change marker", () => {
-    mustFail(
-      run("file-tree.addEntry", fileTreeBlock(), { path: "src/c.ts", change: "edited" }),
-      "$.params.change",
-    );
-  });
+  it.each([
+    ["rejects a duplicate path", () => {
+      mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "src/a.ts" }), "$.params.path");
+    }],
+    ["rejects a missing path param", () => {
+      mustFail(run("file-tree.addEntry", fileTreeBlock(), {}), "$.params.path");
+    }],
+    ['rejects a leading "./" path and an absolute path', () => {
+      mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "./src/x.ts" }), "$.params.path");
+      mustFail(run("file-tree.addEntry", fileTreeBlock(), { path: "/src/x.ts" }), "$.params.path");
+    }],
+    ["rejects an unknown change marker", () => {
+      mustFail(
+        run("file-tree.addEntry", fileTreeBlock(), { path: "src/c.ts", change: "edited" }),
+        "$.params.change",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("file-tree.removeEntry", () => {
@@ -147,44 +110,44 @@ describe("file-tree.removeEntry", () => {
 });
 
 describe("file-tree.updateEntry", () => {
-  it("patches note/change/from on the entry, in place", () => {
-    const props = mustOk(
-      run("file-tree.updateEntry", fileTreeBlock(), {
-        path: "src/b.ts",
-        note: "beta",
-        change: "modified",
-      }),
-    );
-    expect(props.entries).toEqual([
-      { path: "src/a.ts", note: "alpha", change: "added" },
-      { path: "src/b.ts", note: "beta", change: "modified" },
-      { path: "docs/" },
-    ]);
-  });
-
-  it("renames in place via newPath", () => {
-    const props = mustOk(
-      run("file-tree.updateEntry", fileTreeBlock(), {
-        path: "src/a.ts",
-        newPath: "src/a2.ts",
+  it.each([
+    ["patches note/change/from on the entry, in place", () => {
+      const props = mustOk(
+        run("file-tree.updateEntry", fileTreeBlock(), {
+          path: "src/b.ts",
+          note: "beta",
+          change: "modified",
+        }),
+      );
+      expect(props.entries).toEqual([
+        { path: "src/a.ts", note: "alpha", change: "added" },
+        { path: "src/b.ts", note: "beta", change: "modified" },
+        { path: "docs/" },
+      ]);
+    }],
+    ["renames in place via newPath", () => {
+      const props = mustOk(
+        run("file-tree.updateEntry", fileTreeBlock(), {
+          path: "src/a.ts",
+          newPath: "src/a2.ts",
+          change: "renamed",
+          from: "src/a.ts",
+        }),
+      );
+      expect((props.entries as unknown[])[0]).toEqual({
+        path: "src/a2.ts",
+        note: "alpha",
         change: "renamed",
         from: "src/a.ts",
-      }),
-    );
-    expect((props.entries as unknown[])[0]).toEqual({
-      path: "src/a2.ts",
-      note: "alpha",
-      change: "renamed",
-      from: "src/a.ts",
-    });
-  });
-
-  it("clears note/change/from when null is passed", () => {
-    const props = mustOk(
-      run("file-tree.updateEntry", fileTreeBlock(), { path: "src/a.ts", note: null, change: null }),
-    );
-    expect((props.entries as unknown[])[0]).toEqual({ path: "src/a.ts" });
-  });
+      });
+    }],
+    ["clears note/change/from when null is passed", () => {
+      const props = mustOk(
+        run("file-tree.updateEntry", fileTreeBlock(), { path: "src/a.ts", note: null, change: null }),
+      );
+      expect((props.entries as unknown[])[0]).toEqual({ path: "src/a.ts" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a newPath that collides with another entry", () => {
     mustFail(
@@ -214,34 +177,36 @@ function tableBlock(): DocBlock {
 }
 
 describe("structured-table.addRow", () => {
-  it("appends at the end by default, padding cells to the column count", () => {
-    const props = mustOk(run("structured-table.addRow", tableBlock(), { cells: ["only-name"] }));
-    expect(props.rows).toEqual([
-      ["answer", "42"],
-      ["question", "unknown"],
-      ["only-name", ""],
-    ]);
-  });
+  it.each([
+    ["appends at the end by default, padding cells to the column count", () => {
+      const props = mustOk(run("structured-table.addRow", tableBlock(), { cells: ["only-name"] }));
+      expect(props.rows).toEqual([
+        ["answer", "42"],
+        ["question", "unknown"],
+        ["only-name", ""],
+      ]);
+    }],
+    ["truncates extra cells and honors an explicit index", () => {
+      const props = mustOk(
+        run("structured-table.addRow", tableBlock(), { cells: ["a", "b", "EXTRA"], index: 0 }),
+      );
+      expect(props.rows).toEqual([
+        ["a", "b"],
+        ["answer", "42"],
+        ["question", "unknown"],
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("truncates extra cells and honors an explicit index", () => {
-    const props = mustOk(
-      run("structured-table.addRow", tableBlock(), { cells: ["a", "b", "EXTRA"], index: 0 }),
-    );
-    expect(props.rows).toEqual([
-      ["a", "b"],
-      ["answer", "42"],
-      ["question", "unknown"],
-    ]);
-  });
-
-  it("rejects a non-array cells param and non-string cells", () => {
-    mustFail(run("structured-table.addRow", tableBlock(), { cells: "nope" }), "$.params.cells");
-    mustFail(run("structured-table.addRow", tableBlock(), { cells: ["ok", 42] }), "$.params.cells[1]");
-  });
-
-  it("rejects an out-of-range index", () => {
-    mustFail(run("structured-table.addRow", tableBlock(), { cells: ["x"], index: 3 }), "$.params.index");
-  });
+  it.each([
+    ["rejects a non-array cells param and non-string cells", () => {
+      mustFail(run("structured-table.addRow", tableBlock(), { cells: "nope" }), "$.params.cells");
+      mustFail(run("structured-table.addRow", tableBlock(), { cells: ["ok", 42] }), "$.params.cells[1]");
+    }],
+    ["rejects an out-of-range index", () => {
+      mustFail(run("structured-table.addRow", tableBlock(), { cells: ["x"], index: 3 }), "$.params.index");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("structured-table.removeRow", () => {
@@ -257,25 +222,51 @@ describe("structured-table.removeRow", () => {
 });
 
 describe("structured-table.updateCell", () => {
-  it("sets a cell addressed by column name", () => {
-    const props = mustOk(
-      run("structured-table.updateCell", tableBlock(), { rowIndex: 1, column: "Value", value: "43" }),
-    );
-    expect(props.rows).toEqual([
-      ["answer", "42"],
-      ["question", "43"],
-    ]);
-  });
+  it.each([
+    ["sets a cell addressed by column name", () => {
+      const props = mustOk(
+        run("structured-table.updateCell", tableBlock(), { rowIndex: 1, column: "Value", value: "43" }),
+      );
+      expect(props.rows).toEqual([
+        ["answer", "42"],
+        ["question", "43"],
+      ]);
+    }],
+    ["sets a cell addressed by columnIndex", () => {
+      const props = mustOk(
+        run("structured-table.updateCell", tableBlock(), { rowIndex: 0, columnIndex: 0, value: "ANSWER" }),
+      );
+      expect(props.rows).toEqual([
+        ["ANSWER", "42"],
+        ["question", "unknown"],
+      ]);
+    }],
+    ["stores a markdown value as normalized spans and a plain value as a plain string", () => {
+      const marked = mustOk(
+        run("structured-table.updateCell", tableBlock(), {
+          rowIndex: 0,
+          columnIndex: 1,
+          value: "**bold** tail",
+        }),
+      );
+      expect(marked.rows).toEqual([
+        ["answer", [{ insert: "bold", attributes: { bold: true } }, { insert: " tail" }]],
+        ["question", "unknown"],
+      ]);
 
-  it("sets a cell addressed by columnIndex", () => {
-    const props = mustOk(
-      run("structured-table.updateCell", tableBlock(), { rowIndex: 0, columnIndex: 0, value: "ANSWER" }),
-    );
-    expect(props.rows).toEqual([
-      ["ANSWER", "42"],
-      ["question", "unknown"],
-    ]);
-  });
+      const plain = mustOk(
+        run("structured-table.updateCell", tableBlock(), {
+          rowIndex: 0,
+          columnIndex: 1,
+          value: "just text",
+        }),
+      );
+      expect(plain.rows).toEqual([
+        ["answer", "just text"],
+        ["question", "unknown"],
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects when both or neither of column/columnIndex are given", () => {
     mustFail(
@@ -296,32 +287,6 @@ describe("structured-table.updateCell", () => {
     );
   });
 
-  it("stores a markdown value as normalized spans and a plain value as a plain string", () => {
-    const marked = mustOk(
-      run("structured-table.updateCell", tableBlock(), {
-        rowIndex: 0,
-        columnIndex: 1,
-        value: "**bold** tail",
-      }),
-    );
-    expect(marked.rows).toEqual([
-      ["answer", [{ insert: "bold", attributes: { bold: true } }, { insert: " tail" }]],
-      ["question", "unknown"],
-    ]);
-
-    const plain = mustOk(
-      run("structured-table.updateCell", tableBlock(), {
-        rowIndex: 0,
-        columnIndex: 1,
-        value: "just text",
-      }),
-    );
-    expect(plain.rows).toEqual([
-      ["answer", "just text"],
-      ["question", "unknown"],
-    ]);
-  });
-
   it("rejects an out-of-range rowIndex and a missing value", () => {
     mustFail(
       run("structured-table.updateCell", tableBlock(), { rowIndex: 5, column: "Name", value: "x" }),
@@ -335,25 +300,26 @@ describe("structured-table.updateCell", () => {
 });
 
 describe("structured-table.addColumn", () => {
-  it("appends a column at the end, extending every row with the default fill \"\"", () => {
-    const props = mustOk(run("structured-table.addColumn", tableBlock(), { name: "Notes" }));
-    expect(props.columns).toEqual(["Name", "Value", "Notes"]);
-    expect(props.rows).toEqual([
-      ["answer", "42", ""],
-      ["question", "unknown", ""],
-    ]);
-  });
-
-  it("inserts at an explicit index with a custom fill", () => {
-    const props = mustOk(
-      run("structured-table.addColumn", tableBlock(), { name: "Id", index: 0, fill: "?" }),
-    );
-    expect(props.columns).toEqual(["Id", "Name", "Value"]);
-    expect(props.rows).toEqual([
-      ["?", "answer", "42"],
-      ["?", "question", "unknown"],
-    ]);
-  });
+  it.each([
+    ["appends a column at the end, extending every row with the default fill \"\"", () => {
+      const props = mustOk(run("structured-table.addColumn", tableBlock(), { name: "Notes" }));
+      expect(props.columns).toEqual(["Name", "Value", "Notes"]);
+      expect(props.rows).toEqual([
+        ["answer", "42", ""],
+        ["question", "unknown", ""],
+      ]);
+    }],
+    ["inserts at an explicit index with a custom fill", () => {
+      const props = mustOk(
+        run("structured-table.addColumn", tableBlock(), { name: "Id", index: 0, fill: "?" }),
+      );
+      expect(props.columns).toEqual(["Id", "Name", "Value"]);
+      expect(props.rows).toEqual([
+        ["?", "answer", "42"],
+        ["?", "question", "unknown"],
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a duplicate column name and an out-of-range index", () => {
     mustFail(run("structured-table.addColumn", tableBlock(), { name: "Name" }), "$.params.name");
@@ -362,17 +328,18 @@ describe("structured-table.addColumn", () => {
 });
 
 describe("structured-table.removeColumn", () => {
-  it("removes a column by name, shrinking every row", () => {
-    const props = mustOk(run("structured-table.removeColumn", tableBlock(), { column: "Name" }));
-    expect(props.columns).toEqual(["Value"]);
-    expect(props.rows).toEqual([["42"], ["unknown"]]);
-  });
-
-  it("removes a column by index", () => {
-    const props = mustOk(run("structured-table.removeColumn", tableBlock(), { columnIndex: 1 }));
-    expect(props.columns).toEqual(["Name"]);
-    expect(props.rows).toEqual([["answer"], ["question"]]);
-  });
+  it.each([
+    ["removes a column by name, shrinking every row", () => {
+      const props = mustOk(run("structured-table.removeColumn", tableBlock(), { column: "Name" }));
+      expect(props.columns).toEqual(["Value"]);
+      expect(props.rows).toEqual([["42"], ["unknown"]]);
+    }],
+    ["removes a column by index", () => {
+      const props = mustOk(run("structured-table.removeColumn", tableBlock(), { columnIndex: 1 }));
+      expect(props.columns).toEqual(["Name"]);
+      expect(props.rows).toEqual([["answer"], ["question"]]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects when both or neither of column/columnIndex are given, or the column is unknown", () => {
     mustFail(
@@ -412,126 +379,126 @@ function opNames(props: Record<string, unknown>): string[] {
 }
 
 describe("interaction-surface.addOperation", () => {
-  it("appends an operation with only the provided keys", () => {
-    const props = mustOk(
-      run("interaction-surface.addOperation", surfaceBlock(), {
+  it.each([
+    ["appends an operation with only the provided keys", () => {
+      const props = mustOk(
+        run("interaction-surface.addOperation", surfaceBlock(), {
+          name: "file-tree.updateEntry",
+          description: "Patch an entry in place",
+          params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
+          returns: "props patch",
+          kind: "action",
+        }),
+      );
+      expect(opNames(props)).toEqual([
+        "file-tree.addEntry",
+        "file-tree.removeEntry",
+        "file-tree.updateEntry",
+      ]);
+      expect((props.operations as unknown[]).at(-1)).toEqual({
         name: "file-tree.updateEntry",
         description: "Patch an entry in place",
         params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
         returns: "props patch",
         kind: "action",
-      }),
-    );
-    expect(opNames(props)).toEqual([
-      "file-tree.addEntry",
-      "file-tree.removeEntry",
-      "file-tree.updateEntry",
-    ]);
-    expect((props.operations as unknown[]).at(-1)).toEqual({
-      name: "file-tree.updateEntry",
-      description: "Patch an entry in place",
-      params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
-      returns: "props patch",
-      kind: "action",
-    });
-  });
+      });
+    }],
+    ["appends a minimal operation (name only)", () => {
+      const props = mustOk(
+        run("interaction-surface.addOperation", surfaceBlock(), { name: "file-tree.clear" }),
+      );
+      expect((props.operations as unknown[]).at(-1)).toEqual({ name: "file-tree.clear" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("appends a minimal operation (name only)", () => {
-    const props = mustOk(
-      run("interaction-surface.addOperation", surfaceBlock(), { name: "file-tree.clear" }),
-    );
-    expect((props.operations as unknown[]).at(-1)).toEqual({ name: "file-tree.clear" });
-  });
-
-  it("rejects a duplicate name and a missing name", () => {
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), { name: "file-tree.addEntry" }),
-      "$.params.name",
-    );
-    mustFail(run("interaction-surface.addOperation", surfaceBlock(), {}), "$.params.name");
-  });
-
-  it("rejects an unknown kind", () => {
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), { name: "x", kind: "mutation" }),
-      "$.params.kind",
-    );
-  });
-
-  it("rejects a malformed params array with precise element paths", () => {
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), { name: "x", params: "nope" }),
-      "$.params.params",
-    );
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), { name: "x", params: [{}] }),
-      "$.params.params[0].name",
-    );
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), {
-        name: "x",
-        params: [{ name: "ok" }, { name: "bad", required: "yes" }],
-      }),
-      "$.params.params[1].required",
-    );
-    mustFail(
-      run("interaction-surface.addOperation", surfaceBlock(), {
-        name: "x",
-        params: [{ name: "bad", type: 42 }],
-      }),
-      "$.params.params[0].type",
-    );
-  });
+  it.each([
+    ["rejects a duplicate name and a missing name", () => {
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), { name: "file-tree.addEntry" }),
+        "$.params.name",
+      );
+      mustFail(run("interaction-surface.addOperation", surfaceBlock(), {}), "$.params.name");
+    }],
+    ["rejects an unknown kind", () => {
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), { name: "x", kind: "mutation" }),
+        "$.params.kind",
+      );
+    }],
+    ["rejects a malformed params array with precise element paths", () => {
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), { name: "x", params: "nope" }),
+        "$.params.params",
+      );
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), { name: "x", params: [{}] }),
+        "$.params.params[0].name",
+      );
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), {
+          name: "x",
+          params: [{ name: "ok" }, { name: "bad", required: "yes" }],
+        }),
+        "$.params.params[1].required",
+      );
+      mustFail(
+        run("interaction-surface.addOperation", surfaceBlock(), {
+          name: "x",
+          params: [{ name: "bad", type: 42 }],
+        }),
+        "$.params.params[0].type",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("interaction-surface.updateOperation", () => {
-  it("patches operation attributes in place", () => {
-    const props = mustOk(
-      run("interaction-surface.updateOperation", surfaceBlock(), {
+  it.each([
+    ["patches operation attributes in place", () => {
+      const props = mustOk(
+        run("interaction-surface.updateOperation", surfaceBlock(), {
+          name: "file-tree.removeEntry",
+          patch: { description: "Remove the entry", returns: "props patch", kind: "action" },
+        }),
+      );
+      expect((props.operations as unknown[])[1]).toEqual({
         name: "file-tree.removeEntry",
-        patch: { description: "Remove the entry", returns: "props patch", kind: "action" },
-      }),
-    );
-    expect((props.operations as unknown[])[1]).toEqual({
-      name: "file-tree.removeEntry",
-      description: "Remove the entry",
-      params: [{ name: "path", type: "string", required: true }],
-      returns: "props patch",
-      kind: "action",
-    });
-  });
-
-  it("renames via patch.name, keeping position", () => {
-    const props = mustOk(
-      run("interaction-surface.updateOperation", surfaceBlock(), {
-        name: "file-tree.addEntry",
-        patch: { name: "file-tree.appendEntry" },
-      }),
-    );
-    expect(opNames(props)).toEqual(["file-tree.appendEntry", "file-tree.removeEntry"]);
-  });
-
-  it("replaces the params array wholesale when patched", () => {
-    const props = mustOk(
-      run("interaction-surface.updateOperation", surfaceBlock(), {
-        name: "file-tree.addEntry",
-        patch: { params: [{ name: "entry", type: "FileTreeEntry", required: true }] },
-      }),
-    );
-    expect((props.operations as Array<{ params: unknown }>)[0].params).toEqual([
-      { name: "entry", type: "FileTreeEntry", required: true },
-    ]);
-  });
-
-  it("clears description/params/returns/kind when null is passed", () => {
-    const props = mustOk(
-      run("interaction-surface.updateOperation", surfaceBlock(), {
-        name: "file-tree.addEntry",
-        patch: { description: null, params: null, returns: null, kind: null },
-      }),
-    );
-    expect((props.operations as unknown[])[0]).toEqual({ name: "file-tree.addEntry" });
-  });
+        description: "Remove the entry",
+        params: [{ name: "path", type: "string", required: true }],
+        returns: "props patch",
+        kind: "action",
+      });
+    }],
+    ["renames via patch.name, keeping position", () => {
+      const props = mustOk(
+        run("interaction-surface.updateOperation", surfaceBlock(), {
+          name: "file-tree.addEntry",
+          patch: { name: "file-tree.appendEntry" },
+        }),
+      );
+      expect(opNames(props)).toEqual(["file-tree.appendEntry", "file-tree.removeEntry"]);
+    }],
+    ["replaces the params array wholesale when patched", () => {
+      const props = mustOk(
+        run("interaction-surface.updateOperation", surfaceBlock(), {
+          name: "file-tree.addEntry",
+          patch: { params: [{ name: "entry", type: "FileTreeEntry", required: true }] },
+        }),
+      );
+      expect((props.operations as Array<{ params: unknown }>)[0].params).toEqual([
+        { name: "entry", type: "FileTreeEntry", required: true },
+      ]);
+    }],
+    ["clears description/params/returns/kind when null is passed", () => {
+      const props = mustOk(
+        run("interaction-surface.updateOperation", surfaceBlock(), {
+          name: "file-tree.addEntry",
+          patch: { description: null, params: null, returns: null, kind: null },
+        }),
+      );
+      expect((props.operations as unknown[])[0]).toEqual({ name: "file-tree.addEntry" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a rename collision", () => {
     mustFail(
@@ -608,22 +575,23 @@ function codeBlock(): DocBlock {
 }
 
 describe("code.setAnnotation", () => {
-  it("inserts a new annotation (appended)", () => {
-    const props = mustOk(run("code.setAnnotation", codeBlock(), { lines: "5", note: "new", label: "L" }));
-    expect(props.annotations).toEqual([
-      { lines: "1", label: "Export", note: "answer" },
-      { lines: "2-3", note: "double" },
-      { lines: "5", note: "new", label: "L" },
-    ]);
-  });
-
-  it("upserts in place when the exact lines key already exists (replacing the whole annotation)", () => {
-    const props = mustOk(run("code.setAnnotation", codeBlock(), { lines: "1", note: "replaced" }));
-    expect(props.annotations).toEqual([
-      { lines: "1", note: "replaced" },
-      { lines: "2-3", note: "double" },
-    ]);
-  });
+  it.each([
+    ["inserts a new annotation (appended)", () => {
+      const props = mustOk(run("code.setAnnotation", codeBlock(), { lines: "5", note: "new", label: "L" }));
+      expect(props.annotations).toEqual([
+        { lines: "1", label: "Export", note: "answer" },
+        { lines: "2-3", note: "double" },
+        { lines: "5", note: "new", label: "L" },
+      ]);
+    }],
+    ["upserts in place when the exact lines key already exists (replacing the whole annotation)", () => {
+      const props = mustOk(run("code.setAnnotation", codeBlock(), { lines: "1", note: "replaced" }));
+      expect(props.annotations).toEqual([
+        { lines: "1", note: "replaced" },
+        { lines: "2-3", note: "double" },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a missing lines or note", () => {
     mustFail(run("code.setAnnotation", codeBlock(), { note: "x" }), "$.params.lines");

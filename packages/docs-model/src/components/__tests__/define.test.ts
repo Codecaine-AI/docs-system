@@ -11,28 +11,28 @@ import { checkParams, schemaIssues } from "../define";
 import type { ComponentAction, ComponentBundle } from "../types";
 
 describe("schemaIssues", () => {
-  it("maps JSON-pointer paths to repository issue paths", () => {
-    const schema = Type.Object(
-      {
-        entries: Type.Array(
-          Type.Object({ path: Type.String() }, { additionalProperties: false }),
-        ),
-      },
-      { additionalProperties: false },
-    );
-    const issues = schemaIssues(Value.Errors(schema, { entries: [{ path: 42 }] }));
-    expect(issues.some((issue) => issue.path === "$.params.entries[0].path")).toBe(true);
-  });
-
-  it("keeps an empty pointer at the base path", () => {
-    expect(schemaIssues(Value.Errors(Type.String(), 42))[0]?.path).toBe("$.params");
-  });
-
-  it("maps missing required properties beneath the base path", () => {
-    const schema = Type.Object({ name: Type.String() }, { additionalProperties: false });
-    const issues = schemaIssues(Value.Errors(schema, {}));
-    expect(issues.some((issue) => issue.path === "$.params.name")).toBe(true);
-  });
+  it.each([
+    ["maps JSON-pointer paths to repository issue paths", () => {
+      const schema = Type.Object(
+        {
+          entries: Type.Array(
+            Type.Object({ path: Type.String() }, { additionalProperties: false }),
+          ),
+        },
+        { additionalProperties: false },
+      );
+      const issues = schemaIssues(Value.Errors(schema, { entries: [{ path: 42 }] }));
+      expect(issues.some((issue) => issue.path === "$.params.entries[0].path")).toBe(true);
+    }],
+    ["keeps an empty pointer at the base path", () => {
+      expect(schemaIssues(Value.Errors(Type.String(), 42))[0]?.path).toBe("$.params");
+    }],
+    ["maps missing required properties beneath the base path", () => {
+      const schema = Type.Object({ name: Type.String() }, { additionalProperties: false });
+      const issues = schemaIssues(Value.Errors(schema, {}));
+      expect(issues.some((issue) => issue.path === "$.params.name")).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("names the allowed values when a value is outside a union of literals", () => {
     const schema = Type.Object({ tone: Type.Optional(Type.Union([Type.Literal("info"), Type.Literal("risk")])) });

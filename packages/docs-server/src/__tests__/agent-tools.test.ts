@@ -468,35 +468,36 @@ describe("agent-tools: annotation_list / annotation_resolve (TG9.1)", () => {
     await rm(docsRoot, { recursive: true, force: true });
   });
 
-  test("annotation_list returns an empty list for a bundle with no annotations.json", async () => {
-    const result = await annotation_list(docsRoot, "guide");
-    expect(result.ok).toBe(true);
-    if (result.ok) expect(result.annotations).toEqual([]);
-  });
+  test.each([
+    ["annotation_list reflects an added annotation, and annotation_resolve resolves it", async () => {
+      const added = await addBundleAnnotation(docsRoot, "guide", {
+        target: { kind: "block", blockId: "h1" },
+        body: "Please rewrite this heading.",
+        intent: "agent-request",
+        author: "human-1",
+      });
+      expect(added.ok).toBe(true);
+      if (!added.ok) return;
 
-  test("annotation_list reflects an added annotation, and annotation_resolve resolves it", async () => {
-    const added = await addBundleAnnotation(docsRoot, "guide", {
-      target: { kind: "block", blockId: "h1" },
-      body: "Please rewrite this heading.",
-      intent: "agent-request",
-      author: "human-1",
-    });
-    expect(added.ok).toBe(true);
-    if (!added.ok) return;
+      const listed = await annotation_list(docsRoot, "guide");
+      expect(listed.ok).toBe(true);
+      if (listed.ok) {
+        expect(listed.annotations).toHaveLength(1);
+        expect(listed.annotations[0]?.status).toBe("open");
+      }
 
-    const listed = await annotation_list(docsRoot, "guide");
-    expect(listed.ok).toBe(true);
-    if (listed.ok) {
-      expect(listed.annotations).toHaveLength(1);
-      expect(listed.annotations[0]?.status).toBe("open");
-    }
-
-    const resolved = await annotation_resolve(docsRoot, "guide", added.annotation.id, added.hash, "agent-session");
-    expect(resolved.ok).toBe(true);
-    if (resolved.ok) {
-      expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
-    }
-  });
+      const resolved = await annotation_resolve(docsRoot, "guide", added.annotation.id, added.hash, "agent-session");
+      expect(resolved.ok).toBe(true);
+      if (resolved.ok) {
+        expect(resolved.annotations.annotations[0]?.status).toBe("resolved");
+      }
+    }],
+    ["annotation_list returns an empty list for a bundle with no annotations.json", async () => {
+      const result = await annotation_list(docsRoot, "guide");
+      expect(result.ok).toBe(true);
+      if (result.ok) expect(result.annotations).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("annotation_resolve returns 404 for an unknown annotation id", async () => {
     const result = await annotation_resolve(docsRoot, "guide", "does-not-exist", undefined, "agent-session");

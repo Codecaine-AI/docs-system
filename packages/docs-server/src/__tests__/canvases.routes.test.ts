@@ -75,80 +75,79 @@ describe("GET /api/canvases", () => {
     );
   }
 
-  test("lists sidecar fixtures with src/canvas_path/id/title/updated_at", async () => {
-    await writeFixtures();
+  test.each([
+    ["lists sidecar fixtures with src/canvas_path/id/title/updated_at", async () => {
+      await writeFixtures();
 
-    const response = await get("/api/canvases");
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as { canvases: CanvasListEntry[] };
-    expect(body.canvases.map((entry) => entry.canvas_path)).toEqual([
-      FLOW_REL_PATH,
-      ARCH_REL_PATH,
-    ]);
+      const response = await get("/api/canvases");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as { canvases: CanvasListEntry[] };
+      expect(body.canvases.map((entry) => entry.canvas_path)).toEqual([
+        FLOW_REL_PATH,
+        ARCH_REL_PATH,
+      ]);
 
-    const flow = body.canvases.find((entry) => entry.canvas_path === FLOW_REL_PATH);
-    expect(flow).toEqual({
-      src: FLOW_REL_PATH,
-      canvas_path: FLOW_REL_PATH,
-      id: "flow",
-      title: "Request flow",
-      updated_at: expect.any(String),
-    });
-    expect(Number.isNaN(Date.parse(flow!.updated_at))).toBe(false);
+      const flow = body.canvases.find((entry) => entry.canvas_path === FLOW_REL_PATH);
+      expect(flow).toEqual({
+        src: FLOW_REL_PATH,
+        canvas_path: FLOW_REL_PATH,
+        id: "flow",
+        title: "Request flow",
+        updated_at: expect.any(String),
+      });
+      expect(Number.isNaN(Date.parse(flow!.updated_at))).toBe(false);
 
-    // No `title` field in the sidecar -> null (file still listed).
-    const arch = body.canvases.find((entry) => entry.canvas_path === ARCH_REL_PATH);
-    expect(arch?.id).toBe("arch");
-    expect(arch?.title).toBeNull();
+      // No `title` field in the sidecar -> null (file still listed).
+      const arch = body.canvases.find((entry) => entry.canvas_path === ARCH_REL_PATH);
+      expect(arch?.id).toBe("arch");
+      expect(arch?.title).toBeNull();
 
-    // Every listed src round-trips through the existing single-canvas read.
-    for (const entry of body.canvases) {
-      const single = await get(`/api/canvas?src=${entry.src}`);
-      expect(single.status).toBe(200);
-      const singleBody = (await single.json()) as { canvas_path: string };
-      expect(singleBody.canvas_path).toBe(entry.canvas_path);
-    }
-  });
+      // Every listed src round-trips through the existing single-canvas read.
+      for (const entry of body.canvases) {
+        const single = await get(`/api/canvas?src=${entry.src}`);
+        expect(single.status).toBe(200);
+        const singleBody = (await single.json()) as { canvas_path: string };
+        expect(singleBody.canvas_path).toBe(entry.canvas_path);
+      }
+    }],
+    ["still lists an unparsable sidecar, with null id/title", async () => {
+      await writeFixtures();
+      await writeFile(join(docsRoot, BROKEN_REL_PATH), "{ not json", "utf8");
 
-  test("still lists an unparsable sidecar, with null id/title", async () => {
-    await writeFixtures();
-    await writeFile(join(docsRoot, BROKEN_REL_PATH), "{ not json", "utf8");
+      const response = await get("/api/canvases");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as { canvases: CanvasListEntry[] };
+      const broken = body.canvases.find((entry) => entry.canvas_path === BROKEN_REL_PATH);
+      expect(broken).toEqual({
+        src: BROKEN_REL_PATH,
+        canvas_path: BROKEN_REL_PATH,
+        id: null,
+        title: null,
+        updated_at: expect.any(String),
+      });
+    }],
+    ["excludes *.canvas.json files outside an assets/canvases/ segment", async () => {
+      await writeFixtures();
+      await writeFile(
+        join(docsRoot, "stray.canvas.json"),
+        `${JSON.stringify(FLOW_CANVAS, null, 2)}\n`,
+        "utf8",
+      );
 
-    const response = await get("/api/canvases");
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as { canvases: CanvasListEntry[] };
-    const broken = body.canvases.find((entry) => entry.canvas_path === BROKEN_REL_PATH);
-    expect(broken).toEqual({
-      src: BROKEN_REL_PATH,
-      canvas_path: BROKEN_REL_PATH,
-      id: null,
-      title: null,
-      updated_at: expect.any(String),
-    });
-  });
-
-  test("excludes *.canvas.json files outside an assets/canvases/ segment", async () => {
-    await writeFixtures();
-    await writeFile(
-      join(docsRoot, "stray.canvas.json"),
-      `${JSON.stringify(FLOW_CANVAS, null, 2)}\n`,
-      "utf8",
-    );
-
-    const response = await get("/api/canvases");
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as { canvases: CanvasListEntry[] };
-    expect(body.canvases.map((entry) => entry.canvas_path)).toEqual([
-      FLOW_REL_PATH,
-      ARCH_REL_PATH,
-    ]);
-  });
-
-  test("returns an empty list for an empty docs root", async () => {
-    const response = await get("/api/canvases");
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ canvases: [] });
-  });
+      const response = await get("/api/canvases");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as { canvases: CanvasListEntry[] };
+      expect(body.canvases.map((entry) => entry.canvas_path)).toEqual([
+        FLOW_REL_PATH,
+        ARCH_REL_PATH,
+      ]);
+    }],
+    ["returns an empty list for an empty docs root", async () => {
+      const response = await get("/api/canvases");
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual({ canvases: [] });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("PUT /api/canvas", () => {

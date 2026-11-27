@@ -11,26 +11,28 @@ const list = (n: number, prefix = "i"): DocBlock[] =>
     ...paragraph(`${prefix}${i}`, `Item ${i}.`),
     type: "list-item" as const,
   }));
-test("list-length detects its condition and accepts the corrected form", () => {
-  expect(check(document(...list(7)))).toHaveLength(1);
-  expect(check(document(...list(6)))).toEqual([]);
-  // A paragraph ends the run, so two short lists stay separate.
-  expect(
-    check(document(...list(4), paragraph("p", "Break."), ...list(4, "j"))),
-  ).toEqual([]);
-  const grown = lintDocument(document(...list(8)), {
-    phase: "complete",
-    baseline: document(...list(7)),
-  }).findings.find((f) => f.ruleId === "structure.list-length");
-  expect(grown?.introduced).toBe(true);
-});
-test("a run made only of task items is a checklist and is not counted", () => {
-  const tasks = (n: number, prefix = "t"): DocBlock[] =>
-    list(n, prefix).map((b, i) => ({ ...b, props: { checked: i % 2 === 0 } }));
-  expect(check(document(...tasks(9)))).toEqual([]);
-  // One plain bullet in the run makes it an ordinary list again.
-  expect(check(document(...tasks(6), ...list(1, "p")))).toHaveLength(1);
-});
+test.each([
+  ["list-length detects its condition and accepts the corrected form", () => {
+    expect(check(document(...list(7)))).toHaveLength(1);
+    expect(check(document(...list(6)))).toEqual([]);
+    // A paragraph ends the run, so two short lists stay separate.
+    expect(
+      check(document(...list(4), paragraph("p", "Break."), ...list(4, "j"))),
+    ).toEqual([]);
+    const grown = lintDocument(document(...list(8)), {
+      phase: "complete",
+      baseline: document(...list(7)),
+    }).findings.find((f) => f.ruleId === "structure.list-length");
+    expect(grown?.introduced).toBe(true);
+  }],
+  ["a run made only of task items is a checklist and is not counted", () => {
+    const tasks = (n: number, prefix = "t"): DocBlock[] =>
+      list(n, prefix).map((b, i) => ({ ...b, props: { checked: i % 2 === 0 } }));
+    expect(check(document(...tasks(9)))).toEqual([]);
+    // One plain bullet in the run makes it an ordinary list again.
+    expect(check(document(...tasks(6), ...list(1, "p")))).toHaveLength(1);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 test("Process Outline levels count steps, not notes", () => {
   const outline = (steps: number, notes: number): DocBlock => ({
     id: "outline",

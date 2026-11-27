@@ -50,22 +50,22 @@ function mustFail(result: ComponentActionResult, path: string): void {
 }
 
 describe("pseudocode.insertLine", () => {
-  it("inserts at the start, middle and end of a plain block", () => {
-    const block = pseudo("a()\nc()");
-    expect(textOf(run(insertLine, block, { index: 0, text: "start()" }))).toBe("start()\na()\nc()");
-    expect(textOf(run(insertLine, block, { index: 1, text: "  b()" }))).toBe("a()\n  b()\nc()");
-    expect(textOf(run(insertLine, block, { index: 2, text: "d()" }))).toBe("a()\nc()\nd()");
-  });
-
-  it("writes the marker in a diff block and defaults it to a space", () => {
-    const block = pseudo(" keep()\n-old()", true);
-    expect(textOf(run(insertLine, block, { index: 2, text: "new()", marker: "+" }))).toBe(" keep()\n-old()\n+new()");
-    expect(textOf(run(insertLine, block, { index: 0, text: "ctx()" }))).toBe(" ctx()\n keep()\n-old()");
-  });
-
-  it("inserts the first line into an empty block", () => {
-    expect(textOf(run(insertLine, pseudo(undefined), { index: 0, text: "x()" }))).toBe("x()");
-  });
+  it.each([
+    ["inserts at the start, middle and end of a plain block", () => {
+      const block = pseudo("a()\nc()");
+      expect(textOf(run(insertLine, block, { index: 0, text: "start()" }))).toBe("start()\na()\nc()");
+      expect(textOf(run(insertLine, block, { index: 1, text: "  b()" }))).toBe("a()\n  b()\nc()");
+      expect(textOf(run(insertLine, block, { index: 2, text: "d()" }))).toBe("a()\nc()\nd()");
+    }],
+    ["writes the marker in a diff block and defaults it to a space", () => {
+      const block = pseudo(" keep()\n-old()", true);
+      expect(textOf(run(insertLine, block, { index: 2, text: "new()", marker: "+" }))).toBe(" keep()\n-old()\n+new()");
+      expect(textOf(run(insertLine, block, { index: 0, text: "ctx()" }))).toBe(" ctx()\n keep()\n-old()");
+    }],
+    ["inserts the first line into an empty block", () => {
+      expect(textOf(run(insertLine, pseudo(undefined), { index: 0, text: "x()" }))).toBe("x()");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects an out-of-range index, a newline, and a marker on a plain block", () => {
     mustFail(run(insertLine, pseudo("a()"), { index: 2, text: "x" }), "$.params.index");
@@ -77,15 +77,16 @@ describe("pseudocode.insertLine", () => {
 });
 
 describe("pseudocode.updateLine", () => {
-  it("replaces text and keeps the marker in a diff block", () => {
-    expect(textOf(run(updateLine, pseudo(" a()\n-b()", true), { index: 1, text: "b2()" }))).toBe(" a()\n-b2()");
-  });
-
-  it("changes a marker and resets it with null", () => {
-    const block = pseudo(" a()\n-b()", true);
-    expect(textOf(run(updateLine, block, { index: 0, marker: "+" }))).toBe("+a()\n-b()");
-    expect(textOf(run(updateLine, block, { index: 1, marker: null }))).toBe(" a()\n b()");
-  });
+  it.each([
+    ["replaces text and keeps the marker in a diff block", () => {
+      expect(textOf(run(updateLine, pseudo(" a()\n-b()", true), { index: 1, text: "b2()" }))).toBe(" a()\n-b2()");
+    }],
+    ["changes a marker and resets it with null", () => {
+      const block = pseudo(" a()\n-b()", true);
+      expect(textOf(run(updateLine, block, { index: 0, marker: "+" }))).toBe("+a()\n-b()");
+      expect(textOf(run(updateLine, block, { index: 1, marker: null }))).toBe(" a()\n b()");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects an empty patch, a bad index, and a marker on a plain block", () => {
     mustFail(run(updateLine, pseudo("a()"), { index: 0 }), "$.params");
@@ -108,24 +109,24 @@ describe("pseudocode.removeLine", () => {
 });
 
 describe("pseudocode.setLines", () => {
-  it("replaces every line under the current diff mode", () => {
-    const result = run(setLines, pseudo(" a()", true), { lines: [{ text: "x()", marker: "-" }, { text: "y()" }] });
-    expect(textOf(result)).toBe("-x()\n y()");
-    expect(result.ok && result.props).toEqual({});
-  });
-
-  it("turns diff on or off in the same edit", () => {
-    const on = run(setLines, pseudo("a()"), { lines: [{ text: "x()", marker: "+" }], diff: true });
-    expect(textOf(on)).toBe("+x()");
-    expect(on.ok && on.props).toEqual({ diff: true });
-    const off = run(setLines, pseudo("+a()", true), { lines: [{ text: "x()" }], diff: false });
-    expect(textOf(off)).toBe("x()");
-    expect(off.ok && off.props).toEqual({ diff: undefined });
-  });
-
-  it("clears the text with an empty array", () => {
-    expect(run(setLines, pseudo("a()"), { lines: [] })).toEqual({ ok: true, props: {}, text: [] });
-  });
+  it.each([
+    ["replaces every line under the current diff mode", () => {
+      const result = run(setLines, pseudo(" a()", true), { lines: [{ text: "x()", marker: "-" }, { text: "y()" }] });
+      expect(textOf(result)).toBe("-x()\n y()");
+      expect(result.ok && result.props).toEqual({});
+    }],
+    ["turns diff on or off in the same edit", () => {
+      const on = run(setLines, pseudo("a()"), { lines: [{ text: "x()", marker: "+" }], diff: true });
+      expect(textOf(on)).toBe("+x()");
+      expect(on.ok && on.props).toEqual({ diff: true });
+      const off = run(setLines, pseudo("+a()", true), { lines: [{ text: "x()" }], diff: false });
+      expect(textOf(off)).toBe("x()");
+      expect(off.ok && off.props).toEqual({ diff: undefined });
+    }],
+    ["clears the text with an empty array", () => {
+      expect(run(setLines, pseudo("a()"), { lines: [] })).toEqual({ ok: true, props: {}, text: [] });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects per-line newlines and markers without diff, with indexed paths", () => {
     mustFail(run(setLines, pseudo("a()"), { lines: [{ text: "ok" }, { text: "x\ny" }] }), "$.params.lines[1].text");

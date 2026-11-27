@@ -67,56 +67,57 @@ function opNames(props: Record<string, unknown>): string[] {
 }
 
 describe("interaction-surface.addOperation component action", () => {
-  it("appends an operation with only the provided keys", () => {
-    const props = mustOk(run(addOperation, surfaceBlock(), {
-      name: "file-tree.updateEntry",
-      description: "Patch an entry in place",
-      params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
-      returns: "props patch",
-      kind: "action",
-    }));
-    expect(opNames(props)).toEqual([
-      "file-tree.addEntry",
-      "file-tree.removeEntry",
-      "file-tree.updateEntry",
-    ]);
-    expect((props.operations as unknown[]).at(-1)).toEqual({
-      name: "file-tree.updateEntry",
-      description: "Patch an entry in place",
-      params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
-      returns: "props patch",
-      kind: "action",
-    });
-  });
-
-  it("appends an operation with nested param fields verbatim", () => {
-    const props = mustOk(run(addOperation, surfaceBlock(), {
-      name: "state-shape.addField",
-      params: [
-        {
-          name: "field",
-          type: "Field",
-          fields: [
-            { name: "name", type: "string" },
-            { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
-          ],
-        },
-      ],
-    }));
-    expect((props.operations as unknown[]).at(-1)).toEqual({
-      name: "state-shape.addField",
-      params: [
-        {
-          name: "field",
-          type: "Field",
-          fields: [
-            { name: "name", type: "string" },
-            { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
-          ],
-        },
-      ],
-    });
-  });
+  it.each([
+    ["appends an operation with only the provided keys", () => {
+      const props = mustOk(run(addOperation, surfaceBlock(), {
+        name: "file-tree.updateEntry",
+        description: "Patch an entry in place",
+        params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
+        returns: "props patch",
+        kind: "action",
+      }));
+      expect(opNames(props)).toEqual([
+        "file-tree.addEntry",
+        "file-tree.removeEntry",
+        "file-tree.updateEntry",
+      ]);
+      expect((props.operations as unknown[]).at(-1)).toEqual({
+        name: "file-tree.updateEntry",
+        description: "Patch an entry in place",
+        params: [{ name: "path", type: "string", required: true, description: "Exact path" }],
+        returns: "props patch",
+        kind: "action",
+      });
+    }],
+    ["appends an operation with nested param fields verbatim", () => {
+      const props = mustOk(run(addOperation, surfaceBlock(), {
+        name: "state-shape.addField",
+        params: [
+          {
+            name: "field",
+            type: "Field",
+            fields: [
+              { name: "name", type: "string" },
+              { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
+            ],
+          },
+        ],
+      }));
+      expect((props.operations as unknown[]).at(-1)).toEqual({
+        name: "state-shape.addField",
+        params: [
+          {
+            name: "field",
+            type: "Field",
+            fields: [
+              { name: "name", type: "string" },
+              { name: "fields", type: "Field[]", required: false, fields: [{ name: "name" }] },
+            ],
+          },
+        ],
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a duplicate name", () => {
     mustFail(run(addOperation, surfaceBlock(), { name: "file-tree.addEntry" }), "$.params.name");
@@ -135,67 +136,67 @@ describe("interaction-surface.addOperation component action", () => {
 });
 
 describe("interaction-surface.updateOperation component action", () => {
-  it("patches an operation description in place", () => {
-    const props = mustOk(run(updateOperation, surfaceBlock(), {
-      name: "file-tree.removeEntry",
-      patch: { description: "Remove the entry" },
-    }));
-    expect((props.operations as unknown[])[1]).toEqual({
-      name: "file-tree.removeEntry",
-      description: "Remove the entry",
-      params: [{ name: "path", type: "string", required: true }],
-    });
-  });
-
-  it("clears description, params, returns, and kind with null", () => {
-    const props = mustOk(run(updateOperation, surfaceBlock(), {
-      name: "file-tree.addEntry",
-      patch: { description: null, params: null, returns: null, kind: null },
-    }));
-    expect((props.operations as unknown[])[0]).toEqual({ name: "file-tree.addEntry" });
-  });
-
-  it("renames in place", () => {
-    const props = mustOk(run(updateOperation, surfaceBlock(), {
-      name: "file-tree.addEntry",
-      patch: { name: "file-tree.appendEntry" },
-    }));
-    expect(opNames(props)).toEqual(["file-tree.appendEntry", "file-tree.removeEntry"]);
-  });
-
-  it("rejects a rename collision", () => {
-    mustFail(run(updateOperation, surfaceBlock(), {
-      name: "file-tree.addEntry",
-      patch: { name: "file-tree.removeEntry" },
-    }), "$.params.patch.name");
-  });
-
-  it("replaces params with a nested field tree", () => {
-    const props = mustOk(run(updateOperation, surfaceBlock(), {
-      name: "file-tree.removeEntry",
-      patch: {
+  it.each([
+    ["patches an operation description in place", () => {
+      const props = mustOk(run(updateOperation, surfaceBlock(), {
+        name: "file-tree.removeEntry",
+        patch: { description: "Remove the entry" },
+      }));
+      expect((props.operations as unknown[])[1]).toEqual({
+        name: "file-tree.removeEntry",
+        description: "Remove the entry",
+        params: [{ name: "path", type: "string", required: true }],
+      });
+    }],
+    ["clears description, params, returns, and kind with null", () => {
+      const props = mustOk(run(updateOperation, surfaceBlock(), {
+        name: "file-tree.addEntry",
+        patch: { description: null, params: null, returns: null, kind: null },
+      }));
+      expect((props.operations as unknown[])[0]).toEqual({ name: "file-tree.addEntry" });
+    }],
+    ["renames in place", () => {
+      const props = mustOk(run(updateOperation, surfaceBlock(), {
+        name: "file-tree.addEntry",
+        patch: { name: "file-tree.appendEntry" },
+      }));
+      expect(opNames(props)).toEqual(["file-tree.appendEntry", "file-tree.removeEntry"]);
+    }],
+    ["replaces params with a nested field tree", () => {
+      const props = mustOk(run(updateOperation, surfaceBlock(), {
+        name: "file-tree.removeEntry",
+        patch: {
+          params: [
+            { name: "target", type: "Entry", fields: [{ name: "path", type: "string" }] },
+          ],
+        },
+      }));
+      expect((props.operations as unknown[])[1]).toEqual({
+        name: "file-tree.removeEntry",
         params: [
           { name: "target", type: "Entry", fields: [{ name: "path", type: "string" }] },
         ],
-      },
-    }));
-    expect((props.operations as unknown[])[1]).toEqual({
-      name: "file-tree.removeEntry",
-      params: [
-        { name: "target", type: "Entry", fields: [{ name: "path", type: "string" }] },
-      ],
-    });
-  });
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
+
+  it.each([
+    ["rejects a rename collision", () => {
+      mustFail(run(updateOperation, surfaceBlock(), {
+        name: "file-tree.addEntry",
+        patch: { name: "file-tree.removeEntry" },
+      }), "$.params.patch.name");
+    }],
+    ["rejects a missing operation", () => {
+      mustFail(run(updateOperation, surfaceBlock(), { name: "nope", patch: {} }), "$.params.name");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a malformed patch params element at the precise path", () => {
     mustFail(run(updateOperation, surfaceBlock(), {
       name: "file-tree.addEntry",
       patch: { params: [{}] },
     }), "$.params.patch.params[0].name");
-  });
-
-  it("rejects a missing operation", () => {
-    mustFail(run(updateOperation, surfaceBlock(), { name: "nope", patch: {} }), "$.params.name");
   });
 });
 

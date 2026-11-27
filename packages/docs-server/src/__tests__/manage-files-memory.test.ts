@@ -2,10 +2,10 @@ import { test, expect } from 'bun:test';
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { chmod, mkdtemp, mkdir, readdir, readFile, rm, symlink, truncate, writeFile } from 'node:fs/promises';
-import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { listManagedAssets } from '../manage-files';
+import { spawnSync } from "node:child_process";
 
 const doc = (id: string) => JSON.stringify({ schemaVersion: 1, id, title: id, root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } });
 const sha = (b: Uint8Array) => createHash('sha256').update(b).digest('hex');
@@ -53,18 +53,29 @@ test('listManagedAssets output is unchanged for no path, a page, a single asset 
  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
-test('listManagedAssets refuses symbolic links anywhere in the corpus, including ones pointing out of the root', async () => {
- const root = await fixture(), outside = await mkdtemp(join(tmpdir(), 'manage-files-outside-'));
- try {
-  await writeFile(join(outside, 'secret.png'), 'outside bytes');
-  await symlink(join(outside, 'secret.png'), join(root, 'z/assets/images/link.png'));
-  for (const path of [undefined, 'z', 'a']) {
-   const result = await listManagedAssets(root, path);
-   expect(result).toMatchObject({ ok: false, status: 400 });
-   expect(result.detail).toContain('Symbolic links are unsupported for corpus management: z/assets/images/link.png');
-  }
- } finally { await rm(root, { recursive: true, force: true }); await rm(outside, { recursive: true, force: true }); }
-});
+test.each([
+  ['listManagedAssets refuses symbolic links anywhere in the corpus, including ones pointing out of the root', async () => {
+   const root = await fixture(), outside = await mkdtemp(join(tmpdir(), 'manage-files-outside-'));
+   try {
+    await writeFile(join(outside, 'secret.png'), 'outside bytes');
+    await symlink(join(outside, 'secret.png'), join(root, 'z/assets/images/link.png'));
+    for (const path of [undefined, 'z', 'a']) {
+     const result = await listManagedAssets(root, path);
+     expect(result).toMatchObject({ ok: false, status: 400 });
+     expect(result.detail).toContain('Symbolic links are unsupported for corpus management: z/assets/images/link.png');
+    }
+   } finally { await rm(root, { recursive: true, force: true }); await rm(outside, { recursive: true, force: true }); }
+  }],
+  ['listManagedAssets refuses odd filesystem entries such as a FIFO found by the walk', async () => {
+   const root = await fixture();
+   try {
+    mkfifo(join(root, 'z/assets/images/pipe.png'));
+    const result = await listManagedAssets(root);
+    expect(result).toMatchObject({ ok: false, status: 400 });
+    expect(result.detail).toContain('Unsupported filesystem entry: z/assets/images/pipe.png');
+   } finally { await rm(root, { recursive: true, force: true }); }
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test('listing a 512 MB asset streams it instead of buffering corpus contents', async () => {
  const root = await fixture();
@@ -86,18 +97,7 @@ test('listing a 512 MB asset streams it instead of buffering corpus contents', a
   expect(maxRSS).toBeLessThan(300 * 1024 * 1024);
  } finally { await rm(root, { recursive: true, force: true }); }
 }, { timeout: 120_000 });
-
 const mkfifo = (p: string) => expect(spawnSync('mkfifo', [p]).status).toBe(0);
-
-test('listManagedAssets refuses odd filesystem entries such as a FIFO found by the walk', async () => {
- const root = await fixture();
- try {
-  mkfifo(join(root, 'z/assets/images/pipe.png'));
-  const result = await listManagedAssets(root);
-  expect(result).toMatchObject({ ok: false, status: 400 });
-  expect(result.detail).toContain('Unsupported filesystem entry: z/assets/images/pipe.png');
- } finally { await rm(root, { recursive: true, force: true }); }
-});
 
 test.skipIf(process.getuid?.() === 0)('listManagedAssets reports a read error instead of listing the asset', async () => {
  const root = await fixture();

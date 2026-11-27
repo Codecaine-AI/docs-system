@@ -158,23 +158,23 @@ describe("DraftLockStore", () => {
 });
 
 describe("canonicalDraftLockPath (lock-key unification)", () => {
-  test("converges every accepted doc-path shape onto the bare bundle path", () => {
-    expect(canonicalDraftLockPath("docs/00-foundation/10-purpose")).toBe("00-foundation/10-purpose");
-    expect(canonicalDraftLockPath("00-foundation/10-purpose")).toBe("00-foundation/10-purpose");
-    expect(canonicalDraftLockPath("docs/00-foundation/10-purpose/doc.json")).toBe("00-foundation/10-purpose");
-    expect(canonicalDraftLockPath("00-foundation/10-purpose/doc.json")).toBe("00-foundation/10-purpose");
-    expect(canonicalDraftLockPath("00-foundation/10-purpose/")).toBe("00-foundation/10-purpose");
-  });
-
-  test("converges canvas sidecar shapes (docs/-prefixed vs root-relative)", () => {
-    expect(canonicalDraftLockPath("docs/guide/assets/canvases/arch.canvas.json")).toBe(
-      canonicalDraftLockPath("guide/assets/canvases/arch.canvas.json"),
-    );
-  });
-
-  test("strips only a single leading docs/ segment", () => {
-    expect(canonicalDraftLockPath("docs/docs/foo")).toBe("docs/foo");
-  });
+  test.each([
+    ["converges every accepted doc-path shape onto the bare bundle path", () => {
+      expect(canonicalDraftLockPath("docs/00-foundation/10-purpose")).toBe("00-foundation/10-purpose");
+      expect(canonicalDraftLockPath("00-foundation/10-purpose")).toBe("00-foundation/10-purpose");
+      expect(canonicalDraftLockPath("docs/00-foundation/10-purpose/doc.json")).toBe("00-foundation/10-purpose");
+      expect(canonicalDraftLockPath("00-foundation/10-purpose/doc.json")).toBe("00-foundation/10-purpose");
+      expect(canonicalDraftLockPath("00-foundation/10-purpose/")).toBe("00-foundation/10-purpose");
+    }],
+    ["converges canvas sidecar shapes (docs/-prefixed vs root-relative)", () => {
+      expect(canonicalDraftLockPath("docs/guide/assets/canvases/arch.canvas.json")).toBe(
+        canonicalDraftLockPath("guide/assets/canvases/arch.canvas.json"),
+      );
+    }],
+    ["strips only a single leading docs/ segment", () => {
+      expect(canonicalDraftLockPath("docs/docs/foo")).toBe("docs/foo");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("DraftLockStore key canonicalization (UI path shape vs mutation path shape)", () => {

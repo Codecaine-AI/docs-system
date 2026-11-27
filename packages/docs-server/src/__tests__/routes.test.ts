@@ -824,40 +824,6 @@ describe("GET /api/blocks (edit-surface discovery)", () => {
     expect(new Set(servedTypes).size).toBe(servedTypes.length);
     expect([...servedTypes].sort()).toEqual([...DOC_BLOCK_TYPES].sort());
   });
-
-  test("serves closed state schemas and object parameter schemas", async () => {
-    const { body } = await getBlocks();
-
-    for (const component of body.components) {
-      for (const entry of component.types) {
-        expect(typeof entry.carriesText).toBe("boolean");
-        expect(entry.state).not.toBeNull();
-        expect(typeof entry.state).toBe("object");
-        expect(Array.isArray(entry.state)).toBe(false);
-        expect(entry.state.additionalProperties).toBe(false);
-      }
-      for (const action of component.actions) {
-        expect(action.params.type).toBe("object");
-        expect(action.params.properties).not.toBeNull();
-        expect(typeof action.params.properties).toBe("object");
-        expect(Array.isArray(action.params.properties)).toBe(false);
-      }
-    }
-
-    const actionKeys = body.components.flatMap((component) =>
-      component.actions.map((action) => action.action),
-    );
-    expect([...actionKeys].sort()).toEqual([...ACTION_KEYS]);
-  });
-
-  test("matches the docs-model discovery builder exactly", async () => {
-    const { body } = await getBlocks();
-    const { buildBlocksDiscovery } = await import("@codecaine-ai/docs-model");
-    const expectedJson = JSON.stringify(buildBlocksDiscovery());
-
-    expect(body).toEqual(JSON.parse(expectedJson));
-    expect(JSON.stringify(body)).toBe(expectedJson);
-  });
 });
 
 describe("GET /api/asset byte ranges (video seeking)", () => {

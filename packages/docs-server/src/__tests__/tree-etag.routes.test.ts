@@ -54,27 +54,26 @@ describe("GET /api/tree ETag", () => {
     expect(body.tree[0]?.path).toBe("guide");
   });
 
-  test("same tag in If-None-Match gives 304 with empty body and the same ETag", async () => {
-    const etag = await currentEtag();
-    const res = await getTree(etag);
-    expect(res.status).toBe(304);
-    expect(await res.text()).toBe("");
-    expect(res.headers.get("etag")).toBe(etag);
-  });
-
-  test("weak form W/\"tag\" gives 304", async () => {
-    const etag = await currentEtag();
-    expect((await getTree(`W/${etag}`)).status).toBe(304);
-  });
-
-  test("* gives 304", async () => {
-    expect((await getTree("*")).status).toBe(304);
-  });
-
-  test("a list containing the tag gives 304", async () => {
-    const etag = await currentEtag();
-    expect((await getTree(`"x", ${etag}`)).status).toBe(304);
-  });
+  test.each([
+    ["same tag in If-None-Match gives 304 with empty body and the same ETag", async () => {
+      const etag = await currentEtag();
+      const res = await getTree(etag);
+      expect(res.status).toBe(304);
+      expect(await res.text()).toBe("");
+      expect(res.headers.get("etag")).toBe(etag);
+    }],
+    ["weak form W/\"tag\" gives 304", async () => {
+      const etag = await currentEtag();
+      expect((await getTree(`W/${etag}`)).status).toBe(304);
+    }],
+    ["* gives 304", async () => {
+      expect((await getTree("*")).status).toBe(304);
+    }],
+    ["a list containing the tag gives 304", async () => {
+      const etag = await currentEtag();
+      expect((await getTree(`"x", ${etag}`)).status).toBe(304);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("a different tag gives 200 with the tree and the ETag", async () => {
     const etag = await currentEtag();

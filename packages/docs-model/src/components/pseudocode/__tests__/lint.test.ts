@@ -18,25 +18,35 @@ function lintPseudocode(text: string, props: Record<string, unknown> = {}, basel
 }
 
 describe("pseudocode.code-syntax", () => {
-  it("flags each line that uses source-language syntax, with that line's plain-word fix", () => {
-    const findings = lintPseudocode([
-      "parseTranscript(jsonl)",
-      "  input = u.input_tokens ?? 0",
-      "  if part.type === \"tool_use\" -> byName[part.name] += 1",
-      "  push { insert: match[1] }",
-      "  add 1 to byName[part.name]",
-    ].join("\n"));
-    expect(findings.map((f) => [f.blockId, f.evidence])).toEqual([
-      ["p", "input = u.input_tokens ?? 0"],
-      ["p", "if part.type === \"tool_use\" -> byName[part.name] += 1"],
-      ["p", "push { insert: match[1] }"],
-      ["p", "add 1 to byName[part.name]"],
-    ]);
-    expect(findings[0]!.message).toBe("Line 2 uses source-language syntax, so a reader must know the source language to follow the step. Write ?? as \"or 0 when the value is missing\".");
-    expect(findings[1]!.message).toContain("Write ==, ===, != or !== as equals or does not equal.");
-    expect(findings[2]!.message).toContain("Write an object literal as");
-    expect(findings[3]!.message).toContain("Write an index such as [0] or [part.name] as");
-  });
+  it.each([
+    ["flags each line that uses source-language syntax, with that line's plain-word fix", () => {
+      const findings = lintPseudocode([
+        "parseTranscript(jsonl)",
+        "  input = u.input_tokens ?? 0",
+        "  if part.type === \"tool_use\" -> byName[part.name] += 1",
+        "  push { insert: match[1] }",
+        "  add 1 to byName[part.name]",
+      ].join("\n"));
+      expect(findings.map((f) => [f.blockId, f.evidence])).toEqual([
+        ["p", "input = u.input_tokens ?? 0"],
+        ["p", "if part.type === \"tool_use\" -> byName[part.name] += 1"],
+        ["p", "push { insert: match[1] }"],
+        ["p", "add 1 to byName[part.name]"],
+      ]);
+      expect(findings[0]!.message).toBe("Line 2 uses source-language syntax, so a reader must know the source language to follow the step. Write ?? as \"or 0 when the value is missing\".");
+      expect(findings[1]!.message).toContain("Write ==, ===, != or !== as equals or does not equal.");
+      expect(findings[2]!.message).toContain("Write an object literal as");
+      expect(findings[3]!.message).toContain("Write an index such as [0] or [part.name] as");
+    }],
+    ["passes plain steps, calls, arrows, fields, strings and comments", () => {
+      expect(lintPseudocode([
+        "normalizeDocRefPath(path)",
+        "  if path starts with \"docs/\" -> remove that prefix // \"a == b\" stays in a string",
+        "  for each line in entry.lines -> add 1 to the count for line.kind // x ?? y in a comment",
+        "  return path",
+      ].join("\n"))).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("marks a flagged line that a task adds to a block that already has some as introduced", () => {
     const old = ["a ?? 0", "b ?? 0", "c ?? 0"];
@@ -45,15 +55,6 @@ describe("pseudocode.code-syntax", () => {
     expect(introduced([...old, "d ?? 0"])).toEqual(["d ?? 0"]);
     // A line added above the old ones shifts their numbers, and they still match the baseline.
     expect(introduced(["start here", ...old, "d ?? 0"])).toEqual(["d ?? 0"]);
-  });
-
-  it("passes plain steps, calls, arrows, fields, strings and comments", () => {
-    expect(lintPseudocode([
-      "normalizeDocRefPath(path)",
-      "  if path starts with \"docs/\" -> remove that prefix // \"a == b\" stays in a string",
-      "  for each line in entry.lines -> add 1 to the count for line.kind // x ?? y in a comment",
-      "  return path",
-    ].join("\n"))).toEqual([]);
   });
 
   it("reads past the diff marker column of a diff block", () => {
