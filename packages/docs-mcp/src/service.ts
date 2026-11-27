@@ -221,12 +221,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
   // Every store, watcher and resolver of a docs root honors its project's exclude globs.
   for(const project of discovery.projects)setDocsRootExclude(project.docsRoot,project.exclude);
   for(const project of discovery.projects)projects.set(project.id,project);
+  // Listed before the watchers open: the loop below yields, and another scan's release pass must see these roots as live.
+  workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
   if(options.watchFs) for(const project of discovery.projects) if(!watchers.has(project.docsRoot)) {
    const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
    watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
    treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
+   // Opening a recursive watcher is synchronous and took 0.2 s to 6 s a root on 2026-11-26. Yield, so a scan of many roots lets requests through.
+   await new Promise(resolve=>setImmediate(resolve));
   }
-  workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
   // A root that no workspace lists any more (a project removed or renamed since its last scan) releases its watcher and its tree index.
   if(options.watchFs){
    const live=new Set<string>();

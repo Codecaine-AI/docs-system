@@ -30,13 +30,17 @@ await loadGuidance();
 // The scan of the registered workspaces runs after the ready line, so no workspace holds the start. It opens one file watcher
 // per docs root: 457 roots took 97 s on 2026-11-26, past the supervisor's 30 s start limit.
 let scanning = true;
-/** The project of a request. While the startup scan runs, a registered project not scanned yet gets the workspaces that hold it scanned first, the deepest first. */
+/**
+ * The project of a request. While the startup scan runs, a registered project not scanned yet gets the workspaces at or above
+ * its root scanned at once. Any of them can be the one that finds it and one can be slow, so the first that finds it answers.
+ */
 async function projectFor(id: string) {
   const registered = scanning && !service.project(id) ? registry.projects.find(p => p.id === id) : undefined;
-  if (registered) for (const workspace of registry.workspaces.filter(w => inside(w, registered.root)).sort((a, b) => b.length - a.length)) {
-    if (service.project(id)) break;
-    await service.discover(workspace).catch(() => undefined);
-  }
+  const holders = registered ? registry.workspaces.filter(w => inside(w, registered.root)) : [];
+  if (holders.length) await new Promise<void>(done => {
+    let pending = holders.length;
+    for (const workspace of holders) void service.discover(workspace).catch(() => undefined).then(() => { if (service.project(id) || !--pending) done(); });
+  });
   return service.project(id);
 }
 const record = createRpcRecorder();

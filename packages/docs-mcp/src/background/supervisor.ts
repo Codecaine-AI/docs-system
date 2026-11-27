@@ -165,10 +165,9 @@ async function rebuild() {
     const build = await buildRuntime();
     if (build.hash === active?.hash) { buildState = 'ready'; error = null; return; }
     const next = await startRuntime(build);
-    // With no runtime serving there is nothing to protect, so the new one serves at once. It scans the registered workspaces by itself.
-    if (!active) { await swap(next); return; }
     setCandidate(next);
-    await activate();
+    // With no runtime serving there is nothing to protect, so the new one serves at once. It scans the registered workspaces by itself.
+    if (active) await activate(); else await swap(next);
   } catch (e) { error = String(e); buildState = active ? 'build-failed-serving-previous' : 'failed'; console.error(`[docs] ${error}`); }
   finally { busy = false; if (queued) { queued = false; void rebuild(); } }
 }

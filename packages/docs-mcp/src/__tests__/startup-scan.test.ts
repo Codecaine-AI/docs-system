@@ -12,23 +12,21 @@ afterAll(async () => {
 });
 
 /**
- * A registry of two workspaces. The scan of the first never ends: its members.json is a FIFO with no writer, so the
- * read blocks, as a read on a dead network mount does. The second holds the project scratch-1 with one page. A scan
- * in registry order never reaches the second.
+ * A registry of two workspaces. The first is the project folder ws, and its scan never ends: its members.json is a FIFO
+ * with no writer, so the read blocks, as a read on a dead network mount does. The second is the folder above, whose
+ * members.json declares ws, so its scan finds the project scratch-1. A scan in registry order never reaches the second.
  */
 async function scratch() {
   const root = await realpath(await mkdtemp(join(tmpdir(), 'docs-startup-scan-'))); temps.push(root);
-  const stuck = join(root, 'stuck');
-  await mkdir(stuck);
-  expect(Bun.spawnSync(['mkfifo', join(stuck, 'members.json')]).exitCode).toBe(0);
   const ws = join(root, 'ws');
-  await mkdir(join(ws, 'page'), { recursive: true });
-  await writeFile(join(ws, 'codecaine.docs.json'), JSON.stringify({ name: 'scratch', docsRoot: '.' }));
-  await writeFile(join(ws, 'page', 'doc.json'), JSON.stringify({ schemaVersion: 1, id: 'page', title: 'Page', root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } }));
+  await mkdir(join(ws, 'docs', 'page'), { recursive: true });
+  await writeFile(join(ws, 'docs', 'page', 'doc.json'), JSON.stringify({ schemaVersion: 1, id: 'page', title: 'Page', root: 'root', blocks: { root: { id: 'root', type: 'paragraph', props: {}, children: [] } } }));
+  expect(Bun.spawnSync(['mkfifo', join(ws, 'members.json')]).exitCode).toBe(0);
+  await writeFile(join(root, 'members.json'), JSON.stringify([{ dir: 'ws' }]));
   const state = join(root, 'state');
   await mkdir(state);
-  await writeFile(join(state, 'projects.json'), JSON.stringify({ schemaVersion: 1, workspaces: [stuck, ws], projects: [{ id: 'scratch-1', name: 'scratch', root: ws, docsRoot: ws, products: ['docs'] }] }));
-  return { root, ws, state };
+  await writeFile(join(state, 'projects.json'), JSON.stringify({ schemaVersion: 1, workspaces: [ws, root], projects: [{ id: 'scratch-1', name: 'ws', root: ws, docsRoot: join(ws, 'docs'), products: ['docs'] }] }));
+  return { root, state };
 }
 
 /** Starts the process and returns its ready line, parsed. */
@@ -46,14 +44,14 @@ async function ready(command: string[], env: Record<string, string>) {
 }
 
 test('the service starts and writes daemon.json for clients while the scan of a registered workspace never ends', async () => {
-  const { root, ws, state } = await scratch();
-  await writeFile(join(root, 'config.json'), JSON.stringify({ sourceRoot: resolve(PACKAGE_ROOT, '../..'), workspace: ws, port: 0, stateDirectory: state }));
+  const { root, state } = await scratch();
+  await writeFile(join(root, 'config.json'), JSON.stringify({ sourceRoot: resolve(PACKAGE_ROOT, '../..'), workspace: root, port: 0, stateDirectory: state }));
   const { child, line } = await ready([process.execPath, join(PACKAGE_ROOT, 'src/background/supervisor.ts')], { CODECAINE_ENV_FILE: join(root, 'no-env'), CODECAINE_DOCS_BACKGROUND_CONFIG: join(root, 'config.json'), CODECAINE_DOCS_VIEWER: '0' });
   // A client takes the service as running when daemon.json names the pid that /health reports.
   expect(JSON.parse(await readFile(join(state, 'daemon.json'), 'utf8'))).toMatchObject({ url: `http://127.0.0.1:${line.port}`, pid: child.pid });
 });
 
-test('the managed runtime serves a registered project while the scan of another registered workspace never ends', async () => {
+test('the managed runtime serves a registered project while the scan of one of its workspaces never ends', async () => {
   const { state } = await scratch();
   const { line } = await ready([process.execPath, join(PACKAGE_ROOT, 'src/managed-runtime.ts')], { CODECAINE_DOCS_RUNTIME_TOKEN: 'test-token', CODECAINE_DOCS_REGISTRY: join(state, 'projects.json'), CODECAINE_DOCS_BUILD: 'test' });
   const tree = await fetch(`http://127.0.0.1:${line.port}/projects/scratch-1/api/tree`, { headers: { authorization: 'Bearer test-token' } });
