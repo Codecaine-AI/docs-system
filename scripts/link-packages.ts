@@ -10,10 +10,21 @@
  * which module resolution reaches first. Member packages (design-system,
  * text-measure, canvas, ...) keep resolving from core's pinned checkouts.
  *
+ * A worktree also has no installed dependencies. Some packages install their
+ * own versions (docs-workbench pins tailwindcss 4 while core has 3), and a
+ * worktree outside core cannot climb to core/node_modules at all. So in a
+ * worktree this script also links, from the main checkout (found with
+ * `git rev-parse --git-common-dir`):
+ *   - each packages/<name>/node_modules the worktree lacks;
+ *   - each entry of core's node_modules the worktree cannot reach, into
+ *     <this tree>/node_modules (only when the worktree sits outside core).
+ * It never replaces a node_modules entry that already exists. In the main
+ * checkout these steps do nothing.
+ *
  *   bun scripts/link-packages.ts           link, then print where packages resolve
  *   bun scripts/link-packages.ts --check   print only; exit 1 if a package resolves wrong
  */
-import { lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, rmSync, symlinkSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, rmSync, symlinkSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
@@ -46,6 +57,55 @@ export function linkPackages(): void {
       // No link yet.
     }
     symlinkSync(target, link, "dir");
+  }
+}
+
+/** The main checkout's root, or undefined when this tree is the main checkout or not a git tree. */
+function mainCheckout(): string | undefined {
+  const git = Bun.spawnSync(["git", "rev-parse", "--path-format=absolute", "--git-common-dir"], { cwd: root });
+  if (git.exitCode !== 0) return undefined;
+  const main = dirname(git.stdout.toString().trim());
+  return main === root ? undefined : main;
+}
+
+const exists = (path: string) => {
+  try {
+    lstatSync(path);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Links src into dest when dest is missing. Merges a scope folder (@scope) one child at a time. */
+function linkMissing(src: string, dest: string): void {
+  if (!exists(dest)) {
+    symlinkSync(src, dest, "dir");
+    return;
+  }
+  const isRealDir = !lstatSync(dest).isSymbolicLink() && lstatSync(dest).isDirectory();
+  if (isRealDir && dest.split(sep).at(-1)!.startsWith("@")) {
+    for (const child of readdirSync(src)) linkMissing(join(src, child), join(dest, child));
+  }
+}
+
+/** Idempotent: in a worktree, links the dependencies the main checkout has installed and this tree lacks. */
+export function linkDependencies(): void {
+  const main = mainCheckout();
+  if (!main) return;
+  for (const entry of readdirSync(join(main, "packages"), { withFileTypes: true })) {
+    const src = join(main, "packages", entry.name, "node_modules");
+    const pkg = join(root, "packages", entry.name);
+    if (entry.isDirectory() && existsSync(src) && existsSync(pkg)) linkMissing(src, join(pkg, "node_modules"));
+  }
+  // The nearest node_modules above the main checkout (core's). Link it in only when this tree cannot climb to it.
+  for (let dir = dirname(main); dir !== dirname(dir); dir = dirname(dir)) {
+    const shared = join(dir, "node_modules");
+    if (!existsSync(shared)) continue;
+    if (inside(root, dir)) return;
+    mkdirSync(join(root, "node_modules"), { recursive: true });
+    for (const name of readdirSync(shared)) linkMissing(join(shared, name), join(root, "node_modules", name));
+    return;
   }
 }
 
@@ -94,6 +154,7 @@ if (import.meta.main) {
     process.exitCode = checkResolution() ? 0 : 1;
   } else {
     linkPackages();
+    linkDependencies();
     // Bun caches lookups it made before the links existed, so check in a fresh process.
     const check = Bun.spawnSync(["bun", import.meta.path, "--check"], { stdio: ["inherit", "inherit", "inherit"] });
     process.exitCode = check.exitCode ?? 1;

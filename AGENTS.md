@@ -3,6 +3,15 @@
 Run every command from the docs-system root. Never run a bare `bun test`: it
 sweeps `external/` and other trees that are not suites. Use the commands below.
 
+## Worktree setup
+
+In a fresh git worktree, run `make link` once before you build or test. It
+links this tree's `@codecaine-ai/docs-*` packages, and links the dependencies
+the main checkout has installed: each package's own `node_modules` (such as
+docs-workbench's tailwindcss 4) and, for a worktree outside core, core's
+`node_modules`. It never replaces an existing entry. In the main checkout it
+only links the packages.
+
 ## Test commands
 
 Diff base for the changed-files gate: `origin/main`.
