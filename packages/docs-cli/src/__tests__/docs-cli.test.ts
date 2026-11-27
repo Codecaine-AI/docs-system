@@ -123,26 +123,26 @@ afterEach(async () => {
 });
 
 describe("docs cli render", () => {
-  test("renders bundle folder path directly and through CLI", async () => {
-    const bundlePath = path.join(tempDir, "foundation");
-    await expect(renderCommand(bundlePath)).resolves.toContain("# Foundation Overview");
+  test.each([
+    ["renders bundle folder path directly and through CLI", async () => {
+      const bundlePath = path.join(tempDir, "foundation");
+      await expect(renderCommand(bundlePath)).resolves.toContain("# Foundation Overview");
 
-    const result = await spawnCli(["render", bundlePath]);
-    expect(result.exitCode).toBe(0);
-    expect(result.stdout).toContain("# Foundation Overview");
-    expect(result.stderr).toBe("");
-  });
-
-  test("renders explicit doc.json path", async () => {
-    const markdown = await renderCommand(path.join(tempDir, "implementation", "auth", "doc.json"));
-    expect(markdown).toContain("# Auth Module");
-    expect(markdown).toContain("Token refresh");
-  });
-
-  test("renders bare *.doc.json path", async () => {
-    const markdown = await renderCommand(path.join(tempDir, "standalone.doc.json"));
-    expect(markdown).toContain("# Standalone Notes");
-  });
+      const result = await spawnCli(["render", bundlePath]);
+      expect(result.exitCode).toBe(0);
+      expect(result.stdout).toContain("# Foundation Overview");
+      expect(result.stderr).toBe("");
+    }],
+    ["renders explicit doc.json path", async () => {
+      const markdown = await renderCommand(path.join(tempDir, "implementation", "auth", "doc.json"));
+      expect(markdown).toContain("# Auth Module");
+      expect(markdown).toContain("Token refresh");
+    }],
+    ["renders bare *.doc.json path", async () => {
+      const markdown = await renderCommand(path.join(tempDir, "standalone.doc.json"));
+      expect(markdown).toContain("# Standalone Notes");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("throws and exits non-zero for missing path", async () => {
     const missingPath = path.join(tempDir, "missing");
@@ -157,25 +157,30 @@ describe("docs cli render", () => {
 });
 
 describe("docs cli grep", () => {
-  test("finds case-insensitive matches with relative posix paths", async () => {
-    const matches = await grepCommand("boundary", tempDir);
-    expect(matches).toEqual(
-      expect.arrayContaining([
-        { path: "foundation/doc.json", line: 3, text: "Boundary layer keeps shared contracts stable." },
-        {
-          path: "implementation/auth/doc.json",
-          line: 3,
-          text: "Token refresh uses BOUNDARY claims after login.",
-        },
-        { path: "standalone.doc.json", line: 3, text: "Standalone bundle mentions boundary once." },
-      ]),
-    );
-  });
-
-  test("respects case-sensitive search", async () => {
-    const matches = await grepCommand("boundary", tempDir, { caseSensitive: true });
-    expect(matches.map((match) => match.path).sort()).toEqual(["standalone.doc.json"]);
-  });
+  test.each([
+    ["finds case-insensitive matches with relative posix paths", async () => {
+      const matches = await grepCommand("boundary", tempDir);
+      expect(matches).toEqual(
+        expect.arrayContaining([
+          { path: "foundation/doc.json", line: 3, text: "Boundary layer keeps shared contracts stable." },
+          {
+            path: "implementation/auth/doc.json",
+            line: 3,
+            text: "Token refresh uses BOUNDARY claims after login.",
+          },
+          { path: "standalone.doc.json", line: 3, text: "Standalone bundle mentions boundary once." },
+        ]),
+      );
+    }],
+    ["respects case-sensitive search", async () => {
+      const matches = await grepCommand("boundary", tempDir, { caseSensitive: true });
+      expect(matches.map((match) => match.path).sort()).toEqual(["standalone.doc.json"]);
+    }],
+    ["skips malformed doc.json and keeps valid bundle matches", async () => {
+      const matches = await grepCommand("foundation", tempDir);
+      expect(matches).toEqual([{ path: "foundation/doc.json", line: 1, text: "# Foundation Overview" }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("returns empty array when term matches nothing", async () => {
     await expect(grepCommand("never-present", tempDir)).resolves.toEqual([]);
@@ -183,11 +188,6 @@ describe("docs cli grep", () => {
     const result = await spawnCli(["grep", "never-present", tempDir]);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toContain("0 match(es)");
-  });
-
-  test("skips malformed doc.json and keeps valid bundle matches", async () => {
-    const matches = await grepCommand("foundation", tempDir);
-    expect(matches).toEqual([{ path: "foundation/doc.json", line: 1, text: "# Foundation Overview" }]);
   });
 
   test("does not write during render or grep, including spawned CLI runs", async () => {

@@ -103,24 +103,42 @@ test("a manifest change at the workspace or at a project root rescans once on th
   expect(service.stats().discoveries).toBe(1);
 });
 
-test("a registry rewrite drops only a discovery the registry no longer lists unchanged, once per rewrite", async () => {
-  const project = (await service.discover(workspace)).projects[0]!;
-  // The supervisor's write after that scan lists the project as reported: nothing to drop.
-  await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [project] }));
-  expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(1);
-  // A rewrite that changes the project's shape drops the discovery: the next call rescans.
-  await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [{ ...project, exclude: ["drafts/**"] }] }));
-  expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
-  // The registry still disagrees, but it was not rewritten again: no rescan per call.
-  expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
-  // A rewrite that removes the project drops it again.
-  await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [] }));
-  expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(3);
-});
+test.each([
+  ["a registry rewrite drops only a discovery the registry no longer lists unchanged, once per rewrite", async () => {
+    const project = (await service.discover(workspace)).projects[0]!;
+    // The supervisor's write after that scan lists the project as reported: nothing to drop.
+    await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [project] }));
+    expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(1);
+    // A rewrite that changes the project's shape drops the discovery: the next call rescans.
+    await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [{ ...project, exclude: ["drafts/**"] }] }));
+    expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(2);
+    // The registry still disagrees, but it was not rewritten again: no rescan per call.
+    expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(2);
+    // A rewrite that removes the project drops it again.
+    await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [] }));
+    expect((await invoke(workspace, "docs_tree", { project: project.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(3);
+  }],
+  ["a registry rewrite that lists a new project under a cached workspace drops that workspace, once per rewrite", async () => {
+    // gamma is declared but its docs folder is empty: a doc.json written inside changes no signed folder or manifest.
+    await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
+    await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
+    await settle();
+    const found = await service.discover(workspace);
+    expect(found.projects.map(p => p.name)).toEqual(["alpha"]);
+    await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
+    const gamma = { id: projectId("gamma", join(workspace, "gamma", "docs")), name: "gamma", root: join(workspace, "gamma"), docsRoot: join(workspace, "gamma", "docs"), products: ["docs"] };
+    // Another client's docs_capabilities rewrites the registry with gamma.
+    await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [...found.projects, gamma] }));
+    expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(2);
+    expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
+    expect(scans).toHaveBeenCalledTimes(2);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 /** A workspace whose package.json globs packages/* and holds one project, packages/alpha. */
 async function globWorkspace() {
@@ -161,23 +179,6 @@ test("a project that appears under a workspace glob is in the next docs_capabili
   } finally {
     await rm(globbed, { recursive: true, force: true });
   }
-});
-
-test("a registry rewrite that lists a new project under a cached workspace drops that workspace, once per rewrite", async () => {
-  // gamma is declared but its docs folder is empty: a doc.json written inside changes no signed folder or manifest.
-  await writeFile(join(workspace, "members.json"), JSON.stringify([{ dir: "alpha" }, { dir: "gamma" }]));
-  await mkdir(join(workspace, "gamma", "docs", "page"), { recursive: true });
-  await settle();
-  const found = await service.discover(workspace);
-  expect(found.projects.map(p => p.name)).toEqual(["alpha"]);
-  await writeFile(join(workspace, "gamma", "docs", "page", "doc.json"), JSON.stringify(page));
-  const gamma = { id: projectId("gamma", join(workspace, "gamma", "docs")), name: "gamma", root: join(workspace, "gamma"), docsRoot: join(workspace, "gamma", "docs"), products: ["docs"] };
-  // Another client's docs_capabilities rewrites the registry with gamma.
-  await writeFile(registryFile, JSON.stringify({ schemaVersion: 1, workspaces: [workspace], projects: [...found.projects, gamma] }));
-  expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
-  expect((await invoke(workspace, "docs_tree", { project: gamma.id })).ok).toBe(true);
-  expect(scans).toHaveBeenCalledTimes(2);
 });
 
 test("concurrent calls that find one stale entry after a manifest change share one rescan", async () => {

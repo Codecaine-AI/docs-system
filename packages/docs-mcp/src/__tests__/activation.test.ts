@@ -59,24 +59,24 @@ test('a draft that appears during rediscovery refuses the swap and leaves the ca
   expect(h.state.active?.name).toBe('active');
 });
 
-test('a request revision change during rediscovery aborts the swap', async () => {
-  const h = harness({ health: [], onDiscover: () => { h.state.requestRevision++; } });
-  expect(await h.activate()).toEqual({ status: 'aborted' });
-  expect(h.swaps).toEqual([]);
-});
-
-test('a registry revision change during rediscovery aborts the swap', async () => {
-  const h = harness({ health: [], onDiscover: () => { h.state.registryRevision++; } });
-  expect(await h.activate()).toEqual({ status: 'aborted' });
-  expect(h.swaps).toEqual([]);
-});
-
-test('a new candidate during rediscovery aborts the swap', async () => {
-  const h = harness({ health: [], onDiscover: () => { h.state.candidate = { name: 'newer' }; } });
-  expect(await h.activate()).toEqual({ status: 'aborted' });
-  expect(h.swaps).toEqual([]);
-  expect(h.state.candidate?.name).toBe('newer');
-});
+test.each([
+  ['a request revision change during rediscovery aborts the swap', async () => {
+    const h = harness({ health: [], onDiscover: () => { h.state.requestRevision++; } });
+    expect(await h.activate()).toEqual({ status: 'aborted' });
+    expect(h.swaps).toEqual([]);
+  }],
+  ['a registry revision change during rediscovery aborts the swap', async () => {
+    const h = harness({ health: [], onDiscover: () => { h.state.registryRevision++; } });
+    expect(await h.activate()).toEqual({ status: 'aborted' });
+    expect(h.swaps).toEqual([]);
+  }],
+  ['a new candidate during rediscovery aborts the swap', async () => {
+    const h = harness({ health: [], onDiscover: () => { h.state.candidate = { name: 'newer' }; } });
+    expect(await h.activate()).toEqual({ status: 'aborted' });
+    expect(h.swaps).toEqual([]);
+    expect(h.state.candidate?.name).toBe('newer');
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test('entry guards skip without any fetch', async () => {
   const h = harness({ health: [] });

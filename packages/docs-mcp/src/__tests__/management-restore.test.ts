@@ -72,21 +72,22 @@ test("restoring a moved page with its own assets and child pages puts every byte
   expect(await tree()).toEqual(before);
 });
 
-test("restoring a title change succeeds while other pages still link to the page", async () => {
-  const before = await tree();
-  const titled = await manage("docs_set_title", { path: "page/child", title: "New title", expected_hash: await hashOf("page/child") });
-  expect(titled).toMatchObject({ ok: true, applied: true });
-  expect(await manage("docs_management_restore", { tree_change_id: titled.tree_change_id })).toMatchObject({ ok: true, restored: true });
-  expect(await tree()).toEqual(before);
-});
-
-test("restoring a title change succeeds on a page that holds a child page and an asset", async () => {
-  const before = await tree();
-  const titled = await manage("docs_set_title", { path: "page", title: "New title", expected_hash: await hashOf("page") });
-  expect(titled).toMatchObject({ ok: true, applied: true });
-  expect(await manage("docs_management_restore", { tree_change_id: titled.tree_change_id })).toMatchObject({ ok: true, restored: true });
-  expect(await tree()).toEqual(before);
-});
+test.each([
+  ["restoring a title change succeeds while other pages still link to the page", async () => {
+    const before = await tree();
+    const titled = await manage("docs_set_title", { path: "page/child", title: "New title", expected_hash: await hashOf("page/child") });
+    expect(titled).toMatchObject({ ok: true, applied: true });
+    expect(await manage("docs_management_restore", { tree_change_id: titled.tree_change_id })).toMatchObject({ ok: true, restored: true });
+    expect(await tree()).toEqual(before);
+  }],
+  ["restoring a title change succeeds on a page that holds a child page and an asset", async () => {
+    const before = await tree();
+    const titled = await manage("docs_set_title", { path: "page", title: "New title", expected_hash: await hashOf("page") });
+    expect(titled).toMatchObject({ ok: true, applied: true });
+    expect(await manage("docs_management_restore", { tree_change_id: titled.tree_change_id })).toMatchObject({ ok: true, restored: true });
+    expect(await tree()).toEqual(before);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("a later edit to a file the move rewrote refuses the restore", async () => {
   const id = await movePage();
@@ -100,17 +101,18 @@ test("a file added under the moved page refuses the restore", async () => {
   expect(await call("docs_management_restore", { tree_change_id: id })).toMatchObject({ ok: false, detail: "Cannot restore after files were added: section/moved/assets/images/later.png" });
 });
 
-test("a new page that embeds the moved page's asset refuses the restore", async () => {
-  const id = await movePage();
-  await write("late/doc.json", page("late", { img: image("../section/moved/assets/images/x.png") }));
-  expect(await call("docs_management_restore", { tree_change_id: id })).toMatchObject({ ok: false, referrers: ["late/doc.json"] });
-});
-
-test("a new page that links to a child page of the moved folder refuses the restore", async () => {
-  const id = await movePage();
-  await write("late/doc.json", page("late", { to: docLink("section/moved/child") }));
-  expect(await call("docs_management_restore", { tree_change_id: id })).toMatchObject({ ok: false, referrers: ["late/doc.json"] });
-});
+test.each([
+  ["a new page that embeds the moved page's asset refuses the restore", async () => {
+    const id = await movePage();
+    await write("late/doc.json", page("late", { img: image("../section/moved/assets/images/x.png") }));
+    expect(await call("docs_management_restore", { tree_change_id: id })).toMatchObject({ ok: false, referrers: ["late/doc.json"] });
+  }],
+  ["a new page that links to a child page of the moved folder refuses the restore", async () => {
+    const id = await movePage();
+    await write("late/doc.json", page("late", { to: docLink("section/moved/child") }));
+    expect(await call("docs_management_restore", { tree_change_id: id })).toMatchObject({ ok: false, referrers: ["late/doc.json"] });
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("a referrer added between the restore preview and its apply refuses the apply", async () => {
   const id = await movePage();

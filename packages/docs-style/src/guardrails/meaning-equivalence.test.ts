@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import type { DeltaSpan } from "@codecaine-ai/docs-model";
 import { recordingVerifier, rewrite } from "./fixtures";
 import { checkMeaningEquivalence } from "./meaning-equivalence";
+import type { DeltaSpan } from "@codecaine-ai/docs-model";
 
 const SPLIT = {
   ...rewrite("Run `docs style lint`; then read [the report](https://example.com/r).", ["Run `docs style lint` in two steps.", "Run the lint.", "Read [the report](https://example.com/r)."]),
@@ -11,34 +11,34 @@ const SPLIT = {
 };
 
 describe("meaning-equivalence", () => {
-  test("asks the verifier once, with targets, bullet depth, the block type, and the heading", async () => {
-    const verifier = recordingVerifier("same");
-    expect(await checkMeaningEquivalence(SPLIT, verifier)).toEqual({ id: "meaning-equivalence", ok: true, detail: "same meaning (fake-verifier)" });
-    expect(verifier.compared).toEqual([
-      {
-        before: "Run `docs style lint`; then read [the report](https://example.com/r).",
-        after: "Run `docs style lint` in two steps.\n- Run the lint.\n  - Read [the report](https://example.com/r).",
-        blockType: "list-item",
-        heading: "Commands",
-      },
-    ]);
-  });
-
-  test("without depths and a block type, reads the lead at depth 0, every other block at depth 1, and a paragraph", async () => {
-    const verifier = recordingVerifier("same");
-    await checkMeaningEquivalence(rewrite("A; b.", ["Lead.", "One.", "Two."]), verifier);
-    expect(verifier.compared[0]).toEqual({ before: "A; b.", after: "Lead.\n- One.\n- Two.", blockType: "paragraph" });
-  });
-
-  test("shows a reference by its target, so a swap of two same-label references differs", async () => {
-    const guide = (path: string): DeltaSpan => ({ insert: "the guide", attributes: { reference: { kind: "doc", path } } });
-    const verifier = recordingVerifier("same");
-    await checkMeaningEquivalence({ beforeSpans: [guide("build/prepare"), { insert: ", then " }, guide("release/cleanup")], afterBlocks: [[guide("release/cleanup"), { insert: ", then " }, guide("build/prepare")]] }, verifier);
-    expect(verifier.compared[0]).toMatchObject({
-      before: "[the guide](ref:build/prepare), then [the guide](ref:release/cleanup)",
-      after: "[the guide](ref:release/cleanup), then [the guide](ref:build/prepare)",
-    });
-  });
+  test.each([
+    ["asks the verifier once, with targets, bullet depth, the block type, and the heading", async () => {
+      const verifier = recordingVerifier("same");
+      expect(await checkMeaningEquivalence(SPLIT, verifier)).toEqual({ id: "meaning-equivalence", ok: true, detail: "same meaning (fake-verifier)" });
+      expect(verifier.compared).toEqual([
+        {
+          before: "Run `docs style lint`; then read [the report](https://example.com/r).",
+          after: "Run `docs style lint` in two steps.\n- Run the lint.\n  - Read [the report](https://example.com/r).",
+          blockType: "list-item",
+          heading: "Commands",
+        },
+      ]);
+    }],
+    ["without depths and a block type, reads the lead at depth 0, every other block at depth 1, and a paragraph", async () => {
+      const verifier = recordingVerifier("same");
+      await checkMeaningEquivalence(rewrite("A; b.", ["Lead.", "One.", "Two."]), verifier);
+      expect(verifier.compared[0]).toEqual({ before: "A; b.", after: "Lead.\n- One.\n- Two.", blockType: "paragraph" });
+    }],
+    ["shows a reference by its target, so a swap of two same-label references differs", async () => {
+      const guide = (path: string): DeltaSpan => ({ insert: "the guide", attributes: { reference: { kind: "doc", path } } });
+      const verifier = recordingVerifier("same");
+      await checkMeaningEquivalence({ beforeSpans: [guide("build/prepare"), { insert: ", then " }, guide("release/cleanup")], afterBlocks: [[guide("release/cleanup"), { insert: ", then " }, guide("build/prepare")]] }, verifier);
+      expect(verifier.compared[0]).toMatchObject({
+        before: "[the guide](ref:build/prepare), then [the guide](ref:release/cleanup)",
+        after: "[the guide](ref:release/cleanup), then [the guide](ref:build/prepare)",
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("fails with the first two differences, short, and a count of the rest", async () => {
     const result = await checkMeaningEquivalence(

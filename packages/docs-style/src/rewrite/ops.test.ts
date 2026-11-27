@@ -36,31 +36,32 @@ function apply(ops: ReturnType<typeof rewriteToOps>): DocDocument {
   return result.doc;
 }
 
-test("a paragraph with bullets keeps the lead and gains list items right after it", () => {
-  expect(outline(apply(rewriteToOps(page, "intro", listAnswer, newId)))).toEqual([
-    "intro (paragraph): Lead.",
-    "ste-0 (list-item): One.",
-    "  ste-1 (list-item): One detail.",
-    "ste-2 (list-item): Two.",
-    "item (list-item): Old item; one; two.",
-    "  child (list-item): Existing child.",
-    "note (callout): Old note; one.",
-    "after (paragraph): After.",
-  ]);
-});
-
-test("a list item with bullets gains child items before its existing children", () => {
-  expect(outline(apply(rewriteToOps(page, "item", listAnswer, newId)))).toEqual([
-    "intro (paragraph): Old intro; one; two.",
-    "item (list-item): Lead.",
-    "  ste-0 (list-item): One.",
-    "    ste-1 (list-item): One detail.",
-    "  ste-2 (list-item): Two.",
-    "  child (list-item): Existing child.",
-    "note (callout): Old note; one.",
-    "after (paragraph): After.",
-  ]);
-});
+test.each([
+  ["a paragraph with bullets keeps the lead and gains list items right after it", () => {
+    expect(outline(apply(rewriteToOps(page, "intro", listAnswer, newId)))).toEqual([
+      "intro (paragraph): Lead.",
+      "ste-0 (list-item): One.",
+      "  ste-1 (list-item): One detail.",
+      "ste-2 (list-item): Two.",
+      "item (list-item): Old item; one; two.",
+      "  child (list-item): Existing child.",
+      "note (callout): Old note; one.",
+      "after (paragraph): After.",
+    ]);
+  }],
+  ["a list item with bullets gains child items before its existing children", () => {
+    expect(outline(apply(rewriteToOps(page, "item", listAnswer, newId)))).toEqual([
+      "intro (paragraph): Old intro; one; two.",
+      "item (list-item): Lead.",
+      "  ste-0 (list-item): One.",
+      "    ste-1 (list-item): One detail.",
+      "  ste-2 (list-item): Two.",
+      "  child (list-item): Existing child.",
+      "note (callout): Old note; one.",
+      "after (paragraph): After.",
+    ]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("a single block is one in-place update, and a callout refuses bullets", () => {
   const single = restoreSpans("New note. One.", []).blocks;

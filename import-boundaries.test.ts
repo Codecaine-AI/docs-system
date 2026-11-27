@@ -82,26 +82,48 @@ describe("import boundaries", () => {
     expect(violations).toEqual([]);
   });
 
-  test("docs-model imports sequence only through the agent-schema leaf", () => {
-    const violations: string[] = [];
-    const sequenceRoot = join(repoRoot, "external/sequence");
-    const agentSchema = join(sequenceRoot, "packages/sequence/src/agent-schema");
-    for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
-      for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
-        const resolved = resolve(dirname(file), spec);
-        const sequenceRelative = relative(sequenceRoot, resolved);
-        const isSequencePath = sequenceRelative !== "" && sequenceRelative !== ".." && !sequenceRelative.startsWith("../");
-        const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
-        if (
-          (spec.startsWith("@codecaine-ai/sequence") && spec !== "@codecaine-ai/sequence/agent-schema") ||
-          (isSequencePath && !isAgentSchema)
-        ) {
-          violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+  test.each([
+    ["docs-model imports sequence only through the agent-schema leaf", () => {
+      const violations: string[] = [];
+      const sequenceRoot = join(repoRoot, "external/sequence");
+      const agentSchema = join(sequenceRoot, "packages/sequence/src/agent-schema");
+      for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
+        for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
+          const resolved = resolve(dirname(file), spec);
+          const sequenceRelative = relative(sequenceRoot, resolved);
+          const isSequencePath = sequenceRelative !== "" && sequenceRelative !== ".." && !sequenceRelative.startsWith("../");
+          const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
+          if (
+            (spec.startsWith("@codecaine-ai/sequence") && spec !== "@codecaine-ai/sequence/agent-schema") ||
+            (isSequencePath && !isAgentSchema)
+          ) {
+            violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+          }
         }
       }
-    }
-    expect(violations).toEqual([]);
-  });
+      expect(violations).toEqual([]);
+    }],
+    ["docs-model imports canvas only through the agent-schema leaf", () => {
+      const violations: string[] = [];
+      const canvasRoot = join(repoRoot, "external/canvas");
+      const agentSchema = join(canvasRoot, "packages/canvas/src/agent-schema");
+      for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
+        for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
+          const resolved = resolve(dirname(file), spec);
+          const canvasRelative = relative(canvasRoot, resolved);
+          const isCanvasPath = canvasRelative !== "" && canvasRelative !== ".." && !canvasRelative.startsWith("../");
+          const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
+          if (
+            (spec.startsWith("@codecaine-ai/canvas") && spec !== "@codecaine-ai/canvas/agent-schema") ||
+            (isCanvasPath && !isAgentSchema)
+          ) {
+            violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
+          }
+        }
+      }
+      expect(violations).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("docs-model measures text only through text-measure's core entry", () => {
     // The core entry is synchronous and runs anywhere. /headless reads font
@@ -116,27 +138,6 @@ describe("import boundaries", () => {
           (spec.startsWith("@codecaine-ai/text-measure") && spec !== "@codecaine-ai/text-measure") ||
           /^(?:@chenglou\/pretext|harfbuzzjs)(?:$|\/)/.test(spec) ||
           reachesIn
-        ) {
-          violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
-        }
-      }
-    }
-    expect(violations).toEqual([]);
-  });
-
-  test("docs-model imports canvas only through the agent-schema leaf", () => {
-    const violations: string[] = [];
-    const canvasRoot = join(repoRoot, "external/canvas");
-    const agentSchema = join(canvasRoot, "packages/canvas/src/agent-schema");
-    for (const file of walk(join(repoRoot, "packages/docs-model/src"))) {
-      for (const spec of importSpecifiers(readFileSync(file, "utf8"))) {
-        const resolved = resolve(dirname(file), spec);
-        const canvasRelative = relative(canvasRoot, resolved);
-        const isCanvasPath = canvasRelative !== "" && canvasRelative !== ".." && !canvasRelative.startsWith("../");
-        const isAgentSchema = resolved === agentSchema || resolved === `${agentSchema}.ts`;
-        if (
-          (spec.startsWith("@codecaine-ai/canvas") && spec !== "@codecaine-ai/canvas/agent-schema") ||
-          (isCanvasPath && !isAgentSchema)
         ) {
           violations.push(`${file.slice(repoRoot.length + 1)} -> ${spec}`);
         }

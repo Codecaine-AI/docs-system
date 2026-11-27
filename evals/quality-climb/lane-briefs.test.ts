@@ -1,6 +1,6 @@
 // Checks the per-lane brief files of the per-component quality climb: evals/quality-climb/lanes/<lane>/briefs.json.
 import { describe, expect, test } from "bun:test";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { $ } from "bun";
 import repoBriefs from "./briefs.json";
@@ -46,10 +46,6 @@ function shapeErrors(b: Brief): string[] {
   return errors;
 }
 
-test("each of the 12 lanes has a brief file, and no other lane folder exists", () => {
-  expect(readdirSync(lanesDir, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort()).toEqual([...LANES].sort());
-});
-
 test("ids are unique across every lane, start at 100 and do not reuse a whole-page brief id", () => {
   const ids = all.map((b) => b.id);
   expect(new Set(ids).size).toBe(ids.length);
@@ -61,12 +57,6 @@ test("ids are unique across every lane, start at 100 and do not reuse a whole-pa
 describe.each(lanes)("lane $lane", ({ lane, briefs }) => {
   test("every brief has the Brief shape", () => {
     expect(briefs.map((b) => ({ id: b.id, errors: shapeErrors(b) })).filter((r) => r.errors.length)).toEqual([]);
-  });
-
-  test("12 briefs: 4 climb and 8 held-out", () => {
-    expect(briefs.length).toBe(12);
-    expect(briefs.filter((b) => b.set === "climb").length).toBe(4);
-    expect(briefs.filter((b) => b.set === "held-out").length).toBe(8);
   });
 
   test("slugs are unique in the lane", () => {

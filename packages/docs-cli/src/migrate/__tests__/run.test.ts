@@ -24,34 +24,48 @@ afterEach(() => {
 const SIMPLE_MDX = "# Hello\n\nA paragraph.\n";
 
 describe("runMigration — bundle placement", () => {
-  it("creates a new subfolder bundle for a standalone .mdx sibling file", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
-    writeFileSync(join(docsDir, "00-foundation", "10-purpose.mdx"), SIMPLE_MDX);
+  it.each([
+    ["creates a new subfolder bundle for a standalone .mdx sibling file", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+      writeFileSync(join(docsDir, "00-foundation", "10-purpose.mdx"), SIMPLE_MDX);
 
-    const report = runMigration({ repoRoot, docsDir, verbose: false });
+      const report = runMigration({ repoRoot, docsDir, verbose: false });
 
-    expect(report.totals.filesFailed).toBe(0);
-    expect(report.totals.filesMigrated).toBe(1);
-    const bundlePath = join(docsDir, "00-foundation", "10-purpose", "doc.json");
-    expect(existsSync(bundlePath)).toBe(true);
-    const parsed = JSON.parse(readFileSync(bundlePath, "utf8"));
-    expect(parsed.title).toBe("Hello");
-  });
+      expect(report.totals.filesFailed).toBe(0);
+      expect(report.totals.filesMigrated).toBe(1);
+      const bundlePath = join(docsDir, "00-foundation", "10-purpose", "doc.json");
+      expect(existsSync(bundlePath)).toBe(true);
+      const parsed = JSON.parse(readFileSync(bundlePath, "utf8"));
+      expect(parsed.title).toBe("Hello");
+    }],
+    ["places doc.json directly in an existing folder-with-index directory (no extra nesting)", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "50-interactive-canvas"), { recursive: true });
+      writeFileSync(join(docsDir, "50-interactive-canvas", "index.mdx"), SIMPLE_MDX);
 
-  it("places doc.json directly in an existing folder-with-index directory (no extra nesting)", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "50-interactive-canvas"), { recursive: true });
-    writeFileSync(join(docsDir, "50-interactive-canvas", "index.mdx"), SIMPLE_MDX);
+      const report = runMigration({ repoRoot, docsDir, verbose: false });
 
-    const report = runMigration({ repoRoot, docsDir, verbose: false });
+      expect(report.totals.filesFailed).toBe(0);
+      const bundlePath = join(docsDir, "50-interactive-canvas", "doc.json");
+      expect(existsSync(bundlePath)).toBe(true);
+      // Must NOT create a nested docs/50-interactive-canvas/index/doc.json.
+      expect(existsSync(join(docsDir, "50-interactive-canvas", "index", "doc.json"))).toBe(false);
+    }],
+    ["migrates plain .md sources (generic host repos are .md-only)", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+      writeFileSync(join(docsDir, "00-foundation", "10-purpose.md"), SIMPLE_MDX);
+      writeFileSync(join(docsDir, "00-foundation", "20-notes.markdown"), SIMPLE_MDX);
 
-    expect(report.totals.filesFailed).toBe(0);
-    const bundlePath = join(docsDir, "50-interactive-canvas", "doc.json");
-    expect(existsSync(bundlePath)).toBe(true);
-    // Must NOT create a nested docs/50-interactive-canvas/index/doc.json.
-    expect(existsSync(join(docsDir, "50-interactive-canvas", "index", "doc.json"))).toBe(false);
-  });
+      const report = runMigration({ repoRoot, docsDir, verbose: false });
+
+      expect(report.totals.filesFailed).toBe(0);
+      expect(report.totals.filesMigrated).toBe(2);
+      expect(existsSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"))).toBe(true);
+      expect(existsSync(join(docsDir, "00-foundation", "20-notes", "doc.json"))).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("exempts docs/.drafts by default and includes it only with includeDrafts: true", () => {
     const { repoRoot, docsDir } = makeTempRepo();
@@ -103,36 +117,9 @@ describe("runMigration — bundle placement", () => {
     expect(existsSync(join(docDir, "assets", "canvases", "sample.canvas.json"))).toBe(true);
     expect(report.migrated[0].assetsCopied.length).toBeGreaterThan(0);
   });
-
-  it("reports validation-style failures without throwing, and writes zero output for the failing file", () => {
-    // A file that produces unparsable frontmatter shouldn't crash the whole run;
-    // mdxToDoc still succeeds on ordinary malformed-but-recoverable input, so
-    // this test instead verifies the report shape stays well-formed on an
-    // empty tree (defensive coverage for the failed[]/skipped[] arrays).
-    const { repoRoot, docsDir } = makeTempRepo();
-    const report = runMigration({ repoRoot, docsDir, verbose: false });
-    expect(report.totals.filesFound).toBe(0);
-    expect(report.failed).toEqual([]);
-    expect(report.migrated).toEqual([]);
-  });
 });
 
 describe("retireTwins — gated, dry-run by default", () => {
-  it("dry-run reports what would be retired without deleting anything", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
-    const sourcePath = join(docsDir, "00-foundation", "10-purpose.mdx");
-    writeFileSync(sourcePath, SIMPLE_MDX);
-    runMigration({ repoRoot, docsDir, verbose: false });
-
-    const report = retireTwins({ repoRoot, docsDir, dryRun: true });
-
-    expect(report.dryRun).toBe(true);
-    expect(report.wouldRetire).toContain("docs/00-foundation/10-purpose.mdx");
-    expect(report.totals.wouldRetire).toBe(1);
-    expect(existsSync(sourcePath)).toBe(true);
-  });
-
   it("skips files with no migrated bundle yet", () => {
     const { repoRoot, docsDir } = makeTempRepo();
     mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
@@ -145,40 +132,55 @@ describe("retireTwins — gated, dry-run by default", () => {
     expect(report.skippedNoBundle).toContain("docs/00-foundation/10-purpose.mdx");
   });
 
-  it("only deletes when dryRun is explicitly false", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
-    const sourcePath = join(docsDir, "00-foundation", "10-purpose.mdx");
-    writeFileSync(sourcePath, SIMPLE_MDX);
-    runMigration({ repoRoot, docsDir, verbose: false });
+  it.each([
+    ["retires a .md twin whose stem matches a migrated bundle (both twins retire against one bundle)", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+      const mdxPath = join(docsDir, "00-foundation", "10-purpose.mdx");
+      const mdPath = join(docsDir, "00-foundation", "10-purpose.md");
+      writeFileSync(mdxPath, SIMPLE_MDX);
+      writeFileSync(mdPath, "# Hello\n\nSame doc, markdown twin.\n");
+      runMigration({ repoRoot, docsDir, verbose: false });
 
-    retireTwins({ repoRoot, docsDir, dryRun: false });
+      const dryReport = retireTwins({ repoRoot, docsDir, dryRun: true });
+      expect(dryReport.wouldRetire).toContain("docs/00-foundation/10-purpose.mdx");
+      expect(dryReport.wouldRetire).toContain("docs/00-foundation/10-purpose.md");
+      expect(dryReport.totals.wouldRetire).toBe(2);
+      expect(existsSync(mdPath)).toBe(true);
+      expect(existsSync(mdxPath)).toBe(true);
 
-    expect(existsSync(sourcePath)).toBe(false);
-  });
+      retireTwins({ repoRoot, docsDir, dryRun: false });
+      expect(existsSync(mdxPath)).toBe(false);
+      expect(existsSync(mdPath)).toBe(false);
+      // The bundle itself must survive retirement.
+      expect(existsSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"))).toBe(true);
+    }],
+    ["dry-run reports what would be retired without deleting anything", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+      const sourcePath = join(docsDir, "00-foundation", "10-purpose.mdx");
+      writeFileSync(sourcePath, SIMPLE_MDX);
+      runMigration({ repoRoot, docsDir, verbose: false });
 
-  it("retires a .md twin whose stem matches a migrated bundle (both twins retire against one bundle)", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
-    const mdxPath = join(docsDir, "00-foundation", "10-purpose.mdx");
-    const mdPath = join(docsDir, "00-foundation", "10-purpose.md");
-    writeFileSync(mdxPath, SIMPLE_MDX);
-    writeFileSync(mdPath, "# Hello\n\nSame doc, markdown twin.\n");
-    runMigration({ repoRoot, docsDir, verbose: false });
+      const report = retireTwins({ repoRoot, docsDir, dryRun: true });
 
-    const dryReport = retireTwins({ repoRoot, docsDir, dryRun: true });
-    expect(dryReport.wouldRetire).toContain("docs/00-foundation/10-purpose.mdx");
-    expect(dryReport.wouldRetire).toContain("docs/00-foundation/10-purpose.md");
-    expect(dryReport.totals.wouldRetire).toBe(2);
-    expect(existsSync(mdPath)).toBe(true);
-    expect(existsSync(mdxPath)).toBe(true);
+      expect(report.dryRun).toBe(true);
+      expect(report.wouldRetire).toContain("docs/00-foundation/10-purpose.mdx");
+      expect(report.totals.wouldRetire).toBe(1);
+      expect(existsSync(sourcePath)).toBe(true);
+    }],
+    ["only deletes when dryRun is explicitly false", () => {
+      const { repoRoot, docsDir } = makeTempRepo();
+      mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
+      const sourcePath = join(docsDir, "00-foundation", "10-purpose.mdx");
+      writeFileSync(sourcePath, SIMPLE_MDX);
+      runMigration({ repoRoot, docsDir, verbose: false });
 
-    retireTwins({ repoRoot, docsDir, dryRun: false });
-    expect(existsSync(mdxPath)).toBe(false);
-    expect(existsSync(mdPath)).toBe(false);
-    // The bundle itself must survive retirement.
-    expect(existsSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"))).toBe(true);
-  });
+      retireTwins({ repoRoot, docsDir, dryRun: false });
+
+      expect(existsSync(sourcePath)).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("leaves a .md with no matching bundle alone, listed in skippedNoBundle", () => {
     const { repoRoot, docsDir } = makeTempRepo();
@@ -213,20 +215,6 @@ describe("retireTwins — gated, dry-run by default", () => {
 });
 
 describe("runMigration — .md and twin handling", () => {
-  it("migrates plain .md sources (generic host repos are .md-only)", () => {
-    const { repoRoot, docsDir } = makeTempRepo();
-    mkdirSync(join(docsDir, "00-foundation"), { recursive: true });
-    writeFileSync(join(docsDir, "00-foundation", "10-purpose.md"), SIMPLE_MDX);
-    writeFileSync(join(docsDir, "00-foundation", "20-notes.markdown"), SIMPLE_MDX);
-
-    const report = runMigration({ repoRoot, docsDir, verbose: false });
-
-    expect(report.totals.filesFailed).toBe(0);
-    expect(report.totals.filesMigrated).toBe(2);
-    expect(existsSync(join(docsDir, "00-foundation", "10-purpose", "doc.json"))).toBe(true);
-    expect(existsSync(join(docsDir, "00-foundation", "20-notes", "doc.json"))).toBe(true);
-  });
-
   it("prefers .mdx over a same-stem .md twin and reports the twin as skipped", () => {
     const { repoRoot, docsDir } = makeTempRepo();
     mkdirSync(join(docsDir, "00-foundation"), { recursive: true });

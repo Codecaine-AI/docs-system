@@ -23,17 +23,18 @@ test("flags four nouns in a row, with the cluster as evidence", () => {
   ]);
 });
 
-test("a registered multi-word technical noun counts as one noun", () => {
-  expect(evidence("The theme color cache entry keeps the value.")).toEqual(["theme color cache entry"]);
-  // "state schema" is a technical noun on the Vocabulary page.
-  expect(evidence("The state schema cache entry keeps the value.")).toEqual([]);
-});
-
-test("a verb that the tagger reads as a noun ends the cluster", () => {
-  // wink tags "stores" and "use" as nouns in these sentences.
-  expect(evidence("The docs service state directory stores theme files.")).toEqual(["docs service state directory"]);
-  expect(evidence("Codex and Claude use stdio MCP bridges.")).toEqual([]);
-});
+test.each([
+  ["a registered multi-word technical noun counts as one noun", () => {
+    expect(evidence("The theme color cache entry keeps the value.")).toEqual(["theme color cache entry"]);
+    // "state schema" is a technical noun on the Vocabulary page.
+    expect(evidence("The state schema cache entry keeps the value.")).toEqual([]);
+  }],
+  ["a verb that the tagger reads as a noun ends the cluster", () => {
+    // wink tags "stores" and "use" as nouns in these sentences.
+    expect(evidence("The docs service state directory stores theme files.")).toEqual(["docs service state directory"]);
+    expect(evidence("Codex and Claude use stdio MCP bridges.")).toEqual([]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test("table cells, verbless labels, and quoted examples are not prose", () => {
   const cell: DocBlock = { id: "t", type: "structured-table", props: { columns: ["Path"], rows: [["The docs service state directory keeps the theme."]] }, children: [] };
