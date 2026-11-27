@@ -5,15 +5,26 @@ sweeps `external/` and other trees that are not suites. Use the commands below.
 
 ## Worktree setup
 
-In a fresh git worktree, run `make link` once before you build or test. It
-links this tree's `@codecaine-ai/docs-*` packages, and mirrors the
-dependencies the main checkout has installed: each package's own
-`node_modules` (such as docs-workbench's tailwindcss 4), the root
-`node_modules` and, for a worktree outside core, core's `node_modules`. A
-mirror is flat: real folders, one symlink per entry, one scope level deep. So
-builds never write into the main checkout. It skips dot caches, this repo's
-own packages and their `.bin` entries, and never replaces an existing entry.
-In the main checkout it only links the packages.
+In a fresh git worktree, run `make link` once before you build or test. A
+worktree has no installed dependencies, and no `bun install` can run in it:
+the only lockfile is core's.
+
+- `make link` links this tree's `@codecaine-ai/docs-*` packages and their
+  bins (`docs-cli`, `codecaine-docs`) into this tree's `node_modules`.
+- In a worktree it also mirrors the dependencies the main checkout has
+  installed: each package's own `node_modules` (such as docs-workbench's
+  tailwindcss 4), the root `node_modules` and, for a worktree outside core,
+  core's `node_modules`.
+- One rule decides each mirrored entry: where it really lands. An installed
+  package or a core member's checkout (design-system, canvas) is linked. A
+  broken entry, or one that lands in the main checkout's source (`packages/`,
+  `external/`), never is.
+- `node_modules`, each `@scope` in it and `.bin` are real folders in this
+  tree, with one symlink per entry. So a build writes its caches here, never
+  into the main checkout or core.
+- A rerun adds what is missing and removes a link that breaks the rule.
+  `bun scripts/link-packages.ts --check` exits 1 on such a link.
+- In the main checkout it links only the packages and their bins.
 
 ## Test commands
 

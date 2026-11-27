@@ -44,7 +44,7 @@ test-docs-mcp: ## Test area: docs-mcp (runs from its folder, own bunfig)
 	bun scripts/test-packages.ts docs-mcp
 test-docs-publish: ## Test area: docs-publish
 	bun scripts/test-packages.ts docs-publish
-test-repo: ## Test area: root suites (evals/quality-climb, import-boundaries)
+test-repo: ## Test area: root suites (evals/quality-climb, import-boundaries, scripts/link-packages)
 	bun scripts/test-packages.ts repo
 
 typecheck: ## Typecheck the whole workspace
