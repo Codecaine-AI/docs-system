@@ -64,6 +64,20 @@ test('a mapped laptop workspace reads and writes the server files under the serv
   expect(laptop.startedDaemon()).toBe(false);
 }, 30000);
 
+test('a mapped laptop workspace inside the knowledge base lists the knowledge base project and reads through it', async () => {
+  // A Session folder: under the mapped prefix on the laptop, and inside the server's whole-folder project.
+  await mkdir(join(localWs, 'sessions', 's1'), { recursive: true }); await mkdir(join(serverWs, 'sessions', 's1'), { recursive: true });
+  const laptop = client('mapped-session', { CODECAINE_DOCS_REMOTE_PATH_MAP: `${localWs}=${serverWs}` });
+  const session = join(localWs, 'sessions', 's1');
+  const capabilities = laptop.run(session, ['capabilities']).json();
+  expect(capabilities.structuredContent.scope.workspace).toBe(join(serverWs, 'sessions', 's1'));
+  expect(capabilities.structuredContent.projects.map((p: any) => p.id)).toEqual([projectId]);
+  const read = laptop.run(session, ['call', 'docs_read', '--args', JSON.stringify({ project: projectId, path: 'page' })]).json().structuredContent;
+  expect(read.ok).toBe(true);
+  expect(laptop.run(session, ['call', 'docs_tree', '--args', JSON.stringify({ project: projectId })]).json().structuredContent.ok).toBe(true);
+  expect(laptop.startedDaemon()).toBe(false);
+}, 30000);
+
 test('a call that names the remote project from an unmapped workspace goes to the default remote workspace', () => {
   const thread = client('project', { CODECAINE_DOCS_REMOTE_PROJECTS: projectId, CODECAINE_DOCS_REMOTE_WORKSPACE: serverWs });
   const read = thread.run(codeWs, ['call', 'docs_read', '--args', JSON.stringify({ project: projectId, path: 'page' })]);

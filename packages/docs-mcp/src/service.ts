@@ -202,10 +202,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
   for(const [file,sig] of entry.signatures)if(await signature(file)!==sig)return false;
   return true;
  }
+ /** The project roots the registry lists. A registered project whose root holds the workspace, or sits below it, is part of the workspace (discoverProjects). An unreadable registry lists none. */
+ async function registeredRoots():Promise<string[]>{
+  if(!options.registryFile)return [];
+  try{return ((JSON.parse(await readFile(options.registryFile,'utf8')).projects??[]) as DocsProject[]).map(p=>p.root).filter(root=>typeof root==='string');}catch{return [];}
+ }
  /** One scan, then its signatures (see the discovery cache rule). */
  async function scan(workspace:string):Promise<CachedDiscovery>{
   const since=Date.now()-MTIME_MARGIN_MS;
-  const discovery=await discoverProjects(workspace);
+  const discovery=await discoverProjects(workspace,{registered:await registeredRoots()});
   // The root marker and the read-only guard (root-marker.ts): a refused root never opens, and a read-only root keeps its backlinks index in memory, so nothing is written below it.
   const markers=new Set([discovery.workspace,...requiredRoots()].map(folder=>join(folder,ROOT_MARKER)));
   discovery.projects=discovery.projects.filter(project=>{

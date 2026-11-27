@@ -18,6 +18,16 @@ import { withPathLock } from "./path-mutex";
 import { createContentHash } from "./content-hash";
 import { draftLockStore, type DraftLockInfo } from "./draft-locks";
 import { indexCanvasSourceBestEffort } from "./backlinks-cache";
+import { pageHashRequired } from "./doc-ops";
+
+/** The refusal text of a sidecar or legacy page write with no hash under CODECAINE_DOCS_REQUIRE_HASH=1 (428). */
+export const ORIGINAL_HASH_REQUIRED =
+  "This docs server requires the file hash: read the file and send its hash as original_hash.";
+/** The 428 refusal of a write with no hash under CODECAINE_DOCS_REQUIRE_HASH=1, or null when the write may go on. */
+export function hashRequiredRefusal(originalHash: string | undefined, currentHash: string) {
+  if (originalHash || !pageHashRequired()) return null;
+  return { ok: false as const, status: 428, detail: ORIGINAL_HASH_REQUIRED, current_hash: currentHash };
+}
 
 /**
  * Canvas sidecar mutation core — doc-relative save / create / delete, the
@@ -545,6 +555,8 @@ export async function saveCanvasSidecar(
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
     }
+    const hashRequired = hashRequiredRefusal(input.originalHash, loaded.canvasContentHash);
+    if (hashRequired) return hashRequired;
     if (input.originalHash && input.originalHash !== loaded.canvasContentHash) {
       return {
         ok: false,
@@ -644,6 +656,8 @@ export async function saveCanvasSidecarBySrc(
     if ("error" in loaded) {
       return { ok: false, status: loaded.error.status, detail: loaded.error.detail };
     }
+    const hashRequired = hashRequiredRefusal(input.originalHash, loaded.canvasContentHash);
+    if (hashRequired) return hashRequired;
     if (input.originalHash && input.originalHash !== loaded.canvasContentHash) {
       return {
         ok: false,
@@ -732,6 +746,11 @@ export async function createCanvasSidecar(
   }
   if (input.insertMdx && loadedDoc.format === "json") {
     return { ok: false, status: 400, detail: "Normalized documents use typed Canvas blocks, not MDX insertion." };
+  }
+  // Inserting the MDX reference rewrites the page, so it needs the page hash under CODECAINE_DOCS_REQUIRE_HASH=1.
+  if (input.insertMdx) {
+    const hashRequired = hashRequiredRefusal(input.originalHash, loadedDoc.contentHash);
+    if (hashRequired) return hashRequired;
   }
   const canvasRelPath = resolveCanvasSidecarRelativePath(input.docPath, input.src, docsRoot);
   if (!canvasRelPath) {
@@ -862,6 +881,9 @@ export async function deleteCanvasSidecar(
   if (!preflight.ok) return { ok: false, status: preflight.status, detail: preflight.detail };
   let mdxContentHash: string | undefined;
   if (input.removeReference) {
+    // Removing the MDX reference rewrites the page, so it needs the page hash under CODECAINE_DOCS_REQUIRE_HASH=1.
+    const hashRequired = hashRequiredRefusal(input.originalHash, loaded.docContentHash);
+    if (hashRequired) return hashRequired;
     if (input.originalHash && input.originalHash !== loaded.docContentHash) {
       return {
         ok: false,
