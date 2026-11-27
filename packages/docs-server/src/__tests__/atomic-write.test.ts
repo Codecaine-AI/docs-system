@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
@@ -47,4 +47,17 @@ describe("atomicWriteFile", () => {
       expect(readBack).toBe(content);
     }],
   ])("%s", (_title: string, run: () => void | Promise<void>) => run());
+
+  test("leaves the existing entry and no temp file behind when the rename fails", async () => {
+    // A directory at the target path makes the rename fail after the temp file is written.
+    const target = join(root, "doc.json");
+    await mkdir(target);
+    await writeFile(join(target, "keep.txt"), "original", "utf8");
+
+    await expect(atomicWriteFile(target, "replacement")).rejects.toMatchObject({ code: "EISDIR" });
+
+    expect(await readdir(root)).toEqual(["doc.json"]);
+    expect(await readdir(target)).toEqual(["keep.txt"]);
+    expect(await readFile(join(target, "keep.txt"), "utf8")).toBe("original");
+  });
 });
