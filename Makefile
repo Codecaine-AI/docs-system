@@ -22,7 +22,7 @@ test-keepers-changed: ## Tier 2 local: the e2e keeper suites this tree's changes
 	if [ -z "$$suites" ]; then echo "No keeper suite reached by the changes against origin/main."; \
 	else echo "Keeper suites: $$suites"; bunx playwright test $$suites --grep-invert @quarantine; fi
 
-link: ## Link this tree's packages so a worktree tests its own code; print resolution
+link: ## Worktree setup: link this tree's packages and the main checkout's installed deps; print resolution
 	bun scripts/link-packages.ts
 
 # One target per test area (scripts/test-packages.ts). CI runs these.
@@ -44,7 +44,7 @@ test-docs-mcp: ## Test area: docs-mcp (runs from its folder, own bunfig)
 	bun scripts/test-packages.ts docs-mcp
 test-docs-publish: ## Test area: docs-publish
 	bun scripts/test-packages.ts docs-publish
-test-repo: ## Test area: root suites (evals/quality-climb, import-boundaries)
+test-repo: ## Test area: root suites (evals/quality-climb, import-boundaries, scripts/link-packages)
 	bun scripts/test-packages.ts repo
 
 typecheck: ## Typecheck the whole workspace

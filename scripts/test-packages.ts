@@ -43,7 +43,7 @@ export const AREAS: Record<string, Area> = {
   // From the root: its editor tests need the root DOM preloads, and it has no bunfig.toml.
   "docs-publish": { cwd: ".", paths: ["./packages/docs-publish"] },
   // Root-level suites that belong to no package.
-  repo: { cwd: ".", paths: ["./evals/quality-climb", "./import-boundaries.test.ts"] },
+  repo: { cwd: ".", paths: ["./evals/quality-climb", "./import-boundaries.test.ts", "./scripts/link-packages.test.ts"] },
 };
 
 const root = resolve(import.meta.dir, "..");
