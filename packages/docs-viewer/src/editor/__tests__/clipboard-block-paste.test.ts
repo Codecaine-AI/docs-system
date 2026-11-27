@@ -5,7 +5,7 @@ import { TextSelection } from "@tiptap/pm/state";
 import { ATOM_BLOCK_NODES, TEXT_BLOCK_NODES } from "../core/schema";
 import { DocReference } from "../menus/reference-node";
 import { DocBlockPaste } from "../input/block-paste";
-import { DocDragSelect, rangeSelection } from "../views/drag-select";
+import { DocDragSelect } from "../views/drag-select";
 import { dragSelectPluginKey } from "../views/drag-select-state";
 
 /**
@@ -145,54 +145,111 @@ describe("editor→editor block paste (R2-D16)", () => {
     expect(html).not.toMatch(/\slevel="1"/);
   });
 
-  it("pastes into another doc's empty paragraph without merging: count, types, order — and the empty block is replaced", () => {
-    const html = copyBand(createEditor(SOURCE_BLOCKS));
-    const target = createTarget();
-    expect(target.view.pasteHTML(html)).toBe(true);
-    expect(topTypes(target)).toEqual(SOURCE_TYPES);
-  });
+  it.each([
+    ["pastes into another doc's empty paragraph without merging: count, types, order — and the empty block is replaced", () => {
+      const html = copyBand(createEditor(SOURCE_BLOCKS));
+      const target = createTarget();
+      expect(target.view.pasteHTML(html)).toBe(true);
+      expect(topTypes(target)).toEqual(SOURCE_TYPES);
+    }],
+    ["preserves heading level, list ordered flag, callout props + child through the paste", () => {
+      const html = copyBand(createEditor(SOURCE_BLOCKS));
+      const target = createTarget();
+      expect(target.view.pasteHTML(html)).toBe(true);
 
-  it("preserves heading level, list ordered flag, callout props + child through the paste", () => {
-    const html = copyBand(createEditor(SOURCE_BLOCKS));
-    const target = createTarget();
-    expect(target.view.pasteHTML(html)).toBe(true);
+      const doc = target.state.doc;
+      const heading = doc.child(0);
+      expect(heading.type.name).toBe("docHeading");
+      expect(heading.attrs.level).toBe(1);
+      expect(heading.textContent).toBe("Title");
 
-    const doc = target.state.doc;
-    const heading = doc.child(0);
-    expect(heading.type.name).toBe("docHeading");
-    expect(heading.attrs.level).toBe(1);
-    expect(heading.textContent).toBe("Title");
+      expect(doc.child(1).textContent).toBe("First paragraph");
+      expect(doc.child(2).textContent).toBe("Second paragraph");
 
-    expect(doc.child(1).textContent).toBe("First paragraph");
-    expect(doc.child(2).textContent).toBe("Second paragraph");
+      const listItem = doc.child(3);
+      expect(listItem.type.name).toBe("docListItem");
+      expect(listItem.attrs.ordered).toBe(true);
+      expect(listItem.textContent).toBe("Item one");
 
-    const listItem = doc.child(3);
-    expect(listItem.type.name).toBe("docListItem");
-    expect(listItem.attrs.ordered).toBe(true);
-    expect(listItem.textContent).toBe("Item one");
+      const callout = doc.child(4);
+      expect(callout.type.name).toBe("docCallout");
+      expect(callout.attrs.blockProps).toEqual(CALLOUT_PROPS);
+      expect(callout.child(0).type.name).toBe("docBlockText");
+      expect(callout.child(0).textContent).toBe("Callout body");
+      const child = callout.child(1);
+      expect(child.type.name).toBe("docParagraph");
+      expect(child.textContent).toBe("Callout child");
+    }],
+    ["a single banded block keeps its type: an H1 pastes back as an H1, not text", () => {
+      const source = createEditor(SOURCE_BLOCKS);
+      const heading = source.state.doc.child(0);
+      const html = copyBand(source, 0, heading.nodeSize);
+      expect(html).toContain('data-pm-slice="0 0 []"');
 
-    const callout = doc.child(4);
-    expect(callout.type.name).toBe("docCallout");
-    expect(callout.attrs.blockProps).toEqual(CALLOUT_PROPS);
-    expect(callout.child(0).type.name).toBe("docBlockText");
-    expect(callout.child(0).textContent).toBe("Callout body");
-    const child = callout.child(1);
-    expect(child.type.name).toBe("docParagraph");
-    expect(child.textContent).toBe("Callout child");
-  });
+      const target = createTarget();
+      expect(target.view.pasteHTML(html)).toBe(true);
+      expect(topTypes(target)).toEqual(["docHeading"]);
+      expect(target.state.doc.child(0).attrs.level).toBe(1);
+      expect(target.state.doc.child(0).textContent).toBe("Title");
+    }],
+    ["external multi-block HTML (no data-pm-slice) pastes as separate blocks with heading levels from tag names", () => {
+      const target = createTarget();
+      expect(
+        target.view.pasteHTML("<h2>Outside title</h2><p>Outside para one</p><p>Outside para two</p>"),
+      ).toBe(true);
+      expect(topTypes(target)).toEqual(["docHeading", "docParagraph", "docParagraph"]);
+      expect(target.state.doc.child(0).attrs.level).toBe(2);
+      expect(target.state.doc.child(0).textContent).toBe("Outside title");
+    }],
+    ["external <ol>/<ul> list items carry the ordered flag from the list ancestor", () => {
+      const target = createTarget();
+      expect(
+        target.view.pasteHTML("<ol><li>one</li><li>two</li></ol>"),
+      ).toBe(true);
+      const types = topTypes(target);
+      expect(types).toEqual(["docListItem", "docListItem"]);
+      expect(target.state.doc.child(0).attrs.ordered).toBe(true);
+      expect(target.state.doc.child(1).attrs.ordered).toBe(true);
 
-  it("a single banded block keeps its type: an H1 pastes back as an H1, not text", () => {
-    const source = createEditor(SOURCE_BLOCKS);
-    const heading = source.state.doc.child(0);
-    const html = copyBand(source, 0, heading.nodeSize);
-    expect(html).toContain('data-pm-slice="0 0 []"');
-
-    const target = createTarget();
-    expect(target.view.pasteHTML(html)).toBe(true);
-    expect(topTypes(target)).toEqual(["docHeading"]);
-    expect(target.state.doc.child(0).attrs.level).toBe(1);
-    expect(target.state.doc.child(0).textContent).toBe("Title");
-  });
+      const bullets = createTarget();
+      expect(bullets.view.pasteHTML("<ul><li>one</li><li>two</li></ul>")).toBe(true);
+      expect(bullets.state.doc.child(0).attrs.ordered).toBe(null);
+    }],
+    ["editor-to-editor paste keeps task items' checked state", () => {
+      const source = createEditor([
+        {
+          type: "docListItem",
+          attrs: { blockId: "t-open", blockProps: {}, checked: false },
+          content: [wrapper("Open task")],
+        },
+        {
+          type: "docListItem",
+          attrs: { blockId: "t-done", blockProps: {}, checked: true },
+          content: [wrapper("Done task")],
+        },
+      ]);
+      const html = copyBand(source);
+      expect(html).toContain('data-doc-checked="true"');
+      const target = createTarget();
+      expect(target.view.pasteHTML(html)).toBe(true);
+      expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
+      expect(target.state.doc.child(0).attrs.checked).toBe(false);
+      expect(target.state.doc.child(1).attrs.checked).toBe(true);
+      expect(target.state.doc.child(1).textContent).toBe("Done task");
+    }],
+    ["external GitHub task-list HTML pastes as task items without the checkbox input", () => {
+      const target = createTarget();
+      expect(
+        target.view.pasteHTML(
+          '<ul><li><input type="checkbox" checked disabled> shipped</li><li><input type="checkbox" disabled> next</li></ul>',
+        ),
+      ).toBe(true);
+      expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
+      expect(target.state.doc.child(0).attrs.checked).toBe(true);
+      expect(target.state.doc.child(1).attrs.checked).toBe(false);
+      expect(target.state.doc.child(1).textContent.trim()).toBe("next");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("pasting mid-paragraph splits the paragraph around the run instead of nesting into it", () => {
     const html = copyBand(createEditor(SOURCE_BLOCKS));
@@ -224,16 +281,6 @@ describe("editor→editor block paste (R2-D16)", () => {
     expect(atEnd.state.doc.child(1).textContent).toBe("First paragraph");
   });
 
-  it("external multi-block HTML (no data-pm-slice) pastes as separate blocks with heading levels from tag names", () => {
-    const target = createTarget();
-    expect(
-      target.view.pasteHTML("<h2>Outside title</h2><p>Outside para one</p><p>Outside para two</p>"),
-    ).toBe(true);
-    expect(topTypes(target)).toEqual(["docHeading", "docParagraph", "docParagraph"]);
-    expect(target.state.doc.child(0).attrs.level).toBe(2);
-    expect(target.state.doc.child(0).textContent).toBe("Outside title");
-  });
-
   it("external single-paragraph and plain-inline pastes keep PM's default merge into the caret block", () => {
     const single = createTarget("before|after", 8);
     expect(single.view.pasteHTML("<p>inserted</p>")).toBe(true);
@@ -244,56 +291,5 @@ describe("editor→editor block paste (R2-D16)", () => {
     expect(inline.view.pasteHTML("<span>inserted</span>")).toBe(true);
     expect(topTypes(inline)).toEqual(["docParagraph"]);
     expect(inline.state.doc.child(0).textContent).toBe("beforeinserted|after");
-  });
-
-  it("external <ol>/<ul> list items carry the ordered flag from the list ancestor", () => {
-    const target = createTarget();
-    expect(
-      target.view.pasteHTML("<ol><li>one</li><li>two</li></ol>"),
-    ).toBe(true);
-    const types = topTypes(target);
-    expect(types).toEqual(["docListItem", "docListItem"]);
-    expect(target.state.doc.child(0).attrs.ordered).toBe(true);
-    expect(target.state.doc.child(1).attrs.ordered).toBe(true);
-
-    const bullets = createTarget();
-    expect(bullets.view.pasteHTML("<ul><li>one</li><li>two</li></ul>")).toBe(true);
-    expect(bullets.state.doc.child(0).attrs.ordered).toBe(null);
-  });
-
-  it("editor-to-editor paste keeps task items' checked state", () => {
-    const source = createEditor([
-      {
-        type: "docListItem",
-        attrs: { blockId: "t-open", blockProps: {}, checked: false },
-        content: [wrapper("Open task")],
-      },
-      {
-        type: "docListItem",
-        attrs: { blockId: "t-done", blockProps: {}, checked: true },
-        content: [wrapper("Done task")],
-      },
-    ]);
-    const html = copyBand(source);
-    expect(html).toContain('data-doc-checked="true"');
-    const target = createTarget();
-    expect(target.view.pasteHTML(html)).toBe(true);
-    expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
-    expect(target.state.doc.child(0).attrs.checked).toBe(false);
-    expect(target.state.doc.child(1).attrs.checked).toBe(true);
-    expect(target.state.doc.child(1).textContent).toBe("Done task");
-  });
-
-  it("external GitHub task-list HTML pastes as task items without the checkbox input", () => {
-    const target = createTarget();
-    expect(
-      target.view.pasteHTML(
-        '<ul><li><input type="checkbox" checked disabled> shipped</li><li><input type="checkbox" disabled> next</li></ul>',
-      ),
-    ).toBe(true);
-    expect(topTypes(target)).toEqual(["docListItem", "docListItem"]);
-    expect(target.state.doc.child(0).attrs.checked).toBe(true);
-    expect(target.state.doc.child(1).attrs.checked).toBe(false);
-    expect(target.state.doc.child(1).textContent.trim()).toBe("next");
   });
 });

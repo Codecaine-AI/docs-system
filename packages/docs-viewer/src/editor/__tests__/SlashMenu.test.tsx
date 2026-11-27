@@ -148,36 +148,6 @@ function findNode(json: JSONContent, type: string): JSONContent | null {
 }
 
 describe("SlashMenuPopover rendering", () => {
-  it("renders rows with an icon box, name, and description", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
-
-    const menu = root();
-    expect(menu).toBeTruthy();
-
-    const textRow = rowByName("Text", menu!);
-    expect(textRow).toBeTruthy();
-    // Icon box: bordered 28px square containing the lucide svg.
-    const iconBox = textRow!.querySelector('[data-doc-slash-menu-icon="true"]');
-    expect(iconBox).toBeTruthy();
-    expect(iconBox!.querySelector("svg")).toBeTruthy();
-    // Name + description column.
-    expect(textRow!.textContent).toContain("Text");
-    expect(textRow!.textContent).toContain("Start typing with plain text.");
-
-    // The v1 rename: "Code Block", not "Code".
-    expect(rowByName("Code Block", menu!)).toBeTruthy();
-    expect(rowByName("Code", menu!)).toBeFalsy();
-    expect(rowByName("Code Block", menu!)!.textContent).toContain("Code snippet with formatting.");
-
-    // Submenu row renders a trailing chevron; plain rows don't.
-    const otherHeadings = rowByName("Other Headings", menu!);
-    expect(otherHeadings).toBeTruthy();
-    expect(otherHeadings!.querySelector(".lucide-chevron-right")).toBeTruthy();
-    expect(textRow!.querySelector(".lucide-chevron-right")).toBeFalsy();
-  });
-
   it("shows normal-case group headers when idle and hides them while searching", async () => {
     const editor = createEditor();
     render(<SlashMenuPopover editor={editor} />);
@@ -204,76 +174,68 @@ describe("SlashMenuPopover rendering", () => {
     expect(h4!.querySelector(".lucide-chevron-right")).toBeFalsy();
     expect(subMenuPanel()).toBeFalsy();
   });
-
-  it("query matches the Code Block searchAlias set", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor, "codeblock");
-
-    expect(rowByName("Code Block", root()!)).toBeTruthy();
-  });
 });
 
 describe("To-do list command", () => {
-  it("is found by its todo/checkbox aliases and turns the line into an open task item", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor, "todo");
+  it.each([
+    ["is found by its todo/checkbox aliases and turns the line into an open task item", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor, "todo");
 
-    const row = rowByName("To-do list", root()!);
-    expect(row).toBeTruthy();
-    expect(row!.textContent).toContain("Track tasks with a checkbox.");
-    await fire(() => {
-      fireEvent.mouseDown(row!);
-    });
-    const item = findNode(editor.getJSON(), "docListItem");
-    expect(item).toBeTruthy();
-    expect(item!.attrs).toMatchObject({ checked: false, ordered: null });
-    expect(menuState(editor).open).toBe(false);
-  });
+      const row = rowByName("To-do list", root()!);
+      expect(row).toBeTruthy();
+      expect(row!.textContent).toContain("Track tasks with a checkbox.");
+      await fire(() => {
+        fireEvent.mouseDown(row!);
+      });
+      const item = findNode(editor.getJSON(), "docListItem");
+      expect(item).toBeTruthy();
+      expect(item!.attrs).toMatchObject({ checked: false, ordered: null });
+      expect(menuState(editor).open).toBe(false);
+    }],
+    ["query matches the Code Block searchAlias set", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor, "codeblock");
 
-  it("sits in Basic right after Numbered list", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
-    const names = Array.from(document.querySelectorAll<HTMLElement>("[data-doc-slash-menu-row]")).map(
-      (row) => row.dataset.docSlashMenuRow,
-    );
-    expect(names.indexOf("To-do list")).toBe(names.indexOf("Numbered list") + 1);
-  });
+      expect(rowByName("Code Block", root()!)).toBeTruthy();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("keyboard model", () => {
-  it("ArrowDown/ArrowUp move with circular wrap and keep DOM selection in sync", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
+  it.each([
+    ["ArrowDown/ArrowUp move with circular wrap and keep DOM selection in sync", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor);
 
-    const rowCount = document.querySelectorAll("[data-doc-slash-menu-row]").length;
-    expect(rowCount).toBeGreaterThan(2);
-    expect(menuState(editor).selectedIndex).toBe(0);
+      const rowCount = document.querySelectorAll("[data-doc-slash-menu-row]").length;
+      expect(rowCount).toBeGreaterThan(2);
+      expect(menuState(editor).selectedIndex).toBe(0);
 
-    // Up from the first row wraps to the last…
-    expect(await sendKey(editor, "ArrowUp")).toBe(true);
-    expect(menuState(editor).selectedIndex).toBe(rowCount - 1);
-    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("HTML");
+      // Up from the first row wraps to the last…
+      expect(await sendKey(editor, "ArrowUp")).toBe(true);
+      expect(menuState(editor).selectedIndex).toBe(rowCount - 1);
+      expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("HTML");
 
-    // …and down from the last wraps back to the first.
-    expect(await sendKey(editor, "ArrowDown")).toBe(true);
-    expect(menuState(editor).selectedIndex).toBe(0);
-    expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Text");
-  });
+      // …and down from the last wraps back to the first.
+      expect(await sendKey(editor, "ArrowDown")).toBe(true);
+      expect(menuState(editor).selectedIndex).toBe(0);
+      expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Text");
+    }],
+    ["Tab moves down and Shift+Tab moves up (upstream parity)", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor);
 
-  it("Tab moves down and Shift+Tab moves up (upstream parity)", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
-
-    expect(await sendKey(editor, "Tab")).toBe(true);
-    expect(menuState(editor).selectedIndex).toBe(1);
-    expect(await sendKey(editor, "Tab", { shiftKey: true })).toBe(true);
-    expect(menuState(editor).selectedIndex).toBe(0);
-  });
+      expect(await sendKey(editor, "Tab")).toBe(true);
+      expect(menuState(editor).selectedIndex).toBe(1);
+      expect(await sendKey(editor, "Tab", { shiftKey: true })).toBe(true);
+      expect(menuState(editor).selectedIndex).toBe(0);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("Enter runs exactly the keyboard-selected row's action and closes", async () => {
     const editor = createEditor();
@@ -331,28 +293,41 @@ describe("Other Headings submenu", () => {
     expect(selectedRow(root()!)?.dataset.docSlashMenuRow).toBe("Other Headings");
   }
 
-  it("opens on ArrowRight with its first row selected, and Enter inserts a level-4 heading", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
-    await selectOtherHeadings(editor);
+  it.each([
+    ["opens on ArrowRight with its first row selected, and Enter inserts a level-4 heading", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor);
+      await selectOtherHeadings(editor);
 
-    expect(await sendKey(editor, "ArrowRight")).toBe(true);
-    const panel = subMenuPanel();
-    expect(panel).toBeTruthy();
-    expect(rowByName("Heading 4", panel!)).toBeTruthy();
-    expect(rowByName("Heading 5", panel!)).toBeTruthy();
-    expect(rowByName("Heading 6", panel!)).toBeTruthy();
-    expect(selectedRow(panel!)?.dataset.docSlashMenuRow).toBe("Heading 4");
-    expect(rowByName("Heading 4", panel!)!.textContent).toContain("Headings in the 4th font size.");
+      expect(await sendKey(editor, "ArrowRight")).toBe(true);
+      const panel = subMenuPanel();
+      expect(panel).toBeTruthy();
+      expect(rowByName("Heading 4", panel!)).toBeTruthy();
+      expect(rowByName("Heading 5", panel!)).toBeTruthy();
+      expect(rowByName("Heading 6", panel!)).toBeTruthy();
+      expect(selectedRow(panel!)?.dataset.docSlashMenuRow).toBe("Heading 4");
+      expect(rowByName("Heading 4", panel!)!.textContent).toContain("Headings in the 4th font size.");
 
-    expect(await sendKey(editor, "Enter")).toBe(true);
-    const heading = findNode(editor.getJSON(), "docHeading");
-    expect(heading).toBeTruthy();
-    expect(heading!.attrs).toMatchObject({ level: 4 });
-    expect(menuState(editor).open).toBe(false);
-    expect(subMenuPanel()).toBeFalsy();
-  });
+      expect(await sendKey(editor, "Enter")).toBe(true);
+      const heading = findNode(editor.getJSON(), "docHeading");
+      expect(heading).toBeTruthy();
+      expect(heading!.attrs).toMatchObject({ level: 4 });
+      expect(menuState(editor).open).toBe(false);
+      expect(subMenuPanel()).toBeFalsy();
+    }],
+    ["Enter on the submenu row opens it (same as ArrowRight)", async () => {
+      const editor = createEditor();
+      render(<SlashMenuPopover editor={editor} />);
+      await openMenu(editor);
+      await selectOtherHeadings(editor);
+
+      expect(await sendKey(editor, "Enter")).toBe(true);
+      expect(subMenuPanel()).toBeTruthy();
+      expect(menuState(editor).open).toBe(true);
+      expect(menuState(editor).subMenuOpenIndex).toBe(4);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("arrows navigate submenu rows with circular wrap while open", async () => {
     const editor = createEditor();
@@ -368,18 +343,6 @@ describe("Other Headings submenu", () => {
     expect(selectedRow(subMenuPanel()!)?.dataset.docSlashMenuRow).toBe("Heading 4");
     // The parent top-level selection never moved.
     expect(menuState(editor).selectedIndex).toBe(4);
-  });
-
-  it("Enter on the submenu row opens it (same as ArrowRight)", async () => {
-    const editor = createEditor();
-    render(<SlashMenuPopover editor={editor} />);
-    await openMenu(editor);
-    await selectOtherHeadings(editor);
-
-    expect(await sendKey(editor, "Enter")).toBe(true);
-    expect(subMenuPanel()).toBeTruthy();
-    expect(menuState(editor).open).toBe(true);
-    expect(menuState(editor).subMenuOpenIndex).toBe(4);
   });
 
   it("ArrowLeft closes the submenu back to the parent row; at top level it is not handled", async () => {

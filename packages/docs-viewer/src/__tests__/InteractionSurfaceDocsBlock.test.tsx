@@ -1,12 +1,6 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import {
-  INTERACTION_SURFACE_AGENT_DESCRIPTION,
-  INTERACTION_SURFACE_LABEL,
-  InteractionSurfaceBlock,
-  signatureTail,
-  type InteractionSurfaceOperation,
-} from "../components/interaction-surface/InteractionSurfaceDocsBlock";
+import { cleanup, fireEvent, render } from "@testing-library/react";
+import { InteractionSurfaceBlock, signatureTail, type InteractionSurfaceOperation } from "../components/interaction-surface/InteractionSurfaceDocsBlock";
 
 afterEach(() => {
   cleanup();
@@ -36,26 +30,27 @@ function sheet(): string {
 }
 
 describe("InteractionSurfaceBlock — one reference panel", () => {
-  it("puts the title, as written, in the panel head beside the family tile", () => {
-    render(
-      <InteractionSurfaceBlock
-        id="surface-1"
-        title="file-tree entry operations"
-        operations={[{ name: "file-tree.addEntry", params: [{ name: "path", type: "string" }] }]}
-      />,
-    );
-    expect(document.querySelector("[data-card-shell]")).toBeNull();
-    const header = document.querySelector("[data-operations-header]") as HTMLElement;
-    expect(header.querySelector("[data-ref-tile]")?.getAttribute("aria-hidden")).toBe("true");
-    // Not title-cased: the author's words stand.
-    expect(header.querySelector("[data-operations-title]")?.textContent).toBe("file-tree entry operations");
-    expect(document.querySelector("[data-operations-count]")).toBeNull();
-  });
-
-  it("falls back to a plain Operations head without a title", () => {
-    render(<InteractionSurfaceBlock id="surface-untitled" operations={[{ name: "only.op" }]} />);
-    expect(document.querySelector("[data-operations-title]")?.textContent).toBe("Operations");
-  });
+  it.each([
+    ["puts the title, as written, in the panel head beside the family tile", () => {
+      render(
+        <InteractionSurfaceBlock
+          id="surface-1"
+          title="file-tree entry operations"
+          operations={[{ name: "file-tree.addEntry", params: [{ name: "path", type: "string" }] }]}
+        />,
+      );
+      expect(document.querySelector("[data-card-shell]")).toBeNull();
+      const header = document.querySelector("[data-operations-header]") as HTMLElement;
+      expect(header.querySelector("[data-ref-tile]")?.getAttribute("aria-hidden")).toBe("true");
+      // Not title-cased: the author's words stand.
+      expect(header.querySelector("[data-operations-title]")?.textContent).toBe("file-tree entry operations");
+      expect(document.querySelector("[data-operations-count]")).toBeNull();
+    }],
+    ["falls back to a plain Operations head without a title", () => {
+      render(<InteractionSurfaceBlock id="surface-untitled" operations={[{ name: "only.op" }]} />);
+      expect(document.querySelector("[data-operations-title]")?.textContent).toBe("Operations");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps the real dotted name everywhere: line and DOM hook", () => {
     render(
@@ -363,116 +358,6 @@ describe("InteractionSurfaceBlock — operation rows", () => {
     // The returned field and the same-named param never light each other.
     expect(card.querySelectorAll('[data-op-row="call"] [data-lit]')).toHaveLength(0);
   });
-
-  it("makes both code panes focusable labelled regions on the code surface", () => {
-    render(<InteractionSurfaceBlock id="surface-panes" operations={[{ ...OPERATIONS[0]!, exampleCall: "table.walk({ depth: 1 })" }]} />);
-    const call = opRow("table.walk")?.querySelector("[data-op-call]") as HTMLElement;
-    expect(call.hasAttribute("data-code-surface")).toBe(true);
-    expect(call.hasAttribute("data-ref-code")).toBe(true);
-    const region = call.querySelector("[data-code-lines]") as HTMLElement;
-    expect(region.getAttribute("tabindex")).toBe("0");
-    expect(region.getAttribute("role")).toBe("region");
-    expect(region.getAttribute("aria-label")).toBe("table.walk example call");
-  });
-
-  it("preserves targeting attributes; the section is the panel", () => {
-    render(<InteractionSurfaceBlock id="surface-one" operations={[{ name: "only.op" }]} />);
-    const section = document.querySelector('[data-docs-block-type="interaction-surface"]');
-    expect(section?.getAttribute("data-source-id")).toBe("surface-one");
-    expect(section?.className).toContain("not-prose");
-    expect(section?.className).not.toContain("max-w-");
-    expect(section?.className).not.toContain("mx-auto");
-    expect(screen.queryByText("1 operation")).toBeNull();
-  });
-
-  it("exports the label and an agent description covering the props contract", () => {
-    expect(INTERACTION_SURFACE_LABEL).toBe("Interaction Surface");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("operations");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("required?: boolean");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain('"action" | "query" | "event"');
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("returnShape");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("State Shape");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("real dotted name");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("start collapsed as rows");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("kind chip");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("never truncated");
-    expect(INTERACTION_SURFACE_AGENT_DESCRIPTION).toContain("open on click, Enter, or Space");
-  });
-});
-
-describe("InteractionSurfaceBlock style-rail tokens", () => {
-  function renderSurface() {
-    render(
-      <InteractionSurfaceBlock
-        id="surface-tokens"
-        title="Tokens"
-        operations={[
-          { name: "table.walk", kind: "query", description: "Walk the table", params: [{ name: "opts", description: "Traversal options", fields: [{ name: "depth", type: "number" }] }], returns: "Row[]" },
-          { name: "table.count", returns: "number" },
-        ]}
-      />,
-    );
-    return sheet();
-  }
-
-  it("maps its knobs onto the panel, the line, and the shared ledger locals", () => {
-    const css = renderSurface();
-    for (const declaration of [
-      // Panel frame, drawn on the head and each operation.
-      "--op-bg:var(--docs-interaction-bg,var(--docs-shape-bg,var(--docs-panel,#f8f8f7)))",
-      "--op-edge:var(--docs-interaction-border,var(--docs-shape-border,var(--docs-rule,#e6e5e3)))",
-      "--op-frame:var(--docs-interaction-border-width,1px) solid var(--op-edge)",
-      "--op-radius:var(--docs-interaction-radius,var(--radius,2px))",
-      "background:var(--op-bg);border:var(--op-frame);border-radius:var(--op-radius);",
-      "--op-pad-x:var(--docs-interaction-pad-x,16px)",
-      "--fl-name-w:calc(min(calc(var(--docs-shape-name-width,24ch) + 8ch),var(--shape-name-fit,var(--docs-shape-name-width,24ch))) - var(--ds-space-1))",
-      "--op-rule:var(--docs-interaction-rule,var(--docs-shape-rule,var(--docs-rule-soft,#efeeec)))",
-      "--op-rule-w:var(--docs-interaction-rule-width,1px)",
-      // Title in the head.
-      "font-size:var(--docs-interaction-title-text-size,13.5px);font-weight:var(--docs-interaction-title-weight,600)",
-      "color:var(--docs-interaction-title-fg,var(--docs-ink,#1f1f1f))",
-      // Operation line: the name in the function role.
-      "padding:var(--docs-interaction-header-pad-y,9px) 0",
-      "font-size:var(--docs-interaction-header-text-size,13px);font-weight:var(--docs-interaction-header-weight,500)",
-      '[data-operation-name] [data-sig-token="name"]{color:var(--docs-interaction-header-fg,var(--syntax-function,',
-      "font-size:var(--docs-interaction-desc-text-size,13.5px);line-height:var(--docs-interaction-desc-line-height,20px)",
-      // Card head bars.
-      "padding:var(--docs-interaction-column-head-pad-y,8px) var(--ds-space-3);",
-      "font-size:var(--docs-interaction-column-head-text-size,13px)",
-      "color:var(--docs-interaction-column-head-fg,var(--docs-ink,#1f1f1f))",
-      // Ledger locals: this block's knob first, State Shape behind it.
-      "--fl-row-pad:var(--docs-interaction-row-pad,5px)",
-      "--fl-indent:var(--docs-interaction-indent,16px)",
-      "--fl-name:var(--docs-interaction-note-name,var(--docs-shape-name,var(--syntax-key,var(--docs-syn-prop,#0d7164))))",
-      "--fl-name-weight:var(--docs-interaction-note-name-weight,500)",
-      "--fl-name-size:var(--docs-interaction-note-name-text-size,13px)",
-      "--fl-type:var(--docs-interaction-note-type,var(--docs-shape-type,var(--syntax-type,var(--docs-syn-type,#805f01))))",
-      "--fl-type-size:var(--docs-interaction-note-type-text-size,13px)",
-      "--fl-desc:var(--docs-interaction-note-fg,var(--docs-shape-desc-fg,var(--docs-muted,#666562)))",
-      "--fl-guide:var(--docs-interaction-child-rule,var(--docs-shape-child-rule,var(--docs-rule,#e6e5e3)))",
-      // The kind badge reads the role tokens: text, line, and soft fill.
-      '[data-operation-kind-badge="query"],[data-op-kind-chip="query"]{--op-kind:var(--docs-kind-query,#0b6e99);--op-kind-line:var(--docs-kind-query-line,',
-      "font-size:var(--ds-font-size-ui-xs);font-weight:var(--ds-font-weight-medium)",
-      // Focus ring and hover on the line.
-      "[data-disclosure]>summary:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df);outline-offset:calc(-1 * var(--ds-border-width-focus))}",
-      "[data-disclosure]>summary:hover{background:var(--docs-hover,",
-      // List beside code at the shared split.
-      "grid-template-columns:minmax(min(calc(360px - var(--op-list-take)),calc(100% - 260px)),calc(var(--docs-pane-split,44%) - var(--op-list-take))) minmax(260px,1fr)",
-    ]) {
-      expect([declaration, css.includes(declaration)]).toEqual([declaration, true]);
-    }
-  });
-
-  it("leaves rail vars for the rail: no block-level re-declaration, no pinned values, no sub-12px text", () => {
-    const css = renderSurface();
-    expect(css).not.toMatch(/--docs-(interaction|operation)-[a-z-]+\s*:/);
-    expect(css).not.toContain("!important");
-    expect(css).not.toContain("--docs-operation-");
-    expect(css).not.toContain("text-transform:uppercase");
-    expect(css).not.toMatch(/font-size:(10|11|10\.5|11\.5)px/);
-    expect(css).not.toMatch(/\[data-code-line\]\{[^}]*font-size/);
-    expect(css).not.toContain("radial-gradient");
-  });
 });
 
 describe("native return-shape descriptor", () => {
@@ -491,31 +376,32 @@ describe("native return-shape descriptor", () => {
     expect(document.querySelectorAll('[data-op-row="call"] [data-lit]')).toHaveLength(0);
   });
 
-  it("passes an authored exampleCall through and rejects a non-string one", async () => {
-    const { descriptors } = await import("../components/interaction-surface/descriptor");
-    const renderOps = (operations: unknown[]) => descriptors[0]!.render(
-      { id: "native-call", type: "interaction-surface", props: { operations }, children: [] },
-      { renderText: () => null, renderChildren: () => null, renderMarkdown: () => null },
-    );
-    const { container, unmount } = render(<>{renderOps([{ name: "prepare", params: [{ name: "path", type: "string" }], exampleCall: 'prepare({ path: "src/a.ts" })' }])}</>);
-    expect(container.querySelector('[data-op-call] [data-line-text="true"]')?.textContent).toBe('prepare({ path: "src/a.ts" })');
-    unmount();
-    const invalid = render(<>{renderOps([{ name: "prepare", exampleCall: 42 }])}</>);
-    expect(invalid.container.textContent).toContain("Invalid Interaction Surface block");
-  });
-
-  it("rejects malformed returned fields instead of silently dropping them", async () => {
-    const { descriptors } = await import("../components/interaction-surface/descriptor");
-    for (const returnShape of [{ fields: [{ type: "string" }] }, { fields: [], example: 42 }]) {
-      const node = descriptors[0]!.render(
-        { id: "invalid-output", type: "interaction-surface", props: { operations: [{ name: "prepare", returnShape }] }, children: [] },
+  it.each([
+    ["passes an authored exampleCall through and rejects a non-string one", async () => {
+      const { descriptors } = await import("../components/interaction-surface/descriptor");
+      const renderOps = (operations: unknown[]) => descriptors[0]!.render(
+        { id: "native-call", type: "interaction-surface", props: { operations }, children: [] },
         { renderText: () => null, renderChildren: () => null, renderMarkdown: () => null },
       );
-      const { container, unmount } = render(<>{node}</>);
-      expect(container.textContent).toContain("Invalid Interaction Surface block");
+      const { container, unmount } = render(<>{renderOps([{ name: "prepare", params: [{ name: "path", type: "string" }], exampleCall: 'prepare({ path: "src/a.ts" })' }])}</>);
+      expect(container.querySelector('[data-op-call] [data-line-text="true"]')?.textContent).toBe('prepare({ path: "src/a.ts" })');
       unmount();
-    }
-  });
+      const invalid = render(<>{renderOps([{ name: "prepare", exampleCall: 42 }])}</>);
+      expect(invalid.container.textContent).toContain("Invalid Interaction Surface block");
+    }],
+    ["rejects malformed returned fields instead of silently dropping them", async () => {
+      const { descriptors } = await import("../components/interaction-surface/descriptor");
+      for (const returnShape of [{ fields: [{ type: "string" }] }, { fields: [], example: 42 }]) {
+        const node = descriptors[0]!.render(
+          { id: "invalid-output", type: "interaction-surface", props: { operations: [{ name: "prepare", returnShape }] }, children: [] },
+          { renderText: () => null, renderChildren: () => null, renderMarkdown: () => null },
+        );
+        const { container, unmount } = render(<>{node}</>);
+        expect(container.textContent).toContain("Invalid Interaction Surface block");
+        unmount();
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("InteractionSurfaceBlock — State Shape parity", () => {

@@ -83,7 +83,6 @@ function paragraph(inline: JSONContent[], attrs: Record<string, unknown> = {}): 
 function text(value: string, marks?: JSONContent["marks"]): JSONContent {
   return { type: "text", text: value, ...(marks ? { marks } : {}) };
 }
-
 function codeBlock(value: string, attrs: Record<string, unknown> = {}): JSONContent {
   return { type: "docCodeBlock", attrs, content: [{ type: "text", text: value }] };
 }
@@ -168,45 +167,47 @@ describe("isPlausibleUrl", () => {
 });
 
 describe("Mod-K open/no-op", () => {
-  it("opens the popover state for a non-empty selection (no existing link → empty href)", () => {
-    const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
-    editor.commands.setTextSelection({ from: 2, to: 7 }); // "Hello"
+  it.each([
+    ["opens the popover state for a non-empty selection (no existing link → empty href)", () => {
+      const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
+      editor.commands.setTextSelection({ from: 2, to: 7 }); // "Hello"
 
-    expect(pressKey(editor, "k", { mod: true })).toBe(true);
+      expect(pressKey(editor, "k", { mod: true })).toBe(true);
 
-    expect(linkState(editor)).toMatchObject({ open: true, from: 2, to: 7, href: "" });
-  });
+      expect(linkState(editor)).toMatchObject({ open: true, from: 2, to: 7, href: "" });
+    }],
+    ["prefills href when the selection already carries a link", () => {
+      const editor = createEditor([
+        paragraph(
+          [text("visit "), text("here", [{ type: "link", attrs: { href: "https://old.example" } }])],
+          { blockId: "p1" },
+        ),
+      ]);
+      editor.commands.setTextSelection({ from: 8, to: 12 }); // "here"
 
-  it("is a no-op (not handled, stays closed) with a collapsed cursor", () => {
-    const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
-    editor.commands.setTextSelection(4);
+      expect(pressKey(editor, "k", { mod: true })).toBe(true);
 
-    expect(pressKey(editor, "k", { mod: true })).toBe(false);
+      expect(linkState(editor)).toMatchObject({ open: true, href: "https://old.example" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-    expect(linkState(editor).open).toBe(false);
-  });
+  it.each([
+    ["is a no-op (not handled, stays closed) with a collapsed cursor", () => {
+      const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
+      editor.commands.setTextSelection(4);
 
-  it("is a no-op inside a code block (marks disallowed there)", () => {
-    const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
-    editor.commands.setTextSelection({ from: 1, to: 6 });
+      expect(pressKey(editor, "k", { mod: true })).toBe(false);
 
-    expect(pressKey(editor, "k", { mod: true })).toBe(false);
-    expect(linkState(editor).open).toBe(false);
-  });
+      expect(linkState(editor).open).toBe(false);
+    }],
+    ["is a no-op inside a code block (marks disallowed there)", () => {
+      const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
+      editor.commands.setTextSelection({ from: 1, to: 6 });
 
-  it("prefills href when the selection already carries a link", () => {
-    const editor = createEditor([
-      paragraph(
-        [text("visit "), text("here", [{ type: "link", attrs: { href: "https://old.example" } }])],
-        { blockId: "p1" },
-      ),
-    ]);
-    editor.commands.setTextSelection({ from: 8, to: 12 }); // "here"
-
-    expect(pressKey(editor, "k", { mod: true })).toBe(true);
-
-    expect(linkState(editor)).toMatchObject({ open: true, href: "https://old.example" });
-  });
+      expect(pressKey(editor, "k", { mod: true })).toBe(false);
+      expect(linkState(editor).open).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("LinkEditorPopover", () => {
@@ -330,33 +331,34 @@ describe("LinkEditorPopover", () => {
 });
 
 describe("paste-URL-over-selection", () => {
-  it("wraps a non-empty single-block selection in a link instead of replacing the text", () => {
-    const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
-    editor.commands.setTextSelection({ from: 2, to: 7 }); // "Hello"
+  it.each([
+    ["wraps a non-empty single-block selection in a link instead of replacing the text", () => {
+      const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
+      editor.commands.setTextSelection({ from: 2, to: 7 }); // "Hello"
 
-    expect(pasteText(editor, "https://example.com")).toBe(true);
+      expect(pasteText(editor, "https://example.com")).toBe(true);
 
-    expect(inlineJSON(editor)).toEqual([
-      { type: "text", text: "Hello", marks: [{ type: "link", attrs: expect.objectContaining({ href: "https://example.com" }) }] },
-      { type: "text", text: " world" },
-    ]);
-  });
+      expect(inlineJSON(editor)).toEqual([
+        { type: "text", text: "Hello", marks: [{ type: "link", attrs: expect.objectContaining({ href: "https://example.com" }) }] },
+        { type: "text", text: " world" },
+      ]);
+    }],
+    ["replaces an existing link's href when pasted over it", () => {
+      const editor = createEditor([
+        paragraph([text("here", [{ type: "link", attrs: { href: "https://old.example" } }])], {
+          blockId: "p1",
+        }),
+      ]);
+      editor.commands.setTextSelection({ from: 2, to: 6 });
 
-  it("replaces an existing link's href when pasted over it", () => {
-    const editor = createEditor([
-      paragraph([text("here", [{ type: "link", attrs: { href: "https://old.example" } }])], {
-        blockId: "p1",
-      }),
-    ]);
-    editor.commands.setTextSelection({ from: 2, to: 6 });
+      expect(pasteText(editor, "https://new.example")).toBe(true);
 
-    expect(pasteText(editor, "https://new.example")).toBe(true);
-
-    expect(inlineJSON(editor)[0].marks).toEqual([
-      { type: "link", attrs: expect.objectContaining({ href: "https://new.example" }) },
-    ]);
-    expect(inlineJSON(editor)[0].text).toBe("here");
-  });
+      expect(inlineJSON(editor)[0].marks).toEqual([
+        { type: "link", attrs: expect.objectContaining({ href: "https://new.example" }) },
+      ]);
+      expect(inlineJSON(editor)[0].text).toBe("here");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("inserts a URL pasted at a collapsed cursor as PLAIN unlinked text (TipTap's link paste rule must not fire)", () => {
     const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
@@ -367,29 +369,29 @@ describe("paste-URL-over-selection", () => {
     expect(inlineJSON(editor)).toEqual([{ type: "text", text: "Hehttps://example.comllo world" }]);
   });
 
-  it("does NOT handle non-URL clipboard text over a selection (default paste replaces)", () => {
-    const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
-    editor.commands.setTextSelection({ from: 2, to: 7 });
+  it.each([
+    ["does NOT handle non-URL clipboard text over a selection (default paste replaces)", () => {
+      const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
+      editor.commands.setTextSelection({ from: 2, to: 7 });
 
-    expect(pasteText(editor, "not a url")).toBe(false);
-    expect(pasteText(editor, "see https://example.com today")).toBe(false);
-    expect(inlineJSON(editor)).toEqual([{ type: "text", text: "Hello world" }]);
-  });
+      expect(pasteText(editor, "not a url")).toBe(false);
+      expect(pasteText(editor, "see https://example.com today")).toBe(false);
+      expect(inlineJSON(editor)).toEqual([{ type: "text", text: "Hello world" }]);
+    }],
+    ["does NOT handle a selection spanning two blocks", () => {
+      const editor = createEditor([
+        paragraph([text("Alpha")], { blockId: "p1" }),
+        paragraph([text("Bravo")], { blockId: "p2" }),
+      ]);
+      editor.commands.setTextSelection({ from: 4, to: 12 }); // crosses the block boundary
 
-  it("does NOT handle a selection spanning two blocks", () => {
-    const editor = createEditor([
-      paragraph([text("Alpha")], { blockId: "p1" }),
-      paragraph([text("Bravo")], { blockId: "p2" }),
-    ]);
-    editor.commands.setTextSelection({ from: 4, to: 12 }); // crosses the block boundary
+      expect(pasteText(editor, "https://example.com")).toBe(false);
+    }],
+    ["does NOT handle a selection inside a code block (marks disallowed)", () => {
+      const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
+      editor.commands.setTextSelection({ from: 1, to: 6 });
 
-    expect(pasteText(editor, "https://example.com")).toBe(false);
-  });
-
-  it("does NOT handle a selection inside a code block (marks disallowed)", () => {
-    const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
-    editor.commands.setTextSelection({ from: 1, to: 6 });
-
-    expect(pasteText(editor, "https://example.com")).toBe(false);
-  });
+      expect(pasteText(editor, "https://example.com")).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

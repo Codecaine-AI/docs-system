@@ -59,13 +59,22 @@ it("cancels stale navigation and recovers when returning to the outgoing page", 
   expect(view.container.firstElementChild!.hasAttribute("inert")).toBe(false);
 });
 
-it("skips animations for reduced motion", () => {
-  window.matchMedia = (() => ({ matches: true })) as unknown as typeof window.matchMedia;
-  const view = render(<PageTransition pageKey="a">Page A</PageTransition>);
-  view.rerender(<PageTransition pageKey="b">Page B</PageTransition>);
-  expect(screen.getByText("Page B")).toBeTruthy();
-  expect(animations).toHaveLength(0);
-});
+it.each([
+  ["skips animations for reduced motion", () => {
+    window.matchMedia = (() => ({ matches: true })) as unknown as typeof window.matchMedia;
+    const view = render(<PageTransition pageKey="a">Page A</PageTransition>);
+    view.rerender(<PageTransition pageKey="b">Page B</PageTransition>);
+    expect(screen.getByText("Page B")).toBeTruthy();
+    expect(animations).toHaveLength(0);
+  }],
+  ["supports disabling transitions and zero durations", () => {
+    const view = render(<PageTransition pageKey="a">Page A</PageTransition>);
+    (view.container.firstElementChild as HTMLElement).style.setProperty("--docs-page-transition-type", "none");
+    view.rerender(<PageTransition pageKey="b">Page B</PageTransition>);
+    expect(screen.getByText("Page B")).toBeTruthy();
+    expect(animations).toHaveLength(0);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 it("reads the host's custom timing and cancels animations on unmount", () => {
   const view = render(<PageTransition pageKey="a">Page A</PageTransition>);
@@ -74,13 +83,4 @@ it("reads the host's custom timing and cancels animations on unmount", () => {
   expect(animations[0]!.duration).toBe(240);
   view.unmount();
   expect(animations[0]!.cancel).toHaveBeenCalled();
-});
-
-
-it("supports disabling transitions and zero durations", () => {
-  const view = render(<PageTransition pageKey="a">Page A</PageTransition>);
-  (view.container.firstElementChild as HTMLElement).style.setProperty("--docs-page-transition-type", "none");
-  view.rerender(<PageTransition pageKey="b">Page B</PageTransition>);
-  expect(screen.getByText("Page B")).toBeTruthy();
-  expect(animations).toHaveLength(0);
 });

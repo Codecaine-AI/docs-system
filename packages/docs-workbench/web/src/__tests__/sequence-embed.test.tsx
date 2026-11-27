@@ -194,35 +194,36 @@ describe("StandaloneSequenceEmbed full-screen pan and zoom", () => {
     return { ...utils, viewport, layer, zoomLevel };
   }
 
-  it("opens fitted and centered, zooms toward the wheel cursor, and Fit restores the framing", () =>
-    withViewportSize(async () => {
-      const { viewport, layer, zoomLevel, getByRole } = openViewer();
-      const fitted = parseTransform(layer);
-      const width = Number.parseFloat((layer as HTMLElement).style.width);
-      expect(zoomLevel()).toBe("100%");
-      expect(fitted.x * 2 + width * fitted.zoom).toBeCloseTo(VIEWPORT.width, 3);
+  it.each([
+    ["opens fitted and centered, zooms toward the wheel cursor, and Fit restores the framing", () =>
+      withViewportSize(async () => {
+        const { viewport, layer, zoomLevel, getByRole } = openViewer();
+        const fitted = parseTransform(layer);
+        const width = Number.parseFloat((layer as HTMLElement).style.width);
+        expect(zoomLevel()).toBe("100%");
+        expect(fitted.x * 2 + width * fitted.zoom).toBeCloseTo(VIEWPORT.width, 3);
 
-      const cursor = { x: 300, y: 200 };
-      const contentUnderCursor = { x: (cursor.x - fitted.x) / fitted.zoom, y: (cursor.y - fitted.y) / fitted.zoom };
-      const event = wheel(viewport, { deltaY: -100, clientX: cursor.x, clientY: cursor.y });
-      expect(event.defaultPrevented).toBe(true);
-      // One notch is clamped to 30px: exp(0.3) ~ 1.35x, not exp(1) ~ 2.7x.
-      await waitFor(() => expect(zoomLevel()).toBe("135%"));
-      const zoomed = parseTransform(layer);
-      expect(zoomed.x + contentUnderCursor.x * zoomed.zoom).toBeCloseTo(cursor.x, 3);
-      expect(zoomed.y + contentUnderCursor.y * zoomed.zoom).toBeCloseTo(cursor.y, 3);
+        const cursor = { x: 300, y: 200 };
+        const contentUnderCursor = { x: (cursor.x - fitted.x) / fitted.zoom, y: (cursor.y - fitted.y) / fitted.zoom };
+        const event = wheel(viewport, { deltaY: -100, clientX: cursor.x, clientY: cursor.y });
+        expect(event.defaultPrevented).toBe(true);
+        // One notch is clamped to 30px: exp(0.3) ~ 1.35x, not exp(1) ~ 2.7x.
+        await waitFor(() => expect(zoomLevel()).toBe("135%"));
+        const zoomed = parseTransform(layer);
+        expect(zoomed.x + contentUnderCursor.x * zoomed.zoom).toBeCloseTo(cursor.x, 3);
+        expect(zoomed.y + contentUnderCursor.y * zoomed.zoom).toBeCloseTo(cursor.y, 3);
 
-      fireEvent.click(getByRole("button", { name: "Fit" }));
-      expect(zoomLevel()).toBe("100%");
-      expect(parseTransform(layer)).toEqual(fitted);
-    }));
-
-  it("normalizes line-mode wheel deltas to pixels before clamping", () =>
-    withViewportSize(async () => {
-      const { viewport, zoomLevel } = openViewer();
-      wheel(viewport, { deltaY: 3, deltaMode: 1, clientX: 10, clientY: 10 });
-      await waitFor(() => expect(zoomLevel()).toBe(`${Math.round(Math.exp(-0.3) * 100)}%`));
-    }));
+        fireEvent.click(getByRole("button", { name: "Fit" }));
+        expect(zoomLevel()).toBe("100%");
+        expect(parseTransform(layer)).toEqual(fitted);
+      })],
+    ["normalizes line-mode wheel deltas to pixels before clamping", () =>
+      withViewportSize(async () => {
+        const { viewport, zoomLevel } = openViewer();
+        wheel(viewport, { deltaY: 3, deltaMode: 1, clientX: 10, clientY: 10 });
+        await waitFor(() => expect(zoomLevel()).toBe(`${Math.round(Math.exp(-0.3) * 100)}%`));
+      })],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("pans with a left-button drag and shows the grabbing state while dragging", () =>
     withViewportSize(async () => {

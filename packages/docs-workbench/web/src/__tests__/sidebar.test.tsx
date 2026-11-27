@@ -45,18 +45,19 @@ function expanded(container: HTMLElement, path: string): string | null {
 afterEach(cleanup);
 
 describe("Sidebar", () => {
-  it("collapses every branch when no doc is open", () => {
-    const { container } = render(<Sidebar tree={tree} selectedPath={null} />);
-    expect(expanded(container, "guides")).toBe("false");
-    expect(expanded(container, "reference")).toBe("false");
-  });
-
-  it("expands only the ancestors of the open doc", () => {
-    const { container } = render(<Sidebar tree={tree} selectedPath="reference/api/auth" />);
-    expect(expanded(container, "guides")).toBe("false");
-    expect(expanded(container, "reference")).toBe("true");
-    expect(expanded(container, "reference/api")).toBe("true");
-  });
+  it.each([
+    ["collapses every branch when no doc is open", () => {
+      const { container } = render(<Sidebar tree={tree} selectedPath={null} />);
+      expect(expanded(container, "guides")).toBe("false");
+      expect(expanded(container, "reference")).toBe("false");
+    }],
+    ["expands only the ancestors of the open doc", () => {
+      const { container } = render(<Sidebar tree={tree} selectedPath="reference/api/auth" />);
+      expect(expanded(container, "guides")).toBe("false");
+      expect(expanded(container, "reference")).toBe("true");
+      expect(expanded(container, "reference/api")).toBe("true");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("reveals a collapsed branch when navigation moves into it", () => {
     const { container, rerender } = render(<Sidebar tree={tree} selectedPath="guides/intro" />);
@@ -67,27 +68,28 @@ describe("Sidebar", () => {
     expect(expanded(container, "guides")).toBe("true");
   });
 
-  it("double-clicking a folder collapses everything off its path", () => {
-    const { container } = render(<Sidebar tree={tree} selectedPath="guides/intro" />);
-    fireEvent.click(row(container, "reference"));
-    fireEvent.click(row(container, "reference/api"));
-    expect(expanded(container, "guides")).toBe("true");
+  it.each([
+    ["double-clicking a folder collapses everything off its path", () => {
+      const { container } = render(<Sidebar tree={tree} selectedPath="guides/intro" />);
+      fireEvent.click(row(container, "reference"));
+      fireEvent.click(row(container, "reference/api"));
+      expect(expanded(container, "guides")).toBe("true");
 
-    fireEvent.doubleClick(row(container, "reference"));
-    expect(expanded(container, "guides")).toBe("false");
-    expect(expanded(container, "reference")).toBe("true");
-    expect(expanded(container, "reference/api")).toBe("false");
-  });
+      fireEvent.doubleClick(row(container, "reference"));
+      expect(expanded(container, "guides")).toBe("false");
+      expect(expanded(container, "reference")).toBe("true");
+      expect(expanded(container, "reference/api")).toBe("false");
+    }],
+    ["double-clicking a doc keeps only its ancestors open", () => {
+      const { container } = render(<Sidebar tree={tree} selectedPath="reference/api/auth" />);
+      fireEvent.click(row(container, "guides"));
 
-  it("double-clicking a doc keeps only its ancestors open", () => {
-    const { container } = render(<Sidebar tree={tree} selectedPath="reference/api/auth" />);
-    fireEvent.click(row(container, "guides"));
-
-    fireEvent.doubleClick(row(container, "reference/api/auth"));
-    expect(expanded(container, "guides")).toBe("false");
-    expect(expanded(container, "reference")).toBe("true");
-    expect(expanded(container, "reference/api")).toBe("true");
-  });
+      fireEvent.doubleClick(row(container, "reference/api/auth"));
+      expect(expanded(container, "guides")).toBe("false");
+      expect(expanded(container, "reference")).toBe("true");
+      expect(expanded(container, "reference/api")).toBe("true");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("re-applies on a repeat double-click of the same row", () => {
     const { container } = render(<Sidebar tree={tree} selectedPath={null} />);

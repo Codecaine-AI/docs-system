@@ -208,7 +208,8 @@ describe("deriveDocEditRequests", () => {
 });
 
 describe("proposal projections", () => {
-	it("preserves staging order and chooses linked, explicit, then fallback aliases", () => {
+	it.each([
+   ["preserves staging order and chooses linked, explicit, then fallback aliases", () => {
 		const requests = deriveDocEditRequests({
 			doc,
 			annotations: [annotation("linked")],
@@ -231,9 +232,8 @@ describe("proposal projections", () => {
 			{ transactionId: "fallback-one", alias: "A1" },
 			{ transactionId: "fallback-two", alias: "A2" },
 		]);
-	});
-
-	it("gives sibling staged proposals the same linked request alias", () => {
+	}],
+   ["gives sibling staged proposals the same linked request alias", () => {
 		const requests = deriveDocEditRequests({
 			doc,
 			annotations: [annotation("linked")],
@@ -251,7 +251,8 @@ describe("proposal projections", () => {
 			{ transactionId: "section-one", alias: "R1" },
 			{ transactionId: "section-two", alias: "R1" },
 		]);
-	});
+	}],
+ ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 	it("excludes stale staged proposals and returns them from the conflict projection", () => {
 		const proposals = [

@@ -55,12 +55,8 @@ function proposal(alias: string): DocEditProposal {
 }
 
 describe("requestDisposition", () => {
-	test("uses the filed disposition", () => {
-		expect(requestDisposition(filed("R2", "batch"))).toBe("batch");
-		expect(requestDisposition(filed("R3", "global"))).toBe("global");
-	});
-
-	test("legacy target-only requests infer their document disposition", () => {
+	test.each([
+   ["legacy target-only requests infer their document disposition", () => {
 		expect(requestDisposition(request("R9", "open", { disposition: undefined }))).toBe("batch");
 		expect(
 		requestDisposition(request("R9", "open", {
@@ -68,7 +64,12 @@ describe("requestDisposition", () => {
 			target: { kind: "doc" },
 		})),
 	).toBe("global");
-	});
+	}],
+   ["uses the filed disposition", () => {
+		expect(requestDisposition(filed("R2", "batch"))).toBe("batch");
+		expect(requestDisposition(filed("R3", "global"))).toBe("global");
+	}],
+ ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("buildRequestQueue populations", () => {

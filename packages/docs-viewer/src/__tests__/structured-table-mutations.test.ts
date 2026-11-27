@@ -49,19 +49,20 @@ describe("normalizeTable", () => {
 });
 
 describe("addRow", () => {
-  it("appends an empty row by default", () => {
-    const result = addRow(table());
-    expect(result.rows).toHaveLength(3);
-    expect(result.rows[2]).toEqual(["", "", ""]);
-  });
-
-  it("inserts at the start and middle", () => {
-    expect(addRow(table(), 0).rows[0]).toEqual(["", "", ""]);
-    const middle = addRow(table(), 1);
-    expect(middle.rows[1]).toEqual(["", "", ""]);
-    expect(middle.rows[0][0]).toBe("Ada");
-    expect(middle.rows[2][0]).toBe("Grace");
-  });
+  it.each([
+    ["appends an empty row by default", () => {
+      const result = addRow(table());
+      expect(result.rows).toHaveLength(3);
+      expect(result.rows[2]).toEqual(["", "", ""]);
+    }],
+    ["inserts at the start and middle", () => {
+      expect(addRow(table(), 0).rows[0]).toEqual(["", "", ""]);
+      const middle = addRow(table(), 1);
+      expect(middle.rows[1]).toEqual(["", "", ""]);
+      expect(middle.rows[0][0]).toBe("Ada");
+      expect(middle.rows[2][0]).toBe("Grace");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is a no-op for out-of-range indices", () => {
     const input = table();
@@ -71,20 +72,21 @@ describe("addRow", () => {
 });
 
 describe("addColumn", () => {
-  it("appends an unnamed column by default and extends every row", () => {
-    const result = addColumn(table());
-    expect(result.columns).toEqual(["Name", "Role", "Team", ""]);
-    expect(result.rows).toEqual([
-      ["Ada", "Engineer", "Core", ""],
-      ["Grace", "Admiral", "Navy", ""],
-    ]);
-  });
-
-  it("inserts a named column mid-table", () => {
-    const result = addColumn(table(), 1, "Status");
-    expect(result.columns).toEqual(["Name", "Status", "Role", "Team"]);
-    expect(result.rows[0]).toEqual(["Ada", "", "Engineer", "Core"]);
-  });
+  it.each([
+    ["appends an unnamed column by default and extends every row", () => {
+      const result = addColumn(table());
+      expect(result.columns).toEqual(["Name", "Role", "Team", ""]);
+      expect(result.rows).toEqual([
+        ["Ada", "Engineer", "Core", ""],
+        ["Grace", "Admiral", "Navy", ""],
+      ]);
+    }],
+    ["inserts a named column mid-table", () => {
+      const result = addColumn(table(), 1, "Status");
+      expect(result.columns).toEqual(["Name", "Status", "Role", "Team"]);
+      expect(result.rows[0]).toEqual(["Ada", "", "Engineer", "Core"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is a no-op for out-of-range indices", () => {
     const input = table();
@@ -149,29 +151,29 @@ describe("moveRow", () => {
 });
 
 describe("moveColumn", () => {
-  it("moves the header and keeps every row cell aligned", () => {
-    const result = moveColumn(table(), 0, 2);
-    expect(result.columns).toEqual(["Role", "Team", "Name"]);
-    expect(result.rows).toEqual([
-      ["Engineer", "Core", "Ada"],
-      ["Admiral", "Navy", "Grace"],
-    ]);
-  });
-
-  it("moves backward with cells aligned", () => {
-    const result = moveColumn(table(), 2, 0);
-    expect(result.columns).toEqual(["Team", "Name", "Role"]);
-    expect(result.rows[1]).toEqual(["Navy", "Grace", "Admiral"]);
-  });
-
-  it("realigns ragged rows before moving", () => {
-    const result = moveColumn(
-      { columns: ["A", "B", "C"], rows: [["1"]] },
-      0,
-      2,
-    );
-    expect(result.rows).toEqual([["", "", "1"]]);
-  });
+  it.each([
+    ["moves the header and keeps every row cell aligned", () => {
+      const result = moveColumn(table(), 0, 2);
+      expect(result.columns).toEqual(["Role", "Team", "Name"]);
+      expect(result.rows).toEqual([
+        ["Engineer", "Core", "Ada"],
+        ["Admiral", "Navy", "Grace"],
+      ]);
+    }],
+    ["realigns ragged rows before moving", () => {
+      const result = moveColumn(
+        { columns: ["A", "B", "C"], rows: [["1"]] },
+        0,
+        2,
+      );
+      expect(result.rows).toEqual([["", "", "1"]]);
+    }],
+    ["moves backward with cells aligned", () => {
+      const result = moveColumn(table(), 2, 0);
+      expect(result.columns).toEqual(["Team", "Name", "Role"]);
+      expect(result.rows[1]).toEqual(["Navy", "Grace", "Admiral"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is a no-op for out-of-range indices", () => {
     const input = table();
@@ -241,17 +243,18 @@ describe("clearColumn", () => {
 });
 
 describe("updateCell", () => {
-  it("sets a single cell without touching the input", () => {
-    const input = table();
-    const result = updateCell(input, 1, 2, "Fleet");
-    expect(result.rows[1][2]).toBe("Fleet");
-    expect(input.rows[1][2]).toBe("Navy");
-  });
-
-  it("normalizes ragged rows while updating", () => {
-    const result = updateCell({ columns: ["A", "B"], rows: [["1"]] }, 0, 1, "2");
-    expect(result.rows).toEqual([["1", "2"]]);
-  });
+  it.each([
+    ["sets a single cell without touching the input", () => {
+      const input = table();
+      const result = updateCell(input, 1, 2, "Fleet");
+      expect(result.rows[1][2]).toBe("Fleet");
+      expect(input.rows[1][2]).toBe("Navy");
+    }],
+    ["normalizes ragged rows while updating", () => {
+      const result = updateCell({ columns: ["A", "B"], rows: [["1"]] }, 0, 1, "2");
+      expect(result.rows).toEqual([["1", "2"]]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is a no-op for out-of-range indices", () => {
     const input = table();

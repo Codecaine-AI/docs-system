@@ -215,26 +215,37 @@ afterEach(() => {
 });
 
 describe("workbench shell", () => {
-  it("renders the tree, doc header, and AI toolbar toggle", async () => {
-    window.location.hash = "#/10-guide";
-    render(<App />);
+  it.each([
+    ["renders the tree, doc header, and AI toolbar toggle", async () => {
+      window.location.hash = "#/10-guide";
+      render(<App />);
 
-    await waitFor(() => {
-      expect(screen.getByText("Hello from Guide")).toBeTruthy();
-    });
-    expect(screen.getByText("docs/10-guide")).toBeTruthy();
-    expect(screen.queryByRole("complementary", { name: "AI workspace" })).toBeNull();
-    expect(document.querySelector("[data-lab-panel-tab]")).toBeNull();
-    expect(screen.getByRole("button", { name: "Show AI panel" })).toBeTruthy();
-    // Two modes only — read mode collapsed into the always-editable default.
-    expect(!!screen.queryByRole("button", { name: "Read mode" })).toBe(false);
-    // Edit IS the default: the editor mounts with no mode click, and the
-    // header shows the auto-save indicator at rest.
-    await waitFor(() => {
-      expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
-    });
-    expect(saveStateAttr()).toBe("saved");
-  });
+      await waitFor(() => {
+        expect(screen.getByText("Hello from Guide")).toBeTruthy();
+      });
+      expect(screen.getByText("docs/10-guide")).toBeTruthy();
+      expect(screen.queryByRole("complementary", { name: "AI workspace" })).toBeNull();
+      expect(document.querySelector("[data-lab-panel-tab]")).toBeNull();
+      expect(screen.getByRole("button", { name: "Show AI panel" })).toBeTruthy();
+      // Two modes only — read mode collapsed into the always-editable default.
+      expect(!!screen.queryByRole("button", { name: "Read mode" })).toBe(false);
+      // Edit IS the default: the editor mounts with no mode click, and the
+      // header shows the auto-save indicator at rest.
+      await waitFor(() => {
+        expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
+      });
+      expect(saveStateAttr()).toBe("saved");
+    }],
+    ["keeps the live shell unchanged: no repository link, Export button present", async () => {
+      window.location.hash = "#/10-guide";
+      render(<App />);
+      await waitFor(() => {
+        expect(screen.getByText("Hello from Guide")).toBeTruthy();
+      });
+      expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
+      expect(document.querySelector("[data-docs-repo-link]")).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("renders a legacy overview route and replaces its hash with the section route", async () => {
     window.location.hash = "#/10-guide/00-overview";
@@ -412,16 +423,6 @@ describe("static public-site shell", () => {
       view.unmount();
       globalThis.fetch = routed;
     }
-  });
-
-  it("keeps the live shell unchanged: no repository link, Export button present", async () => {
-    window.location.hash = "#/10-guide";
-    render(<App />);
-    await waitFor(() => {
-      expect(screen.getByText("Hello from Guide")).toBeTruthy();
-    });
-    expect(screen.getByRole("button", { name: "Export" })).toBeTruthy();
-    expect(document.querySelector("[data-docs-repo-link]")).toBeNull();
   });
 });
 

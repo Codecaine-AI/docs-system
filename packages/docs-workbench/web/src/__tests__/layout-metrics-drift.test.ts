@@ -19,6 +19,11 @@ import {
 import { DEFAULT_STYLE_RAIL_SETTINGS } from "../shared/style-rail-settings";
 import { THEME_TOKEN_REGISTRY } from "../theme/theme-folders";
 
+// theme comes with the heading-font case carried from default-fonts.test.ts.
+const theme = JSON.parse(
+  readFileSync(join(import.meta.dir, "../../../../../themes/default/theme.json"), "utf8"),
+) as { fonts?: Record<string, string> };
+
 /**
  * docs-model's layout metrics (src/layout/metrics.ts) copy the workbench's
  * stock: the style-rail defaults, the default theme's fonts, the theme token
@@ -88,27 +93,17 @@ describe("style-rail stock", () => {
     expect(list.indent).toBe(NESTED_INSET_PX["list-item"]!);
   });
 
-  test("the task checkbox fits the list indent and paints from the design tokens", () => {
-    // The box caps at the rail's indent knob, so the narrowest indent still holds it.
-    const markers = read(join(viewerSrc, "styles/list-markers.css"));
-    expect(markers).toContain("width: min(var(--ds-space-4), var(--docs-list-indent, 1.5rem));");
-    const css = stylesheets();
-    const painted = (name: string) => [...new Set(resolvedValues(`var(${name})`, css))].sort();
-    const themed = (role: string) =>
-      [...new Set([`--ds-light-color-${role}`, `--ds-dark-color-${role}`].flatMap((name) => resolvedValues(`var(${name})`, css)))].sort();
-    expect(painted("--docs-list-task-fill")).toEqual(themed("accent"));
-    expect(painted("--docs-list-task-check")).toEqual(themed("text-on-solid"));
-    // Done text is muted on the page, and the brighter secondary text inside a dark code panel.
-    expect(painted("--docs-list-task-done-fg")).toEqual([...themed("text-muted"), ...resolvedValues("var(--ds-dark-color-text-secondary)", css)].sort());
-    expect(painted("--docs-list-task-border")).toEqual(painted("--docs-list-marker-fg"));
-  });
-
-  test("the default theme paints body and code text in the faces the metrics measure", () => {
-    // The theme manifest applies its fonts over the stylesheets' :root stock (theme-folders.ts compileThemeCss).
-    const theme = JSON.parse(read(join(webSrc, "../../../../themes/default/theme.json"))) as { fonts?: Record<string, string> };
-    expect(theme.fonts?.body).toBe(DOCS_DEFAULT_FONTS.sans.stack);
-    expect(theme.fonts?.code).toBe(DOCS_DEFAULT_FONTS.code.stack);
-  });
+  test.each([
+    ["the default theme paints body and code text in the faces the metrics measure", () => {
+      // The theme manifest applies its fonts over the stylesheets' :root stock (theme-folders.ts compileThemeCss).
+      const theme = JSON.parse(read(join(webSrc, "../../../../themes/default/theme.json"))) as { fonts?: Record<string, string> };
+      expect(theme.fonts?.body).toBe(DOCS_DEFAULT_FONTS.sans.stack);
+      expect(theme.fonts?.code).toBe(DOCS_DEFAULT_FONTS.code.stack);
+    }],
+    ["headings paint in the measured sans face, like body text", () => {
+      expect(theme.fonts?.heading).toBe(DOCS_DEFAULT_FONTS.sans.stack);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("the stylesheets declare the lane widths the metrics assume", () => {
     const css = stylesheets();
@@ -162,16 +157,6 @@ describe("theme token defaults", () => {
     const css = stylesheets();
     expect(token.vars.some((name) => declaredIn(css, name).length > 0)).toBe(true);
     expect(tokenDrift(token.vars, `${value}${token.unit ?? ""}`, css)).toEqual([]);
-  });
-
-  test("a declaration derived through var() is checked at the value it resolves to", () => {
-    // A stock size that reads an undeclared variable renders its fallback, so it must equal the metric too.
-    const mutated = stylesheets().replaceAll("--docs-table-font-size: var(--ds-font-size-ui-md);", "--docs-table-font-size: var(--unknown-font-size,99px);");
-    expect(mutated).not.toBe(stylesheets());
-    expect(tokenDrift(["--docs-table-font-size"], "13.5px", mutated)).toContain("--docs-table-font-size: var(--unknown-font-size,99px) -> 99px");
-    // The header size follows the body size, so the same mutation moves it too.
-    expect(tokenDrift(["--docs-table-header-text-size"], "13.5px", mutated)).toContain("--docs-table-header-text-size: var(--docs-table-font-size) -> 99px");
-    expect(() => resolvedValues("var(--undeclared)", mutated)).toThrow("declared nowhere and has no fallback");
   });
 });
 

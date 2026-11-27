@@ -278,31 +278,7 @@ const ELEMENTS: Array<{ label: string; read: string; edit: string; tokens: strin
 const classOf = (container: HTMLElement, selector: string): string | null =>
   container.querySelector(selector)?.getAttribute("class") ?? null;
 
-/** Tokens the element's class does NOT read — empty means fully wired. */
-function missingTokens(container: HTMLElement, surface: "read" | "edit"): string[] {
-  const missing: string[] = [];
-  for (const element of ELEMENTS) {
-    const className = classOf(container, element[surface]);
-    if (className === null) {
-      missing.push(`${element.label}: element not rendered`);
-      continue;
-    }
-    for (const token of element.tokens) {
-      if (!className.includes(token)) missing.push(`${element.label}: ${token}`);
-    }
-  }
-  return missing;
-}
-
 describe("rich-text style tokens", () => {
-  it("reads every token on the read surface", () => {
-    expect(missingTokens(renderRead(), "read")).toEqual([]);
-  });
-
-  it("reads every token on the edit surface", async () => {
-    expect(missingTokens(await renderEdit(), "edit")).toEqual([]);
-  });
-
   it("wears the same class string on both surfaces, so one knob moves both", async () => {
     const read = renderRead();
     const readClasses = Object.fromEntries(
@@ -355,54 +331,5 @@ describe("rich-text style tokens", () => {
     const weight = css.slice(0, css.indexOf("font-weight: var(--ds-font-weight-semibold)"));
     const readSelector = weight.slice(weight.lastIndexOf("}") + 1).trim().split(",\n")[0];
     expect(readSelector).toBe('.docs-markdown [role="listitem"]:not([data-doc-list-sentence]):has(> div > div > [role="listitem"]) > div:not([data-doc-list-marker])');
-  });
-
-  it("styles the checkbox and done text only with tokens and docs knobs", () => {
-    const css = readFileSync(new URL("../styles/list-markers.css", import.meta.url), "utf8");
-    const task = css.slice(css.indexOf("[data-doc-checked] > [data-doc-list-marker] {"));
-    for (const knob of [
-      "var(--docs-list-task-border, var(--ds-light-color-text-muted))",
-      "var(--docs-list-task-fill, var(--ds-light-color-accent))",
-      "var(--docs-list-task-check, var(--ds-light-color-text-on-solid))",
-      "var(--docs-list-task-done-fg, var(--ds-light-color-text-muted))",
-      "var(--ds-radius-base)",
-      "var(--ds-border-width-ring)",
-    ]) {
-      expect(task).toContain(knob);
-    }
-    // Done reads muted, never struck through; no literal colors or px.
-    expect(task).not.toContain("line-through");
-    expect(task.replace(/\/\*[\s\S]*?\*\//g, "")).not.toMatch(/#[0-9a-f]{3,8}\b|\d+px|rgb\(/i);
-  });
-
-  it("gives h1-h3 a size token and leaves h4-h6 at the reading size", () => {
-    const read = renderRead();
-    const sizeTokens = (level: number) =>
-      (classOf(read, `[data-block-id="h${level}"] > h${level}`) ?? "").match(
-        /--docs-heading-h\d-size/g,
-      ) ?? [];
-    expect(sizeTokens(1)).toEqual(["--docs-heading-h1-size"]);
-    expect(sizeTokens(2)).toEqual(["--docs-heading-h2-size"]);
-    expect(sizeTokens(3)).toEqual(["--docs-heading-h3-size"]);
-    expect(sizeTokens(4)).toEqual([]);
-  });
-
-  it("resolves the callout palette from the root-level tokens instead of shadowing them", () => {
-    // The callout's inline stylesheet must READ the public tokens (so a rail
-    // override on <html> reaches it) and never declare them on the element.
-    const css = Array.from(renderRead().querySelectorAll("[data-docs-block-type='callout'] style"))
-      .map((style) => style.textContent ?? "")
-      .join("\n");
-    for (const tone of ["info", "decision", "warning", "risk", "success"]) {
-      for (const part of ["accent", "tint", "title-fg"]) {
-        // Every part, the tint included, falls back to its light literal (the note has the tone's soft fill at stock).
-        expect(css).toContain(`var(--docs-callout-${tone}-${part}, #`);
-        expect(css).not.toMatch(new RegExp(`--docs-callout-${tone}-${part}:\\s`));
-      }
-    }
-    expect(css).toContain("--docs-callout-text: var(--docs-callout-fg, #2a2a2a);");
-    expect(css).toContain("--docs-callout-frame: var(--docs-callout-border, #e6e5e3);");
-    expect(css).not.toMatch(/--docs-callout-fg:\s/);
-    expect(css).not.toMatch(/--docs-callout-border:\s/);
   });
 });

@@ -51,15 +51,13 @@ const CASES: Array<[string, ChipKind]> = [
   ["docs grep '^## '", "other"],
   ["", "other"],
   ["   ", "other"],
+  // surrounding whitespace is ignored
+  ["  props.level ", "prop"],
 ];
 
 describe("chipKind", () => {
   it.each(CASES)("%p reads as %p", (text, kind) => {
     expect(chipKind(text)).toBe(kind);
-  });
-
-  it("ignores surrounding whitespace", () => {
-    expect(chipKind("  props.level ")).toBe("prop");
   });
 });
 

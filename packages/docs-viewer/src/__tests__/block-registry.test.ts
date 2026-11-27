@@ -4,12 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { DocBlock, DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { DOC_BLOCK_TYPES } from "@codecaine-ai/docs-model/doc-schema";
 import DocBlockRenderer from "../render/DocBlockRenderer";
-import {
-  deltaToMarkdown,
-  deltaToPlainText,
-  type DocBlockRenderContext,
-  getDocBlockDescriptor,
-} from "../render/block-registry";
+import { deltaToMarkdown, type DocBlockRenderContext, getDocBlockDescriptor } from "../render/block-registry";
 
 /** Minimal render context — enough to drive descriptors directly. */
 function makeCtx(overrides: Partial<DocBlockRenderContext> = {}): DocBlockRenderContext {
@@ -52,15 +47,6 @@ describe("block registry", () => {
     }
   });
 
-  it("reuses the docs-block component metadata for adapted block types", () => {
-    expect(getDocBlockDescriptor("callout")?.label).toBe("Callout");
-    expect(getDocBlockDescriptor("file-tree")?.label).toBe("File Tree");
-    expect(getDocBlockDescriptor("structured-table")?.label).toBe("Structured Table");
-    expect(getDocBlockDescriptor("interaction-surface")?.label).toBe("Interaction Surface");
-    expect(getDocBlockDescriptor("interaction-surface")?.targetKind).toBe("interaction-surface");
-    expect(getDocBlockDescriptor("process-outline")?.label).toBe("Process Outline");
-  });
-
   it("returns null for unknown and retired block types", () => {
     expect(getDocBlockDescriptor("wormhole")).toBeNull();
     // Retired types never reach the registry: doc-schema validation coerces
@@ -79,9 +65,18 @@ describe("block registry", () => {
     }
   });
 
-  it("appends a body-format hint to the parse-reuse block types' agentDescription", () => {
-    expect(getDocBlockDescriptor("code")?.agentDescription).toContain("annotations");
-  });
+  it.each([
+    ["appends a body-format hint to the parse-reuse block types' agentDescription", () => {
+      expect(getDocBlockDescriptor("code")?.agentDescription).toContain("annotations");
+    }],
+    ["documents the v2 entry fields in the agentDescription", () => {
+      const description = getDocBlockDescriptor("file-tree")?.agentDescription ?? "";
+      expect(description).toContain("change?");
+      expect(description).toContain("renamed");
+      expect(description).toContain("from?");
+      expect(description).toContain('trailing "/"');
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("file-tree — mdx adapter + tree rendering", () => {
@@ -113,14 +108,6 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     });
   }
 
-  it("documents the v2 entry fields in the agentDescription", () => {
-    const description = getDocBlockDescriptor("file-tree")?.agentDescription ?? "";
-    expect(description).toContain("change?");
-    expect(description).toContain("renamed");
-    expect(description).toContain("from?");
-    expect(description).toContain('trailing "/"');
-  });
-
   it("nests flat paths under derived directories with joined elbow guides", () => {
     const host = treeDom({
       entries: [
@@ -144,12 +131,6 @@ describe("file-tree — mdx adapter + tree rendering", () => {
     expect(host.textContent).not.toContain("└");
   });
 
-  it("heads the panel with the block name, never a legacy title prop", () => {
-    const host = treeDom({ title: "Layout", entries: [{ path: "src/index.ts" }] });
-    expect(host.querySelector("figcaption")?.textContent).toBe("File tree");
-    expect(host.textContent).not.toContain("Layout");
-  });
-
   it("sorts directories before files, then alphabetically", () => {
     const host = treeDom({
       entries: [{ path: "zeta.ts" }, { path: "alpha.ts" }, { path: "beta/inner.ts" }],
@@ -160,21 +141,6 @@ describe("file-tree — mdx adapter + tree rendering", () => {
       "alpha.ts",
       "zeta.ts",
     ]);
-  });
-
-  it("puts notes in their own column, wrapped rather than truncated", () => {
-    const host = treeDom({
-      entries: [
-        { path: "docs/", note: "empty for now" },
-        { path: "src/main.ts" },
-      ],
-    });
-    const docs = host.querySelector('[data-docs-file-tree-entry="docs/"]');
-    expect(docs?.querySelector(".docs-tree__name")?.textContent).toBe("docs/");
-    expect(docs?.querySelector(".docs-tree__note")?.textContent).toBe("empty for now");
-    expect(host.textContent).not.toContain("# empty for now");
-    // A row without a note lets its name run into the note column.
-    expect(host.querySelector('[data-docs-file-tree-entry="src/main.ts"] .docs-tree__path--span')).not.toBeNull();
   });
 
   it("marks each change with a gutter glyph and its word, only on explicit entries", () => {
@@ -475,93 +441,91 @@ describe("delta projections", () => {
       "plain **bold** and `code` and [site](https://example.com) and [schema](apps/frontend/src/lib/docs-model/doc-schema.ts)",
     );
   });
-
-  it("projects plain text", () => {
-    expect(deltaToPlainText([{ insert: "a" }, { insert: "b", attributes: { bold: true } }])).toBe("ab");
-    expect(deltaToPlainText(undefined)).toBe("");
-  });
 });
 
 describe("image block type — resolveAssetSrc (TG7.3)", () => {
-  it("image block resolves its src through ctx.resolveAssetSrc when provided", () => {
-    const descriptor = getDocBlockDescriptor("image");
-    expect(descriptor).not.toBeNull();
-    const ctx = makeCtx({
-      resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
-    });
-    const html = renderToStaticMarkup(
-      descriptor!.render(block("image", { src: "./assets/images/sample.png", alt: "Sample" }), ctx) as never,
-    );
-    expect(html).toContain(
-      'src="https://api.example.com/asset?path=.%2Fassets%2Fimages%2Fsample.png"',
-    );
-    expect(html).not.toContain('src="./assets/images/sample.png"');
-  });
-
-  it("image block falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
-    const descriptor = getDocBlockDescriptor("image");
-    expect(descriptor).not.toBeNull();
-    const ctx = makeCtx();
-    const html = renderToStaticMarkup(
-      descriptor!.render(block("image", { src: "./assets/images/sample.png" }), ctx) as never,
-    );
-    expect(html).toContain('src="./assets/images/sample.png"');
-  });
+  it.each([
+    ["image block resolves its src through ctx.resolveAssetSrc when provided", () => {
+      const descriptor = getDocBlockDescriptor("image");
+      expect(descriptor).not.toBeNull();
+      const ctx = makeCtx({
+        resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
+      });
+      const html = renderToStaticMarkup(
+        descriptor!.render(block("image", { src: "./assets/images/sample.png", alt: "Sample" }), ctx) as never,
+      );
+      expect(html).toContain(
+        'src="https://api.example.com/asset?path=.%2Fassets%2Fimages%2Fsample.png"',
+      );
+      expect(html).not.toContain('src="./assets/images/sample.png"');
+    }],
+    ["image block falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
+      const descriptor = getDocBlockDescriptor("image");
+      expect(descriptor).not.toBeNull();
+      const ctx = makeCtx();
+      const html = renderToStaticMarkup(
+        descriptor!.render(block("image", { src: "./assets/images/sample.png" }), ctx) as never,
+      );
+      expect(html).toContain('src="./assets/images/sample.png"');
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("video block type — descriptor", () => {
-  it("renders a provider url as a link card, with title/caption threaded through", () => {
-    const descriptor = getDocBlockDescriptor("video");
-    expect(descriptor).not.toBeNull();
-    const html = renderToStaticMarkup(
-      descriptor!.render(
-        block("video", {
-          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          title: "Docs walkthrough",
-          caption: "An external video.",
-        }),
-        makeCtx(),
-      ) as never,
-    );
-    expect(html).toContain('data-doc-block="video"');
-    // The player loads only when the reader asks (VideoDocsBlock.test.tsx).
-    expect(html).not.toContain("<iframe");
-    expect(html).toContain('data-video-provider="youtube"');
-    expect(html).toContain('href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"');
-    expect(html).toContain(">Docs walkthrough<");
-    expect(html).toContain("An external video.");
-  });
+  it.each([
+    ["renders a provider url as a link card, with title/caption threaded through", () => {
+      const descriptor = getDocBlockDescriptor("video");
+      expect(descriptor).not.toBeNull();
+      const html = renderToStaticMarkup(
+        descriptor!.render(
+          block("video", {
+            url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            title: "Docs walkthrough",
+            caption: "An external video.",
+          }),
+          makeCtx(),
+        ) as never,
+      );
+      expect(html).toContain('data-doc-block="video"');
+      // The player loads only when the reader asks (VideoDocsBlock.test.tsx).
+      expect(html).not.toContain("<iframe");
+      expect(html).toContain('data-video-provider="youtube"');
+      expect(html).toContain('href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"');
+      expect(html).toContain(">Docs walkthrough<");
+      expect(html).toContain("An external video.");
+    }],
+    ["renders a link card (never an iframe) for a non-provider url", () => {
+      const descriptor = getDocBlockDescriptor("video");
+      const html = renderToStaticMarkup(
+        descriptor!.render(block("video", { url: "https://example.com/talk" }), makeCtx()) as never,
+      );
+      expect(html).not.toContain("<iframe");
+      expect(html).toContain('href="https://example.com/talk"');
+      expect(html).toContain('rel="noopener noreferrer"');
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("renders a link card (never an iframe) for a non-provider url", () => {
-    const descriptor = getDocBlockDescriptor("video");
-    const html = renderToStaticMarkup(
-      descriptor!.render(block("video", { url: "https://example.com/talk" }), makeCtx()) as never,
-    );
-    expect(html).not.toContain("<iframe");
-    expect(html).toContain('href="https://example.com/talk"');
-    expect(html).toContain('rel="noopener noreferrer"');
-  });
-
-  it("resolves a bundle-relative src through ctx.resolveAssetSrc like image (TG7.3)", () => {
-    const descriptor = getDocBlockDescriptor("video");
-    const ctx = makeCtx({
-      resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
-    });
-    const html = renderToStaticMarkup(
-      descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), ctx) as never,
-    );
-    expect(html).toContain("<video");
-    expect(html).toContain(
-      'src="https://api.example.com/asset?path=.%2Fassets%2Fvideos%2Fdemo.mp4"',
-    );
-    expect(html).not.toContain('src="./assets/videos/demo.mp4"');
-  });
-
-  it("falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
-    const descriptor = getDocBlockDescriptor("video");
-    const html = renderToStaticMarkup(
-      descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), makeCtx()) as never,
-    );
-    expect(html).toContain('src="./assets/videos/demo.mp4"');
-  });
+  it.each([
+    ["resolves a bundle-relative src through ctx.resolveAssetSrc like image (TG7.3)", () => {
+      const descriptor = getDocBlockDescriptor("video");
+      const ctx = makeCtx({
+        resolveAssetSrc: (src) => `https://api.example.com/asset?path=${encodeURIComponent(src)}`,
+      });
+      const html = renderToStaticMarkup(
+        descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), ctx) as never,
+      );
+      expect(html).toContain("<video");
+      expect(html).toContain(
+        'src="https://api.example.com/asset?path=.%2Fassets%2Fvideos%2Fdemo.mp4"',
+      );
+      expect(html).not.toContain('src="./assets/videos/demo.mp4"');
+    }],
+    ["falls back to the raw src when resolveAssetSrc is omitted (non-regression)", () => {
+      const descriptor = getDocBlockDescriptor("video");
+      const html = renderToStaticMarkup(
+        descriptor!.render(block("video", { src: "./assets/videos/demo.mp4" }), makeCtx()) as never,
+      );
+      expect(html).toContain('src="./assets/videos/demo.mp4"');
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

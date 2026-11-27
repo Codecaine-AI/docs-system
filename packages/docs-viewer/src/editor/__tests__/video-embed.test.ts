@@ -91,7 +91,6 @@ function paragraph(inline: JSONContent[], attrs: Record<string, unknown> = {}): 
 function text(value: string): JSONContent {
   return { type: "text", text: value };
 }
-
 function codeBlock(value: string, attrs: Record<string, unknown> = {}): JSONContent {
   return { type: "docCodeBlock", attrs, content: [{ type: "text", text: value }] };
 }
@@ -159,17 +158,31 @@ async function flushUploads(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 describe("provider-URL paste at a collapsed cursor", () => {
-  it("replaces an EMPTY paragraph with a docVideo carrying the url", () => {
-    const editor = createEditor([paragraph([], { blockId: "p1" })]);
-    editor.commands.setTextSelection(2); // inside the empty wrapper
+  it.each([
+    ["replaces an EMPTY paragraph with a docVideo carrying the url", () => {
+      const editor = createEditor([paragraph([], { blockId: "p1" })]);
+      editor.commands.setTextSelection(2); // inside the empty wrapper
 
-    expect(pasteText(editor, YT_URL)).toBe(true);
+      expect(pasteText(editor, YT_URL)).toBe(true);
 
-    expect(topBlocks(editor)).toEqual([{ type: "docVideo", blockProps: YT_EMBEDDABLE }]);
-    // Fresh insertion follows the slash-menu id convention: blockId is null
-    // until the save path mints one.
-    expect((editor.getJSON() as JSONContent).content?.[0]?.attrs?.blockId ?? null).toBeNull();
-  });
+      expect(topBlocks(editor)).toEqual([{ type: "docVideo", blockProps: YT_EMBEDDABLE }]);
+      // Fresh insertion follows the slash-menu id convention: blockId is null
+      // until the save path mints one.
+      expect((editor.getJSON() as JSONContent).content?.[0]?.attrs?.blockId ?? null).toBeNull();
+    }],
+    ["recognizes youtu.be / Vimeo / Loom forms too", () => {
+      for (const url of [
+        "https://youtu.be/dQw4w9WgXcQ",
+        "https://vimeo.com/76979871",
+        "https://www.loom.com/share/abc123DEF456",
+      ]) {
+        const editor = createEditor([paragraph([], { blockId: "p1" })]);
+        editor.commands.setTextSelection(2);
+        expect(pasteText(editor, url)).toBe(true);
+        expect(videoNodes(editor)).toEqual([{ url }]);
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("inserts the docVideo AFTER a non-empty paragraph, leaving its text intact", () => {
     const editor = createEditor([
@@ -191,19 +204,6 @@ describe("provider-URL paste at a collapsed cursor", () => {
     expect(json.content?.[0]?.content?.[0]?.content?.[0]?.text).toBe("Hello world");
   });
 
-  it("recognizes youtu.be / Vimeo / Loom forms too", () => {
-    for (const url of [
-      "https://youtu.be/dQw4w9WgXcQ",
-      "https://vimeo.com/76979871",
-      "https://www.loom.com/share/abc123DEF456",
-    ]) {
-      const editor = createEditor([paragraph([], { blockId: "p1" })]);
-      editor.commands.setTextSelection(2);
-      expect(pasteText(editor, url)).toBe(true);
-      expect(videoNodes(editor)).toEqual([{ url }]);
-    }
-  });
-
   it("keeps a provider URL pasted OVER a non-empty selection as a link mark (never a video)", () => {
     const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
     editor.commands.setTextSelection({ from: 2, to: 7 }); // "Hello"
@@ -220,31 +220,32 @@ describe("provider-URL paste at a collapsed cursor", () => {
     });
   });
 
-  it("keeps a NON-provider URL at a collapsed cursor as plain unlinked text", () => {
-    const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
-    editor.commands.setTextSelection(4);
+  it.each([
+    ["keeps a NON-provider URL at a collapsed cursor as plain unlinked text", () => {
+      const editor = createEditor([paragraph([text("Hello world")], { blockId: "p1" })]);
+      editor.commands.setTextSelection(4);
 
-    expect(pasteText(editor, "https://example.com/watch?v=nope")).toBe(true);
+      expect(pasteText(editor, "https://example.com/watch?v=nope")).toBe(true);
 
-    expect(videoNodes(editor)).toEqual([]);
-    const json = editor.getJSON() as JSONContent;
-    expect(json.content?.[0]?.content?.[0]?.content?.[0]?.text).toBe(
-      "Hehttps://example.com/watch?v=nopello world",
-    );
-    expect(json.content?.[0]?.content?.[0]?.content?.[0]?.marks).toBeUndefined();
-  });
+      expect(videoNodes(editor)).toEqual([]);
+      const json = editor.getJSON() as JSONContent;
+      expect(json.content?.[0]?.content?.[0]?.content?.[0]?.text).toBe(
+        "Hehttps://example.com/watch?v=nopello world",
+      );
+      expect(json.content?.[0]?.content?.[0]?.content?.[0]?.marks).toBeUndefined();
+    }],
+    ["keeps a provider URL pasted inside a code block as plain text (no video block)", () => {
+      const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
+      editor.commands.setTextSelection(3);
 
-  it("keeps a provider URL pasted inside a code block as plain text (no video block)", () => {
-    const editor = createEditor([codeBlock("const a = 1;", { blockId: "c1" })]);
-    editor.commands.setTextSelection(3);
+      expect(pasteText(editor, YT_URL)).toBe(true);
 
-    expect(pasteText(editor, YT_URL)).toBe(true);
-
-    expect(videoNodes(editor)).toEqual([]);
-    const json = editor.getJSON() as JSONContent;
-    expect(json.content?.[0]?.type).toBe("docCodeBlock");
-    expect(json.content?.[0]?.content?.[0]?.text).toContain(YT_URL);
-  });
+      expect(videoNodes(editor)).toEqual([]);
+      const json = editor.getJSON() as JSONContent;
+      expect(json.content?.[0]?.type).toBe("docCodeBlock");
+      expect(json.content?.[0]?.content?.[0]?.text).toContain(YT_URL);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("provider-URL drop", () => {
@@ -340,22 +341,23 @@ describe("video-file drop (host uploadAsset slot)", () => {
     expect(json.content?.map((node) => node.type)).toEqual(["docParagraph"]);
   });
 
-  it("is NOT handled without a host uploadAsset (default drop behavior runs)", () => {
-    const editor = createEditor([paragraph([text("Hello")], { blockId: "p1" })]);
-    editor.commands.setTextSelection(3);
+  it.each([
+    ["is NOT handled without a host uploadAsset (default drop behavior runs)", () => {
+      const editor = createEditor([paragraph([text("Hello")], { blockId: "p1" })]);
+      editor.commands.setTextSelection(3);
 
-    expect(drop(editor, { files: [mp4()] })).toBe(false);
-    expect(videoNodes(editor)).toEqual([]);
-  });
+      expect(drop(editor, { files: [mp4()] })).toBe(false);
+      expect(videoNodes(editor)).toEqual([]);
+    }],
+    ["non-video files are not handled even with an uploader", () => {
+      const uploadAsset: UploadVideoAsset = async () => ({ src: "./assets/videos/never.mp4" });
+      const editor = createEditor([paragraph([text("Hello")], { blockId: "p1" })], uploadAsset);
+      editor.commands.setTextSelection(3);
 
-  it("non-video files are not handled even with an uploader", () => {
-    const uploadAsset: UploadVideoAsset = async () => ({ src: "./assets/videos/never.mp4" });
-    const editor = createEditor([paragraph([text("Hello")], { blockId: "p1" })], uploadAsset);
-    editor.commands.setTextSelection(3);
-
-    expect(drop(editor, { files: [new File([], "notes.txt", { type: "text/plain" })] })).toBe(
-      false,
-    );
-    expect(videoNodes(editor)).toEqual([]);
-  });
+      expect(drop(editor, { files: [new File([], "notes.txt", { type: "text/plain" })] })).toBe(
+        false,
+      );
+      expect(videoNodes(editor)).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

@@ -20,7 +20,8 @@ function fixture(id: string, overrides: Partial<DocChangeSetView> = {}): DocChan
 }
 
 describe("selectChangesetsForDoc", () => {
-	it("keeps relevant open and undoable applied sets, excludes declined and unrelated sets, newest first", () => {
+	it.each([
+   ["keeps relevant open and undoable applied sets, excludes declined and unrelated sets, newest first", () => {
 		const selected = selectChangesetsForDoc([
 			fixture("touching", { createdAt: "2026-08-17T12:01:00.000Z", entries: [{ docPath: "docs/guide", proposalId: "p", status: "staged", stale: false, summary: "edit", addCount: 1, delCount: 0 }] }),
 			fixture("tree", { createdAt: "2026-08-17T12:02:00.000Z", treeOps: [{ kind: "move-doc", from: "old", to: "guide", position: 0 }] }),
@@ -31,9 +32,8 @@ describe("selectChangesetsForDoc", () => {
 		], "guide");
 
 		expect(selected.map(({ id }) => id)).toEqual(["undoable", "tree", "touching"]);
-	});
-
-	it("shows only the most recent undoable applied set for the open document", () => {
+	}],
+   ["shows only the most recent undoable applied set for the open document", () => {
 		const entry = { docPath: "guide", proposalId: "p", status: "accepted" as const, stale: false, summary: "edit", addCount: 1, delCount: 0 };
 		const selected = selectChangesetsForDoc([
 			fixture("older", { createdAt: "2026-08-17T12:01:00.000Z", status: "applied", compoundPatchId: "patch-1", entries: [entry] }),
@@ -43,7 +43,8 @@ describe("selectChangesetsForDoc", () => {
 		], "guide");
 
 		expect(selected.map(({ id }) => id)).toEqual(["newer", "open"]);
-	});
+	}],
+ ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("AI mode handoff", () => {

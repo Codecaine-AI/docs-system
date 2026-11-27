@@ -32,52 +32,53 @@ function openOn(ref: SpectreRef): DocPeekState {
 }
 
 describe("docPeekReducer", () => {
-  it("open from closed starts loading the ref with requestId 1", () => {
-    const state = openOn(refA);
-    expect(state).toEqual({ open: true, ref: refA, requestId: 1, load: { status: "loading" } });
-  });
-
-  it("open while open replaces the target and bumps requestId", () => {
-    const first = openOn(refA);
-    const replaced = docPeekReducer(first, { type: "open", ref: refB });
-    expect(replaced).toEqual({ open: true, ref: refB, requestId: 2, load: { status: "loading" } });
-  });
-
-  it("re-opening the SAME ref still bumps requestId so the load effect re-fires", () => {
-    const first = openOn(refA);
-    const again = docPeekReducer(first, { type: "open", ref: refA });
-    expect(again.open && again.requestId).toBe(2);
-    expect(again.open && again.load.status).toBe("loading");
-  });
+  it.each([
+    ["open from closed starts loading the ref with requestId 1", () => {
+      const state = openOn(refA);
+      expect(state).toEqual({ open: true, ref: refA, requestId: 1, load: { status: "loading" } });
+    }],
+    ["re-opening the SAME ref still bumps requestId so the load effect re-fires", () => {
+      const first = openOn(refA);
+      const again = docPeekReducer(first, { type: "open", ref: refA });
+      expect(again.open && again.requestId).toBe(2);
+      expect(again.open && again.load.status).toBe("loading");
+    }],
+    ["open while open replaces the target and bumps requestId", () => {
+      const first = openOn(refA);
+      const replaced = docPeekReducer(first, { type: "open", ref: refB });
+      expect(replaced).toEqual({ open: true, ref: refB, requestId: 2, load: { status: "loading" } });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("close returns the closed state", () => {
     expect(docPeekReducer(openOn(refA), { type: "close" })).toEqual(CLOSED_PEEK_STATE);
   });
 
-  it("load-success for the current target stores the document", () => {
-    const loaded = docPeekReducer(openOn(refA), {
-      type: "load-success",
-      ref: refA,
-      document: docA,
-      documentPath: "guides/a/doc.json",
-    });
-    expect(loaded).toEqual({
-      open: true,
-      ref: refA,
-      requestId: 1,
-      load: { status: "loaded", document: docA, documentPath: "guides/a/doc.json" },
-    });
-  });
-
-  it("load-success matches by target identity (kind+path), not ref object identity", () => {
-    const clickedTwice: SpectreRef = { kind: "doc", path: "guides/a" };
-    const loaded = docPeekReducer(openOn(clickedTwice), {
-      type: "load-success",
-      ref: refA,
-      document: docA,
-    });
-    expect(loaded.open && loaded.load.status).toBe("loaded");
-  });
+  it.each([
+    ["load-success for the current target stores the document", () => {
+      const loaded = docPeekReducer(openOn(refA), {
+        type: "load-success",
+        ref: refA,
+        document: docA,
+        documentPath: "guides/a/doc.json",
+      });
+      expect(loaded).toEqual({
+        open: true,
+        ref: refA,
+        requestId: 1,
+        load: { status: "loaded", document: docA, documentPath: "guides/a/doc.json" },
+      });
+    }],
+    ["load-success matches by target identity (kind+path), not ref object identity", () => {
+      const clickedTwice: SpectreRef = { kind: "doc", path: "guides/a" };
+      const loaded = docPeekReducer(openOn(clickedTwice), {
+        type: "load-success",
+        ref: refA,
+        document: docA,
+      });
+      expect(loaded.open && loaded.load.status).toBe("loaded");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("drops a stale load-success after the target was replaced", () => {
     const replaced = docPeekReducer(openOn(refA), { type: "open", ref: refB });

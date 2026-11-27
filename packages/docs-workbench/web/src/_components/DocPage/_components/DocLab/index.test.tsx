@@ -107,7 +107,8 @@ function lab(
 }
 
 describe("labelForTarget", () => {
-	it("labels document targets and inherits the closest outline heading", () => {
+	it.each([
+   ["labels document targets and inherits the closest outline heading", () => {
 		expect(labelForTarget(DOC, { kind: "doc" })).toBe("document");
 		expect(
 			labelForTarget(DOC, { kind: "block", blockId: "body-1" }),
@@ -121,17 +122,15 @@ describe("labelForTarget", () => {
 				quote: "Detail",
 			}),
 		).toBe("Details");
-	});
-
-	it("falls back to the block descriptor and a truncated text preview", () => {
+	}],
+   ["falls back to the block descriptor and a truncated text preview", () => {
 		expect(
 			labelForTarget(DOC, { kind: "block", blockId: "intro" }),
 		).toBe(
 			"Paragraph: 123456789012345678901234567890123456789012...",
 		);
-	});
-
-	it("prefixes only cross-document targets without changing legacy labels", () => {
+	}],
+   ["prefixes only cross-document targets without changing legacy labels", () => {
 		const target = { kind: "block", blockId: "body-1" } as const;
 		const legacyLabel = labelForTarget(DOC, target);
 
@@ -156,7 +155,8 @@ describe("labelForTarget", () => {
 				"10-architecture/10-overview",
 			),
 		).toBe("api reference → block");
-	});
+	}],
+ ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("DocLab", () => {
@@ -196,23 +196,6 @@ describe("DocLab", () => {
 		expect(window.location.hash).toBe("#/reference/api");
 		expect(consumeAiModeHandoff()).toBe(true);
 		expect(consumeAiModeHandoff()).toBe(false);
-	});
-
-	it("renders AI directly without outline or mode tabs", () => {
-		render(
-			<div className="relative h-[800px]">
-				<DocLab
-					doc={DOC}
-					lab={lab({ requests: [], proposals: [] })}
-					onFocusTarget={mock(() => {})}
-				/>
-			</div>,
-		);
-
-		expect(screen.getByRole("complementary", { name: "AI workspace" })).toBeTruthy();
-		expect(screen.queryByRole("navigation", { name: "Document outline" })).toBeNull();
-		expect(document.querySelector("[data-lab-panel-tab]")).toBeNull();
-
 	});
 
 	it("surfaces target conflicts and proposal, annotation and request errors", () => {

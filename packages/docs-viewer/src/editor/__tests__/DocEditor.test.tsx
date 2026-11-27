@@ -157,131 +157,108 @@ describe("reference chip", () => {
 });
 
 describe("DocEditor save boundary", () => {
-  it("preserves invisible root metadata and emits no transport-empty root update", async () => {
-    const doc: DocDocument = {
-      schemaVersion: 1,
-      id: "root-metadata",
-      root: "root",
-      blocks: {
-        root: {
-          id: "root",
-          type: "paragraph",
-          props: { concepts: ["editor", "save-boundary"] },
-          children: ["p1"],
+  it.each([
+    ["preserves invisible root metadata and emits no transport-empty root update", async () => {
+      const doc: DocDocument = {
+        schemaVersion: 1,
+        id: "root-metadata",
+        root: "root",
+        blocks: {
+          root: {
+            id: "root",
+            type: "paragraph",
+            props: { concepts: ["editor", "save-boundary"] },
+            children: ["p1"],
+          },
+          p1: {
+            id: "p1",
+            type: "paragraph",
+            props: {},
+            text: [{ insert: "Editable text" }],
+            children: [],
+          },
         },
-        p1: {
-          id: "p1",
-          type: "paragraph",
-          props: {},
-          text: [{ insert: "Editable text" }],
-          children: [],
+      };
+      const batches: DocOp[][] = [];
+      let editorInstance: Editor | null = null;
+      renderWithClient(
+        <DocEditor
+          document={doc}
+          onApplyOps={async (ops) => {
+            batches.push(ops);
+            return { ok: true };
+          }}
+          onEditorReady={(editor) => {
+            editorInstance = editor;
+          }}
+        />,
+      );
+
+      await waitFor(() => expect(editorInstance).toBeTruthy());
+      act(() => {
+        const { to } = findTextRange(editorInstance!, "Editable text");
+        editorInstance!.commands.insertContentAt(to, " edited");
+      });
+      fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+
+      await waitFor(() => expect(batches).toHaveLength(1));
+      expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
+        {
+          type: "updateBlock",
+          blockId: "p1",
+          text: [{ insert: "Editable text edited" }],
         },
-      },
-    };
-    const batches: DocOp[][] = [];
-    let editorInstance: Editor | null = null;
-    renderWithClient(
-      <DocEditor
-        document={doc}
-        onApplyOps={async (ops) => {
-          batches.push(ops);
-          return { ok: true };
-        }}
-        onEditorReady={(editor) => {
-          editorInstance = editor;
-        }}
-      />,
-    );
+      ]);
+    }],
+    ["editing one paragraph's text saves exactly one updateBlock op", async () => {
+      const doc = loadFixture();
+      const batches: DocOp[][] = [];
+      let editorInstance: Editor | null = null;
+      renderWithClient(
+        <DocEditor
+          document={doc}
+          onApplyOps={async (ops) => {
+            batches.push(ops);
+            return { ok: true };
+          }}
+          onEditorReady={(e) => {
+            editorInstance = e;
+          }}
+        />,
+      );
 
-    await waitFor(() => expect(editorInstance).toBeTruthy());
-    act(() => {
-      const { to } = findTextRange(editorInstance!, "Editable text");
-      editorInstance!.commands.insertContentAt(to, " edited");
-    });
-    fireEvent.click(await screen.findByRole("button", { name: "Save" }));
+      await waitFor(() => {
+        expect(editorInstance).toBeTruthy();
+      });
 
-    await waitFor(() => expect(batches).toHaveLength(1));
-    expect(JSON.parse(JSON.stringify(batches[0]))).toEqual([
-      {
-        type: "updateBlock",
-        blockId: "p1",
-        text: [{ insert: "Editable text edited" }],
-      },
-    ]);
-  });
+      // The SUBJECT here is the save boundary (diff -> exactly one correct
+      // updateBlock op), not the DOM-sync pipeline — so the edit is driven
+      // deterministically through the real Editor's transaction seam
+      // (`onEditorReady`), same as the draft-lock suite. Typing into the real
+      // contenteditable belongs to the editor keeper flow in a browser.
+      act(() => {
+        const { to } = findTextRange(editorInstance!, "Docs Model Sample");
+        editorInstance!.commands.insertContentAt(to, " (edited)");
+      });
 
-  it("editing one paragraph's text saves exactly one updateBlock op", async () => {
-    const doc = loadFixture();
-    const batches: DocOp[][] = [];
-    let editorInstance: Editor | null = null;
-    renderWithClient(
-      <DocEditor
-        document={doc}
-        onApplyOps={async (ops) => {
-          batches.push(ops);
-          return { ok: true };
-        }}
-        onEditorReady={(e) => {
-          editorInstance = e;
-        }}
-      />,
-    );
+      await waitFor(() => {
+        expect(screen.getByText("Unsaved changes")).toBeTruthy();
+      });
 
-    await waitFor(() => {
-      expect(editorInstance).toBeTruthy();
-    });
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
-    // The SUBJECT here is the save boundary (diff -> exactly one correct
-    // updateBlock op), not the DOM-sync pipeline — so the edit is driven
-    // deterministically through the real Editor's transaction seam
-    // (`onEditorReady`), same as the draft-lock suite. Typing into the real
-    // contenteditable belongs to the editor keeper flow in a browser.
-    act(() => {
-      const { to } = findTextRange(editorInstance!, "Docs Model Sample");
-      editorInstance!.commands.insertContentAt(to, " (edited)");
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText("Unsaved changes")).toBeTruthy();
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
-
-    await waitFor(() => {
-      expect(batches.length).toBeGreaterThan(0);
-    });
-    expect(batches[0]).toEqual([
-      {
-        type: "updateBlock",
-        blockId: "h1",
-        text: [{ insert: "Docs Model Sample (edited)" }],
-      },
-    ]);
-  });
-
-  it("a no-change save produces zero ops and never calls onApplyOps", async () => {
-    const doc = loadFixture();
-    const batches: DocOp[][] = [];
-    renderWithClient(
-      <DocEditor
-        document={doc}
-        onApplyOps={async (ops) => {
-          batches.push(ops);
-          return { ok: true };
-        }}
-      />,
-    );
-
-    await waitFor(() => {
-      expect(document.querySelector('[data-doc-editor="true"]')).toBeTruthy();
-    });
-
-    const saveButton = screen.getByRole("button", { name: "Save" }) as HTMLButtonElement;
-    // Not dirty yet — Save is disabled and a click must not dispatch.
-    expect(saveButton.disabled).toBe(true);
-    fireEvent.click(saveButton);
-    expect(batches).toHaveLength(0);
-  });
+      await waitFor(() => {
+        expect(batches.length).toBeGreaterThan(0);
+      });
+      expect(batches[0]).toEqual([
+        {
+          type: "updateBlock",
+          blockId: "h1",
+          text: [{ insert: "Docs Model Sample (edited)" }],
+        },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   // Regression: TipTap's stock code mark excludes every other mark, so a
   // stored bold+code span lost its bold on load and the next doc-changing

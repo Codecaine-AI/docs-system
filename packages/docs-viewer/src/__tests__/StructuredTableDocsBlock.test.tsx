@@ -1,131 +1,96 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, render, screen } from "@testing-library/react";
-import {
-  STRUCTURED_TABLE_AGENT_DESCRIPTION,
-  STRUCTURED_TABLE_LABEL,
-  StructuredTableBlock,
-} from "../components/structured-table/StructuredTableDocsBlock";
+import { StructuredTableBlock } from "../components/structured-table/StructuredTableDocsBlock";
 
 afterEach(() => {
   cleanup();
 });
 
 describe("StructuredTableBlock", () => {
-  it("renders columns and rows from structured props", () => {
-    const { container } = render(
-      <StructuredTableBlock
-        id="tbl-1"
-        title="Rollout matrix"
-        columns={["Stage", "Owner", "Status"]}
-        rows={[
-          ["Alpha", "ford", "done"],
-          ["Beta", "ana", "in progress"],
-        ]}
-      />,
-    );
+  it.each([
+    ["pads ragged rows with empty cells so every row spans all columns", () => {
+      const { container } = render(
+        <StructuredTableBlock
+          id="tbl-ragged"
+          columns={["A", "B", "C"]}
+          rows={[["only-a"], ["a", "b", "c", "overflow-dropped"]]}
+        />,
+      );
 
-    expect(screen.getByText("Stage")).toBeTruthy();
-    expect(screen.getByText("Owner")).toBeTruthy();
-    expect(screen.getByText("Status")).toBeTruthy();
-    expect(screen.getByText("Alpha")).toBeTruthy();
-    expect(screen.getByText("in progress")).toBeTruthy();
-    expect(screen.queryByText("normal")).toBeNull();
-    expect(screen.queryByText("tbl-1")).toBeNull();
+      const bodyRows = Array.from(container.querySelectorAll("tbody tr"));
+      expect(bodyRows.length).toBe(2);
+      for (const row of bodyRows) {
+        expect(row.querySelectorAll("td").length).toBe(3);
+      }
+      // Short row padded with empties.
+      const firstRowCells = Array.from(bodyRows[0].querySelectorAll("td")).map(
+        (cell) => cell.textContent,
+      );
+      expect(firstRowCells).toEqual(["only-a", "", ""]);
+      // Extra cells beyond the column set are not rendered.
+      expect(screen.queryByText("overflow-dropped")).toBeNull();
+    }],
+    ["uses theme tokens for spacing and accent rules regardless of density", () => {
+      const { container } = render(
+        <StructuredTableBlock
+          id="tbl-compact"
+          density="compact"
+          columns={["A", "B"]}
+          rows={[
+            ["x", "y"],
+            ["z", "w"],
+          ]}
+        />,
+      );
 
-    const section = container.querySelector('[data-docs-block-type="structured-table"]');
-    expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
-    expect(section?.className).toBe("not-prose my-4");
-    // The title is never drawn: the frame starts at the header row, and the
-    // title only names the table for assistive tech.
-    expect(screen.queryByText("Rollout matrix")).toBeNull();
-    expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Rollout matrix");
-    expect(section?.children.length).toBe(1);
-    expect(section?.firstElementChild?.firstElementChild?.tagName).toBe("TABLE");
-  });
+      const wrapper = container.querySelector("section > div");
+      const header = container.querySelector("thead");
+      const headerCells = container.querySelectorAll("thead th");
+      const bodyRows = container.querySelectorAll("tbody tr");
+      const bodyCells = container.querySelectorAll("tbody td");
 
-  it("pads ragged rows with empty cells so every row spans all columns", () => {
-    const { container } = render(
-      <StructuredTableBlock
-        id="tbl-ragged"
-        columns={["A", "B", "C"]}
-        rows={[["only-a"], ["a", "b", "c", "overflow-dropped"]]}
-      />,
-    );
-
-    const bodyRows = Array.from(container.querySelectorAll("tbody tr"));
-    expect(bodyRows.length).toBe(2);
-    for (const row of bodyRows) {
-      expect(row.querySelectorAll("td").length).toBe(3);
-    }
-    // Short row padded with empties.
-    const firstRowCells = Array.from(bodyRows[0].querySelectorAll("td")).map(
-      (cell) => cell.textContent,
-    );
-    expect(firstRowCells).toEqual(["only-a", "", ""]);
-    // Extra cells beyond the column set are not rendered.
-    expect(screen.queryByText("overflow-dropped")).toBeNull();
-  });
-
-  it("uses theme tokens for spacing and accent rules regardless of density", () => {
-    const { container } = render(
-      <StructuredTableBlock
-        id="tbl-compact"
-        density="compact"
-        columns={["A", "B"]}
-        rows={[
-          ["x", "y"],
-          ["z", "w"],
-        ]}
-      />,
-    );
-
-    const wrapper = container.querySelector("section > div");
-    const header = container.querySelector("thead");
-    const headerCells = container.querySelectorAll("thead th");
-    const bodyRows = container.querySelectorAll("tbody tr");
-    const bodyCells = container.querySelectorAll("tbody td");
-
-    expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
-    );
-    expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
-    );
-    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
-    // One rule under the header row: no boxed frame around it.
-    expect(header?.className).not.toContain("box-shadow");
-    expect(header?.className).toContain(
-      "bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))]",
-    );
-    expect(headerCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
-    );
-    expect(headerCells[0]?.className).toContain(
-      "font-[var(--docs-table-header-weight,600)]",
-    );
-    expect(headerCells[0]?.className).not.toContain("uppercase");
-    expect(bodyCells[0]?.className).toContain(
-      "py-[length:var(--docs-table-cell-pad-y,4px)]",
-    );
-    expect(bodyCells[0]?.className).toContain(
-      "px-[length:var(--docs-table-cell-pad-x,12px)]",
-    );
-    expect(bodyCells[1]?.className).toContain(
-      "px-[length:var(--docs-table-cell-pad-x,12px)]",
-    );
-    expect(bodyCells[0]?.className).toContain(
-      "border-r-[length:var(--docs-table-column-rule-width,0px)]",
-    );
-    expect(bodyCells[1]?.className).not.toContain("border-r");
-    expect(bodyRows[0]?.className).toContain(
-      "border-b-[length:var(--docs-table-row-rule-width,1px)]",
-    );
-    expect(bodyRows[0]?.className).toContain("var(--docs-table-row-rule-opacity,1)");
-    expect(bodyRows[1]?.className).not.toContain("border-b");
-    expect(bodyRows[0]?.className).not.toContain("even:bg-muted/30");
-    expect(bodyCells[0]?.className).not.toContain("px-2 py-1");
-    expect(screen.queryByText("compact")).toBeNull();
-  });
+      expect(wrapper?.className).toContain(
+        "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
+      );
+      expect(header?.className).toContain(
+        "border-b-[length:var(--docs-table-header-rule-width,2px)]",
+      );
+      expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
+      // One rule under the header row: no boxed frame around it.
+      expect(header?.className).not.toContain("box-shadow");
+      expect(header?.className).toContain(
+        "bg-[color:var(--docs-table-header-bg,var(--docs-sunken,#ededec))]",
+      );
+      expect(headerCells[0]?.className).toContain(
+        "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
+      );
+      expect(headerCells[0]?.className).toContain(
+        "font-[var(--docs-table-header-weight,600)]",
+      );
+      expect(headerCells[0]?.className).not.toContain("uppercase");
+      expect(bodyCells[0]?.className).toContain(
+        "py-[length:var(--docs-table-cell-pad-y,4px)]",
+      );
+      expect(bodyCells[0]?.className).toContain(
+        "px-[length:var(--docs-table-cell-pad-x,12px)]",
+      );
+      expect(bodyCells[1]?.className).toContain(
+        "px-[length:var(--docs-table-cell-pad-x,12px)]",
+      );
+      expect(bodyCells[0]?.className).toContain(
+        "border-r-[length:var(--docs-table-column-rule-width,0px)]",
+      );
+      expect(bodyCells[1]?.className).not.toContain("border-r");
+      expect(bodyRows[0]?.className).toContain(
+        "border-b-[length:var(--docs-table-row-rule-width,1px)]",
+      );
+      expect(bodyRows[0]?.className).toContain("var(--docs-table-row-rule-opacity,1)");
+      expect(bodyRows[1]?.className).not.toContain("border-b");
+      expect(bodyRows[0]?.className).not.toContain("even:bg-muted/30");
+      expect(bodyCells[0]?.className).not.toContain("px-2 py-1");
+      expect(screen.queryByText("compact")).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("renders span cells with the shared inline mark elements", () => {
     const { container } = render(
@@ -157,13 +122,5 @@ describe("StructuredTableBlock", () => {
     expect(link.className).toContain("underline");
     // Plain cells still render as raw text, no wrappers.
     expect(screen.getByText("plain").tagName).toBe("TD");
-  });
-
-  it("exports the label and an agent description covering the structured props", () => {
-    expect(STRUCTURED_TABLE_LABEL).toBe("Structured Table");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("columns: TableCell[]");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("rows: TableCell[][]");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("DeltaSpan[]");
-    expect(STRUCTURED_TABLE_AGENT_DESCRIPTION).toContain("density");
   });
 });

@@ -85,16 +85,6 @@ describe("DocCodeBlockHighlight plugin", () => {
     });
   }
 
-  it("decorates code block text with hljs classes at node-relative offsets", () => {
-    const editor = createEditor("const a = 1;", "typescript");
-    const decorations = docCodeBlockHighlightPluginKey.getState(editor.state);
-    // The code block starts at doc position 0; its text starts at 1 — the
-    // `const` keyword decoration must span [1, 6).
-    const found = decorations?.find(1, 6) ?? [];
-    expect(found.length).toBeGreaterThan(0);
-    editor.destroy();
-  });
-
   it("recomputes when the language attr changes", () => {
     const editor = createEditor("const a = 1;", null);
     const before = docCodeBlockHighlightPluginKey.getState(editor.state)?.find() ?? [];
@@ -106,29 +96,40 @@ describe("DocCodeBlockHighlight plugin", () => {
     editor.destroy();
   });
 
-  it("decorates exactly the token text for a code block loaded from a saved doc", () => {
-    const code = "async function run(target: Target) {}";
-    const pm = docToPM({
-      id: "doc-1",
-      title: "Doc",
-      root: "root",
-      blocks: {
-        root: { id: "root", type: "paragraph", props: {}, children: ["code-1"] },
-        "code-1": {
-          id: "code-1",
-          type: "code",
-          props: { language: "typescript" },
-          text: [{ insert: code }],
-          children: [],
+  it.each([
+    ["decorates exactly the token text for a code block loaded from a saved doc", () => {
+      const code = "async function run(target: Target) {}";
+      const pm = docToPM({
+        id: "doc-1",
+        title: "Doc",
+        root: "root",
+        blocks: {
+          root: { id: "root", type: "paragraph", props: {}, children: ["code-1"] },
+          "code-1": {
+            id: "code-1",
+            type: "code",
+            props: { language: "typescript" },
+            text: [{ insert: code }],
+            children: [],
+          },
         },
-      },
-    } as unknown as Parameters<typeof docToPM>[0]);
-    const editor = createEditorWith(pm as Record<string, unknown>);
-    const decorated = (docCodeBlockHighlightPluginKey.getState(editor.state)?.find() ?? []).map(
-      (decoration) => editor.state.doc.textBetween(decoration.from, decoration.to),
-    );
-    expect(decorated).toContain("function");
-    expect(decorated).toContain("Target");
-    editor.destroy();
-  });
+      } as unknown as Parameters<typeof docToPM>[0]);
+      const editor = createEditorWith(pm as Record<string, unknown>);
+      const decorated = (docCodeBlockHighlightPluginKey.getState(editor.state)?.find() ?? []).map(
+        (decoration) => editor.state.doc.textBetween(decoration.from, decoration.to),
+      );
+      expect(decorated).toContain("function");
+      expect(decorated).toContain("Target");
+      editor.destroy();
+    }],
+    ["decorates code block text with hljs classes at node-relative offsets", () => {
+      const editor = createEditor("const a = 1;", "typescript");
+      const decorations = docCodeBlockHighlightPluginKey.getState(editor.state);
+      // The code block starts at doc position 0; its text starts at 1 — the
+      // `const` keyword decoration must span [1, 6).
+      const found = decorations?.find(1, 6) ?? [];
+      expect(found.length).toBeGreaterThan(0);
+      editor.destroy();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

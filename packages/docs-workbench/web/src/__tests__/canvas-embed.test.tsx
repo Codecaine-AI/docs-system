@@ -201,75 +201,76 @@ describe("StandaloneCanvasEmbed loaded canvases", () => {
     ).toBeTruthy();
   });
 
-  it("deep-links sidecar authoring actions into Studio's editor", async () => {
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = (async () =>
-      new Response(
-        JSON.stringify({
-          canvas_path: "guide/assets/canvases/flow.canvas.json",
-          canvas_document_path: "docs/guide/assets/canvases/flow.canvas.json",
-          content_hash: "hash",
-          canvas: syntheticInteractiveCanvas,
-        }),
-        { status: 200, headers: { "content-type": "application/json" } },
-      )) as unknown as typeof fetch;
+  it.each([
+    ["deep-links sidecar authoring actions into Studio's editor", async () => {
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = (async () =>
+        new Response(
+          JSON.stringify({
+            canvas_path: "guide/assets/canvases/flow.canvas.json",
+            canvas_document_path: "docs/guide/assets/canvases/flow.canvas.json",
+            content_hash: "hash",
+            canvas: syntheticInteractiveCanvas,
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        )) as unknown as typeof fetch;
 
-    const expectedHref = `http://localhost:3999/?src=guide%2Fassets%2Fcanvases%2Fflow.canvas.json&server=${encodeURIComponent(window.location.origin)}`;
-    try {
-      const { findByRole, getAllByRole, getByRole } = render(
+      const expectedHref = `http://localhost:3999/?src=guide%2Fassets%2Fcanvases%2Fflow.canvas.json&server=${encodeURIComponent(window.location.origin)}`;
+      try {
+        const { findByRole, getAllByRole, getByRole } = render(
+          <StandaloneCanvasEmbed
+            id="canvas-block"
+            src="guide/assets/canvases/flow.canvas.json"
+            title="Sidecar flow"
+            showEditAction
+          />,
+        );
+
+        await findByRole("button", { name: "Open Sidecar flow in full-screen viewer" });
+        const inlineEdit = getByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement;
+        expect(inlineEdit.href).toBe(expectedHref);
+        expect(inlineEdit.target).toBe("_blank");
+
+        fireEvent.click(
+          getByRole("button", { name: "Open Sidecar flow in full-screen viewer" }),
+        );
+        const editLinks = getAllByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement[];
+        expect(editLinks).toHaveLength(2);
+        for (const link of editLinks) {
+          expect(link.href).toBe(expectedHref);
+        }
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    }],
+    ["links authoring actions to the Canvas Studio root", () => {
+      const { getAllByRole, getByRole, queryByRole } = render(
         <StandaloneCanvasEmbed
           id="canvas-block"
-          src="guide/assets/canvases/flow.canvas.json"
-          title="Sidecar flow"
+          canvasId="synthetic"
           showEditAction
         />,
       );
 
-      await findByRole("button", { name: "Open Sidecar flow in full-screen viewer" });
       const inlineEdit = getByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement;
-      expect(inlineEdit.href).toBe(expectedHref);
+      expect(inlineEdit.href).toBe("http://localhost:3999/");
+      expect(new URL(inlineEdit.href).searchParams.has("server")).toBe(false);
       expect(inlineEdit.target).toBe("_blank");
+      expect(queryByRole("dialog")).toBeNull();
 
       fireEvent.click(
-        getByRole("button", { name: "Open Sidecar flow in full-screen viewer" }),
+        getByRole("button", {
+          name: "Open Synthetic Interview Flow in full-screen viewer",
+        }),
       );
       const editLinks = getAllByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement[];
       expect(editLinks).toHaveLength(2);
       for (const link of editLinks) {
-        expect(link.href).toBe(expectedHref);
+        expect(link.href).toBe("http://localhost:3999/");
+        expect(link.href).not.toContain("/canvas/");
       }
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
-  it("links authoring actions to the Canvas Studio root", () => {
-    const { getAllByRole, getByRole, queryByRole } = render(
-      <StandaloneCanvasEmbed
-        id="canvas-block"
-        canvasId="synthetic"
-        showEditAction
-      />,
-    );
-
-    const inlineEdit = getByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement;
-    expect(inlineEdit.href).toBe("http://localhost:3999/");
-    expect(new URL(inlineEdit.href).searchParams.has("server")).toBe(false);
-    expect(inlineEdit.target).toBe("_blank");
-    expect(queryByRole("dialog")).toBeNull();
-
-    fireEvent.click(
-      getByRole("button", {
-        name: "Open Synthetic Interview Flow in full-screen viewer",
-      }),
-    );
-    const editLinks = getAllByRole("link", { name: "Edit in Canvas" }) as HTMLAnchorElement[];
-    expect(editLinks).toHaveLength(2);
-    for (const link of editLinks) {
-      expect(link.href).toBe("http://localhost:3999/");
-      expect(link.href).not.toContain("/canvas/");
-    }
-  });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("StandaloneCanvasEmbed text measurement", () => {

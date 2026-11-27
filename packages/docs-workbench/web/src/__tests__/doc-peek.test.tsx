@@ -214,25 +214,26 @@ describe("centered page alignment", () => {
   const alignment = () =>
     document.querySelector("[data-docs-content]")!.getAttribute("data-docs-alignment");
 
-  it("centers only while no right-side panel is open", async () => {
-    const view = renderDocPage({ alignment: "centered" });
-    await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
-    expect(alignment()).toBe("centered");
+  it.each([
+    ["centers only while no right-side panel is open", async () => {
+      const view = renderDocPage({ alignment: "centered" });
+      await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
+      expect(alignment()).toBe("centered");
 
-    fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
-    expect(alignment()).toBe("left");
-    expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Show AI panel" }));
+      expect(alignment()).toBe("left");
+      expect(document.querySelector("[data-docs-lab-reserved]")).toBeTruthy();
 
-    fireEvent.click(screen.getByRole("button", { name: "Hide AI panel" }));
-    expect(alignment()).toBe("centered");
+      fireEvent.click(screen.getByRole("button", { name: "Hide AI panel" }));
+      expect(alignment()).toBe("centered");
 
-    view.rerender({ alignment: "centered", sidePeekOpen: true });
-    expect(alignment()).toBe("left");
-  });
-
-  it("stays left-anchored when alignment is left", async () => {
-    renderDocPage({ alignment: "left" });
-    await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
-    expect(alignment()).toBe("left");
-  });
+      view.rerender({ alignment: "centered", sidePeekOpen: true });
+      expect(alignment()).toBe("left");
+    }],
+    ["stays left-anchored when alignment is left", async () => {
+      renderDocPage({ alignment: "left" });
+      await waitFor(() => expect(screen.getByText("Hello from Source")).toBeTruthy());
+      expect(alignment()).toBe("left");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

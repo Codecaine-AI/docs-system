@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "bun:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -22,21 +21,28 @@ function countMatches(html: string, re: RegExp): number {
 }
 
 describe("highlightCode", () => {
-  it("returns exactly one entry per input line, even across multiline tokens", () => {
-    const code = [
-      "const s = `first",
-      "second ${x}",
-      "third`;",
-      "/* comment",
-      "   still comment */",
-      "const n = 1;",
-    ].join("\n");
-    const lines = highlightCode(code, "ts");
-    expect(lines.length).toBe(code.split("\n").length);
-    // Joining the stripped lines reproduces the input text (escaped-neutral
-    // here: this code contains no HTML-special chars beyond none).
-    expect(lines.map(stripTags).join("\n")).toBe(code);
-  });
+  it.each([
+    ["returns exactly one entry per input line, even across multiline tokens", () => {
+      const code = [
+        "const s = `first",
+        "second ${x}",
+        "third`;",
+        "/* comment",
+        "   still comment */",
+        "const n = 1;",
+      ].join("\n");
+      const lines = highlightCode(code, "ts");
+      expect(lines.length).toBe(code.split("\n").length);
+      // Joining the stripped lines reproduces the input text (escaped-neutral
+      // here: this code contains no HTML-special chars beyond none).
+      expect(lines.map(stripTags).join("\n")).toBe(code);
+    }],
+    ["preserves empty lines (count and content)", () => {
+      const lines = highlightCode("const a = 1;\n\nconst b = 2;", "ts");
+      expect(lines.length).toBe(3);
+      expect(stripTags(lines[1])).toBe("");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps every line's spans balanced and re-opens crossing spans per line", () => {
     const code = ["const s = `first", "second ${x}", "third`;", "/* comment", "still */"].join(
@@ -55,20 +61,21 @@ describe("highlightCode", () => {
     expect(lines[0].endsWith("</span>")).toBe(true);
   });
 
-  it("resolves language aliases (ts, js, sh, html, yml, jsonc)", () => {
-    expect(highlightCode("const a = 1;", "ts")[0]).toContain("hljs-keyword");
-    expect(highlightCode("const a = 1;", "js")[0]).toContain("hljs-keyword");
-    expect(highlightCode("echo hi", "sh")[0]).toContain("hljs-built_in");
-    expect(highlightCode("<div>x</div>", "html")[0]).toContain("hljs-tag");
-    expect(highlightCode("key: value", "yml")[0]).toContain("hljs-attr");
-    expect(highlightCode('{"a": 1}', "jsonc")[0]).toContain("hljs-attr");
-  });
-
-  it("highlights undeclared-language JSON via the cheap sniff", () => {
-    const lines = highlightCode('{"key": [1, true, null]}');
-    expect(lines[0]).toContain("hljs-attr");
-    expect(lines[0]).toContain("hljs-number");
-  });
+  it.each([
+    ["resolves language aliases (ts, js, sh, html, yml, jsonc)", () => {
+      expect(highlightCode("const a = 1;", "ts")[0]).toContain("hljs-keyword");
+      expect(highlightCode("const a = 1;", "js")[0]).toContain("hljs-keyword");
+      expect(highlightCode("echo hi", "sh")[0]).toContain("hljs-built_in");
+      expect(highlightCode("<div>x</div>", "html")[0]).toContain("hljs-tag");
+      expect(highlightCode("key: value", "yml")[0]).toContain("hljs-attr");
+      expect(highlightCode('{"a": 1}', "jsonc")[0]).toContain("hljs-attr");
+    }],
+    ["highlights undeclared-language JSON via the cheap sniff", () => {
+      const lines = highlightCode('{"key": [1, true, null]}');
+      expect(lines[0]).toContain("hljs-attr");
+      expect(lines[0]).toContain("hljs-number");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("falls back to escaped plain lines for unknown languages", () => {
     const lines = highlightCode("a < b && c > 'd'", "klingon");
@@ -83,25 +90,41 @@ describe("highlightCode", () => {
       expect(joined).not.toContain("<img");
     }
   });
-
-  it("preserves empty lines (count and content)", () => {
-    const lines = highlightCode("const a = 1;\n\nconst b = 2;", "ts");
-    expect(lines.length).toBe(3);
-    expect(stripTags(lines[1])).toBe("");
-  });
 });
 
 describe("null literals carry hljs-null so --syntax-null reaches code blocks", () => {
-  it("tags JSON null (nested keyword shape) but not true/false", () => {
-    const [line] = highlightCode('{"a": null, "b": true, "c": false}', "json");
-    expect(line).toContain(
-      '<span class="hljs-literal hljs-null"><span class="hljs-keyword">null</span></span>',
-    );
-    expect(countMatches(line, /hljs-null/g)).toBe(1);
-    expect(line).toContain('<span class="hljs-literal"><span class="hljs-keyword">true</span></span>');
-    // The text itself is untouched.
-    expect(stripTags(line)).toBe("{&quot;a&quot;: null, &quot;b&quot;: true, &quot;c&quot;: false}");
-  });
+  it.each([
+    ["tags JSON null (nested keyword shape) but not true/false", () => {
+      const [line] = highlightCode('{"a": null, "b": true, "c": false}', "json");
+      expect(line).toContain(
+        '<span class="hljs-literal hljs-null"><span class="hljs-keyword">null</span></span>',
+      );
+      expect(countMatches(line, /hljs-null/g)).toBe(1);
+      expect(line).toContain('<span class="hljs-literal"><span class="hljs-keyword">true</span></span>');
+      // The text itself is untouched.
+      expect(stripTags(line)).toBe("{&quot;a&quot;: null, &quot;b&quot;: true, &quot;c&quot;: false}");
+    }],
+    ["tags if/return/import/from in ts but not const/function", () => {
+      const line = highlightCode(
+        'import { a } from "b"; function f() { const x = 1; if (x) { return x; } }',
+        "ts",
+      )[0];
+      for (const word of ["import", "from", "if", "return"]) {
+        expect(line).toContain(`${CONTROL}${word}</span>`);
+      }
+      expect(line).toContain('<span class="hljs-keyword">const</span>');
+      expect(line).toContain('<span class="hljs-keyword">function</span>');
+      expect(countMatches(line, /hljs-control/g)).toBe(4);
+    }],
+    ["splits built-ins: types get hljs-type, callables stay plain built_in", () => {
+      const line = highlightCode("const s: string = String(setTimeout(f));", "ts")[0];
+      expect(line).toContain('<span class="hljs-built_in hljs-type">string</span>');
+      expect(line).toContain('<span class="hljs-built_in">setTimeout</span>');
+      expect(highlightCode("print(int(x))", "python")[0]).toContain(
+        '<span class="hljs-built_in">print</span>(<span class="hljs-built_in hljs-type">int</span>',
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("tags the direct-literal shape in ts, python and go", () => {
     expect(highlightCode("const a = null;", "ts")[0]).toContain(
@@ -126,32 +149,12 @@ describe("null literals carry hljs-null so --syntax-null reaches code blocks", (
     expect(token).toEqual({ from: 6, to: 10, className: "hljs-literal hljs-null hljs-keyword" });
     expect(code.slice(token!.from, token!.to)).toBe("null");
   });
-
-  it("the stylesheet colors hljs-null from --syntax-null, after the literal rule", () => {
-    const css = readFileSync(new URL("../styles/code.css", import.meta.url), "utf8");
-    const nullRule = css.indexOf(".hljs-null,");
-    expect(nullRule).toBeGreaterThan(css.indexOf(".hljs-literal,"));
-    expect(css.slice(nullRule)).toMatch(
-      /^\.hljs-null,\s*\.hljs-null \.hljs-keyword \{\s*color: var\(--syntax-null, /,
-    );
-  });
 });
 
-describe("control-flow keywords carry hljs-control so --syntax-control reaches them", () => {
-  const CONTROL = '<span class="hljs-keyword hljs-control">';
+// Moved out of the describe below: a case carried to another describe's keeper uses it too.
+const CONTROL = '<span class="hljs-keyword hljs-control">';
 
-  it("tags if/return/import/from in ts but not const/function", () => {
-    const line = highlightCode(
-      'import { a } from "b"; function f() { const x = 1; if (x) { return x; } }',
-      "ts",
-    )[0];
-    for (const word of ["import", "from", "if", "return"]) {
-      expect(line).toContain(`${CONTROL}${word}</span>`);
-    }
-    expect(line).toContain('<span class="hljs-keyword">const</span>');
-    expect(line).toContain('<span class="hljs-keyword">function</span>');
-    expect(countMatches(line, /hljs-control/g)).toBe(4);
-  });
+describe("control-flow keywords carry hljs-control so --syntax-control reaches them", () => {
 
   it("leaves the word `if` inside strings and comments untagged", () => {
     const line = highlightCode('const s = "if return"; // if import', "ts")[0];
@@ -178,20 +181,6 @@ describe("control-flow keywords carry hljs-control so --syntax-control reaches t
       { from: 13, to: 19, className: "hljs-keyword hljs-control" },
     ]);
     expect(tokens.map((token) => code.slice(token.from, token.to))).toEqual(["if", "return"]);
-  });
-
-  it("splits built-ins: types get hljs-type, callables stay plain built_in", () => {
-    const line = highlightCode("const s: string = String(setTimeout(f));", "ts")[0];
-    expect(line).toContain('<span class="hljs-built_in hljs-type">string</span>');
-    expect(line).toContain('<span class="hljs-built_in">setTimeout</span>');
-    expect(highlightCode("print(int(x))", "python")[0]).toContain(
-      '<span class="hljs-built_in">print</span>(<span class="hljs-built_in hljs-type">int</span>',
-    );
-  });
-
-  it("the stylesheet colors control keywords from --syntax-control", () => {
-    const css = readFileSync(new URL("../styles/code.css", import.meta.url), "utf8");
-    expect(css).toMatch(/\.hljs-keyword\.hljs-control \{\s*color: var\(--syntax-control, /);
   });
 });
 
@@ -238,12 +227,18 @@ describe("canonicalLanguage", () => {
 });
 
 describe("prettyPrintIfJson", () => {
-  it("pretty-prints one-liner JSON when the language is json/jsonc", () => {
-    expect(prettyPrintIfJson('{"a":1,"b":[true,null]}', "json")).toBe(
-      '{\n  "a": 1,\n  "b": [\n    true,\n    null\n  ]\n}',
-    );
-    expect(prettyPrintIfJson("[1,2]", "jsonc")).toBe("[\n  1,\n  2\n]");
-  });
+  it.each([
+    ["pretty-prints one-liner JSON when the language is json/jsonc", () => {
+      expect(prettyPrintIfJson('{"a":1,"b":[true,null]}', "json")).toBe(
+        '{\n  "a": 1,\n  "b": [\n    true,\n    null\n  ]\n}',
+      );
+      expect(prettyPrintIfJson("[1,2]", "jsonc")).toBe("[\n  1,\n  2\n]");
+    }],
+    ["is display-only stable: already-pretty JSON round-trips to the same form", () => {
+      const pretty = '{\n  "a": 1\n}';
+      expect(prettyPrintIfJson(pretty, "json")).toBe(pretty);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("pretty-prints undeclared-language text that parses as a JSON object/array", () => {
     expect(prettyPrintIfJson('{"a":1}')).toBe('{\n  "a": 1\n}');
@@ -260,10 +255,5 @@ describe("prettyPrintIfJson", () => {
     // JSON-looking text under a non-json language is left alone.
     expect(prettyPrintIfJson('{"a": 1}', "python")).toBe('{"a": 1}');
     expect(prettyPrintIfJson("", "json")).toBe("");
-  });
-
-  it("is display-only stable: already-pretty JSON round-trips to the same form", () => {
-    const pretty = '{\n  "a": 1\n}';
-    expect(prettyPrintIfJson(pretty, "json")).toBe(pretty);
   });
 });

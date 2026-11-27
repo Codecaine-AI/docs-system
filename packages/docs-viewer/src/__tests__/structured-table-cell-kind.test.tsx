@@ -13,78 +13,81 @@ const code = (text: string): TableCell => [{ insert: text, attributes: { code: t
 const noop = () => {};
 
 describe("tableCellKinds", () => {
-  it("types identifier columns mono and colors only the key column", () => {
-    // The overrides table from the structured-table vocabulary page.
-    const rows: TableCell[][] = [
-      ["headerRuleWidth", code("--docs-table-header-rule-width"), "1.5px"],
-      ["cellPaddingY", code("--docs-table-cell-pad-y"), "12px"],
-      ["rowRuleOpacity", code("--docs-table-row-rule-opacity"), "0.8"],
-    ];
-    expect(tableCellKinds(rows, 3)).toEqual([
-      ["key", "mono", "mono"],
-      ["key", "mono", "mono"],
-      ["key", "mono", "mono"],
-    ]);
-  });
-
-  it("keeps plain-word and prose columns sans", () => {
-    // The token reference table: Kind holds single plain words, Notes is prose.
-    const rows: TableCell[][] = [
-      ["border", "--docs-table-border", "color", "Outer wrapper border (default: grey)"],
-      ["headerBg", "--docs-table-header-bg", "color", "Header row background"],
-      ["headerRuleWidth", "--docs-table-header-rule-width", "length", "Header rule thickness"],
-    ];
-    expect(tableCellKinds(rows, 4)).toEqual([
-      // "border" is a plain word, but its column qualifies through headerBg.
-      ["key", "mono", undefined, undefined],
-      ["key", "mono", undefined, undefined],
-      ["key", "mono", undefined, undefined],
-    ]);
-  });
-
-  it("never turns ordinary words mono", () => {
-    const rows: TableCell[][] = [
-      ["Alpha", "done", "read-only", "up-to-date", "e.g."],
-      ["Beta", "in-progress", "built-in", "end-to-end", "Item"],
-    ];
-    expect(tableCellKinds(rows, 5)).toEqual([
-      [undefined, undefined, undefined, undefined, undefined],
-      [undefined, undefined, undefined, undefined, undefined],
-    ]);
-  });
-
-  it("keeps a not-applicable word or dash sans inside an identifier column", () => {
-    const rows: TableCell[][] = [["serve", "4802"], ["help", "None"], ["test", "—"]];
-    expect(tableCellKinds(rows, 2).map((row) => row[1])).toEqual(["mono", undefined, undefined]);
-  });
-
-  it("recognizes each strict identifier shape", () => {
-    for (const identifier of [
-      "file-tree.addEntry",
-      "editor.commands.focus()",
-      "row_rule",
-      "MAX_ROWS",
-      "--docs-shape-*",
-      "120ms",
-      "50%",
-      "structured-table-overrides",
-    ]) {
-      expect(tableCellKinds([["Name", identifier]], 2)[0]).toEqual([undefined, "mono"]);
-    }
-  });
-
-  it("leaves prose cells (inline code included) sans inside an identifier column", () => {
-    const rows: TableCell[][] = [
-      ["actionHeaderBg", "Card header background"],
-      ["State Shape tokens", [{ insert: "Use " }, { insert: "--docs-shape-*", attributes: { code: true } }]],
-      ["", "x"],
-    ];
-    expect(tableCellKinds(rows, 2)).toEqual([
-      ["key", undefined],
-      [undefined, undefined],
-      [undefined, undefined],
-    ]);
-  });
+  it.each([
+    ["types identifier columns mono and colors only the key column", () => {
+      // The overrides table from the structured-table vocabulary page.
+      const rows: TableCell[][] = [
+        ["headerRuleWidth", code("--docs-table-header-rule-width"), "1.5px"],
+        ["cellPaddingY", code("--docs-table-cell-pad-y"), "12px"],
+        ["rowRuleOpacity", code("--docs-table-row-rule-opacity"), "0.8"],
+      ];
+      expect(tableCellKinds(rows, 3)).toEqual([
+        ["key", "mono", "mono"],
+        ["key", "mono", "mono"],
+        ["key", "mono", "mono"],
+      ]);
+    }],
+    ["keeps plain-word and prose columns sans", () => {
+      // The token reference table: Kind holds single plain words, Notes is prose.
+      const rows: TableCell[][] = [
+        ["border", "--docs-table-border", "color", "Outer wrapper border (default: grey)"],
+        ["headerBg", "--docs-table-header-bg", "color", "Header row background"],
+        ["headerRuleWidth", "--docs-table-header-rule-width", "length", "Header rule thickness"],
+      ];
+      expect(tableCellKinds(rows, 4)).toEqual([
+        // "border" is a plain word, but its column qualifies through headerBg.
+        ["key", "mono", undefined, undefined],
+        ["key", "mono", undefined, undefined],
+        ["key", "mono", undefined, undefined],
+      ]);
+    }],
+    ["never turns ordinary words mono", () => {
+      const rows: TableCell[][] = [
+        ["Alpha", "done", "read-only", "up-to-date", "e.g."],
+        ["Beta", "in-progress", "built-in", "end-to-end", "Item"],
+      ];
+      expect(tableCellKinds(rows, 5)).toEqual([
+        [undefined, undefined, undefined, undefined, undefined],
+        [undefined, undefined, undefined, undefined, undefined],
+      ]);
+    }],
+    ["keeps a not-applicable word or dash sans inside an identifier column", () => {
+      const rows: TableCell[][] = [["serve", "4802"], ["help", "None"], ["test", "—"]];
+      expect(tableCellKinds(rows, 2).map((row) => row[1])).toEqual(["mono", undefined, undefined]);
+    }],
+    ["recognizes each strict identifier shape", () => {
+      for (const identifier of [
+        "file-tree.addEntry",
+        "editor.commands.focus()",
+        "row_rule",
+        "MAX_ROWS",
+        "--docs-shape-*",
+        "120ms",
+        "50%",
+        "structured-table-overrides",
+      ]) {
+        expect(tableCellKinds([["Name", identifier]], 2)[0]).toEqual([undefined, "mono"]);
+      }
+    }],
+    ["leaves prose cells (inline code included) sans inside an identifier column", () => {
+      const rows: TableCell[][] = [
+        ["actionHeaderBg", "Card header background"],
+        ["State Shape tokens", [{ insert: "Use " }, { insert: "--docs-shape-*", attributes: { code: true } }]],
+        ["", "x"],
+      ];
+      expect(tableCellKinds(rows, 2)).toEqual([
+        ["key", undefined],
+        [undefined, undefined],
+        [undefined, undefined],
+      ]);
+    }],
+    ["types a whole-cell code span mono in any column, and pads ragged rows", () => {
+      expect(tableCellKinds([["Run", code("npm i")], ["Lint"]], 2)).toEqual([
+        [undefined, "mono"],
+        [undefined, undefined],
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps code chips on one-name cells when the column also lists several names", () => {
     // Round 2 brief 6: "`sequence`" lost its chip while "`canvas`, `text-measure`" kept both.
@@ -101,13 +104,6 @@ describe("tableCellKinds", () => {
     expect(cells.map((td) => [td.hasAttribute("data-cell-kind"), Array.from(td.querySelectorAll("code")).map((c) => c.textContent)])).toEqual([
       [false, ["canvas", "text-measure"]],
       [false, ["sequence"]],
-    ]);
-  });
-
-  it("types a whole-cell code span mono in any column, and pads ragged rows", () => {
-    expect(tableCellKinds([["Run", code("npm i")], ["Lint"]], 2)).toEqual([
-      [undefined, "mono"],
-      [undefined, undefined],
     ]);
   });
 });

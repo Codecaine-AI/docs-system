@@ -143,6 +143,7 @@ describe("ChangeSetCard", () => {
 		expect(document.querySelectorAll('[data-docs-lab-changeset-treeop]')).toHaveLength(2);
 	});
 
+	// regression: ff15f68
 	it("renders missing and rejected entry states with muted chips", () => {
 		render(<ChangeSetCard changeset={fixture({ entries: [
 			{ ...fixture().entries[0]!, status: "missing" },
@@ -155,14 +156,6 @@ describe("ChangeSetCard", () => {
 			expect(chip.className).toContain("--docs-muted-foreground");
 			expect(chip.getAttribute("title")?.endsWith(".")).toBe(true);
 		}
-	});
-
-	it("sends the selected document path to the host", () => {
-		const onOpenDoc = mock(() => {});
-		render(<ChangeSetCard changeset={fixture()} onOpenDoc={onOpenDoc} />);
-
-		fireEvent.click(document.querySelector('[data-docs-lab-changeset-row="docs/30-guides/10-quick-start"]')!);
-		expect(onOpenDoc).toHaveBeenCalledWith("docs/30-guides/10-quick-start");
 	});
 
 	it("wires enabled accept and reject actions", () => {

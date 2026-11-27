@@ -27,52 +27,52 @@ function textNodes(root: HTMLElement): Text[] {
 }
 
 describe("annotate-range", () => {
-  it("maps a range within a single text node", () => {
-    const block = blockEl("Hello world");
-    const [text] = textNodes(block);
-    const range = document.createRange();
-    range.setStart(text, 6);
-    range.setEnd(text, 11);
+  it.each([
+    ["maps a range within a single text node", () => {
+      const block = blockEl("Hello world");
+      const [text] = textNodes(block);
+      const range = document.createRange();
+      range.setStart(text, 6);
+      range.setEnd(text, 11);
 
-    expect(blockTextRangeFromDomRange(range)).toEqual({
-      blockId: "b1",
-      start: 6,
-      end: 11,
-      quote: "world",
-    });
-  });
+      expect(blockTextRangeFromDomRange(range)).toEqual({
+        blockId: "b1",
+        start: 6,
+        end: 11,
+        quote: "world",
+      });
+    }],
+    ["maps a range spanning styled inline spans against the block's textContent", () => {
+      const block = blockEl("Hello <strong>brave</strong> world");
+      const nodes = textNodes(block); // "Hello ", "brave", " world"
+      const range = document.createRange();
+      range.setStart(nodes[0], 3); // "lo "
+      range.setEnd(nodes[2], 3); // " wo"
 
-  it("maps a range spanning styled inline spans against the block's textContent", () => {
-    const block = blockEl("Hello <strong>brave</strong> world");
-    const nodes = textNodes(block); // "Hello ", "brave", " world"
-    const range = document.createRange();
-    range.setStart(nodes[0], 3); // "lo "
-    range.setEnd(nodes[2], 3); // " wo"
+      const mapped = blockTextRangeFromDomRange(range);
+      expect(mapped).toEqual({ blockId: "b1", start: 3, end: 14, quote: "lo brave wo" });
+      // The convention: quote is exactly the slice of the rendered textContent.
+      expect((block.textContent ?? "").slice(mapped!.start, mapped!.end)).toBe(mapped!.quote);
+    }],
+    ["clamps a range whose end escapes the block to the block's end", () => {
+      const host = document.createElement("div");
+      host.innerHTML =
+        '<div data-block-id="b1">First block</div><div data-block-id="b2">Second</div>';
+      document.body.appendChild(host);
+      const first = host.querySelector<HTMLElement>('[data-block-id="b1"]')!;
+      const second = host.querySelector<HTMLElement>('[data-block-id="b2"]')!;
+      const range = document.createRange();
+      range.setStart(first.firstChild!, 6);
+      range.setEnd(second.firstChild!, 3);
 
-    const mapped = blockTextRangeFromDomRange(range);
-    expect(mapped).toEqual({ blockId: "b1", start: 3, end: 14, quote: "lo brave wo" });
-    // The convention: quote is exactly the slice of the rendered textContent.
-    expect((block.textContent ?? "").slice(mapped!.start, mapped!.end)).toBe(mapped!.quote);
-  });
-
-  it("clamps a range whose end escapes the block to the block's end", () => {
-    const host = document.createElement("div");
-    host.innerHTML =
-      '<div data-block-id="b1">First block</div><div data-block-id="b2">Second</div>';
-    document.body.appendChild(host);
-    const first = host.querySelector<HTMLElement>('[data-block-id="b1"]')!;
-    const second = host.querySelector<HTMLElement>('[data-block-id="b2"]')!;
-    const range = document.createRange();
-    range.setStart(first.firstChild!, 6);
-    range.setEnd(second.firstChild!, 3);
-
-    expect(blockTextRangeFromDomRange(range)).toEqual({
-      blockId: "b1",
-      start: 6,
-      end: 11,
-      quote: "block",
-    });
-  });
+      expect(blockTextRangeFromDomRange(range)).toEqual({
+        blockId: "b1",
+        start: 6,
+        end: 11,
+        quote: "block",
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("returns null for a range outside any block or with an empty clamped span", () => {
     const host = document.createElement("div");

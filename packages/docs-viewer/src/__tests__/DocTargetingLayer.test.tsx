@@ -33,71 +33,72 @@ const bundleDoc: DocDocument = {
 };
 
 describe("DocTargetingLayer (source/MDX mode)", () => {
-  it("pinpoint click opens the built-in toolbar and creates a delete annotation", () => {
-    const created: unknown[] = [];
-    render(
-      <DocTargetingLayer
-        mode="pinpoint"
-        content={"A paragraph to target."}
-        contentHash="hash-1"
-        documentPath="docs/a.mdx"
-        onCreateAnnotation={(input) => created.push(input)}
-      >
-        <p>A paragraph to target.</p>
-      </DocTargetingLayer>,
-    );
-
-    fireEvent.click(screen.getByText("A paragraph to target."));
-
-    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
-    expect(screen.getByText("Paragraph")).toBeTruthy();
-    fireEvent.click(screen.getByLabelText("Mark for deletion"));
-
-    expect(created).toHaveLength(1);
-    expect(created[0]).toMatchObject({
-      intent: "delete",
-      body: "Delete this selection.",
-      resolution_target: "agent",
-      anchor: {
-        document_path: "docs/a.mdx",
-        content_hash: "hash-1",
-        text_quote: "A paragraph to target.",
-        target_kind: "block",
-        target: { kind: "block", block_type: "paragraph" },
-      },
-    });
-    // Toolbar submit clears the ring.
-    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
-  });
-
-  it("pinpoint click ignores a non-collapsed selection outside the targeting layer", () => {
-    render(
-      <>
-        <p data-testid="outside-selection">Unrelated selection.</p>
+  it.each([
+    ["pinpoint click opens the built-in toolbar and creates a delete annotation", () => {
+      const created: unknown[] = [];
+      render(
         <DocTargetingLayer
           mode="pinpoint"
-          content={"Target this paragraph."}
-          contentHash="hash-outside-selection"
-          documentPath="docs/outside-selection.mdx"
+          content={"A paragraph to target."}
+          contentHash="hash-1"
+          documentPath="docs/a.mdx"
+          onCreateAnnotation={(input) => created.push(input)}
         >
-          <p>Target this paragraph.</p>
-        </DocTargetingLayer>
-      </>,
-    );
+          <p>A paragraph to target.</p>
+        </DocTargetingLayer>,
+      );
 
-    const outside = screen.getByTestId("outside-selection");
-    const range = document.createRange();
-    range.selectNodeContents(outside);
-    const selection = window.getSelection()!;
-    selection.removeAllRanges();
-    selection.addRange(range);
-    expect(selection.isCollapsed).toBe(false);
+      fireEvent.click(screen.getByText("A paragraph to target."));
 
-    fireEvent.click(screen.getByText("Target this paragraph."));
+      expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
+      expect(screen.getByText("Paragraph")).toBeTruthy();
+      fireEvent.click(screen.getByLabelText("Mark for deletion"));
 
-    expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
-    expect(screen.getByText("Paragraph")).toBeTruthy();
-  });
+      expect(created).toHaveLength(1);
+      expect(created[0]).toMatchObject({
+        intent: "delete",
+        body: "Delete this selection.",
+        resolution_target: "agent",
+        anchor: {
+          document_path: "docs/a.mdx",
+          content_hash: "hash-1",
+          text_quote: "A paragraph to target.",
+          target_kind: "block",
+          target: { kind: "block", block_type: "paragraph" },
+        },
+      });
+      // Toolbar submit clears the ring.
+      expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeNull();
+    }],
+    ["pinpoint click ignores a non-collapsed selection outside the targeting layer", () => {
+      render(
+        <>
+          <p data-testid="outside-selection">Unrelated selection.</p>
+          <DocTargetingLayer
+            mode="pinpoint"
+            content={"Target this paragraph."}
+            contentHash="hash-outside-selection"
+            documentPath="docs/outside-selection.mdx"
+          >
+            <p>Target this paragraph.</p>
+          </DocTargetingLayer>
+        </>,
+      );
+
+      const outside = screen.getByTestId("outside-selection");
+      const range = document.createRange();
+      range.selectNodeContents(outside);
+      const selection = window.getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      expect(selection.isCollapsed).toBe(false);
+
+      fireEvent.click(screen.getByText("Target this paragraph."));
+
+      expect(document.querySelector('[data-docs-target-overlay="selected"]')).toBeTruthy();
+      expect(screen.getByText("Paragraph")).toBeTruthy();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("hovering in pinpoint mode outlines the block and shows the label chip", () => {
     render(

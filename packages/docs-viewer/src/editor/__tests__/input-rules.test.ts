@@ -139,101 +139,107 @@ function firstText(json: JSONContent) {
 }
 
 describe("buildDocInputRules", () => {
-  it("applies bold from double asterisk delimiters", () => {
-    const { json } = trigger("**bold text*", "*");
+  it.each([
+    ["applies bold from double asterisk delimiters", () => {
+      const { json } = trigger("**bold text*", "*");
 
-    expect(firstText(json)).toMatchObject({
-      type: "text",
-      text: "bold text",
-      marks: [{ type: "bold" }],
-    });
-  });
+      expect(firstText(json)).toMatchObject({
+        type: "text",
+        text: "bold text",
+        marks: [{ type: "bold" }],
+      });
+    }],
+    ["closing double asterisks resolve as bold, never italic", () => {
+      const { json } = trigger("**bold text*", "*");
 
-  it("closing double asterisks resolve as bold, never italic", () => {
-    const { json } = trigger("**bold text*", "*");
+      expect(firstText(json)?.marks).toEqual([{ type: "bold" }]);
+    }],
+    ["applies code from backtick delimiters", () => {
+      const { json } = trigger("`code text", "`");
 
-    expect(firstText(json)?.marks).toEqual([{ type: "bold" }]);
-  });
+      expect(firstText(json)).toMatchObject({
+        type: "text",
+        text: "code text",
+        marks: [{ type: "code" }],
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("does NOT auto-italicize single asterisk delimiters (bold-only policy)", () => {
-    const { json } = trigger("*italic text", "*");
+  it.each([
+    ["does NOT auto-italicize single asterisk delimiters (bold-only policy)", () => {
+      const { json } = trigger("*italic text", "*");
 
-    expect(firstText(json)).toMatchObject({ type: "text", text: "*italic text*" });
-    expect(firstText(json)?.marks).toBeUndefined();
-  });
+      expect(firstText(json)).toMatchObject({ type: "text", text: "*italic text*" });
+      expect(firstText(json)?.marks).toBeUndefined();
+    }],
+    ["does NOT auto-strike double tilde delimiters (bold-only policy)", () => {
+      const { json } = trigger("~~strike text~", "~");
 
-  it("does NOT auto-strike double tilde delimiters (bold-only policy)", () => {
-    const { json } = trigger("~~strike text~", "~");
+      expect(firstText(json)).toMatchObject({ type: "text", text: "~~strike text~~" });
+      expect(firstText(json)?.marks).toBeUndefined();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-    expect(firstText(json)).toMatchObject({ type: "text", text: "~~strike text~~" });
-    expect(firstText(json)?.marks).toBeUndefined();
-  });
+  it.each([
+    ["converts # to level 1 docHeading", () => {
+      const { json } = trigger("#", " ");
 
-  it("applies code from backtick delimiters", () => {
-    const { json } = trigger("`code text", "`");
+      expect(firstBlock(json)).toMatchObject({
+        type: "docHeading",
+        attrs: { blockId: null, blockProps: {}, level: 1 },
+      });
+    }],
+    ["converts ## to level 2 docHeading", () => {
+      const { json } = trigger("##", " ");
 
-    expect(firstText(json)).toMatchObject({
-      type: "text",
-      text: "code text",
-      marks: [{ type: "code" }],
-    });
-  });
+      expect(firstBlock(json)).toMatchObject({
+        type: "docHeading",
+        attrs: { blockId: null, blockProps: {}, level: 2 },
+      });
+    }],
+    ["converts ### to level 3 docHeading", () => {
+      const { json } = trigger("###", " ");
 
-  it("converts # to level 1 docHeading", () => {
-    const { json } = trigger("#", " ");
+      expect(firstBlock(json)).toMatchObject({
+        type: "docHeading",
+        attrs: { blockId: null, blockProps: {}, level: 3 },
+      });
+    }],
+    ["keeps the blockId when converting a paragraph", () => {
+      const { json } = trigger("##", " ", { blockId: "b-stable-1" });
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docHeading",
-      attrs: { blockId: null, blockProps: {}, level: 1 },
-    });
-  });
+      expect(firstBlock(json)).toMatchObject({
+        type: "docHeading",
+        attrs: { blockId: "b-stable-1", level: 2 },
+      });
+    }],
+    ["converts dash trigger to an unordered docListItem", () => {
+      const { json } = trigger("-", " ");
 
-  it("converts ## to level 2 docHeading", () => {
-    const { json } = trigger("##", " ");
+      // `ordered: null` is deliberate — the absent-in-source-props sentinel
+      // (see DocListItem's attr comment); null renders as unordered.
+      expect(firstBlock(json)).toMatchObject({
+        type: "docListItem",
+        attrs: { blockId: null, blockProps: {}, ordered: null },
+      });
+    }],
+    ["converts asterisk trigger to an unordered docListItem", () => {
+      const { json } = trigger("*", " ");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docHeading",
-      attrs: { blockId: null, blockProps: {}, level: 2 },
-    });
-  });
+      expect(firstBlock(json)).toMatchObject({
+        type: "docListItem",
+        attrs: { blockId: null, blockProps: {}, ordered: null },
+      });
+    }],
+    ["converts ordered trigger to an ordered docListItem", () => {
+      const { json } = trigger("1.", " ");
 
-  it("converts ### to level 3 docHeading", () => {
-    const { json } = trigger("###", " ");
-
-    expect(firstBlock(json)).toMatchObject({
-      type: "docHeading",
-      attrs: { blockId: null, blockProps: {}, level: 3 },
-    });
-  });
-
-  it("keeps the blockId when converting a paragraph", () => {
-    const { json } = trigger("##", " ", { blockId: "b-stable-1" });
-
-    expect(firstBlock(json)).toMatchObject({
-      type: "docHeading",
-      attrs: { blockId: "b-stable-1", level: 2 },
-    });
-  });
-
-  it("converts dash trigger to an unordered docListItem", () => {
-    const { json } = trigger("-", " ");
-
-    // `ordered: null` is deliberate — the absent-in-source-props sentinel
-    // (see DocListItem's attr comment); null renders as unordered.
-    expect(firstBlock(json)).toMatchObject({
-      type: "docListItem",
-      attrs: { blockId: null, blockProps: {}, ordered: null },
-    });
-  });
-
-  it("converts asterisk trigger to an unordered docListItem", () => {
-    const { json } = trigger("*", " ");
-
-    expect(firstBlock(json)).toMatchObject({
-      type: "docListItem",
-      attrs: { blockId: null, blockProps: {}, ordered: null },
-    });
-  });
+      expect(firstBlock(json)).toMatchObject({
+        type: "docListItem",
+        attrs: { blockId: null, blockProps: {}, ordered: true },
+      });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("converts [ ] to an open task item and [x] to a done one", () => {
     for (const [typed, checked] of [["[ ]", false], ["[]", false], ["[x]", true], ["[X]", true]] as const) {
@@ -266,33 +272,24 @@ describe("buildDocInputRules", () => {
     expect(firstText(json)).toMatchObject({ type: "text", text: "[x] " });
   });
 
-  it("does not convert [ ] typed mid-paragraph", () => {
-    const { json } = trigger("todo [ ]", " ");
-    expect(firstBlock(json)?.type).toBe("docParagraph");
-  });
+  it.each([
+    ["does not convert [ ] typed mid-paragraph", () => {
+      const { json } = trigger("todo [ ]", " ");
+      expect(firstBlock(json)?.type).toBe("docParagraph");
+    }],
+    ["leaves a typed `> ` as paragraph text (there is no quote block)", () => {
+      const { json } = trigger(">", " ");
 
-  it("converts ordered trigger to an ordered docListItem", () => {
-    const { json } = trigger("1.", " ");
+      expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+      expect(firstText(json)).toMatchObject({ type: "text", text: "> " });
+    }],
+    ["does not convert mid-paragraph hashes", () => {
+      const { json } = trigger("some text ##", " ");
 
-    expect(firstBlock(json)).toMatchObject({
-      type: "docListItem",
-      attrs: { blockId: null, blockProps: {}, ordered: true },
-    });
-  });
-
-  it("leaves a typed `> ` as paragraph text (there is no quote block)", () => {
-    const { json } = trigger(">", " ");
-
-    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
-    expect(firstText(json)).toMatchObject({ type: "text", text: "> " });
-  });
-
-  it("does not convert mid-paragraph hashes", () => {
-    const { json } = trigger("some text ##", " ");
-
-    expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
-    expect(firstText(json)).toMatchObject({ type: "text", text: "some text ## " });
-  });
+      expect(firstBlock(json)).toMatchObject({ type: "docParagraph" });
+      expect(firstText(json)).toMatchObject({ type: "text", text: "some text ## " });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("converts to docCodeBlock the moment the third backtick lands", () => {
     const { json } = trigger("``", "`");
