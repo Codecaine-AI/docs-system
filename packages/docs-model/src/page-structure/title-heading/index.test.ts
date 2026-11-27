@@ -28,15 +28,16 @@ test("fix removes the opening duplicate, reparents children, preserves other hea
   expect(undo.ok && undo.doc).toEqual(doc);
 });
 
-test("non-opening repeated headings and untitled docs are unchanged", () => {
-  const doc = { ...document(paragraph("p", "Intro"), heading("h", "Title")), title: "Title" };
-  expect(titleHeadingFixOps(doc)).toEqual([]);
-  expect(lintDocument(doc, { phase: "complete" }).blocking).toEqual([]);
-  expect(titleHeadingFixOps({ ...doc, title: "" })).toEqual([]);
-});
-
-test("a distinct opening H1 and multiple body H1s are preserved by title cleanup", () => {
-  const doc = { ...document(heading("a", "First Section"), heading("b", "Second Section")), title: "Page Title" };
-  expect(titleHeadingFixOps(doc)).toEqual([]);
-  expect(lintDocument(doc, { phase: "complete" }).findings.filter(f => f.ruleId === "structure.title-heading")).toEqual([]);
-});
+test.each([
+  ["non-opening repeated headings and untitled docs are unchanged", () => {
+    const doc = { ...document(paragraph("p", "Intro"), heading("h", "Title")), title: "Title" };
+    expect(titleHeadingFixOps(doc)).toEqual([]);
+    expect(lintDocument(doc, { phase: "complete" }).blocking).toEqual([]);
+    expect(titleHeadingFixOps({ ...doc, title: "" })).toEqual([]);
+  }],
+  ["a distinct opening H1 and multiple body H1s are preserved by title cleanup", () => {
+    const doc = { ...document(heading("a", "First Section"), heading("b", "Second Section")), title: "Page Title" };
+    expect(titleHeadingFixOps(doc)).toEqual([]);
+    expect(lintDocument(doc, { phase: "complete" }).findings.filter(f => f.ruleId === "structure.title-heading")).toEqual([]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());

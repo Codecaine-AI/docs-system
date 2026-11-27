@@ -15,21 +15,22 @@ function detect(text: string) {
 
 const evidence = (text: string) => detect(text).map((match) => match.evidence);
 
-test("flags a passive whose actor a by phrase names", () => {
-  expect(detect("The block is validated by the engine.")).toMatchObject([
-    { field: "text", message: 'Passive voice: "is validated".', evidence: "is validated", sentence: "The block is validated by the engine." },
-  ]);
-  // An irregular participle, modifiers between, and the progressive passive.
-  expect(evidence("The value is set by the loader.")).toEqual(["is set"]);
-  expect(evidence("Drafts are not always stored by the server.")).toEqual(["are not always stored"]);
-  expect(evidence("The output is being written by `worker`.")).toEqual(["is being written"]);
-  // The by phrase belongs to the passive in its own clause.
-  expect(evidence("The block is validated, and the page is rendered by the server.")).toEqual(["is rendered"]);
-});
-
-test("flags a passive in an instruction, whose actor is the reader", () => {
-  expect(evidence("Run the check after the file is saved.")).toEqual(["is saved"]);
-});
+test.each([
+  ["flags a passive whose actor a by phrase names", () => {
+    expect(detect("The block is validated by the engine.")).toMatchObject([
+      { field: "text", message: 'Passive voice: "is validated".', evidence: "is validated", sentence: "The block is validated by the engine." },
+    ]);
+    // An irregular participle, modifiers between, and the progressive passive.
+    expect(evidence("The value is set by the loader.")).toEqual(["is set"]);
+    expect(evidence("Drafts are not always stored by the server.")).toEqual(["are not always stored"]);
+    expect(evidence("The output is being written by `worker`.")).toEqual(["is being written"]);
+    // The by phrase belongs to the passive in its own clause.
+    expect(evidence("The block is validated, and the page is rendered by the server.")).toEqual(["is rendered"]);
+  }],
+  ["flags a passive in an instruction, whose actor is the reader", () => {
+    expect(evidence("Run the check after the file is saved.")).toEqual(["is saved"]);
+  }],
+])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
 test.each([
   ["an agentless passive in a description", "The block is validated before it lands."],

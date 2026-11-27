@@ -89,7 +89,6 @@ const EXISTING_ALIASES = [
   `archive/${NAIVE_NFD}/notes.txt`,
   `Archive/${NAIVE_NFC.toUpperCase()}`,
 ];
-
 /** Creation targets that do not exist yet, in other spellings of excluded globs. */
 const CREATION_ALIASES = [
   "sessions/s2/outputs/INPUTS",
@@ -101,43 +100,67 @@ const CREATION_ALIASES = [
 ];
 
 describe("B7-3-01: case and Unicode spellings of excluded folders", () => {
-  test("isExcludedDocPath folds case and normalization and is never weaker than the exact glob", () => {
-    const exclude = ["sessions/*/outputs/inputs/**", `archive/${CAFE_NFC}/**`, "pics/caf?.png", "straße/**"];
-    for (const path of [
-      "sessions/s1/outputs/INPUTS",
-      "SESSIONS/S1/OUTPUTS/INPUTS/p1/doc.json",
-      `archive/${CAFE_NFD}`,
-      `archive/${CAFE_NFC.toUpperCase()}/x`,
-      `pics/${CAFE_NFC}.png`,
-      `pics/${CAFE_NFD}.png`,
-      `PICS/${CAFE_NFC.toUpperCase()}.PNG`,
-      "STRASSE/x",
-      "straße",
-    ]) {
-      expect(isExcludedDocPath(path, exclude)).toBe(true);
-    }
-    for (const path of ["sessions/s1/outputs/inputs-old", "sessions/s1/output/inputs", "archive/cafe", "pics/cafes.png", "notes/real"]) {
-      expect(isExcludedDocPath(path, exclude)).toBe(false);
-    }
-  });
-
-  test("every intent refuses every spelling of an existing excluded entry", () => {
-    for (const path of EXISTING_ALIASES) {
-      for (const intent of INTENTS) {
-        const checked = checkDocsPath(kb, path, intent);
-        expect({ path, intent, checked }).toMatchObject({ path, intent, checked: { ok: false, status: 403, reason: "excluded" } });
+  test.each([
+    ["isExcludedDocPath folds case and normalization and is never weaker than the exact glob", () => {
+      const exclude = ["sessions/*/outputs/inputs/**", `archive/${CAFE_NFC}/**`, "pics/caf?.png", "straße/**"];
+      for (const path of [
+        "sessions/s1/outputs/INPUTS",
+        "SESSIONS/S1/OUTPUTS/INPUTS/p1/doc.json",
+        `archive/${CAFE_NFD}`,
+        `archive/${CAFE_NFC.toUpperCase()}/x`,
+        `pics/${CAFE_NFC}.png`,
+        `pics/${CAFE_NFD}.png`,
+        `PICS/${CAFE_NFC.toUpperCase()}.PNG`,
+        "STRASSE/x",
+        "straße",
+      ]) {
+        expect(isExcludedDocPath(path, exclude)).toBe(true);
       }
-    }
-  });
-
-  test("creation targets that do not exist yet are refused in every spelling", () => {
-    for (const path of CREATION_ALIASES) {
-      for (const intent of ["write", "mkdir", "rename-to"] as const) {
-        const checked = checkDocsPath(kb, path, intent);
-        expect({ path, intent, checked }).toMatchObject({ path, intent, checked: { ok: false, status: 403, reason: "excluded" } });
+      for (const path of ["sessions/s1/outputs/inputs-old", "sessions/s1/output/inputs", "archive/cafe", "pics/cafes.png", "notes/real"]) {
+        expect(isExcludedDocPath(path, exclude)).toBe(false);
       }
-    }
-  });
+    }],
+    ["an ancestor match excludes the descendants of a plain glob", () => {
+      expect(isExcludedDocPath("archive/2026/doc.json", ["archive"])).toBe(true);
+      expect(isExcludedDocPath("archived/doc.json", ["archive"])).toBe(false);
+    }],
+    ["no globs exclude nothing", () => {
+      const exclude = ["sessions/*/outputs/inputs/**"];
+      expect(isExcludedDocPath("a/b", [])).toBe(false);
+      expect(isExcludedDocPath("a/b", undefined)).toBe(false);
+      expect(isExcludedDocPath("", exclude)).toBe(false);
+    }],
+    ["matches the excluded folder, everything below it, and nothing else", () => {
+      const exclude = ["sessions/*/outputs/inputs/**"];
+      expect(isExcludedDocPath("sessions/s1/outputs/inputs", exclude)).toBe(true);
+      expect(isExcludedDocPath("sessions/s1/outputs/inputs/spec-pages/p1", exclude)).toBe(true);
+      expect(isExcludedDocPath("sessions/s1/outputs/inputs/spec-pages/p1/doc.json", exclude)).toBe(true);
+      expect(isExcludedDocPath("./sessions/s1/outputs/inputs/x/", exclude)).toBe(true);
+      expect(isExcludedDocPath("sessions/s1/outputs", exclude)).toBe(false);
+      expect(isExcludedDocPath("sessions/s1/outputs/inputs2/x", exclude)).toBe(false);
+      expect(isExcludedDocPath("sessions/a/b/outputs/inputs/x", exclude)).toBe(false);
+      expect(isExcludedDocPath("notes/seed/doc.json", exclude)).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
+
+  test.each([
+    ["every intent refuses every spelling of an existing excluded entry", () => {
+      for (const path of EXISTING_ALIASES) {
+        for (const intent of INTENTS) {
+          const checked = checkDocsPath(kb, path, intent);
+          expect({ path, intent, checked }).toMatchObject({ path, intent, checked: { ok: false, status: 403, reason: "excluded" } });
+        }
+      }
+    }],
+    ["creation targets that do not exist yet are refused in every spelling", () => {
+      for (const path of CREATION_ALIASES) {
+        for (const intent of ["write", "mkdir", "rename-to"] as const) {
+          const checked = checkDocsPath(kb, path, intent);
+          expect({ path, intent, checked }).toMatchObject({ path, intent, checked: { ok: false, status: 403, reason: "excluded" } });
+        }
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("docsFs refuses delete, recursive delete, move source and destination, create and read in every spelling; the frozen tree is byte- and entry-identical", async () => {
     const before = await frozenState();

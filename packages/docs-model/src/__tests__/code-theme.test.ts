@@ -29,36 +29,34 @@ describe("TextMate scope matching", () => {
     expect(matchScopeSelector("keyword.control.import", { scope: "keyword.control" })).toBeNull();
   });
 
-  test("the most specific rule wins regardless of order", () => {
-    const rules = [rule("keyword.control", "#111111"), rule("keyword", "#222222")];
-    expect(resolveScopeStyle(rules, { scope: "keyword.control.import" }).foreground).toBe("#111111");
-  });
-
-  test("equal specificity goes to the later rule", () => {
-    const rules = [rule("keyword.control", "#111111"), rule(["string", "keyword.control"], "#222222")];
-    expect(resolveScopeStyle(rules, { scope: "keyword.control" }).foreground).toBe("#222222");
-  });
-
-  test("comma-separated scope strings split into selectors", () => {
-    const rules = [rule("comment, string.quoted", "#333333")];
-    expect(resolveScopeStyle(rules, { scope: "string.quoted.double" }).foreground).toBe("#333333");
-  });
-
-  test("descendant selectors need matching parents and outrank a bare match of equal depth", () => {
-    const rules = [
-      rule("source.css entity.other.attribute-name.class", "#AAAAAA"),
-      rule("entity.other.attribute-name.class", "#BBBBBB"),
-    ];
-    expect(resolveScopeStyle(rules, { scope: "entity.other.attribute-name.class.css" }).foreground).toBe("#BBBBBB");
-    expect(
-      resolveScopeStyle(rules, { scope: "entity.other.attribute-name.class.css", parents: ["source.css"] }).foreground,
-    ).toBe("#AAAAAA");
-  });
-
-  test("exclusion clauses are dropped rather than breaking the selector", () => {
-    const rules = [rule("string - string.regexp", "#444444")];
-    expect(resolveScopeStyle(rules, { scope: "string.quoted" }).foreground).toBe("#444444");
-  });
+  test.each([
+    ["the most specific rule wins regardless of order", () => {
+      const rules = [rule("keyword.control", "#111111"), rule("keyword", "#222222")];
+      expect(resolveScopeStyle(rules, { scope: "keyword.control.import" }).foreground).toBe("#111111");
+    }],
+    ["equal specificity goes to the later rule", () => {
+      const rules = [rule("keyword.control", "#111111"), rule(["string", "keyword.control"], "#222222")];
+      expect(resolveScopeStyle(rules, { scope: "keyword.control" }).foreground).toBe("#222222");
+    }],
+    ["comma-separated scope strings split into selectors", () => {
+      const rules = [rule("comment, string.quoted", "#333333")];
+      expect(resolveScopeStyle(rules, { scope: "string.quoted.double" }).foreground).toBe("#333333");
+    }],
+    ["descendant selectors need matching parents and outrank a bare match of equal depth", () => {
+      const rules = [
+        rule("source.css entity.other.attribute-name.class", "#AAAAAA"),
+        rule("entity.other.attribute-name.class", "#BBBBBB"),
+      ];
+      expect(resolveScopeStyle(rules, { scope: "entity.other.attribute-name.class.css" }).foreground).toBe("#BBBBBB");
+      expect(
+        resolveScopeStyle(rules, { scope: "entity.other.attribute-name.class.css", parents: ["source.css"] }).foreground,
+      ).toBe("#AAAAAA");
+    }],
+    ["exclusion clauses are dropped rather than breaking the selector", () => {
+      const rules = [rule("string - string.regexp", "#444444")];
+      expect(resolveScopeStyle(rules, { scope: "string.quoted" }).foreground).toBe("#444444");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("foreground and fontStyle resolve independently", () => {
     const rules = [rule("comment", "#6A9955"), rule("comment.line", undefined, "italic")];

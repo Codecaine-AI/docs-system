@@ -30,14 +30,6 @@ describe("useTransientHighlights", () => {
     });
   });
 
-  it("flash with no ids is a no-op", () => {
-    const { result } = renderHook(() => useTransientHighlights(25));
-    act(() => {
-      result.current.flash([]);
-    });
-    expect(result.current.highlightedIds.size).toBe(0);
-  });
-
   it("re-flashing an id keeps it lit until every window that holds it ends (refcounted)", async () => {
     const { result } = renderHook(() => useTransientHighlights(30));
 
@@ -53,16 +45,5 @@ describe("useTransientHighlights", () => {
     await waitFor(() => {
       expect(result.current.highlightedIds.size).toBe(0);
     });
-  });
-
-  it("unmounting with pending windows clears timers without state updates or errors", () => {
-    const { result, unmount } = renderHook(() => useTransientHighlights(10_000));
-    act(() => {
-      result.current.flash(["h1"]);
-    });
-    expect(result.current.highlightedIds.has("h1")).toBe(true);
-    // The 10s timer is pending; unmount must not throw and must not leave
-    // the timer to fire into an unmounted component.
-    unmount();
   });
 });

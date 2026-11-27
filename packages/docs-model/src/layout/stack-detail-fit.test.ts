@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import { fitText, measureWidth } from "@codecaine-ai/text-measure";
 import type { StackNode } from "../components/stack/state";
 import type { DocBlock } from "../doc-schema";
-import { orderedBlocks } from "../lint/engine";
 import { document } from "../lint/fixtures";
 import { lintDocument } from "../lint/index";
 import { px } from "./fit";
@@ -34,9 +33,15 @@ function textNear(target: number, tolerance: number): string {
 }
 
 describe("layout.stack-detail-fit", () => {
-  test("a detail that fits on one line has no finding", () => {
-    expect(check(stack([{ name: "Leaf", detail: "docs serve and export · workbench shell" }]))).toEqual([]);
-  });
+  test.each([
+    ["a detail that fits on one line has no finding", () => {
+      expect(check(stack([{ name: "Leaf", detail: "docs serve and export · workbench shell" }]))).toEqual([]);
+    }],
+    ["a container's detail is a hover title, not a line, so it is not checked", () => {
+      const detail = "a container detail that is far too long to fit on one line at the stack detail measure of sixty characters";
+      expect(check(stack([{ name: "Group", detail, children: [{ name: "Leaf" }] }]))).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("prose segments join with commas and wrap at 60ch, reported as a warning that never blocks", () => {
     const detail = "parses every stored document on load · validates the schema of each block · projects Markdown for agents";
@@ -98,23 +103,24 @@ describe("layout.stack-detail-fit", () => {
     expect(finding!.message).toEndWith("so it overflows sideways.");
   });
 
-  test("code spans that cannot share a line each take a line of their own", () => {
-    // The nested card is 221px wide, and each span takes over half of it in 13px code font.
-    const spans = ["readStackNodeList", "writeStackRuleSet", "checkStackPathNow"];
-    expect(spans.every((span) => measureWidth(span, codeFont(13)) > 221 / 2 && measureWidth(span, codeFont(13)) < 221)).toBe(true);
-    const detail = spans.map((span) => `\`${span}\``).join(" ");
-    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail }, { name: "Other" }] }, { name: "Side" }] }]);
-    expect(check(block)[0]!.message).toEndWith("so it wraps to 3 lines.");
-  });
-
-  test("a long plain word beside a code span breaks anywhere and runs on over several lines", () => {
-    const word = "a".repeat(100);
-    const run = measureWidth("run", codeFont(13)) + measureWidth(" ", prose) + width(word);
-    const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `\`run\` ${word}` }, { name: "Other" }] }, { name: "Side" }] }]);
-    const card = stackDetailLines(block, 1100)[0]!.availablePx;
-    expect(check(block)[0]!.message).toEndWith(`so it wraps to ${Math.ceil(run / card)} lines.`);
-    expect(Math.ceil(run / card)).toBeGreaterThan(2);
-  });
+  test.each([
+    ["code spans that cannot share a line each take a line of their own", () => {
+      // The nested card is 221px wide, and each span takes over half of it in 13px code font.
+      const spans = ["readStackNodeList", "writeStackRuleSet", "checkStackPathNow"];
+      expect(spans.every((span) => measureWidth(span, codeFont(13)) > 221 / 2 && measureWidth(span, codeFont(13)) < 221)).toBe(true);
+      const detail = spans.map((span) => `\`${span}\``).join(" ");
+      const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail }, { name: "Other" }] }, { name: "Side" }] }]);
+      expect(check(block)[0]!.message).toEndWith("so it wraps to 3 lines.");
+    }],
+    ["a long plain word beside a code span breaks anywhere and runs on over several lines", () => {
+      const word = "a".repeat(100);
+      const run = measureWidth("run", codeFont(13)) + measureWidth(" ", prose) + width(word);
+      const block = stack([{ name: "Outer", columns: 2, children: [{ name: "Inner", columns: 2, children: [{ name: "Leaf", detail: `\`run\` ${word}` }, { name: "Other" }] }, { name: "Side" }] }]);
+      const card = stackDetailLines(block, 1100)[0]!.availablePx;
+      expect(check(block)[0]!.message).toEndWith(`so it wraps to ${Math.ceil(run / card)} lines.`);
+      expect(Math.ceil(run / card)).toBeGreaterThan(2);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("two-column containers can leave a card narrower than the cap", () => {
     // Wide lane 1100px, less 26px per container frame, halved per two-column body, less the card's 26px.
@@ -146,10 +152,5 @@ describe("layout.stack-detail-fit", () => {
     expect(stackDetailLines(block, 1100).map((line) => line.availablePx)).toEqual([0]);
     expect(() => lintDocument(document(block), { phase: "complete" })).not.toThrow();
     expect(check(block)[0]!.message).toContain("its card wraps at 0px");
-  });
-
-  test("a container's detail is a hover title, not a line, so it is not checked", () => {
-    const detail = "a container detail that is far too long to fit on one line at the stack detail measure of sixty characters";
-    expect(check(stack([{ name: "Group", detail, children: [{ name: "Leaf" }] }]))).toEqual([]);
   });
 });

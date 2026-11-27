@@ -3,8 +3,7 @@
 import { describe, expect, it } from "bun:test";
 import { Type } from "@sinclair/typebox";
 
-import { DOC_BLOCK_TYPES } from "../../doc-schema";
-import type { DocBlockType } from "../../doc-schema";
+import { DOC_BLOCK_TYPES, type DocBlockType } from "../../doc-schema";
 import {
   ACTION_REGISTRY,
   ALL_COMPONENTS,
@@ -93,7 +92,6 @@ function completeBundle(
     agentView: () => null,
   };
 }
-
 function syntheticAction(
   action: string,
   blockType: DocBlockType,
@@ -129,92 +127,89 @@ describe("component registry", () => {
     expect([...ACTION_REGISTRY.keys()].sort()).toEqual([...ACTION_KEYS]);
   });
 
-  it("reports block types left unowned by a missing bundle", () => {
-    const bundle = completeBundle();
-    const withoutCode: ComponentBundle = {
-      ...bundle,
-      manifest: {
-        ...bundle.manifest,
-        ownedTypes: bundle.manifest.ownedTypes.filter((type) => type !== "code"),
-      },
-    };
-
-    expect(collectRegistryIssues([withoutCode])).toContain(
-      'Missing component ownership for block type "code".',
-    );
-  });
-
-  it("reports extra unknown owned types", () => {
-    const bundle = completeBundle();
-    const unknownType = "unknown-block" as DocBlockType;
-    const malformed: ComponentBundle = {
-      ...bundle,
-      manifest: {
-        ...bundle.manifest,
-        ownedTypes: [...bundle.manifest.ownedTypes, unknownType],
-      },
-      states: { ...bundle.states, [unknownType]: closedState() },
-    };
-
-    expect(collectRegistryIssues([malformed])).toContain(
-      'Unknown owned block type "unknown-block".',
-    );
-  });
-
-  it("reports double ownership", () => {
-    const duplicateOwner: ComponentBundle = {
-      manifest: {
-        name: "duplicate",
-        ownedTypes: ["paragraph"],
-        description: "Synthetic duplicate owner.",
-      },
-      states: { paragraph: closedState() },
-      actions: [],
-      agentView: () => null,
-    };
-
-    expect(collectRegistryIssues([completeBundle(), duplicateOwner])).toContain(
-      'Duplicate ownership for block type "paragraph" by components: synthetic, duplicate.',
-    );
-  });
-
-  it("reports malformed action keys", () => {
-    const action = syntheticAction("paragraph", "paragraph");
-
-    expect(collectRegistryIssues([completeBundle([action])])).toContain(
-      'Component "synthetic" action "paragraph" must use the key "<type>.<verb>" with a non-empty verb.',
-    );
-  });
-
-  it("reports unknown forward authorities", () => {
-    const action: ComponentAction = {
-      action: "canvas.forward",
-      blockType: "canvas",
-      description: "Synthetic forwarded action.",
-      params: Type.Object({}, { additionalProperties: false }),
-      forward: { authority: "unknown" },
-    };
-
-    expect(collectRegistryIssues([completeBundle([action])])).toContain(
-      'Component "synthetic" action "canvas.forward" has unknown forward authority "unknown".',
-    );
-  });
-
-  it("reports open schemas", () => {
-    const bundle = completeBundle();
-    const malformed: ComponentBundle = {
-      ...bundle,
-      states: {
-        ...bundle.states,
-        paragraph: {
-          schema: Type.Object({}),
-          carriesText: true,
+  it.each([
+    ["reports block types left unowned by a missing bundle", () => {
+      const bundle = completeBundle();
+      const withoutCode: ComponentBundle = {
+        ...bundle,
+        manifest: {
+          ...bundle.manifest,
+          ownedTypes: bundle.manifest.ownedTypes.filter((type) => type !== "code"),
         },
-      },
-    };
+      };
 
-    expect(collectRegistryIssues([malformed])).toContain(
-      'Component "synthetic" state "paragraph" schema must be closed (additionalProperties must be false).',
-    );
-  });
+      expect(collectRegistryIssues([withoutCode])).toContain(
+        'Missing component ownership for block type "code".',
+      );
+    }],
+    ["reports extra unknown owned types", () => {
+      const bundle = completeBundle();
+      const unknownType = "unknown-block" as DocBlockType;
+      const malformed: ComponentBundle = {
+        ...bundle,
+        manifest: {
+          ...bundle.manifest,
+          ownedTypes: [...bundle.manifest.ownedTypes, unknownType],
+        },
+        states: { ...bundle.states, [unknownType]: closedState() },
+      };
+
+      expect(collectRegistryIssues([malformed])).toContain(
+        'Unknown owned block type "unknown-block".',
+      );
+    }],
+    ["reports double ownership", () => {
+      const duplicateOwner: ComponentBundle = {
+        manifest: {
+          name: "duplicate",
+          ownedTypes: ["paragraph"],
+          description: "Synthetic duplicate owner.",
+        },
+        states: { paragraph: closedState() },
+        actions: [],
+        agentView: () => null,
+      };
+
+      expect(collectRegistryIssues([completeBundle(), duplicateOwner])).toContain(
+        'Duplicate ownership for block type "paragraph" by components: synthetic, duplicate.',
+      );
+    }],
+    ["reports malformed action keys", () => {
+      const action = syntheticAction("paragraph", "paragraph");
+
+      expect(collectRegistryIssues([completeBundle([action])])).toContain(
+        'Component "synthetic" action "paragraph" must use the key "<type>.<verb>" with a non-empty verb.',
+      );
+    }],
+    ["reports unknown forward authorities", () => {
+      const action: ComponentAction = {
+        action: "canvas.forward",
+        blockType: "canvas",
+        description: "Synthetic forwarded action.",
+        params: Type.Object({}, { additionalProperties: false }),
+        forward: { authority: "unknown" },
+      };
+
+      expect(collectRegistryIssues([completeBundle([action])])).toContain(
+        'Component "synthetic" action "canvas.forward" has unknown forward authority "unknown".',
+      );
+    }],
+    ["reports open schemas", () => {
+      const bundle = completeBundle();
+      const malformed: ComponentBundle = {
+        ...bundle,
+        states: {
+          ...bundle.states,
+          paragraph: {
+            schema: Type.Object({}),
+            carriesText: true,
+          },
+        },
+      };
+
+      expect(collectRegistryIssues([malformed])).toContain(
+        'Component "synthetic" state "paragraph" schema must be closed (additionalProperties must be false).',
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

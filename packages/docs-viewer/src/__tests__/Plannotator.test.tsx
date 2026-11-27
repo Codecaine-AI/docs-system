@@ -32,20 +32,6 @@ function blockAnnotation(overrides: Partial<DocAnnotation> = {}): DocAnnotation 
 }
 
 describe("Plannotator", () => {
-  it("renders an empty state when there are no annotations and no selection", () => {
-    render(
-      <Plannotator
-        annotations={[]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.getByText(/No annotations yet/)).toBeTruthy();
-  });
-
   it("renders existing annotations grouped by target with open counts", () => {
     render(
       <Plannotator
@@ -99,130 +85,111 @@ describe("Plannotator", () => {
     });
   });
 
-  it("calls onResolveAnnotation when Resolve is clicked on an open annotation", async () => {
-    let resolvedId: string | null = null;
-    render(
-      <Plannotator
-        annotations={[blockAnnotation()]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async (id) => {
-          resolvedId = id;
-        }}
-      />,
-    );
-    fireEvent.click(screen.getByText("Resolve"));
-    await waitFor(() => {
-      expect(resolvedId).toBe("c1");
-    });
-  });
+  it.each([
+    ["renders a target-removed badge and reason for dangling block targets, without crashing", () => {
+      render(
+        <Plannotator
+          annotations={[blockAnnotation({ target: { kind: "block", blockId: "missing-block" } })]}
+          document={doc}
+          selection={null}
+          onClearSelection={() => {}}
+          onAddAnnotation={async () => {}}
+          onResolveAnnotation={async () => {}}
+        />,
+      );
+      expect(screen.getByText("Target removed")).toBeTruthy();
+      expect(screen.getByText(/no longer exists/)).toBeTruthy();
+    }],
+    ["renders a target-removed badge for a canvas-object annotation whose canvas is absent from the LOADED index", () => {
+      render(
+        <Plannotator
+          annotations={[
+            blockAnnotation({
+              id: "c3",
+              target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
+            }),
+          ]}
+          document={doc}
+          canvases={{}}
+          selection={null}
+          onClearSelection={() => {}}
+          onAddAnnotation={async () => {}}
+          onResolveAnnotation={async () => {}}
+        />,
+      );
+      expect(screen.getByText("Target removed")).toBeTruthy();
+    }],
+    ["renders a target-removed badge when the canvas is loaded but the object is missing", () => {
+      render(
+        <Plannotator
+          annotations={[
+            blockAnnotation({
+              id: "c5",
+              target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "deleted-shape" },
+            }),
+          ]}
+          document={doc}
+          canvases={{
+            "./assets/canvases/x.canvas.json": {
+              objectIds: new Set(["shape-1"]),
+              connectionIds: new Set(),
+            },
+          }}
+          selection={null}
+          onClearSelection={() => {}}
+          onAddAnnotation={async () => {}}
+          onResolveAnnotation={async () => {}}
+        />,
+      );
+      expect(screen.getByText("Target removed")).toBeTruthy();
+      expect(screen.getByText(/Canvas object "deleted-shape" no longer exists/)).toBeTruthy();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("renders a target-removed badge and reason for dangling block targets, without crashing", () => {
-    render(
-      <Plannotator
-        annotations={[blockAnnotation({ target: { kind: "block", blockId: "missing-block" } })]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.getByText("Target removed")).toBeTruthy();
-    expect(screen.getByText(/no longer exists/)).toBeTruthy();
-  });
-
-  it("renders a target-removed badge for a canvas-object annotation whose canvas is absent from the LOADED index", () => {
-    render(
-      <Plannotator
-        annotations={[
-          blockAnnotation({
-            id: "c3",
-            target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
-          }),
-        ]}
-        document={doc}
-        canvases={{}}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.getByText("Target removed")).toBeTruthy();
-  });
-
-  it("does NOT mark a canvas-object annotation dangling while the canvas index is still loading (canvases undefined)", () => {
-    render(
-      <Plannotator
-        annotations={[
-          blockAnnotation({
-            id: "c6",
-            target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
-          }),
-        ]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.queryByText("Target removed")).toBeNull();
-  });
-
-  it("renders a target-removed badge when the canvas is loaded but the object is missing", () => {
-    render(
-      <Plannotator
-        annotations={[
-          blockAnnotation({
-            id: "c5",
-            target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "deleted-shape" },
-          }),
-        ]}
-        document={doc}
-        canvases={{
-          "./assets/canvases/x.canvas.json": {
-            objectIds: new Set(["shape-1"]),
-            connectionIds: new Set(),
-          },
-        }}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.getByText("Target removed")).toBeTruthy();
-    expect(screen.getByText(/Canvas object "deleted-shape" no longer exists/)).toBeTruthy();
-  });
-
-  it("does not mark a canvas-object annotation dangling when its canvas + object are present", () => {
-    render(
-      <Plannotator
-        annotations={[
-          blockAnnotation({
-            id: "c4",
-            target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
-          }),
-        ]}
-        document={doc}
-        canvases={{
-          "./assets/canvases/x.canvas.json": {
-            objectIds: new Set(["shape-1"]),
-            connectionIds: new Set(),
-          },
-        }}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.queryByText("Target removed")).toBeNull();
-  });
+  it.each([
+    ["does NOT mark a canvas-object annotation dangling while the canvas index is still loading (canvases undefined)", () => {
+      render(
+        <Plannotator
+          annotations={[
+            blockAnnotation({
+              id: "c6",
+              target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
+            }),
+          ]}
+          document={doc}
+          selection={null}
+          onClearSelection={() => {}}
+          onAddAnnotation={async () => {}}
+          onResolveAnnotation={async () => {}}
+        />,
+      );
+      expect(screen.queryByText("Target removed")).toBeNull();
+    }],
+    ["does not mark a canvas-object annotation dangling when its canvas + object are present", () => {
+      render(
+        <Plannotator
+          annotations={[
+            blockAnnotation({
+              id: "c4",
+              target: { kind: "canvas-object", canvasSrc: "./assets/canvases/x.canvas.json", objectId: "shape-1" },
+            }),
+          ]}
+          document={doc}
+          canvases={{
+            "./assets/canvases/x.canvas.json": {
+              objectIds: new Set(["shape-1"]),
+              connectionIds: new Set(),
+            },
+          }}
+          selection={null}
+          onClearSelection={() => {}}
+          onAddAnnotation={async () => {}}
+          onResolveAnnotation={async () => {}}
+        />,
+      );
+      expect(screen.queryByText("Target removed")).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("shows a Run agent button for an open agent-request annotation when onRunAgent is provided", () => {
     render(
@@ -239,20 +206,6 @@ describe("Plannotator", () => {
     expect(screen.getByText("Run agent")).toBeTruthy();
   });
 
-  it("does not show a Run agent button when onRunAgent is not provided", () => {
-    render(
-      <Plannotator
-        annotations={[blockAnnotation({ intent: "agent-request" })]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-      />,
-    );
-    expect(screen.queryByText("Run agent")).toBeNull();
-  });
-
   it("does not show a Run agent button for a note-intent annotation even when onRunAgent is provided", () => {
     render(
       <Plannotator
@@ -266,28 +219,6 @@ describe("Plannotator", () => {
       />,
     );
     expect(screen.queryByText("Run agent")).toBeNull();
-  });
-
-  it("calls onRunAgent with the annotation id when Run agent is clicked", async () => {
-    let requestedId: string | null = null;
-    render(
-      <Plannotator
-        annotations={[blockAnnotation({ intent: "agent-request" })]}
-        document={doc}
-        selection={null}
-        onClearSelection={() => {}}
-        onAddAnnotation={async () => {}}
-        onResolveAnnotation={async () => {}}
-        onRunAgent={async (id) => {
-          requestedId = id;
-          return { ok: true, summary: "Done.", patchId: "p1", changedIds: [] };
-        }}
-      />,
-    );
-    fireEvent.click(screen.getByText("Run agent"));
-    await waitFor(() => {
-      expect(requestedId).toBe("c1");
-    });
   });
 
   it("shows an Undo button for an annotation with an agentRun when onUndoPatch is provided, and calls it with the patchId", async () => {

@@ -43,24 +43,23 @@ describe("mdxToDoc — task lists", () => {
 });
 
 describe("task lists round-trip through mdxToDoc -> projectToMarkdown", () => {
-  it("keeps open and done boxes", () => {
-    const lines = ["- [ ] Install Bun.", "- [x] Retire the dev-01 key (due 2026-10-21)."];
-    expect(roundTrip(lines)).toContain(lines.join("\n"));
-  });
-
-  it("normalizes [X] to [x]", () => {
-    expect(roundTrip(["- [X] Done."])).toContain("- [x] Done.");
-  });
-
-  it("keeps nested task items and their depth", () => {
-    const lines = ["- [ ] Ship the release.", "  - [x] Tag the commit.", "  - [ ] Publish notes.", "- Plain follow-up."];
-    expect(roundTrip(lines)).toContain(lines.join("\n"));
-  });
-
-  it("keeps ordered task items", () => {
-    const lines = ["1. [ ] Install Bun.", "2. [x] Run the tests."];
-    expect(roundTrip(lines)).toContain(lines.join("\n"));
-  });
+  it.each([
+    ["keeps open and done boxes", () => {
+      const lines = ["- [ ] Install Bun.", "- [x] Retire the dev-01 key (due 2026-10-21)."];
+      expect(roundTrip(lines)).toContain(lines.join("\n"));
+    }],
+    ["normalizes [X] to [x]", () => {
+      expect(roundTrip(["- [X] Done."])).toContain("- [x] Done.");
+    }],
+    ["keeps nested task items and their depth", () => {
+      const lines = ["- [ ] Ship the release.", "  - [x] Tag the commit.", "  - [ ] Publish notes.", "- Plain follow-up."];
+      expect(roundTrip(lines)).toContain(lines.join("\n"));
+    }],
+    ["keeps ordered task items", () => {
+      const lines = ["1. [ ] Install Bun.", "2. [x] Run the tests."];
+      expect(roundTrip(lines)).toContain(lines.join("\n"));
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("leaves a plain list unchanged", () => {
     const lines = ["- First item.", "  - Nested item.", "- Second item."];

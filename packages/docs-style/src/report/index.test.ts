@@ -65,32 +65,44 @@ function stat(html: string, name: string): string {
 const headline = (html: string) => /<p class="headline"[^>]*>(.*?)<\/p>/.exec(html)?.[1];
 
 describe("renderReport", () => {
-  test("leads with the verdict: headline and summary numbers", () => {
-    const flagged = { ...change("rewrite", "accepted"), reason: "needs review: fact check unavailable" };
-    // Jev judged this Tier 1 match far below any threshold: it is no finding, but the deep lint still counts it.
-    const overruled: StyleFinding = { ...finding("structure"), ruleId: "ste.passive-voice", probability: 0.01, overruled: true };
-    const deep = page(
-      "10-system-design/deep",
-      true,
-      [1000, 970],
-      [...findings("structure", 6), ...findings("vocabulary", 2), finding("structure", 2), overruled],
-      [...findings("structure", 3), ...findings("vocabulary", 2)],
-      [change("rewrite", "accepted"), change("rewrite", "accepted"), flagged, change("rewrite", "rejected"), change("autofix", "accepted")],
-    );
-    const shallow = page("40-guides/shallow", false, [500, 500], findings("structure", 2), findings("structure", 2));
+  test.each([
+    ["leads with the verdict: headline and summary numbers", () => {
+      const flagged = { ...change("rewrite", "accepted"), reason: "needs review: fact check unavailable" };
+      // Jev judged this Tier 1 match far below any threshold: it is no finding, but the deep lint still counts it.
+      const overruled: StyleFinding = { ...finding("structure"), ruleId: "ste.passive-voice", probability: 0.01, overruled: true };
+      const deep = page(
+        "10-system-design/deep",
+        true,
+        [1000, 970],
+        [...findings("structure", 6), ...findings("vocabulary", 2), finding("structure", 2), overruled],
+        [...findings("structure", 3), ...findings("vocabulary", 2)],
+        [change("rewrite", "accepted"), change("rewrite", "accepted"), flagged, change("rewrite", "rejected"), change("autofix", "accepted")],
+      );
+      const shallow = page("40-guides/shallow", false, [500, 500], findings("structure", 2), findings("structure", 2));
 
-    const html = renderReport(sweep([deep, shallow]));
+      const html = renderReport(sweep([deep, shallow]));
 
-    expect(headline(html)).toBe(
-      "3 of 4 rewrites passed every guardrail. 1 of them needs review. Deep pages lost 3% of words. Structure findings fell 57%.",
-    );
-    expect(stat(html, "pages")).toBe("2");
-    expect(stat(html, "findings")).toBe("11");
-    expect(stat(html, "autofixes")).toBe("1");
-    expect(stat(html, "rewrites")).toBe("3 / 1 / 0");
-    expect(stat(html, "words")).toBe("1,000 → 970");
-    expect(stat(html, "deep-findings")).toBe("9 → 5");
-  });
+      expect(headline(html)).toBe(
+        "3 of 4 rewrites passed every guardrail. 1 of them needs review. Deep pages lost 3% of words. Structure findings fell 57%.",
+      );
+      expect(stat(html, "pages")).toBe("2");
+      expect(stat(html, "findings")).toBe("11");
+      expect(stat(html, "autofixes")).toBe("1");
+      expect(stat(html, "rewrites")).toBe("3 / 1 / 0");
+      expect(stat(html, "words")).toBe("1,000 → 970");
+      expect(stat(html, "deep-findings")).toBe("9 → 5");
+    }],
+    ["renders a sweep with no changes and no findings without NaN or undefined", () => {
+      const result = sweep([page("guides/empty", false, [0, 0], [], []), page("guides/empty-deep", true, [0, 0], [], [])]);
+
+      const html = renderReport(result);
+      const markup = html.replace(/<script[\s\S]*?<\/script>/g, "");
+
+      expect(markup).not.toMatch(/NaN|undefined|Infinity/);
+      expect(headline(html)).toBe("No block was rewritten. Deep pages had no structure findings.");
+      expect(html).toContain("No changes on this page.");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("escapes every string that comes from the sweep", () => {
     const evil = '<img src=x onerror="alert(1)">';
@@ -131,16 +143,5 @@ describe("renderReport", () => {
     expect(count('class="b rv-good"')).toBe(2);
     expect(count('class="b rv-neutral"')).toBe(1);
     expect(html).toContain('data-status="rv-flagged">reviewer: flagged <span class="cn">2</span>');
-  });
-
-  test("renders a sweep with no changes and no findings without NaN or undefined", () => {
-    const result = sweep([page("guides/empty", false, [0, 0], [], []), page("guides/empty-deep", true, [0, 0], [], [])]);
-
-    const html = renderReport(result);
-    const markup = html.replace(/<script[\s\S]*?<\/script>/g, "");
-
-    expect(markup).not.toMatch(/NaN|undefined|Infinity/);
-    expect(headline(html)).toBe("No block was rewritten. Deep pages had no structure findings.");
-    expect(html).toContain("No changes on this page.");
   });
 });

@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { measureWidth } from "@codecaine-ai/text-measure";
 import { join } from "node:path";
 import type { DocBlock, DocDocument } from "../doc-schema";
 import { orderedBlocks } from "../lint/engine";
 import { document, paragraph } from "../lint/fixtures";
 import { lintDocument } from "../lint/index";
 import { codeLineWidthRule } from "./code-line-width";
+import { measureWidth } from "@codecaine-ai/text-measure";
 
 /**
  * Stock visible columns with IBM Plex Mono at 13px (7.8px a column): 118 in
@@ -46,14 +46,20 @@ describe("layout.code-line-width", () => {
     expect(report.blocking).toEqual([]);
   });
 
-  test("tabs expand to stops of four", () => {
-    expect(check(document(code("c", `${"\t".repeat(29)}xxx`))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
-    expect(check(document(code("c", `${"\t".repeat(29)}xx`)))).toEqual([]);
-  });
-
-  test("spaces keep their width in a white-space: pre panel", () => {
-    expect(check(document(code("c", `${" ".repeat(100)}${x(19)}`))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
-  });
+  test.each([
+    ["tabs expand to stops of four", () => {
+      expect(check(document(code("c", `${"\t".repeat(29)}xxx`))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
+      expect(check(document(code("c", `${"\t".repeat(29)}xx`)))).toEqual([]);
+    }],
+    ["spaces keep their width in a white-space: pre panel", () => {
+      expect(check(document(code("c", `${" ".repeat(100)}${x(19)}`))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
+    }],
+    ["an annotated block fits the same 118 columns, since its notes move under the lines when the code needs the width", () => {
+      const annotations = [{ lines: "1", note: "Why this line matters." }];
+      expect(check(document(code("c", x(118), { annotations })))).toEqual([]);
+      expect(check(document(code("c", x(119), { annotations }))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("characters the bundled font lacks are estimated and never judged an overflow", () => {
     // Browsers paint CJK 1em wide (13px): 60 ideographs need about 780px of 924px, so nothing is reported.
@@ -67,19 +73,6 @@ describe("layout.code-line-width", () => {
     const [mixed] = check(document(code("c", `${x(119)}日`)));
     expect(mixed!.message).toStartWith(message(1, 121, "118"));
     expect(mixed!.message).toContain("These widths are approximate: the bundled fonts lack 日");
-  });
-
-  test("a line within 1px of the edge may wrap", () => {
-    // Two list items leave 561px for code. 72 columns paint 561.61px.
-    const [outer, inner, block] = [
-      { id: "li1", type: "list-item", props: {}, text: [{ insert: "Outer" }], children: ["li2"] },
-      { id: "li2", type: "list-item", props: {}, text: [{ insert: "Inner" }], children: ["c"] },
-      code("c", x(72)),
-    ] as DocBlock[];
-    expect(measureWidth(x(72), { family: "IBM Plex Mono", size: 13 }) - 561).toBeCloseTo(0.609375, 6);
-    expect(check(documentWith([outer!], [inner!, block!])).map((f) => f.message)).toEqual([
-      "Line 1 is 72 columns wide and at stock theme settings the code panel fits about 71, so it may wrap.",
-    ]);
   });
 
   test("on the approximate table backend a finding says its widths are approximate", async () => {
@@ -96,20 +89,28 @@ describe("layout.code-line-width", () => {
     expect(JSON.parse(stdout)).toEqual([`${message(1, 200, "118")} These widths are approximate: text-measure is on its table backend.`]);
   });
 
-  test("an annotated block fits the same 118 columns, since its notes move under the lines when the code needs the width", () => {
-    const annotations = [{ lines: "1", note: "Why this line matters." }];
-    expect(check(document(code("c", x(118), { annotations })))).toEqual([]);
-    expect(check(document(code("c", x(119), { annotations }))).map((f) => f.message)).toEqual([message(1, 119, "118")]);
-  });
-
-  test("a code block nested in a list item lays out in the text lane, 75 columns", () => {
-    // 74 columns fit clearly, 75 exactly (585px of 585px, within 1px, so it may scroll), 76 do not.
-    const [item, nested] = listItem("li", [code("c", [x(74), x(75), x(76)].join("\n"))]) as [DocBlock, DocBlock];
-    expect(check(documentWith([item], [nested])).map((f) => f.message)).toEqual([
-      "Line 2 is 75 columns wide and at stock theme settings the code panel fits about 75, so it may wrap.",
-      message(3, 76, "75"),
-    ]);
-  });
+  test.each([
+    ["a code block nested in a list item lays out in the text lane, 75 columns", () => {
+      // 74 columns fit clearly, 75 exactly (585px of 585px, within 1px, so it may scroll), 76 do not.
+      const [item, nested] = listItem("li", [code("c", [x(74), x(75), x(76)].join("\n"))]) as [DocBlock, DocBlock];
+      expect(check(documentWith([item], [nested])).map((f) => f.message)).toEqual([
+        "Line 2 is 75 columns wide and at stock theme settings the code panel fits about 75, so it may wrap.",
+        message(3, 76, "75"),
+      ]);
+    }],
+    ["a line within 1px of the edge may wrap", () => {
+      // Two list items leave 561px for code. 72 columns paint 561.61px.
+      const [outer, inner, block] = [
+        { id: "li1", type: "list-item", props: {}, text: [{ insert: "Outer" }], children: ["li2"] },
+        { id: "li2", type: "list-item", props: {}, text: [{ insert: "Inner" }], children: ["c"] },
+        code("c", x(72)),
+      ] as DocBlock[];
+      expect(measureWidth(x(72), { family: "IBM Plex Mono", size: 13 }) - 561).toBeCloseTo(0.609375, 6);
+      expect(check(documentWith([outer!], [inner!, block!])).map((f) => f.message)).toEqual([
+        "Line 1 is 72 columns wide and at stock theme settings the code panel fits about 71, so it may wrap.",
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("JSON is checked as the viewer shows it, pretty-printed", () => {
     const minified = JSON.stringify(Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`key${i}`, `value ${i}`])));

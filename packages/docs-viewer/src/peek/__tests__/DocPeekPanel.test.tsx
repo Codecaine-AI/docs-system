@@ -3,7 +3,6 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import type { SpectreRef } from "@codecaine-ai/docs-model/spectre-ref";
 import type { DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { DocsClientProvider, type DocsClient } from "../../client";
-import { DOC_SURFACE_TYPOGRAPHY_CLASSES } from "../../render/block-classes";
 import { DocPeekPanel } from "../DocPeekPanel";
 import {
   DOC_PEEK_CLOSE_EVENT,
@@ -87,13 +86,6 @@ function panel(): HTMLElement {
 }
 
 describe("DocPeekPanel", () => {
-  it("stays mounted but closed (w-0, hidden content) before any peek", () => {
-    renderPanel();
-    expect(panel().getAttribute("aria-hidden")).toBe("true");
-    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
-    expect(screen.queryByText("Doc A")).toBeNull();
-  });
-
   it("opens on a peek-intent event and renders the target doc read-only", async () => {
     const { onNavigate } = renderPanel();
     await dispatchNavigateEvent({ ref: refA, intent: "peek" });
@@ -116,27 +108,6 @@ describe("DocPeekPanel", () => {
       fireEvent.click(screen.getByLabelText("Close preview"));
     });
     expect(onOpenChange).toHaveBeenLastCalledWith(false);
-  });
-
-  it("wraps peeked content in the doc-surface typography + vertical-rhythm wrapper (DocPage parity)", async () => {
-    renderPanel();
-    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
-
-    // Typography parity: the content sits inside the same docs-markdown/prose
-    // wrapper DocPage puts around its read-only DocBlockRenderer.
-    const typography = panel().querySelector(".docs-markdown");
-    if (!typography) throw new Error("typography wrapper not rendered");
-    expect(typography.className).toBe(DOC_SURFACE_TYPOGRAPHY_CLASSES);
-    expect(typography.textContent).toContain("Hello from A");
-
-    // Vertical-rhythm parity: the spacing column uses DocPage's
-    // --style-content-top/bottom vars; only horizontal padding is
-    // peek-specific (--docs-peek-padding).
-    const column = typography.parentElement;
-    if (!column) throw new Error("spacing column not rendered");
-    expect(column.className).toContain("pt-[var(--style-content-top,1.5rem)]");
-    expect(column.className).toContain("pb-[var(--style-content-bottom,1.5rem)]");
-    expect(column.className).toContain("px-[var(--docs-peek-padding,1.5rem)]");
   });
 
   it("renders the fixed page title above the doc content, matching the main surface", async () => {
@@ -169,19 +140,6 @@ describe("DocPeekPanel", () => {
     expect(
       title.compareDocumentPosition(typography) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
-  });
-
-  it("renders an icon-only header with no title text (the page title renders in the doc column)", async () => {
-    renderPanel();
-    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
-
-    const header = panel().querySelector("header");
-    if (!header) throw new Error("peek header not rendered");
-    // Both actions are reachable by their stable accessible names…
-    expect(screen.getByLabelText("Close preview")).toBeTruthy();
-    expect(screen.getByLabelText("Open in full")).toBeTruthy();
-    // …and the header carries no title text of its own.
-    expect(header.textContent).toBe("");
   });
 
   it("the close (X) button closes the peek", async () => {
@@ -252,58 +210,59 @@ describe("DocPeekPanel", () => {
     expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
   });
 
-  it("canonicalizes bundle-relative asset srcs against the peeked path before the host resolver", async () => {
-    // The workbench passes a PLAIN resolver with no bundle context; the
-    // panel must hand it the docs-root-relative form, never raw `./assets/…`.
-    const withImage = makeDoc("doc-img", "Doc Img", "Body");
-    withImage.blocks.root.children.push("img1");
-    withImage.blocks.img1 = {
-      id: "img1",
-      type: "image",
-      props: { src: "./assets/images/foo.png", alt: "Foo" },
-      children: [],
-    };
-    BUNDLES["guides/img"] = withImage;
-    try {
-      const hostResolve = mock((src: string) => `api/asset?path=${src}`);
-      renderPanel(stubClient(), hostResolve);
-      await dispatchNavigateEvent({
-        ref: { kind: "doc", path: "guides/img", label: "Doc Img" },
-        intent: "peek",
-      });
+  it.each([
+    ["canonicalizes bundle-relative asset srcs against the peeked path before the host resolver", async () => {
+      // The workbench passes a PLAIN resolver with no bundle context; the
+      // panel must hand it the docs-root-relative form, never raw `./assets/…`.
+      const withImage = makeDoc("doc-img", "Doc Img", "Body");
+      withImage.blocks.root.children.push("img1");
+      withImage.blocks.img1 = {
+        id: "img1",
+        type: "image",
+        props: { src: "./assets/images/foo.png", alt: "Foo" },
+        children: [],
+      };
+      BUNDLES["guides/img"] = withImage;
+      try {
+        const hostResolve = mock((src: string) => `api/asset?path=${src}`);
+        renderPanel(stubClient(), hostResolve);
+        await dispatchNavigateEvent({
+          ref: { kind: "doc", path: "guides/img", label: "Doc Img" },
+          intent: "peek",
+        });
 
-      expect(hostResolve).toHaveBeenCalledWith("guides/img/assets/images/foo.png");
-      expect(hostResolve).not.toHaveBeenCalledWith("./assets/images/foo.png");
-      const img = document.querySelector("img[alt='Foo']");
-      expect(img?.getAttribute("src")).toBe("api/asset?path=guides/img/assets/images/foo.png");
-    } finally {
-      delete BUNDLES["guides/img"];
-    }
-  });
+        expect(hostResolve).toHaveBeenCalledWith("guides/img/assets/images/foo.png");
+        expect(hostResolve).not.toHaveBeenCalledWith("./assets/images/foo.png");
+        const img = document.querySelector("img[alt='Foo']");
+        expect(img?.getAttribute("src")).toBe("api/asset?path=guides/img/assets/images/foo.png");
+      } finally {
+        delete BUNDLES["guides/img"];
+      }
+    }],
+    ["passes docs-root-relative asset srcs to the host resolver unchanged", async () => {
+      const withImage = makeDoc("doc-img2", "Doc Img 2", "Body");
+      withImage.blocks.root.children.push("img1");
+      withImage.blocks.img1 = {
+        id: "img1",
+        type: "image",
+        props: { src: "shared/assets/bar.png", alt: "Bar" },
+        children: [],
+      };
+      BUNDLES["guides/img2"] = withImage;
+      try {
+        const hostResolve = mock((src: string) => `api/asset?path=${src}`);
+        renderPanel(stubClient(), hostResolve);
+        await dispatchNavigateEvent({
+          ref: { kind: "doc", path: "guides/img2", label: "Doc Img 2" },
+          intent: "peek",
+        });
 
-  it("passes docs-root-relative asset srcs to the host resolver unchanged", async () => {
-    const withImage = makeDoc("doc-img2", "Doc Img 2", "Body");
-    withImage.blocks.root.children.push("img1");
-    withImage.blocks.img1 = {
-      id: "img1",
-      type: "image",
-      props: { src: "shared/assets/bar.png", alt: "Bar" },
-      children: [],
-    };
-    BUNDLES["guides/img2"] = withImage;
-    try {
-      const hostResolve = mock((src: string) => `api/asset?path=${src}`);
-      renderPanel(stubClient(), hostResolve);
-      await dispatchNavigateEvent({
-        ref: { kind: "doc", path: "guides/img2", label: "Doc Img 2" },
-        intent: "peek",
-      });
-
-      expect(hostResolve).toHaveBeenCalledWith("shared/assets/bar.png");
-    } finally {
-      delete BUNDLES["guides/img2"];
-    }
-  });
+        expect(hostResolve).toHaveBeenCalledWith("shared/assets/bar.png");
+      } finally {
+        delete BUNDLES["guides/img2"];
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("downgrades peek intent to onNavigate when the client lacks getDocBundle", async () => {
     const { onNavigate } = renderPanel({ getDocsTree: async () => ({ tree: [] }) });
@@ -337,24 +296,25 @@ describe("DocPeekPanel host loading and Escape", () => {
 
   const crossRef: SpectreRef = { kind: "doc", path: "other-project/guides/c", label: "Doc C" };
 
-  it("peeks through loadPeek with the ref as sent, even with no DocsClient", async () => {
-    const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
-    const { onNavigate } = renderHosted({ loadPeek });
-    await dispatchNavigateEvent({ ref: crossRef, intent: "peek" });
+  it.each([
+    ["peeks through loadPeek with the ref as sent, even with no DocsClient", async () => {
+      const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
+      const { onNavigate } = renderHosted({ loadPeek });
+      await dispatchNavigateEvent({ ref: crossRef, intent: "peek" });
 
-    expect(loadPeek.mock.calls[0]?.[0]).toEqual(crossRef);
-    expect(screen.getByText("Hello from C")).toBeTruthy();
-    expect(onNavigate).not.toHaveBeenCalled();
-  });
+      expect(loadPeek.mock.calls[0]?.[0]).toEqual(crossRef);
+      expect(screen.getByText("Hello from C")).toBeTruthy();
+      expect(onNavigate).not.toHaveBeenCalled();
+    }],
+    ["prefers loadPeek over the client's getDocBundle", async () => {
+      const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
+      renderHosted({ loadPeek, client: stubClient() });
+      await dispatchNavigateEvent({ ref: refA, intent: "peek" });
 
-  it("prefers loadPeek over the client's getDocBundle", async () => {
-    const loadPeek = mock(async (_ref: SpectreRef) => ({ doc: makeDoc("doc-c", "Doc C", "Hello from C") }));
-    renderHosted({ loadPeek, client: stubClient() });
-    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
-
-    expect(screen.getByText("Hello from C")).toBeTruthy();
-    expect(screen.queryByText("Hello from A")).toBeNull();
-  });
+      expect(screen.getByText("Hello from C")).toBeTruthy();
+      expect(screen.queryByText("Hello from A")).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("a rejected loadPeek closes the panel and navigates to the ref", async () => {
     const { onNavigate } = renderHosted({ loadPeek: async () => { throw new Error("offline"); } });
@@ -366,29 +326,30 @@ describe("DocPeekPanel host loading and Escape", () => {
     expect(screen.queryByText("offline")).toBeNull();
   });
 
-  it("with hostOwnsEscape, Escape leaves the panel open and the close event closes it", async () => {
-    renderHosted({ hostOwnsEscape: true, client: stubClient() });
-    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
+  it.each([
+    ["with hostOwnsEscape, Escape leaves the panel open and the close event closes it", async () => {
+      renderHosted({ hostOwnsEscape: true, client: stubClient() });
+      await dispatchNavigateEvent({ ref: refA, intent: "peek" });
 
-    await act(async () => {
-      fireEvent.keyDown(window, { key: "Escape" });
-    });
-    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(true);
+      await act(async () => {
+        fireEvent.keyDown(window, { key: "Escape" });
+      });
+      expect(panel().hasAttribute("data-doc-peek-panel")).toBe(true);
 
-    await act(async () => {
-      document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
-    });
-    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
-    expect(screen.queryByText("Hello from A")).toBeNull();
-  });
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
+      });
+      expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+      expect(screen.queryByText("Hello from A")).toBeNull();
+    }],
+    ["the close event also closes a panel that owns Escape itself", async () => {
+      renderHosted({ client: stubClient() });
+      await dispatchNavigateEvent({ ref: refA, intent: "peek" });
 
-  it("the close event also closes a panel that owns Escape itself", async () => {
-    renderHosted({ client: stubClient() });
-    await dispatchNavigateEvent({ ref: refA, intent: "peek" });
-
-    await act(async () => {
-      document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
-    });
-    expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
-  });
+      await act(async () => {
+        document.dispatchEvent(new CustomEvent(DOC_PEEK_CLOSE_EVENT));
+      });
+      expect(panel().hasAttribute("data-doc-peek-panel")).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

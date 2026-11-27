@@ -46,20 +46,21 @@ function mustFail(result: ComponentActionResult, path: string): void {
 }
 
 describe("code.setAnnotation", () => {
-  it("inserts a new annotation (appended)", () => {
-    expect(mustOk(run(setAnnotation, codeBlock(), { lines: "5", note: "new", label: "L" })).annotations).toEqual([
-      { lines: "1", label: "Export", note: "answer" },
-      { lines: "2-3", note: "double" },
-      { lines: "5", note: "new", label: "L" },
-    ]);
-  });
-
-  it("upserts in place when the exact lines key exists", () => {
-    expect(mustOk(run(setAnnotation, codeBlock(), { lines: "1", note: "replaced" })).annotations).toEqual([
-      { lines: "1", note: "replaced" },
-      { lines: "2-3", note: "double" },
-    ]);
-  });
+  it.each([
+    ["inserts a new annotation (appended)", () => {
+      expect(mustOk(run(setAnnotation, codeBlock(), { lines: "5", note: "new", label: "L" })).annotations).toEqual([
+        { lines: "1", label: "Export", note: "answer" },
+        { lines: "2-3", note: "double" },
+        { lines: "5", note: "new", label: "L" },
+      ]);
+    }],
+    ["upserts in place when the exact lines key exists", () => {
+      expect(mustOk(run(setAnnotation, codeBlock(), { lines: "1", note: "replaced" })).annotations).toEqual([
+        { lines: "1", note: "replaced" },
+        { lines: "2-3", note: "double" },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects missing and empty required params", () => {
     mustFail(run(setAnnotation, codeBlock(), { note: "x" }), "$.params.lines");

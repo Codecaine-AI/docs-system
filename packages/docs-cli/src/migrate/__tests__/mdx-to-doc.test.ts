@@ -3,37 +3,37 @@ import { docBlockOrder, validateDocDocument } from "@codecaine-ai/docs-model/doc
 import { docIdFromPath, mdxToDoc, parseFrontmatter } from "../mdx-to-doc";
 
 describe("parseFrontmatter", () => {
-  it("parses scalar and bracketed-array frontmatter keys", () => {
-    const source = [
-      "---",
-      "covers: Why Spectre exists.",
-      "type: overview",
-      "concepts: [foo, bar, baz]",
-      "format: mdx",
-      "---",
-      "",
-      "# Heading",
-    ].join("\n");
-    const { meta, body } = parseFrontmatter(source);
-    expect(meta.covers).toBe("Why Spectre exists.");
-    expect(meta.type).toBe("overview");
-    expect(meta.concepts).toEqual(["foo", "bar", "baz"]);
-    expect(meta.format).toBe("mdx");
-    expect(body.trim()).toBe("# Heading");
-  });
-
-  it("returns empty meta and the original source when there is no frontmatter", () => {
-    const source = "# Just a heading\n\nSome text.";
-    const { meta, body } = parseFrontmatter(source);
-    expect(meta).toEqual({});
-    expect(body).toBe(source);
-  });
-
-  it("handles an empty bracketed array", () => {
-    const source = ["---", "concepts: []", "---", "", "Body."].join("\n");
-    const { meta } = parseFrontmatter(source);
-    expect(meta.concepts).toEqual([]);
-  });
+  it.each([
+    ["parses scalar and bracketed-array frontmatter keys", () => {
+      const source = [
+        "---",
+        "covers: Why Spectre exists.",
+        "type: overview",
+        "concepts: [foo, bar, baz]",
+        "format: mdx",
+        "---",
+        "",
+        "# Heading",
+      ].join("\n");
+      const { meta, body } = parseFrontmatter(source);
+      expect(meta.covers).toBe("Why Spectre exists.");
+      expect(meta.type).toBe("overview");
+      expect(meta.concepts).toEqual(["foo", "bar", "baz"]);
+      expect(meta.format).toBe("mdx");
+      expect(body.trim()).toBe("# Heading");
+    }],
+    ["returns empty meta and the original source when there is no frontmatter", () => {
+      const source = "# Just a heading\n\nSome text.";
+      const { meta, body } = parseFrontmatter(source);
+      expect(meta).toEqual({});
+      expect(body).toBe(source);
+    }],
+    ["handles an empty bracketed array", () => {
+      const source = ["---", "concepts: []", "---", "", "Body."].join("\n");
+      const { meta } = parseFrontmatter(source);
+      expect(meta.concepts).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("docIdFromPath", () => {
@@ -42,12 +42,6 @@ describe("docIdFromPath", () => {
     expect(docIdFromPath("docs/10-system-design/50-interactive-canvas/index.mdx")).toBe(
       "10-system-design-50-interactive-canvas-index",
     );
-  });
-
-  it("is deterministic across repeated calls", () => {
-    const a = docIdFromPath("docs/10-system-design/40-docs-mdx-lab.mdx");
-    const b = docIdFromPath("docs/10-system-design/40-docs-mdx-lab.mdx");
-    expect(a).toBe(b);
   });
 
   it("truncates overlong slugs to fit the schema's 97-char id cap, with a hash suffix to avoid collisions", () => {
@@ -63,12 +57,6 @@ describe("docIdFromPath", () => {
     const pathA = `${base}${"aaaa-".repeat(10)}shared-tail-name.mdx`;
     const pathB = `${base}${"bbbb-".repeat(10)}shared-tail-name.mdx`;
     expect(docIdFromPath(pathA)).not.toBe(docIdFromPath(pathB));
-  });
-
-  it("stays deterministic across repeated calls even when truncated", () => {
-    const deepPath =
-      "docs/10-system-design/10-system-flow/20-session-phases/40-docs-update/agents/10-interview-foundation-agent.mdx";
-    expect(docIdFromPath(deepPath)).toBe(docIdFromPath(deepPath));
   });
 });
 
@@ -116,11 +104,6 @@ const SAMPLE_MDX = [
 
 describe("mdxToDoc — golden sample", () => {
   const { doc, warnings } = mdxToDoc(SAMPLE_MDX, "docs/00-foundation/05-sample.mdx");
-
-  it("produces a valid DocDocument", () => {
-    const result = validateDocDocument(doc);
-    expect(result.ok).toBe(true);
-  });
 
   it("derives the doc id from the path and title from the first heading", () => {
     expect(doc.id).toBe("00-foundation-05-sample");

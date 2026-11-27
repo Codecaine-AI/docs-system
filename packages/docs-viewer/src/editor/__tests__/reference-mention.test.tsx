@@ -183,70 +183,72 @@ describe("reference picker tree loading", () => {
     expect(pickerText()).not.toContain("Late");
   });
 
-  it("shows only the new client's entries when the old client resolves late", async () => {
-    const a = fakeClient();
-    const b = fakeClient();
-    const view = await mount(a);
-    await open(view.editor());
-    await view.rerenderWith({ client: b });
-    expect(a.calls[0].signal?.aborted).toBe(true);
-    expect(b.calls).toHaveLength(1);
+  it.each([
+    ["shows only the new client's entries when the old client resolves late", async () => {
+      const a = fakeClient();
+      const b = fakeClient();
+      const view = await mount(a);
+      await open(view.editor());
+      await view.rerenderWith({ client: b });
+      expect(a.calls[0].signal?.aborted).toBe(true);
+      expect(b.calls).toHaveLength(1);
 
-    b.calls[0].load.resolve([bundle("b/doc", "From B")]);
-    await settle();
-    a.calls[0].load.resolve([bundle("a/doc", "From A")]);
-    await settle();
-    expect(pickerText()).toContain("From B");
-    expect(pickerText()).not.toContain("From A");
-  });
+      b.calls[0].load.resolve([bundle("b/doc", "From B")]);
+      await settle();
+      a.calls[0].load.resolve([bundle("a/doc", "From A")]);
+      await settle();
+      expect(pickerText()).toContain("From B");
+      expect(pickerText()).not.toContain("From A");
+    }],
+    ["shows only the new project's entries when the old project resolves late", async () => {
+      const client = fakeClient();
+      const view = await mount(client, "p1");
+      await open(view.editor());
+      await view.rerenderWith({ projectId: "p2" });
+      const [p1, p2] = client.calls;
+      expect(p1.projectId).toBe("p1");
+      expect(p2.projectId).toBe("p2");
+      expect(p1.signal?.aborted).toBe(true);
 
-  it("keeps the new client's entries when the old client rejects late", async () => {
-    const a = fakeClient();
-    const b = fakeClient();
-    const view = await mount(a);
-    await open(view.editor());
-    await view.rerenderWith({ client: b });
+      p2.load.resolve([bundle("p2/doc", "From p2")]);
+      await settle();
+      p1.load.resolve([bundle("p1/doc", "From p1")]);
+      await settle();
+      expect(pickerText()).toContain("From p2");
+      expect(pickerText()).not.toContain("From p1");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-    b.calls[0].load.resolve([bundle("b/doc", "From B")]);
-    await settle();
-    a.calls[0].load.reject(new Error("aborted"));
-    await settle();
-    expect(pickerText()).toContain("From B");
-    expect(pickerText()).not.toContain("Couldn't load docs");
-  });
+  it.each([
+    ["keeps the new client's entries when the old client rejects late", async () => {
+      const a = fakeClient();
+      const b = fakeClient();
+      const view = await mount(a);
+      await open(view.editor());
+      await view.rerenderWith({ client: b });
 
-  it("shows only the new project's entries when the old project resolves late", async () => {
-    const client = fakeClient();
-    const view = await mount(client, "p1");
-    await open(view.editor());
-    await view.rerenderWith({ projectId: "p2" });
-    const [p1, p2] = client.calls;
-    expect(p1.projectId).toBe("p1");
-    expect(p2.projectId).toBe("p2");
-    expect(p1.signal?.aborted).toBe(true);
+      b.calls[0].load.resolve([bundle("b/doc", "From B")]);
+      await settle();
+      a.calls[0].load.reject(new Error("aborted"));
+      await settle();
+      expect(pickerText()).toContain("From B");
+      expect(pickerText()).not.toContain("Couldn't load docs");
+    }],
+    ["keeps the new project's entries when the old project rejects late", async () => {
+      const client = fakeClient();
+      const view = await mount(client, "p1");
+      await open(view.editor());
+      await view.rerenderWith({ projectId: "p2" });
+      const [p1, p2] = client.calls;
 
-    p2.load.resolve([bundle("p2/doc", "From p2")]);
-    await settle();
-    p1.load.resolve([bundle("p1/doc", "From p1")]);
-    await settle();
-    expect(pickerText()).toContain("From p2");
-    expect(pickerText()).not.toContain("From p1");
-  });
-
-  it("keeps the new project's entries when the old project rejects late", async () => {
-    const client = fakeClient();
-    const view = await mount(client, "p1");
-    await open(view.editor());
-    await view.rerenderWith({ projectId: "p2" });
-    const [p1, p2] = client.calls;
-
-    p2.load.resolve([bundle("p2/doc", "From p2")]);
-    await settle();
-    p1.load.reject(new Error("aborted"));
-    await settle();
-    expect(pickerText()).toContain("From p2");
-    expect(pickerText()).not.toContain("Couldn't load docs");
-  });
+      p2.load.resolve([bundle("p2/doc", "From p2")]);
+      await settle();
+      p1.load.reject(new Error("aborted"));
+      await settle();
+      expect(pickerText()).toContain("From p2");
+      expect(pickerText()).not.toContain("Couldn't load docs");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("drops a late result from a loader that ignores the signal after unmount", async () => {
     let release!: () => void;

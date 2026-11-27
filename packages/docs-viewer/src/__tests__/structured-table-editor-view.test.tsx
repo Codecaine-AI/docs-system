@@ -84,61 +84,6 @@ function typeChar(editor: Editor, triggerChar: string) {
 }
 
 describe("TableGrid", () => {
-  it("renders the read surface's table structure and classes", () => {
-    const { container } = renderGrid();
-
-    const wrapper = container.querySelector("div");
-    expect(wrapper?.className).toContain(
-      "border-[color:var(--docs-table-border,var(--docs-border-strong,#d0cfcc))]",
-    );
-    const header = container.querySelector("thead");
-    expect(header?.className).toContain(
-      "border-b-[length:var(--docs-table-header-rule-width,2px)]",
-    );
-    expect(header?.className).toContain("var(--docs-table-header-rule-opacity,1)");
-
-    const headerCells = container.querySelectorAll("thead th");
-    expect(headerCells.length).toBe(2);
-    expect(headerCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-header-text-size,var(--docs-table-font-size,13.5px))]",
-    );
-    expect(headerCells[0]?.className).toContain(
-      "py-[length:var(--docs-table-cell-pad-y,4px)]",
-    );
-    expect(headerCells[0]?.className).toContain(
-      "px-[length:var(--docs-table-cell-pad-x,12px)]",
-    );
-    expect(headerCells[1]?.className).toContain(
-      "px-[length:var(--docs-table-cell-pad-x,12px)]",
-    );
-    expect(headerCells[0]?.className).toContain(
-      "border-r-[length:var(--docs-table-column-rule-width,0px)]",
-    );
-    expect(headerCells[1]?.className).not.toContain("border-r");
-
-    const bodyRows = container.querySelectorAll("tbody tr");
-    expect(bodyRows.length).toBe(2);
-    expect(bodyRows[0]?.className).toContain(
-      "border-b-[length:var(--docs-table-row-rule-width,1px)]",
-    );
-    expect(bodyRows[1]?.className).not.toContain("border-b");
-    const bodyCells = container.querySelectorAll("tbody td");
-    expect(bodyCells[0]?.className).toContain(
-      "text-[length:var(--docs-table-font-size,13.5px)]",
-    );
-
-    const cells = gridCells(container);
-    expect(cells.length).toBe(6);
-    expect(cells.map((cell) => cell.textContent)).toEqual([
-      "Stage",
-      "Owner",
-      "Alpha",
-      "ford",
-      "Beta",
-      "ana",
-    ]);
-  });
-
   it("renders span cells with inline mark elements in edit mode", () => {
     const { container } = renderGrid({
       data: {

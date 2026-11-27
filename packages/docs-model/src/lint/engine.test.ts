@@ -32,29 +32,31 @@ describe("authoring lint engine", () => {
       "99-appendix/10-style-guide/10-writing-style",
     );
   });
-  test("unchanged errors survive regenerated IDs and duplicate additions still block", () => {
-    const baseline = document(paragraph("old", "Old — prose."));
-    const same = document(paragraph("new", "Old — prose."));
-    expect(
-      lintDocument(same, { phase: "complete", baseline }).blocking,
-    ).toEqual([]);
-    const duplicate = document(
-      paragraph("new", "Old — prose."),
-      paragraph("extra", "Old — prose."),
-    );
-    const report = lintDocument(duplicate, { phase: "complete", baseline });
-    expect(report.blocking).toHaveLength(1);
-    expect(report.findings.filter((f) => !f.introduced)).toHaveLength(1);
-  });
-  test("changed content does not inherit old errors", () => {
-    const baseline = document(paragraph("p", "Old — prose."));
-    expect(
-      lintDocument(document(paragraph("p", "Different — prose.")), {
-        phase: "complete",
-        baseline,
-      }).blocking,
-    ).toHaveLength(1);
-  });
+  test.each([
+    ["unchanged errors survive regenerated IDs and duplicate additions still block", () => {
+      const baseline = document(paragraph("old", "Old — prose."));
+      const same = document(paragraph("new", "Old — prose."));
+      expect(
+        lintDocument(same, { phase: "complete", baseline }).blocking,
+      ).toEqual([]);
+      const duplicate = document(
+        paragraph("new", "Old — prose."),
+        paragraph("extra", "Old — prose."),
+      );
+      const report = lintDocument(duplicate, { phase: "complete", baseline });
+      expect(report.blocking).toHaveLength(1);
+      expect(report.findings.filter((f) => !f.introduced)).toHaveLength(1);
+    }],
+    ["changed content does not inherit old errors", () => {
+      const baseline = document(paragraph("p", "Old — prose."));
+      expect(
+        lintDocument(document(paragraph("p", "Different — prose.")), {
+          phase: "complete",
+          baseline,
+        }).blocking,
+      ).toHaveLength(1);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
   test("warning-only prose never blocks and retains baseline classification", () => {
     const doc = document(paragraph("p", "In order to save, press Save."));
     const report = lintDocument(doc, { phase: "complete", baseline: doc });

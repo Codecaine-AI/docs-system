@@ -20,6 +20,26 @@ import type { DocOp } from "../doc-ops";
 import { applyOp, applyOps } from "../doc-ops";
 import type { DocBlock, DocDocument } from "../doc-schema";
 import { serializeDocDocument, validateDocDocument } from "../doc-schema";
+import type { DocBlockType } from "../doc-schema";
+
+// From strict-writes.test.ts, for a case carried here.
+function docWith(type: DocBlockType, props: Record<string, unknown>): DocDocument {
+  return {
+    schemaVersion: 1,
+    id: `doc-${type}`,
+    root: "root",
+    blocks: {
+      root: { id: "root", type: "paragraph", props: {}, children: ["target"] },
+      target: {
+        id: "target",
+        type,
+        props,
+        text: [{ insert: "hello" }],
+        children: [],
+      },
+    },
+  };
+}
 
 function block(id: string, overrides: Partial<DocBlock> = {}): DocBlock {
   return {
@@ -364,29 +384,30 @@ describe("contract 4 — applyOp then inverse restores the exact original doc", 
 });
 
 describe("pre-apply validation — ops that would break invariants are rejected", () => {
-  it("rejects inserting with an existing id", () => {
-    const result = applyOp(baseDoc(), {
-      type: "insertBlock",
-      blockId: "p1",
-      parentId: "root",
-      index: 0,
-      blockType: "paragraph",
-      props: {},
-    });
-    expect(result.ok).toBe(false);
-  });
-
-  it("rejects inserting under a missing parent (dangle)", () => {
-    const result = applyOp(baseDoc(), {
-      type: "insertBlock",
-      blockId: "b-new",
-      parentId: "ghost",
-      index: 0,
-      blockType: "paragraph",
-      props: {},
-    });
-    expect(result.ok).toBe(false);
-  });
+  it.each([
+    ["rejects inserting with an existing id", () => {
+      const result = applyOp(baseDoc(), {
+        type: "insertBlock",
+        blockId: "p1",
+        parentId: "root",
+        index: 0,
+        blockType: "paragraph",
+        props: {},
+      });
+      expect(result.ok).toBe(false);
+    }],
+    ["rejects inserting under a missing parent (dangle)", () => {
+      const result = applyOp(baseDoc(), {
+        type: "insertBlock",
+        blockId: "b-new",
+        parentId: "ghost",
+        index: 0,
+        blockType: "paragraph",
+        props: {},
+      });
+      expect(result.ok).toBe(false);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects moving a block into its own subtree (cycle)", () => {
     const result = applyOp(baseDoc(), { type: "moveBlock", blockId: "list", toParentId: "li1", toIndex: 0 });
@@ -457,25 +478,41 @@ describe("componentAction op — typed actions through the kernel", () => {
     };
   }
 
-  it("applies the action's props patch and returns an updateBlock inverse", () => {
-    const doc = objectDoc();
-    const { doc: next, inverse } = mustApply(doc, {
-      type: "componentAction",
-      blockId: "tree",
-      action: "file-tree.addEntry",
-      params: { path: "src/c.ts", change: "added" },
-    });
-    expect(next.blocks.tree.props.entries).toEqual([
-      { path: "src/a.ts", note: "alpha", change: "added" },
-      { path: "src/b.ts" },
-      { path: "src/c.ts", change: "added" },
-    ]);
-    // The action executes through the existing updateBlock path: the inverse
-    // is the usual updateBlock props patch, and the block id is preserved.
-    expect(inverse).toHaveLength(1);
-    expect(inverse[0].type).toBe("updateBlock");
-    expect(next.blocks.tree.id).toBe("tree");
-  });
+  it.each([
+    ["applies the action's props patch and returns an updateBlock inverse", () => {
+      const doc = objectDoc();
+      const { doc: next, inverse } = mustApply(doc, {
+        type: "componentAction",
+        blockId: "tree",
+        action: "file-tree.addEntry",
+        params: { path: "src/c.ts", change: "added" },
+      });
+      expect(next.blocks.tree.props.entries).toEqual([
+        { path: "src/a.ts", note: "alpha", change: "added" },
+        { path: "src/b.ts" },
+        { path: "src/c.ts", change: "added" },
+      ]);
+      // The action executes through the existing updateBlock path: the inverse
+      // is the usual updateBlock props patch, and the block id is preserved.
+      expect(inverse).toHaveLength(1);
+      expect(inverse[0].type).toBe("updateBlock");
+      expect(next.blocks.tree.id).toBe("tree");
+    }],
+    ["runs a valid componentAction through strict updateBlock validation", () => {
+      const result = applyOp(docWith("file-tree", { entries: [{ path: "src/main.ts" }] }), {
+        type: "componentAction",
+        blockId: "target",
+        action: "file-tree.addEntry",
+        params: { path: "src/index.ts", change: "added" },
+      });
+      expect(result.ok).toBe(true);
+      if (!result.ok) return;
+      expect(result.doc.blocks.target.props.entries).toEqual([
+        { path: "src/main.ts" },
+        { path: "src/index.ts", change: "added" },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("applyOps then inverse restores the exact original doc", () => {
     const doc = objectDoc();

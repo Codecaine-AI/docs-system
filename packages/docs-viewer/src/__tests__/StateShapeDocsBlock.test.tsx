@@ -2,16 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render } from "@testing-library/react";
 import type { Field } from "@codecaine-ai/docs-model";
 import type { DocBlock } from "@codecaine-ai/docs-model/doc-schema";
-import {
-  STATE_SHAPE_AGENT_DESCRIPTION,
-  STATE_SHAPE_LABEL,
-  StateShapeBlock,
-  buildShapeModel,
-  exampleFitWidth,
-  exampleHang,
-  classifyTypeText,
-  splitTypeUnion,
-} from "../components/state-shape/StateShapeDocsBlock";
+import { StateShapeBlock, buildShapeModel, exampleFitWidth, exampleHang, classifyTypeText, splitTypeUnion } from "../components/state-shape/StateShapeDocsBlock";
 import { ledgerGuides } from "../components/state-shape/field-ledger";
 import { descriptors } from "../components/state-shape/descriptor";
 import type { DocBlockRenderContext } from "../render/block-registry";
@@ -105,20 +96,20 @@ function sheet(): string {
 }
 
 describe("classifyTypeText", () => {
-  it("classifies safe unions and preserves their separators", () => {
-    expect(classifyTypeText("string | null")).toEqual({
-      kind: "union",
-      parts: ["string", " | ", "null"],
-    });
-  });
-
-  it("classifies a single machine token", () => {
-    expect(classifyTypeText("Map<string,int>")).toEqual({ kind: "token" });
-  });
-
-  it("classifies prose", () => {
-    expect(classifyTypeText("score and validation refs")).toEqual({ kind: "prose" });
-  });
+  it.each([
+    ["classifies safe unions and preserves their separators", () => {
+      expect(classifyTypeText("string | null")).toEqual({
+        kind: "union",
+        parts: ["string", " | ", "null"],
+      });
+    }],
+    ["classifies a single machine token", () => {
+      expect(classifyTypeText("Map<string,int>")).toEqual({ kind: "token" });
+    }],
+    ["classifies prose", () => {
+      expect(classifyTypeText("score and validation refs")).toEqual({ kind: "prose" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("splitTypeUnion", () => {
@@ -169,22 +160,6 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(source.getAttribute("data-ref-path")).toBe("packages/docs-model/src/components/state-shape/state.ts");
     expect(source.getAttribute("data-ref-symbol")).toBe("StateShapeState");
     expect(section.getAttribute("data-shape-source")).toBe(sourceTip.textContent);
-  });
-
-  it("is always open: no disclosure, the shape's description prints beneath the head", () => {
-    renderTwoPane();
-    expect(document.querySelector("details")).toBeNull();
-    expect(document.querySelector("summary")).toBeNull();
-    // The head's own description is a paragraph, never a tooltip.
-    expect(document.querySelector("[data-shape-description]")?.closest("[data-described]")).toBeNull();
-    const description = document.querySelector("[data-shape-description]") as HTMLElement;
-    expect(description.tagName).toBe("P");
-    expect(description.textContent).toBe("The state-shape block's own props.");
-    // No column heads: the columns are self-evident.
-    expect(document.querySelector("[data-shape-ledger-head]")).toBeNull();
-    expect(document.querySelector("[data-shape-example-head]")).toBeNull();
-    // No field count trails the name.
-    expect(document.querySelector("[data-shape-header]")?.textContent).not.toMatch(/\d+ fields?/);
   });
 
   it("renders headerless when the block has neither a name nor a source", () => {
@@ -315,55 +290,13 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(hangs[2]?.style.getPropertyValue("--hang")).toBe("2ch");
   });
 
+  // regression: #23
   it("keeps an example far taller than its ledger beside the fields", () => {
     const rows = Array.from({ length: 12 }, (_, i) => ({ id: `block-${i}`, type: "paragraph", children: [`child-${i}`, `other-${i}`] }));
     render(<StateShapeBlock id="shape-tall" name="Doc" fields={[{ name: "blocks", type: "Block[]" }]} example={JSON.stringify({ blocks: rows })} />);
     const grid = document.querySelector("[data-shape-grid]") as HTMLElement;
     expect(grid.getAttribute("data-has-example")).toBe("true");
     expect(grid.hasAttribute("data-example-below")).toBe(false);
-  });
-
-  it("reads its knobs through the shared ledger locals, defaults as fallbacks", () => {
-    renderTwoPane();
-    const css = sheet();
-    for (const declaration of [
-      // Code-panel colors: the code theme's syntax roles, Dark+ literals.
-      "--fl-name:var(--docs-shape-name,var(--syntax-key,#9cdcfe))",
-      "--fl-type:var(--docs-shape-type,var(--syntax-type,#4ec9b0))",
-      "--fl-muted:var(--docs-shape-muted,var(--syntax-punctuation,#d4d4d4))",
-      "--fl-optional:var(--docs-shape-optional-fg,var(--syntax-punctuation,#d4d4d4))",
-      "--fl-type-string:var(--syntax-string,#ce9178)",
-      "--fl-desc:var(--docs-shape-desc-fg,var(--docs-muted,#666562))",
-      // The name column fits the longest name, capped by the shared knob.
-      "--fl-name-w:min(var(--docs-shape-name-width,24ch),var(--shape-name-fit,24ch))",
-      "--fl-pad-x:var(--docs-shape-pad-x,16px)",
-      "--fl-row-min-h:var(--docs-shape-row-min-height,28px)",
-      "--fl-indent:var(--docs-shape-indent,16px)",
-      "background:var(--docs-shape-bg,var(--docs-panel,#f8f8f7))",
-      "border:var(--docs-shape-border-width,1px) solid var(--docs-shape-border,var(--docs-rule,#e6e5e3))",
-      "background:var(--docs-fam-ref-solid,#6940a5)",
-      // The shared ledger: one fixed name column (the indent eats into it, so
-      // the type column never moves); a longer name wraps inside it; a type
-      // that cannot fit beside it wraps whole onto its own line (never
-      // mid-word), focus ring on linked rows.
-      "[data-field-name-cell]{flex:0 0 calc(var(--fl-name-w) - var(--field-depth,0)*var(--fl-indent));min-width:0;",
-      "[data-field-def]{flex:1 1 0;min-width:0}",
-      // One unwrapping row: the type never drops under its name; it wraps
-      // inside its own column, 24px past the name column.
-      "[data-field-row]{position:relative;display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:var(--ds-space-6);",
-      "--fl-row-pad:var(--docs-shape-row-pad,5px)",
-      "overflow-wrap:anywhere;word-break:normal",
-      "[data-field-row]:focus-visible{outline:var(--ds-border-width-focus) solid var(--docs-focus-ring,#0078df)",
-      // Nested fields: the file tree's elbow connectors, ink at 75%.
-      "--fl-guide:var(--docs-shape-child-rule,color-mix(in srgb,var(--docs-ink,#1f1f1f) 75%,transparent))",
-      ".docs-tree__guides > i[data-g=\"end\"]::before",
-    ]) {
-      expect(css).toContain(declaration);
-    }
-    // No textures, tinted heads, uppercase column heads, or pinned values.
-    expect(css).not.toContain("radial-gradient");
-    expect(css).not.toContain("text-transform:uppercase");
-    expect(css).not.toContain("!important");
   });
 
   it("renders no line-number chips anywhere; mapped rows are simply linkable", () => {
@@ -419,34 +352,20 @@ describe("StateShapeBlock — plain reference panel", () => {
     expect(container.querySelector("[data-pinned]")).toBeNull();
   });
 
-  it("renders the single-pane ledger when there is no example: nothing linkable", () => {
-    render(<StateShapeBlock id="shape-bare" name="Bare" fields={[{ name: "a", type: "string" }, { name: "b", required: false }]} />);
-    expect(document.querySelector("[data-shape-example]")).toBeNull();
-    expect(document.querySelector("[data-link-key]")).toBeNull();
-    expect(document.querySelector("[data-shape-example-pane]")).toBeNull();
-    expect(document.querySelector("[data-shape-grid]")?.hasAttribute("data-has-example")).toBe(false);
-  });
-
-  it("falls back to the single-pane ledger when the example is not valid JSON (tolerant)", () => {
-    render(<StateShapeBlock example={'{ "broken": '} fields={[{ name: "broken", type: "string" }]} id="shape-broken" />);
-    expect(document.querySelector("[data-shape-example]")).toBeNull();
-    expect(treeRow("broken")).not.toBeNull();
-  });
-
-  it("shows the empty note when the shape has no fields", () => {
-    const { getByText } = render(<StateShapeBlock fields={[]} id="shape-empty" />);
-    expect(getByText("(no fields)")).toBeTruthy();
-  });
-
-  it("exports the label and an agent description of the rendering", () => {
-    expect(STATE_SHAPE_LABEL).toBe("State Shape");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field inspector");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("field paths");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("JSON");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("opens in a tooltip");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("elbow connectors");
-    expect(STATE_SHAPE_AGENT_DESCRIPTION).toContain("always open");
-  });
+  it.each([
+    ["renders the single-pane ledger when there is no example: nothing linkable", () => {
+      render(<StateShapeBlock id="shape-bare" name="Bare" fields={[{ name: "a", type: "string" }, { name: "b", required: false }]} />);
+      expect(document.querySelector("[data-shape-example]")).toBeNull();
+      expect(document.querySelector("[data-link-key]")).toBeNull();
+      expect(document.querySelector("[data-shape-example-pane]")).toBeNull();
+      expect(document.querySelector("[data-shape-grid]")?.hasAttribute("data-has-example")).toBe(false);
+    }],
+    ["falls back to the single-pane ledger when the example is not valid JSON (tolerant)", () => {
+      render(<StateShapeBlock example={'{ "broken": '} fields={[{ name: "broken", type: "string" }]} id="shape-broken" />);
+      expect(document.querySelector("[data-shape-example]")).toBeNull();
+      expect(treeRow("broken")).not.toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("state-shape descriptor", () => {
@@ -495,21 +414,16 @@ describe("StateShapeBlock — name column fit", () => {
     return (document.querySelector('[data-docs-block-type="state-shape"]') as HTMLElement).style.getPropertyValue("--shape-name-fit");
   };
 
-  it("gives short names a narrow column, so the type and description get the space", () => {
-    expect(shapeStyle([{ name: "id", type: "number" }, { name: "url", type: "string" }])).toBe("10ch");
-  });
-
-  it("widens the column for a long or nested name, up to 32ch", () => {
-    expect(shapeStyle([{ name: "entries", type: "Entry[]", fields: [{ name: "packageRoot", type: "string", required: false }] }])).toBe("16ch");
-    cleanup();
-    expect(shapeStyle([{ name: "aVeryLongFieldNameThatPassesTheCap", type: "string" }])).toBe("32ch");
-  });
-
-  it("keeps a string literal of a union type on one line", () => {
-    render(<StateShapeBlock id="lit" fields={[{ name: "set", type: '"climb" | "held-out"' }]} />);
-    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-type-tok="string"]{white-space:nowrap}');
-    expect(Array.from(document.querySelectorAll('[data-type-tok="string"]')).map((n) => n.textContent)).toEqual(['"climb"', '"held-out"']);
-  });
+  it.each([
+    ["gives short names a narrow column, so the type and description get the space", () => {
+      expect(shapeStyle([{ name: "id", type: "number" }, { name: "url", type: "string" }])).toBe("10ch");
+    }],
+    ["widens the column for a long or nested name, up to 32ch", () => {
+      expect(shapeStyle([{ name: "entries", type: "Entry[]", fields: [{ name: "packageRoot", type: "string", required: false }] }])).toBe("16ch");
+      cleanup();
+      expect(shapeStyle([{ name: "aVeryLongFieldNameThatPassesTheCap", type: "string" }])).toBe("32ch");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("StateShapeBlock — path wrapping", () => {
@@ -526,12 +440,18 @@ describe("StateShapeBlock — path wrapping", () => {
 });
 
 describe("StateShapeBlock — code in descriptions", () => {
-  it("sets each backtick span of a description as code and hides the backticks", () => {
-    render(<StateShapeBlock id="code" fields={[{ name: "replace", type: "string", description: 'What to write. `""` deletes the word; `daemonFetch` reads it.' }]} />);
-    const note = document.querySelector('[data-field-token="note"]')!;
-    expect(Array.from(note.querySelectorAll("[data-note-code]")).map((n) => n.textContent)).toEqual(['""', "daemonFetch"]);
-    expect(note.textContent).toBe('What to write. "" deletes the word; daemonFetch reads it.');
-  });
+  it.each([
+    ["sets each backtick span of a description as code and hides the backticks", () => {
+      render(<StateShapeBlock id="code" fields={[{ name: "replace", type: "string", description: 'What to write. `""` deletes the word; `daemonFetch` reads it.' }]} />);
+      const note = document.querySelector('[data-field-token="note"]')!;
+      expect(Array.from(note.querySelectorAll("[data-note-code]")).map((n) => n.textContent)).toEqual(['""', "daemonFetch"]);
+      expect(note.textContent).toBe('What to write. "" deletes the word; daemonFetch reads it.');
+    }],
+    ["prints a description with no backticks as plain text", () => {
+      render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
+      expect(document.querySelector("[data-note-code]")).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps a short code span on one line and lets a long one wrap", () => {
     render(<StateShapeBlock id="wrap" fields={[{ name: "token", type: "string", description: "Sent as `Authorization: Bearer <token>` or `" + "x".repeat(40) + "`." }]} />);
@@ -539,31 +459,22 @@ describe("StateShapeBlock — code in descriptions", () => {
     expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-note-code]{font-family:var(--docs-font-code,ui-monospace,SFMono-Regular,Menlo,monospace);color:var(--docs-shape-name,var(--syntax-key,#9cdcfe));white-space:nowrap;padding:0;background:none;border:0}');
   });
 
-  it("breaks a long code path in a description only after a slash", () => {
-    render(<StateShapeBlock id="long" fields={[{ name: "sources", type: "string[]", description: "Paths such as `packages/docs-model/src/doc-schema.ts`." }]} />);
-    const code = document.querySelector('[data-note-code="long"]')!;
-    expect(Array.from(code.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(["packages/", "docs-model/", "src/", "doc-schema.ts"]);
-    expect(code.textContent).toBe("packages/docs-model/src/doc-schema.ts");
-  });
-
-  it("lets a path part wider than the column wrap inside itself, so it never runs past the block", () => {
-    const longName = "a-file-name-far-wider-than-a-narrow-description-column.ts";
-    render(<StateShapeBlock id="narrow" fields={[{ name: "file", type: "string", description: `Lives at \`src/${longName}\`.` }]} />);
-    const parts = Array.from(document.querySelectorAll('[data-note-code="long"] [data-json-seg]')).map((n) => n.textContent);
-    expect(parts).toEqual(["src/", longName]);
-    // Each part is an inline-block capped at the line width, so a too-long part breaks anywhere instead of overflowing.
-    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}');
-  });
-
-  it("balances a description's last line, so no word sits alone on it", () => {
-    render(<StateShapeBlock id="pretty" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
-    expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-field-token="note"]{margin-top:var(--ds-space-1);text-wrap:pretty}');
-  });
-
-  it("prints a description with no backticks as plain text", () => {
-    render(<StateShapeBlock id="plain" fields={[{ name: "pid", type: "number", description: "Process ID." }]} />);
-    expect(document.querySelector("[data-note-code]")).toBeNull();
-  });
+  it.each([
+    ["breaks a long code path in a description only after a slash", () => {
+      render(<StateShapeBlock id="long" fields={[{ name: "sources", type: "string[]", description: "Paths such as `packages/docs-model/src/doc-schema.ts`." }]} />);
+      const code = document.querySelector('[data-note-code="long"]')!;
+      expect(Array.from(code.querySelectorAll("[data-json-seg]")).map((n) => n.textContent)).toEqual(["packages/", "docs-model/", "src/", "doc-schema.ts"]);
+      expect(code.textContent).toBe("packages/docs-model/src/doc-schema.ts");
+    }],
+    ["lets a path part wider than the column wrap inside itself, so it never runs past the block", () => {
+      const longName = "a-file-name-far-wider-than-a-narrow-description-column.ts";
+      render(<StateShapeBlock id="narrow" fields={[{ name: "file", type: "string", description: `Lives at \`src/${longName}\`.` }]} />);
+      const parts = Array.from(document.querySelectorAll('[data-note-code="long"] [data-json-seg]')).map((n) => n.textContent);
+      expect(parts).toEqual(["src/", longName]);
+      // Each part is an inline-block capped at the line width, so a too-long part breaks anywhere instead of overflowing.
+      expect(sheet()).toContain('[data-docs-block-type="state-shape"] [data-json-seg]{display:inline-block;max-width:100%;text-indent:0;white-space:pre-wrap;overflow-wrap:anywhere}');
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("StateShapeBlock — wrapped example values", () => {

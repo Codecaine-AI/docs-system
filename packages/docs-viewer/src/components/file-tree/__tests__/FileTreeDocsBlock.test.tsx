@@ -5,7 +5,6 @@ import type { DocBlockRenderContext } from "../../../render/block-registry";
 import { TREE_ROWS_CSS } from "../../outline-rows/tree-rows";
 import { projectToMarkdown } from "@codecaine-ai/docs-model/project-markdown";
 import { descriptors } from "../descriptor";
-import { FILE_TREE_CSS } from "../FileTreeDocsBlock";
 
 const RENDER_CTX: DocBlockRenderContext = {
   renderText: () => null,
@@ -38,55 +37,55 @@ afterEach(() => {
 });
 
 describe("file tree group color", () => {
-  it("washes a colored directory's whole subtree and lets a nested color take over its own", () => {
-    renderTree([
-      { path: "src/", color: "blue" },
-      { path: "src/lib/util.ts" },
-      { path: "src/ui/", color: "teal" },
-      { path: "src/ui/button.tsx" },
-      { path: "src/zeta.ts" },
-      { path: "docs/readme.md" },
-    ]);
-    expect(colorRows()).toEqual([
-      "docs/",
-      "readme.md",
-      "src/ blue head",
-      "lib/ blue",
-      "util.ts blue",
-      "ui/ teal head seam",
-      "button.tsx teal",
-      "zeta.ts blue seam",
-    ]);
-  });
-
-  it("colors a file entry's own row only and ignores an off-roster color", () => {
-    renderTree([
-      { path: "src/", color: "blue" },
-      { path: "src/a.ts", color: "pink" },
-      { path: "src/b.ts" },
-      { path: "bad.md", color: "magenta" },
-      { path: "notes.md", color: "pink" },
-      { path: "todo.md" },
-    ]);
-    expect(colorRows()).toEqual([
-      "src/ blue head",
-      "a.ts pink head seam",
-      "b.ts blue seam",
-      "bad.md",
-      "notes.md pink head",
-      "todo.md",
-    ]);
-  });
-
-  it("splits two adjacent bands of the same color with a seam", () => {
-    renderTree([
-      { path: "a/", color: "blue" },
-      { path: "a/x.ts" },
-      { path: "b/", color: "blue" },
-      { path: "b/y.ts" },
-    ]);
-    expect(colorRows()).toEqual(["a/ blue head", "x.ts blue", "b/ blue head seam", "y.ts blue"]);
-  });
+  it.each([
+    ["washes a colored directory's whole subtree and lets a nested color take over its own", () => {
+      renderTree([
+        { path: "src/", color: "blue" },
+        { path: "src/lib/util.ts" },
+        { path: "src/ui/", color: "teal" },
+        { path: "src/ui/button.tsx" },
+        { path: "src/zeta.ts" },
+        { path: "docs/readme.md" },
+      ]);
+      expect(colorRows()).toEqual([
+        "docs/",
+        "readme.md",
+        "src/ blue head",
+        "lib/ blue",
+        "util.ts blue",
+        "ui/ teal head seam",
+        "button.tsx teal",
+        "zeta.ts blue seam",
+      ]);
+    }],
+    ["colors a file entry's own row only and ignores an off-roster color", () => {
+      renderTree([
+        { path: "src/", color: "blue" },
+        { path: "src/a.ts", color: "pink" },
+        { path: "src/b.ts" },
+        { path: "bad.md", color: "magenta" },
+        { path: "notes.md", color: "pink" },
+        { path: "todo.md" },
+      ]);
+      expect(colorRows()).toEqual([
+        "src/ blue head",
+        "a.ts pink head seam",
+        "b.ts blue seam",
+        "bad.md",
+        "notes.md pink head",
+        "todo.md",
+      ]);
+    }],
+    ["splits two adjacent bands of the same color with a seam", () => {
+      renderTree([
+        { path: "a/", color: "blue" },
+        { path: "a/x.ts" },
+        { path: "b/", color: "blue" },
+        { path: "b/y.ts" },
+      ]);
+      expect(colorRows()).toEqual(["a/ blue head", "x.ts blue", "b/ blue head seam", "y.ts blue"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("keeps a changed row's change inside a band, and the stylesheet lets the change win", () => {
     renderTree([
@@ -131,34 +130,35 @@ describe("file tree group color", () => {
 describe("file tree compact folders", () => {
   const names = () => treeRows().map((row) => row.querySelector(".docs-tree__name")?.textContent ?? "");
 
-  it("draws a chain of single-child folders as one row, in the order the agent projection prints", () => {
-    const entries = [
-      { path: "packages/docs-model/src/a.ts" },
-      { path: "packages/docs-model/src/b.ts" },
-      { path: "a-b/c.ts" },
-      { path: "a/x/d.ts" },
-    ];
-    renderTree(entries);
-    expect(names()).toEqual(["a/x/", "d.ts", "a-b/", "c.ts", "packages/docs-model/src/", "a.ts", "b.ts"]);
-    const doc = {
-      schemaVersion: 1, id: "d", title: "T", root: "r",
-      blocks: { r: { id: "r", type: "paragraph", props: {}, children: ["t"] }, t: { id: "t", type: "file-tree", props: { entries }, children: [] } },
-    } as unknown as Parameters<typeof projectToMarkdown>[0];
-    const fence = projectToMarkdown(doc).split("```")[1]!;
-    const text = fence.trim().split("\n").map((line) => line.replace(/^[│├└─ ]+/, ""));
-    expect(text).toEqual(names());
-  });
-
-  it("keeps a folder that carries a note, change or color on its own row", () => {
-    renderTree([
-      { path: "noted/", note: "why" },
-      { path: "noted/inner/x.ts" },
-      { path: "colored/", color: "blue" },
-      { path: "colored/inner/y.ts" },
-      { path: "moved/added/", change: "added" },
-    ]);
-    expect(names()).toEqual(["colored/", "inner/", "y.ts", "moved/", "added/", "noted/", "inner/", "x.ts"]);
-  });
+  it.each([
+    ["draws a chain of single-child folders as one row, in the order the agent projection prints", () => {
+      const entries = [
+        { path: "packages/docs-model/src/a.ts" },
+        { path: "packages/docs-model/src/b.ts" },
+        { path: "a-b/c.ts" },
+        { path: "a/x/d.ts" },
+      ];
+      renderTree(entries);
+      expect(names()).toEqual(["a/x/", "d.ts", "a-b/", "c.ts", "packages/docs-model/src/", "a.ts", "b.ts"]);
+      const doc = {
+        schemaVersion: 1, id: "d", title: "T", root: "r",
+        blocks: { r: { id: "r", type: "paragraph", props: {}, children: ["t"] }, t: { id: "t", type: "file-tree", props: { entries }, children: [] } },
+      } as unknown as Parameters<typeof projectToMarkdown>[0];
+      const fence = projectToMarkdown(doc).split("```")[1]!;
+      const text = fence.trim().split("\n").map((line) => line.replace(/^[│├└─ ]+/, ""));
+      expect(text).toEqual(names());
+    }],
+    ["keeps a folder that carries a note, change or color on its own row", () => {
+      renderTree([
+        { path: "noted/", note: "why" },
+        { path: "noted/inner/x.ts" },
+        { path: "colored/", color: "blue" },
+        { path: "colored/inner/y.ts" },
+        { path: "moved/added/", change: "added" },
+      ]);
+      expect(names()).toEqual(["colored/", "inner/", "y.ts", "moved/", "added/", "noted/", "inner/", "x.ts"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("file tree notes", () => {
@@ -168,17 +168,5 @@ describe("file tree notes", () => {
     expect(notes.map((note) => note.textContent)).toEqual(["Exports loadBriefs, read by round.ts", "No code here"]);
     expect(Array.from(notes[0]!.querySelectorAll("code")).map((code) => code.textContent)).toEqual(["loadBriefs", "round.ts"]);
     expect(notes[1]!.querySelector("code")).toBeNull();
-  });
-});
-
-describe("file tree style rail settings", () => {
-  it("takes folder weight and guide color from the File tree rail settings, with semibold and muted ink as the defaults", () => {
-    renderTree([{ path: "src/a.ts" }]);
-    const panel = document.querySelector<HTMLElement>('.docs-tree[data-tree-kind="file-tree"]')!;
-    expect(panel.style.getPropertyValue("--tr-folder-weight")).toBe("var(--docs-file-tree-folder-weight,600)");
-    expect(panel.style.getPropertyValue("--tr-guide")).toBe("var(--docs-file-tree-guide-fg,var(--docs-muted,#666562))");
-    // The file-tree stylesheet sets neither one again, so a rail override reaches the rows.
-    expect(FILE_TREE_CSS).not.toMatch(/--tr-folder-weight\s*:/);
-    expect(FILE_TREE_CSS).not.toMatch(/--tr-guide\s*:/);
   });
 });

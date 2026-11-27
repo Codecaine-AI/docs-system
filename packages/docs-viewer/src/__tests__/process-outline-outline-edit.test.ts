@@ -145,28 +145,29 @@ describe("planSetText", () => {
 });
 
 describe("planSplit (Enter)", () => {
-  it("splits at the caret into a new sibling below", () => {
-    const plan = planSplit(TREE, [0, 1], { text: "Phase Bee", caret: 5 });
-    expect(plan?.actions).toEqual([
-      { action: "process-outline.setStepText", params: { path: [0, 1], text: "Phase" } },
-      { action: "process-outline.insertStep", params: { path: [0, 2], text: " Bee" } },
-    ]);
-    expect(plan?.caret).toEqual({ path: [0, 2], offset: 0 });
-    const steps = apply(PROPS, plan);
-    expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase A", "Phase", " Bee"]);
-  });
+  it.each([
+    ["splits at the caret into a new sibling below", () => {
+      const plan = planSplit(TREE, [0, 1], { text: "Phase Bee", caret: 5 });
+      expect(plan?.actions).toEqual([
+        { action: "process-outline.setStepText", params: { path: [0, 1], text: "Phase" } },
+        { action: "process-outline.insertStep", params: { path: [0, 2], text: " Bee" } },
+      ]);
+      expect(plan?.caret).toEqual({ path: [0, 2], offset: 0 });
+      const steps = apply(PROPS, plan);
+      expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase A", "Phase", " Bee"]);
+    }],
+    ["keeps children with the original step — the new step is a sibling", () => {
+      const steps = apply(PROPS, planSplit(TREE, [0], line("Root")));
+      expect(steps.map((step) => step.text)).toEqual(["Root", "", "Second root"]);
+      expect(steps[0].steps).toHaveLength(2);
+      expect(steps[1].steps).toBeUndefined();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("emits only the insert when the caret is at the end", () => {
     const plan = planSplit(TREE, [1], line("Second root"));
     expect(plan?.actions).toHaveLength(1);
     expect(plan?.actions[0].action).toBe("process-outline.insertStep");
-  });
-
-  it("keeps children with the original step — the new step is a sibling", () => {
-    const steps = apply(PROPS, planSplit(TREE, [0], line("Root")));
-    expect(steps.map((step) => step.text)).toEqual(["Root", "", "Second root"]);
-    expect(steps[0].steps).toHaveLength(2);
-    expect(steps[1].steps).toBeUndefined();
   });
 
   it("continues a note run as another note", () => {
@@ -199,15 +200,16 @@ describe("planIndent (Tab)", () => {
     expect(plan?.actions).toHaveLength(2);
   });
 
-  it("is blocked with no previous sibling", () => {
-    expect(planIndent(TREE, [0], line("Root"))).toBeNull();
-    expect(planIndent(TREE, [0, 0], line("Phase A"))).toBeNull();
-  });
-
-  it("is blocked when the previous sibling is a note — notes are leaves", () => {
-    const tree: ProcessOutlineStep[] = [{ text: "n", kind: "note" }, { text: "s" }];
-    expect(planIndent(tree, [1], line("s"))).toBeNull();
-  });
+  it.each([
+    ["is blocked with no previous sibling", () => {
+      expect(planIndent(TREE, [0], line("Root"))).toBeNull();
+      expect(planIndent(TREE, [0, 0], line("Phase A"))).toBeNull();
+    }],
+    ["is blocked when the previous sibling is a note — notes are leaves", () => {
+      const tree: ProcessOutlineStep[] = [{ text: "n", kind: "note" }, { text: "s" }];
+      expect(planIndent(tree, [1], line("s"))).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("preserves the caret offset across the move", () => {
     expect(planIndent(TREE, [0, 1], { text: "Phase B", caret: 3 })?.caret).toEqual({
@@ -218,20 +220,21 @@ describe("planIndent (Tab)", () => {
 });
 
 describe("planOutdent (Shift+Tab)", () => {
-  it("makes the step the next sibling of its parent", () => {
-    const plan = planOutdent(TREE, [0, 0, 0], line("Deep"));
-    expect(plan?.actions).toEqual([
-      { action: "process-outline.moveStep", params: { from: [0, 0, 0], to: [0, 1] } },
-    ]);
-    const steps = apply(PROPS, plan);
-    expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase A", "Deep", "Phase B"]);
-  });
-
-  it("leaves following siblings where they are", () => {
-    const steps = apply(PROPS, planOutdent(TREE, [0, 0], line("Phase A")));
-    expect(steps.map((step) => step.text)).toEqual(["Root", "Phase A", "Second root"]);
-    expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase B"]);
-  });
+  it.each([
+    ["makes the step the next sibling of its parent", () => {
+      const plan = planOutdent(TREE, [0, 0, 0], line("Deep"));
+      expect(plan?.actions).toEqual([
+        { action: "process-outline.moveStep", params: { from: [0, 0, 0], to: [0, 1] } },
+      ]);
+      const steps = apply(PROPS, plan);
+      expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase A", "Deep", "Phase B"]);
+    }],
+    ["leaves following siblings where they are", () => {
+      const steps = apply(PROPS, planOutdent(TREE, [0, 0], line("Phase A")));
+      expect(steps.map((step) => step.text)).toEqual(["Root", "Phase A", "Second root"]);
+      expect(steps[0].steps?.map((step) => step.text)).toEqual(["Phase B"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is blocked at the root level", () => {
     expect(planOutdent(TREE, [0], line("Root"))).toBeNull();
@@ -260,23 +263,24 @@ describe("planRemoveEmpty (Backspace at start)", () => {
 });
 
 describe("planSetKind (note conversion)", () => {
-  it("turns a step into a note by removing and re-inserting it in place", () => {
-    const plan = planSetKind(TREE, [0, 1], "note", line("Phase B"));
-    expect(plan?.actions).toEqual([
-      { action: "process-outline.removeStep", params: { path: [0, 1] } },
-      {
-        action: "process-outline.insertStep",
-        params: { path: [0, 1], text: "Phase B", kind: "note" },
-      },
-    ]);
-    const steps = apply(PROPS, plan);
-    expect(steps[0].steps?.[1]).toEqual({ text: "Phase B", kind: "note" });
-  });
-
-  it("turns a note back into a step", () => {
-    const steps = apply(PROPS, planSetKind(TREE, [0, 0, 1], "step", line("note")));
-    expect(steps[0].steps?.[0].steps?.[1]).toEqual({ text: "note" });
-  });
+  it.each([
+    ["turns a step into a note by removing and re-inserting it in place", () => {
+      const plan = planSetKind(TREE, [0, 1], "note", line("Phase B"));
+      expect(plan?.actions).toEqual([
+        { action: "process-outline.removeStep", params: { path: [0, 1] } },
+        {
+          action: "process-outline.insertStep",
+          params: { path: [0, 1], text: "Phase B", kind: "note" },
+        },
+      ]);
+      const steps = apply(PROPS, plan);
+      expect(steps[0].steps?.[1]).toEqual({ text: "Phase B", kind: "note" });
+    }],
+    ["turns a note back into a step", () => {
+      const steps = apply(PROPS, planSetKind(TREE, [0, 0, 1], "step", line("note")));
+      expect(steps[0].steps?.[0].steps?.[1]).toEqual({ text: "note" });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is blocked for a step with children — a note cannot have any", () => {
     expect(planSetKind(TREE, [0, 0], "note", line("Phase A"))).toBeNull();
@@ -292,48 +296,49 @@ describe("note marker", () => {
     expect(noteMarkerTyped({ text: "> hello", caret: 3 })).toEqual({ text: "hello", caret: 1 });
   });
 
-  it("ignores text without the marker", () => {
-    expect(noteMarkerTyped({ text: ">no space", caret: 1 })).toBeNull();
-    expect(noteMarkerTyped({ text: "plain", caret: 1 })).toBeNull();
-  });
+  it.each([
+    ["ignores text without the marker", () => {
+      expect(noteMarkerTyped({ text: ">no space", caret: 1 })).toBeNull();
+      expect(noteMarkerTyped({ text: "plain", caret: 1 })).toBeNull();
+    }],
+    ["ignores text without the marker", () => {
+      expect(traceMarkerTyped({ text: "=>no space", caret: 1 })).toBeNull();
+      expect(traceMarkerTyped({ text: "> a note", caret: 1 })).toBeNull();
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("trace marker", () => {
   it("strips the marker and shifts the caret", () => {
     expect(traceMarkerTyped({ text: "=> hello", caret: 4 })).toEqual({ text: "hello", caret: 1 });
   });
-
-  it("ignores text without the marker", () => {
-    expect(traceMarkerTyped({ text: "=>no space", caret: 1 })).toBeNull();
-    expect(traceMarkerTyped({ text: "> a note", caret: 1 })).toBeNull();
-  });
 });
 
 describe("planSetTrace", () => {
-  it("marks a step without disturbing its subtree", () => {
-    const steps = apply(PROPS, planSetTrace(TREE, [0, 0], true, line("Phase A")));
-    expect(steps[0].steps?.[0]).toEqual({
-      text: "Phase A",
-      trace: true,
-      steps: [{ text: "Deep" }, { text: "note", kind: "note" }],
-    });
-  });
-
-  it("clears the mark again", () => {
-    const marked: ProcessOutlineStep[] = [{ text: "Run", trace: true }];
-    const steps = apply({ steps: marked }, planSetTrace(marked, [0], false, line("Run")));
-    expect(steps).toEqual([{ text: "Run" }]);
-  });
+  it.each([
+    ["marks a step without disturbing its subtree", () => {
+      const steps = apply(PROPS, planSetTrace(TREE, [0, 0], true, line("Phase A")));
+      expect(steps[0].steps?.[0]).toEqual({
+        text: "Phase A",
+        trace: true,
+        steps: [{ text: "Deep" }, { text: "note", kind: "note" }],
+      });
+    }],
+    ["clears the mark again", () => {
+      const marked: ProcessOutlineStep[] = [{ text: "Run", trace: true }];
+      const steps = apply({ steps: marked }, planSetTrace(marked, [0], false, line("Run")));
+      expect(steps).toEqual([{ text: "Run" }]);
+    }],
+    ["carries the line's text, so a rename and the mark commit together", () => {
+      const steps = apply(PROPS, planSetTrace(TREE, [1], true, line("Renamed root")));
+      expect(steps[1]).toEqual({ text: "Renamed root", trace: true });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("is blocked on a note, and on a step already in that state", () => {
     expect(planSetTrace(TREE, [0, 0, 1], true, line("note"))).toBeNull();
     expect(planSetTrace(TREE, [0, 0], false, line("Phase A"))).toBeNull();
     expect(planSetTrace(TREE, [9], true, line("nope"))).toBeNull();
-  });
-
-  it("carries the line's text, so a rename and the mark commit together", () => {
-    const steps = apply(PROPS, planSetTrace(TREE, [1], true, line("Renamed root")));
-    expect(steps[1]).toEqual({ text: "Renamed root", trace: true });
   });
 });
 

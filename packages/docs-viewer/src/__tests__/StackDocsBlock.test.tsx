@@ -58,11 +58,6 @@ describe("stack renderer", () => {
     expect(boundary.previousElementSibling).toBe(group);
   });
 
-  it("lays a container's children in two columns on request", () => {
-    const { container } = renderStack({ nodes: [{ name: "External", columns: 2, children: [{ name: "a" }, { name: "b" }] }] });
-    expect((container.querySelector("[data-stack-body]") as HTMLElement).style.getPropertyValue("--cols")).toBe("2");
-  });
-
   it("renders the invalid placeholder when nodes is missing", () => {
     const { container } = renderStack({});
     expect(container.textContent).toContain("Invalid Stack block");

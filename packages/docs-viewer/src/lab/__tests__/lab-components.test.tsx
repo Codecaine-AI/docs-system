@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it, mock } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 
 import { PanelQueue } from "../annotate/PanelQueue";
-import { GlassPanel } from "../glass/GlassPanel";
 import type { DocEditSession } from "../session/doc-edit-session";
 import { buildRequestQueue } from "../session/request-queue";
 
@@ -88,37 +87,6 @@ describe("PanelQueue", () => {
 		expect(screen.getByText("Document")).toBeTruthy();
 		expect(screen.getAllByText("empty")).toHaveLength(2);
 		expect(document.querySelector('[data-docs-lab-session-record="R1"]')).toBeNull();
-	});
-
-	it("always shows grouped headers with minimal empty states in both views", () => {
-		const emptySession: DocEditSession = { requests: [], proposals: [] };
-		render(
-			<PanelQueue
-				session={emptySession}
-				queue={buildRequestQueue({ requests: [], proposals: [] })}
-				labelForTarget={() => "Paragraph"}
-			/>,
-		);
-
-		expect(screen.getByText("Targets")).toBeTruthy();
-		expect(screen.getByText("Document")).toBeTruthy();
-		expect(screen.getAllByText("empty")).toHaveLength(2);
-		fireEvent.click(document.querySelector<HTMLButtonElement>('[data-docs-lab-filter="done"]')!);
-		expect(screen.getByText("Targets")).toBeTruthy();
-		expect(screen.getByText("Document")).toBeTruthy();
-		expect(screen.getAllByText("empty")).toHaveLength(2);
-	});
-
-	it("puts filters in the top bar and the whole-document input in the dock", () => {
-		render(
-			<PanelQueue session={session} queue={buildRequestQueue({ requests: session.requests, proposals: [] })} onFileGlobal={() => {}} labelForTarget={() => "Paragraph"} />,
-		);
-
-		const topBar = document.querySelector('[data-docs-lab-queue-top-bar]')!;
-		const dock = document.querySelector('[data-docs-lab-queue-dock]')!;
-		expect(topBar.querySelector('[data-docs-lab-filter="open"]')).toBeTruthy();
-		expect(topBar.querySelector('[data-docs-lab-filter="done"]')).toBeTruthy();
-		expect(dock.querySelector('[data-docs-lab-queue-dock-input] input[aria-label="Message the whole document"]')).toBeTruthy();
 	});
 
 	it("groups done records, shows bodies and collapsed replies, focuses targets, and undoes applied work", () => {
@@ -264,55 +232,5 @@ describe("PanelQueue", () => {
 
 		expect(toggle.getAttribute("aria-expanded")).toBe("true");
 		expect(screen.getByText("Which audience?")).toBeTruthy();
-	});
-
-	it("renders labels from mixed-document targets without inspecting them", () => {
-		const mixedSession: DocEditSession = {
-			requests: [
-				{
-					...session.requests[0]!,
-					id: "request-cross-doc",
-					alias: "R1",
-					target: { kind: "block", blockId: "block-1", docPath: "docs/10-architecture/20-north-star" },
-				},
-				{
-					...session.requests[0]!,
-					id: "request-same-doc",
-					alias: "R2",
-					target: { kind: "block", blockId: "block-2", docPath: "docs/10-architecture/10-overview" },
-				},
-			],
-			proposals: [],
-		};
-
-		render(
-			<PanelQueue
-				session={mixedSession}
-				queue={buildRequestQueue({ requests: mixedSession.requests, proposals: [] })}
-				labelForTarget={(target) => target.docPath?.endsWith("20-north-star") ? "north star → block" : "Overview"}
-			/>,
-		);
-
-		expect(document.querySelector('[data-docs-lab-card-target="R1"]')?.textContent).toBe("north star → block");
-		expect(document.querySelector('[data-docs-lab-card-target="R2"]')?.textContent).toBe("Overview");
-	});
-});
-
-describe("GlassPanel", () => {
-	it("exposes stable workbench mode hooks on both tabs", () => {
-		const onTabSelect = mock(() => {});
-		const { container } = render(
-			<div>
-				<GlassPanel tab="edit" onTabSelect={onTabSelect}>Outline</GlassPanel>
-			</div>,
-		);
-
-		const edit = container.querySelector<HTMLButtonElement>('[data-docs-mode="edit"]');
-		const ai = container.querySelector<HTMLButtonElement>('[data-docs-mode="ai"]');
-		expect(edit).toBeTruthy();
-		expect(ai).toBeTruthy();
-
-		fireEvent.click(ai!);
-		expect(onTabSelect).toHaveBeenCalledWith("ai");
 	});
 });

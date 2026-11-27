@@ -75,28 +75,29 @@ describe("request building", () => {
 });
 
 describe("response parsing", () => {
-  test("noul, choice, and score answers become findings with probabilities and fixes", async () => {
-    const score: JudgmentRule = { id: "t.score", kind: "score", question: "How unclear is `block`?", appliesTo: ["paragraph"], threshold: 0.5, gate: false, fix: "Say it plainly.", levels: ["Clear", "Vague", "Opaque"] };
-    const { fetch } = stub((q) => q.type === "noul" ? noul(0.9)
-      : q.type === "score" ? { type: "score", score: 1.5, legend: {}, probabilities: {}, confidence: 0.5 }
-      : { type: "choice", choice: "paragraph", probabilities: { one_point: 0.2, unrelated_points: 0.1, paragraph: 0.6, fragment: 0.1 } });
-    const found = await engineWith(fetch).judge({ doc, blockIds: ["i0", "lead"], rules: [rule("judgment.packed-bullet"), rule("judgment.flat-hierarchy"), rule("judgment.join-test"), score] });
-    const by = (id: string, blockId: string) => found.find((f) => f.ruleId === id && f.blockId === blockId)!;
-    // A choice reports the summed probability of options with a fix, and the likeliest option's fix.
-    expect(by("judgment.packed-bullet", "i0").probability).toBeCloseTo(0.8);
-    expect(by("judgment.packed-bullet", "i0").message).toBe("Bullet is a whole paragraph.");
-    expect(by("judgment.packed-bullet", "i0").fix).toBe("Make the bullet a bold-label parent. Put each fact in its own one-sentence sub-bullet.");
-    expect(by("judgment.flat-hierarchy", "i0").probability).toBe(0.9);
-    expect(by("judgment.join-test", "lead").probability).toBe(0.9);
-    expect(by("t.score", "lead").probability).toBeCloseTo(0.75);
-    expect(by("judgment.packed-bullet", "i0").evidence).toBe("The loader reads the file.");
-  });
-
-  test("an inverted noul reports the probability of the negative answer", async () => {
-    const good: JudgmentRule = { id: "t.inverted", kind: "noul", question: "Is `block` clear?", appliesTo: ["paragraph"], threshold: 0.5, gate: false, fix: "Clarify.", invert: true };
-    const { fetch } = stub(() => noul(0.8));
-    expect((await engineWith(fetch).judge({ doc, blockIds: ["tail"], rules: [good] }))[0]!.probability).toBeCloseTo(0.2);
-  });
+  test.each([
+    ["noul, choice, and score answers become findings with probabilities and fixes", async () => {
+      const score: JudgmentRule = { id: "t.score", kind: "score", question: "How unclear is `block`?", appliesTo: ["paragraph"], threshold: 0.5, gate: false, fix: "Say it plainly.", levels: ["Clear", "Vague", "Opaque"] };
+      const { fetch } = stub((q) => q.type === "noul" ? noul(0.9)
+        : q.type === "score" ? { type: "score", score: 1.5, legend: {}, probabilities: {}, confidence: 0.5 }
+        : { type: "choice", choice: "paragraph", probabilities: { one_point: 0.2, unrelated_points: 0.1, paragraph: 0.6, fragment: 0.1 } });
+      const found = await engineWith(fetch).judge({ doc, blockIds: ["i0", "lead"], rules: [rule("judgment.packed-bullet"), rule("judgment.flat-hierarchy"), rule("judgment.join-test"), score] });
+      const by = (id: string, blockId: string) => found.find((f) => f.ruleId === id && f.blockId === blockId)!;
+      // A choice reports the summed probability of options with a fix, and the likeliest option's fix.
+      expect(by("judgment.packed-bullet", "i0").probability).toBeCloseTo(0.8);
+      expect(by("judgment.packed-bullet", "i0").message).toBe("Bullet is a whole paragraph.");
+      expect(by("judgment.packed-bullet", "i0").fix).toBe("Make the bullet a bold-label parent. Put each fact in its own one-sentence sub-bullet.");
+      expect(by("judgment.flat-hierarchy", "i0").probability).toBe(0.9);
+      expect(by("judgment.join-test", "lead").probability).toBe(0.9);
+      expect(by("t.score", "lead").probability).toBeCloseTo(0.75);
+      expect(by("judgment.packed-bullet", "i0").evidence).toBe("The loader reads the file.");
+    }],
+    ["an inverted noul reports the probability of the negative answer", async () => {
+      const good: JudgmentRule = { id: "t.inverted", kind: "noul", question: "Is `block` clear?", appliesTo: ["paragraph"], threshold: 0.5, gate: false, fix: "Clarify.", invert: true };
+      const { fetch } = stub(() => noul(0.8));
+      expect((await engineWith(fetch).judge({ doc, blockIds: ["tail"], rules: [good] }))[0]!.probability).toBeCloseTo(0.2);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("a malformed answer drops that finding without failing the call", async () => {
     const { fetch } = stub(() => ({ type: "noul" }));

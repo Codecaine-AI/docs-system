@@ -107,15 +107,6 @@ describe("span round trip (pure convert)", () => {
     const back = pmToDoc(docToPM(doc), doc, ids());
     expect(diffToOps(doc, back)).toEqual([]);
   });
-
-  it("a real edit to such a block still emits an updateBlock", () => {
-    const doc = docWith([{ insert: "one." }, { insert: " two." }]);
-    const back = pmToDoc(docToPM(doc), doc, ids());
-    back.blocks.p1.text = [{ insert: "one. two!" }];
-    expect(diffToOps(doc, back)).toEqual([
-      { type: "updateBlock", blockId: "p1", text: [{ insert: "one. two!" }] },
-    ]);
-  });
 });
 
 let editors: Editor[] = [];

@@ -149,38 +149,38 @@ describe("whole-folder operations refuse a record-bearing bundle or subtree befo
 });
 
 describe("create undo refuses anything the create did not make", () => {
-  test("a nested record added below a created bundle", async () => {
-    const created = await createDocBundle(docsRoot, "library/new-topic", "New topic");
-    if (!created.ok) throw new Error(created.detail);
-    await write("library/new-topic/sources/s2/source.json", '{"id":"src-2"}\n');
-    const before = await corpusBytes();
-    const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
-    expect(replayed).toMatchObject({ ok: false, status: 409 });
-    expect((replayed as { detail: string }).detail).toContain("library/new-topic/sources/");
-    expect(await corpusBytes()).toEqual(before);
-  });
-
-  test("a doc.json edited since the create", async () => {
-    await write("notes/note-b/note.json", NOTE_BYTES);
-    const created = await createDocBundle(docsRoot, "notes/note-b", "Note B");
-    if (!created.ok) throw new Error(created.detail);
-    await write("notes/note-b/doc.json", DOC("edited"));
-    const before = await corpusBytes();
-    const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
-    expect(replayed).toMatchObject({ ok: false, status: 409 });
-    expect((replayed as { detail: string }).detail).toContain("edited since the create");
-    expect(await corpusBytes()).toEqual(before);
-  });
-
-  test("a sibling added inside a parent folder the create made", async () => {
-    const created = await createDocBundle(docsRoot, "fresh/parent/page", "Fresh");
-    if (!created.ok) throw new Error(created.detail);
-    await write("fresh/parent/other/note.json", NOTE_BYTES);
-    const before = await corpusBytes();
-    const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
-    expect(replayed).toMatchObject({ ok: false, status: 409 });
-    expect(await corpusBytes()).toEqual(before);
-  });
+  test.each([
+    ["a nested record added below a created bundle", async () => {
+      const created = await createDocBundle(docsRoot, "library/new-topic", "New topic");
+      if (!created.ok) throw new Error(created.detail);
+      await write("library/new-topic/sources/s2/source.json", '{"id":"src-2"}\n');
+      const before = await corpusBytes();
+      const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
+      expect(replayed).toMatchObject({ ok: false, status: 409 });
+      expect((replayed as { detail: string }).detail).toContain("library/new-topic/sources/");
+      expect(await corpusBytes()).toEqual(before);
+    }],
+    ["a doc.json edited since the create", async () => {
+      await write("notes/note-b/note.json", NOTE_BYTES);
+      const created = await createDocBundle(docsRoot, "notes/note-b", "Note B");
+      if (!created.ok) throw new Error(created.detail);
+      await write("notes/note-b/doc.json", DOC("edited"));
+      const before = await corpusBytes();
+      const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
+      expect(replayed).toMatchObject({ ok: false, status: 409 });
+      expect((replayed as { detail: string }).detail).toContain("edited since the create");
+      expect(await corpusBytes()).toEqual(before);
+    }],
+    ["a sibling added inside a parent folder the create made", async () => {
+      const created = await createDocBundle(docsRoot, "fresh/parent/page", "Fresh");
+      if (!created.ok) throw new Error(created.detail);
+      await write("fresh/parent/other/note.json", NOTE_BYTES);
+      const before = await corpusBytes();
+      const replayed = await replayTreeOpInverse(docsRoot, created.inverse);
+      expect(replayed).toMatchObject({ ok: false, status: 409 });
+      expect(await corpusBytes()).toEqual(before);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("an allowed bundle deletion keeps durable recovery bytes", () => {

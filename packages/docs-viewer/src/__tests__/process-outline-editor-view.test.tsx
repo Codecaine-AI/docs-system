@@ -556,22 +556,23 @@ describe("ProcessOutlineNodeView keys", () => {
     );
   });
 
-  it("Tab is refused when the previous sibling is a note", () => {
-    const tree: ProcessOutlineStep[] = [
-      { text: "n", kind: "note" },
-      { text: "after the note" },
-    ];
-    const { container, calls } = renderLive(tree);
-    press(focusLine(container, "1"), "Tab");
-    expect(calls).toHaveLength(0);
-    expect(committed(calls, tree)).toEqual(tree);
-  });
-
-  it("Tab at the top of a sibling list does nothing", () => {
-    const { container, calls } = renderLive();
-    press(focusLine(container, "0"), "Tab");
-    expect(calls).toHaveLength(0);
-  });
+  it.each([
+    ["Tab is refused when the previous sibling is a note", () => {
+      const tree: ProcessOutlineStep[] = [
+        { text: "n", kind: "note" },
+        { text: "after the note" },
+      ];
+      const { container, calls } = renderLive(tree);
+      press(focusLine(container, "1"), "Tab");
+      expect(calls).toHaveLength(0);
+      expect(committed(calls, tree)).toEqual(tree);
+    }],
+    ["Tab at the top of a sibling list does nothing", () => {
+      const { container, calls } = renderLive();
+      press(focusLine(container, "0"), "Tab");
+      expect(calls).toHaveLength(0);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("Shift+Tab lifts the step to its parent's level", () => {
     const { container, calls } = renderLive();
@@ -600,20 +601,21 @@ describe("ProcessOutlineNodeView keys", () => {
     expect(lineAt(container, "0.0").getAttribute("data-process-outline-step-editing")).toBe("true");
   });
 
-  it("Backspace leaves a non-empty step alone", () => {
-    const { container, calls } = renderLive();
-    const island = focusLine(container, "1");
-    placeCaret(island, 0);
-    press(island, "Backspace");
-    expect(calls).toHaveLength(0);
-  });
-
-  it("Backspace refuses to delete an empty step that still owns children", () => {
-    const tree: ProcessOutlineStep[] = [{ text: "", steps: [{ text: "child" }] }];
-    const { container, calls } = renderLive(tree);
-    press(focusLine(container, "0"), "Backspace");
-    expect(calls).toHaveLength(0);
-  });
+  it.each([
+    ["Backspace leaves a non-empty step alone", () => {
+      const { container, calls } = renderLive();
+      const island = focusLine(container, "1");
+      placeCaret(island, 0);
+      press(island, "Backspace");
+      expect(calls).toHaveLength(0);
+    }],
+    ["Backspace refuses to delete an empty step that still owns children", () => {
+      const tree: ProcessOutlineStep[] = [{ text: "", steps: [{ text: "child" }] }];
+      const { container, calls } = renderLive(tree);
+      press(focusLine(container, "0"), "Backspace");
+      expect(calls).toHaveLength(0);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("Escape commits and leaves the line", () => {
     const { container, calls, history } = renderLive();
@@ -666,13 +668,24 @@ describe("ProcessOutlineNodeView note conversion", () => {
     expect(steps[0].steps?.[0].steps).toHaveLength(2);
   });
 
-  it("Backspace at the start of a note turns it back into a step", () => {
-    const tree: ProcessOutlineStep[] = [{ text: "step" }, { text: "", kind: "note" }];
-    const { container, calls } = renderLive(tree);
-    press(focusLine(container, "1"), "Backspace");
+  it.each([
+    ["Backspace at the start of a note turns it back into a step", () => {
+      const tree: ProcessOutlineStep[] = [{ text: "step" }, { text: "", kind: "note" }];
+      const { container, calls } = renderLive(tree);
+      press(focusLine(container, "1"), "Backspace");
 
-    expect(committed(calls, tree)).toEqual([{ text: "step" }, { text: "" }]);
-  });
+      expect(committed(calls, tree)).toEqual([{ text: "step" }, { text: "" }]);
+    }],
+    ["converts a non-empty note back with the caret at the start", () => {
+      const tree: ProcessOutlineStep[] = [{ text: "step" }, { text: "a note", kind: "note" }];
+      const { container, calls } = renderLive(tree);
+      const island = focusLine(container, "1");
+      placeCaret(island, 0);
+      press(island, "Backspace");
+
+      expect(committed(calls, tree)).toEqual([{ text: "step" }, { text: "a note" }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("a second Backspace then deletes the now-plain empty step", () => {
     const tree: ProcessOutlineStep[] = [{ text: "step" }, { text: "", kind: "note" }];
@@ -682,16 +695,6 @@ describe("ProcessOutlineNodeView note conversion", () => {
 
     expect(calls).toHaveLength(2);
     expect(committed(calls, tree)).toEqual([{ text: "step" }]);
-  });
-
-  it("converts a non-empty note back with the caret at the start", () => {
-    const tree: ProcessOutlineStep[] = [{ text: "step" }, { text: "a note", kind: "note" }];
-    const { container, calls } = renderLive(tree);
-    const island = focusLine(container, "1");
-    placeCaret(island, 0);
-    press(island, "Backspace");
-
-    expect(committed(calls, tree)).toEqual([{ text: "step" }, { text: "a note" }]);
   });
 });
 
@@ -805,23 +808,37 @@ describe("ProcessOutlineNodeView pointing", () => {
     ]);
   });
 
-  it("clicking the empty space right of a line puts the caret at the end of it", () => {
-    const { container, calls } = renderLive();
-    stubRect(lineAt(container, "0.1"), { left: 0, right: 100, top: 0, bottom: 20 });
-    act(() => {
-      fireEvent.mouseDown(rowAt(container, "0.1"), { clientX: 300, clientY: 10 });
-    });
+  it.each([
+    ["clicking the empty space right of a line puts the caret at the end of it", () => {
+      const { container, calls } = renderLive();
+      stubRect(lineAt(container, "0.1"), { left: 0, right: 100, top: 0, bottom: 20 });
+      act(() => {
+        fireEvent.mouseDown(rowAt(container, "0.1"), { clientX: 300, clientY: 10 });
+      });
 
-    const island = lineAt(container, "0.1");
-    expect(island.getAttribute("data-process-outline-step-editing")).toBe("true");
-    press(island, "Enter");
-    // Caret at the end: the whole line stays put and the new sibling is empty.
-    expect(committed(calls)[0].steps?.map((step) => step.text)).toEqual([
-      "Phase A",
-      "Phase B",
-      "",
-    ]);
-  });
+      const island = lineAt(container, "0.1");
+      expect(island.getAttribute("data-process-outline-step-editing")).toBe("true");
+      press(island, "Enter");
+      // Caret at the end: the whole line stays put and the new sibling is empty.
+      expect(committed(calls)[0].steps?.map((step) => step.text)).toEqual([
+        "Phase A",
+        "Phase B",
+        "",
+      ]);
+    }],
+    ["clicking the rail gutter left of a line puts the caret at its start", () => {
+      const tree: ProcessOutlineStep[] = [{ text: "Root", steps: [{ text: "Phase" }] }];
+      const { container, calls } = renderLive(tree);
+      stubRect(lineAt(container, "0.0"), { left: 60, right: 160, top: 0, bottom: 20 });
+      act(() => {
+        fireEvent.mouseDown(rowAt(container, "0.0"), { clientX: 20, clientY: 10 });
+      });
+      press(lineAt(container, "0.0"), "Enter");
+
+      // Caret at 0: the split leaves an empty step above the untouched text.
+      expect(committed(calls, tree)[0].steps?.map((step) => step.text)).toEqual(["", "Phase"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("clicking a gap between rows lands on the nearest line, never on the block", () => {
     const { container } = renderLive();
@@ -837,19 +854,6 @@ describe("ProcessOutlineNodeView pointing", () => {
 
     expect(lineAt(container, "0.0").getAttribute("data-process-outline-step-editing")).toBe("true");
     expect(wrapper.getAttribute("data-process-outline-editing")).toBe("true");
-  });
-
-  it("clicking the rail gutter left of a line puts the caret at its start", () => {
-    const tree: ProcessOutlineStep[] = [{ text: "Root", steps: [{ text: "Phase" }] }];
-    const { container, calls } = renderLive(tree);
-    stubRect(lineAt(container, "0.0"), { left: 60, right: 160, top: 0, bottom: 20 });
-    act(() => {
-      fireEvent.mouseDown(rowAt(container, "0.0"), { clientX: 20, clientY: 10 });
-    });
-    press(lineAt(container, "0.0"), "Enter");
-
-    // Caret at 0: the split leaves an empty step above the untouched text.
-    expect(committed(calls, tree)[0].steps?.map((step) => step.text)).toEqual(["", "Phase"]);
   });
 
   it("swallows the mousedown so ProseMirror never sees a click on the block", () => {
@@ -888,31 +892,32 @@ describe("ProcessOutlineNodeView pointing", () => {
  * deletable through the same typed actions every other edit goes through.
  */
 describe("ProcessOutlineNodeView line ranges", () => {
-  it("dragging across lines highlights each one and drops the caret", () => {
-    const { container } = renderLive();
-    dragAcross(container, "0.0", "0.1");
+  it.each([
+    ["dragging across lines highlights each one and drops the caret", () => {
+      const { container } = renderLive();
+      dragAcross(container, "0.0", "0.1");
 
-    expect(selectedPaths(container)).toEqual(["0.0", "0.0.0", "0.0.1", "0.1"]);
-    expect(container.querySelector('[data-process-outline-step-editing="true"]')).toBeNull();
-    expect(
-      container
-        .querySelector("[data-process-outline-editing]")!
-        .getAttribute("data-process-outline-editing"),
-    ).toBe("true");
-  });
+      expect(selectedPaths(container)).toEqual(["0.0", "0.0.0", "0.0.1", "0.1"]);
+      expect(container.querySelector('[data-process-outline-step-editing="true"]')).toBeNull();
+      expect(
+        container
+          .querySelector("[data-process-outline-editing]")!
+          .getAttribute("data-process-outline-editing"),
+      ).toBe("true");
+    }],
+    ["a selected step takes its subtree with it", () => {
+      const { container } = renderLive();
+      dragAcross(container, "0", "0.0");
+      // Selecting the root implies everything nested under it.
+      expect(selectedPaths(container)).toEqual(["0", "0.0", "0.0.0", "0.0.1", "0.1"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("dragging inside ONE line stays a text selection", () => {
     const { container } = renderLive();
     dragAcross(container, "1", "1");
     expect(container.querySelector("[data-process-outline-range]")).toBeNull();
     expect(lineAt(container, "1").getAttribute("data-process-outline-step-editing")).toBe("true");
-  });
-
-  it("a selected step takes its subtree with it", () => {
-    const { container } = renderLive();
-    dragAcross(container, "0", "0.0");
-    // Selecting the root implies everything nested under it.
-    expect(selectedPaths(container)).toEqual(["0", "0.0", "0.0.0", "0.0.1", "0.1"]);
   });
 
   it("copies the range as the block's own notation", () => {

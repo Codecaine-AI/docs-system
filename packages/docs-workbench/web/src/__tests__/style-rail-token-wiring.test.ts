@@ -66,6 +66,7 @@ describe("style rail token wiring", () => {
     expect(unread).toEqual([]);
   });
 
+  // regression: 256b7d3
   it("keeps the known-unread list honest", () => {
     const nowRead = [...KNOWN_UNREAD].filter((cssVar) =>
       sources.some((source) => source.includes(`var(${cssVar}`)),
@@ -73,6 +74,7 @@ describe("style rail token wiring", () => {
     expect(nowRead).toEqual([]);
   });
 
+  // regression: 256b7d3
   it("keeps the unlayered heading color rule off card headers", () => {
     // A state-shape or interaction-surface header is an <h3>/<h4>. The
     // heading color rule in index.css is unlayered, so without this
@@ -83,6 +85,7 @@ describe("style rail token wiring", () => {
     );
   });
 
+  // regression: 256b7d3
   it("labels every key the generic component pane renders", () => {
     const unlabelled: string[] = [];
     for (const [section, tokens] of Object.entries(THEME_TOKEN_REGISTRY)) {

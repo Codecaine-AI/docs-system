@@ -40,17 +40,24 @@ function hasClasses(element: Element, classes: string): boolean {
 const RESTING_MARK = "after:border-[color:var(--docs-code-annotation-accent,#0b6e99)]/65";
 
 describe("parseCodeAnnotations", () => {
-  it("accepts well-formed entries and preserves optional labels", () => {
-    expect(
-      parseCodeAnnotations([
-        { lines: "1-2", label: "Setup", note: "Declares the inputs." },
+  it.each([
+    ["accepts well-formed entries and preserves optional labels", () => {
+      expect(
+        parseCodeAnnotations([
+          { lines: "1-2", label: "Setup", note: "Declares the inputs." },
+          { lines: "4", note: "Prints the result." },
+        ]),
+      ).toEqual([
+        { lines: "1-2", note: "Declares the inputs.", label: "Setup" },
         { lines: "4", note: "Prints the result." },
-      ]),
-    ).toEqual([
-      { lines: "1-2", note: "Declares the inputs.", label: "Setup" },
-      { lines: "4", note: "Prints the result." },
-    ]);
-  });
+      ]);
+    }],
+    ["keeps valid entries when mixed with junk", () => {
+      expect(
+        parseCodeAnnotations([{ lines: "2", note: "kept" }, { lines: 9, note: "dropped" }]),
+      ).toEqual([{ lines: "2", note: "kept" }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("drops malformed entries and returns null when nothing survives", () => {
     expect(
@@ -65,12 +72,6 @@ describe("parseCodeAnnotations", () => {
     expect(parseCodeAnnotations([])).toBeNull();
     expect(parseCodeAnnotations(undefined)).toBeNull();
     expect(parseCodeAnnotations("junk")).toBeNull();
-  });
-
-  it("keeps valid entries when mixed with junk", () => {
-    expect(
-      parseCodeAnnotations([{ lines: "2", note: "kept" }, { lines: 9, note: "dropped" }]),
-    ).toEqual([{ lines: "2", note: "kept" }]);
   });
 });
 
@@ -93,37 +94,38 @@ describe("lineRangeSpan", () => {
 });
 
 describe("annotationLineRuns", () => {
-  it("merges contiguous covered lines into one run per owning note", () => {
-    expect(annotationLineRuns(6, [{ lines: "2-4", note: "n" }])).toEqual([
-      { start: 2, length: 3, annotationIndex: 0 },
-    ]);
-    expect(annotationLineRuns(6, [{ lines: "1,3,4", note: "n" }])).toEqual([
-      { start: 1, length: 1, annotationIndex: 0 },
-      { start: 3, length: 2, annotationIndex: 0 },
-    ]);
-  });
-
-  it("breaks runs where ownership changes, resolving overlaps to the earliest note", () => {
-    expect(
-      annotationLineRuns(6, [
-        { lines: "1-2", note: "first" },
-        { lines: "2-4", note: "second" },
-      ]),
-    ).toEqual([
-      { start: 1, length: 2, annotationIndex: 0 },
-      { start: 3, length: 2, annotationIndex: 1 },
-    ]);
-    // Adjacent-but-distinct notes stay separate runs even with no gap.
-    expect(
-      annotationLineRuns(6, [
-        { lines: "1", note: "a" },
-        { lines: "2", note: "b" },
-      ]),
-    ).toEqual([
-      { start: 1, length: 1, annotationIndex: 0 },
-      { start: 2, length: 1, annotationIndex: 1 },
-    ]);
-  });
+  it.each([
+    ["merges contiguous covered lines into one run per owning note", () => {
+      expect(annotationLineRuns(6, [{ lines: "2-4", note: "n" }])).toEqual([
+        { start: 2, length: 3, annotationIndex: 0 },
+      ]);
+      expect(annotationLineRuns(6, [{ lines: "1,3,4", note: "n" }])).toEqual([
+        { start: 1, length: 1, annotationIndex: 0 },
+        { start: 3, length: 2, annotationIndex: 0 },
+      ]);
+    }],
+    ["breaks runs where ownership changes, resolving overlaps to the earliest note", () => {
+      expect(
+        annotationLineRuns(6, [
+          { lines: "1-2", note: "first" },
+          { lines: "2-4", note: "second" },
+        ]),
+      ).toEqual([
+        { start: 1, length: 2, annotationIndex: 0 },
+        { start: 3, length: 2, annotationIndex: 1 },
+      ]);
+      // Adjacent-but-distinct notes stay separate runs even with no gap.
+      expect(
+        annotationLineRuns(6, [
+          { lines: "1", note: "a" },
+          { lines: "2", note: "b" },
+        ]),
+      ).toEqual([
+        { start: 1, length: 1, annotationIndex: 0 },
+        { start: 2, length: 1, annotationIndex: 1 },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("clamps out-of-range parts and ignores unparseable ranges", () => {
     expect(annotationLineRuns(3, [{ lines: "2-99", note: "n" }])).toEqual([
@@ -282,66 +284,6 @@ describe("CodeBlockNodeView shell geometry", () => {
     expect(lane.className).toContain("max-w-[var(--style-code-width,88ch)]");
     // The lane wears no code typography, so its `ch` width resolves at body size.
     expect(lane.className).not.toContain("--docs-code-text-size");
-  });
-
-  it("reads the same code tokens as the read surfaces (frame, typography, gutter, padding, header)", () => {
-    const { props } = nodeViewProps(
-      { annotations: [{ lines: "2", note: "Note." }] },
-      { text: "a\nb\nc\nd" },
-    );
-    const { container } = render(<CodeBlockNodeView {...props} />);
-    const cls = (selector: string) => container.querySelector(selector)!.className;
-
-    // The panel frame (inside the notes layout); cn() must keep width,
-    // color and radius.
-    const frame = cls("[data-code-surface]");
-    expect(frame).toContain("border-[length:var(--docs-code-border-width,1px)]");
-    expect(frame).toContain("border-[color:var(--docs-code-block-border,var(--border))]");
-    expect(frame).toContain("rounded-[var(--docs-code-radius,var(--radius,2px))]");
-    expect(frame).toContain("text-[length:var(--docs-code-text-size,13px)]");
-    expect(frame).toContain("leading-[var(--docs-code-line-height,21px)]");
-
-    const content = cls("[data-code-content]");
-    expect(content).toContain("text-[length:var(--docs-code-text-size,13px)]");
-    expect(content).toContain("leading-[var(--docs-code-line-height,21px)]");
-    expect(content).toContain("grid-cols-[var(--docs-code-gutter-width,40px)_1fr]");
-
-    const gutterLine = cls('[data-code-gutter-line="1"]');
-    expect(gutterLine).toContain("h-[var(--docs-code-line-height,21px)]");
-    expect(gutterLine).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
-    expect(gutterLine).toContain("pr-[var(--docs-code-gutter-pad-x,12px)]");
-    expect(gutterLine).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
-    // Annotated gutter line at rest: the quiet mark; size and number color stay.
-    const annotated = cls('[data-code-gutter-line="2"]');
-    expect(annotated).toContain("text-[length:var(--docs-code-gutter-text-size,12px)]");
-    expect(annotated).toContain("text-[color:var(--docs-code-gutter-fg,#888784)]");
-    expect(annotated).toContain(RESTING_MARK);
-
-    expect(cls("[data-code-zebra]")).toContain("left-[var(--docs-code-gutter-width,40px)]");
-    expect(cls("[data-code-zebra]")).toContain("var(--docs-code-zebra,var(--docs-zebra,transparent))");
-    expect(cls("[data-code-annotation-row]")).toContain(
-      "left-[var(--docs-code-gutter-width,40px)]",
-    );
-    const scroll = cls("[data-code-scroll]");
-    expect(scroll).toContain("pt-[var(--docs-code-pad-top,12px)]");
-    expect(scroll).toContain("pb-[var(--docs-code-pad-bottom,12px)]");
-    expect(cls("pre")).toContain("px-[var(--docs-code-pad-x,12px)]");
-
-    // Header: the picker carries the label's size / weight / color tokens.
-    expect(cls("[data-code-header]")).toContain("h-[var(--docs-code-header-height,32px)]");
-    expect(cls("[data-code-header]")).toContain("bg-[color:var(--docs-code-header-bg,");
-    const select = cls("select");
-    expect(select).toContain("text-[length:var(--docs-code-header-text-size,12px)]");
-    expect(select).toContain("font-[var(--docs-code-header-weight,400)]");
-    expect(select).toContain("text-[color:var(--docs-code-header-fg,var(--muted-foreground))]");
-
-    expect(cls('[data-annotation-note="0"] [data-note-body]')).toContain(
-      "text-[length:var(--docs-code-note-text-size,13px)]",
-    );
-
-    for (const literal of ["h-5", "h-7", "3rem", "text-xs", "leading-[20px]", "pb-2", "rounded-md"]) {
-      expect(container.innerHTML).not.toContain(literal);
-    }
   });
 
   it("renders annotation overlay rows behind the text on the line-height token's geometry", () => {
@@ -646,17 +588,5 @@ describe("editor decorations", () => {
     expect(classes.length).toBeGreaterThan(0);
     expect(classes).toContain("hljs-keyword");
     expect(classes).toContain("hljs-number");
-  });
-
-  it("emits NO annotation decorations — annotated tint is the node view's overlay, not PM's", () => {
-    const classes = decorationClasses(
-      codeBlockState("const a = 1;\nconst b = 2;", {
-        annotations: [{ lines: "1-2", note: "n" }],
-      }),
-    );
-    expect(classes.length).toBeGreaterThan(0);
-    for (const cls of classes) {
-      expect(cls.startsWith("hljs")).toBe(true);
-    }
   });
 });

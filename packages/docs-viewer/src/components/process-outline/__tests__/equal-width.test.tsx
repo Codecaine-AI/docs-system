@@ -28,36 +28,37 @@ const block = (id: string) => (
 );
 
 describe("equalizeProcessOutlineWidths", () => {
-  it("gives a run of adjacent outlines the widest natural width of the run", () => {
-    render(
-      <main>
-        {block("a")}
-        {block("b")}
-        {block("c")}
-      </main>,
-    );
-    stubWidths({ a: 300, b: 480, c: 260 });
-    equalizeProcessOutlineWidths();
+  it.each([
+    ["gives a run of adjacent outlines the widest natural width of the run", () => {
+      render(
+        <main>
+          {block("a")}
+          {block("b")}
+          {block("c")}
+        </main>,
+      );
+      stubWidths({ a: 300, b: 480, c: 260 });
+      equalizeProcessOutlineWidths();
 
-    const widths = [...document.querySelectorAll<HTMLElement>(".docs-process-outline")].map((o) => o.style.width);
-    expect(widths).toEqual(["480px", "480px", "480px"]);
-  });
+      const widths = [...document.querySelectorAll<HTMLElement>(".docs-process-outline")].map((o) => o.style.width);
+      expect(widths).toEqual(["480px", "480px", "480px"]);
+    }],
+    ["breaks the run at any other block and leaves a lone outline to size itself", () => {
+      render(
+        <main>
+          {block("a")}
+          {block("b")}
+          <p>prose between runs</p>
+          {block("c")}
+        </main>,
+      );
+      stubWidths({ a: 300, b: 480, c: 260 });
+      equalizeProcessOutlineWidths();
 
-  it("breaks the run at any other block and leaves a lone outline to size itself", () => {
-    render(
-      <main>
-        {block("a")}
-        {block("b")}
-        <p>prose between runs</p>
-        {block("c")}
-      </main>,
-    );
-    stubWidths({ a: 300, b: 480, c: 260 });
-    equalizeProcessOutlineWidths();
-
-    const widths = [...document.querySelectorAll<HTMLElement>(".docs-process-outline")].map((o) => o.style.width);
-    expect(widths).toEqual(["480px", "480px", ""]);
-  });
+      const widths = [...document.querySelectorAll<HTMLElement>(".docs-process-outline")].map((o) => o.style.width);
+      expect(widths).toEqual(["480px", "480px", ""]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("re-measures from natural widths, so a run shrinks when its widest outline narrows", () => {
     render(

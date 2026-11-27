@@ -75,48 +75,80 @@ describe("doc.json write gate (validateDocDocument before persist)", () => {
     return ((await res.json()) as { doc_hash: string }).doc_hash;
   }
 
-  test("POST /api/ops 422s the incident's corrupt reference span and leaves doc.json byte-unchanged", async () => {
-    const hash = await docHash("guide");
-    const bytesBefore = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+  test.each([
+    ["POST /api/ops 422s the incident's corrupt reference span and leaves doc.json byte-unchanged", async () => {
+      const hash = await docHash("guide");
+      const bytesBefore = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
 
-    const res = await postJson("/api/ops", {
-      path: "guide",
-      ops: [
-        {
-          type: "updateBlock",
-          blockId: "h1",
-          text: [{ insert: "see the spec", attributes: { reference: CORRUPT_REFERENCE } }],
-        },
-      ],
-      expected_hash: hash,
-      session_id: "session-a",
-    });
+      const res = await postJson("/api/ops", {
+        path: "guide",
+        ops: [
+          {
+            type: "updateBlock",
+            blockId: "h1",
+            text: [{ insert: "see the spec", attributes: { reference: CORRUPT_REFERENCE } }],
+          },
+        ],
+        expected_hash: hash,
+        session_id: "session-a",
+      });
 
-    expect(res.status).toBe(422);
-    const body = (await res.json()) as {
-      detail: string;
-      issues: Array<{ path: string; message: string }>;
-    };
-    expect(body.detail).toBe("Doc ops produced an invalid document; save rejected.");
-    expect(body.issues).toEqual(
-      expect.arrayContaining([
-        {
-          path: "$.blocks.h1.text[0].attributes.reference.kind",
-          message: 'Reference kind must be "doc" or "source".',
-        },
-        {
-          path: "$.blocks.h1.text[0].attributes.reference.path",
-          message: "Reference requires a non-empty repo-relative path.",
-        },
-      ]),
-    );
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as {
+        detail: string;
+        issues: Array<{ path: string; message: string }>;
+      };
+      expect(body.detail).toBe("Doc ops produced an invalid document; save rejected.");
+      expect(body.issues).toEqual(
+        expect.arrayContaining([
+          {
+            path: "$.blocks.h1.text[0].attributes.reference.kind",
+            message: 'Reference kind must be "doc" or "source".',
+          },
+          {
+            path: "$.blocks.h1.text[0].attributes.reference.path",
+            message: "Reference requires a non-empty repo-relative path.",
+          },
+        ]),
+      );
 
-    const bytesAfter = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
-    expect(bytesAfter).toBe(bytesBefore);
+      const bytesAfter = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+      expect(bytesAfter).toBe(bytesBefore);
 
-    // The bundle stays loadable — the whole point of the gate.
-    expect((await get("/api/bundle?path=guide")).status).toBe(200);
-  });
+      // The bundle stays loadable — the whole point of the gate.
+      expect((await get("/api/bundle?path=guide")).status).toBe(200);
+    }],
+    ["POST /api/ops 422s an insertBlock introducing an invalid span and leaves doc.json byte-unchanged", async () => {
+      const hash = await docHash("guide");
+      const bytesBefore = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+
+      const res = await postJson("/api/ops", {
+        path: "guide",
+        ops: [
+          {
+            type: "insertBlock",
+            blockId: "p-new",
+            parentId: "root",
+            index: 1,
+            blockType: "paragraph",
+            props: {},
+            text: [{ insert: "pasted", attributes: { reference: CORRUPT_REFERENCE } }],
+          },
+        ],
+        expected_hash: hash,
+        session_id: "session-a",
+      });
+
+      expect(res.status).toBe(422);
+      const body = (await res.json()) as { issues: Array<{ path: string }> };
+      expect(body.issues.length).toBeGreaterThan(0);
+      expect(body.issues[0]?.path).toContain("$.blocks.p-new.text[0].attributes.reference");
+
+      const bytesAfter = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
+      expect(bytesAfter).toBe(bytesBefore);
+      expect((await get("/api/bundle?path=guide")).status).toBe(200);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("POST /api/ops still accepts a valid updateBlock save (well-formed reference round-trips)", async () => {
     const hash = await docHash("guide");
@@ -149,37 +181,6 @@ describe("doc.json write gate (validateDocDocument before persist)", () => {
       { insert: "see " },
       { insert: "the spec", attributes: { reference: { kind: "doc", path: "guide" } } },
     ]);
-  });
-
-  test("POST /api/ops 422s an insertBlock introducing an invalid span and leaves doc.json byte-unchanged", async () => {
-    const hash = await docHash("guide");
-    const bytesBefore = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
-
-    const res = await postJson("/api/ops", {
-      path: "guide",
-      ops: [
-        {
-          type: "insertBlock",
-          blockId: "p-new",
-          parentId: "root",
-          index: 1,
-          blockType: "paragraph",
-          props: {},
-          text: [{ insert: "pasted", attributes: { reference: CORRUPT_REFERENCE } }],
-        },
-      ],
-      expected_hash: hash,
-      session_id: "session-a",
-    });
-
-    expect(res.status).toBe(422);
-    const body = (await res.json()) as { issues: Array<{ path: string }> };
-    expect(body.issues.length).toBeGreaterThan(0);
-    expect(body.issues[0]?.path).toContain("$.blocks.p-new.text[0].attributes.reference");
-
-    const bytesAfter = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");
-    expect(bytesAfter).toBe(bytesBefore);
-    expect((await get("/api/bundle?path=guide")).status).toBe(200);
   });
 
   test("POST /api/ops still accepts a valid insertBlock save", async () => {

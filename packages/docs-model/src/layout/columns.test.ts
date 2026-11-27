@@ -21,11 +21,8 @@ test.each([
   ["zero-width space and joiners add nothing", "a​b⁠c", 4, 3],
   ["control characters add nothing", "x\u0007y", 4, 2],
   ["a Hangul filler still draws, wide", "ㅤ", 4, 2],
+  // The two ideographs end on column 4, a stop, so the tab advances a full stop to column 8.
+  ["tab stops count wide characters as two columns", "日本\tx", 4, 9],
 ])("%s", (_name, line, tabSize, columns) => {
   expect(monoColumns(line, tabSize)).toBe(columns);
-});
-
-test("tab stops count wide characters as two columns", () => {
-  // The two ideographs end on column 4, a stop, so the tab advances a full stop to column 8.
-  expect(monoColumns("日本\tx", 4)).toBe(9);
 });

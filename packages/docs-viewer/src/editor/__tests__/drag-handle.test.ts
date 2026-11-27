@@ -74,99 +74,100 @@ function topLevelNodes(editor: Editor): Array<{ pos: number; name: string }> {
 }
 
 describe("topLevelBlockPos", () => {
-  it("resolves every top-level block — text and atom alike — to its own position", () => {
-    const editor = createEditor([
-      paragraph("before", "b1"),
-      { type: "docCanvas", attrs: { blockId: "b2", blockProps: { canvasId: "board" } } },
-      { type: "docImage", attrs: { blockId: "b3", blockProps: { src: "a.png" } } },
-      { type: "docDivider", attrs: { blockId: "b4" } },
-      paragraph("after", "b5"),
-    ]);
+  it.each([
+    ["resolves every top-level block — text and atom alike — to its own position", () => {
+      const editor = createEditor([
+        paragraph("before", "b1"),
+        { type: "docCanvas", attrs: { blockId: "b2", blockProps: { canvasId: "board" } } },
+        { type: "docImage", attrs: { blockId: "b3", blockProps: { src: "a.png" } } },
+        { type: "docDivider", attrs: { blockId: "b4" } },
+        paragraph("after", "b5"),
+      ]);
 
-    const expected = topLevelNodes(editor);
-    const children = Array.from(editor.view.dom.children) as HTMLElement[];
-    expect(children.length).toBe(expected.length);
+      const expected = topLevelNodes(editor);
+      const children = Array.from(editor.view.dom.children) as HTMLElement[];
+      expect(children.length).toBe(expected.length);
 
-    for (const [index, child] of children.entries()) {
-      const pos = topLevelBlockPos(editor.view, child);
-      expect(pos, `child ${index} (${expected[index].name})`).toBe(expected[index].pos);
-      expect(editor.state.doc.nodeAt(pos!)?.type.name).toBe(expected[index].name);
-    }
-  });
+      for (const [index, child] of children.entries()) {
+        const pos = topLevelBlockPos(editor.view, child);
+        expect(pos, `child ${index} (${expected[index].name})`).toBe(expected[index].pos);
+        expect(editor.state.doc.nodeAt(pos!)?.type.name).toBe(expected[index].name);
+      }
+    }],
+    ["returns a position that supports NodeSelection on an atom block", () => {
+      const editor = createEditor([
+        paragraph("intro", "b1"),
+        { type: "docVideo", attrs: { blockId: "b2", blockProps: { src: "clip.mp4" } } },
+      ]);
 
-  it("builds a body-level full-block drag ghost without the selection class", () => {
-    const editor = createEditor([paragraph("hold my beer", "b1")]);
-    const block = editor.view.dom.children[0] as HTMLElement;
-    block.classList.add("ProseMirror-selectednode");
+      const videoElement = Array.from(editor.view.dom.children)[1] as HTMLElement;
+      const pos = topLevelBlockPos(editor.view, videoElement);
+      expect(pos).not.toBeNull();
+      const selection = NodeSelection.create(editor.state.doc, pos!);
+      expect(selection.node.type.name).toBe("docVideo");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-    const ghost = buildDragGhost([block]);
-    try {
-      expect(ghost.parentElement).toBe(document.body);
-      expect(ghost.className).toBe("docs-drag-image");
-      // The ENTIRE block rides along (text included), minus the selection
-      // class — the floating copy must not inherit the highlight/dim state.
-      const clone = ghost.firstElementChild as HTMLElement;
-      expect(clone.textContent).toBe("hold my beer");
-      expect(clone.classList.contains("ProseMirror-selectednode")).toBe(false);
-      // Parked offscreen, not interactive.
-      expect(ghost.style.top).toBe("-10000px");
-      expect(ghost.style.pointerEvents).toBe("none");
-    } finally {
-      ghost.remove();
-    }
-  });
+  it.each([
+    ["builds a body-level full-block drag ghost without the selection class", () => {
+      const editor = createEditor([paragraph("hold my beer", "b1")]);
+      const block = editor.view.dom.children[0] as HTMLElement;
+      block.classList.add("ProseMirror-selectednode");
 
-  it("carries the typography context's classes onto the ghost so text sizing matches", () => {
-    const context = document.createElement("div");
-    context.className = "docs-markdown prose prose-sm text-sm leading-[1.7]";
-    const block = document.createElement("div");
-    block.textContent = "styled";
-    context.appendChild(block);
-    document.body.appendChild(context);
+      const ghost = buildDragGhost([block]);
+      try {
+        expect(ghost.parentElement).toBe(document.body);
+        expect(ghost.className).toBe("docs-drag-image");
+        // The ENTIRE block rides along (text included), minus the selection
+        // class — the floating copy must not inherit the highlight/dim state.
+        const clone = ghost.firstElementChild as HTMLElement;
+        expect(clone.textContent).toBe("hold my beer");
+        expect(clone.classList.contains("ProseMirror-selectednode")).toBe(false);
+        // Parked offscreen, not interactive.
+        expect(ghost.style.top).toBe("-10000px");
+        expect(ghost.style.pointerEvents).toBe("none");
+      } finally {
+        ghost.remove();
+      }
+    }],
+    ["carries the typography context's classes onto the ghost so text sizing matches", () => {
+      const context = document.createElement("div");
+      context.className = "docs-markdown prose prose-sm text-sm leading-[1.7]";
+      const block = document.createElement("div");
+      block.textContent = "styled";
+      context.appendChild(block);
+      document.body.appendChild(context);
 
-    const ghost = buildDragGhost([block]);
-    try {
-      expect(ghost.classList.contains("docs-drag-image")).toBe(true);
-      // The wrapper's cascade re-applies inside the ghost — without these
-      // classes the floating clone rendered at body-default text size.
-      expect(ghost.classList.contains("docs-markdown")).toBe(true);
-      expect(ghost.classList.contains("prose-sm")).toBe(true);
-    } finally {
-      ghost.remove();
-      context.remove();
-    }
-  });
+      const ghost = buildDragGhost([block]);
+      try {
+        expect(ghost.classList.contains("docs-drag-image")).toBe(true);
+        // The wrapper's cascade re-applies inside the ghost — without these
+        // classes the floating clone rendered at body-default text size.
+        expect(ghost.classList.contains("docs-markdown")).toBe(true);
+        expect(ghost.classList.contains("prose-sm")).toBe(true);
+      } finally {
+        ghost.remove();
+        context.remove();
+      }
+    }],
+    ["stacks one clone per block for a multi-block ghost", () => {
+      const editor = createEditor([paragraph("first", "b1"), paragraph("second", "b2")]);
+      const blocks = Array.from(editor.view.dom.children) as HTMLElement[];
+      blocks[1].classList.add("docs-block-multi-selected");
 
-  it("stacks one clone per block for a multi-block ghost", () => {
-    const editor = createEditor([paragraph("first", "b1"), paragraph("second", "b2")]);
-    const blocks = Array.from(editor.view.dom.children) as HTMLElement[];
-    blocks[1].classList.add("docs-block-multi-selected");
-
-    const ghost = buildDragGhost(blocks);
-    try {
-      expect(ghost.children.length).toBe(2);
-      expect(ghost.children[0].textContent).toBe("first");
-      expect(ghost.children[1].textContent).toBe("second");
-      expect((ghost.children[1] as HTMLElement).classList.contains("docs-block-multi-selected")).toBe(
-        false,
-      );
-    } finally {
-      ghost.remove();
-    }
-  });
-
-  it("returns a position that supports NodeSelection on an atom block", () => {
-    const editor = createEditor([
-      paragraph("intro", "b1"),
-      { type: "docVideo", attrs: { blockId: "b2", blockProps: { src: "clip.mp4" } } },
-    ]);
-
-    const videoElement = Array.from(editor.view.dom.children)[1] as HTMLElement;
-    const pos = topLevelBlockPos(editor.view, videoElement);
-    expect(pos).not.toBeNull();
-    const selection = NodeSelection.create(editor.state.doc, pos!);
-    expect(selection.node.type.name).toBe("docVideo");
-  });
+      const ghost = buildDragGhost(blocks);
+      try {
+        expect(ghost.children.length).toBe(2);
+        expect(ghost.children[0].textContent).toBe("first");
+        expect(ghost.children[1].textContent).toBe("second");
+        expect((ghost.children[1] as HTMLElement).classList.contains("docs-block-multi-selected")).toBe(
+          false,
+        );
+      } finally {
+        ghost.remove();
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 /**
@@ -257,55 +258,56 @@ describe("gripTarget", () => {
 });
 
 describe("gripCenterY", () => {
-  it("centers on the first line box of a text block", () => {
-    const editor = createEditor([paragraph("first line", "p1")]);
-    // Computed styles need a connected element.
-    document.body.appendChild(editor.view.dom);
-    const block = editor.view.dom.children[0] as HTMLElement;
-    const line = editor.view.nodeDOM(1) as HTMLElement;
-    for (const element of [block, line]) {
-      element.style.display = "block";
-      element.style.lineHeight = "24px";
-      element.style.paddingTop = "0px";
-    }
-    pinRect(block, 100, 60);
-    pinRect(line, 104, 24);
-    try {
-      expect(gripCenterY(editor.view, 0, block)).toBe(116);
-    } finally {
-      editor.view.dom.remove();
-    }
-  });
+  it.each([
+    ["centers on the first line box of a text block", () => {
+      const editor = createEditor([paragraph("first line", "p1")]);
+      // Computed styles need a connected element.
+      document.body.appendChild(editor.view.dom);
+      const block = editor.view.dom.children[0] as HTMLElement;
+      const line = editor.view.nodeDOM(1) as HTMLElement;
+      for (const element of [block, line]) {
+        element.style.display = "block";
+        element.style.lineHeight = "24px";
+        element.style.paddingTop = "0px";
+      }
+      pinRect(block, 100, 60);
+      pinRect(line, 104, 24);
+      try {
+        expect(gripCenterY(editor.view, 0, block)).toBe(116);
+      } finally {
+        editor.view.dom.remove();
+      }
+    }],
+    ["centers on an atom's furniture anchor, but never on one inside a text block's children", () => {
+      const editor = createEditor([
+        { type: "docImage", attrs: { blockId: "img", blockProps: { src: "a.png" } } },
+        listItem("item", "li1", [paragraph("nested", "p2")]),
+      ]);
+      const [image, item] = Array.from(editor.view.dom.children) as HTMLElement[];
+      const head = document.createElement("div");
+      head.setAttribute("data-media-head", "");
+      image.appendChild(head);
+      pinRect(head, 10, 36);
+      expect(gripCenterY(editor.view, 0, image)).toBe(28);
 
-  it("centers on an atom's furniture anchor, but never on one inside a text block's children", () => {
-    const editor = createEditor([
-      { type: "docImage", attrs: { blockId: "img", blockProps: { src: "a.png" } } },
-      listItem("item", "li1", [paragraph("nested", "p2")]),
-    ]);
-    const [image, item] = Array.from(editor.view.dom.children) as HTMLElement[];
-    const head = document.createElement("div");
-    head.setAttribute("data-media-head", "");
-    image.appendChild(head);
-    pinRect(head, 10, 36);
-    expect(gripCenterY(editor.view, 0, image)).toBe(28);
-
-    // An anchor in the list item's content (a nested block's header) is not
-    // the item's first line: the item centers on its own text instead.
-    const nested = item.querySelector("p") ?? item.lastElementChild!;
-    const nestedHead = document.createElement("div");
-    nestedHead.setAttribute("data-code-header", "");
-    nested.appendChild(nestedHead);
-    pinRect(nestedHead, 500, 32);
-    const itemPos = editor.state.doc.child(0).nodeSize;
-    document.body.appendChild(editor.view.dom);
-    try {
-      const line = editor.view.nodeDOM(itemPos + 1) as HTMLElement;
-      line.style.display = "block";
-      line.style.lineHeight = "24px";
-      pinRect(line, 200, 24);
-      expect(gripCenterY(editor.view, itemPos, item)).toBe(212);
-    } finally {
-      editor.view.dom.remove();
-    }
-  });
+      // An anchor in the list item's content (a nested block's header) is not
+      // the item's first line: the item centers on its own text instead.
+      const nested = item.querySelector("p") ?? item.lastElementChild!;
+      const nestedHead = document.createElement("div");
+      nestedHead.setAttribute("data-code-header", "");
+      nested.appendChild(nestedHead);
+      pinRect(nestedHead, 500, 32);
+      const itemPos = editor.state.doc.child(0).nodeSize;
+      document.body.appendChild(editor.view.dom);
+      try {
+        const line = editor.view.nodeDOM(itemPos + 1) as HTMLElement;
+        line.style.display = "block";
+        line.style.lineHeight = "24px";
+        pinRect(line, 200, 24);
+        expect(gripCenterY(editor.view, itemPos, item)).toBe(212);
+      } finally {
+        editor.view.dom.remove();
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

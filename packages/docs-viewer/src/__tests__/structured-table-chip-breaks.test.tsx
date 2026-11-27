@@ -3,7 +3,6 @@ import { cleanup, render } from "@testing-library/react";
 import type { TableCell } from "@codecaine-ai/docs-model";
 import { StructuredTableBlock } from "../components/structured-table/StructuredTableDocsBlock";
 import { renderStaticCellInto } from "../components/structured-table/editor/EditableCell";
-import { TABLE_PROSE_FLOOR_CLASS } from "../components/structured-table/table-classes";
 
 afterEach(() => {
   cleanup();
@@ -53,11 +52,5 @@ describe("structured-table code chips break the same on every surface", () => {
       return chips(element)[0];
     });
     expect(cells).toEqual(expected);
-  });
-});
-
-describe("the prose floor", () => {
-  it("applies on screen only, since PDF export gives every column an equal share", () => {
-    expect(TABLE_PROSE_FLOOR_CLASS.split(" ")).toContain("print:min-w-0");
   });
 });

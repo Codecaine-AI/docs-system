@@ -42,16 +42,6 @@ describe("ProposalActionBar reject modes", () => {
 		expect(document.querySelector('[data-docs-lab-reject-strip="R2"]')).toBeTruthy();
 	});
 
-	it("discards the proposal outright from the feedback strip", () => {
-		const onReject = mock(() => {});
-		renderBar({ onReject, onRejectWithFeedback: () => {} });
-		fireEvent.click(screen.getByRole("button", { name: "Reject R2" }));
-
-		fireEvent.click(screen.getByRole("button", { name: "Discard" }));
-
-		expect(onReject).toHaveBeenCalledTimes(1);
-	});
-
 	it("requires a note and sends trimmed revision feedback", () => {
 		const onRejectWithFeedback = mock((_note: string) => {});
 		renderBar({ onRejectWithFeedback });

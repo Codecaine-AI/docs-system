@@ -9,28 +9,27 @@ import {
 const columnEdges = [0, 100, 200, 300, 400];
 
 describe("getTargetIndexByDraggingOffset", () => {
-  it("targets the furthest block whose center the trailing edge crossed when dragging right", () => {
-    expect(getTargetIndexByDraggingOffset(columnEdges, 0, 160)).toBe(2);
-    expect(getTargetIndexByDraggingOffset(columnEdges, 0, 120)).toBe(1);
-  });
-
-  it("targets the nearest block whose center the leading edge crossed when dragging left", () => {
-    expect(getTargetIndexByDraggingOffset(columnEdges, 3, 120)).toBe(1);
-    expect(getTargetIndexByDraggingOffset(columnEdges, 3, 40)).toBe(0);
-  });
-
-  it("returns the dragging index when no center has been crossed", () => {
-    expect(getTargetIndexByDraggingOffset(columnEdges, 0, 30)).toBe(0);
-    expect(getTargetIndexByDraggingOffset(columnEdges, 3, 280)).toBe(3);
-    expect(getTargetIndexByDraggingOffset(columnEdges, 2, 200)).toBe(2);
-  });
-
-  it("handles vertical offsets with uneven row heights", () => {
-    const rowEdges = [0, 40, 100, 140];
-    expect(getTargetIndexByDraggingOffset(rowEdges, 2, 10)).toBe(0);
-    expect(getTargetIndexByDraggingOffset(rowEdges, 0, 60)).toBe(1);
-    expect(getTargetIndexByDraggingOffset(rowEdges, 1, 45)).toBe(1);
-  });
+  it.each([
+    ["targets the furthest block whose center the trailing edge crossed when dragging right", () => {
+      expect(getTargetIndexByDraggingOffset(columnEdges, 0, 160)).toBe(2);
+      expect(getTargetIndexByDraggingOffset(columnEdges, 0, 120)).toBe(1);
+    }],
+    ["targets the nearest block whose center the leading edge crossed when dragging left", () => {
+      expect(getTargetIndexByDraggingOffset(columnEdges, 3, 120)).toBe(1);
+      expect(getTargetIndexByDraggingOffset(columnEdges, 3, 40)).toBe(0);
+    }],
+    ["returns the dragging index when no center has been crossed", () => {
+      expect(getTargetIndexByDraggingOffset(columnEdges, 0, 30)).toBe(0);
+      expect(getTargetIndexByDraggingOffset(columnEdges, 3, 280)).toBe(3);
+      expect(getTargetIndexByDraggingOffset(columnEdges, 2, 200)).toBe(2);
+    }],
+    ["handles vertical offsets with uneven row heights", () => {
+      const rowEdges = [0, 40, 100, 140];
+      expect(getTargetIndexByDraggingOffset(rowEdges, 2, 10)).toBe(0);
+      expect(getTargetIndexByDraggingOffset(rowEdges, 0, 60)).toBe(1);
+      expect(getTargetIndexByDraggingOffset(rowEdges, 1, 45)).toBe(1);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("unionRect", () => {
@@ -56,18 +55,18 @@ describe("unionRect", () => {
 });
 
 describe("gapPosition", () => {
-  it("returns the edge offset between adjacent slots", () => {
-    expect(gapPosition(columnEdges, 0)).toBe(0);
-    expect(gapPosition(columnEdges, 2)).toBe(200);
-    expect(gapPosition(columnEdges, 4)).toBe(400);
-  });
-
-  it("clamps the slot index to the offsets range", () => {
-    expect(gapPosition(columnEdges, -3)).toBe(0);
-    expect(gapPosition(columnEdges, 99)).toBe(400);
-  });
-
-  it("returns 0 for empty offsets", () => {
-    expect(gapPosition([], 1)).toBe(0);
-  });
+  it.each([
+    ["returns the edge offset between adjacent slots", () => {
+      expect(gapPosition(columnEdges, 0)).toBe(0);
+      expect(gapPosition(columnEdges, 2)).toBe(200);
+      expect(gapPosition(columnEdges, 4)).toBe(400);
+    }],
+    ["returns 0 for empty offsets", () => {
+      expect(gapPosition([], 1)).toBe(0);
+    }],
+    ["clamps the slot index to the offsets range", () => {
+      expect(gapPosition(columnEdges, -3)).toBe(0);
+      expect(gapPosition(columnEdges, 99)).toBe(400);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

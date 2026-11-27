@@ -89,36 +89,34 @@ describe("isExcludedOnDiskUnderDocsRoot", () => {
 });
 
 describe("isRecordFilePath", () => {
-  test("names base-shapes record files and task records, nothing else", () => {
-    for (const path of ["notes/a/note.json", "places/p/entity.json", "library/t/sources/s/source.json", "references/r/reference.json", "projects/p/project.json", "sessions/s/session.json", "tasks/rotate-keys.json", "places/p/tasks/plot.json"]) {
-      expect(isRecordFilePath(path)).toBe(true);
-    }
-    for (const path of ["notes/a/doc.json", "notes/a/annotations.json", "notes/a/proposals.json", "notes/a/assets/canvases/c.canvas.json", "tasks", "notes/tasks.json"]) {
-      expect(isRecordFilePath(path)).toBe(false);
-    }
-  });
-});
-
-describe("isRecordFilePath and a docs page named tasks (B7-2-03)", () => {
-  test("a page folder named tasks is no Task store: its doc.json and docs sidecars are never records", () => {
-    for (const path of [
-      "tasks/doc.json",
-      "tasks/annotations.json",
-      "tasks/proposals.json",
-      "tasks/flow.canvas.json",
-      "tasks/q.sequence.json",
-      "tasks/old.doc.json",
-      "tasks/doc.json.tmp-0f8fad5b-d9cb-469f-a165-70867728950e",
-      "tasks/assets/canvases/c.canvas.json",
-      "notes/page/assets/tasks/config.json",
-    ]) {
-      expect(isRecordFilePath(path)).toBe(false);
-    }
-  });
-
-  test("a genuine Task record stays protected, also beside a doc.json", () => {
-    for (const path of ["tasks/rotate-keys.json", "places/p/tasks/plot.json", "projects/alpha/tasks/plot-swatch-sheet.json", "tasks/task.json", "x/note.json"]) {
-      expect(isRecordFilePath(path)).toBe(true);
-    }
-  });
+  test.each([
+    ["names base-shapes record files and task records, nothing else", () => {
+      for (const path of ["notes/a/note.json", "places/p/entity.json", "library/t/sources/s/source.json", "references/r/reference.json", "projects/p/project.json", "sessions/s/session.json", "tasks/rotate-keys.json", "places/p/tasks/plot.json"]) {
+        expect(isRecordFilePath(path)).toBe(true);
+      }
+      for (const path of ["notes/a/doc.json", "notes/a/annotations.json", "notes/a/proposals.json", "notes/a/assets/canvases/c.canvas.json", "tasks", "notes/tasks.json"]) {
+        expect(isRecordFilePath(path)).toBe(false);
+      }
+    }],
+    ["a page folder named tasks is no Task store: its doc.json and docs sidecars are never records", () => {
+      for (const path of [
+        "tasks/doc.json",
+        "tasks/annotations.json",
+        "tasks/proposals.json",
+        "tasks/flow.canvas.json",
+        "tasks/q.sequence.json",
+        "tasks/old.doc.json",
+        "tasks/doc.json.tmp-0f8fad5b-d9cb-469f-a165-70867728950e",
+        "tasks/assets/canvases/c.canvas.json",
+        "notes/page/assets/tasks/config.json",
+      ]) {
+        expect(isRecordFilePath(path)).toBe(false);
+      }
+    }],
+    ["a genuine Task record stays protected, also beside a doc.json", () => {
+      for (const path of ["tasks/rotate-keys.json", "places/p/tasks/plot.json", "projects/alpha/tasks/plot-swatch-sheet.json", "tasks/task.json", "x/note.json"]) {
+        expect(isRecordFilePath(path)).toBe(true);
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

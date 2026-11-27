@@ -19,23 +19,23 @@ const componentFolders = (await readdir(componentsDir, { withFileTypes: true }))
 const modelComponents = ALL_COMPONENTS.map((component) => component.manifest.name).sort();
 
 describe("docs-viewer component folder mirror", () => {
-  it("exactly mirrors the sorted docs-model component names", () => {
-    expect(componentFolders).toEqual(modelComponents);
-  });
+  it.each([
+    ["exactly mirrors the sorted docs-model component names", () => {
+      expect(componentFolders).toEqual(modelComponents);
+    }],
+    ["has a folder for every docs-model component", () => {
+      const missingFolders = modelComponents.filter(
+        (component) => !componentFolders.includes(component),
+      );
 
-  it("has a folder for every docs-model component", () => {
-    const missingFolders = modelComponents.filter(
-      (component) => !componentFolders.includes(component),
-    );
+      expect(missingFolders).toEqual([]);
+    }],
+    ["has no unexpected component folders", () => {
+      const unexpectedFolders = componentFolders.filter(
+        (folder) => !modelComponents.includes(folder),
+      );
 
-    expect(missingFolders).toEqual([]);
-  });
-
-  it("has no unexpected component folders", () => {
-    const unexpectedFolders = componentFolders.filter(
-      (folder) => !modelComponents.includes(folder),
-    );
-
-    expect(unexpectedFolders).toEqual([]);
-  });
+      expect(unexpectedFolders).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

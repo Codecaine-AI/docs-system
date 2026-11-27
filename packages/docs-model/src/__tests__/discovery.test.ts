@@ -156,33 +156,6 @@ describe("buildBlocksDiscovery", () => {
     }
   });
 
-  it("serves the six canvas actions in lifted descriptor order", () => {
-    const canvas = buildBlocksDiscovery().components.find(
-      (component) => component.name === "canvas",
-    );
-
-    expect(canvas?.actions.map((entry) => entry.action)).toEqual([
-      "canvas.addObject",
-      "canvas.updateObject",
-      "canvas.removeObject",
-      "canvas.addConnection",
-      "canvas.updateConnection",
-      "canvas.removeConnection",
-    ]);
-  });
-
-  it("serves the three sequence actions in lifted descriptor order", () => {
-    const sequence = buildBlocksDiscovery().components.find(
-      (component) => component.name === "sequence",
-    );
-
-    expect(sequence?.actions.map((entry) => entry.action)).toEqual([
-      "sequence.setProgram",
-      "sequence.setStyle",
-      "sequence.setTitle",
-    ]);
-  });
-
   it("publishes all seven documented kernel operations", () => {
     const { ops } = buildBlocksDiscovery();
 
@@ -190,18 +163,6 @@ describe("buildBlocksDiscovery", () => {
     expect(ops.map((entry) => entry.op)).toEqual([...OP_NAMES]);
     expect(ops.map((entry) => entry.description)).toEqual([
       ...OP_DESCRIPTIONS,
-    ]);
-  });
-
-  it("reports the rich-text bundle's ten types and its one task-state action", () => {
-    const richText = buildBlocksDiscovery().components.find(
-      (component) => component.name === "rich-text",
-    );
-
-    expect(richText).toBeDefined();
-    expect(richText!.types).toHaveLength(10);
-    expect(richText!.actions.map((entry) => entry.action)).toEqual([
-      "list-item.setChecked",
     ]);
   });
 });

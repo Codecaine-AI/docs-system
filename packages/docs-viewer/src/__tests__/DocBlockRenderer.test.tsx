@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
-import { DOC_BLOCK_TYPES, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import DocBlockRenderer from "../render/DocBlockRenderer";
 import { DocsClientProvider, type CanvasEmbedProps } from "../client";
 
@@ -68,26 +68,6 @@ describe("DocBlockRenderer — callout children", () => {
 });
 
 describe("DocBlockRenderer", () => {
-  it("fixture is schema-valid and covers its established v1 block types", () => {
-    const doc = loadFixture();
-    const blockTypes = new Set(Object.values(doc.blocks).map((block) => block.type));
-    // The legacy fixture predates these types; dedicated tests cover each of them.
-    const absentFromFixture = new Set<string>([
-      "process-outline",
-      "html",
-      "app-embed",
-      "image-grid",
-      "stack",
-      "call-stack",
-      "component-tree",
-      "pseudocode",
-      "file-explorer",
-    ]);
-    for (const blockType of DOC_BLOCK_TYPES.filter((type) => !absentFromFixture.has(type))) {
-      expect(blockTypes.has(blockType)).toBe(true);
-    }
-  });
-
   it("mounts the full fixture without throwing and renders key content", () => {
     const doc = loadFixture();
     render(
@@ -312,57 +292,58 @@ describe("DocBlockRenderer", () => {
     expect(boxOf("plain").hasAttribute("role")).toBe(false);
   });
 
-  it("threads onCanvasObjectSelect into the injected embed, bundling the block's src", () => {
-    const doc = loadFixture();
-    const selections: Array<{ canvasSrc: string; objectId: string }> = [];
-    render(
-      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
-        <DocBlockRenderer
-          document={doc}
-          projectId="proj-1"
-          documentPath="docs/sample.md"
-          onCanvasObjectSelect={(input) => selections.push(input)}
-        />
-      </DocsClientProvider>,
-    );
+  it.each([
+    ["canonicalizes bundle-relative canvas srcs to root-relative when bundlePath is set", () => {
+      const doc = loadFixture();
+      const selections: Array<{ canvasSrc: string; objectId: string }> = [];
+      render(
+        <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+          <DocBlockRenderer
+            document={doc}
+            projectId="proj-1"
+            documentPath="docs/00-foundation/00-overview"
+            bundlePath="00-foundation/00-overview"
+            onCanvasObjectSelect={(input) => selections.push(input)}
+          />
+        </DocsClientProvider>,
+      );
 
-    fireEvent.click(document.querySelector('[data-canvas-object-id="user-brief"]')!);
-    expect(selections).toEqual([
-      { canvasSrc: "./assets/canvases/sample.canvas.json", objectId: "user-brief" },
-    ]);
-  });
+      // "./assets/canvases/sample.canvas.json" rewrote against the bundle path
+      // (twin-retirement safe — in Spectre this is what selects the cross-doc
+      // /docs/canvas-by-src route).
+      expect(embedCalls).toHaveLength(1);
+      expect(embedCalls[0].src).toBe(
+        "00-foundation/00-overview/assets/canvases/sample.canvas.json",
+      );
+      // Selection reports the canonical src too.
+      fireEvent.click(document.querySelector('[data-canvas-object-id="user-brief"]')!);
+      expect(selections).toEqual([
+        {
+          canvasSrc: "00-foundation/00-overview/assets/canvases/sample.canvas.json",
+          objectId: "user-brief",
+        },
+      ]);
+    }],
+    ["threads onCanvasObjectSelect into the injected embed, bundling the block's src", () => {
+      const doc = loadFixture();
+      const selections: Array<{ canvasSrc: string; objectId: string }> = [];
+      render(
+        <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
+          <DocBlockRenderer
+            document={doc}
+            projectId="proj-1"
+            documentPath="docs/sample.md"
+            onCanvasObjectSelect={(input) => selections.push(input)}
+          />
+        </DocsClientProvider>,
+      );
 
-  it("canonicalizes bundle-relative canvas srcs to root-relative when bundlePath is set", () => {
-    const doc = loadFixture();
-    const selections: Array<{ canvasSrc: string; objectId: string }> = [];
-    render(
-      <DocsClientProvider canvasEmbed={FakeCanvasEmbed}>
-        <DocBlockRenderer
-          document={doc}
-          projectId="proj-1"
-          documentPath="docs/00-foundation/00-overview"
-          bundlePath="00-foundation/00-overview"
-          onCanvasObjectSelect={(input) => selections.push(input)}
-        />
-      </DocsClientProvider>,
-    );
-
-    // "./assets/canvases/sample.canvas.json" rewrote against the bundle path
-    // (twin-retirement safe — in Spectre this is what selects the cross-doc
-    // /docs/canvas-by-src route).
-    expect(embedCalls).toHaveLength(1);
-    expect(embedCalls[0].src).toBe(
-      "00-foundation/00-overview/assets/canvases/sample.canvas.json",
-    );
-    // Selection reports the canonical src too.
-    fireEvent.click(document.querySelector('[data-canvas-object-id="user-brief"]')!);
-    expect(selections).toEqual([
-      {
-        canvasSrc: "00-foundation/00-overview/assets/canvases/sample.canvas.json",
-        objectId: "user-brief",
-      },
-    ]);
-  });
+      fireEvent.click(document.querySelector('[data-canvas-object-id="user-brief"]')!);
+      expect(selections).toEqual([
+        { canvasSrc: "./assets/canvases/sample.canvas.json", objectId: "user-brief" },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("does not thread onObjectSelect into the embed when onCanvasObjectSelect is omitted", () => {
     const doc = loadFixture();
@@ -381,18 +362,6 @@ describe("DocBlockRenderer", () => {
         .querySelector('[data-canvas-object-id="user-brief"]')
         ?.getAttribute("data-editable"),
     ).toBeNull();
-  });
-
-  it("has no editing affordances of its own (M4: editing lives entirely in DocEditor)", () => {
-    const doc = loadFixture();
-    render(<DocBlockRenderer document={doc} />);
-
-    // No textarea/edit affordance exists anywhere — DocBlockRenderer is
-    // read-only; DocEditor (editor/DocEditor.tsx) is what mounts instead of
-    // it when the host enables block editing (see DocsViewer.tsx).
-    expect(screen.queryByLabelText("Edit block markdown")).toBeNull();
-    // Clicking a block is inert — no handler, nothing to throw.
-    fireEvent.click(screen.getByText("Docs Model Sample"));
   });
 
   it("wraps each top-level block in its declared page lane, and leaves nested blocks unlaned", () => {

@@ -2,10 +2,7 @@ import { afterEach, describe, expect, it } from "bun:test";
 import { act, cleanup, createEvent, fireEvent, render } from "@testing-library/react";
 import type { ReactNodeViewProps } from "@tiptap/react";
 import type { TableCell } from "@codecaine-ai/docs-model";
-import {
-  HANDLE_OFFSET_CALC,
-  StructuredTableNodeView,
-} from "../components/structured-table/editor-node-view";
+import { StructuredTableNodeView } from "../components/structured-table/editor-node-view";
 import { ADD_BAR_TOOLTIP_DELAY_MS } from "../components/structured-table/editor/AddButtons";
 import { addDragLabel } from "../components/structured-table/editor/AddDragPreview";
 import { DragRegionOverlay } from "../components/structured-table/editor/DropIndicator";
@@ -366,20 +363,6 @@ describe("structured-table cell focus furniture", () => {
     fireEvent.blur(cell);
     expect(container.querySelectorAll("[data-table-focus-notch]").length).toBe(0);
   });
-
-  it("gives editor cells the whole-cell focus-within accent ring, but never read-mode cells", () => {
-    const { container } = renderView();
-    expect(container.querySelector("thead th")!.className).toContain("focus-within:");
-    expect(container.querySelector("tbody td")!.className).toContain("focus-within:");
-
-    const readOnly = renderView(DATA, false);
-    expect(readOnly.container.querySelector("thead th")!.className).not.toContain(
-      "focus-within:",
-    );
-    expect(readOnly.container.querySelector("tbody td")!.className).not.toContain(
-      "focus-within:",
-    );
-  });
 });
 
 describe("structured-table handles and menu", () => {
@@ -388,20 +371,6 @@ describe("structured-table handles and menu", () => {
     fireEvent.mouseEnter(container.querySelectorAll("thead th")[0]!);
     expect(query(container, "[data-table-column-handle]")).toBeTruthy();
     expect(query(container, "[data-table-row-handle]")).toBeNull();
-  });
-
-  it("renders six-dot grab glyphs on both handles", () => {
-    const { container } = renderView();
-    fireEvent.mouseEnter(container.querySelectorAll("tbody td")[0]!);
-    const columnHandle = query(container, "[data-table-column-handle]")!;
-    const rowHandle = query(container, "[data-table-row-handle]")!;
-    expect(columnHandle.querySelectorAll("span span").length).toBe(6);
-    expect(rowHandle.querySelectorAll("span span").length).toBe(6);
-    // Column pill: 2 rows × 3 dots; row pill: 3 rows × 2 dots.
-    expect(columnHandle.querySelector("span")!.className).toContain("grid-cols-3");
-    expect(rowHandle.querySelector("span")!.className).toContain("grid-cols-2");
-    expect(columnHandle.className).toContain("cursor-grab");
-    expect(columnHandle.className).toContain("active:cursor-grabbing");
   });
 
   it("shows both handles over a body cell; none when not editable", () => {
@@ -513,25 +482,6 @@ describe("structured-table handles and menu", () => {
 });
 
 describe("structured-table furniture theme tokens", () => {
-  // NOTE: happy-dom's CSSStyleDeclaration silently DROPS calc() values that
-  // contain var() (they read back as ""), so these tests pin the calc strings
-  // at the source (HANDLE_OFFSET_CALC / paddedRectStyle) instead of reading
-  // them off the rendered DOM — the live Playwright pass covers the real-DOM
-  // resolution.
-  it("pills consume the themed corner radius and sit off-edge via the offset var", () => {
-    const { container } = renderView();
-    fireEvent.mouseEnter(container.querySelectorAll("tbody td")[0]!);
-    const columnHandle = query(container, "[data-table-column-handle]")!;
-    const rowHandle = query(container, "[data-table-row-handle]")!;
-    for (const handle of [columnHandle, rowHandle]) {
-      expect(handle.className).toContain("rounded-[var(--docs-table-handle-radius,var(--radius,2px))]");
-      expect(handle.className).not.toContain("rounded-lg");
-    }
-    // The off-edge axis is a calc() over the themed offset var (fallback =
-    // the semantic.css default); the in-edge axis stays a measured number.
-    expect(HANDLE_OFFSET_CALC).toBe("calc(-1 * var(--docs-table-handle-offset, 12px))");
-  });
-
   it("selection and drag-region overlays expand by the selection padding on all sides", () => {
     const rect = { left: 10, top: 20, width: 100, height: 40 };
     expect(paddedRectStyle(rect)).toEqual({

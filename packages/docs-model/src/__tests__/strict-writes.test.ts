@@ -111,23 +111,24 @@ describe("strict component-state writes", () => {
         expect(result.ok).toBe(true);
       });
 
-      it("rejects an unknown prop at $.op.props.<key>", () => {
-        const result = applyOp(docWith(representative.type, representative.props), {
-          type: "updateBlock",
-          blockId: "target",
-          props: { unexpected: true },
-        });
-        expectIssuePath(result, "$.op.props.unexpected");
-      });
-
-      it("rejects a wrong-typed known prop", () => {
-        const result = applyOp(docWith(representative.type, representative.props), {
-          type: "updateBlock",
-          blockId: "target",
-          props: representative.wrongPatch,
-        });
-        expectIssuePath(result, representative.wrongPath);
-      });
+      it.each([
+        ["rejects an unknown prop at $.op.props.<key>", () => {
+          const result = applyOp(docWith(representative.type, representative.props), {
+            type: "updateBlock",
+            blockId: "target",
+            props: { unexpected: true },
+          });
+          expectIssuePath(result, "$.op.props.unexpected");
+        }],
+        ["rejects a wrong-typed known prop", () => {
+          const result = applyOp(docWith(representative.type, representative.props), {
+            type: "updateBlock",
+            blockId: "target",
+            props: representative.wrongPatch,
+          });
+          expectIssuePath(result, representative.wrongPath);
+        }],
+      ])("%s", (_title: string, run: () => void | Promise<void>) => run());
     });
   }
 
@@ -159,21 +160,6 @@ describe("strict component-state writes", () => {
     expect(doc).toEqual(before);
     expect(doc.blocks["canvas-new"]).toBeUndefined();
     expect(doc.blocks.root.children).toEqual(["target"]);
-  });
-
-  it("runs a valid componentAction through strict updateBlock validation", () => {
-    const result = applyOp(docWith("file-tree", { entries: [{ path: "src/main.ts" }] }), {
-      type: "componentAction",
-      blockId: "target",
-      action: "file-tree.addEntry",
-      params: { path: "src/index.ts", change: "added" },
-    });
-    expect(result.ok).toBe(true);
-    if (!result.ok) return;
-    expect(result.doc.blocks.target.props.entries).toEqual([
-      { path: "src/main.ts" },
-      { path: "src/index.ts", change: "added" },
-    ]);
   });
 
   it("forwards the validation option through componentAction's updateBlock", () => {

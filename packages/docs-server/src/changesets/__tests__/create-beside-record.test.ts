@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { lstat, mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, readdir, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -155,24 +155,24 @@ describe("create-doc beside a record file", () => {
     expect(await readFile(join(docsRoot, "notes/note-a/note.json"), "utf8")).toBe(NOTE_BYTES);
   });
 
-  test("any other file in the folder still returns 409", async () => {
-    await writeRecord("notes/note-a");
-    await writeFile(join(docsRoot, "notes/note-a/foo.txt"), "other\n");
-    const created = await createDocBundle(docsRoot, "notes/note-a", "Created");
-    expect(created).toMatchObject({ ok: false, status: 409 });
-    expect((await readdir(join(docsRoot, "notes/note-a"))).sort()).toEqual(["foo.txt", "note.json"]);
-  });
-
-  test("a folder with only foo.txt returns 409", async () => {
-    await mkdir(join(docsRoot, "plain"), { recursive: true });
-    await writeFile(join(docsRoot, "plain/foo.txt"), "other\n");
-    expect(await createDocBundle(docsRoot, "plain", "Created")).toMatchObject({ ok: false, status: 409 });
-  });
-
-  test("a directory named like a record file returns 409", async () => {
-    await mkdir(join(docsRoot, "notes/note-c/note.json"), { recursive: true });
-    expect(await createDocBundle(docsRoot, "notes/note-c", "Created")).toMatchObject({ ok: false, status: 409 });
-  });
+  test.each([
+    ["any other file in the folder still returns 409", async () => {
+      await writeRecord("notes/note-a");
+      await writeFile(join(docsRoot, "notes/note-a/foo.txt"), "other\n");
+      const created = await createDocBundle(docsRoot, "notes/note-a", "Created");
+      expect(created).toMatchObject({ ok: false, status: 409 });
+      expect((await readdir(join(docsRoot, "notes/note-a"))).sort()).toEqual(["foo.txt", "note.json"]);
+    }],
+    ["a folder with only foo.txt returns 409", async () => {
+      await mkdir(join(docsRoot, "plain"), { recursive: true });
+      await writeFile(join(docsRoot, "plain/foo.txt"), "other\n");
+      expect(await createDocBundle(docsRoot, "plain", "Created")).toMatchObject({ ok: false, status: 409 });
+    }],
+    ["a directory named like a record file returns 409", async () => {
+      await mkdir(join(docsRoot, "notes/note-c/note.json"), { recursive: true });
+      expect(await createDocBundle(docsRoot, "notes/note-c", "Created")).toMatchObject({ ok: false, status: 409 });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("an existing doc.json beside a record file still returns 409", async () => {
     await writeRecord("notes/note-a");

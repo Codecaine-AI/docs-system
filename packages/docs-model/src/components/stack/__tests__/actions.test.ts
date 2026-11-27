@@ -4,7 +4,6 @@ import { describe, expect, it } from "bun:test";
 import type { DocBlock } from "../../../doc-schema";
 import { checkParams } from "../../define";
 import type { ComponentAction, ComponentActionResult } from "../../types";
-import { stackComponent } from "..";
 import { addNode } from "../actions/add-node";
 import { moveNode } from "../actions/move-node";
 import { removeBoundary } from "../actions/remove-boundary";
@@ -68,53 +67,42 @@ const names = (nodes: unknown): unknown =>
     node.children ? { [node.name]: names(node.children) } : node.name,
   );
 
-describe("stack component registration", () => {
-  it("registers all six actions", () => {
-    expect(stackComponent.actions.map((action) => action.action)).toEqual([
-      "stack.addNode",
-      "stack.updateNode",
-      "stack.removeNode",
-      "stack.moveNode",
-      "stack.setBoundary",
-      "stack.removeBoundary",
-    ]);
-  });
-});
-
 describe("stack.addNode", () => {
-  it("appends at the top level by default", () => {
-    const props = mustOk(run(addNode, stackBlock(), { node: { name: "Disk" } }));
-    expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-model"] }, "Storage", "Disk"]);
-    expect(props.boundaries).toBeUndefined();
-  });
+  it.each([
+    ["appends at the top level by default", () => {
+      const props = mustOk(run(addNode, stackBlock(), { node: { name: "Disk" } }));
+      expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-model"] }, "Storage", "Disk"]);
+      expect(props.boundaries).toBeUndefined();
+    }],
+    ["inserts under a parent at an index, creating children on a leaf", () => {
+      const into = mustOk(run(addNode, stackBlock(), { node: { name: "docs-mcp" }, parent: "Framework", index: 1 }));
+      expect(names(into.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-mcp", "docs-model"] }, "Storage"]);
+      const leaf = mustOk(run(addNode, stackBlock(), { node: { name: "sqlite" }, parent: "Storage" }));
+      expect(names(leaf.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-model"] }, { Storage: ["sqlite"] }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
-  it("inserts under a parent at an index, creating children on a leaf", () => {
-    const into = mustOk(run(addNode, stackBlock(), { node: { name: "docs-mcp" }, parent: "Framework", index: 1 }));
-    expect(names(into.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-mcp", "docs-model"] }, "Storage"]);
-    const leaf = mustOk(run(addNode, stackBlock(), { node: { name: "sqlite" }, parent: "Storage" }));
-    expect(names(leaf.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", "docs-model"] }, { Storage: ["sqlite"] }]);
-  });
-
-  it("rejects a duplicate name anywhere in the tree, including inside the new subtree", () => {
-    expect(mustFail(run(addNode, stackBlock(), { node: { name: "docs-model" } }))[0]).toContain(
-      'Duplicate node name "docs-model"',
-    );
-    expect(
-      mustFail(run(addNode, stackBlock(), { node: { name: "X", children: [{ name: "Hosts" }] } }))[0],
-    ).toContain('Duplicate node name "Hosts"');
-  });
-
-  it("rejects a missing parent, an out-of-range index, and a trailing uses", () => {
-    expect(mustFail(run(addNode, stackBlock(), { node: { name: "X" }, parent: "Nope" }))).toEqual([
-      '$.params.parent: No node named "Nope".',
-    ]);
-    expect(mustFail(run(addNode, stackBlock(), { node: { name: "X" }, index: 9 }))).toEqual([
-      "$.params.index: index must be in [0, 3].",
-    ]);
-    expect(mustFail(run(addNode, stackBlock(), { node: { name: "X", uses: true } }))[0]).toContain(
-      "uses needs a next sibling",
-    );
-  });
+  it.each([
+    ["rejects a duplicate name anywhere in the tree, including inside the new subtree", () => {
+      expect(mustFail(run(addNode, stackBlock(), { node: { name: "docs-model" } }))[0]).toContain(
+        'Duplicate node name "docs-model"',
+      );
+      expect(
+        mustFail(run(addNode, stackBlock(), { node: { name: "X", children: [{ name: "Hosts" }] } }))[0],
+      ).toContain('Duplicate node name "Hosts"');
+    }],
+    ["rejects a missing parent, an out-of-range index, and a trailing uses", () => {
+      expect(mustFail(run(addNode, stackBlock(), { node: { name: "X" }, parent: "Nope" }))).toEqual([
+        '$.params.parent: No node named "Nope".',
+      ]);
+      expect(mustFail(run(addNode, stackBlock(), { node: { name: "X" }, index: 9 }))).toEqual([
+        "$.params.index: index must be in [0, 3].",
+      ]);
+      expect(mustFail(run(addNode, stackBlock(), { node: { name: "X", uses: true } }))[0]).toContain(
+        "uses needs a next sibling",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("stack.updateNode", () => {
@@ -144,21 +132,22 @@ describe("stack.updateNode", () => {
     ]);
   });
 
-  it("rejects a rename onto an existing name and a uses on the last sibling", () => {
-    expect(mustFail(run(updateNode, stackBlock(), { name: "Storage", patch: { name: "Hosts" } }))[0]).toContain(
-      'Duplicate node name "Hosts"',
-    );
-    expect(mustFail(run(updateNode, stackBlock(), { name: "Storage", patch: { uses: true } }))[0]).toContain(
-      "uses needs a next sibling",
-    );
-  });
-
-  it("rejects an unknown node and unknown patch keys", () => {
-    expect(mustFail(run(updateNode, stackBlock(), { name: "Nope", patch: {} }))).toEqual([
-      '$.params.name: No node named "Nope".',
-    ]);
-    expect(mustFail(run(updateNode, stackBlock(), { name: "Hosts", patch: { children: [] } })).length).toBeGreaterThan(0);
-  });
+  it.each([
+    ["rejects a rename onto an existing name and a uses on the last sibling", () => {
+      expect(mustFail(run(updateNode, stackBlock(), { name: "Storage", patch: { name: "Hosts" } }))[0]).toContain(
+        'Duplicate node name "Hosts"',
+      );
+      expect(mustFail(run(updateNode, stackBlock(), { name: "Storage", patch: { uses: true } }))[0]).toContain(
+        "uses needs a next sibling",
+      );
+    }],
+    ["rejects an unknown node and unknown patch keys", () => {
+      expect(mustFail(run(updateNode, stackBlock(), { name: "Nope", patch: {} }))).toEqual([
+        '$.params.name: No node named "Nope".',
+      ]);
+      expect(mustFail(run(updateNode, stackBlock(), { name: "Hosts", patch: { children: [] } })).length).toBeGreaterThan(0);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("stack.removeNode", () => {
@@ -189,54 +178,55 @@ describe("stack.removeNode", () => {
 });
 
 describe("stack.moveNode", () => {
-  it("moves out of a container to the top level, keeping its boundary", () => {
-    const block = stackBlock();
-    (block.props.nodes as Record<string, unknown>[])[1].children = [{ name: "docs-editor" }, { name: "docs-model" }];
-    const props = mustOk(run(moveNode, block, { name: "docs-model", parent: null, index: 2 }));
-    expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["docs-editor"] }, "docs-model", "Storage"]);
-    expect(props.boundaries).toBeUndefined();
-  });
-
-  it("moves into a container, creating children on a leaf", () => {
-    const props = mustOk(run(moveNode, stackBlock(), { name: "Storage", parent: "Framework", index: 0 }));
-    expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["Storage", "docs-editor", "docs-model"] }]);
-    const leaf = mustOk(run(moveNode, stackBlock(), { name: "Storage", parent: "docs-model" }));
-    expect(names(leaf.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", { "docs-model": ["Storage"] }] }]);
-  });
+  it.each([
+    ["moves out of a container to the top level, keeping its boundary", () => {
+      const block = stackBlock();
+      (block.props.nodes as Record<string, unknown>[])[1].children = [{ name: "docs-editor" }, { name: "docs-model" }];
+      const props = mustOk(run(moveNode, block, { name: "docs-model", parent: null, index: 2 }));
+      expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["docs-editor"] }, "docs-model", "Storage"]);
+      expect(props.boundaries).toBeUndefined();
+    }],
+    ["moves into a container, creating children on a leaf", () => {
+      const props = mustOk(run(moveNode, stackBlock(), { name: "Storage", parent: "Framework", index: 0 }));
+      expect(names(props.nodes)).toEqual(["Hosts", { Framework: ["Storage", "docs-editor", "docs-model"] }]);
+      const leaf = mustOk(run(moveNode, stackBlock(), { name: "Storage", parent: "docs-model" }));
+      expect(names(leaf.nodes)).toEqual(["Hosts", { Framework: ["docs-editor", { "docs-model": ["Storage"] }] }]);
+    }],
+    ["drops the emptied children array of the old parent", () => {
+      const block: DocBlock = { ...stackBlock(), props: { nodes: [{ name: "A", children: [{ name: "B" }] }] } };
+      expect(mustOk(run(moveNode, block, { name: "B", parent: null, index: 0 })).nodes).toEqual([
+        { name: "B" },
+        { name: "A" },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("reorders within the current parent when parent is omitted, resolving index after detaching", () => {
     const props = mustOk(run(moveNode, stackBlock(), { name: "Hosts", index: 1 }));
     expect(names(props.nodes)).toEqual([{ Framework: ["docs-editor", "docs-model"] }, "Hosts", "Storage"]);
   });
 
-  it("drops the emptied children array of the old parent", () => {
-    const block: DocBlock = { ...stackBlock(), props: { nodes: [{ name: "A", children: [{ name: "B" }] }] } };
-    expect(mustOk(run(moveNode, block, { name: "B", parent: null, index: 0 })).nodes).toEqual([
-      { name: "B" },
-      { name: "A" },
-    ]);
-  });
-
-  it("rejects moving under itself or a descendant, an unknown parent, and a bad index", () => {
-    expect(mustFail(run(moveNode, stackBlock(), { name: "Framework", parent: "docs-model" }))[0]).toContain(
-      "under itself or its own descendant",
-    );
-    expect(mustFail(run(moveNode, stackBlock(), { name: "Framework", parent: "Framework" }))[0]).toContain(
-      "under itself or its own descendant",
-    );
-    expect(mustFail(run(moveNode, stackBlock(), { name: "Storage", parent: "Nope" }))).toEqual([
-      '$.params.parent: No node named "Nope".',
-    ]);
-    expect(mustFail(run(moveNode, stackBlock(), { name: "Storage", index: 3 }))).toEqual([
-      "$.params.index: index must be in [0, 2] after detaching the node.",
-    ]);
-  });
-
-  it("rejects a move that leaves a uses arrow trailing", () => {
-    expect(mustFail(run(moveNode, stackBlock(), { name: "Hosts", parent: null }))[0]).toContain(
-      "uses needs a next sibling",
-    );
-  });
+  it.each([
+    ["rejects moving under itself or a descendant, an unknown parent, and a bad index", () => {
+      expect(mustFail(run(moveNode, stackBlock(), { name: "Framework", parent: "docs-model" }))[0]).toContain(
+        "under itself or its own descendant",
+      );
+      expect(mustFail(run(moveNode, stackBlock(), { name: "Framework", parent: "Framework" }))[0]).toContain(
+        "under itself or its own descendant",
+      );
+      expect(mustFail(run(moveNode, stackBlock(), { name: "Storage", parent: "Nope" }))).toEqual([
+        '$.params.parent: No node named "Nope".',
+      ]);
+      expect(mustFail(run(moveNode, stackBlock(), { name: "Storage", index: 3 }))).toEqual([
+        "$.params.index: index must be in [0, 2] after detaching the node.",
+      ]);
+    }],
+    ["rejects a move that leaves a uses arrow trailing", () => {
+      expect(mustFail(run(moveNode, stackBlock(), { name: "Hosts", parent: null }))[0]).toContain(
+        "uses needs a next sibling",
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("stack.setBoundary / stack.removeBoundary", () => {

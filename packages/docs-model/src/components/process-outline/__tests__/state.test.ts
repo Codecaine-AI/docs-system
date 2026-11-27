@@ -25,18 +25,19 @@ const STEPS = [
 ];
 
 describe("process-outline component state schema", () => {
-  it("accepts a structured step tree, including the empty one", () => {
-    expect(Value.Check(ProcessOutlineState, { steps: STEPS })).toBe(true);
-    expect(Value.Check(ProcessOutlineState, { steps: [] })).toBe(true);
-  });
-
-  it("accepts explicit step kinds", () => {
-    expect(
-      Value.Check(ProcessOutlineState, {
-        steps: [{ text: "Run", kind: "step" }, { text: "why", kind: "note" }],
-      }),
-    ).toBe(true);
-  });
+  it.each([
+    ["accepts a structured step tree, including the empty one", () => {
+      expect(Value.Check(ProcessOutlineState, { steps: STEPS })).toBe(true);
+      expect(Value.Check(ProcessOutlineState, { steps: [] })).toBe(true);
+    }],
+    ["accepts explicit step kinds", () => {
+      expect(
+        Value.Check(ProcessOutlineState, {
+          steps: [{ text: "Run", kind: "step" }, { text: "why", kind: "note" }],
+        }),
+      ).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("requires steps — the state is literally the list of steps", () => {
     expect(Value.Check(ProcessOutlineState, {})).toBe(false);
@@ -60,43 +61,40 @@ describe("process-outline component state schema", () => {
 });
 
 describe("process-outline component state check", () => {
-  it("does not carry text", () => {
-    expect(processOutlineState.carriesText).toBe(false);
-  });
-
-  it("flags a note step that has children — notes are leaves", () => {
-    const issues = processOutlineState.check!(
-      {
-        steps: [
-          {
-            text: "Run",
-            steps: [{ text: "why", kind: "note", steps: [{ text: "child" }] }],
-          },
-        ],
-      },
-      "$.blocks.b1.props",
-    );
-    expect(issues).toEqual([
-      {
-        path: "$.blocks.b1.props.steps[0].steps[0].steps",
-        message: 'Note step "why" has child steps — notes are leaves.',
-      },
-    ]);
-  });
-
-  it("flags a trace-marked note — notes are prose, not events", () => {
-    const issues = processOutlineState.check!(
-      { steps: [{ text: "why", kind: "note", trace: true }] },
-      "$.blocks.b1.props",
-    );
-    expect(issues).toEqual([
-      {
-        path: "$.blocks.b1.props.steps[0].trace",
-        message:
-          'Note step "why" is trace-marked — notes are prose about a step, not trace events.',
-      },
-    ]);
-  });
+  it.each([
+    ["flags a note step that has children — notes are leaves", () => {
+      const issues = processOutlineState.check!(
+        {
+          steps: [
+            {
+              text: "Run",
+              steps: [{ text: "why", kind: "note", steps: [{ text: "child" }] }],
+            },
+          ],
+        },
+        "$.blocks.b1.props",
+      );
+      expect(issues).toEqual([
+        {
+          path: "$.blocks.b1.props.steps[0].steps[0].steps",
+          message: 'Note step "why" has child steps — notes are leaves.',
+        },
+      ]);
+    }],
+    ["flags a trace-marked note — notes are prose, not events", () => {
+      const issues = processOutlineState.check!(
+        { steps: [{ text: "why", kind: "note", trace: true }] },
+        "$.blocks.b1.props",
+      );
+      expect(issues).toEqual([
+        {
+          path: "$.blocks.b1.props.steps[0].trace",
+          message:
+            'Note step "why" is trace-marked — notes are prose about a step, not trace events.',
+        },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("accepts a trace-marked step, with or without children", () => {
     expect(
@@ -117,42 +115,42 @@ describe("process-outline component state check", () => {
 });
 
 describe("process-outline state readers", () => {
-  it("reads steps into depth-annotated nodes", () => {
-    expect(readProcessOutlineSteps(processOutlineBlock({ steps: STEPS }))).toEqual([
-      {
-        text: "Run mode",
-        note: false,
-        trace: false,
-        depth: 0,
-        children: [
-          {
-            text: "Get candidates",
-            note: false,
-            trace: false,
-            depth: 1,
-            children: [
-              { text: "Exclude locked work", note: false, trace: false, depth: 2, children: [] },
-            ],
-          },
-          { text: "workers produce tentative evidence", note: true, trace: false, depth: 1, children: [] },
-        ],
-      },
-    ]);
-  });
-
-  it("skips malformed entries tolerantly", () => {
-    const block = processOutlineBlock({
-      steps: [{ text: "Run", steps: [{ text: 42 }, "junk", { text: "Drain", kind: "weird" }] }, null],
-    });
-    const [root] = readProcessOutlineSteps(block);
-    expect(root.children.map((node) => node.text)).toEqual(["Drain"]);
-    expect(root.children[0].note).toBe(false);
-  });
-
-  it("returns an empty forest when steps are missing or malformed", () => {
-    expect(readProcessOutlineSteps(processOutlineBlock({}))).toEqual([]);
-    expect(readProcessOutlineSteps(processOutlineBlock({ steps: "Run" }))).toEqual([]);
-  });
+  it.each([
+    ["reads steps into depth-annotated nodes", () => {
+      expect(readProcessOutlineSteps(processOutlineBlock({ steps: STEPS }))).toEqual([
+        {
+          text: "Run mode",
+          note: false,
+          trace: false,
+          depth: 0,
+          children: [
+            {
+              text: "Get candidates",
+              note: false,
+              trace: false,
+              depth: 1,
+              children: [
+                { text: "Exclude locked work", note: false, trace: false, depth: 2, children: [] },
+              ],
+            },
+            { text: "workers produce tentative evidence", note: true, trace: false, depth: 1, children: [] },
+          ],
+        },
+      ]);
+    }],
+    ["skips malformed entries tolerantly", () => {
+      const block = processOutlineBlock({
+        steps: [{ text: "Run", steps: [{ text: 42 }, "junk", { text: "Drain", kind: "weird" }] }, null],
+      });
+      const [root] = readProcessOutlineSteps(block);
+      expect(root.children.map((node) => node.text)).toEqual(["Drain"]);
+      expect(root.children[0].note).toBe(false);
+    }],
+    ["returns an empty forest when steps are missing or malformed", () => {
+      expect(readProcessOutlineSteps(processOutlineBlock({}))).toEqual([]);
+      expect(readProcessOutlineSteps(processOutlineBlock({ steps: "Run" }))).toEqual([]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("returns fresh objects from the step-tree read", () => {
     const props = { steps: [{ text: "Run", steps: [{ text: "Drain" }] }] };

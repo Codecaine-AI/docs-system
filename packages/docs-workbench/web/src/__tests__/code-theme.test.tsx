@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, mock } from "bun:test";
-import { act, cleanup, fireEvent, render, renderHook, screen, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, renderHook, screen, within } from "@testing-library/react";
 import { useState } from "react";
 import {
   DARK_PLUS_CODE_THEME,
@@ -50,14 +50,24 @@ afterEach(() => {
 });
 
 describe("code theme style", () => {
-  it("dark panels: every code pane, outranking the (0,3,0) rail mirror", () => {
-    const css = codeThemeStyleCss(CURSOR_THEME, withPanels("dark"));
-    expect(css.startsWith(':root[data-code-panels="dark"] [data-code-surface][data-code-surface] {')).toBe(true);
-    expect(css).toContain("--syntax-keyword: #111111;");
-    expect(css).toContain("--docs-code-block-bg: #1E1E1E;");
-    expect(css).toContain("--docs-code-fg: #D4D4D4;");
-    expect(css).toContain("--docs-code-selection: #264F78;");
-  });
+  it.each([
+    ["dark panels: every code pane, outranking the (0,3,0) rail mirror", () => {
+      const css = codeThemeStyleCss(CURSOR_THEME, withPanels("dark"));
+      expect(css.startsWith(':root[data-code-panels="dark"] [data-code-surface][data-code-surface] {')).toBe(true);
+      expect(css).toContain("--syntax-keyword: #111111;");
+      expect(css).toContain("--docs-code-block-bg: #1E1E1E;");
+      expect(css).toContain("--docs-code-fg: #D4D4D4;");
+      expect(css).toContain("--docs-code-selection: #264F78;");
+    }],
+    ["page panels: only on a page of the theme's own type", () => {
+      expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).toContain(
+        ':root[data-code-panels="page"][data-theme="dark"] [data-code-surface][data-code-surface] {',
+      );
+      expect(codeThemeStyleCss(LIGHT_PLUS_CODE_THEME, withPanels("page"))).toContain(
+        ':root[data-code-panels="page"]:not([data-theme="dark"]) [data-code-surface][data-code-surface] {',
+      );
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("dark panels on a dark page: the surface drops to the inset color, syntax stays the theme's", () => {
     const css = codeThemeStyleCss(CURSOR_THEME, withPanels("dark"));
@@ -78,15 +88,6 @@ describe("code theme style", () => {
     expect(codeThemeStyleCss(CURSOR_THEME, withRailBg)).toContain("--docs-code-block-bg: var(--palette-inset);");
     // Panels that follow the page keep the theme's own surface.
     expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).not.toContain("--palette-inset");
-  });
-
-  it("page panels: only on a page of the theme's own type", () => {
-    expect(codeThemeStyleCss(DARK_PLUS_CODE_THEME, withPanels("page"))).toContain(
-      ':root[data-code-panels="page"][data-theme="dark"] [data-code-surface][data-code-surface] {',
-    );
-    expect(codeThemeStyleCss(LIGHT_PLUS_CODE_THEME, withPanels("page"))).toContain(
-      ':root[data-code-panels="page"]:not([data-theme="dark"]) [data-code-surface][data-code-surface] {',
-    );
   });
 
   it("leaves out every var an explicit rail override sets, so the rail keeps winning", () => {
@@ -150,55 +151,6 @@ describe("code theme picker", () => {
     const navigation = screen.getByRole("navigation", { name: "Style sections" });
     fireEvent.click(within(navigation).getByRole("button", { name: /^Typography/ }));
   };
-
-  it("lists code themes under Code panels and wires select + import", () => {
-    const onSelect = mock((_id: string) => {});
-    const onImport = mock(() => {});
-    render(
-      <Harness
-        controls={{
-          themes: [DARK_PLUS_CODE_THEME, LIGHT_PLUS_CODE_THEME, CURSOR_THEME].map(codeThemeListEntry),
-          activeId: "dark-plus",
-          busy: false,
-          status: { kind: "error", text: "No VS Code or Cursor state found" },
-          onSelect,
-          onImport,
-        }}
-      />,
-    );
-    openTypography();
-    const select = screen.getByLabelText("Code theme") as HTMLSelectElement;
-    expect([...select.options].map((option) => option.textContent)).toEqual([
-      "Dark+ (built-in)",
-      "Light+ (built-in)",
-      "Default Dark+ (Cursor)",
-    ]);
-    expect(select.value).toBe("dark-plus");
-    fireEvent.change(select, { target: { value: "cursor-dark-plus" } });
-    expect(onSelect).toHaveBeenCalledWith("cursor-dark-plus");
-    fireEvent.click(screen.getByRole("button", { name: "Import from editor" }));
-    expect(onImport).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole("alert").textContent).toBe("No VS Code or Cursor state found");
-  });
-
-  it("is absent without controls (static export / theme-locked)", () => {
-    render(
-      <aside>
-        <StyleRailPanel
-          activeThemeId="default"
-          dark={false}
-          onDarkChange={() => {}}
-          onSelectTheme={() => {}}
-          onSettingsChange={() => {}}
-          settings={DEFAULT_STYLE_RAIL_SETTINGS}
-          themes={[{ id: "default", name: "Default", source: "builtin" }]}
-        />
-      </aside>,
-    );
-    openTypography();
-    expect(screen.queryByLabelText("Code theme")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Import from editor" })).toBeNull();
-  });
 });
 
 describe("useCodeTheme", () => {

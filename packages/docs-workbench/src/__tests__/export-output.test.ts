@@ -98,58 +98,58 @@ async function refusedExport(options: { docsRoot?: string; outDir: string }): Pr
 }
 
 describe("B7-3-02: export destinations never reach a path the corpus forbids", () => {
-  test("an allowed output folder with a linked data/ into the frozen inputs is refused before any write", async () => {
-    const before = await corpusState();
-    const sentinels = await frozenSentinels();
-    await mkdir(join(kb, "export"), { recursive: true });
-    await symlink(join(kb, FROZEN), join(kb, "export/data"), "dir");
-    const corpusWithLink = await corpusState();
-    expect(await refusedExport({ outDir: join(kb, "export") })).toMatch(/Export output refused: .*data is a symbolic link/);
-    expect(await corpusState()).toEqual(corpusWithLink);
-    expect(await frozenSentinels()).toEqual(sentinels);
-    expect(await readdir(join(kb, "export"))).toEqual(["data"]);
-    expect(Object.fromEntries(Object.entries(await corpusState()).filter(([path]) => !path.startsWith("export")))).toEqual(before);
-  });
-
-  test("a linked index.html is refused; the frozen file it names is unchanged", async () => {
-    const sentinels = await frozenSentinels();
-    for (const outDir of [join(kb, "export"), join(temp, "external")]) {
-      await mkdir(outDir, { recursive: true });
-      await symlink(join(kb, FROZEN, "index.html"), join(outDir, "index.html"));
+  test.each([
+    ["an allowed output folder with a linked data/ into the frozen inputs is refused before any write", async () => {
       const before = await corpusState();
-      expect(await refusedExport({ outDir })).toMatch(/Export output refused: .*index\.html is a symbolic link/);
-      expect(await corpusState()).toEqual(before);
-      expect(await readdir(outDir)).toEqual(["index.html"]);
-    }
-    expect(await frozenSentinels()).toEqual(sentinels);
-  });
-
-  test("an external output folder whose descendants lead into the source corpus is refused", async () => {
-    const before = await corpusState();
-    const cases: Array<[string, () => Promise<void>, RegExp]> = [
-      ["data -> allowed corpus folder", async () => {
-        await mkdir(join(temp, "out1"), { recursive: true });
-        await symlink(join(kb, "notes"), join(temp, "out1/data"), "dir");
-      }, /data is a symbolic link/],
-      ["data/files -> frozen inputs", async () => {
-        await mkdir(join(temp, "out2/data"), { recursive: true });
-        await symlink(join(kb, FROZEN), join(temp, "out2/data/files"), "dir");
-      }, /data\/files is a symbolic link/],
-      ["SPA assets/ -> frozen inputs", async () => {
-        await mkdir(join(temp, "out3"), { recursive: true });
-        await symlink(join(kb, FROZEN), join(temp, "out3/assets"), "dir");
-      }, /assets is a symbolic link/],
-      ["the output folder itself -> frozen inputs", async () => {
-        await symlink(join(kb, FROZEN), join(temp, "out4"), "dir");
-      }, /the output folder .*out4 is a symbolic link/],
-    ];
-    for (const [label, arrange, message] of cases) {
-      await arrange();
-      const outDir = join(temp, `out${cases.findIndex(([name]) => name === label) + 1}`);
-      expect({ label, message: await refusedExport({ outDir }) }).toMatchObject({ label, message: expect.stringMatching(message) });
-      expect(await corpusState()).toEqual(before);
-    }
-  });
+      const sentinels = await frozenSentinels();
+      await mkdir(join(kb, "export"), { recursive: true });
+      await symlink(join(kb, FROZEN), join(kb, "export/data"), "dir");
+      const corpusWithLink = await corpusState();
+      expect(await refusedExport({ outDir: join(kb, "export") })).toMatch(/Export output refused: .*data is a symbolic link/);
+      expect(await corpusState()).toEqual(corpusWithLink);
+      expect(await frozenSentinels()).toEqual(sentinels);
+      expect(await readdir(join(kb, "export"))).toEqual(["data"]);
+      expect(Object.fromEntries(Object.entries(await corpusState()).filter(([path]) => !path.startsWith("export")))).toEqual(before);
+    }],
+    ["a linked index.html is refused; the frozen file it names is unchanged", async () => {
+      const sentinels = await frozenSentinels();
+      for (const outDir of [join(kb, "export"), join(temp, "external")]) {
+        await mkdir(outDir, { recursive: true });
+        await symlink(join(kb, FROZEN, "index.html"), join(outDir, "index.html"));
+        const before = await corpusState();
+        expect(await refusedExport({ outDir })).toMatch(/Export output refused: .*index\.html is a symbolic link/);
+        expect(await corpusState()).toEqual(before);
+        expect(await readdir(outDir)).toEqual(["index.html"]);
+      }
+      expect(await frozenSentinels()).toEqual(sentinels);
+    }],
+    ["an external output folder whose descendants lead into the source corpus is refused", async () => {
+      const before = await corpusState();
+      const cases: Array<[string, () => Promise<void>, RegExp]> = [
+        ["data -> allowed corpus folder", async () => {
+          await mkdir(join(temp, "out1"), { recursive: true });
+          await symlink(join(kb, "notes"), join(temp, "out1/data"), "dir");
+        }, /data is a symbolic link/],
+        ["data/files -> frozen inputs", async () => {
+          await mkdir(join(temp, "out2/data"), { recursive: true });
+          await symlink(join(kb, FROZEN), join(temp, "out2/data/files"), "dir");
+        }, /data\/files is a symbolic link/],
+        ["SPA assets/ -> frozen inputs", async () => {
+          await mkdir(join(temp, "out3"), { recursive: true });
+          await symlink(join(kb, FROZEN), join(temp, "out3/assets"), "dir");
+        }, /assets is a symbolic link/],
+        ["the output folder itself -> frozen inputs", async () => {
+          await symlink(join(kb, FROZEN), join(temp, "out4"), "dir");
+        }, /the output folder .*out4 is a symbolic link/],
+      ];
+      for (const [label, arrange, message] of cases) {
+        await arrange();
+        const outDir = join(temp, `out${cases.findIndex(([name]) => name === label) + 1}`);
+        expect({ label, message: await refusedExport({ outDir }) }).toMatchObject({ label, message: expect.stringMatching(message) });
+        expect(await corpusState()).toEqual(before);
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("a link deeper in data/ is refused at its own write; the frozen inputs are unchanged", async () => {
     const outDir = join(temp, "deep");
@@ -170,22 +170,35 @@ describe("B7-3-02: export destinations never reach a path the corpus forbids", (
     expect(await corpusState()).toEqual(before);
   });
 
-  test("positive controls: fresh output folders inside and outside the corpus, and one below a linked parent, export", async () => {
-    await mkdir(join(temp, "real-parent"), { recursive: true });
-    await symlink(join(temp, "real-parent"), join(temp, "linked-parent"), "dir");
-    const sentinels = await frozenSentinels();
-    for (const outDir of [join(temp, "site"), join(kb, "export"), join(temp, "linked-parent/site")]) {
+  test.each([
+    ["positive controls: fresh output folders inside and outside the corpus, and one below a linked parent, export", async () => {
+      await mkdir(join(temp, "real-parent"), { recursive: true });
+      await symlink(join(temp, "real-parent"), join(temp, "linked-parent"), "dir");
+      const sentinels = await frozenSentinels();
+      for (const outDir of [join(temp, "site"), join(kb, "export"), join(temp, "linked-parent/site")]) {
+        const report = await runExport({ docsRoot: kb, outDir });
+        expect(report.failures).toEqual([]);
+        expect(report.bundlesExported).toBe(1);
+        for (const rel of ["index.html", "data/site.json", "data/tree.json", "data/backlinks.json", "data/bundles/notes/a.json", "data/markdown/notes/a.md", "data/files/notes/a/assets/images/a.png"]) {
+          expect({ outDir, rel, exists: existsSync(join(outDir, rel)) }).toEqual({ outDir, rel, exists: true });
+        }
+        expect(existsSync(join(outDir, "data/bundles/sessions"))).toBe(false);
+      }
+      expect(existsSync(join(temp, "real-parent/site/index.html"))).toBe(true);
+      expect(await frozenSentinels()).toEqual(sentinels);
+    }],
+    ["positive control: a permitted parent link whose requested and canonical forms are both allowed still exports", async () => {
+      await mkdir(join(temp, "physical-ok"), { recursive: true });
+      await symlink(join(temp, "physical-ok"), join(kb, "linked-out-parent"), "dir");
+      const sentinels = await frozenSentinels();
+      const outDir = join(kb, "linked-out-parent/site");
       const report = await runExport({ docsRoot: kb, outDir });
       expect(report.failures).toEqual([]);
-      expect(report.bundlesExported).toBe(1);
-      for (const rel of ["index.html", "data/site.json", "data/tree.json", "data/backlinks.json", "data/bundles/notes/a.json", "data/markdown/notes/a.md", "data/files/notes/a/assets/images/a.png"]) {
-        expect({ outDir, rel, exists: existsSync(join(outDir, rel)) }).toEqual({ outDir, rel, exists: true });
-      }
-      expect(existsSync(join(outDir, "data/bundles/sessions"))).toBe(false);
-    }
-    expect(existsSync(join(temp, "real-parent/site/index.html"))).toBe(true);
-    expect(await frozenSentinels()).toEqual(sentinels);
-  });
+      expect(existsSync(join(temp, "physical-ok/site/index.html"))).toBe(true);
+      expect(existsSync(join(temp, "physical-ok/site/data/bundles/notes/a.json"))).toBe(true);
+      expect(await frozenSentinels()).toEqual(sentinels);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("B7-4: the output folder itself, and the requested destination behind a permitted parent link", () => {
@@ -270,17 +283,5 @@ describe("B7-4: the output folder itself, and the requested destination behind a
     } finally {
       setDocsRootExclude(kb, undefined);
     }
-  });
-
-  test("positive control: a permitted parent link whose requested and canonical forms are both allowed still exports", async () => {
-    await mkdir(join(temp, "physical-ok"), { recursive: true });
-    await symlink(join(temp, "physical-ok"), join(kb, "linked-out-parent"), "dir");
-    const sentinels = await frozenSentinels();
-    const outDir = join(kb, "linked-out-parent/site");
-    const report = await runExport({ docsRoot: kb, outDir });
-    expect(report.failures).toEqual([]);
-    expect(existsSync(join(temp, "physical-ok/site/index.html"))).toBe(true);
-    expect(existsSync(join(temp, "physical-ok/site/data/bundles/notes/a.json"))).toBe(true);
-    expect(await frozenSentinels()).toEqual(sentinels);
   });
 });

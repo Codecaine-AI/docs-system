@@ -117,17 +117,35 @@ describe("drag-select plugin state", () => {
     expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
   });
 
-  it("Escape clears the selection without touching the doc", () => {
-    const editor = createEditor([paragraph("one", "b1"), paragraph("two", "b2")]);
-    setRange(editor, rangeOver(editor, 0, 1));
-    const before = editor.state.doc.toString();
+  it.each([
+    ["Escape clears the selection without touching the doc", () => {
+      const editor = createEditor([paragraph("one", "b1"), paragraph("two", "b2")]);
+      setRange(editor, rangeOver(editor, 0, 1));
+      const before = editor.state.doc.toString();
 
-    expect(keydown(editor, "Escape")).toBe(true);
-    expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
-    expect(editor.state.doc.toString()).toBe(before);
-    // Without a range the shortcut falls through.
-    expect(keydown(editor, "Escape")).toBe(false);
-  });
+      expect(keydown(editor, "Escape")).toBe(true);
+      expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
+      expect(editor.state.doc.toString()).toBe(before);
+      // Without a range the shortcut falls through.
+      expect(keydown(editor, "Escape")).toBe(false);
+    }],
+    ["Escape collapses the real selection to a caret at the range start", () => {
+      const editor = createEditor([
+        paragraph("one", "b1"),
+        paragraph("two", "b2"),
+        paragraph("three", "b3"),
+      ]);
+      const range = rangeOver(editor, 1, 2);
+      setRange(editor, range);
+      expect(editor.state.selection.empty).toBe(false);
+
+      expect(keydown(editor, "Escape")).toBe(true);
+      expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
+      expect(editor.state.selection.empty).toBe(true);
+      // Caret sits inside the block the range started on.
+      expect(editor.state.selection.$from.before(1)).toBe(range.from);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("Backspace deletes exactly the selected run", () => {
     const editor = createEditor([
@@ -195,44 +213,6 @@ describe("band range backs a real selection (R2-D15)", () => {
     expect(selection.content().size).toBeGreaterThan(0);
   });
 
-  it("Escape collapses the real selection to a caret at the range start", () => {
-    const editor = createEditor([
-      paragraph("one", "b1"),
-      paragraph("two", "b2"),
-      paragraph("three", "b3"),
-    ]);
-    const range = rangeOver(editor, 1, 2);
-    setRange(editor, range);
-    expect(editor.state.selection.empty).toBe(false);
-
-    expect(keydown(editor, "Escape")).toBe(true);
-    expect(dragSelectPluginKey.getState(editor.state)).toBeNull();
-    expect(editor.state.selection.empty).toBe(true);
-    // Caret sits inside the block the range started on.
-    expect(editor.state.selection.$from.before(1)).toBe(range.from);
-  });
-
-  it("a multi-block grip drop lands the real selection on the moved run", () => {
-    const editor = createEditor([
-      paragraph("A", "b1"),
-      paragraph("B", "b2"),
-      paragraph("C", "b3"),
-      paragraph("D", "b4"),
-    ]);
-    setRange(editor, rangeOver(editor, 1, 2));
-    const tr = moveRangeTr(editor.state, rangeOver(editor, 1, 2), editor.state.doc.content.size);
-    editor.view.dispatch(tr!);
-
-    const after = dragSelectPluginKey.getState(editor.state)!;
-    const selection = editor.state.selection;
-    expect(selection.empty).toBe(false);
-    expect(selection.$from.before(1)).toBe(after.from);
-    expect(selection.$to.after(1)).toBe(after.to);
-    const text = selection.content().content.textBetween(0, selection.content().content.size, "\n");
-    expect(text).toContain("B");
-    expect(text).toContain("C");
-  });
-
   it("rangeSelection prefers TextSelection.between across text blocks", () => {
     const editor = createEditor([paragraph("head", "b1"), paragraph("tail", "b2")]);
     const range = rangeOver(editor, 0, 1);
@@ -244,98 +224,141 @@ describe("band range backs a real selection (R2-D15)", () => {
 });
 
 describe("shouldStartBand", () => {
-  it("bands on editor background, not on text or node views", () => {
-    const editor = createEditor([
-      paragraph("words", "b1"),
-      { type: "docCanvas", attrs: { blockId: "b2", blockProps: { canvasId: "board" } } },
-    ]);
-    // The editor root itself (gaps/padding) is band territory…
-    expect(shouldStartBand(editor.view, editor.view.dom)).toBe(true);
-    // …the block element beside its text is too…
-    const block = editor.view.dom.children[0] as HTMLElement;
-    expect(shouldStartBand(editor.view, block)).toBe(true);
-    // …but the text span itself is native text selection.
-    const span = block.querySelector('span[data-doc-node="docBlockText"]') as HTMLElement;
-    expect(shouldStartBand(editor.view, span)).toBe(false);
-  });
-
-  it("never bands on editable page furniture outside the editor (rename title)", () => {
-    const editor = createEditor([paragraph("words", "b1")]);
-    const title = document.createElement("h1");
-    title.className = "docs-page-title";
-    title.setAttribute("contenteditable", "true");
-    title.textContent = "Interaction Surfaces";
-    document.body.appendChild(title);
-    try {
-      expect(shouldStartBand(editor.view, title)).toBe(false);
-      // Plain non-editable furniture outside the editor still bands
-      // (page margins live outside view.dom too).
-      const margin = document.createElement("div");
-      document.body.appendChild(margin);
+  it.each([
+    ["bands on editor background, not on text or node views", () => {
+      const editor = createEditor([
+        paragraph("words", "b1"),
+        { type: "docCanvas", attrs: { blockId: "b2", blockProps: { canvasId: "board" } } },
+      ]);
+      // The editor root itself (gaps/padding) is band territory…
+      expect(shouldStartBand(editor.view, editor.view.dom)).toBe(true);
+      // …the block element beside its text is too…
+      const block = editor.view.dom.children[0] as HTMLElement;
+      expect(shouldStartBand(editor.view, block)).toBe(true);
+      // …but the text span itself is native text selection.
+      const span = block.querySelector('span[data-doc-node="docBlockText"]') as HTMLElement;
+      expect(shouldStartBand(editor.view, span)).toBe(false);
+    }],
+    ["never bands on editable page furniture outside the editor (rename title)", () => {
+      const editor = createEditor([paragraph("words", "b1")]);
+      const title = document.createElement("h1");
+      title.className = "docs-page-title";
+      title.setAttribute("contenteditable", "true");
+      title.textContent = "Interaction Surfaces";
+      document.body.appendChild(title);
       try {
-        expect(shouldStartBand(editor.view, margin)).toBe(true);
+        expect(shouldStartBand(editor.view, title)).toBe(false);
+        // Plain non-editable furniture outside the editor still bands
+        // (page margins live outside view.dom too).
+        const margin = document.createElement("div");
+        document.body.appendChild(margin);
+        try {
+          expect(shouldStartBand(editor.view, margin)).toBe(true);
+        } finally {
+          margin.remove();
+        }
       } finally {
-        margin.remove();
+        title.remove();
       }
-    } finally {
-      title.remove();
-    }
-  });
-
-  it("never bands on controls or the drag grip", () => {
-    const editor = createEditor([paragraph("words", "b1")]);
-    const grip = document.createElement("div");
-    grip.setAttribute("data-docs-drag-handle", "true");
-    document.body.appendChild(grip);
-    try {
-      expect(shouldStartBand(editor.view, grip)).toBe(false);
-    } finally {
-      grip.remove();
-    }
-  });
+    }],
+    ["never bands on controls or the drag grip", () => {
+      const editor = createEditor([paragraph("words", "b1")]);
+      const grip = document.createElement("div");
+      grip.setAttribute("data-docs-drag-handle", "true");
+      document.body.appendChild(grip);
+      try {
+        expect(shouldStartBand(editor.view, grip)).toBe(false);
+      } finally {
+        grip.remove();
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("moveRangeTr", () => {
-  it("moves the range's blocks to the drop position and keeps them selected", () => {
-    const editor = createEditor([
-      paragraph("A", "b1"),
-      paragraph("B", "b2"),
-      paragraph("C", "b3"),
-      paragraph("D", "b4"),
-    ]);
-    const range = rangeOver(editor, 1, 2);
+  it.each([
+    ["moves the range's blocks to the drop position and keeps them selected", () => {
+      const editor = createEditor([
+        paragraph("A", "b1"),
+        paragraph("B", "b2"),
+        paragraph("C", "b3"),
+        paragraph("D", "b4"),
+      ]);
+      const range = rangeOver(editor, 1, 2);
 
-    const tr = moveRangeTr(editor.state, range, editor.state.doc.content.size);
-    expect(tr).not.toBeNull();
-    editor.view.dispatch(tr!);
+      const tr = moveRangeTr(editor.state, range, editor.state.doc.content.size);
+      expect(tr).not.toBeNull();
+      editor.view.dispatch(tr!);
 
-    const texts = blocks(editor).map(({ pos }) => editor.state.doc.nodeAt(pos)?.textContent);
-    expect(texts).toEqual(["A", "D", "B", "C"]);
-    // The moved run stays multi-selected (Notion keeps the selection).
-    const after = dragSelectPluginKey.getState(editor.state);
-    expect(after).not.toBeNull();
-    expect(after!.dragging).toBe(false);
-    const selected = Array.from(editor.view.dom.children).filter((child) =>
-      (child as HTMLElement).classList.contains("docs-block-multi-selected"),
-    );
-    expect(selected.map((el) => el.textContent)).toEqual(["B", "C"]);
-  });
+      const texts = blocks(editor).map(({ pos }) => editor.state.doc.nodeAt(pos)?.textContent);
+      expect(texts).toEqual(["A", "D", "B", "C"]);
+      // The moved run stays multi-selected (Notion keeps the selection).
+      const after = dragSelectPluginKey.getState(editor.state);
+      expect(after).not.toBeNull();
+      expect(after!.dragging).toBe(false);
+      const selected = Array.from(editor.view.dom.children).filter((child) =>
+        (child as HTMLElement).classList.contains("docs-block-multi-selected"),
+      );
+      expect(selected.map((el) => el.textContent)).toEqual(["B", "C"]);
+    }],
+    ["a multi-block grip drop lands the real selection on the moved run", () => {
+      const editor = createEditor([
+        paragraph("A", "b1"),
+        paragraph("B", "b2"),
+        paragraph("C", "b3"),
+        paragraph("D", "b4"),
+      ]);
+      setRange(editor, rangeOver(editor, 1, 2));
+      const tr = moveRangeTr(editor.state, rangeOver(editor, 1, 2), editor.state.doc.content.size);
+      editor.view.dispatch(tr!);
 
-  it("moves a range upward across earlier blocks", () => {
-    const editor = createEditor([
-      paragraph("A", "b1"),
-      paragraph("B", "b2"),
-      paragraph("C", "b3"),
-    ]);
-    const range = rangeOver(editor, 2, 2);
+      const after = dragSelectPluginKey.getState(editor.state)!;
+      const selection = editor.state.selection;
+      expect(selection.empty).toBe(false);
+      expect(selection.$from.before(1)).toBe(after.from);
+      expect(selection.$to.after(1)).toBe(after.to);
+      const text = selection.content().content.textBetween(0, selection.content().content.size, "\n");
+      expect(text).toContain("B");
+      expect(text).toContain("C");
+    }],
+    ["moves a range upward across earlier blocks", () => {
+      const editor = createEditor([
+        paragraph("A", "b1"),
+        paragraph("B", "b2"),
+        paragraph("C", "b3"),
+      ]);
+      const range = rangeOver(editor, 2, 2);
 
-    const tr = moveRangeTr(editor.state, range, 0);
-    expect(tr).not.toBeNull();
-    editor.view.dispatch(tr!);
+      const tr = moveRangeTr(editor.state, range, 0);
+      expect(tr).not.toBeNull();
+      editor.view.dispatch(tr!);
 
-    const texts = blocks(editor).map(({ pos }) => editor.state.doc.nodeAt(pos)?.textContent);
-    expect(texts).toEqual(["C", "A", "B"]);
-  });
+      const texts = blocks(editor).map(({ pos }) => editor.state.doc.nodeAt(pos)?.textContent);
+      expect(texts).toEqual(["C", "A", "B"]);
+    }],
+    ["a drop position inside another block's text lands top-level, never nested", () => {
+      const editor = createEditor([
+        paragraph("A", "b1"),
+        paragraph("BB", "b2"),
+        paragraph("C", "b3"),
+      ]);
+      const range = rangeOver(editor, 2, 2);
+      const all = blocks(editor);
+      // Deep inside block A's text — the "Solution staircase" shape.
+      const tr = moveRangeTr(editor.state, range, all[0].pos + 2);
+      expect(tr).not.toBeNull();
+      editor.view.dispatch(tr!);
+
+      const after = blocks(editor).map(({ pos }) => {
+        const node = editor.state.doc.nodeAt(pos)!;
+        // childCount 1 = just the docBlockText wrapper; >1 would mean a
+        // nested block rode into the child slot.
+        return { text: node.textContent, children: node.childCount };
+      });
+      expect(after.map((b) => b.text)).toEqual(["C", "A", "BB"]);
+      expect(after.every((b) => b.children === 1)).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("returns null for a drop inside the dragged range", () => {
     const editor = createEditor([
@@ -345,29 +368,6 @@ describe("moveRangeTr", () => {
     ]);
     const range = rangeOver(editor, 0, 1);
     expect(moveRangeTr(editor.state, range, range.from + 1)).toBeNull();
-  });
-
-  it("a drop position inside another block's text lands top-level, never nested", () => {
-    const editor = createEditor([
-      paragraph("A", "b1"),
-      paragraph("BB", "b2"),
-      paragraph("C", "b3"),
-    ]);
-    const range = rangeOver(editor, 2, 2);
-    const all = blocks(editor);
-    // Deep inside block A's text — the "Solution staircase" shape.
-    const tr = moveRangeTr(editor.state, range, all[0].pos + 2);
-    expect(tr).not.toBeNull();
-    editor.view.dispatch(tr!);
-
-    const after = blocks(editor).map(({ pos }) => {
-      const node = editor.state.doc.nodeAt(pos)!;
-      // childCount 1 = just the docBlockText wrapper; >1 would mean a
-      // nested block rode into the child slot.
-      return { text: node.textContent, children: node.childCount };
-    });
-    expect(after.map((b) => b.text)).toEqual(["C", "A", "BB"]);
-    expect(after.every((b) => b.children === 1)).toBe(true);
   });
 });
 
@@ -417,13 +417,24 @@ describe("dropBlockSliceTr", () => {
     expect((editor.state.selection as NodeSelection).node.textContent).toBe("dragged");
   });
 
-  it("is a no-op when dropping a block onto itself", () => {
-    const editor = createEditor([paragraph("A", "b1"), paragraph("B", "b2")]);
-    const all = blocks(editor);
-    const selection = NodeSelection.create(editor.state.doc, all[1].pos);
-    editor.view.dispatch(editor.state.tr.setSelection(selection));
-    expect(dropBlockSliceTr(editor.state, selection.content(), all[1].pos + 1, true)).toBeNull();
-  });
+  it.each([
+    ["is a no-op when dropping a block onto itself", () => {
+      const editor = createEditor([paragraph("A", "b1"), paragraph("B", "b2")]);
+      const all = blocks(editor);
+      const selection = NodeSelection.create(editor.state.doc, all[1].pos);
+      editor.view.dispatch(editor.state.tr.setSelection(selection));
+      expect(dropBlockSliceTr(editor.state, selection.content(), all[1].pos + 1, true)).toBeNull();
+    }],
+    ["is a no-op when dropping a nested list item onto itself", () => {
+      const editor = nestedListEditor();
+      const before = editor.state.doc;
+      const selection = grab(editor, "li2");
+      for (const pos of [selection.from, selection.from + 2, selection.to - 1, selection.to]) {
+        const tr = dropBlockSliceTr(editor.state, selection.content(), pos, true);
+        expect(tr === null || tr.doc.eq(before), `drop at ${pos}`).toBe(true);
+      }
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   // Nested list items get their own grip (drag-handle.ts gripTarget), so a
   // grip drag can carry a nested item: its drop must stay at its own depth.
@@ -463,44 +474,34 @@ describe("dropBlockSliceTr", () => {
     return items;
   }
 
-  it("is a no-op when dropping a nested list item onto itself", () => {
-    const editor = nestedListEditor();
-    const before = editor.state.doc;
-    const selection = grab(editor, "li2");
-    for (const pos of [selection.from, selection.from + 2, selection.to - 1, selection.to]) {
-      const tr = dropBlockSliceTr(editor.state, selection.content(), pos, true);
-      expect(tr === null || tr.doc.eq(before), `drop at ${pos}`).toBe(true);
-    }
-  });
+  it.each([
+    ["reorders nested siblings inside their parent", () => {
+      const editor = nestedListEditor();
+      const selection = grab(editor, "li3");
+      // Drop on the first sibling's text, nearer its top edge.
+      const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li2") + 2, true);
+      expect(tr).not.toBeNull();
+      editor.view.dispatch(tr!);
 
-  it("reorders nested siblings inside their parent", () => {
-    const editor = nestedListEditor();
-    const selection = grab(editor, "li3");
-    // Drop on the first sibling's text, nearer its top edge.
-    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li2") + 2, true);
-    expect(tr).not.toBeNull();
-    editor.view.dispatch(tr!);
+      expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
+      expect(editor.state.doc.childCount).toBe(3);
+      expect((editor.state.selection as NodeSelection).node.attrs.blockId).toBe("li3");
+    }],
+    ["drops a nested item onto its parent's text as the parent's first child", () => {
+      const editor = nestedListEditor();
+      const selection = grab(editor, "li3");
+      const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li1") + 3, true);
+      editor.view.dispatch(tr!);
 
-    expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
-    expect(editor.state.doc.childCount).toBe(3);
-    expect((editor.state.selection as NodeSelection).node.attrs.blockId).toBe("li3");
-  });
+      expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
+    }],
+    ["moves a nested item out to the top level when dropped on a top-level block", () => {
+      const editor = nestedListEditor();
+      const selection = grab(editor, "li3");
+      const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "p2") + 2, true);
+      editor.view.dispatch(tr!);
 
-  it("drops a nested item onto its parent's text as the parent's first child", () => {
-    const editor = nestedListEditor();
-    const selection = grab(editor, "li3");
-    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "li1") + 3, true);
-    editor.view.dispatch(tr!);
-
-    expect(outline(editor.state.doc)).toEqual([{ parent: [{ second: [] }, { first: [] }] }]);
-  });
-
-  it("moves a nested item out to the top level when dropped on a top-level block", () => {
-    const editor = nestedListEditor();
-    const selection = grab(editor, "li3");
-    const tr = dropBlockSliceTr(editor.state, selection.content(), posOf(editor, "p2") + 2, true);
-    editor.view.dispatch(tr!);
-
-    expect(outline(editor.state.doc)).toEqual([{ parent: [{ first: [] }] }, { second: [] }]);
-  });
+      expect(outline(editor.state.doc)).toEqual([{ parent: [{ first: [] }] }, { second: [] }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });

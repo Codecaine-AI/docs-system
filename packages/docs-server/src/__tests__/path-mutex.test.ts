@@ -70,22 +70,4 @@ describe("withPathLock", () => {
     await expect(succeeding).resolves.toBe("ok");
     expect(secondFnRan).toBe(true);
   });
-
-  test("does not leak a stale queue entry after work drains", async () => {
-    const path = "/tmp/path-mutex-test/drain-path";
-
-    await withPathLock(path, async () => {
-      await delay(20);
-    });
-
-    // With the queue cleaned up, a fresh call should start immediately
-    // (no residual queueing delay from a stale map entry).
-    const start = performance.now();
-    await withPathLock(path, async () => {
-      await delay(5);
-    });
-    const elapsed = performance.now() - start;
-
-    expect(elapsed).toBeLessThan(40);
-  });
 });

@@ -28,23 +28,24 @@ function setChecked(blockId: string, params: Record<string, unknown>) {
 }
 
 describe("list-item.setChecked", () => {
-  it("turns an ordinary bullet into a done task, keeping id, text, and ordered", () => {
-    const doc = taskDoc({ ordered: true });
-    const result = applyOp(doc, setChecked("item", { checked: true }));
-    if (!result.ok) throw new Error(JSON.stringify(result.issues));
-    const item = result.doc.blocks.item!;
-    expect(item.id).toBe("item");
-    expect(item.props).toEqual({ ordered: true, checked: true });
-    expect(item.text).toEqual([{ insert: "Install Bun." }]);
-    expect(result.doc.root).toBe(doc.root);
-    expect(result.doc.blocks.root!.children).toEqual(["item", "para"]);
-  });
-
-  it("reopens a done task", () => {
-    const result = applyOp(taskDoc({ checked: true }), setChecked("item", { checked: false }));
-    if (!result.ok) throw new Error(JSON.stringify(result.issues));
-    expect(result.doc.blocks.item!.props).toEqual({ checked: false });
-  });
+  it.each([
+    ["turns an ordinary bullet into a done task, keeping id, text, and ordered", () => {
+      const doc = taskDoc({ ordered: true });
+      const result = applyOp(doc, setChecked("item", { checked: true }));
+      if (!result.ok) throw new Error(JSON.stringify(result.issues));
+      const item = result.doc.blocks.item!;
+      expect(item.id).toBe("item");
+      expect(item.props).toEqual({ ordered: true, checked: true });
+      expect(item.text).toEqual([{ insert: "Install Bun." }]);
+      expect(result.doc.root).toBe(doc.root);
+      expect(result.doc.blocks.root!.children).toEqual(["item", "para"]);
+    }],
+    ["reopens a done task", () => {
+      const result = applyOp(taskDoc({ checked: true }), setChecked("item", { checked: false }));
+      if (!result.ok) throw new Error(JSON.stringify(result.issues));
+      expect(result.doc.blocks.item!.props).toEqual({ checked: false });
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("returns an inverse that restores the plain bullet (no checked key)", () => {
     const doc = taskDoc();

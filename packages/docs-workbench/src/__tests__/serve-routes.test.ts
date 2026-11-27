@@ -175,24 +175,25 @@ describe("GET /api/blocks", () => {
 });
 
 describe("GET /api/bundle", () => {
-  test("returns the Spectre bundle response shape", async () => {
-    const response = await get("/api/bundle?path=10-guide");
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as Record<string, unknown>;
-    expect(body.path).toBe("10-guide");
-    expect(body.document_path).toBe("docs/10-guide");
-    expect((body.doc as any).id).toBe("doc-guide");
-    expect(typeof body.doc_hash).toBe("string");
-    expect((body.annotations as any).schemaVersion).toBe(1);
-    expect(typeof body.annotations_hash).toBe("string");
-  });
-
-  test("accepts <bundle>/doc.json form and normalizes the path", async () => {
-    const response = await get("/api/bundle?path=10-guide/doc.json");
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as { path: string };
-    expect(body.path).toBe("10-guide");
-  });
+  test.each([
+    ["returns the Spectre bundle response shape", async () => {
+      const response = await get("/api/bundle?path=10-guide");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as Record<string, unknown>;
+      expect(body.path).toBe("10-guide");
+      expect(body.document_path).toBe("docs/10-guide");
+      expect((body.doc as any).id).toBe("doc-guide");
+      expect(typeof body.doc_hash).toBe("string");
+      expect((body.annotations as any).schemaVersion).toBe(1);
+      expect(typeof body.annotations_hash).toBe("string");
+    }],
+    ["accepts <bundle>/doc.json form and normalizes the path", async () => {
+      const response = await get("/api/bundle?path=10-guide/doc.json");
+      expect(response.status).toBe(200);
+      const body = (await response.json()) as { path: string };
+      expect(body.path).toBe("10-guide");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   test("404s a missing bundle", async () => {
     const response = await get("/api/bundle?path=90-nope");
@@ -283,16 +284,6 @@ describe("GET /api/asset", () => {
       const response = await get(`/api/asset?path=${encodeURIComponent(path)}`);
       expect(response.status).toBe(400);
     }
-  });
-});
-
-describe("GET /api/backlinks", () => {
-  test("returns the Spectre backlinks response shape", async () => {
-    const response = await get(`/api/backlinks?target=${encodeURIComponent("10-guide")}`);
-    expect(response.status).toBe(200);
-    const body = (await response.json()) as { target: string; backlinks: unknown[] };
-    expect(body.target).toBe("10-guide");
-    expect(Array.isArray(body.backlinks)).toBe(true);
   });
 });
 

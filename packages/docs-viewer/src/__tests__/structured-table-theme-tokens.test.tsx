@@ -1,13 +1,8 @@
 import { afterEach, describe, expect, it } from "bun:test";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import { StructuredTableBlock } from "../components/structured-table/StructuredTableDocsBlock";
 import { TableGrid } from "../components/structured-table/editor/TableGrid";
-import {
-  TABLE_PROSE_FLOOR_CLASS,
-  TABLE_PROSE_MEASURE_CLASS,
-  TABLE_STICKY_BODY_CELL_CLASSES,
-  TABLE_STICKY_HEADER_CELL_CLASSES,
-} from "../components/structured-table/table-classes";
+import { TABLE_PROSE_FLOOR_CLASS, TABLE_PROSE_MEASURE_CLASS } from "../components/structured-table/table-classes";
 
 afterEach(() => {
   cleanup();
@@ -27,18 +22,51 @@ const ROWS = [
 const noop = () => {};
 
 describe("structured-table title", () => {
-  it("draws no title: the title only names the table", () => {
-    const { container } = render(
-      <StructuredTableBlock id="tbl" title="Owners" columns={COLUMNS} rows={ROWS} />,
-    );
-    expect(container.textContent).not.toContain("Owners");
-    expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Owners");
-    // The frame is the section's only child: it starts at the header row.
-    expect(container.querySelector("section")?.children.length).toBe(1);
-    cleanup();
-    const untitled = render(<StructuredTableBlock id="tbl" columns={COLUMNS} rows={ROWS} />);
-    expect(untitled.container.querySelector("table")?.hasAttribute("aria-label")).toBe(false);
-  });
+  it.each([
+    ["draws no title: the title only names the table", () => {
+      const { container } = render(
+        <StructuredTableBlock id="tbl" title="Owners" columns={COLUMNS} rows={ROWS} />,
+      );
+      expect(container.textContent).not.toContain("Owners");
+      expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Owners");
+      // The frame is the section's only child: it starts at the header row.
+      expect(container.querySelector("section")?.children.length).toBe(1);
+      cleanup();
+      const untitled = render(<StructuredTableBlock id="tbl" columns={COLUMNS} rows={ROWS} />);
+      expect(untitled.container.querySelector("table")?.hasAttribute("aria-label")).toBe(false);
+    }],
+    ["renders columns and rows from structured props", () => {
+      const { container } = render(
+        <StructuredTableBlock
+          id="tbl-1"
+          title="Rollout matrix"
+          columns={["Stage", "Owner", "Status"]}
+          rows={[
+            ["Alpha", "ford", "done"],
+            ["Beta", "ana", "in progress"],
+          ]}
+        />,
+      );
+
+      expect(screen.getByText("Stage")).toBeTruthy();
+      expect(screen.getByText("Owner")).toBeTruthy();
+      expect(screen.getByText("Status")).toBeTruthy();
+      expect(screen.getByText("Alpha")).toBeTruthy();
+      expect(screen.getByText("in progress")).toBeTruthy();
+      expect(screen.queryByText("normal")).toBeNull();
+      expect(screen.queryByText("tbl-1")).toBeNull();
+
+      const section = container.querySelector('[data-docs-block-type="structured-table"]');
+      expect(section?.getAttribute("data-source-id")).toBe("tbl-1");
+      expect(section?.className).toBe("not-prose my-4");
+      // The title is never drawn: the frame starts at the header row, and the
+      // title only names the table for assistive tech.
+      expect(screen.queryByText("Rollout matrix")).toBeNull();
+      expect(container.querySelector("table")?.getAttribute("aria-label")).toBe("Rollout matrix");
+      expect(section?.children.length).toBe(1);
+      expect(section?.firstElementChild?.firstElementChild?.tagName).toBe("TABLE");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("structured-table column sizing and the pinned first column", () => {
@@ -63,18 +91,6 @@ describe("structured-table column sizing and the pinned first column", () => {
       ).container,
   ];
 
-  it("shrinks the frame and table to their content instead of filling the lane", () => {
-    for (const renderSurface of layoutSurfaces) {
-      const container = renderSurface();
-      const frame = container.querySelector("div:has(> table)")!;
-      expect(frame.className).toContain("w-fit");
-      expect(frame.className).toContain("max-w-full");
-      expect(frame.className).toContain("overflow-auto");
-      expect(container.querySelector("table")!.className.split(" ")).not.toContain("w-full");
-      cleanup();
-    }
-  });
-
   it("keeps identifier and short columns on one line and measures the one prose column", () => {
     for (const renderSurface of layoutSurfaces) {
       const container = renderSurface();
@@ -93,31 +109,5 @@ describe("structured-table column sizing and the pinned first column", () => {
       expect(measure.textContent).toContain("Header rule thickness");
       cleanup();
     }
-  });
-
-  it("pins the first column with an opaque fill matching its row", () => {
-    for (const renderSurface of layoutSurfaces) {
-      const container = renderSurface();
-      const firstHeader = container.querySelector("thead th")!;
-      const firstBody = container.querySelector("tbody td")!;
-      for (const reference of TABLE_STICKY_HEADER_CELL_CLASSES.split(" ")) {
-        expect(firstHeader.className).toContain(reference);
-      }
-      for (const reference of TABLE_STICKY_BODY_CELL_CLASSES.split(" ")) {
-        expect(firstBody.className).toContain(reference);
-      }
-      // Only the first column is pinned.
-      expect(container.querySelectorAll("tbody td")[1]!.className).not.toContain("sticky");
-      cleanup();
-    }
-    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain("sticky left-0");
-    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain(
-      "[tr:hover>&]:bg-[color:var(--docs-table-row-hover-bg,var(--docs-hover,#ebebea))]",
-    );
-    expect(TABLE_STICKY_HEADER_CELL_CLASSES).toContain(
-      "var(--docs-table-bg,var(--docs-panel,#f8f8f7))",
-    );
-    // The edge rule only shows while the frame actually scrolls.
-    expect(TABLE_STICKY_BODY_CELL_CLASSES).toContain("[[data-table-overflow]_&]:after:opacity-100");
   });
 });

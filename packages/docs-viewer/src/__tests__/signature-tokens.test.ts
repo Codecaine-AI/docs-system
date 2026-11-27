@@ -13,25 +13,25 @@ describe("tokenizeSigType", () => {
     }
   });
 
-  it("separates literals from type names", () => {
-    expect(roles('"native" | "self-reported" | 3 | -1.5 | true | null | undefined | string')).toEqual([
-      'string:"native"', "punct:|", 'string:"self-reported"', "punct:|", "number:3", "punct:|", "number:-1.5",
-      "punct:|", "boolean:true", "punct:|", "null:null", "punct:|", "null:undefined", "punct:|", "type-name:string",
-    ]);
-  });
-
-  it("marks object keys only after an opener and before a colon", () => {
-    expect(roles("{ id: string; name?: Foo.Bar }")).toEqual([
-      "punct:{", "key:id", "punct::", "type-name:string", "punct:;", "key:name", "punct:?", "punct::", "type-name:Foo.Bar", "punct:}",
-    ]);
-    // A leading `word:` is prose, not a key.
-    expect(roles("note: free text")[0]).toBe("type-name:note");
-  });
-
-  it("paints type operators and void as keywords, the arrow as punctuation", () => {
-    expect(roles("keyof typeof x")).toEqual(["keyword:keyof", "keyword:typeof", "type-name:x"]);
-    expect(roles("() => void")).toEqual(["punct:(", "punct:)", "punct:=>", "keyword:void"]);
-  });
+  it.each([
+    ["separates literals from type names", () => {
+      expect(roles('"native" | "self-reported" | 3 | -1.5 | true | null | undefined | string')).toEqual([
+        'string:"native"', "punct:|", 'string:"self-reported"', "punct:|", "number:3", "punct:|", "number:-1.5",
+        "punct:|", "boolean:true", "punct:|", "null:null", "punct:|", "null:undefined", "punct:|", "type-name:string",
+      ]);
+    }],
+    ["marks object keys only after an opener and before a colon", () => {
+      expect(roles("{ id: string; name?: Foo.Bar }")).toEqual([
+        "punct:{", "key:id", "punct::", "type-name:string", "punct:;", "key:name", "punct:?", "punct::", "type-name:Foo.Bar", "punct:}",
+      ]);
+      // A leading `word:` is prose, not a key.
+      expect(roles("note: free text")[0]).toBe("type-name:note");
+    }],
+    ["paints type operators and void as keywords, the arrow as punctuation", () => {
+      expect(roles("keyof typeof x")).toEqual(["keyword:keyof", "keyword:typeof", "type-name:x"]);
+      expect(roles("() => void")).toEqual(["punct:(", "punct:)", "punct:=>", "keyword:void"]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("tokenizeExampleCall", () => {

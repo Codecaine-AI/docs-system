@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import sampleDoc from "@codecaine-ai/docs-model/fixtures/sample.doc.json";
-import { validateDocDocument, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
+import { validateDocDocument, type DeltaSpan, type DocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps } from "@codecaine-ai/docs-model/doc-ops";
 import { docToPM, pmToDoc, diffToOps, type PMNode } from "../core/convert";
 
@@ -9,6 +9,27 @@ function loadFixture(): DocDocument {
   if (!result.ok) throw new Error(JSON.stringify(result.issues, null, 2));
   return result.document;
 }
+
+// docWith and ids come with the span round-trip case carried from convert-span-roundtrip.test.ts.
+function docWith(text: DeltaSpan[]): DocDocument {
+  const result = validateDocDocument({
+    schemaVersion: 1,
+    id: "doc-test",
+    title: "Test",
+    root: "root",
+    blocks: {
+      root: { id: "root", type: "page", props: {}, children: ["p1"] },
+      p1: { id: "p1", type: "paragraph", props: {}, text, children: [] },
+    },
+  });
+  if (!result.ok) throw new Error(JSON.stringify(result.issues));
+  return result.document;
+}
+
+const ids = () => {
+  let n = 0;
+  return () => `fresh-${(n += 1)}`;
+};
 
 /** Deterministic id factory for tests — never collides within a single run. */
 function makeIdFactory(prefix: string) {
@@ -118,20 +139,30 @@ describe("convert: docToPM / pmToDoc round-trip", () => {
 });
 
 describe("diffToOps", () => {
-  it("editing one paragraph's text produces exactly one updateBlock for that block", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const h1 = (pm.content as PMNode[]).find((n) => n.attrs?.blockId === "h1")!;
-    h1.content = [
-      { type: "docBlockText", content: [{ type: "text", text: "Docs Model Sample (edited)" }] },
-    ];
-    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+  it.each([
+    ["editing one paragraph's text produces exactly one updateBlock for that block", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const h1 = (pm.content as PMNode[]).find((n) => n.attrs?.blockId === "h1")!;
+      h1.content = [
+        { type: "docBlockText", content: [{ type: "text", text: "Docs Model Sample (edited)" }] },
+      ];
+      const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
 
-    const ops = diffToOps(doc, edited);
-    expect(ops).toEqual([
-      { type: "updateBlock", blockId: "h1", text: [{ insert: "Docs Model Sample (edited)" }] },
-    ]);
-  });
+      const ops = diffToOps(doc, edited);
+      expect(ops).toEqual([
+        { type: "updateBlock", blockId: "h1", text: [{ insert: "Docs Model Sample (edited)" }] },
+      ]);
+    }],
+    ["a real edit to such a block still emits an updateBlock", () => {
+      const doc = docWith([{ insert: "one." }, { insert: " two." }]);
+      const back = pmToDoc(docToPM(doc), doc, ids());
+      back.blocks.p1.text = [{ insert: "one. two!" }];
+      expect(diffToOps(doc, back)).toEqual([
+        { type: "updateBlock", blockId: "p1", text: [{ insert: "one. two!" }] },
+      ]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("no-op edit (round trip with no changes) produces zero ops", () => {
     const doc = loadFixture();
@@ -161,34 +192,6 @@ describe("diffToOps", () => {
       expect(ops[0].blockType).toBe("paragraph");
       expect(ops[0].text).toEqual([{ insert: "Inserted paragraph" }]);
     }
-  });
-
-  it("deleting a block produces exactly one deleteBlock", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
-    rootContent.splice(idx, 1);
-    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
-
-    const ops = diffToOps(doc, edited);
-    expect(ops).toEqual([{ type: "deleteBlock", blockId: "p-invariant", mode: "subtree" }]);
-  });
-
-  it("reordering siblings produces moveBlock ops for the displaced blocks", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const liAIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
-    const [liA] = rootContent.splice(liAIdx, 1);
-    const liBIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-b");
-    rootContent.splice(liBIdx + 1, 0, liA);
-    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
-
-    const ops = diffToOps(doc, edited);
-    const moveOps = ops.filter((op) => op.type === "moveBlock");
-    expect(moveOps.length).toBeGreaterThan(0);
-    expect(moveOps.some((op) => op.type === "moveBlock" && op.blockId === "li-a")).toBe(true);
   });
 
   it("mixed batch: one edit, one insert, one delete in a single diff", () => {
@@ -281,70 +284,71 @@ describe("diffToOps", () => {
     }
   });
 
-  it("Enter-split duplicating a blockId attr: head keeps the id, tail mints fresh, exactly one insertBlock", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
-    const original = rootContent[idx];
-    // PM's Enter-split copies the node's attrs onto the new node, so BOTH
-    // halves briefly carry the same blockId attr — pmToDoc must keep the id
-    // on the FIRST (head) occurrence and mint fresh for the tail.
-    const head: PMNode = {
-      type: "docParagraph",
-      attrs: { ...original.attrs },
-      content: [{ type: "docBlockText", content: [{ type: "text", text: "Stable ids are" }] }],
-    };
-    const tail: PMNode = {
-      type: "docParagraph",
-      attrs: { ...original.attrs },
-      content: [
-        { type: "docBlockText", content: [{ type: "text", text: " a system invariant." }] },
-      ],
-    };
-    rootContent.splice(idx, 1, head, tail);
-    const edited = pmToDoc(pm, doc, makeIdFactory("split"));
+  it.each([
+    ["Enter-split duplicating a blockId attr: head keeps the id, tail mints fresh, exactly one insertBlock", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
+      const original = rootContent[idx];
+      // PM's Enter-split copies the node's attrs onto the new node, so BOTH
+      // halves briefly carry the same blockId attr — pmToDoc must keep the id
+      // on the FIRST (head) occurrence and mint fresh for the tail.
+      const head: PMNode = {
+        type: "docParagraph",
+        attrs: { ...original.attrs },
+        content: [{ type: "docBlockText", content: [{ type: "text", text: "Stable ids are" }] }],
+      };
+      const tail: PMNode = {
+        type: "docParagraph",
+        attrs: { ...original.attrs },
+        content: [
+          { type: "docBlockText", content: [{ type: "text", text: " a system invariant." }] },
+        ],
+      };
+      rootContent.splice(idx, 1, head, tail);
+      const edited = pmToDoc(pm, doc, makeIdFactory("split"));
 
-    expect(edited.blocks["p-invariant"].text).toEqual([{ insert: "Stable ids are" }]);
-    const freshIds = Object.keys(edited.blocks).filter((id) => !(id in doc.blocks));
-    expect(freshIds).toEqual(["split-1"]);
-    expect(edited.blocks["split-1"].text).toEqual([{ insert: " a system invariant." }]);
+      expect(edited.blocks["p-invariant"].text).toEqual([{ insert: "Stable ids are" }]);
+      const freshIds = Object.keys(edited.blocks).filter((id) => !(id in doc.blocks));
+      expect(freshIds).toEqual(["split-1"]);
+      expect(edited.blocks["split-1"].text).toEqual([{ insert: " a system invariant." }]);
 
-    const ops = diffToOps(doc, edited);
-    const inserts = ops.filter((op) => op.type === "insertBlock");
-    expect(inserts).toHaveLength(1);
-    expect(inserts[0].type === "insertBlock" && inserts[0].blockId).toBe("split-1");
-    expect(ops.filter((op) => op.type === "deleteBlock")).toHaveLength(0);
+      const ops = diffToOps(doc, edited);
+      const inserts = ops.filter((op) => op.type === "insertBlock");
+      expect(inserts).toHaveLength(1);
+      expect(inserts[0].type === "insertBlock" && inserts[0].blockId).toBe("split-1");
+      expect(ops.filter((op) => op.type === "deleteBlock")).toHaveLength(0);
 
-    const applied = applyOps(doc, ops);
-    expect(applied.ok).toBe(true);
-    if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
-  });
+      const applied = applyOps(doc, ops);
+      expect(applied.ok).toBe(true);
+      if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
+    }],
+    ["paste-duplicating an existing block: original keeps its id, the copy mints fresh", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const original = rootContent.find((n) => n.attrs?.blockId === "p-invariant")!;
+      // Paste inserts an exact structural copy INCLUDING the blockId attr.
+      rootContent.push(JSON.parse(JSON.stringify(original)) as PMNode);
+      const edited = pmToDoc(pm, doc, makeIdFactory("paste"));
 
-  it("paste-duplicating an existing block: original keeps its id, the copy mints fresh", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const original = rootContent.find((n) => n.attrs?.blockId === "p-invariant")!;
-    // Paste inserts an exact structural copy INCLUDING the blockId attr.
-    rootContent.push(JSON.parse(JSON.stringify(original)) as PMNode);
-    const edited = pmToDoc(pm, doc, makeIdFactory("paste"));
+      // The original (first in document order) is untouched; the copy is fresh.
+      expect(edited.blocks["p-invariant"]).toEqual(doc.blocks["p-invariant"]);
+      const ops = diffToOps(doc, edited);
+      expect(ops).toHaveLength(1);
+      expect(ops[0].type).toBe("insertBlock");
+      if (ops[0].type === "insertBlock") {
+        expect(ops[0].blockId).toBe("paste-1");
+        expect(ops[0].parentId).toBe(doc.root);
+        expect(ops[0].text).toEqual(doc.blocks["p-invariant"].text);
+      }
 
-    // The original (first in document order) is untouched; the copy is fresh.
-    expect(edited.blocks["p-invariant"]).toEqual(doc.blocks["p-invariant"]);
-    const ops = diffToOps(doc, edited);
-    expect(ops).toHaveLength(1);
-    expect(ops[0].type).toBe("insertBlock");
-    if (ops[0].type === "insertBlock") {
-      expect(ops[0].blockId).toBe("paste-1");
-      expect(ops[0].parentId).toBe(doc.root);
-      expect(ops[0].text).toEqual(doc.blocks["p-invariant"].text);
-    }
-
-    const applied = applyOps(doc, ops);
-    expect(applied.ok).toBe(true);
-    if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
-  });
+      const applied = applyOps(doc, ops);
+      expect(applied.ok).toBe(true);
+      if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("block type change on a surviving id emits deleteBlock + fresh-id insertBlock, never a silent props-only update (§8.3)", () => {
     const doc = loadFixture();
@@ -420,23 +424,36 @@ describe("diffToOps", () => {
     }
   });
 
-  it("deleting a parent with a nested child emits ONE deleteBlock and reconciles via applyOps", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const idx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
-    rootContent.splice(idx, 1); // removes li-a AND its nested li-a-1
-    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+  it.each([
+    ["deleting a parent with a nested child emits ONE deleteBlock and reconciles via applyOps", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const idx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
+      rootContent.splice(idx, 1); // removes li-a AND its nested li-a-1
+      const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
 
-    const ops = diffToOps(doc, edited);
-    // li-a-1 must NOT get its own deleteBlock — it would run after li-a's
-    // subtree delete already removed it and fail the whole batch.
-    expect(ops).toEqual([{ type: "deleteBlock", blockId: "li-a", mode: "subtree" }]);
+      const ops = diffToOps(doc, edited);
+      // li-a-1 must NOT get its own deleteBlock — it would run after li-a's
+      // subtree delete already removed it and fail the whole batch.
+      expect(ops).toEqual([{ type: "deleteBlock", blockId: "li-a", mode: "subtree" }]);
 
-    const applied = applyOps(doc, ops);
-    expect(applied.ok).toBe(true);
-    if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
-  });
+      const applied = applyOps(doc, ops);
+      expect(applied.ok).toBe(true);
+      if (applied.ok) expect(applied.doc.blocks).toEqual(edited.blocks);
+    }],
+    ["deleting a block produces exactly one deleteBlock", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const idx = rootContent.findIndex((n) => n.attrs?.blockId === "p-invariant");
+      rootContent.splice(idx, 1);
+      const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+
+      const ops = diffToOps(doc, edited);
+      expect(ops).toEqual([{ type: "deleteBlock", blockId: "p-invariant", mode: "subtree" }]);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("a block that escaped a deleted subtree is re-inserted fresh, and the batch applies cleanly", () => {
     const doc = loadFixture();
@@ -475,75 +492,93 @@ describe("diffToOps", () => {
     }
   });
 
-  it("reorder reconciliation: applying diffToOps output via applyOps reproduces the edited doc exactly", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    const rootContent = pm.content as PMNode[];
-    const liAIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
-    const [liA] = rootContent.splice(liAIdx, 1);
-    const liBIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-b");
-    rootContent.splice(liBIdx + 1, 0, liA);
-    const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+  it.each([
+    ["reorder reconciliation: applying diffToOps output via applyOps reproduces the edited doc exactly", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const liAIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
+      const [liA] = rootContent.splice(liAIdx, 1);
+      const liBIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-b");
+      rootContent.splice(liBIdx + 1, 0, liA);
+      const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
 
-    const ops = diffToOps(doc, edited);
-    const applied = applyOps(doc, ops);
-    expect(applied.ok).toBe(true);
-    if (applied.ok) {
-      expect(applied.doc.blocks[applied.doc.root].children).toEqual(
-        edited.blocks[edited.root].children,
-      );
-      expect(applied.doc.blocks).toEqual(edited.blocks);
-    }
-  });
+      const ops = diffToOps(doc, edited);
+      const applied = applyOps(doc, ops);
+      expect(applied.ok).toBe(true);
+      if (applied.ok) {
+        expect(applied.doc.blocks[applied.doc.root].children).toEqual(
+          edited.blocks[edited.root].children,
+        );
+        expect(applied.doc.blocks).toEqual(edited.blocks);
+      }
+    }],
+    ["reordering siblings produces moveBlock ops for the displaced blocks", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      const rootContent = pm.content as PMNode[];
+      const liAIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-a");
+      const [liA] = rootContent.splice(liAIdx, 1);
+      const liBIdx = rootContent.findIndex((n) => n.attrs?.blockId === "li-b");
+      rootContent.splice(liBIdx + 1, 0, liA);
+      const edited = pmToDoc(pm, doc, makeIdFactory("fresh"));
+
+      const ops = diffToOps(doc, edited);
+      const moveOps = ops.filter((op) => op.type === "moveBlock");
+      expect(moveOps.length).toBeGreaterThan(0);
+      expect(moveOps.some((op) => op.type === "moveBlock" && op.blockId === "li-a")).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 });
 
 describe("convert: corrupted clipboard payloads never reach the doc", () => {
-  it('converts a docReference whose ref is the literal string "[object Object]" to plain text with no reference attribute', () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    pm.content = [
-      {
-        type: "docParagraph",
-        attrs: { blockId: "p-corrupt", blockProps: {} },
-        content: [
-          {
-            type: "docBlockText",
-            content: [
-              { type: "text", text: "See " },
-              { type: "docReference", attrs: { ref: "[object Object]", label: "Manifesto" } },
-            ],
-          },
-        ],
-      },
-    ];
+  it.each([
+    ['converts a docReference whose ref is the literal string "[object Object]" to plain text with no reference attribute', () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      pm.content = [
+        {
+          type: "docParagraph",
+          attrs: { blockId: "p-corrupt", blockProps: {} },
+          content: [
+            {
+              type: "docBlockText",
+              content: [
+                { type: "text", text: "See " },
+                { type: "docReference", attrs: { ref: "[object Object]", label: "Manifesto" } },
+              ],
+            },
+          ],
+        },
+      ];
 
-    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
-    expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "See " }, { insert: "Manifesto" }]);
-    expect(validateDocDocument(back).ok).toBe(true);
-  });
+      const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+      expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "See " }, { insert: "Manifesto" }]);
+      expect(validateDocDocument(back).ok).toBe(true);
+    }],
+    ["drops a structurally invalid reference object (bad kind / empty path) the same way", () => {
+      const doc = loadFixture();
+      const pm = docToPM(doc);
+      pm.content = [
+        {
+          type: "docParagraph",
+          attrs: { blockId: "p-corrupt", blockProps: {} },
+          content: [
+            {
+              type: "docBlockText",
+              content: [
+                { type: "docReference", attrs: { ref: { kind: "nope", path: "" }, label: "Chip" } },
+              ],
+            },
+          ],
+        },
+      ];
 
-  it("drops a structurally invalid reference object (bad kind / empty path) the same way", () => {
-    const doc = loadFixture();
-    const pm = docToPM(doc);
-    pm.content = [
-      {
-        type: "docParagraph",
-        attrs: { blockId: "p-corrupt", blockProps: {} },
-        content: [
-          {
-            type: "docBlockText",
-            content: [
-              { type: "docReference", attrs: { ref: { kind: "nope", path: "" }, label: "Chip" } },
-            ],
-          },
-        ],
-      },
-    ];
-
-    const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
-    expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "Chip" }]);
-    expect(validateDocDocument(back).ok).toBe(true);
-  });
+      const back = pmToDoc(pm, doc, makeIdFactory("fresh"));
+      expect(back.blocks["p-corrupt"].text).toEqual([{ insert: "Chip" }]);
+      expect(validateDocDocument(back).ok).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("drops corrupted blockProps/blockText (non-object/non-span-array) instead of emitting junk", () => {
     const doc = loadFixture();

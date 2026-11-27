@@ -39,11 +39,16 @@ function fixtureBlock(id: keyof typeof sampleFixture.blocks): DocBlock {
 }
 
 describe("rich-text component state", () => {
-  it("accepts every owned fixture block", () => {
-    for (const { id, schema } of fixtureCases) {
-      expect(Value.Check(schema, sampleFixture.blocks[id].props)).toBe(true);
-    }
-  });
+  it.each([
+    ["accepts every owned fixture block", () => {
+      for (const { id, schema } of fixtureCases) {
+        expect(Value.Check(schema, sampleFixture.blocks[id].props)).toBe(true);
+      }
+    }],
+    ["accepts a heading without a level", () => {
+      expect(Value.Check(HeadingState, {})).toBe(true);
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("rejects a stray property for every owned fixture block", () => {
     for (const { id, schema } of fixtureCases) {
@@ -53,10 +58,6 @@ describe("rich-text component state", () => {
 
   it("rejects an out-of-range heading level", () => {
     expect(Value.Check(HeadingState, { level: 7 })).toBe(false);
-  });
-
-  it("accepts a heading without a level", () => {
-    expect(Value.Check(HeadingState, {})).toBe(true);
   });
 
   it("rejects an image without src", () => {
@@ -95,27 +96,37 @@ describe("rich-text component state", () => {
 });
 
 describe("rich-text component agent view", () => {
-  it("projects the fixture blocks byte-for-byte", () => {
-    expect(richTextAgentView(fixtureBlock("h1"), context)).toBe("# Docs Model Sample");
-    expect(richTextAgentView(fixtureBlock("p-intro"), context)).toBe(
-      "This paragraph mixes **bold**, *italic*, ~~struck~~, `inline code`, a [link](https://example.com), and a reference to doc-schema.ts.",
-    );
-    expect(richTextAgentView(fixtureBlock("root"), context)).toBeNull();
-    expect(richTextAgentView(fixtureBlock("divider-1"), context)).toBe("---");
-    expect(richTextAgentView(fixtureBlock("callout-1"), context)).toBe(
-      "> **Decision: Heads up** — Annotations live in annotations.json, never in doc.json.",
-    );
-    expect(richTextAgentView(fixtureBlock("image-1"), context)).toBe(
-      "![Sample image](./assets/images/sample.png)\n*A bundled asset image (D30).*",
-    );
-    expect(richTextAgentView(fixtureBlock("video-1"), context)).toBe(
-      "> **Video: Docs walkthrough** — https://www.youtube.com/watch?v=dQw4w9WgXcQ — An external video (YouTube).",
-    );
-    expect(richTextAgentView(fixtureBlock("li-a"), context)).toBe("- First item");
-    expect(richTextAgentView(fixtureBlock("p-invariant"), context)).toBe(
-      "Stable ids are a system invariant.",
-    );
-  });
+  it.each([
+    ["projects the fixture blocks byte-for-byte", () => {
+      expect(richTextAgentView(fixtureBlock("h1"), context)).toBe("# Docs Model Sample");
+      expect(richTextAgentView(fixtureBlock("p-intro"), context)).toBe(
+        "This paragraph mixes **bold**, *italic*, ~~struck~~, `inline code`, a [link](https://example.com), and a reference to doc-schema.ts.",
+      );
+      expect(richTextAgentView(fixtureBlock("root"), context)).toBeNull();
+      expect(richTextAgentView(fixtureBlock("divider-1"), context)).toBe("---");
+      expect(richTextAgentView(fixtureBlock("callout-1"), context)).toBe(
+        "> **Decision: Heads up** — Annotations live in annotations.json, never in doc.json.",
+      );
+      expect(richTextAgentView(fixtureBlock("image-1"), context)).toBe(
+        "![Sample image](./assets/images/sample.png)\n*A bundled asset image (D30).*",
+      );
+      expect(richTextAgentView(fixtureBlock("video-1"), context)).toBe(
+        "> **Video: Docs walkthrough** — https://www.youtube.com/watch?v=dQw4w9WgXcQ — An external video (YouTube).",
+      );
+      expect(richTextAgentView(fixtureBlock("li-a"), context)).toBe("- First item");
+      expect(richTextAgentView(fixtureBlock("p-invariant"), context)).toBe(
+        "Stable ids are a system invariant.",
+      );
+    }],
+    ["defaults a heading without level to level two", () => {
+      const block = { ...fixtureBlock("h1"), props: {} };
+      expect(richTextAgentView(block, context)).toBe("## Docs Model Sample");
+    }],
+    ["numbers and indents an ordered nested list item", () => {
+      const block = { ...fixtureBlock("li-a"), props: { ordered: true } };
+      expect(richTextAgentView(block, { listDepth: 1, listIndex: 1 })).toBe("  2. First item");
+    }],
+  ])("%s", (_title: string, run: () => void | Promise<void>) => run());
 
   it("projects an app embed as its reference", () => {
     const block = (props: Record<string, unknown>): DocBlock => ({ id: "app", type: "app-embed", props, children: [] });
@@ -123,15 +134,5 @@ describe("rich-text component agent view", () => {
       "> **App: Graph** — kb-viewer/graph?q=1",
     );
     expect(richTextAgentView(block({ codebase: "ent_x", app: "kb-viewer" }), context)).toBe("> **App** — ent_x/kb-viewer");
-  });
-
-  it("defaults a heading without level to level two", () => {
-    const block = { ...fixtureBlock("h1"), props: {} };
-    expect(richTextAgentView(block, context)).toBe("## Docs Model Sample");
-  });
-
-  it("numbers and indents an ordered nested list item", () => {
-    const block = { ...fixtureBlock("li-a"), props: { ordered: true } };
-    expect(richTextAgentView(block, { listDepth: 1, listIndex: 1 })).toBe("  2. First item");
   });
 });

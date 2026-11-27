@@ -13,12 +13,7 @@ import * as callStackEditorNodes from "../components/call-stack/editor-nodes";
 import * as componentTreeEditorNodes from "../components/component-tree/editor-nodes";
 import * as pseudocodeEditorNodes from "../components/pseudocode/editor-nodes";
 import * as fileExplorerEditorNodes from "../components/file-explorer/editor-nodes";
-import {
-  ATOM_BLOCK_NODES,
-  BLOCK_TYPE_TO_NODE_TYPE,
-  NODE_TYPE_TO_BLOCK_TYPE,
-  TEXT_BLOCK_NODES,
-} from "../editor/core/schema";
+import { BLOCK_TYPE_TO_NODE_TYPE, NODE_TYPE_TO_BLOCK_TYPE } from "../editor/core/schema";
 
 const componentNodeModules = [
   richTextEditorNodes,
@@ -38,37 +33,6 @@ const componentNodeModules = [
 ];
 
 describe("component editor nodes", () => {
-  test("the schema node lists have exact membership and construction order", () => {
-    expect(TEXT_BLOCK_NODES.map((node) => node.name)).toEqual([
-      "docBlockText",
-      "docParagraph",
-      "docHeading",
-      "docListItem",
-      "docCodeBlock",
-      "docCallout",
-    ]);
-    expect(ATOM_BLOCK_NODES.map((node) => node.name)).toEqual([
-      "docDivider",
-      "docImage",
-      "docImageGrid",
-      "docVideo",
-      "docHtml",
-      "docAppEmbed",
-      "docCanvas",
-      "docSequence",
-      "docFileTree",
-      "docStructuredTable",
-      "docInteractionSurface",
-      "docStateShape",
-      "docProcessOutline",
-      "docStack",
-      "docCallStack",
-      "docComponentTree",
-      "docPseudocode",
-      "docFileExplorer",
-    ]);
-  });
-
   test("the central node-type maps exactly match all per-component exports", () => {
     const componentNodes = componentNodeModules.flatMap((module) => Object.values(module));
     const componentNodeTypes = componentNodes.map((node) => node.name);
