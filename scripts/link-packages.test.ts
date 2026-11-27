@@ -3,13 +3,14 @@ import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFile
 import { tmpdir } from "node:os";
 import { dirname, join, relative } from "node:path";
 
-// A fake core with a docs-system main checkout inside it, one docs-system worktree outside core
-// and one inside it, and three trees that have no main checkout to mirror from.
+// A fake core with a docs-system main checkout inside it, three docs-system worktrees (outside core,
+// inside core and nested in the main checkout), and three trees that have no main checkout to mirror from.
 let tmp: string;
 let core: string;
 let main: string;
 let outside: string;
 let inside: string;
+let nested: string;
 
 const MEMBERS = ["action-log", "annotations", "canvas", "design-system", "sequence", "text-measure"];
 
@@ -53,8 +54,8 @@ function where(dir: string, skip: string[] = [], prefix = ""): string[] {
     });
 }
 
-/** Core and the main checkout in it, without the other trees under core/trees. */
-const coreAndMain = () => where(core, [".git", "trees"]);
+/** Core and the main checkout in it, without the worktrees under core/trees and the main checkout's .worktrees. */
+const coreAndMain = () => where(core, [".git", "trees", ".worktrees"]);
 
 /** The source files of a docs-system tree: four packages, one with a bin, and the script under test. */
 function seed(tree: string) {
@@ -84,6 +85,32 @@ const ownLinks = (tree: string) => [
   `@codecaine-ai/docs-workbench -> ${tree}/packages/docs-workbench`,
 ];
 
+/** The root node_modules of a tree that mirrors the main checkout's and core's, as `where` prints it. */
+const mirroredRoot = (tree: string) => [
+  ".bin/",
+  `.bin/docs-cli -> ${tree}/packages/docs-cli/src/index.ts`,
+  ".bin/lodash -> core/node_modules/lodash/cli.js",
+  ".bin/tsc -> core/node_modules/typescript/bin/tsc",
+  "@codecaine-ai/",
+  "@codecaine-ai/action-log -> core/action-log",
+  "@codecaine-ai/annotations -> core/annotations",
+  "@codecaine-ai/canvas -> core/canvas",
+  "@codecaine-ai/design-system -> core/design-system",
+  `@codecaine-ai/docs-cli -> ${tree}/packages/docs-cli`,
+  `@codecaine-ai/docs-model -> ${tree}/packages/docs-model`,
+  `@codecaine-ai/docs-viewer -> ${tree}/packages/docs-viewer`,
+  `@codecaine-ai/docs-workbench -> ${tree}/packages/docs-workbench`,
+  "@codecaine-ai/sequence -> core/sequence",
+  "@codecaine-ai/text-measure -> core/text-measure",
+  "@scope/",
+  "@scope/a -> core/node_modules/@scope/a",
+  "@types/",
+  "@types/react -> core/docs-system/node_modules/@types/react",
+  "lodash -> core/node_modules/lodash",
+  "tailwindcss -> core/node_modules/tailwindcss",
+  "typescript -> core/node_modules/typescript",
+];
+
 const WORKBENCH_MODULES = [
   ".bin/",
   ".bin/tailwindcss -> core/docs-system/packages/docs-workbench/node_modules/tailwindcss/cli.js",
@@ -96,12 +123,14 @@ beforeAll(() => {
   main = join(core, "docs-system");
   outside = join(tmp, "outside");
   inside = join(core, "trees/inside");
+  nested = join(main, ".worktrees/nested");
 
   seed(main);
   git(["init", "-q", "-b", "main"], main);
   commit(main);
   git(["worktree", "add", "-q", outside], main);
   git(["worktree", "add", "-q", inside], main);
+  git(["worktree", "add", "-q", nested], main);
 
   // What `bun install` left in the main checkout: docs-workbench's own tailwindcss with its bin and a
   // Vite cache, and a root node_modules that links the workspace packages and an external/ submodule.
@@ -145,12 +174,17 @@ beforeAll(() => {
   link(join(main, "packages/docs-workbench/node_modules"), join(outside, "packages/docs-workbench/node_modules"));
   write(join(outside, "packages/docs-viewer/node_modules"), "keep me");
 
-  // Traps in the inside worktree: a scope and a .bin are links into the main checkout, and an older
-  // run left a broken bin and a link to a main checkout package.
+  // Traps in the inside worktree: the folders that own packages and bins are linked into
+  // (@codecaine-ai and .bin) are links into core, and a scope and a package's .bin are links into
+  // the main checkout.
+  link(join(core, "node_modules/@codecaine-ai"), join(inside, "node_modules/@codecaine-ai"));
+  link(join(core, "node_modules/.bin"), join(inside, "node_modules/.bin"));
   link(join(main, "node_modules/@types"), join(inside, "node_modules/@types"));
   link(join(main, "packages/docs-workbench/node_modules/.bin"), join(inside, "packages/docs-workbench/node_modules/.bin"));
-  link("../gone/cli.js", join(inside, "node_modules/.bin/gone"));
-  link(join(main, "packages/docs-extra"), join(inside, "node_modules/@codecaine-ai/docs-extra"));
+
+  // Traps in the nested worktree: an older run left a broken bin and a link to a main checkout package.
+  link("../gone/cli.js", join(nested, "node_modules/.bin/gone"));
+  link(join(main, "packages/docs-extra"), join(nested, "node_modules/@codecaine-ai/docs-extra"));
 
   // Trees with no main checkout to mirror from. `plain` is no git repo. `submodule` keeps its git
   // folder elsewhere, as a submodule does. `bare-worktree` is a worktree of that repo, so the folder
@@ -169,38 +203,16 @@ afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
 describe("link-packages in a worktree outside core", () => {
   test("links each dependency to where it is installed and each own package and bin to this tree", () => {
+    const before = coreAndMain();
     const first = linkScript(outside);
 
-    const expected = [
-      ".bin/",
-      ".bin/docs-cli -> outside/packages/docs-cli/src/index.ts",
-      ".bin/lodash -> core/node_modules/lodash/cli.js",
-      ".bin/tsc -> core/node_modules/typescript/bin/tsc",
-      "@codecaine-ai/",
-      "@codecaine-ai/action-log -> core/action-log",
-      "@codecaine-ai/annotations -> core/annotations",
-      "@codecaine-ai/canvas -> core/canvas",
-      "@codecaine-ai/design-system -> core/design-system",
-      "@codecaine-ai/docs-cli -> outside/packages/docs-cli",
-      "@codecaine-ai/docs-model -> outside/packages/docs-model",
-      "@codecaine-ai/docs-viewer -> outside/packages/docs-viewer",
-      "@codecaine-ai/docs-workbench -> outside/packages/docs-workbench",
-      "@codecaine-ai/sequence -> core/sequence",
-      "@codecaine-ai/text-measure -> core/text-measure",
-      "@scope/",
-      "@scope/a -> core/node_modules/@scope/a",
-      "@types/",
-      "@types/react -> core/docs-system/node_modules/@types/react",
-      "lodash -> core/node_modules/lodash",
-      "tailwindcss -> core/node_modules/tailwindcss",
-      "typescript -> core/node_modules/typescript",
-    ];
-    expect(where(join(outside, "node_modules"))).toEqual(expected);
+    expect(where(join(outside, "node_modules"))).toEqual(mirroredRoot("outside"));
     expect(where(join(outside, "packages/docs-workbench/node_modules"))).toEqual(WORKBENCH_MODULES);
     expect(first.exitCode).toBe(0);
+    expect(coreAndMain()).toEqual(before);
 
     const rerun = linkScript(outside);
-    expect(where(join(outside, "node_modules"))).toEqual(expected);
+    expect(where(join(outside, "node_modules"))).toEqual(mirroredRoot("outside"));
     expect(rerun.exitCode).toBe(0);
   });
 
@@ -248,7 +260,7 @@ describe("link-packages in a worktree outside core", () => {
 });
 
 describe("link-packages in a worktree inside core", () => {
-  test("mirrors only the main checkout's own node_modules, in real folders, and removes older wrong links", () => {
+  test("mirrors only the main checkout's own node_modules, in real folders, and writes nothing through a linked folder", () => {
     const before = coreAndMain();
     const result = linkScript(inside);
 
@@ -256,6 +268,29 @@ describe("link-packages in a worktree inside core", () => {
     expect(where(join(inside, "packages/docs-workbench/node_modules"))).toEqual(WORKBENCH_MODULES);
     expect(result.exitCode).toBe(0);
     expect(coreAndMain()).toEqual(before);
+  });
+});
+
+describe("link-packages in a worktree nested in the main checkout", () => {
+  test("mirrors core's node_modules too, so it never climbs into the main checkout's, and removes older wrong links", () => {
+    const before = coreAndMain();
+    const result = linkScript(nested);
+
+    expect(where(join(nested, "node_modules"))).toEqual(mirroredRoot("core/docs-system/.worktrees/nested"));
+    expect(where(join(nested, "packages/docs-workbench/node_modules"))).toEqual(WORKBENCH_MODULES);
+    expect(result.exitCode).toBe(0);
+    expect(coreAndMain()).toEqual(before);
+  });
+
+  test("--check fails when a core member resolves from the main checkout's external/", () => {
+    linkScript(nested);
+    rmSync(join(nested, "node_modules/@codecaine-ai/annotations"));
+
+    const check = checkScript(nested);
+    expect(check.exitCode).toBe(1);
+    expect(check.stdout).toContain("FAIL @codecaine-ai/annotations");
+
+    expect(linkScript(nested).exitCode).toBe(0);
   });
 });
 

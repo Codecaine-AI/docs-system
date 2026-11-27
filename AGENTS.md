@@ -13,8 +13,8 @@ the only lockfile is core's.
   bins (`docs-cli`, `codecaine-docs`) into this tree's `node_modules`.
 - In a worktree it also mirrors the dependencies the main checkout has
   installed: each package's own `node_modules` (such as docs-workbench's
-  tailwindcss 4), the root `node_modules` and, for a worktree outside core,
-  core's `node_modules`.
+  tailwindcss 4), the root `node_modules` and, for a worktree outside core or
+  inside the main checkout, core's `node_modules`.
 - One rule decides each mirrored entry: where it really lands. An installed
   package or a core member's checkout (design-system, canvas) is linked. A
   broken entry, or one that lands in the main checkout's source (`packages/`,

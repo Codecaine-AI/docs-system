@@ -16,8 +16,9 @@
  *   - each packages/<name>/node_modules (docs-workbench has tailwindcss 4
  *     while core has 3);
  *   - the root node_modules;
- *   - core's node_modules, only when the worktree sits outside core and
- *     cannot climb to it.
+ *   - core's node_modules, when the worktree sits outside core and cannot
+ *     climb to it, or inside the main checkout, where it would climb into
+ *     the main checkout's node_modules first.
  *
  * One rule decides what a mirror links: where the entry really lands
  * (`mayLink`). It links an installed package (the realpath has a
@@ -235,10 +236,11 @@ export function linkDependencies(): void {
     if (kind(pkg) === "folder") mirror(join(main, "packages", name, "node_modules"), join(pkg, "node_modules"), main);
   }
   mirror(join(main, "node_modules"), join(root, "node_modules"), main);
-  // The nearest node_modules above the main checkout (core's). Mirror it only when this tree cannot climb to it.
+  // The nearest node_modules above the main checkout (core's). Mirror it when this tree cannot climb to it, or
+  // when it sits inside the main checkout: there it would climb into the main checkout's node_modules first.
   for (let dir = dirname(main); dir !== dirname(dir); dir = dirname(dir)) {
     if (!isDir(join(dir, "node_modules"))) continue;
-    if (!inside(here, dir)) mirror(join(dir, "node_modules"), join(root, "node_modules"), main);
+    if (!inside(here, dir) || inside(here, main)) mirror(join(dir, "node_modules"), join(root, "node_modules"), main);
     return;
   }
 }
@@ -260,6 +262,7 @@ const folderOf = (path: string) => (path === "UNRESOLVED" ? path : dirname(path)
 export function checkResolution(): boolean {
   const consumer = join(root, "packages", "docs-workbench");
   const external = join(root, "external");
+  const main = mainCheckout();
   const rows: { spec: string; path: string; ok: boolean; want: string }[] = [];
   for (const { name, bins } of docsPackages()) {
     const path = resolveSpec(name, consumer);
@@ -278,11 +281,11 @@ export function checkResolution(): boolean {
     "@codecaine-ai/action-log",
   ]) {
     const path = resolveSpec(spec, consumer);
-    // Members come from core's checkouts, never from this tree's external/ submodules.
-    rows.push({ spec, path: folderOf(path), ok: path !== "UNRESOLVED" && !inside(path, root), want: "core member" });
+    // Members come from core's checkouts, never from the external/ submodules of this tree or the main checkout.
+    const inTree = [here, main].some((tree) => tree !== undefined && inside(landing(path) ?? path, tree));
+    rows.push({ spec, path: folderOf(path), ok: path !== "UNRESOLVED" && !inTree, want: "core member" });
   }
   // In a worktree, every link in its node_modules must keep the rule the mirror links by.
-  const main = mainCheckout();
   if (main) {
     for (const link of wrongLinks(main)) {
       rows.push({ spec: relative(root, link), path: landing(link) ?? "BROKEN", ok: false, want: "a real folder, or a whole link that lands outside the main checkout's source" });
