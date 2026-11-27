@@ -9,6 +9,7 @@ import { getBacklinksDb } from "../backlinks-cache";
 import { applyDocOpsToBundle } from "../doc-ops";
 import { manageFiles, restoreManagedFiles, type ManageFilesInput } from "../manage-files";
 import { referenceCache } from "../reference-cache";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * After each tree operation, restore and rollback, the backlinks rows of every source it touched equal a rescan of
@@ -123,7 +124,7 @@ test("a rolled-back move reindexes the sources back at their old paths and drops
   const preview = await manageFiles(root, args);
   cache.lookup = async () => {
     const result = await real();
-    if (++calls === 2) await applyDocOpsToBundle(root, "late", [{ type: "updateBlock", blockId: "p", text: [{ insert: "l", attributes: { reference: { kind: "doc", path: "page" } } }] }], undefined);
+    if (++calls === 2) await applyDocOpsToBundle(root, "late", [{ type: "updateBlock", blockId: "p", text: [{ insert: "l", attributes: { reference: { kind: "doc", path: "page" } } }] }], await pageHash(root, "late"));
     return result;
   };
   let result;

@@ -97,7 +97,7 @@ export function useDocBundle({
      * the fetched title is that one, so another actor's title meets the 409 path.
      * A skipped or failed keepDraft refresh runs again once the editor is clean.
      */
-    async (options?: { showLoading?: boolean; keepDraft?: boolean; submittedTitle?: string }) => {
+    async (options?: { showLoading?: boolean; keepDraft?: boolean; submittedTitle?: string; keepPageOnError?: boolean }) => {
       const seq = ++loadSeqRef.current;
       if (options?.showLoading) {
         setIsLoading(true);
@@ -126,6 +126,12 @@ export function useDocBundle({
         // stays as it is, so the editor and any draft stay mounted.
         if (options?.keepDraft) {
           setPendingTitle(options.submittedTitle ?? null);
+          return;
+        }
+        // A reload from the stale banner that fails keeps the page and the editor, so the
+        // draft survives and the banner can try again.
+        if (options?.keepPageOnError) {
+          setPaneError(`Reload failed: ${loadError instanceof Error ? loadError.message : "unknown error"}. Your edits are kept.`);
           return;
         }
         setError(loadError instanceof Error ? loadError.message : "Failed to load doc");

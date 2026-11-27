@@ -14,6 +14,7 @@ import {
 } from "../agent-tools";
 import { addBundleAnnotation } from "../index";
 import { draftLockStore } from "../draft-locks";
+import { pageHash } from "./fixtures/page-hash";
 
 const SAMPLE_DOC = {
   schemaVersion: 1,
@@ -91,7 +92,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
           text: [{ insert: "New paragraph" }],
         },
       ],
-      undefined,
+      await pageHash(docsRoot, "guide"),
       "agent-session",
     );
     expect(result.ok).toBe(true);
@@ -132,7 +133,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
         docsRoot,
         "guide",
         [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
-        undefined,
+        await pageHash(docsRoot, "guide"),
         "agent-session",
       );
       expect(result.ok).toBe(false);
@@ -154,7 +155,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
         docsRoot,
         "guide",
         [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
-        undefined,
+        await pageHash(docsRoot, "guide"),
         "editor-session",
       );
       expect(result.ok).toBe(true);
@@ -178,7 +179,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
           text: [{ insert: "New paragraph" }],
         },
       ],
-      undefined,
+      await pageHash(docsRoot, "guide"),
       "agent-session",
     );
     expect(applied.ok).toBe(true);
@@ -204,7 +205,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
       docsRoot,
       "guide",
       [{ type: "updateBlock", blockId: "h1", props: { level: 2 } }],
-      undefined,
+      await pageHash(docsRoot, "guide"),
       "agent-session",
     );
     expect(applied.ok).toBe(true);
@@ -215,7 +216,7 @@ describe("agent-tools: doc_get / doc_update_blocks (TG9.1)", () => {
       docsRoot,
       "guide",
       [{ type: "updateBlock", blockId: "h1", props: { level: 3 } }],
-      undefined,
+      await pageHash(docsRoot, "guide"),
       "other-session",
     );
 

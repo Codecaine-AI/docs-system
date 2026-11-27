@@ -6,6 +6,7 @@ import { canvas_apply_patch, doc_update_blocks, undo_patch } from "../agent-tool
 import { deleteStoredPatch, getStoredPatch, ledgerStats, MAX_PATCHES_PER_ROOT, recordCompoundPatch, recordDocPatch, withPatchBatch, type LedgerStats } from "../patch-ledger";
 import { ledgerStats as exportedLedgerStats } from "../index";
 import { acceptChangeSet, createChangeSet } from "../changesets/changeset-ops";
+import { pageHash } from "./fixtures/page-hash";
 
 // The ledger is process-wide, so other tests' entries are present: assert before/after deltas only.
 const SAMPLE_DOC = {
@@ -45,12 +46,12 @@ afterEach(async () => {
   await rm(docsRoot, { recursive: true, force: true });
 });
 
-const insertParagraph = (blockId: string) =>
+const insertParagraph = async (blockId: string) =>
   doc_update_blocks(
     docsRoot,
     "guide",
     [{ type: "insertBlock", blockId, parentId: "root", index: 0, blockType: "paragraph", props: {}, text: [{ insert: "New" }] }],
-    undefined,
+    await pageHash(docsRoot, "guide"),
     "ledger-test",
   );
 const addObject = (id: string) =>
@@ -169,7 +170,7 @@ test("a compound undo that fails part way keeps the compound with only the membe
   await mkdir(join(docsRoot, "other"), { recursive: true });
   await writeFile(join(docsRoot, "other", "doc.json"), JSON.stringify({ ...SAMPLE_DOC, id: "other" }), "utf8");
   const older = await insertParagraph("part-older");
-  const newer = await doc_update_blocks(docsRoot, "other", [{ type: "insertBlock", blockId: "part-newer", parentId: "root", index: 0, blockType: "paragraph", props: {}, text: [{ insert: "New" }] }], undefined, "ledger-test");
+  const newer = await doc_update_blocks(docsRoot, "other", [{ type: "insertBlock", blockId: "part-newer", parentId: "root", index: 0, blockType: "paragraph", props: {}, text: [{ insert: "New" }] }], await pageHash(docsRoot, "other"), "ledger-test");
   if (!older.ok || !newer.ok) throw new Error("apply failed");
   recordCompoundPatch("part-compound", [older.patchId, newer.patchId], docsRoot);
   const olderApplied = await readFile(join(docsRoot, "guide", "doc.json"), "utf8");

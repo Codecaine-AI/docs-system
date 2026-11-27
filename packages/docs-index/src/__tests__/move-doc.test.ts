@@ -7,7 +7,7 @@ import type { Database } from "bun:sqlite";
 import { serializeDocDocument, validateDocDocument } from "@codecaine-ai/docs-model/doc-schema";
 import { applyOps } from "@codecaine-ai/docs-model/doc-ops";
 import { openBacklinksDb, rescanAll, queryInbound } from "../backlinks";
-import { moveDocBundle, type ApplyDocOpsFn, type LoadCanvasFn, type SaveCanvasFn } from "../move-doc";
+import { moveDocBundle, type ApplyDocOpsFn, type LoadCanvasFn, type LoadDocFn, type SaveCanvasFn } from "../move-doc";
 import { resolveDocBundleJsonPath } from "../paths";
 import type { CanvasDocumentWithLinks } from "../canvas-links";
 
@@ -23,11 +23,14 @@ let db: Database;
  * registry, and path-lock machinery. This helper reproduces the contract the
  * tests (and `moveDocBundle`) rely on: load + validate the bundle, check the
  * hash precondition against the CURRENT serialized doc, apply ops through
- * docs-model's `applyOps`, write back, and return the fresh hash.
+ * docs-model's `applyOps`, write back, and return the fresh hash. Like a docs
+ * server that requires a hash, it refuses a write with no hash (428), so every
+ * rewrite below proves that the move sends the hash it read.
  */
 const applyDocOpsToBundle: ApplyDocOpsFn = async (root, path, ops, expectedHash) => {
   const jsonAbs = resolveDocBundleJsonPath(root, path);
   if (!jsonAbs) return { ok: false, status: 400, detail: `Invalid docs path: ${path}` };
+  if (!expectedHash) return { ok: false, status: 428, detail: "A page write must send the hash it read." };
   let raw: string;
   try {
     raw = await readFile(jsonAbs, "utf8");
@@ -44,7 +47,6 @@ const applyDocOpsToBundle: ApplyDocOpsFn = async (root, path, ops, expectedHash)
   if (!validated.ok) {
     return { ok: false, status: 422, detail: `Doc bundle failed validation: ${path}` };
   }
-  const hashOf = (value: string) => createHash("sha256").update(value).digest("hex");
   const currentHash = hashOf(serializeDocDocument(validated.document));
   if (expectedHash && expectedHash !== currentHash) {
     return {
@@ -68,6 +70,20 @@ const applyDocOpsToBundle: ApplyDocOpsFn = async (root, path, ops, expectedHash)
     patchId: randomUUID(),
     inverse: result.inverse,
   };
+};
+
+const hashOf = (value: string) => createHash("sha256").update(value).digest("hex");
+
+const loadDoc: LoadDocFn = async (root, path) => {
+  const jsonAbs = resolveDocBundleJsonPath(root, path);
+  if (!jsonAbs) return { ok: false, detail: `Invalid docs path: ${path}` };
+  try {
+    const validated = validateDocDocument(JSON.parse(await readFile(jsonAbs, "utf8")));
+    if (!validated.ok) return { ok: false, detail: `Doc bundle failed validation: ${path}` };
+    return { ok: true, doc: validated.document, hash: hashOf(serializeDocDocument(validated.document)) };
+  } catch {
+    return { ok: false, detail: `Doc bundle not found: ${path}` };
+  }
 };
 
 beforeEach(async () => {
@@ -192,6 +208,7 @@ describe("moveDocBundle", () => {
       "00-foundation/15-purpose-renamed",
       {
         applyDocOps: applyDocOpsToBundle,
+        loadDoc,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,
@@ -268,6 +285,7 @@ describe("moveDocBundle", () => {
       "00-foundation/15-purpose-renamed",
       {
         applyDocOps: applyDocOpsToBundle,
+        loadDoc,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,
@@ -305,6 +323,7 @@ describe("moveDocBundle", () => {
       "00-foundation/15-purpose-renamed",
       {
         applyDocOps: applyDocOpsToBundle,
+        loadDoc,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,
@@ -353,6 +372,7 @@ describe("moveDocBundle", () => {
       "00-foundation/15-purpose-renamed",
       {
         applyDocOps: applyDocOpsToBundle,
+        loadDoc,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,
@@ -388,6 +408,7 @@ describe("moveDocBundle", () => {
         "00-foundation/20-principles",
         {
           applyDocOps: applyDocOpsToBundle,
+          loadDoc,
           loadCanvas,
           saveCanvas,
           backlinksDb: db,
@@ -403,6 +424,7 @@ describe("moveDocBundle", () => {
       db = await openBacklinksDb(docsRoot);
       const result = await moveDocBundle(docsRoot, "00-foundation/does-not-exist", "00-foundation/new", {
         applyDocOps: applyDocOpsToBundle,
+        loadDoc,
         loadCanvas,
         saveCanvas,
         backlinksDb: db,

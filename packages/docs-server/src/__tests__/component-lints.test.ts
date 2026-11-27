@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import type { SequenceDocument } from "@codecaine-ai/sequence/schema";
 import * as sequencePackage from "@codecaine-ai/sequence";
-import { renderSequenceSvgFile, sequenceLintFindings, sequenceLinter } from "../component-lints";
+import { renderSequencePng, renderSequenceSvgFile, SEQUENCE_IMAGE_MAX_BYTES, SEQUENCE_IMAGE_MAX_EDGE, sequenceLintFindings, sequenceLinter } from "../component-lints";
 
 const participants = [{ id: "client", name: "client", kind: "actor" }, { id: "service", name: "service", kind: "participant" }];
 const message = (n: number) => ({ kind: "message", id: `m${n}`, from: "client", to: "service", line: "sync", text: `request ${n}` });
@@ -51,6 +51,20 @@ describe("renderSequenceSvgFile", () => {
       await rm(path, { force: true });
     }
   }, 30_000);
+});
+
+describe("renderSequencePng", () => {
+  test("a small and a very tall diagram both render as PNGs inside the edge and byte limits", async () => {
+    for (const sequence of [small, flow(400)]) {
+      const image = await renderSequencePng(sequence);
+      const png = Buffer.from(image.data, "base64");
+      expect(image.mimeType).toBe("image/png");
+      expect(png.subarray(1, 4).toString("latin1")).toBe("PNG");
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([image.width, image.height]);
+      expect(Math.max(image.width, image.height)).toBeLessThanOrEqual(SEQUENCE_IMAGE_MAX_EDGE);
+      expect(png.byteLength).toBeLessThanOrEqual(SEQUENCE_IMAGE_MAX_BYTES);
+    }
+  });
 });
 
 describe("sequenceLintFindings", () => {

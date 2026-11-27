@@ -444,6 +444,63 @@ describe("DocEditor save boundary", () => {
     expect(reloaded).toBe(1);
   });
 
+  it("a reload after a stale save shows the fresh page, keeps the draft, and saves it only on request", async () => {
+    const doc = loadFixture();
+    const fresh: DocDocument = {
+      ...doc,
+      blocks: { ...doc.blocks, h1: { ...doc.blocks.h1!, text: [{ insert: "Changed elsewhere" }] } },
+    };
+    const saves: DocOp[][] = [];
+    let editorInstance: Editor | null = null;
+    let reload: () => void = () => {};
+    const ui = (document: DocDocument) => (
+      <DocsClientProvider client={fakeClient}>
+        <DocEditor
+          document={document}
+          onApplyOps={async (ops) => {
+            saves.push(ops);
+            return { ok: false, stale: true, message: "Document changed elsewhere." };
+          }}
+          onReloadDoc={() => reload()}
+          onEditorReady={(e) => {
+            editorInstance = e;
+          }}
+        />
+      </DocsClientProvider>
+    );
+    const view = render(ui(doc));
+    reload = () => view.rerender(ui(fresh));
+
+    await waitFor(() => expect(editorInstance).toBeTruthy());
+    act(() => {
+      const { from, to } = findTextRange(editorInstance!, "Docs Model Sample");
+      editorInstance!.commands.insertContentAt({ from, to }, "My precious draft");
+    });
+    await waitFor(() => expect(screen.getByText("Unsaved changes")).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(screen.getByText(/Doc changed elsewhere/)).toBeTruthy());
+
+    fireEvent.click(screen.getByText("Reload doc"));
+    await waitFor(() => expect(screen.getByText("Changed elsewhere")).toBeTruthy());
+    expect(screen.queryByText("My precious draft")).toBeNull();
+    expect(screen.getByText(/Your draft is kept/)).toBeTruthy();
+    expect(saves).toHaveLength(1);
+
+    // A refresh with the same content (an event echo) keeps the draft that waits.
+    view.rerender(ui(structuredClone(fresh)));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByText(/Your draft is kept/)).toBeTruthy();
+    // Leaving the page while the draft waits asks first.
+    const leave = new Event("beforeunload", { cancelable: true });
+    window.dispatchEvent(leave);
+    expect(leave.defaultPrevented).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Use my draft" }));
+    await waitFor(() => expect(screen.getByText("My precious draft")).toBeTruthy());
+    expect(screen.getByText("Unsaved changes")).toBeTruthy();
+    expect(saves).toHaveLength(1);
+  });
+
 });
 
 /**
@@ -859,6 +916,12 @@ describe("auto-save", () => {
       editorInstance!.commands.insertContentAt(1, "b");
     });
     await new Promise((resolve) => setTimeout(resolve, 150));
+    expect(batches.length).toBe(1);
+    // A window blur or a tab switch does not retry the known conflict either.
+    act(() => {
+      window.dispatchEvent(new Event("blur"));
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
     expect(batches.length).toBe(1);
 
     // Host reload: a NEW document object reseeds the editor, clears the

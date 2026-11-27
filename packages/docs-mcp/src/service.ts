@@ -16,6 +16,10 @@ import { implementationFingerprint } from './lifecycle';
 import { textMeasureBackend, textMeasureReady, watchDocsRoot } from '@codecaine-ai/docs-server';
 import { defaultJudgmentEngine } from './jev-engine';
 import type { JudgmentEngine } from './lint-feedback';
+import { openBacklinksDb, rescanAll } from '@codecaine-ai/docs-index/backlinks';
+import { primeBacklinksDb } from '@codecaine-ai/docs-server';
+import { ROOT_MARKER, requiredRoots, rootAccess, writeRefusal } from './root-marker';
+import { setDocsRootWriteCheck } from '@codecaine-ai/docs-index/safe-path';
 
 const reply = (data: Record<string,unknown>, error=false):DocsToolResult => ({content:[{type:'text',text:JSON.stringify(data)}],structuredContent:data,...(error?{isError:true}:{})});
 const schema=(properties:Record<string,unknown>,required:string[]=[])=>({type:'object',properties,required,additionalProperties:false});
@@ -52,7 +56,7 @@ const CALL_TIMINGS_MAX_BYTES=5*1024*1024;
 const named=(result:DocsToolResult,callId:string):DocsToolResult=>{
  if(!result.structuredContent)return result;
  const data={...result.structuredContent,call_id:callId};
- return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)}]};
+ return {...result,structuredContent:data,content:[{type:'text',text:JSON.stringify(data)},...result.content.filter(item=>item.type!=='text')]};
 };
 /** Appends one JSON line per tool call to CODECAINE_DOCS_CALL_TIMINGS_FILE (default ~/.codecaine/call-timings.jsonl),
  * moving the file to <file>.1 once it passes 5 MB. Never fails the call it records. */
@@ -75,6 +79,8 @@ async function recordCallTiming(line:Record<string,unknown>){
 /** registryFile: the supervisor's projects.json. A rewrite that no longer lists a cached workspace's projects unchanged, or lists a project under it that its discovery lacks, drops that workspace's discovery (see the discovery cache rule). */
 /** Tasks expire after taskIdleMs without a call naming them (CODECAINE_DOCS_TASK_IDLE_MS, default 30 min) or taskMaxAgeMs after docs_begin (CODECAINE_DOCS_TASK_MAX_AGE_MS, default 12 h); a task inside a call never expires. now, maxTasks and maxRetired (tombstones kept, default 5,000) are for tests. */
 export function createInteractionService(options: { managed?: boolean; projectIds?: Map<string, string>; registryFile?: string; watchFs?: boolean; globalThemesRoot?: string; codeThemesRoot?: string; judgmentEngine?: JudgmentEngine | null; now?: () => number; taskIdleMs?: number; taskMaxAgeMs?: number; maxTasks?: number; maxRetired?: number } = {}) {
+ // With listed roots, each write through docsFs reads the root marker first, so no write reaches a lost or changed root (503).
+ setDocsRootWriteCheck(requiredRoots().length?docsRoot=>{const refused=writeRefusal(rootAccess(docsRoot));return refused?.status===503?refused.detail:null;}:null);
  const startupFingerprint=options.managed && process.env.CODECAINE_DOCS_BUILD ? Promise.resolve(process.env.CODECAINE_DOCS_BUILD) : implementationFingerprint();
  const projects=new Map<string,DocsProject>();
  const workspaces=new Map<string,Set<string>>();
@@ -158,6 +164,14 @@ export function createInteractionService(options: { managed?: boolean; projectId
  const WORKSPACE_MANIFESTS=['members.json','package.json'];
  /** Coarse mtimes round down, so a change just before the scan's start may have been missed. */
  const MTIME_MARGIN_MS=50;
+ const memoryBacklinks=new Set<string>();
+ /** Project id to the 503 refusal of a project the last scan refused because its root marker is missing or not valid. */
+ const closedProjects=new Map<string,string>();
+ /** A read-only root keeps its backlinks index in memory, so a read writes no .index/backlinks.db below it. Checked at discovery and before each backlinks read, since a root can turn read-only later. */
+ const memoryBacklinksIfReadOnly=(docsRoot:string)=>{
+  const access=rootAccess(docsRoot);
+  if((!access.open||access.readOnly)&&!memoryBacklinks.has(docsRoot)){memoryBacklinks.add(docsRoot);primeBacklinksDb(docsRoot,openBacklinksDb(':memory:').then(async db=>{await rescanAll(docsRoot,db);return db;}));}
+ };
  type CachedDiscovery={discovery:Discovery,signatures:Map<string,string>};
  /** next: the one rescan queued behind a running scan, shared by every rescan that arrives while it waits. */
  type Entry={pending:Promise<CachedDiscovery>,settled?:CachedDiscovery,next?:Promise<Discovery>};
@@ -192,23 +206,42 @@ export function createInteractionService(options: { managed?: boolean; projectId
  async function scan(workspace:string):Promise<CachedDiscovery>{
   const since=Date.now()-MTIME_MARGIN_MS;
   const discovery=await discoverProjects(workspace);
+  // The root marker and the read-only guard (root-marker.ts): a refused root never opens, and a read-only root keeps its backlinks index in memory, so nothing is written below it.
+  const markers=new Set([discovery.workspace,...requiredRoots()].map(folder=>join(folder,ROOT_MARKER)));
+  discovery.projects=discovery.projects.filter(project=>{
+   markers.add(join(project.docsRoot,ROOT_MARKER));
+   const access=rootAccess(project.docsRoot);
+   const id=options.projectIds?.get(project.docsRoot)??project.id;
+   if(!access.open){discovery.warnings.push(`Refused ${project.name}: ${access.reason}`);closedProjects.set(id,writeRefusal(access)!.detail);return false;}
+   closedProjects.delete(id);
+   memoryBacklinksIfReadOnly(project.docsRoot);
+   return true;
+  });
   for (const project of discovery.projects) project.id = options.projectIds?.get(project.docsRoot) ?? project.id;
   // Every store, watcher and resolver of a docs root honors its project's exclude globs.
   for(const project of discovery.projects)setDocsRootExclude(project.docsRoot,project.exclude);
-  for(const project of discovery.projects)projects.set(project.id,project);
-  if(options.watchFs) for(const project of discovery.projects) if(!watchers.has(project.docsRoot)) {
-   const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
-   watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
-   treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
-  }
+  // Listed before the watchers open: the loop below yields, and another scan's release pass must see these roots as live.
   workspaces.set(discovery.workspace,new Set(discovery.projects.map(p=>p.id)));
+  for(const project of discovery.projects){
+   const opens=options.watchFs&&!watchers.has(project.docsRoot);
+   if(opens){
+    const store=createDocsStore(project.docsRoot,{exclude:project.exclude??[]});
+    watchers.set(project.docsRoot,watchDocsRoot(project.docsRoot,event=>store.publishChange(event)));
+    treeWatches.set(project.docsRoot,treeIndex.watch(project.docsRoot));
+   }
+   // A project is served only after its watcher is open.
+   projects.set(project.id,project);
+   // Opening a recursive watcher is synchronous and took 0.2 s to 6 s a root on 2026-11-26. Yield, so a scan of many roots lets requests through.
+   if(opens)await new Promise(resolve=>setImmediate(resolve));
+  }
   // A root that no workspace lists any more (a project removed or renamed since its last scan) releases its watcher and its tree index.
   if(options.watchFs){
    const live=new Set<string>();
    for(const ids of workspaces.values())for(const id of ids){const root=projects.get(id)?.docsRoot;if(root)live.add(root);}
    for(const [root,watcher] of watchers)if(!live.has(root)){watcher.close();watchers.delete(root);treeWatches.get(root)?.();treeWatches.delete(root);}
   }
-  const paths=new Set([...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
+  // A marker that appears, changes or goes away changes the result too.
+  const paths=new Set([...markers,...WORKSPACE_MANIFESTS.map(name=>join(discovery.workspace,name)),...discovery.folders.map(folder=>join(folder,'codecaine.docs.json')),...discovery.folders]);
   const signatures=new Map<string,string>();
   for(const path of paths)signatures.set(path,await signature(path,since));
   const listing=JSON.stringify([discovery.projects.map(p=>[p.id,p.name]),discovery.warnings]);const last=listings.get(discovery.workspace);
@@ -239,7 +272,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
  }
  const metadataTools=[
   {name:'docs_capabilities',description:'The capabilities index: the project ids and names of the workspace, discovery warnings, versions, the guidance snapshot, the tool order, and each guidance topic with its size and the writes it unlocks. Call first, and use a returned project ID. A page holds at most 4,096 bytes. Pass next_cursor as cursor for the next page.',inputSchema:schema({workspace:{...string,description:'Absolute active workspace path. Defaults to the connected client workspace.'},cursor:{...string,description:'next_cursor from the previous page.'}})},
-  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'}})},
+  {name:'docs_begin',description:'Begin documentation authoring. Pins the current guidance snapshot and returns task_id, snapshot_id and topics_read. Read docs_guidance topic "style" with task_id before your first edit. Writes are refused until you do. No background agent starts.',inputSchema:schema({thread_id:{...string,description:'Your T3 thread id, when the harness does not pass T3CODE_THREAD_ID. Binds this server run to that thread in the action log.'},project:{...string,description:'Optional. The project id you will edit. In remote mode the client uses it to pick the server of the task.'}})},
   {name:'docs_guidance',description:'Read maintained guidance one topic at a time. Supply task_id to read the task\'s pinned snapshot. Without topic or component it lists topics and sizes. Reading topic "style" with task_id is required once per task before the first edit. Pass component for one component\'s full reference.',inputSchema:schema({task_id:string,topic:{type:'string',enum:[...GUIDANCE_TOPICS,'standards'],description:'Guidance topic. "standards" lists the per-page standards topics. "all" is the full unsplit text.'},component:string})},
  ];
  function listTools(){return [...metadataTools,...tools.map(({name,description,inputSchema})=>{
@@ -322,10 +355,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
     return reply({ok:true,snapshot_id:snapshot.snapshotId,topic:topic.topic,covers:topic.covers,chars:topic.text.length,guidance:topic.text,...(topic.topic==='all'?{components:snapshot.components,sources:snapshot.sources.map(({path,sha256})=>({path,sha256}))}:{})});
    }
    const tool=tools.find(t=>t.name===name);if(!tool)throw new Error(`Unknown tool ${name}`);
+   // A write to a project whose root marker went away or changed answers 503, not "not in this workspace".
+   const closed=typeof args.project==='string'&&!MUTATION_READS.has(name)?closedProjects.get(args.project):undefined;
+   if(closed&&!workspaces.get(discovery.workspace)?.has(args.project))return reply({ok:false,status:503,detail:closed},true);
    if(typeof args.project!=='string'||!workspaces.get(discovery.workspace)?.has(args.project))throw new Error('Project is not in this workspace. Call docs_capabilities and use a returned project ID.');
    const {task_id,...toolArgs}=args;
    const taskId=typeof task_id==='string'?task_id:'';
    if(!MUTATION_READS.has(name)){
+    const refused=writeRefusal(rootAccess(projects.get(args.project)!.docsRoot));
+    if(refused)return reply({ok:false,...refused},true);
     const task=pin(liveTask(task_id,discovery.workspace));
     if(!task)throw new Error(task_id===undefined?'Call docs_begin in this workspace before editing, then include task_id.':'Unknown or ended task_id for this workspace. Call docs_begin in this workspace before editing and use its task_id.');
     if(!options.managed && await startupFingerprint!==await implementationFingerprint())throw new Error('Implementation changed during this task. Restart the Docs service and begin a new task before further edits.');
@@ -338,6 +376,7 @@ export function createInteractionService(options: { managed?: boolean; projectId
     if(!pin(liveTask(task_id,discovery.workspace)))throw new Error('Unknown task for this workspace.');
     return await tool.execute(toolArgs,{taskId});
    }
+   if(name==='docs_backlinks')memoryBacklinksIfReadOnly(projects.get(args.project)!.docsRoot);
    return await tool.execute(toolArgs);
   }catch(error){return reply({ok:false,detail:error instanceof Error?error.message:String(error)},true);}
   finally{if(pinned){pinned.inFlight--;pinned.lastUsedAt=now();}}
@@ -349,7 +388,15 @@ export function createInteractionService(options: { managed?: boolean; projectId
   return {projects:projects.size,workspaces:workspaces.size,discoveries:discoveries.size,tasks:tasks.size,newestTaskUseMs,textMeasure:textMeasureBackend(),drafts:[...projects.values()].reduce((count,p)=>count+createDocsStore(p.docsRoot).locks.activeCount(),0)};
  }
  async function uiRequest(projectId:string,request:Request){
-  const project=projects.get(projectId);if(!project)return Response.json({error:'Unknown project. Discover it first.'},{status:404});
+  const project=projects.get(projectId);
+  if(!project){
+   // A write to a project whose root marker went away or changed answers 503, as a tool write does.
+   const closed=['GET','HEAD','OPTIONS'].includes(request.method)?undefined:closedProjects.get(projectId);
+   return closed?Response.json({error:closed,detail:closed},{status:503}):Response.json({error:'Unknown project. Discover it first.'},{status:404});
+  }
+  // Under the read-only guard only GET, HEAD and an OPTIONS preflight pass. The one POST read, export-pdf, is answered before this by the managed runtime.
+  if(new URL(request.url).pathname.endsWith('/api/backlinks'))memoryBacklinksIfReadOnly(project.docsRoot);
+  if(!['GET','HEAD','OPTIONS'].includes(request.method)){const refused=writeRefusal(rootAccess(project.docsRoot));if(refused)return Response.json({error:refused.detail,detail:refused.detail},{status:refused.status});}
   let app=routes.get(projectId);if(!app){app=createDocsRoutes(createDocsStore(project.docsRoot,{exclude:project.exclude??[]}),{globalThemesRoot:options.globalThemesRoot,codeThemesRoot:options.codeThemesRoot});app.compile();routes.set(projectId,app);}
   const url=new URL(request.url);url.pathname=url.pathname.replace(`/projects/${projectId}`,'');
   return app.handle(new Request(url,request));

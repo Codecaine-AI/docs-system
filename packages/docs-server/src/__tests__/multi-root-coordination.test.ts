@@ -8,6 +8,7 @@ import { createDocsRoutes } from "../routes";
 import { draftLockStore } from "../draft-locks";
 import { undo_patch } from "../agent-tools";
 import { getBacklinksDb } from "../backlinks-cache";
+import { pageHash } from "./fixtures/page-hash";
 
 const sample = {
   schemaVersion: 1, id: "guide", title: "Guide", root: "root",
@@ -79,18 +80,18 @@ describe("multi-project coordination", () => {
       body: JSON.stringify({ kind: "doc", path: "docs/guide", sessionId: "ui-session" }),
     }));
     expect(lock.status).toBe(200);
-    const blocked = await createDocsStore(rootA).applyDocOps("guide", ops, undefined, "agent-session");
+    const blocked = await createDocsStore(rootA).applyDocOps("guide", ops, await pageHash(rootA, "guide"), "agent-session");
     expect(blocked.ok).toBe(false);
     if (!blocked.ok) expect(blocked.status).toBe(423);
-    const other = await createDocsStore(rootB).applyDocOps("guide", ops, undefined, "agent-session");
+    const other = await createDocsStore(rootB).applyDocOps("guide", ops, await pageHash(rootB, "guide"), "agent-session");
     expect(other.ok).toBe(true);
     draftLockStore.forRoot(rootA).release({ kind: "doc", path: "guide" }, "ui-session");
-    expect((await createDocsStore(rootA).applyDocOps("guide", ops, undefined, "agent-session")).ok).toBe(true);
+    expect((await createDocsStore(rootA).applyDocOps("guide", ops, await pageHash(rootA, "guide"), "agent-session")).ok).toBe(true);
   });
 
   test("a foreign-root undo cannot modify matching content or consume the owning project's patch", async () => {
-    const a = await createDocsStore(rootA).applyDocOps("guide", ops, undefined);
-    const b = await createDocsStore(rootB).applyDocOps("guide", ops, undefined);
+    const a = await createDocsStore(rootA).applyDocOps("guide", ops, await pageHash(rootA, "guide"));
+    const b = await createDocsStore(rootB).applyDocOps("guide", ops, await pageHash(rootB, "guide"));
     expect(a.ok && b.ok).toBe(true);
     if (!a.ok || !b.ok) throw new Error("fixture edit failed");
     expect(a.hash).toBe(b.hash);

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, onTestFinished, test } from "bun:test";
 import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -46,6 +46,13 @@ describe("store-operation lock", () => {
   }, 5000);
 
   test("two mutations started together still serialize behind the store lock", async () => {
+    // Both writes start before either lands, so they send no hash. The test is about the
+    // store lock, so it keeps the page hash check off even when the run turns it on.
+    const required = process.env.CODECAINE_DOCS_REQUIRE_HASH;
+    delete process.env.CODECAINE_DOCS_REQUIRE_HASH;
+    onTestFinished(() => {
+      if (required !== undefined) process.env.CODECAINE_DOCS_REQUIRE_HASH = required;
+    });
     const store = createDocsStore(dir);
     const first = store.applyDocOps("guide", setLevel(2));
     // Queued between the two mutations: it runs after the first finishes and before the second starts.

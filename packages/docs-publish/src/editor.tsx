@@ -359,7 +359,7 @@ export async function mountDraftEditor(container: HTMLElement, options: DraftEdi
       // advances DocEditor's diff baseline without resetting the caret.
       return { ok: true, doc: response.doc, normalization: response.normalization };
     } catch (error) {
-      if (error instanceof HttpError && error.status === 409) {
+      if (error instanceof HttpError && (error.status === 409 || error.status === 428)) {
         failure = { status: 'conflict', detail: 'Document changed elsewhere. Reload to continue; your edits are kept until then.' };
         return { ok: false, stale: true, message: 'Document changed elsewhere.' };
       }

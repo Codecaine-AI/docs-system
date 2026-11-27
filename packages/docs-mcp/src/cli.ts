@@ -1,10 +1,13 @@
 #!/usr/bin/env bun
 import { resolve, join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { identityFromEnv, newRunId } from '@codecaine-ai/action-log';
 import { startMcp } from './mcp';
 import { runDaemon } from './daemon';
-import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint } from './lifecycle';
+import { daemonFetch, ensureDaemon, readDaemonState, daemonHealthy, stopDaemon, PACKAGE_ROOT, stateDirectory, implementationFingerprint, routeState } from './lifecycle';
+import { clientReply, endpoint, remoteSettings, routeCall, routedArguments, taskRoutes } from './remote';
 import { installClients, doctorClients, restoreInstallation } from './install';
 import { loadGuidance } from './guidance';
 import { guidanceManifest } from './guidance-manifest';
@@ -20,8 +23,19 @@ const args=process.argv.slice(2);const command=args.shift()??'help';
 function option(name:string,fallback?:string){const i=args.indexOf(name);return i>=0?args[i+1]:fallback;}
 const workspace=resolve(option('--workspace',process.env.CLAUDE_PROJECT_DIR||process.cwd())!);
 const out=(value:unknown)=>console.log(JSON.stringify(value,null,2));
+/** The CLI prints JSON, so each image of a reply goes to a file on this machine, and the reply names that file. */
+async function savedImages(result:any){
+ if(!Array.isArray(result?.content)||!result.content.some((item:any)=>item.type==='image'))return result;
+ const folder=join(tmpdir(),'codecaine-docs-images');await mkdir(folder,{recursive:true});
+ const content=await Promise.all(result.content.map(async(item:any)=>{
+  if(item.type!=='image')return item;
+  const path=join(folder,`${randomUUID()}.png`);await writeFile(path,Buffer.from(item.data,'base64'));
+  return {type:'image',mimeType:item.mimeType,path};
+ }));
+ return {...result,content};
+}
 /** The id and name of every project in the workspace, read from each docs_capabilities page. */
-async function capabilityProjects(state:Awaited<ReturnType<typeof ensureDaemon>>){
+async function capabilityProjects(state:Awaited<ReturnType<typeof ensureDaemon>>,workspace:string){
  const projects:{id:string,name:string}[]=[];let cursor:string|undefined;
  do{
   const response=await daemonFetch(state,'/rpc',{workspace,name:'docs_capabilities',arguments:cursor===undefined?{}:{cursor}});
@@ -37,7 +51,7 @@ try{
  switch(command){
   case 'mcp':await startMcp(workspace);break;
   case 'daemon':await runDaemon();break;
-  case 'start':{const state=await ensureDaemon();out({url:state.url,pid:state.pid,stateDirectory:stateDirectory()});break;}
+  case 'start':{const route=routeCall(remoteSettings(),workspace);const state=await routeState(route.remote);out({url:state.url,pid:state.pid,remote:!!state.remote,stateDirectory:stateDirectory()});break;}
   case 'stop':out(await stopDaemon());break;
   case 'status':{const state=await readDaemonState();out({running:await daemonHealthy(state),url:state?.url,pid:state?.pid,packageRoot:state?.packageRoot,stateDirectory:stateDirectory()});break;}
   case 'background':{
@@ -52,10 +66,17 @@ try{
    break;
   }
   case 'capabilities':case 'call':case 'tools':{
-   const state=await ensureDaemon();
    const name=command==='capabilities'?'docs_capabilities':args[0];
-   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace,name,arguments:command==='capabilities'?{}:JSON.parse(option('--args','{}')!),identity:{runId:newRunId(),...identityFromEnv()}});
-   const result=await response.json();out(result);if(!response.ok||(result as any).isError)process.exitCode=1;break;
+   const toolArgs=command==='capabilities'?{}:JSON.parse(option('--args','{}')!);
+   // The remote route (remote.ts) never starts a local daemon. tools asks the remote server whenever remote mode is on.
+   // A call with a task_id follows the route of its docs_begin, which this file keeps across CLI processes.
+   const remote=remoteSettings();const tasks=taskRoutes(remote?join(stateDirectory(),'remote-tasks.json'):undefined);
+   const route=command==='tools'?{remote:!!remote,workspace}:routeCall(remote,workspace,toolArgs,{known:tasks.get(toolArgs.task_id)});
+   const state=await routeState(route.remote);
+   const response=command==='tools'?await daemonFetch(state,'/tools'):await daemonFetch(state,'/rpc',{workspace:route.workspace,name,arguments:routedArguments(name,route,toolArgs),identity:{runId:newRunId(),...identityFromEnv()}});
+   const result=await savedImages(clientReply(await response.json() as any,route));out(result);if(!response.ok||result.isError)process.exitCode=1;
+   if(name==='docs_begin'&&typeof result.structuredContent?.task_id==='string')tasks.set(result.structuredContent.task_id,route);
+   break;
   }
   case 'install':{
    const clients=option('--clients')?.split(',') as ('codex'|'claude'|'pi')[]|undefined;
@@ -73,12 +94,14 @@ try{
   case 'manifest':out(await guidanceManifest());break;
   case 'guidance':{const snapshot=await loadGuidance();out({snapshotId:snapshot.snapshotId,components:snapshot.components,sources:snapshot.sources});break;}
   case 'ui':{
-   const state=await ensureDaemon();const projects=await capabilityProjects(state);
+   // ui routes like a tool call: a mapped or remote project opens the remote server, never a local daemon.
+   const route=routeCall(remoteSettings(),workspace,option('--project')?{project:option('--project')}:{});
+   const state=await routeState(route.remote);const projects=await capabilityProjects(state,route.workspace);
    const id=option('--project')??(projects.length===1?projects[0].id:undefined);
    const project=projects.find((p:any)=>p.id===id||p.name===id);if(!project)throw new Error(`Choose --project from: ${projects.map((p:any)=>p.id).join(', ')}`);
    const health=await(await daemonFetch(state,'/health')).json() as any;
-   if(health.central){
-    const url=`${state.url}/projects/${encodeURIComponent(project.id)}/docs/`;
+   if(health.central||state.remote){
+    const url=endpoint(state.url,`/projects/${encodeURIComponent(project.id)}/docs/`).href;
     out({url,project:project.id,central:true});
     if(!args.includes('--no-open')&&process.platform==='darwin')Bun.spawn(['open',url],{stdout:'ignore',stderr:'ignore'});
     break;

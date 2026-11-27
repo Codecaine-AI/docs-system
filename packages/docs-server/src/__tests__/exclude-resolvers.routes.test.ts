@@ -8,6 +8,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { canvas_get, sequence_get } from "../agent-tools";
 import { createDocsRoutes } from "../routes";
 import { createDocsStore, type DocsStore } from "../store";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * B7-02: every document, sidecar and asset resolver honors the project's
@@ -152,7 +153,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/canvas-by-doc?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/canvases/c.canvas.json")}`)).status).toBe(200);
     expect((await send("PUT", "/api/canvas", { src: twinCanvas, canvas: valid })).status).toBe(200);
     expect((await send("PUT", "/api/canvas", { path: `${TWIN}/doc.json`, src: "./assets/canvases/c.canvas.json", canvas: valid })).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [addObject] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [addObject] })).status).toBe(200);
     expect((await send("POST", "/api/canvas", { path: `${TWIN}/doc.json`, src: "./assets/canvases/new.canvas.json", canvas: valid })).status).toBe(201);
     expect((await send("DELETE", `/api/canvas?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/canvases/new.canvas.json")}`, undefined)).status).toBe(200);
     expect(await frozenBytes()).toEqual(before);
@@ -182,7 +183,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/sequence?src=${q(twinSequence)}`)).status).toBe(200);
     expect((await get(`/api/sequence-by-doc?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/sequences/q.sequence.json")}`)).status).toBe(200);
     expect((await send("PUT", "/api/sequence", { path: `${TWIN}/doc.json`, src: "./assets/sequences/q.sequence.json", sequence: valid })).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [setTitle] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [setTitle] })).status).toBe(200);
     expect((await send("POST", "/api/sequence", { path: `${TWIN}/doc.json`, src: "./assets/sequences/new.sequence.json", sequence: valid })).status).toBe(201);
     expect((await send("DELETE", `/api/sequence?path=${q(`${TWIN}/doc.json`)}&src=${q("./assets/sequences/new.sequence.json")}`, undefined)).status).toBe(200);
     expect(await frozenBytes()).toEqual(before);
@@ -211,7 +212,7 @@ describe("excluded paths are refused at every resolver; twins outside the exclus
     expect((await get(`/api/bundle?path=${q(TWIN)}`)).status).toBe(200);
     expect((await get(`/api/markdown?path=${q(TWIN)}`)).status).toBe(200);
     expect((await get(`/api/annotations?path=${q(TWIN)}`)).status).toBe(200);
-    expect((await send("POST", "/api/ops", { path: TWIN, ops: [insert] })).status).toBe(200);
+    expect((await send("POST", "/api/ops", { path: TWIN, expected_hash: await pageHash(docsRoot, TWIN), ops: [insert] })).status).toBe(200);
     expect((await get(`/api/asset?path=${q(`${TWIN}/assets/images/i.png`)}`)).status).toBe(200);
     expect((await upload(TWIN)).status).toBe(201);
     expect(await frozenBytes()).toEqual(before);

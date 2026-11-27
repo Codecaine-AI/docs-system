@@ -6,6 +6,7 @@ import { dirname, join } from "node:path";
 import { applyDocOpsToBundle } from "../doc-ops";
 import { manageFiles, restoreManagedFiles } from "../manage-files";
 import { referenceCache } from "../reference-cache";
+import { pageHash } from "./fixtures/page-hash";
 
 /**
  * An edit through applyDocOpsToBundle takes only its own page's lock, so a page outside an operation's read set can
@@ -42,7 +43,7 @@ async function tree(dir = ""): Promise<Record<string, string>> {
 }
 /** The other client's edit: "late" gains a doc-form reference to `target`, through the normal doc-ops path. */
 const linkLate = async (target: string) => {
-  const saved = await applyDocOpsToBundle(root, "late", [{ type: "updateBlock", blockId: "p", text: [{ insert: "link", attributes: { reference: { kind: "doc", path: target } } }] }], undefined);
+  const saved = await applyDocOpsToBundle(root, "late", [{ type: "updateBlock", blockId: "p", text: [{ insert: "link", attributes: { reference: { kind: "doc", path: target } } }] }], await pageHash(root, "late"));
   expect(saved.ok).toBe(true);
 };
 /** Run `edit` on the `call`th lookup from now: before its walk, or after it returns. */

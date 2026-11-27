@@ -10,8 +10,15 @@ import { deviceSearchRoots, emptyDeviceScan, scanDevice, scanWarning, type Devic
 import { loadCodecaineEnv } from '../codecaine-env';
 import { createActivator } from './activation';
 import { canActivate, createBackoff, createStateLog, rotateLog } from './activation-policy';
+import { hasUpstreamKey, loadUpstreamKey, UPSTREAM_KEY_HEADER, upstreamRefusal, viewerEnabled } from './upstream-guard';
+import { exitOnRootMarkerProblems, ROOT_MARKER_EXIT } from '../root-marker';
 // Background and client-launched processes do not inherit the shell. See codecaine-env.ts.
 loadCodecaineEnv();
+// Start checks, before any lock or file write: each CODECAINE_DOCS_REQUIRED_ROOTS root has a valid marker, and a set key file holds a key.
+exitOnRootMarkerProblems();
+let upstreamKey: string | null = null;
+try { upstreamKey = loadUpstreamKey(); } catch (e) { console.error(`[docs] ${e instanceof Error ? e.message : e}`); process.exit(ROOT_MARKER_EXIT); }
+const viewerOn = viewerEnabled();
 
 type Config = { sourceRoot: string; workspace: string; port: number; stateDirectory: string; legacyPort?: number };
 type Runtime = { process: ReturnType<typeof Bun.spawn>; url: string; hash: string; file: string };
@@ -58,7 +65,7 @@ const persist = createRegistrySaver(() => writeRegistry(registryFile, registry))
 const watchers: ReturnType<typeof watch>[] = [];
 const version = (await Bun.file(join(packageRoot, 'package.json')).json()).version;
 const startedAt = new Date().toISOString();
-function status() { return { service: 'codecaine-docs', pid: process.pid, version, startedAt, packageRoot, central: true, ready: !!active && !!viteUrl, build: active?.hash, buildState, error, port: server.port, projects: registry.projects.length, sourceRoot: config.sourceRoot }; }
+function status() { return { service: 'codecaine-docs', pid: process.pid, version, startedAt, packageRoot, central: true, ready: !!active && (!viewerOn || !!viteUrl), viewer: viewerOn, build: active?.hash, buildState, error, port: server.port, projects: registry.projects.length, sourceRoot: config.sourceRoot }; }
 async function runtimeFetch(runtime: Runtime, path: string, body?: unknown) {
   return fetch(new URL(path, runtime.url), { method: body === undefined ? 'GET' : 'POST', headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body), signal: AbortSignal.timeout(15000) });
 }
@@ -113,18 +120,19 @@ async function startRuntime(build: { hash: string; file: string }): Promise<Runt
 const activationBackoff = createBackoff();
 const updateBackoff = createBackoff();
 const waitLog = createStateLog();
+async function swap(next: Runtime) {
+  const previous = active;
+  active = next; candidate = undefined;
+  if (previous) previousBuild = { hash: previous.hash, file: previous.file };
+  buildState = 'ready'; error = null;
+  await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: next.hash, file: next.file }), { mode: 0o600 });
+  if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
+  console.error(`[docs] Activated ${next.hash.slice(0, 12)}`);
+}
 const activator = createActivator<Runtime>({
   fetchRuntime: async (runtime, path, body) => (await runtimeFetch(runtime, path, body)).json(),
   workspaces: () => registry.workspaces,
-  swap: async next => {
-    const previous = active;
-    active = next; candidate = undefined;
-    if (previous) previousBuild = { hash: previous.hash, file: previous.file };
-    buildState = 'ready'; error = null;
-    await writeFile(join(stateDir, 'last-good-runtime.json'), JSON.stringify({ hash: next.hash, file: next.file }), { mode: 0o600 });
-    if (previous) previous.process.kill(); // Closes old SSE streams; tabs reconnect to the same public URL.
-    console.error(`[docs] Activated ${next.hash.slice(0, 12)}`);
-  },
+  swap,
 });
 const activationGuards = {
   candidate: () => candidate,
@@ -158,7 +166,8 @@ async function rebuild() {
     if (build.hash === active?.hash) { buildState = 'ready'; error = null; return; }
     const next = await startRuntime(build);
     setCandidate(next);
-    await activate();
+    // With no runtime serving there is nothing to protect, so the new one serves at once. It scans the registered workspaces by itself.
+    if (active) await activate(); else await swap(next);
   } catch (e) { error = String(e); buildState = active ? 'build-failed-serving-previous' : 'failed'; console.error(`[docs] ${error}`); }
   finally { busy = false; if (queued) { queued = false; void rebuild(); } }
 }
@@ -169,7 +178,7 @@ async function proxyRuntime(request: Request, pathname: string) {
   const url = new URL(request.url);
   const headers = new Headers(request.headers);
   headers.set('authorization', `Bearer ${token}`);
-  headers.delete('host'); headers.delete('origin');
+  headers.delete('host'); headers.delete('origin'); headers.delete(UPSTREAM_KEY_HEADER);
   activeRequests++;
   requestRevision++;
   try {
@@ -225,8 +234,12 @@ async function registerDevice() {
 type SocketData = { url: string; upstream?: WebSocket; pending: (string | Buffer)[] };
 const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<Response | undefined> => {
   const url = new URL(request.url);
-  if (!localBrowserRequest(request)) return new Response('Forbidden origin', { status: 403 });
   const authenticated = request.headers.get('authorization') === `Bearer ${token}`;
+  // /health without the bearer token and the upstream key (when set) answers only whether the server runs: no paths, no pid.
+  if (url.pathname === '/health' && !(authenticated && hasUpstreamKey(request, upstreamKey))) { const { service, ready, viewer } = status(); return Response.json({ service, ready, viewer }); }
+  // The upstream key check runs before the Host check and every other route, the viewer WebSocket upgrade included.
+  const refused = upstreamRefusal(request, upstreamKey); if (refused) return refused;
+  if (!localBrowserRequest(request)) return new Response('Forbidden origin', { status: 403 });
   if (['/rpc', '/tools', '/health', '/shutdown'].includes(url.pathname) || /^\/projects\/[^/]+\/api\//.test(url.pathname)) {
     if (!authenticated) return new Response('Unauthorized', { status: 401 });
     if (url.pathname === '/health') {
@@ -252,6 +265,7 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
   const project = projectRoute(url.pathname);
   if (project) {
     if (!registry.projects.some(p => p.id === project.id)) return new Response('Project is not registered.', { status: 404 });
+    if (!viewerOn && !project.apiPath) return new Response('Not found', { status: 404 });
     if (project.redirect) return Response.redirect(new URL(project.redirect, url), 307);
     if (project.apiPath) return proxyRuntime(request, project.apiPath);
     if (!viteUrl) return new Response('Viewer is starting.', { status: 503 });
@@ -259,6 +273,7 @@ const handler = async (request: Request, host: Bun.Server<SocketData>): Promise<
     return new Response(await response.text(), { headers: { 'content-type': 'text/html', 'cache-control': 'no-store' } });
   }
   if (url.pathname.startsWith('/__viewer/') || url.pathname.startsWith('/@')) {
+    if (!viewerOn) return new Response('Not found', { status: 404 });
     if (!viteUrl) return new Response('Viewer is starting.', { status: 503 });
     if (request.headers.get('upgrade')?.toLowerCase() === 'websocket') {
       const upstream = new URL(url.pathname + url.search, viteUrl); upstream.protocol = 'ws:';
@@ -319,12 +334,16 @@ async function startViewer() {
     }
   } finally { clearTimeout(timeout); }
 }
-await startViewer();
-for (const workspace of registry.workspaces) {
-  await remember(await discoverOn(active!, workspace).catch(() => undefined));
-}
+if (viewerOn) await startViewer();
 await writeFile(join(stateDir, 'daemon.json'), JSON.stringify({ url: `http://127.0.0.1:${server.port}`, token, pid: process.pid, packageRoot, startedAt }), { mode: 0o600 });
 console.log(JSON.stringify({ ready: true, port: server.port, build: active!.hash }));
+// The registry refresh runs after the ready line, so a slow workspace never holds the clients that wait for daemon.json.
+void (async () => {
+  for (const workspace of registry.workspaces) {
+    if (!active || closing) return;
+    await remember(await discoverOn(active, workspace).catch(() => undefined));
+  }
+})();
 let debounce: ReturnType<typeof setTimeout>;
 const runtimeRoots = ['packages/docs-mcp/src', 'packages/docs-model/src', 'packages/docs-server/src', 'packages/docs-index/src'].map(p => join(config.sourceRoot, p));
 runtimeRoots.push(join(coreRoot, 'canvas/packages/canvas/src'), join(coreRoot, 'sequence/packages/sequence/src'), join(coreRoot, 'annotations/src'));
