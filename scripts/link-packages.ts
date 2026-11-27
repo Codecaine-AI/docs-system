@@ -15,13 +15,15 @@
  * worktree outside core cannot climb to core/node_modules at all. So in a
  * worktree this script also mirrors, from the main checkout (found with
  * `git rev-parse --git-common-dir`):
- *   - each packages/<name>/node_modules;
- *   - core's node_modules, into <this tree>/node_modules (only when the
- *     worktree sits outside core and cannot climb to it).
- * A mirror is a real folder with one symlink per entry, so builds never write
- * into the main checkout. It skips caches (.vite, .vite-temp, ...) and this
- * repo's own @codecaine-ai/docs-* packages, and never replaces an existing
- * entry. In the main checkout, a submodule or without git these steps do nothing.
+ *   - each packages/<name>/node_modules and the root node_modules;
+ *   - core's node_modules, into <this tree>/node_modules, only when the
+ *     worktree sits outside core and cannot climb to it.
+ * A mirror is flat: a real folder with one symlink per entry. A scope folder
+ * (@scope) and .bin are real folders with one symlink per entry, one level
+ * deep and no deeper. It skips dot caches (.vite, .cache), this repo's own
+ * @codecaine-ai/docs-* packages and the .bin entries that run them. It never
+ * replaces an existing entry, and it skips a target where a file sits. In the
+ * main checkout, a submodule or without git these steps do nothing.
  *
  *   bun scripts/link-packages.ts           link, then print where packages resolve
  *   bun scripts/link-packages.ts --check   print only; exit 1 if a package resolves wrong
@@ -37,7 +39,7 @@ import {
   statSync,
   symlinkSync,
 } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
 const scopeDir = join(root, "node_modules", "@codecaine-ai");
@@ -58,7 +60,7 @@ function docsPackages(): { name: string; dir: string }[] {
 
 /** Idempotent: leaves a correct link alone and replaces a wrong one. */
 export function linkPackages(): void {
-  realFolder(scopeDir);
+  if (!realFolder(dirname(scopeDir)) || !realFolder(scopeDir)) throw new Error(`cannot link packages into ${scopeDir}`);
   for (const { name, dir } of docsPackages()) {
     const link = join(scopeDir, name.slice("@codecaine-ai/".length));
     const target = relative(dirname(link), dir);
@@ -72,13 +74,13 @@ export function linkPackages(): void {
   }
 }
 
-/** The main checkout's root, or undefined in the main checkout, a submodule, a non-linked repo or without git. */
+/** The main checkout's root, or undefined in the main checkout, a submodule, a bare repo or without git. */
 function mainCheckout(): string | undefined {
   try {
     const git = Bun.spawnSync(["git", "rev-parse", "--path-format=absolute", "--git-dir", "--git-common-dir"], { cwd: root });
     if (git.exitCode !== 0) return undefined;
     const [gitDir, commonDir] = git.stdout.toString().trim().split("\n").map((path) => realpathSync(path));
-    if (!gitDir || !commonDir || gitDir === commonDir) return undefined;
+    if (!gitDir || !commonDir || gitDir === commonDir || basename(commonDir) !== ".git") return undefined;
     const main = dirname(commonDir);
     return main !== realpathSync(root) && isDir(join(main, "packages")) ? main : undefined;
   } catch {
@@ -94,34 +96,6 @@ const isDir = (path: string) => {
   }
 };
 
-/** Makes dir a real folder. A symlink there (an older link or someone else's tree) is replaced, never written through. */
-function realFolder(dir: string): void {
-  try {
-    if (lstatSync(dir).isSymbolicLink()) rmSync(dir);
-  } catch {
-    // Missing.
-  }
-  mkdirSync(dir, { recursive: true });
-}
-
-/**
- * Mirrors one node_modules folder: dest is a real folder holding a symlink per src entry it lacks.
- * Scope folders (@scope) and .bin are mirrored the same way, so no write goes through a link into the
- * main checkout. Other dot entries (.vite, .vite-temp, .cache) are caches and are skipped. This repo's
- * own @codecaine-ai/docs-* packages are skipped, so they keep resolving to this tree.
- */
-function mirror(src: string, dest: string, skip: Set<string>): void {
-  if (!isDir(src)) return;
-  realFolder(dest);
-  for (const name of readdirSync(src)) {
-    const from = join(src, name);
-    const to = join(dest, name);
-    if (skip.has(to)) continue;
-    if (name.startsWith("@") || name === ".bin") mirror(from, to, skip);
-    else if (!name.startsWith(".") && !exists(to)) symlinkSync(from, to);
-  }
-}
-
 const exists = (path: string) => {
   try {
     lstatSync(path);
@@ -131,22 +105,69 @@ const exists = (path: string) => {
   }
 };
 
-/** Idempotent: in a worktree, links the dependencies the main checkout has installed and this tree lacks. */
+/**
+ * Makes dir a real folder and returns true. A symlink there (an older link, a link into core or a broken
+ * one) is replaced, never written through. A file there is left alone: warn and return false.
+ */
+function realFolder(dir: string): boolean {
+  try {
+    const stat = lstatSync(dir);
+    if (stat.isSymbolicLink()) rmSync(dir);
+    else if (!stat.isDirectory()) {
+      console.warn(`link-packages: skipped ${dir}: a file sits where a folder belongs`);
+      return false;
+    }
+  } catch {
+    // Missing.
+  }
+  mkdirSync(dir, { recursive: true });
+  return true;
+}
+
+const linkMissing = (from: string, to: string) => exists(to) || symlinkSync(from, to);
+
+/** Mirrors the node_modules folder src into dest, flat (see the header). `main` is the main checkout. */
+function mirror(src: string, dest: string, own: Set<string>, main: string): void {
+  if (!isDir(src) || !realFolder(dest)) return;
+  for (const name of readdirSync(src)) {
+    const from = join(src, name);
+    const to = join(dest, name);
+    if (name === ".bin") {
+      if (!isDir(from) || !realFolder(to)) continue;
+      for (const bin of readdirSync(from)) {
+        // A bin that runs the main checkout's own code (docs-cli, codecaine-docs) would test the wrong tree.
+        let target = "";
+        try {
+          target = realpathSync(join(from, bin));
+        } catch {}
+        if (!inside(target, main)) linkMissing(join(from, bin), join(to, bin));
+      }
+    } else if (name.startsWith("@")) {
+      if (!isDir(from) || !realFolder(to)) continue;
+      for (const child of readdirSync(from)) {
+        if (child.startsWith("@") || (name === "@codecaine-ai" && own.has(child))) continue;
+        linkMissing(join(from, child), join(to, child));
+      }
+    } else if (!name.startsWith(".")) {
+      linkMissing(from, to);
+    }
+  }
+}
+
+/** Idempotent: in a worktree, mirrors the dependencies the main checkout has installed and this tree lacks. */
 export function linkDependencies(): void {
   const main = mainCheckout();
   if (!main) return;
-  const own = docsPackages().map(({ name }) => name.slice("@codecaine-ai/".length));
-  const ownLinks = (nodeModules: string) => new Set(own.map((name) => join(nodeModules, "@codecaine-ai", name)));
+  const own = new Set(docsPackages().map(({ name }) => name.slice("@codecaine-ai/".length)));
   for (const entry of readdirSync(join(main, "packages"), { withFileTypes: true })) {
     const pkg = join(root, "packages", entry.name);
-    const nodeModules = join(pkg, "node_modules");
-    if (entry.isDirectory() && isDir(pkg)) mirror(join(main, "packages", entry.name, "node_modules"), nodeModules, ownLinks(nodeModules));
+    if (entry.isDirectory() && isDir(pkg)) mirror(join(main, "packages", entry.name, "node_modules"), join(pkg, "node_modules"), own, main);
   }
+  mirror(join(main, "node_modules"), join(root, "node_modules"), own, main);
   // The nearest node_modules above the main checkout (core's). Mirror it only when this tree cannot climb to it.
   for (let dir = dirname(main); dir !== dirname(dir); dir = dirname(dir)) {
-    const shared = join(dir, "node_modules");
-    if (!isDir(shared)) continue;
-    if (!inside(realpathSync(root), realpathSync(dir))) mirror(shared, join(root, "node_modules"), ownLinks(join(root, "node_modules")));
+    if (!isDir(join(dir, "node_modules"))) continue;
+    if (!inside(realpathSync(root), dir)) mirror(join(dir, "node_modules"), join(root, "node_modules"), own, main);
     return;
   }
 }
